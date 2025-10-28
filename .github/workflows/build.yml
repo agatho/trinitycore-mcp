@@ -1,0 +1,57 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build TypeScript
+      run: npm run build
+
+    - name: Check for compilation errors
+      shell: bash
+      run: |
+        if npm run build 2>&1 | grep -q "error TS"; then
+          echo "❌ TypeScript compilation errors found"
+          exit 1
+        fi
+        echo "✅ Build successful - no TypeScript errors"
+
+    - name: List build artifacts
+      shell: bash
+      run: |
+        echo "Build artifacts:"
+        ls -la dist/
+        echo ""
+        echo "Tool files:"
+        ls -la dist/tools/
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ matrix.os }}-node${{ matrix.node-version }}
+        path: dist/
+        retention-days: 7
