@@ -1,0 +1,58 @@
+api:
+  class: Player
+  method: UpdateZone
+  signature: void Player::UpdateZone(uint32 newZone, uint32 newArea)
+documentation:
+  brief: Updates the player's zone and area information, triggering relevant game
+    state changes.
+  description: The UpdateZone method is responsible for updating a player's current
+    zone and area identifiers within the TrinityCore framework. This method is typically
+    invoked when a player moves from one geographical region to another in the game
+    world. It handles internal state updates such as zone-based quest tracking, area-trigger
+    activations, and client-side zone information synchronization. The method ensures
+    that all zone-related systems are aware of the player's new location, which may
+    affect gameplay mechanics like zone-specific buffs, debuffs, or restrictions.
+    This is an internal method used primarily by the core game engine during movement
+    processing.
+  parameters:
+  - name: newZone
+    description: The new zone identifier that the player has entered. This value corresponds
+      to the ZoneId from the game's zone database and determines zone-specific gameplay
+      mechanics.
+  - name: newArea
+    description: The new area identifier that the player has entered. This value corresponds
+      to the AreaId from the game's area database and is used for more granular location-based
+      systems such as area triggers, faction rep changes, or localized events.
+  returns: null
+  examples:
+  - title: Updating Player Zone During Movement
+    code: "void HandlePlayerMovement(Player* player, uint32 newZoneId, uint32 newAreaId)\n\
+      {\n    // Called internally by movement system when player crosses zone boundary\n\
+      \    player->UpdateZone(newZoneId, newAreaId);\n}"
+    language: cpp
+  - title: Zone Change with Quest State Update
+    code: "void OnPlayerZoneChange(Player* player, uint32 oldZone, uint32 newZone)\n\
+      {\n    // Update zone information\n    player->UpdateZone(newZone, player->GetAreaId());\n\
+      \    \n    // Trigger zone-specific quest updates\n    player->UpdateQuestZoneOrArea(newZone);\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore movement system
+    and should not be invoked directly by most game logic. The implementation handles
+    synchronization with the client's zone information and may trigger zone-based
+    events or quest updates. It does not perform any validation of the zone/area IDs
+    - it assumes valid values are passed.
+  warnings: Direct invocation of this method outside of core movement handling can
+    cause inconsistent game state. Zone and area identifiers must be valid database
+    entries, otherwise unexpected behavior may occur. This method should only be called
+    when a player has actually moved to a new zone/area, not for simulation purposes.
+  related:
+  - Player::GetZoneId
+  - Player::GetAreaId
+  - Player::UpdateQuestZoneOrArea
+  - Player::SendUpdateWorldState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T17:04:51.306204'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

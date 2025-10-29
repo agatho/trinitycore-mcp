@@ -1,0 +1,60 @@
+api:
+  class: Unit
+  method: CreateTamedPetFrom
+  signature: Pet * Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
+documentation:
+  brief: Creates and returns a tamed pet from the specified creature entry and spell
+    ID.
+  description: The CreateTamedPetFrom method instantiates a new pet object that is
+    tamed and associated with the calling Unit. This method is typically used when
+    a player or creature tames a wild creature, converting it into a controlled companion.
+    The pet will be created with default stats and behavior appropriate for the specified
+    creature entry, and will be bound to the unit that called this function. The spell_id
+    parameter determines the specific taming spell used, which may influence the pet's
+    initial state or abilities. This method does not automatically add the pet to
+    the unit's pet list; additional logic is required to properly manage the pet's
+    lifecycle and ownership.
+  parameters:
+  - name: creatureEntry
+    description: The entry ID of the creature type to be tamed as a pet. This corresponds
+      to the creature_template.entry field in the database.
+  - name: spell_id
+    description: The spell ID used for taming the creature. This determines the mechanics
+      and effects applied during the taming process, such as the required taming skill
+      or the pet's initial abilities.
+  returns: A pointer to the newly created Pet object if successful, or nullptr if
+    the operation fails due to invalid parameters, missing creature data, or other
+    internal errors.
+  examples:
+  - title: Basic usage for creating a tamed pet
+    code: "Pet* pet = player->CreateTamedPetFrom(20934, 67890);\nif (pet)\n{\n   \
+      \ // Successfully created pet\n    pet->SetOwner(player);\n    player->SetPet(pet);\n\
+      }"
+    language: cpp
+  - title: Creating a tamed pet with error handling
+    code: "uint32 creatureEntry = 12345;\nuint32 spellId = 67890;\nPet* pet = unit->CreateTamedPetFrom(creatureEntry,\
+      \ spellId);\nif (!pet)\n{\n    // Handle error case\n    sLog->outError(\"Failed\
+      \ to create tamed pet for creature %u with spell %u\", creatureEntry, spellId);\n\
+      \    return false;\n}\n// Further initialization and setup\npet->SetCreatorGUID(unit->GetGUID());\n\
+      pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(nullptr));\nreturn true;"
+    language: cpp
+  notes: This method creates a Pet object but does not automatically register it with
+    the unit's pet system. The caller must manually set up the pet's ownership and
+    add it to the unit's pet list using appropriate methods like SetPet() or AddPet().
+    The creature entry must exist in the creature_template table, and the spell_id
+    should correspond to a valid taming spell in the spell_template table.
+  warnings: This method does not perform any validation on the input parameters beyond
+    basic existence checks. Passing invalid creatureEntry or spell_id values may result
+    in undefined behavior or crashes. Always ensure that the creature exists in the
+    database and that the spell is a valid taming spell before calling this method.
+  related:
+  - Unit::SetPet
+  - Unit::GetPet
+  - Pet::SetOwner
+  - Pet::SetCreatorGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T16:46:12.128195'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

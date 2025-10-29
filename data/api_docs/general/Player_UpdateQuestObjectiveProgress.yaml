@@ -1,0 +1,85 @@
+api:
+  class: Player
+  method: UpdateQuestObjectiveProgress
+  signature: void Player::UpdateQuestObjectiveProgress(int objectiveType, int32 objectId,
+    int64 addCount, int victimGuid, int * updatedObjectives, const int * objectiveFilter)
+documentation:
+  brief: Updates the progress of a quest objective for the player based on specified
+    criteria.
+  description: The UpdateQuestObjectiveProgress method is used to update the progress
+    of a specific quest objective within the player's active quests. It modifies the
+    objective counter based on the provided parameters, such as objective type, object
+    ID, and count to add. This method is typically invoked when a player performs
+    actions that contribute to quest completion, like killing mobs, collecting items,
+    or interacting with game objects. The method ensures that quest progress is accurately
+    tracked and updated in the player's quest log. It supports filtering of objectives
+    through an optional filter array and updates the relevant objective states accordingly.
+  parameters:
+  - name: objectiveType
+    description: The type of quest objective being updated (e.g., kill, collect, interact).
+      Valid values are defined by the game's quest system and typically correspond
+      to predefined objective types.
+  - name: objectId
+    description: The identifier of the specific object related to the objective (e.g.,
+      creature entry ID or item ID). This helps identify which specific entity is
+      being tracked for progress.
+  - name: addCount
+    description: The amount by which to increment the objective counter. Can be positive
+      or negative, allowing for both progress and decrementing of objectives.
+  - name: victimGuid
+    description: The GUID of the victim (if applicable) when the objective involves
+      killing creatures. This is used to track kills related to specific quest objectives.
+  - name: updatedObjectives
+    description: Pointer to an array that will be filled with updated objective IDs
+      after processing. This allows external code to know which objectives were modified
+      during the update.
+  - name: objectiveFilter
+    description: Optional pointer to a filter array specifying which objectives should
+      be processed. If NULL, all objectives are considered for updates.
+  returns: null
+  examples:
+  - title: Update Kill Objective Progress
+    code: 'Player* player = ...;
+
+      int32 creatureEntry = 12345;
+
+      int64 killCount = 1;
+
+      int updatedObjectives[10];
+
+      player->UpdateQuestObjectiveProgress(0, creatureEntry, killCount, 0, updatedObjectives,
+      nullptr);'
+    language: cpp
+  - title: Update Item Collection Objective with Filter
+    code: 'Player* player = ...;
+
+      int32 itemEntry = 67890;
+
+      int64 itemCount = 5;
+
+      int updatedObjectives[10];
+
+      int filter[] = {1, 2, 3};
+
+      player->UpdateQuestObjectiveProgress(1, itemEntry, itemCount, 0, updatedObjectives,
+      filter);'
+    language: cpp
+  notes: This method is part of the core quest progression system and should only
+    be called when appropriate game events occur. It internally handles updating the
+    player's quest log and may trigger quest completion checks. The method does not
+    directly send updates to the client; it modifies internal state that will eventually
+    be synchronized.
+  warnings: Incorrect usage of objectiveType or objectId can lead to unexpected behavior
+    in quest progression. Always ensure that the values passed match valid entries
+    in the game's database. Passing NULL for updatedObjectives may cause undefined
+    behavior if not handled properly by calling code.
+  related:
+  - Player::GetQuestStatus
+  - Player::AddQuestObjective
+  - Player::CompleteQuest
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-29T17:18:27.210447'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

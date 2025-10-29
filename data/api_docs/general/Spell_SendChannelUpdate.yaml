@@ -1,0 +1,52 @@
+api:
+  class: Spell
+  method: SendChannelUpdate
+  signature: void Spell::SendChannelUpdate(uint32 time, int result)
+documentation:
+  brief: Sends a channel update packet to the player's client to reflect the current
+    state of a spell channel.
+  description: The SendChannelUpdate method is responsible for transmitting updated
+    information about an ongoing spell channel to the player's client. This includes
+    the remaining time on the channel and any result status (such as interruption
+    or completion). The method is typically invoked during spell casting when a channeling
+    spell is in progress, allowing the client to accurately display the countdown
+    timer and handle visual feedback. It ensures synchronization between server-side
+    spell state and client-side user interface elements for channeling spells like
+    Drain Life or Healing Stream Totem.
+  parameters:
+  - name: time
+    description: The remaining time in milliseconds for the spell channel. A value
+      of 0 indicates that the channel has completed or been interrupted.
+  - name: result
+    description: An integer representing the result status of the channel update.
+      Values typically indicate success, interruption, or other channel-related outcomes
+      (e.g., 0 for normal update, non-zero for errors or interruptions).
+  returns: null
+  examples:
+  - title: Basic usage in spell update loop
+    code: "void UpdateChannel()\n{\n    uint32 remainingTime = GetSpellDuration()\
+      \ - GetElapsedMilliseconds();\n    int channelResult = IsInterrupted() ? 1 :\
+      \ 0;\n    SendChannelUpdate(remainingTime, channelResult);\n}"
+    language: cpp
+  - title: Sending final channel update before completion
+    code: "void CompleteChannel()\n{\n    // Send final update with zero time to indicate\
+      \ completion\n    SendChannelUpdate(0, 0);\n    // Perform any post-channel\
+      \ actions here\n}"
+    language: cpp
+  notes: This method directly interacts with the client's network layer and should
+    only be called when a spell is actively channeling. It does not perform any validation
+    on input parameters; callers must ensure that time and result values are appropriate
+    for the current spell state.
+  warnings: Calling this method outside of an active channeling context may cause
+    unexpected behavior or client-side errors. The time parameter should never be
+    negative, as it could lead to incorrect UI rendering or packet corruption.
+  related:
+  - Spell::SendCastResult
+  - Spell::SendSpellStart
+  - Spell::SendSpellGo
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T16:50:30.169515'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: Unit
+  method: IsLoading
+  signature: bool Unit::IsLoading() const
+documentation:
+  brief: Checks if the unit is currently in a loading state, typically during map
+    or instance transitions.
+  description: The IsLoading method determines whether a Unit object is currently
+    in a transitional state where it is being loaded or unloaded from the game world.
+    This commonly occurs when a player is entering a new zone, teleporting, or when
+    an NPC is being spawned or despawned. The method returns true if the unit's loading
+    process is active and false otherwise. This check is essential for preventing
+    operations on units that are not yet fully initialized or are in the process of
+    being removed from the game world.
+  parameters: []
+  returns: Returns true if the unit is currently loading (e.g., during map transition,
+    teleportation, or spawn/despawn process), false otherwise. This indicates the
+    unit's state is transitional and not fully active in the game world.
+  examples:
+  - title: Basic usage to prevent operations on loading units
+    code: "if (!unit->IsLoading()) {\n    // Safe to perform actions on the unit\n\
+      \    unit->CastSpell(target, SPELL_FIREBALL, true);\n} else {\n    // Skip action\
+      \ while unit is loading\n    sLog->outString(\"Unit is currently loading, skipping\
+      \ spell cast\");\n}"
+    language: cpp
+  - title: Using IsLoading in AI behavior to avoid invalid actions
+    code: "class CustomAI : public ScriptedAI {\npublic:\n    void UpdateAI(uint32\
+      \ diff) override {\n        if (me->IsLoading())\n            return; // Skip\
+      \ all AI logic during loading\n        \n        if (!UpdateVictim())\n    \
+      \        return;\n        \n        // Normal AI behavior here\n        DoMeleeAttackIfReady();\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is primarily used internally by the TrinityCore framework to
+    manage unit lifecycle states. It's particularly important for AI scripts and event
+    handlers that might otherwise attempt operations on units that are not yet ready
+    or are in transition. The loading state typically occurs during zone changes,
+    instance creation/destruction, or when units are being respawned.
+  warnings: Using this method is crucial to prevent crashes or undefined behavior
+    when performing actions on units that are transitioning between game states. Avoid
+    performing critical operations like spell casting, movement, or combat logic without
+    checking IsLoading() first.
+  related:
+  - IsInWorld
+  - IsAlive
+  - IsDead
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T16:40:41.064949'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

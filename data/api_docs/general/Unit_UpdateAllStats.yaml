@@ -1,0 +1,57 @@
+api:
+  class: Unit
+  method: UpdateAllStats
+  signature: bool Unit::UpdateAllStats()
+documentation:
+  brief: Updates all statistics and attributes for the unit, recalculating derived
+    values such as health, mana, and combat stats.
+  description: The UpdateAllStats method recalculates and applies all statistical
+    modifiers and attribute values for a Unit object. This includes updating base
+    stats, temporary bonuses, gear modifiers, buffs, debuffs, and any other factors
+    that influence the unit's combat effectiveness or resource pools. The method ensures
+    that all derived statistics such as maximum health, mana, attack power, armor,
+    and spell damage are accurately reflected based on current state. It is typically
+    invoked when a unit's equipment changes, when status effects are applied or removed,
+    or during initialization of the unit's stats. This method may trigger updates
+    to the client-side UI and network synchronization if the unit is a player or controlled
+    by a player.
+  parameters: []
+  returns: Returns true if the stat update was successful and all values were recalculated;
+    returns false if an error occurred during the update process, though this is rare
+    in standard operation.
+  examples:
+  - title: Basic usage to refresh unit stats
+    code: "Unit* unit = player->GetVehicleBase();\nif (unit)\n{\n    bool success\
+      \ = unit->UpdateAllStats();\n    if (success)\n        TC_LOG_DEBUG(\"entities.player\"\
+      , \"Unit stats updated successfully.\");\n    else\n        TC_LOG_ERROR(\"\
+      entities.player\", \"Failed to update unit stats.\");\n}"
+    language: cpp
+  - title: Updating stats after equipment change
+    code: "Player* player = ObjectAccessor::FindPlayer(playerGuid);\nif (player)\n\
+      {\n    // After equipping new item or removing an item\n    player->UpdateAllStats();\n\
+      \    player->SendUpdateWorldState(PLAYER_FIELD_MAX_LEVEL, player->GetUInt32Value(PLAYER_FIELD_MAX_LEVEL));\n\
+      }"
+    language: cpp
+  notes: This method is computationally expensive as it recalculates all derived stats.
+    It should not be called excessively during gameplay loops. The method internally
+    calls UpdateStats() for each stat type, and may trigger additional callbacks or
+    event notifications depending on the unit type. For NPCs, this often occurs after
+    AI decisions or spell casts that modify their stats.
+  warnings: Calling UpdateAllStats() frequently can cause performance degradation
+    in high-frequency scenarios such as combat or during rapid item swaps. Avoid calling
+    it in tight loops or without checking if stat changes are actually needed. Also
+    note that for players, calling this method may result in UI refreshes and network
+    traffic, so use judiciously.
+  related:
+  - UpdateStats
+  - SetStat
+  - GetMaxHealth
+  - GetMaxPower
+  - AddAura
+  - RemoveAura
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T16:30:52.564237'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

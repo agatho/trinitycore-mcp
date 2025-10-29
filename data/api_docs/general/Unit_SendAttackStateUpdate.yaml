@@ -1,0 +1,86 @@
+api:
+  class: Unit
+  method: SendAttackStateUpdate
+  signature: void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit * target, uint8
+    SwingType, int damageSchoolMask, uint32 Damage, uint32 AbsorbDamage, uint32 Resist,
+    VictimState TargetState, uint32 BlockedAmount, uint32 RageGained)
+documentation:
+  brief: Sends an attack state update packet to the client for the unit's current
+    attack action.
+  description: The SendAttackStateUpdate method is responsible for transmitting attack-related
+    information from the server to the client, allowing the client to visually represent
+    the outcome of an attack. This includes details such as hit status, damage dealt,
+    absorbs, resistances, and other combat metrics. The method is typically invoked
+    during combat when a unit performs an attack or receives an attack. It uses various
+    parameters to define the specifics of the attack state being communicated to the
+    client. This method plays a crucial role in maintaining synchronization between
+    server-side combat calculations and client-side visual feedback.
+  parameters:
+  - name: HitInfo
+    description: Bitmask indicating the result of the attack, such as whether it was
+      a hit, miss, dodge, parry, block, critical strike, or glancing blow.
+  - name: target
+    description: Pointer to the target Unit that was attacked. This parameter is essential
+      for determining which unit receives the visual feedback and combat data.
+  - name: SwingType
+    description: Indicates the type of swing being performed, such as main hand, off-hand,
+      or ranged attack. Values typically correspond to predefined swing types in the
+      game engine.
+  - name: damageSchoolMask
+    description: Bitmask representing the damage school (physical, fire, frost, shadow,
+      etc.) associated with the attack. Used for determining visual effects and damage
+      type display.
+  - name: Damage
+    description: Total damage amount dealt by the attack. This value is used to update
+      the target's health bar and display damage numbers on the client.
+  - name: AbsorbDamage
+    description: Amount of damage absorbed by the target, typically through abilities
+      like absorb shields or damage reduction effects.
+  - name: Resist
+    description: Amount of damage resisted by the target, usually due to spell resistance
+      or armor mitigation.
+  - name: TargetState
+    description: Represents the state of the target after the attack (e.g., alive,
+      dead, stunned, etc.). Used for proper combat feedback and animations.
+  - name: BlockedAmount
+    description: Amount of damage blocked by the target, typically from a shield or
+      blocking ability. This is distinct from absorb effects.
+  - name: RageGained
+    description: Amount of rage gained by the attacker as a result of the attack,
+      relevant for warrior and other rage-based classes.
+  returns: null
+  examples:
+  - title: Basic Attack State Update
+    code: 'Unit* attacker = ...;
+
+      Unit* target = ...;
+
+      attacker->SendAttackStateUpdate(HITINFO_NORMAL, target, ATTACK_SWING_TYPE_MAIN,
+      SPELL_SCHOOL_MASK_NORMAL, 100, 0, 0, VICTIMSTATE_NORMAL, 0, 5);'
+    language: cpp
+  - title: Critical Strike with Absorb and Block
+    code: 'Unit* attacker = ...;
+
+      Unit* target = ...;
+
+      attacker->SendAttackStateUpdate(HITINFO_CRITICAL, target, ATTACK_SWING_TYPE_OFF,
+      SPELL_SCHOOL_MASK_FIRE, 250, 50, 25, VICTIMSTATE_NORMAL, 10, 10);'
+    language: cpp
+  notes: This method directly sends a packet to the client and should be used carefully
+    in performance-sensitive contexts. It is typically called within combat routines
+    after damage calculations are complete. The parameters must be correctly set according
+    to the attack outcome to ensure accurate visual feedback.
+  warnings: Incorrectly setting the HitInfo or other parameters can lead to incorrect
+    client-side combat visuals, such as showing a miss when it was actually a hit,
+    or displaying wrong damage types. Ensure that all values are consistent with the
+    actual combat result before calling this method.
+  related:
+  - Unit::DealDamage
+  - Unit::SendCombatLogMessage
+  - Unit::HandleAttack
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T16:39:15.639193'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

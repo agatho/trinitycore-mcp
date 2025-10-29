@@ -1,0 +1,55 @@
+api:
+  class: WorldObject
+  method: UpdateObjectVisibility
+  signature: void WorldObject::UpdateObjectVisibility(bool forced)
+documentation:
+  brief: Updates the visibility state of the object for nearby players, recalculating
+    which players can see this object based on its current position and environment.
+  description: The UpdateObjectVisibility method is responsible for recalculating
+    and updating the visibility status of a WorldObject within the game world. It
+    determines which players or creatures are currently able to see this object based
+    on factors such as distance, line of sight, terrain, and object type. This method
+    is typically invoked when an object's position changes or when its visibility
+    state needs to be refreshed. The 'forced' parameter allows for overriding normal
+    visibility checks, which can be useful in special circumstances like teleportation
+    or specific game events where immediate visibility updates are required. This
+    method plays a crucial role in maintaining the integrity of the game world's client-side
+    rendering and network synchronization.
+  parameters:
+  - name: forced
+    description: When set to true, forces an immediate visibility update regardless
+      of normal visibility calculation rules. When false, performs standard visibility
+      checks based on object state and position.
+  returns: null
+  examples:
+  - title: Basic Visibility Update
+    code: "WorldObject* obj = player->GetMap()->GetGameObject(12345);\nif (obj)\n\
+      {\n    obj->UpdateObjectVisibility(false);\n}"
+    language: cpp
+  - title: Forced Visibility Update for Teleportation
+    code: 'Player* player = ...;
+
+      player->TeleportTo(123, 100.0f, 200.0f, 300.0f, 0.0f);
+
+      player->UpdateObjectVisibility(true); // Force immediate visibility update'
+    language: cpp
+  notes: This method is typically called automatically by the core when object positions
+    change, but can be manually invoked for special cases. It internally manages the
+    AddObject and RemoveObject operations for nearby players. Performance-wise, this
+    method should be used judiciously as it involves iterating through nearby objects
+    and potentially sending updates to multiple clients.
+  warnings: Calling this method with 'forced=true' excessively can cause performance
+    issues due to unnecessary network traffic. Avoid calling it in tight loops or
+    high-frequency update scenarios without careful consideration of the impact on
+    server performance.
+  related:
+  - UpdateVisibilityForPlayer
+  - AddToVisibleList
+  - RemoveFromVisibleList
+  - IsWithinVisibleDistance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T16:07:53.701855'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: Unit
+  method: UpdateAuraForGroup
+  signature: void Unit::UpdateAuraForGroup()
+documentation:
+  brief: Updates aura information for all group members within the unit's current
+    group context.
+  description: The UpdateAuraForGroup method synchronizes and refreshes aura states
+    for all players in the same group as the calling Unit. This function is typically
+    invoked when a player's auras change, ensuring that group members receive updated
+    visual and functional effects related to shared auras such as buffs, debuffs,
+    or group-specific effects. The method iterates through the unit's current group
+    members and updates their aura data accordingly, maintaining synchronization between
+    the server state and client-side rendering. This is essential for maintaining
+    accurate gameplay mechanics in group scenarios where auras affect multiple players
+    simultaneously.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Aura Change Handler
+    code: "void OnAuraApply(Unit* target, Aura* aura)\n{\n    // When an aura is applied\
+      \ to a unit\n    target->UpdateAuraForGroup();\n}"
+    language: cpp
+  - title: Updating Group Auras After Buff Application
+    code: "void ApplyGroupBuff(Player* player, SpellInfo const* spellInfo)\n{\n  \
+      \  // Apply buff to player\n    player->AddAura(spellInfo, player);\n    \n\
+      \    // Update aura information for all group members\n    if (Group* group\
+      \ = player->GetGroup())\n    {\n        for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n             itr != group->GetMemberSlots().end();\
+      \ ++itr)\n        {\n            Player* member = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \            if (member && member->IsInWorld())\n                member->UpdateAuraForGroup();\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used internally by the TrinityCore framework to
+    maintain group aura synchronization. It should not typically be called directly
+    from custom scripts unless implementing specific group-based aura mechanics. The
+    function may trigger network updates for client-side aura rendering, so performance
+    considerations apply when dealing with large groups.
+  warnings: Calling this method excessively or without proper group context can lead
+    to unnecessary network traffic and performance degradation. Ensure that the unit
+    has a valid group context before invoking this method to avoid potential null
+    pointer exceptions or incorrect behavior.
+  related:
+  - Unit::AddAura
+  - Unit::RemoveAura
+  - Unit::GetGroup
+  - Player::UpdateWorldState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T16:28:24.277181'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
