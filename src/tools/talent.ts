@@ -693,7 +693,9 @@ export function recommendTalentRespec(
   // Add build score difference (if current build matches a known build)
   for (const buildKey in TALENT_BUILDS) {
     const build = TALENT_BUILDS[buildKey];
-    const matches = currentTalents.filter((t, i) => t === build.talents[i]).length;
+    if (!build.talents || !build.score) continue;
+
+    const matches = currentTalents.filter((t, i) => t === build.talents![i]).length;
 
     if (matches >= 5) {
       // Current build is similar to a known build
