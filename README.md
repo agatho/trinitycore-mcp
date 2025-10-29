@@ -1,6 +1,15 @@
 # TrinityCore MCP Server
 
-Custom Model Context Protocol server providing TrinityCore-specific tools for game data access, DBC/DB2 file reading, and API documentation.
+[![Build](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml)
+[![Code Quality](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml)
+[![Version](https://img.shields.io/badge/version-1.0.0--alpha-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
+[![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Issues](https://img.shields.io/github/issues/agatho/trinitycore-mcp)](https://github.com/agatho/trinitycore-mcp/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/agatho/trinitycore-mcp/pulls)
+
+> Custom Model Context Protocol server providing 21 enterprise-grade tools for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
 
 ## Features
 
