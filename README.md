@@ -47,7 +47,7 @@
 ## Installation
 
 ```bash
-cd C:\TrinityBots\trinity-mcp-server
+cd C:\TrinityBots\trinitycore-mcp
 npm install
 npm run build
 ```
@@ -73,6 +73,7 @@ MCP_PORT=3000
 npm start
 ```
 
+**For detailed configuration instructions, see [MCP_CONFIGURATION.md](MCP_CONFIGURATION.md)**
 ### Configure in Claude Code
 
 Add to `.claude/mcp-servers-config.json`:
@@ -80,7 +81,7 @@ Add to `.claude/mcp-servers-config.json`:
 {
   "trinitycore": {
     "command": "node",
-    "args": ["C:\\TrinityBots\\trinity-mcp-server\\dist\\index.js"],
+    "args": ["C:\\TrinityBots\\trinitycore-mcp\\dist\\index.js"],
     "env": {
       "TRINITY_DB_HOST": "localhost",
       "TRINITY_DB_USER": "trinity",
@@ -349,7 +350,7 @@ Get character stats for a level:
 
 ### Project Structure
 ```
-trinity-mcp-server/
+trinitycore-mcp/
 ├── src/
 │   ├── index.ts           # Main server entry point
 │   ├── tools/

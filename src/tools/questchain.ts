@@ -395,8 +395,24 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
 
   const reputationRewards = await queryWorld(repQuery, [questId]);
 
-  // TODO: Implement best choice logic for class
+  // Determine best choice reward for class if class is provided
   let bestChoiceForClass: QuestReward["bestChoiceForClass"];
+  if (classId && choiceRewards && choiceRewards.length > 0) {
+    bestChoiceForClass = await determineBestQuestReward(choiceRewards, classId);
+  }
+
+  // Enrich choice rewards with item details
+  const enrichedChoiceRewards = await Promise.all(
+    (choiceRewards || []).map(async (r: any) => {
+      const itemStats = await getItemStatsForReward(r.itemId);
+      return {
+        itemId: r.itemId,
+        quantity: r.quantity,
+        itemLevel: itemStats.itemLevel || 0,
+        estimatedValue: itemStats.sellPrice || 0,
+      };
+    })
+  );
 
   return {
     questId: quest.questId,
@@ -405,16 +421,303 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
     rewardMoney: quest.rewardMoney || 0,
     rewardXPDifficulty: quest.rewardXPDifficulty || 0,
     rewardMoneyDifficulty: quest.rewardMoneyDifficulty || 0,
-    choiceRewards: (choiceRewards || []).map((r: any) => ({
-      itemId: r.itemId,
-      quantity: r.quantity,
-      itemLevel: 0,
-      estimatedValue: 0
-    })),
+    choiceRewards: enrichedChoiceRewards,
     rewards: rewards || [],
     reputationRewards: reputationRewards || [],
     currencyRewards: [],
-    bestChoiceForClass
+    bestChoiceForClass,
+  };
+}
+
+/**
+ * Stat weights for each class/role
+ * Higher value = more important stat for that class
+ */
+const CLASS_STAT_PRIORITIES: { [classId: number]: { [stat: string]: number } } = {
+  // 1: Warrior
+  1: {
+    strength: 1.0,
+    stamina: 0.8,
+    criticalStrike: 0.7,
+    haste: 0.6,
+    mastery: 0.7,
+    versatility: 0.5,
+    armor: 0.9,
+  },
+  // 2: Paladin
+  2: {
+    strength: 1.0,
+    stamina: 0.8,
+    intellect: 0.3, // For Holy
+    criticalStrike: 0.6,
+    haste: 0.7,
+    mastery: 0.6,
+    versatility: 0.5,
+    armor: 0.9,
+  },
+  // 3: Hunter
+  3: {
+    agility: 1.0,
+    stamina: 0.6,
+    criticalStrike: 0.8,
+    haste: 0.7,
+    mastery: 0.7,
+    versatility: 0.5,
+  },
+  // 4: Rogue
+  4: {
+    agility: 1.0,
+    stamina: 0.6,
+    criticalStrike: 0.8,
+    haste: 0.7,
+    mastery: 0.7,
+    versatility: 0.6,
+  },
+  // 5: Priest
+  5: {
+    intellect: 1.0,
+    stamina: 0.7,
+    criticalStrike: 0.6,
+    haste: 0.8,
+    mastery: 0.6,
+    versatility: 0.5,
+  },
+  // 6: Death Knight
+  6: {
+    strength: 1.0,
+    stamina: 0.8,
+    criticalStrike: 0.7,
+    haste: 0.7,
+    mastery: 0.7,
+    versatility: 0.5,
+    armor: 0.9,
+  },
+  // 7: Shaman
+  7: {
+    intellect: 0.7, // For Ele/Resto
+    agility: 0.7, // For Enh
+    stamina: 0.7,
+    criticalStrike: 0.7,
+    haste: 0.7,
+    mastery: 0.6,
+    versatility: 0.5,
+  },
+  // 8: Mage
+  8: {
+    intellect: 1.0,
+    stamina: 0.6,
+    criticalStrike: 0.8,
+    haste: 0.8,
+    mastery: 0.7,
+    versatility: 0.5,
+  },
+  // 9: Warlock
+  9: {
+    intellect: 1.0,
+    stamina: 0.6,
+    criticalStrike: 0.7,
+    haste: 0.8,
+    mastery: 0.7,
+    versatility: 0.5,
+  },
+  // 10: Monk
+  10: {
+    agility: 0.7,
+    intellect: 0.3, // For Mistweaver
+    stamina: 0.7,
+    criticalStrike: 0.7,
+    haste: 0.7,
+    mastery: 0.6,
+    versatility: 0.6,
+    armor: 0.5,
+  },
+  // 11: Druid
+  11: {
+    agility: 0.6, // For Feral/Guardian
+    intellect: 0.6, // For Balance/Resto
+    stamina: 0.7,
+    criticalStrike: 0.7,
+    haste: 0.7,
+    mastery: 0.6,
+    versatility: 0.5,
+    armor: 0.6,
+  },
+  // 12: Demon Hunter
+  12: {
+    agility: 1.0,
+    stamina: 0.7,
+    criticalStrike: 0.8,
+    haste: 0.7,
+    mastery: 0.6,
+    versatility: 0.6,
+  },
+  // 13: Evoker
+  13: {
+    intellect: 1.0,
+    stamina: 0.7,
+    criticalStrike: 0.7,
+    haste: 0.7,
+    mastery: 0.7,
+    versatility: 0.6,
+  },
+};
+
+/**
+ * Get item stats for quest reward analysis
+ */
+async function getItemStatsForReward(itemId: number): Promise<any> {
+  try {
+    const query = `
+      SELECT
+        ItemID as itemId,
+        Class as itemClass,
+        SubClass as itemSubClass,
+        InventoryType as inventoryType,
+        ItemLevel as itemLevel,
+        RequiredLevel as requiredLevel,
+        SellPrice as sellPrice,
+        Quality as quality,
+        BonusStats as bonusStats
+      FROM item_template
+      WHERE ItemID = ?
+      LIMIT 1
+    `;
+
+    const results = await queryWorld(query, [itemId]);
+
+    if (!results || results.length === 0) {
+      return { itemId, itemLevel: 0, sellPrice: 0, stats: {} };
+    }
+
+    const item = results[0];
+
+    // Parse item stats (simplified - real implementation would parse all stat fields)
+    const stats: { [key: string]: number } = {};
+
+    // Get primary stats from item stat fields
+    const statQuery = `
+      SELECT
+        stat_type1, stat_value1,
+        stat_type2, stat_value2,
+        stat_type3, stat_value3,
+        stat_type4, stat_value4,
+        stat_type5, stat_value5,
+        stat_type6, stat_value6,
+        stat_type7, stat_value7,
+        stat_type8, stat_value8,
+        stat_type9, stat_value9,
+        stat_type10, stat_value10,
+        armor
+      FROM item_template
+      WHERE ItemID = ?
+    `;
+
+    const statResults = await queryWorld(statQuery, [itemId]);
+
+    if (statResults && statResults.length > 0) {
+      const itemStats = statResults[0];
+
+      // Map stat types to stat names
+      const statTypeMap: { [key: number]: string } = {
+        3: "agility",
+        4: "strength",
+        5: "intellect",
+        7: "stamina",
+        32: "criticalStrike",
+        36: "haste",
+        40: "versatility",
+        49: "mastery",
+      };
+
+      // Extract all stats
+      for (let i = 1; i <= 10; i++) {
+        const statType = itemStats[`stat_type${i}`];
+        const statValue = itemStats[`stat_value${i}`];
+
+        if (statType && statValue && statTypeMap[statType]) {
+          const statName = statTypeMap[statType];
+          stats[statName] = (stats[statName] || 0) + statValue;
+        }
+      }
+
+      // Add armor if present
+      if (itemStats.armor) {
+        stats.armor = itemStats.armor;
+      }
+    }
+
+    return {
+      ...item,
+      stats,
+    };
+  } catch (error) {
+    return { itemId, itemLevel: 0, sellPrice: 0, stats: {} };
+  }
+}
+
+/**
+ * Determine the best quest reward choice for a given class
+ * Based on stat weights and item quality
+ */
+async function determineBestQuestReward(
+  choiceRewards: any[],
+  classId: number
+): Promise<{ classId: number; itemId: number; reason: string }> {
+  const statPriorities = CLASS_STAT_PRIORITIES[classId] || CLASS_STAT_PRIORITIES[1]; // Default to Warrior
+
+  let bestItemId = 0;
+  let bestScore = 0;
+  let bestReason = "";
+
+  for (const reward of choiceRewards) {
+    const itemDetails = await getItemStatsForReward(reward.itemId);
+    const stats = itemDetails.stats || {};
+
+    // Calculate item score based on stat priorities
+    let itemScore = 0;
+    const statContributions: string[] = [];
+
+    for (const [statName, statValue] of Object.entries(stats)) {
+      const statWeight = statPriorities[statName] || 0;
+      const contribution = (statValue as number) * statWeight;
+      itemScore += contribution;
+
+      if (contribution > 0 && (statValue as number) > 0) {
+        statContributions.push(`${statValue} ${statName}`);
+      }
+    }
+
+    // Bonus for higher item level
+    itemScore += (itemDetails.itemLevel || 0) * 0.5;
+
+    // Bonus for higher quality
+    const qualityBonus = {
+      0: 0, // Poor (gray)
+      1: 1, // Common (white)
+      2: 2, // Uncommon (green)
+      3: 5, // Rare (blue)
+      4: 10, // Epic (purple)
+      5: 20, // Legendary (orange)
+    };
+    itemScore += qualityBonus[itemDetails.quality as keyof typeof qualityBonus] || 0;
+
+    if (itemScore > bestScore) {
+      bestScore = itemScore;
+      bestItemId = reward.itemId;
+
+      // Build reason string
+      const qualityNames = ["Poor", "Common", "Uncommon", "Rare", "Epic", "Legendary"];
+      const qualityName = qualityNames[itemDetails.quality] || "Unknown";
+
+      const topStats = statContributions.slice(0, 3).join(", ");
+      bestReason = `${qualityName} item (iLvl ${itemDetails.itemLevel || 0}) with best stats for class: ${topStats || "no stats"}`;
+    }
+  }
+
+  return {
+    classId,
+    itemId: bestItemId || (choiceRewards[0]?.itemId || 0),
+    reason: bestReason || "No suitable item stats found, selecting first reward",
   };
 }
 
