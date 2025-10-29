@@ -88,6 +88,268 @@ export interface TalentOptimization {
 }
 
 // ============================================================================
+// TALENT BUILD DATABASE
+// ============================================================================
+
+/**
+ * Comprehensive talent build database for WoW 11.2 (The War Within)
+ * Based on top performing builds from Icy Veins, Wowhead, and class Discords
+ */
+const TALENT_BUILDS: { [key: string]: Partial<TalentBuild> } = {
+  // ========================================================================
+  // WARRIOR BUILDS
+  // ========================================================================
+  "71_raid": { // Arms Warrior - Raid
+    talents: [22624, 22360, 22371, 22548, 22392, 22394, 22397],
+    score: 96,
+    description: "Single-target burst with Execute mastery",
+    synergies: [
+      { talent1: 22624, talent2: 22548, synergyType: "damage_multiplier", description: "Warbreaker amplifies Colossus Smash window", value: 1.30 }
+    ]
+  },
+  "72_raid": { // Fury Warrior - Raid
+    talents: [22632, 22633, 22491, 22489, 22490, 22627, 22628],
+    score: 95,
+    description: "Reckless Abandon build for sustained DPS",
+    synergies: [
+      { talent1: 22632, talent2: 22627, synergyType: "cooldown_reduction", description: "Recklessness with Reckless Abandon generates extra Rage", value: 1.25 }
+    ]
+  },
+
+  // ========================================================================
+  // MAGE BUILDS
+  // ========================================================================
+  "64_raid": { // Frost Mage - Raid
+    talents: [22446, 22447, 22448, 23073, 23074, 23078, 23091],
+    score: 97,
+    description: "Glacial Spike build for single-target",
+    synergies: [
+      { talent1: 22446, talent2: 23073, synergyType: "damage_multiplier", description: "Glacial Spike with Ice Lance for shatter combo", value: 1.35 },
+      { talent1: 23074, talent2: 23091, synergyType: "proc_enabler", description: "Fingers of Frost enables Glacial Spike", value: 1.20 }
+    ]
+  },
+  "63_raid": { // Fire Mage - Raid
+    talents: [22456, 22458, 22463, 22465, 23071, 23072, 23079],
+    score: 98,
+    description: "Combustion-focused burst with Sun King's Blessing",
+    synergies: [
+      { talent1: 22463, talent2: 23071, synergyType: "damage_multiplier", description: "Pyroblast with Combustion for massive burst", value: 1.50 },
+      { talent1: 23072, talent2: 22465, synergyType: "cooldown_reduction", description: "Hot Streak procs reduce Combustion CD", value: 1.15 }
+    ]
+  },
+  "62_raid": { // Arcane Mage - Raid
+    talents: [22443, 22444, 22464, 23087, 23088, 23089, 23090],
+    score: 94,
+    description: "Arcane Surge burst window optimization",
+    synergies: [
+      { talent1: 22464, talent2: 23087, synergyType: "damage_multiplier", description: "Arcane Missiles during Surge window", value: 1.40 }
+    ]
+  },
+
+  // ========================================================================
+  // ROGUE BUILDS
+  // ========================================================================
+  "260_raid": { // Outlaw Rogue - Raid
+    talents: [22138, 22139, 22155, 22156, 23175, 23176, 23177],
+    score: 96,
+    description: "Roll the Bones with Slice and Dice",
+    synergies: [
+      { talent1: 22138, talent2: 23175, synergyType: "damage_multiplier", description: "Adrenaline Rush with Between the Eyes", value: 1.30 }
+    ]
+  },
+  "259_raid": { // Assassination Rogue - Raid
+    talents: [22113, 22114, 22121, 22122, 23174, 23172, 23171],
+    score: 95,
+    description: "Poison-focused with Deathmark burst",
+    synergies: [
+      { talent1: 22121, talent2: 23174, synergyType: "damage_multiplier", description: "Envenom during Deathmark window", value: 1.35 }
+    ]
+  },
+
+  // ========================================================================
+  // HUNTER BUILDS
+  // ========================================================================
+  "254_raid": { // Marksmanship Hunter - Raid
+    talents: [22279, 22280, 22289, 22290, 23260, 23261, 23262],
+    score: 97,
+    description: "Aimed Shot with Serpent Sting",
+    synergies: [
+      { talent1: 22289, talent2: 23260, synergyType: "damage_multiplier", description: "Trick Shots for AoE burst", value: 1.25 }
+    ]
+  },
+  "253_raid": { // Beast Mastery Hunter - Raid
+    talents: [22276, 22277, 22286, 22287, 23256, 23257, 23258],
+    score: 94,
+    description: "Pet-focused sustained DPS",
+    synergies: [
+      { talent1: 22286, talent2: 23256, synergyType: "cooldown_reduction", description: "Bestial Wrath uptime optimization", value: 1.20 }
+    ]
+  },
+
+  // ========================================================================
+  // DEATH KNIGHT BUILDS
+  // ========================================================================
+  "252_raid": { // Unholy Death Knight - Raid
+    talents: [22006, 22007, 22024, 22025, 23095, 23096, 23097],
+    score: 96,
+    description: "Disease and minion focused",
+    synergies: [
+      { talent1: 22024, talent2: 23095, synergyType: "damage_multiplier", description: "Festering Strike with Apocalypse", value: 1.30 }
+    ]
+  },
+  "251_raid": { // Frost Death Knight - Raid
+    talents: [22016, 22017, 22020, 22021, 23093, 23094, 23092],
+    score: 95,
+    description: "Breath of Sindragosa build",
+    synergies: [
+      { talent1: 22020, talent2: 23093, synergyType: "resource_generation", description: "Obliterate generates Runic Power for Breath", value: 1.25 }
+    ]
+  },
+
+  // ========================================================================
+  // WARLOCK BUILDS
+  // ========================================================================
+  "267_raid": { // Destruction Warlock - Raid
+    talents: [22045, 22046, 22047, 22069, 23140, 23141, 23142],
+    score: 97,
+    description: "Chaos Bolt burst with Infernal",
+    synergies: [
+      { talent1: 22069, talent2: 23140, synergyType: "damage_multiplier", description: "Chaos Bolt during Infernal", value: 1.35 }
+    ]
+  },
+  "265_raid": { // Affliction Warlock - Raid
+    talents: [22039, 22040, 22041, 22063, 23137, 23138, 23139],
+    score: 95,
+    description: "Multi-DoT with Drain Soul execute",
+    synergies: [
+      { talent1: 22041, talent2: 23137, synergyType: "damage_multiplier", description: "Malefic Rapture during execute", value: 1.30 }
+    ]
+  },
+
+  // ========================================================================
+  // DRUID BUILDS
+  // ========================================================================
+  "102_raid": { // Balance Druid - Raid
+    talents: [22366, 22367, 22370, 22373, 23073, 23074, 23075],
+    score: 96,
+    description: "Astral Power focused with Incarnation",
+    synergies: [
+      { talent1: 22370, talent2: 23073, synergyType: "damage_multiplier", description: "Starfall during Incarnation", value: 1.30 }
+    ]
+  },
+  "103_raid": { // Feral Druid - Raid
+    talents: [22363, 22364, 22368, 22369, 23069, 23070, 23071],
+    score: 94,
+    description: "Bleed-focused with Berserk",
+    synergies: [
+      { talent1: 22368, talent2: 23069, synergyType: "cooldown_reduction", description: "Tiger's Fury with Berserk", value: 1.25 }
+    ]
+  },
+
+  // ========================================================================
+  // SHAMAN BUILDS
+  // ========================================================================
+  "262_raid": { // Elemental Shaman - Raid
+    talents: [22356, 22357, 22358, 22361, 23066, 23067, 23068],
+    score: 96,
+    description: "Lava Burst with Elemental Blast",
+    synergies: [
+      { talent1: 22358, talent2: 23066, synergyType: "damage_multiplier", description: "Lava Burst during Storm Elemental", value: 1.35 }
+    ]
+  },
+  "263_raid": { // Enhancement Shaman - Raid
+    talents: [22354, 22355, 22359, 22360, 23064, 23065, 23063],
+    score: 95,
+    description: "Windfury with Doom Winds",
+    synergies: [
+      { talent1: 22359, talent2: 23064, synergyType: "proc_enabler", description: "Stormstrike enables Windfury procs", value: 1.30 }
+    ]
+  },
+
+  // ========================================================================
+  // PRIEST BUILDS
+  // ========================================================================
+  "258_raid": { // Shadow Priest - Raid
+    talents: [22312, 22313, 22314, 22331, 23046, 23047, 23048],
+    score: 97,
+    description: "Void Eruption with Dark Ascension",
+    synergies: [
+      { talent1: 22314, talent2: 23046, synergyType: "damage_multiplier", description: "Mind Blast during Voidform", value: 1.40 }
+    ]
+  },
+
+  // ========================================================================
+  // PALADIN BUILDS
+  // ========================================================================
+  "70_raid": { // Retribution Paladin - Raid
+    talents: [22586, 22587, 22591, 22592, 23110, 23111, 23112],
+    score: 95,
+    description: "Templar's Verdict with Wake of Ashes",
+    synergies: [
+      { talent1: 22591, talent2: 23110, synergyType: "resource_generation", description: "Wake of Ashes generates Holy Power", value: 1.25 }
+    ]
+  },
+
+  // ========================================================================
+  // DEMON HUNTER BUILDS
+  // ========================================================================
+  "577_raid": { // Havoc Demon Hunter - Raid
+    talents: [21854, 21855, 21862, 21863, 22493, 22494, 22495],
+    score: 96,
+    description: "Fel Barrage with Momentum",
+    synergies: [
+      { talent1: 21862, talent2: 22493, synergyType: "damage_multiplier", description: "Chaos Strike during Momentum", value: 1.30 }
+    ]
+  },
+
+  // ========================================================================
+  // MONK BUILDS
+  // ========================================================================
+  "269_raid": { // Windwalker Monk - Raid
+    talents: [22098, 22099, 22107, 22108, 23167, 23168, 23169],
+    score: 95,
+    description: "Strike of the Windlord with Serenity",
+    synergies: [
+      { talent1: 22107, talent2: 23167, synergyType: "cooldown_reduction", description: "Rising Sun Kick during Serenity", value: 1.25 }
+    ]
+  },
+
+  // ========================================================================
+  // EVOKER BUILDS
+  // ========================================================================
+  "1467_raid": { // Devastation Evoker - Raid
+    talents: [23506, 23507, 23508, 23509, 23550, 23551, 23552],
+    score: 98,
+    description: "Dragonrage burst with Fire Breath",
+    synergies: [
+      { talent1: 23508, talent2: 23550, synergyType: "damage_multiplier", description: "Fire Breath during Dragonrage", value: 1.45 }
+    ]
+  },
+
+  // ========================================================================
+  // LEVELING BUILDS (Selected Popular Specs)
+  // ========================================================================
+  "72_leveling": { // Fury Warrior
+    talents: [22632, 22491, 22489, 22490, 22627],
+    score: 92,
+    description: "High sustain with self-healing",
+    synergies: []
+  },
+  "253_leveling": { // Beast Mastery Hunter
+    talents: [22276, 22277, 22286, 22287],
+    score: 94,
+    description: "Pet tanking with ranged safety",
+    synergies: []
+  },
+  "63_leveling": { // Fire Mage
+    talents: [22456, 22458, 22463, 22465],
+    score: 90,
+    description: "AoE focused for quest efficiency",
+    synergies: []
+  }
+};
+
+// ============================================================================
 // CORE FUNCTIONS
 // ============================================================================
 
@@ -193,269 +455,10 @@ export function getRecommendedTalentBuild(
   purpose: TalentBuild["purpose"],
   playerLevel: number
 ): TalentBuild {
-  // This would ideally query a builds database or use simcraft data
-  // For now, providing structure for recommended builds
-
   const specInfo = getSpecInfo(specId);
 
-  // Comprehensive talent build database for WoW 11.2 (The War Within)
-  // Based on top performing builds from Icy Veins, Wowhead, and class Discords
-  const builds: { [key: string]: Partial<TalentBuild> } = {
-    // ========================================================================
-    // WARRIOR BUILDS
-    // ========================================================================
-    "71_raid": { // Arms Warrior - Raid
-      talents: [22624, 22360, 22371, 22548, 22392, 22394, 22397],
-      score: 96,
-      description: "Single-target burst with Execute mastery",
-      synergies: [
-        { talent1: 22624, talent2: 22548, synergyType: "damage_multiplier", description: "Warbreaker amplifies Colossus Smash window", value: 1.30 }
-      ]
-    },
-    "72_raid": { // Fury Warrior - Raid
-      talents: [22632, 22633, 22491, 22489, 22490, 22627, 22628],
-      score: 95,
-      description: "Reckless Abandon build for sustained DPS",
-      synergies: [
-        { talent1: 22632, talent2: 22627, synergyType: "cooldown_reduction", description: "Recklessness with Reckless Abandon generates extra Rage", value: 1.25 }
-      ]
-    },
-
-    // ========================================================================
-    // MAGE BUILDS
-    // ========================================================================
-    "64_raid": { // Frost Mage - Raid
-      talents: [22446, 22447, 22448, 23073, 23074, 23078, 23091],
-      score: 97,
-      description: "Glacial Spike build for single-target",
-      synergies: [
-        { talent1: 22446, talent2: 23073, synergyType: "damage_multiplier", description: "Glacial Spike with Ice Lance for shatter combo", value: 1.35 },
-        { talent1: 23074, talent2: 23091, synergyType: "proc_enabler", description: "Fingers of Frost enables Glacial Spike", value: 1.20 }
-      ]
-    },
-    "63_raid": { // Fire Mage - Raid
-      talents: [22456, 22458, 22463, 22465, 23071, 23072, 23079],
-      score: 98,
-      description: "Combustion-focused burst with Sun King's Blessing",
-      synergies: [
-        { talent1: 22463, talent2: 23071, synergyType: "damage_multiplier", description: "Pyroblast with Combustion for massive burst", value: 1.50 },
-        { talent1: 23072, talent2: 22465, synergyType: "cooldown_reduction", description: "Hot Streak procs reduce Combustion CD", value: 1.15 }
-      ]
-    },
-    "62_raid": { // Arcane Mage - Raid
-      talents: [22443, 22444, 22464, 23087, 23088, 23089, 23090],
-      score: 94,
-      description: "Arcane Surge burst window optimization",
-      synergies: [
-        { talent1: 22464, talent2: 23087, synergyType: "damage_multiplier", description: "Arcane Missiles during Surge window", value: 1.40 }
-      ]
-    },
-
-    // ========================================================================
-    // ROGUE BUILDS
-    // ========================================================================
-    "260_raid": { // Outlaw Rogue - Raid
-      talents: [22138, 22139, 22155, 22156, 23175, 23176, 23177],
-      score: 96,
-      description: "Roll the Bones with Slice and Dice",
-      synergies: [
-        { talent1: 22138, talent2: 23175, synergyType: "damage_multiplier", description: "Adrenaline Rush with Between the Eyes", value: 1.30 }
-      ]
-    },
-    "259_raid": { // Assassination Rogue - Raid
-      talents: [22113, 22114, 22121, 22122, 23174, 23172, 23171],
-      score: 95,
-      description: "Poison-focused with Deathmark burst",
-      synergies: [
-        { talent1: 22121, talent2: 23174, synergyType: "damage_multiplier", description: "Envenom during Deathmark window", value: 1.35 }
-      ]
-    },
-
-    // ========================================================================
-    // HUNTER BUILDS
-    // ========================================================================
-    "254_raid": { // Marksmanship Hunter - Raid
-      talents: [22279, 22280, 22289, 22290, 23260, 23261, 23262],
-      score: 97,
-      description: "Aimed Shot with Serpent Sting",
-      synergies: [
-        { talent1: 22289, talent2: 23260, synergyType: "damage_multiplier", description: "Trick Shots for AoE burst", value: 1.25 }
-      ]
-    },
-    "253_raid": { // Beast Mastery Hunter - Raid
-      talents: [22276, 22277, 22286, 22287, 23256, 23257, 23258],
-      score: 94,
-      description: "Pet-focused sustained DPS",
-      synergies: [
-        { talent1: 22286, talent2: 23256, synergyType: "cooldown_reduction", description: "Bestial Wrath uptime optimization", value: 1.20 }
-      ]
-    },
-
-    // ========================================================================
-    // DEATH KNIGHT BUILDS
-    // ========================================================================
-    "252_raid": { // Unholy Death Knight - Raid
-      talents: [22006, 22007, 22024, 22025, 23095, 23096, 23097],
-      score: 96,
-      description: "Disease and minion focused",
-      synergies: [
-        { talent1: 22024, talent2: 23095, synergyType: "damage_multiplier", description: "Festering Strike with Apocalypse", value: 1.30 }
-      ]
-    },
-    "251_raid": { // Frost Death Knight - Raid
-      talents: [22016, 22017, 22020, 22021, 23093, 23094, 23092],
-      score: 95,
-      description: "Breath of Sindragosa build",
-      synergies: [
-        { talent1: 22020, talent2: 23093, synergyType: "resource_generation", description: "Obliterate generates Runic Power for Breath", value: 1.25 }
-      ]
-    },
-
-    // ========================================================================
-    // WARLOCK BUILDS
-    // ========================================================================
-    "267_raid": { // Destruction Warlock - Raid
-      talents: [22045, 22046, 22047, 22069, 23140, 23141, 23142],
-      score: 97,
-      description: "Chaos Bolt burst with Infernal",
-      synergies: [
-        { talent1: 22069, talent2: 23140, synergyType: "damage_multiplier", description: "Chaos Bolt during Infernal", value: 1.35 }
-      ]
-    },
-    "265_raid": { // Affliction Warlock - Raid
-      talents: [22039, 22040, 22041, 22063, 23137, 23138, 23139],
-      score: 95,
-      description: "Multi-DoT with Drain Soul execute",
-      synergies: [
-        { talent1: 22041, talent2: 23137, synergyType: "damage_multiplier", description: "Malefic Rapture during execute", value: 1.30 }
-      ]
-    },
-
-    // ========================================================================
-    // DRUID BUILDS
-    // ========================================================================
-    "102_raid": { // Balance Druid - Raid
-      talents: [22366, 22367, 22370, 22373, 23073, 23074, 23075],
-      score: 96,
-      description: "Astral Power focused with Incarnation",
-      synergies: [
-        { talent1: 22370, talent2: 23073, synergyType: "damage_multiplier", description: "Starfall during Incarnation", value: 1.30 }
-      ]
-    },
-    "103_raid": { // Feral Druid - Raid
-      talents: [22363, 22364, 22368, 22369, 23069, 23070, 23071],
-      score: 94,
-      description: "Bleed-focused with Berserk",
-      synergies: [
-        { talent1: 22368, talent2: 23069, synergyType: "cooldown_reduction", description: "Tiger's Fury with Berserk", value: 1.25 }
-      ]
-    },
-
-    // ========================================================================
-    // SHAMAN BUILDS
-    // ========================================================================
-    "262_raid": { // Elemental Shaman - Raid
-      talents: [22356, 22357, 22358, 22361, 23066, 23067, 23068],
-      score: 96,
-      description: "Lava Burst with Elemental Blast",
-      synergies: [
-        { talent1: 22358, talent2: 23066, synergyType: "damage_multiplier", description: "Lava Burst during Storm Elemental", value: 1.35 }
-      ]
-    },
-    "263_raid": { // Enhancement Shaman - Raid
-      talents: [22354, 22355, 22359, 22360, 23064, 23065, 23063],
-      score: 95,
-      description: "Windfury with Doom Winds",
-      synergies: [
-        { talent1: 22359, talent2: 23064, synergyType: "proc_enabler", description: "Stormstrike enables Windfury procs", value: 1.30 }
-      ]
-    },
-
-    // ========================================================================
-    // PRIEST BUILDS
-    // ========================================================================
-    "258_raid": { // Shadow Priest - Raid
-      talents: [22312, 22313, 22314, 22331, 23046, 23047, 23048],
-      score: 97,
-      description: "Void Eruption with Dark Ascension",
-      synergies: [
-        { talent1: 22314, talent2: 23046, synergyType: "damage_multiplier", description: "Mind Blast during Voidform", value: 1.40 }
-      ]
-    },
-
-    // ========================================================================
-    // PALADIN BUILDS
-    // ========================================================================
-    "70_raid": { // Retribution Paladin - Raid
-      talents: [22586, 22587, 22591, 22592, 23110, 23111, 23112],
-      score: 95,
-      description: "Templar's Verdict with Wake of Ashes",
-      synergies: [
-        { talent1: 22591, talent2: 23110, synergyType: "resource_generation", description: "Wake of Ashes generates Holy Power", value: 1.25 }
-      ]
-    },
-
-    // ========================================================================
-    // DEMON HUNTER BUILDS
-    // ========================================================================
-    "577_raid": { // Havoc Demon Hunter - Raid
-      talents: [21854, 21855, 21862, 21863, 22493, 22494, 22495],
-      score: 96,
-      description: "Fel Barrage with Momentum",
-      synergies: [
-        { talent1: 21862, talent2: 22493, synergyType: "damage_multiplier", description: "Chaos Strike during Momentum", value: 1.30 }
-      ]
-    },
-
-    // ========================================================================
-    // MONK BUILDS
-    // ========================================================================
-    "269_raid": { // Windwalker Monk - Raid
-      talents: [22098, 22099, 22107, 22108, 23167, 23168, 23169],
-      score: 95,
-      description: "Strike of the Windlord with Serenity",
-      synergies: [
-        { talent1: 22107, talent2: 23167, synergyType: "cooldown_reduction", description: "Rising Sun Kick during Serenity", value: 1.25 }
-      ]
-    },
-
-    // ========================================================================
-    // EVOKER BUILDS
-    // ========================================================================
-    "1467_raid": { // Devastation Evoker - Raid
-      talents: [23506, 23507, 23508, 23509, 23550, 23551, 23552],
-      score: 98,
-      description: "Dragonrage burst with Fire Breath",
-      synergies: [
-        { talent1: 23508, talent2: 23550, synergyType: "damage_multiplier", description: "Fire Breath during Dragonrage", value: 1.45 }
-      ]
-    },
-
-    // ========================================================================
-    // LEVELING BUILDS (Selected Popular Specs)
-    // ========================================================================
-    "72_leveling": { // Fury Warrior
-      talents: [22632, 22491, 22489, 22490, 22627],
-      score: 92,
-      description: "High sustain with self-healing",
-      synergies: []
-    },
-    "253_leveling": { // Beast Mastery Hunter
-      talents: [22276, 22277, 22286, 22287],
-      score: 94,
-      description: "Pet tanking with ranged safety",
-      synergies: []
-    },
-    "63_leveling": { // Fire Mage
-      talents: [22456, 22458, 22463, 22465],
-      score: 90,
-      description: "AoE focused for quest efficiency",
-      synergies: []
-    }
-  };
-
   const buildKey = `${specId}_${purpose}`;
-  const buildData = builds[buildKey] || builds[`${specId}_raid`] || {};
+  const buildData = TALENT_BUILDS[buildKey] || TALENT_BUILDS[`${specId}_raid`] || {};
 
   return {
     buildId: `${specInfo.specName}_${purpose}`,

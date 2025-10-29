@@ -793,17 +793,12 @@ export function analyzeCounterMatchup(
 
   // Fallback for unknown matchups
   const favorability = 0;
-
-  let favored: "you" | "enemy" | "even" = "even";
+  const favored: "you" | "enemy" | "even" = "even";
 
   return {
     favored,
     favorability,
-    strategy: favored === "you"
-      ? "Play standard game plan, you have advantage"
-      : favored === "enemy"
-        ? "Adjust strategy to mitigate disadvantage"
-        : "Skill matchup - execution determines winner",
+    strategy: "Skill matchup - execution determines winner",
     keyPoints: [
       "Control tempo of the match",
       "Land CC chains on priority targets",
