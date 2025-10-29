@@ -721,24 +721,80 @@ export function analyzeCounterMatchup(
   strategy: string;
   keyPoints: string[];
 } {
-  // Simplified counter-comp logic
-  const counters: { [key: string]: { [key: string]: number } } = {
-    "rmp": { // RMP counters
-      "tsg": -20, // RMP struggles vs TSG
-      "jungle": 15, // RMP favored vs Jungle
-      "rmp": 0 // Mirror match
+  // Comprehensive WoW 11.2 (The War Within) 3v3 Arena composition counter matrix
+  // Favorability scale: -50 (hard counter) to +50 (heavily favored)
+  const counters: { [key: string]: { [key: string]: { favorability: number; strategy: string; keyPoints: string[] } } } = {
+    "rmp": { // Rogue/Mage/Priest (Control)
+      "tsg": { favorability: -25, strategy: "Survive pressure, reset often, kite warrior", keyPoints: ["Poly Healer during stuns", "Use all resets", "Rogue peels DK/Warrior", "Don't over-extend"] },
+      "jungle": { favorability: 20, strategy: "Control feral, pressure healer", keyPoints: ["Sheep Druid repeatedly", "Rogue on Hunter", "Priest fears on cooldown", "Play aggressive"] },
+      "rmp": { favorability: 0, strategy: "Mirror match - cc chain and mana pressure", keyPoints: ["Drink when safe", "Land more sheep", "Coordinate cc chains", "Mana management crucial"] },
+      "god": { favorability: -15, strategy: "Avoid hunter cc chains, pressure druid healer", keyPoints: ["Dodge traps", "Priest dispels important", "Kite melee", "Long game favors you"] },
+      "walking_dead": { favorability: -20, strategy: "Kite DKs, survive burst", keyPoints: ["Use all cooldowns", "Reset constantly", "Priest mana crucial", "Play defensive"] },
+      "cupid": { favorability: 10, strategy: "Control hunter, pressure priest", keyPoints: ["Sheep Priest when possible", "Dodge traps", "Rogue on Hunter", "Mana pressure wins"] },
+      "thug": { favorability: -10, strategy: "Survive warrior/rogue pressure", keyPoints: ["Save defensives", "Poly healer in stuns", "Priest dispels critical", "Don't sit cc"] }
     },
-    "jungle": {
-      "rmp": -15,
-      "tsg": 10
+    "jungle": { // Hunter/Feral/Resto Druid (Cleave)
+      "rmp": { favorability: -20, strategy: "Avoid cc chains, pressure mage", keyPoints: ["Kick sheep", "Hunter traps crucial", "Feral pressures priest", "Don't feed cc"] },
+      "tsg": { favorability: 15, strategy: "Kite and control, sustained damage", keyPoints: ["Trap warrior in charge", "Root DK often", "Druid peels important", "Outlast them"] },
+      "jungle": { favorability: 0, strategy: "Mirror - trap battles", keyPoints: ["Better traps win", "Feral vs Feral", "Druid positioning", "Patience key"] },
+      "god": { favorability: 5, strategy: "Mirror hunter control", keyPoints: ["Trap battles", "Feral pressure on Druid", "Counter-cc important", "Sustained damage"] },
+      "cupid": { favorability: -10, strategy: "Survive hunter pressure, control priest", keyPoints: ["Dodge traps", "Kick heals", "Root hunter when trapped", "Damage race"] }
+    },
+    "tsg": { // Warrior/DK/Healer (Melee cleave)
+      "rmp": { favorability: 25, strategy: "Pressure early, don't give resets", keyPoints: ["Train Priest hard", "DK grips on resets", "Kick important heals", "Maintain pressure"] },
+      "jungle": { favorability: -15, strategy: "Train feral, interrupt druid", keyPoints: ["Stick to Feral", "Kick clones", "Grip kiting targets", "Don't overextend"] },
+      "tsg": { favorability: 0, strategy: "Mirror melee pressure", keyPoints: ["Train enemy healer", "Interrupt efficiency", "Use grips wisely", "Defensive CD usage"] },
+      "god": { favorability: -20, strategy: "Survive kiting, land grips", keyPoints: ["DK grips on Hunter", "Train Druid healer", "Warrior hamstring uptime", "Don't chase forever"] },
+      "walking_dead": { favorability: 10, strategy: "DK pressure wins", keyPoints: ["Train enemy healer", "Coordinate stuns", "Use all CDs", "Mana burn healer"] }
+    },
+    "god": { // Hunter/DK/Resto Druid (Control/Cleave)
+      "rmp": { favorability: 15, strategy: "Trap rogue, control with cc", keyPoints: ["Trap during go", "Grip mage/priest", "DK pressure on Priest", "Druid survives cc"] },
+      "jungle": { favorability: -5, strategy: "Mirror matchup, trap battles", keyPoints: ["Better traps", "DK on enemy Druid", "Hunter control", "Don't waste grips"] },
+      "tsg": { favorability: 20, strategy: "Kite warrior, control with hunter", keyPoints: ["Trap Warrior charges", "Root melee often", "Druid kites well", "Hunter pressure steady"] },
+      "cupid": { favorability: 5, strategy: "Hunter vs Hunter control", keyPoints: ["Trap first", "DK on Priest", "Counter-trap important", "Patience wins"] }
+    },
+    "walking_dead": { // DK/DK/Healer (Double DK)
+      "rmp": { favorability: 20, strategy: "Constant pressure, grip resets", keyPoints: ["Grip on every reset", "Train Priest", "AMZ for combust", "Never let them breathe"] },
+      "tsg": { favorability: -10, strategy: "DK vs DK, control warrior", keyPoints: ["Grip enemy DK", "Control Warrior", "Healer survival key", "Trade defensives"] }
+    },
+    "cupid": { // Hunter/Priest/X (Control)
+      "rmp": { favorability: -10, strategy: "Avoid cc chains, pressure priest", keyPoints: ["Dodge traps", "Train enemy Priest", "Hunter kiting", "Long game risky"] },
+      "jungle": { favorability: 10, strategy: "Control feral, priest survives", keyPoints: ["Fear Druid", "Trap Feral", "Priest mana advantage", "Sustained pressure"] },
+      "god": { favorability: -5, strategy: "Hunter battles, priest mana", keyPoints: ["Trap first", "Priest mana crucial", "Don't sit cc", "Play patient"] }
+    },
+    "thug": { // Rogue/Warrior/Healer (Melee cleave)
+      "rmp": { favorability: 10, strategy: "Melee pressure on priest", keyPoints: ["Rogue on Priest", "Warrior pressure Mage", "Kick important heals", "Don't feed cc chains"] },
+      "tsg": { favorability: -5, strategy: "Warrior vs Warrior, rogue control", keyPoints: ["Rogue on healer", "Warrior peels DK", "Save CDs", "Trade pressure"] }
+    },
+    "shadowplay": { // Warlock/Shadow Priest/Healer (Caster cleave)
+      "rmp": { favorability: 15, strategy: "Rot damage, mana pressure", keyPoints: ["Warlock spreads dots", "Shadow fears/silences", "Outlast them", "Mana game"] },
+      "tsg": { favorability: -20, strategy: "Survive melee pressure, kite", keyPoints: ["Gateway escapes", "Fear train target", "Port/Gateway resets", "Use all defensives"] },
+      "jungle": { favorability: 10, strategy: "Control feral, rot team", keyPoints: ["Fear Druid", "Dots on everyone", "Shadow on Feral", "Sustained damage"] }
     }
   };
 
-  const favorability = counters[yourComp.toLowerCase()]?.[enemyComp.toLowerCase()] || 0;
+  const yourCompLower = yourComp.toLowerCase();
+  const enemyCompLower = enemyComp.toLowerCase();
+
+  const matchup = counters[yourCompLower]?.[enemyCompLower];
+
+  if (matchup) {
+    let favored: "you" | "enemy" | "even" = "even";
+    if (matchup.favorability > 10) favored = "you";
+    else if (matchup.favorability < -10) favored = "enemy";
+
+    return {
+      favored,
+      favorability: matchup.favorability,
+      strategy: matchup.strategy,
+      keyPoints: matchup.keyPoints
+    };
+  }
+
+  // Fallback for unknown matchups
+  const favorability = 0;
 
   let favored: "you" | "enemy" | "even" = "even";
-  if (favorability > 10) favored = "you";
-  else if (favorability < -10) favored = "enemy";
 
   return {
     favored,

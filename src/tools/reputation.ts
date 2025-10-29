@@ -357,7 +357,7 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
 
       rewards.push({
         factionId,
-        requiredStanding: determineRequiredStanding(item.ExtendedCost),
+        requiredStanding: await determineRequiredStanding(item.ExtendedCost),
         rewardType,
         rewardId: item.item,
         rewardName: item.name,
@@ -499,8 +499,8 @@ export async function getReputationTokens(factionId: number): Promise<Reputation
     const results = await queryWorld(query, []);
 
     for (const item of results) {
-      // Simplified rep gain calculation
-      const repGain = 250; // Would parse from item effect
+      // Parse reputation gain from item spell effect
+      const repGain = await parseReputationGainFromItem(item.entry, factionId);
 
       tokens.push({
         itemId: item.entry,
@@ -619,9 +619,110 @@ export function getReputationBreakdown(currentRep: number): {
 // HELPER FUNCTIONS
 // ============================================================================
 
-function determineRequiredStanding(extendedCost: number): string {
-  // This would parse ExtendedCost to determine reputation requirement
-  // Simplified for demo
+/**
+ * Parse reputation gain from item's spell effect
+ * Items that grant reputation typically have a spell that applies a reputation bonus
+ */
+async function parseReputationGainFromItem(itemId: number, expectedFactionId: number): Promise<number> {
+  try {
+    // First, get the item's spell trigger
+    const itemQuery = `
+      SELECT spellid_1, spellid_2, spellid_3, spellid_4, spellid_5
+      FROM item_template
+      WHERE entry = ?
+    `;
+    const itemResults = await queryWorld(itemQuery, [itemId]);
+
+    if (!itemResults || itemResults.length === 0) {
+      return 250; // Default fallback
+    }
+
+    const item = itemResults[0];
+    const spellIds = [
+      item.spellid_1,
+      item.spellid_2,
+      item.spellid_3,
+      item.spellid_4,
+      item.spellid_5
+    ].filter(id => id && id > 0);
+
+    // Query spell effects for reputation gains
+    for (const spellId of spellIds) {
+      try {
+        // In TrinityCore, reputation spell effects are typically stored in spell_template
+        // Effect type 103 (SPELL_EFFECT_REPUTATION) grants reputation
+        const spellQuery = `
+          SELECT Effect_1, Effect_2, Effect_3, EffectBasePoints_1, EffectBasePoints_2, EffectBasePoints_3,
+                 EffectMiscValue_1, EffectMiscValue_2, EffectMiscValue_3
+          FROM spell_template
+          WHERE ID = ?
+        `;
+        const spellResults = await queryWorld(spellQuery, [spellId]);
+
+        if (spellResults && spellResults.length > 0) {
+          const spell = spellResults[0];
+
+          // Check each effect for reputation gain (Effect type 103)
+          for (let i = 1; i <= 3; i++) {
+            const effect = spell[`Effect_${i}`];
+            const basePoints = spell[`EffectBasePoints_${i}`];
+            const miscValue = spell[`EffectMiscValue_${i}`];
+
+            // Effect 103 = SPELL_EFFECT_REPUTATION
+            if (effect === 103 && miscValue === expectedFactionId) {
+              // BasePoints is the reputation amount (usually needs +1)
+              return (basePoints || 0) + 1;
+            }
+          }
+        }
+      } catch (spellError) {
+        continue; // Try next spell
+      }
+    }
+
+    // If no spell found, use item description parsing as fallback
+    const descQuery = `SELECT Description FROM item_template WHERE entry = ?`;
+    const descResults = await queryWorld(descQuery, [itemId]);
+
+    if (descResults && descResults.length > 0) {
+      const description = descResults[0].Description || "";
+
+      // Parse reputation amounts from description
+      // Examples: "Grants 250 reputation", "Increases reputation by 500"
+      const repMatch = description.match(/(\d+)\s*reputation/i);
+      if (repMatch) {
+        return parseInt(repMatch[1], 10);
+      }
+    }
+  } catch (error) {
+    console.warn(`Could not parse reputation gain for item ${itemId}:`, error);
+  }
+
+  // Default reputation gains by item quality/level
+  return 250; // Common fallback for reputation tokens
+}
+
+async function determineRequiredStanding(extendedCost: number): Promise<string> {
+  // Parse ExtendedCost from npc_vendor_template or item_extended_cost
+  try {
+    const query = `
+      SELECT RequiredReputationFaction, RequiredReputationRank
+      FROM item_extended_cost
+      WHERE ID = ?
+    `;
+    const results = await queryWorld(query, [extendedCost]);
+
+    if (results && results.length > 0) {
+      const rank = results[0].RequiredReputationRank;
+      // WoW reputation ranks: 0=Hated, 1=Hostile, 2=Unfriendly, 3=Neutral, 4=Friendly, 5=Honored, 6=Revered, 7=Exalted
+      const standings = ["hated", "hostile", "unfriendly", "neutral", "friendly", "honored", "revered", "exalted"];
+      return standings[rank] || "neutral";
+    }
+  } catch (e) {
+    // Fallback to estimation based on cost
+  }
+
+  // Fallback estimation
   if (extendedCost > 10000) return "exalted";
   if (extendedCost > 5000) return "revered";
   if (extendedCost > 1000) return "honored";
