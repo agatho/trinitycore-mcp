@@ -2,14 +2,25 @@
 
 [![Build](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml)
 [![Code Quality](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml)
-[![Version](https://img.shields.io/badge/version-1.0.0--alpha-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
 [![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![Issues](https://img.shields.io/github/issues/agatho/trinitycore-mcp)](https://github.com/agatho/trinitycore-mcp/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/agatho/trinitycore-mcp/pulls)
+[![API Docs](https://img.shields.io/badge/API%20Docs-3800%2B%20methods-success.svg)](data/api_docs/general/)
 
 > Custom Model Context Protocol server providing 21 enterprise-grade tools for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
+n## 🆕 What's New in v1.3.0
+
+🚀 **Massive API Documentation Expansion** - Added **3,756 TrinityCore API documentation files** covering Aura, Combat, Creature, and GameObject systems
+
+⚙️ **Enterprise Gear Optimizer** - Comprehensive stat weight database with **250+ profiles** for all 13 classes, 39 specs, and 6 content types based on WoW 11.2 theorycrafting
+
+📁 **Documentation Reorganization** - Cleaner project structure with all docs moved to `doc/` subdirectory
+
+[See Full Release Notes →](https://github.com/agatho/trinitycore-mcp/releases/tag/v1.3.0)
+
 
 ## Features
 
