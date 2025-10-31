@@ -1,0 +1,68 @@
+api:
+  class: Spell
+  method: PreprocessSpellHit
+  signature: int Spell::PreprocessSpellHit(Unit * unit, TargetInfo & targetInfo)
+documentation:
+  brief: Preprocesses spell hit logic for a target unit and updates target information.
+  description: The PreprocessSpellHit method handles initial processing of spell targeting
+    and hit calculations before the actual spell effect is applied. It evaluates whether
+    a spell can successfully hit its target based on various game mechanics such as
+    line of sight, target validity, and spell restrictions. This method modifies the
+    TargetInfo structure to reflect updated hit status and other relevant targeting
+    data. The return value indicates success or failure of the preprocessing step,
+    with 0 typically meaning success and non-zero values indicating specific error
+    conditions or miss states.
+  parameters:
+  - name: unit
+    description: Pointer to the target Unit that the spell is being cast upon. Must
+      be a valid unit object; null pointers will cause undefined behavior.
+  - name: targetInfo
+    description: Reference to TargetInfo structure containing current targeting data
+      and hit status. This structure is modified by the method to reflect updated
+      targeting information such as hit result, miss type, and other relevant targeting
+      flags.
+  returns: 'Integer value indicating the outcome of preprocessing:
+
+    - 0: Success - spell preprocessing completed without errors
+
+    - Non-zero: Error or miss condition - specific values may indicate different types
+    of failures or miss states such as immunity, dodge, or invalid target'
+  examples:
+  - title: Basic Spell Hit Preprocessing
+    code: "void MySpell::CastSpell()\n{\n    Unit* target = GetTarget();\n    TargetInfo\
+      \ targetInfo;\n    \n    if (PreprocessSpellHit(target, targetInfo) == 0)\n\
+      \    {\n        // Proceed with spell effect\n        ApplySpellEffect(target);\n\
+      \    }\n    else\n    {\n        // Handle preprocessing failure or miss\n \
+      \       SendMissResult(targetInfo);\n    }\n}"
+    language: cpp
+  - title: Advanced Spell Hit Preprocessing with Conditional Logic
+    code: "int Spell::PreprocessSpellHit(Unit* unit, TargetInfo& targetInfo)\n{\n\
+      \    // Check if target is valid\n    if (!unit || !unit->IsAlive())\n     \
+      \   return SPELL_FAILED_TARGETS_DEAD;\n    \n    // Check for spell restrictions\n\
+      \    if (HasSpellRestriction(unit))\n        return SPELL_FAILED_REQUIRES_SPELL_FOCUS;\n\
+      \    \n    // Perform base preprocessing\n    int result = BasePreprocessSpellHit(unit,\
+      \ targetInfo);\n    \n    // Additional custom logic\n    if (targetInfo.IsMiss())\n\
+      \    {\n        // Log miss event\n        LOG_DEBUG(\"spell\", \"Spell {} missed\
+      \ target {}\", GetSpellInfo()->Id, unit->GetGUID());\n    }\n    \n    return\
+      \ result;\n}"
+    language: cpp
+  notes: This method is typically called internally by the spell system before applying
+    spell effects. It's important to note that modifications to TargetInfo are made
+    in-place and should be handled carefully when multiple systems interact with the
+    same target data. The method may perform various checks including line of sight,
+    target validity, and spell-specific restrictions.
+  warnings: Calling this method without proper initialization of the TargetInfo structure
+    can lead to undefined behavior. Ensure that all required fields are properly set
+    before calling this function. The return value should always be checked as some
+    spell effects might not proceed if preprocessing fails.
+  related:
+  - Spell::Prepare
+  - Spell::Cast
+  - Spell::DoSpellHitOnUnit
+  - Spell::CheckTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T09:51:07.593125'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
