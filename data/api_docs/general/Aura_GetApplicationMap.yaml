@@ -1,0 +1,60 @@
+api:
+  class: Aura
+  method: GetApplicationMap
+  signature: const ApplicationMap & Aura::GetApplicationMap()
+documentation:
+  brief: Returns a constant reference to the map of aura applications associated with
+    this aura.
+  description: The GetApplicationMap method provides access to the internal ApplicationMap
+    that tracks all active applications of an aura on different targets. This map
+    contains mappings from Unit pointers (targets) to AuraApplication objects, which
+    represent how the aura is applied to each specific unit. The returned reference
+    allows read-only access to this mapping without copying the entire data structure.
+    In World of Warcraft's TrinityCore implementation, auras can be applied multiple
+    times to different units, and this map maintains that relationship. This method
+    is typically used for iterating over all targets an aura is currently affecting
+    or checking the application state on specific units.
+  parameters: []
+  returns: A constant reference to the ApplicationMap which maps Unit pointers to
+    AuraApplication objects. The map contains all active applications of this aura,
+    where each entry represents one unit that this aura is currently applied to. This
+    allows for efficient lookup and iteration over all targets affected by this aura.
+  examples:
+  - title: Iterating Over All Aura Applications
+    code: "const Aura::ApplicationMap& appMap = aura->GetApplicationMap();\nfor (const\
+      \ auto& pair : appMap)\n{\n    Unit* target = pair.first;\n    AuraApplication*\
+      \ app = pair.second;\n    // Process each application\n    if (app && target)\n\
+      \    {\n        // Do something with the target and its aura application\n \
+      \       std::cout << \"Aura applied to: \" << target->GetName() << std::endl;\n\
+      \    }\n}"
+    language: cpp
+  - title: Checking If Aura Is Applied to Specific Target
+    code: "Unit* target = player;\nconst Aura::ApplicationMap& appMap = aura->GetApplicationMap();\n\
+      auto it = appMap.find(target);\nif (it != appMap.end())\n{\n    AuraApplication*\
+      \ app = it->second;\n    // Aura is applied to this target\n    std::cout <<\
+      \ \"Aura found on target\" << std::endl;\n}\nelse\n{\n    // Aura is not applied\
+      \ to this target\n    std::cout << \"Aura not found on target\" << std::endl;\n\
+      }"
+    language: cpp
+  notes: The returned ApplicationMap reference should be used for read-only access
+    only. Modifying the map directly through this reference is not recommended as
+    it could lead to inconsistent state. The map is maintained internally by the aura
+    system and reflects the current application state at the time of the call. This
+    method does not perform any locking or synchronization internally, so if accessed
+    from multiple threads, proper synchronization should be implemented by the caller.
+  warnings: Be cautious when storing references to the ApplicationMap beyond the scope
+    where the aura itself remains valid, as invalidating the aura object could lead
+    to dangling pointers in the map. Also, avoid modifying the returned map directly
+    as it's a const reference - any modifications should be done through proper aura
+    application APIs.
+  related:
+  - GetApplication
+  - AddApplication
+  - RemoveApplication
+  - GetTargets
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:27:56.635311'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

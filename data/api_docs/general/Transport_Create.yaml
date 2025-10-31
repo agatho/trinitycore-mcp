@@ -1,0 +1,76 @@
+api:
+  class: Transport
+  method: Create
+  signature: bool Transport::Create(int guidlow, int entry, float x, float y, float
+    z, float ang)
+documentation:
+  brief: Initializes a new transport object with specified GUID, entry, and position
+    coordinates
+  description: The Create method initializes a transport object within the TrinityCore
+    world system. It sets up the transport's unique identifier, entry type, and spatial
+    positioning in the game world. This method is typically used during world object
+    creation or loading processes where transports such as boats, zeppelins, or other
+    moving platforms need to be instantiated. The method returns true upon successful
+    initialization and false if the creation fails due to invalid parameters or system
+    constraints. Transports created through this method will be managed by the core's
+    transport system and will participate in movement calculations and passenger handling.
+  parameters:
+  - name: guidlow
+    description: The low part of the unique identifier (GUID) for this transport object.
+      Must be a positive integer representing a valid GUID slot in the database.
+  - name: entry
+    description: The entry ID that defines the type and properties of the transport.
+      This corresponds to entries in the game's database tables such as creature_template
+      or gameobject_template.
+  - name: x
+    description: The X coordinate position of the transport in the world. Must be
+      within valid world boundaries.
+  - name: y
+    description: The Y coordinate position of the transport in the world. Must be
+      within valid world boundaries.
+  - name: z
+    description: The Z coordinate position of the transport in the world. Must be
+      within valid world boundaries and represent a valid height for the terrain.
+  - name: ang
+    description: The facing angle of the transport in radians. This determines the
+      initial orientation of the transport object in the world.
+  returns: Returns true if the transport was successfully created and initialized
+    with all provided parameters; returns false if creation fails due to invalid parameters,
+    memory allocation issues, or system constraints.
+  examples:
+  - title: Basic Transport Creation
+    code: "Transport* transport = new Transport();\nbool success = transport->Create(12345,\
+      \ 1001, 100.0f, 200.0f, 50.0f, 0.0f);\nif (success)\n{\n    // Transport created\
+      \ successfully\n    sLog->outString(\"Transport created at position (100, 200,\
+      \ 50)\");\n}\nelse\n{\n    // Handle creation failure\n    sLog->outError(\"\
+      Failed to create transport with GUID 12345\");\n}"
+    language: cpp
+  - title: Transport Creation with Dynamic Positioning
+    code: "uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_TRANSPORT);\nfloat\
+      \ x = player->GetPositionX();\nfloat y = player->GetPositionY();\nfloat z =\
+      \ player->GetPositionZ();\nfloat angle = player->GetOrientation();\n\nTransport*\
+      \ transport = new Transport();\nbool success = transport->Create(guidLow, 2001,\
+      \ x, y, z, angle);\nif (success)\n{\n    // Add to world and start movement\n\
+      \    transport->SetMap(player->GetMap());\n    transport->AddToWorld();\n  \
+      \  sLog->outString(\"Transport created at player position\");\n}"
+    language: cpp
+  notes: This method is typically called during world object loading or dynamic creation
+    scenarios. The transport must be properly linked to a map before it can participate
+    in movement calculations. The GUID low value should not conflict with existing
+    objects in the system. This method does not automatically add the transport to
+    the world; you must call AddToWorld() afterward for the transport to become active.
+  warnings: Do not call this method without proper initialization of the transport
+    object first. Passing invalid coordinates or negative GUID values will likely
+    result in undefined behavior or crashes. Always verify that the entry ID corresponds
+    to a valid transport template in the database before calling this method.
+  related:
+  - AddToWorld
+  - SetMap
+  - GetGUID
+  - GetEntry
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T09:39:33.545625'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

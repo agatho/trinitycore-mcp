@@ -1,0 +1,61 @@
+api:
+  class: ThreatManager
+  method: UnregisterRedirectThreat
+  signature: void ThreatManager::UnregisterRedirectThreat(uint32 spellId, const int
+    & victim)
+documentation:
+  brief: Removes a registered threat redirect for a specific spell and victim from
+    the ThreatManager.
+  description: The UnregisterRedirectThreat method is used to remove a previously
+    registered threat redirect mapping within the ThreatManager. This functionality
+    allows creatures or NPCs to stop redirecting threat from a specific spell to a
+    designated victim. The method takes a spell identifier and a reference to the
+    victim as parameters, ensuring that any active threat redirection for that spell-victim
+    combination is cleared. It's typically used during spell execution or combat state
+    changes to properly manage NPC aggro behavior and prevent unintended threat redirections.
+    This method does not return any value and operates directly on the internal threat
+    management system of the creature.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell for which the threat redirect
+      should be unregistered. This corresponds to the Spell ID used in the game's
+      spell database.
+  - name: victim
+    description: A reference to the victim (target) for whom the threat redirect is
+      being removed. The value represents the target's identifier or index within
+      the threat system.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void RemoveThreatRedirect(Unit* target, uint32 spellId)\n{\n    if (target\
+      \ && target->GetThreatManager())\n    {\n        target->GetThreatManager()->UnregisterRedirectThreat(spellId,\
+      \ target->GetGUID());\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with Conditional Logic
+    code: "void OnSpellFinish(Unit* caster, uint32 spellId)\n{\n    if (caster &&\
+      \ caster->GetThreatManager())\n    {\n        // Only unregister threat redirect\
+      \ if the spell was a threat redirection spell\n        if (IsRedirectSpell(spellId))\n\
+      \        {\n            Unit* victim = caster->GetVictim();\n            if\
+      \ (victim)\n            {\n                caster->GetThreatManager()->UnregisterRedirectThreat(spellId,\
+      \ victim->GetGUID());\n            }\n        }\n    }\n}"
+    language: cpp
+  notes: This method directly manipulates the internal threat redirection system of
+    the ThreatManager. It should be called carefully to avoid disrupting ongoing combat
+    states or causing unexpected behavior in NPC AI. The victim parameter is passed
+    by reference, so ensure that the referenced value remains valid during the method
+    call.
+  warnings: Improper use of this method may result in inconsistent threat management,
+    leading to NPCs not properly targeting their intended victims. Avoid calling this
+    method with invalid spell IDs or stale victim references as it could cause undefined
+    behavior or crashes in the threat system.
+  related:
+  - RegisterRedirectThreat
+  - GetThreatRedirect
+  - AddThreat
+  - UpdateThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:41:43.606372'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

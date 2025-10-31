@@ -1,0 +1,49 @@
+api:
+  class: Aura
+  method: GetCaster
+  signature: Unit * Aura::GetCaster() const
+documentation:
+  brief: Retrieves the Unit that cast this aura.
+  description: The GetCaster method returns a pointer to the Unit object that originally
+    applied this aura. In the context of World of Warcraft's TrinityCore, auras represent
+    various magical effects that can be applied to units. This method is essential
+    for determining the source of an aura, which is important for gameplay mechanics
+    such as spell tracking, damage calculation, and aura interaction logic. The returned
+    Unit pointer may be null if the aura was applied without a valid caster or in
+    special cases like self-applied auras from game effects.
+  parameters: []
+  returns: A pointer to the Unit that cast this aura, or nullptr if no valid caster
+    exists.
+  examples:
+  - title: Basic Usage to Check Aura Caster
+    code: "Aura* aura = player->GetAura(12345);\nif (aura)\n{\n    Unit* caster =\
+      \ aura->GetCaster();\n    if (caster)\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Aura cast by: %s\", caster->GetName().c_str());\n    else\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Aura has no valid caster.\");\n}"
+    language: cpp
+  - title: Checking Caster Type for Special Logic
+    code: "if (Aura* aura = target->GetAura(98765))\n{\n    Unit* caster = aura->GetCaster();\n\
+      \    if (caster && caster->IsPlayer())\n    {\n        // Handle player-cast\
+      \ aura logic\n        Player* playerCaster = caster->ToPlayer();\n        //\
+      \ ... additional logic\n    }\n    else if (caster && caster->IsCreature())\n\
+      \    {\n        // Handle creature-cast aura logic\n        Creature* creatureCaster\
+      \ = caster->ToCreature();\n        // ... additional logic\n    }\n}"
+    language: cpp
+  notes: This method is commonly used in aura application and removal handlers, as
+    well as in spell effect implementations where the caster's properties are needed.
+    It is safe to call from any thread context, but be aware that the returned Unit
+    pointer might become invalid if the caster is removed from the world or destroyed.
+  warnings: Be sure to check for null return values before dereferencing the returned
+    Unit pointer. Some auras may not have a valid caster, particularly those applied
+    by game systems or self-applied effects. Also, avoid storing references to the
+    returned Unit beyond the scope of the current function call unless you are certain
+    about its lifetime.
+  related:
+  - GetCasterGUID
+  - GetSpellInfo
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:22:08.055183'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

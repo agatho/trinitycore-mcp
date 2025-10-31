@@ -1,0 +1,48 @@
+api:
+  class: ThreatManager
+  method: RemoveMeFromThreatLists
+  signature: void ThreatManager::RemoveMeFromThreatLists(bool (*)(const Unit *) unitFilter)
+documentation:
+  brief: Removes the unit from all threat lists using a filter function to determine
+    which entries to remove.
+  description: The RemoveMeFromThreatLists method removes the current unit from all
+    threat lists managed by the ThreatManager. It accepts a filter function that determines
+    which threat list entries should be removed. This is typically used when a unit
+    (such as a mob or player) needs to be cleared from the threat tables of multiple
+    attackers, often during combat reset, evading, or when the unit is no longer a
+    valid target. The method ensures that only entries matching the filter criteria
+    are removed, allowing for selective clearing of threat data without affecting
+    other units in the list.
+  parameters:
+  - name: unitFilter
+    description: A function pointer to a predicate that takes a const Unit* and returns
+      bool. This function determines which threat list entries should be removed from
+      the manager. Entries for which this function returns true will be removed.
+  returns: null
+  examples:
+  - title: Basic usage with lambda filter
+    code: "ThreatManager* threatMgr = unit->GetThreatManager();\nbool (*filter)(const\
+      \ Unit*) = [](const Unit* u) -> bool {\n    return u == unit;\n};\nthreatMgr->RemoveMeFromThreatLists(filter);"
+    language: cpp
+  - title: Usage with custom filter function
+    code: "bool IsTargetUnit(const Unit* u) {\n    return u && u->GetGUID() == targetGuid;\n\
+      }\n\n// In combat logic:\nthreatMgr->RemoveMeFromThreatLists(&IsTargetUnit);"
+    language: cpp
+  notes: This method is typically called during combat state changes or when a unit
+    leaves combat. It's important to ensure that the filter function correctly identifies
+    which entries should be removed to avoid unintended behavior in threat management.
+    The method does not clear all threat lists, but only those matching the provided
+    filter criteria.
+  warnings: Calling this method without a proper filter may result in removing incorrect
+    entries from threat lists. Ensure that the filter function is robust and handles
+    null pointers appropriately to prevent crashes or unexpected behavior.
+  related:
+  - AddThreat
+  - GetThreatList
+  - UpdateThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:43:14.047690'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
