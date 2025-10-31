@@ -1,0 +1,82 @@
+api:
+  class: WorldObject
+  method: GetNearPoint
+  signature: void WorldObject::GetNearPoint(const WorldObject * searcher, float &
+    x, float & y, float & z, float distance2d, float absAngle) const
+documentation:
+  brief: Calculates a point near the object at a specified distance and angle.
+  description: The GetNearPoint method computes a 3D coordinate position that lies
+    at a given 2D distance and absolute angle from the object's current location.
+    This utility function is commonly used in game mechanics for positioning creatures,
+    projectiles, or effects relative to an object. The method modifies the provided
+    x, y, z coordinates in-place to represent the calculated point. It does not perform
+    any collision detection or validation of the resulting position.
+  parameters:
+  - name: searcher
+    description: Pointer to another WorldObject used as reference for positioning
+      calculations. This parameter may be null, though behavior is undefined if it
+      is not properly initialized.
+  - name: x
+    description: Reference to a float that will be updated with the calculated X coordinate
+      of the resulting point.
+  - name: y
+    description: Reference to a float that will be updated with the calculated Y coordinate
+      of the resulting point.
+  - name: z
+    description: Reference to a float that will be updated with the calculated Z coordinate
+      of the resulting point.
+  - name: distance2d
+    description: The 2D distance (horizontal) from the object's current position to
+      the target point. Must be non-negative.
+  - name: absAngle
+    description: The absolute angle in radians from the object's facing direction
+      to determine the direction of the offset. Zero radians points along the positive
+      X-axis.
+  returns: null
+  examples:
+  - title: Calculate a point 5 yards in front of a creature
+    code: 'float x, y, z;
+
+      Creature* target = ...; // some creature
+
+      float distance = 5.0f;
+
+      float angle = 0.0f; // directly in front
+
+      target->GetNearPoint(target, x, y, z, distance, angle);
+
+      // x,y,z now contains the position 5 yards ahead of the creature'
+    language: cpp
+  - title: Generate a random point around an object within a radius
+    code: 'float x, y, z;
+
+      WorldObject* obj = ...; // some world object
+
+      float distance = 10.0f; // up to 10 yards away
+
+      float angle = M_PI * rand() / RAND_MAX; // random angle in radians
+
+      obj->GetNearPoint(obj, x, y, z, distance, angle);
+
+      // x,y,z now contains a point within 10 yards at random angle'
+    language: cpp
+  notes: This method only calculates the position and does not validate whether it
+    is valid for spawning or movement. The 'searcher' parameter is often used to determine
+    facing direction but may be ignored in some implementations depending on how the
+    object is oriented. Performance is minimal as this is a simple trigonometric calculation.
+  warnings: Do not use uninitialized references for x, y, z parameters; they will
+    result in undefined behavior. The method assumes that the input distance and angle
+    are valid (non-negative distance). Using extremely large distances may cause floating-point
+    precision issues in some cases.
+  related:
+  - GetPosition
+  - GetPositionX
+  - GetPositionY
+  - GetPositionZ
+  - GetOrientation
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:55:23.322984'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: AuraEffect
+  method: HandleAuraCanTurnWhileFalling
+  signature: void AuraEffect::HandleAuraCanTurnWhileFalling(const AuraApplication
+    * aurApp, uint8 mode, bool apply) const
+documentation:
+  brief: Handles the application or removal of an aura effect that allows a player
+    to turn while falling.
+  description: The HandleAuraCanTurnWhileFalling method manages the behavior of an
+    aura that permits a player character to rotate their orientation (turn left/right)
+    even while in a falling state. This is commonly used by abilities such as 'Parachute'
+    or similar mechanics that allow for controlled movement during descent. The method
+    is invoked internally by the Aura system when an aura application is added or
+    removed from a unit, and it modifies the unit's movement flags to enable or disable
+    turning during fall. It operates based on the provided aura application context
+    and the mode of operation (apply or remove).
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This contains information about which unit the aura affects,
+      the aura's properties, and its current state.
+  - name: mode
+    description: The mode of operation for the aura effect. Typically 0 for applying
+      the aura and 1 for removing it. Used internally to determine how to process
+      the effect.
+  - name: apply
+    description: Boolean flag indicating whether the aura is being applied (true)
+      or removed (false). This determines the direction of the behavior change in
+      the unit's movement capabilities.
+  returns: null
+  examples:
+  - title: Applying the CanTurnWhileFalling Aura
+    code: "void ApplyCanTurnWhileFallingAura(Unit* target)\n{\n    if (Aura* aura\
+      \ = target->GetAura(12345)) // Assume 12345 is a valid aura ID\n    {\n    \
+      \    aura->ApplyEffect(this, 0, true);\n    }\n}"
+    language: cpp
+  - title: Handling Aura Application in Custom Spell
+    code: "class MySpellHandler\n{\npublic:\n    void HandleSpellEffect(Unit* caster,\
+      \ Unit* target)\n    {\n        if (AuraEffect* effect = target->GetAuraEffect(12345,\
+      \ 0))\n        {\n            effect->HandleAuraCanTurnWhileFalling(nullptr,\
+      \ 0, true);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the internal aura handling system in TrinityCore and
+    is typically called by the core engine when an aura's state changes. It modifies
+    the unit's movement flags to allow turning during fall, which can be used for
+    both gameplay mechanics and visual effects. Ensure that the aura ID corresponds
+    to a valid spell with this effect type.
+  warnings: Incorrect usage of this method without proper aura context may lead to
+    undefined behavior or client-side desynchronization. This method should only be
+    invoked from within the correct aura application lifecycle, and care must be taken
+    not to call it on units that are not in a falling state unless intended.
+  related:
+  - AuraEffect::HandleAuraApply
+  - AuraEffect::HandleAuraRemove
+  - Unit::SetCanTurnWhileFalling
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:00:13.874720'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

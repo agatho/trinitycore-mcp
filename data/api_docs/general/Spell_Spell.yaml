@@ -1,0 +1,64 @@
+api:
+  class: Spell
+  method: Spell
+  signature: void Spell::Spell(WorldObject * caster, const SpellInfo * info, TriggerCastFlags
+    triggerFlags, int originalCasterGUID, int originalCastId)
+documentation:
+  brief: Initializes a new spell instance with specified caster, spell info, and casting
+    flags.
+  description: The Spell constructor initializes a spell object for execution by a
+    caster. It sets up internal state based on the provided spell information, caster
+    object, and trigger flags. This method is typically called when creating a spell
+    to be cast, either by player action or NPC ability. The original caster GUID and
+    cast ID are stored for tracking purposes, especially in cases involving triggered
+    spells or spell cascades. This constructor prepares the spell for execution within
+    the TrinityCore spell system.
+  parameters:
+  - name: caster
+    description: Pointer to the WorldObject that is casting the spell (can be Player,
+      Creature, GameObject, etc.). Must not be null.
+  - name: info
+    description: Pointer to the SpellInfo structure containing the spell's definition
+      and properties. Must not be null.
+  - name: triggerFlags
+    description: Flags indicating how the spell was triggered (e.g., from item, from
+      aura, etc.). Used for proper spell handling and logging.
+  - name: originalCasterGUID
+    description: GUID of the original caster if this is a triggered spell. Zero or
+      invalid GUID indicates direct casting.
+  - name: originalCastId
+    description: Unique identifier for the original cast event, used to track spell
+      chains and cascading effects.
+  returns: null
+  examples:
+  - title: Basic Spell Initialization
+    code: 'Player* player = ...;
+
+      SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(12345);
+
+      Spell* spell = new Spell(player, spellInfo, TRIGGERED_NONE, 0, 0);'
+    language: cpp
+  - title: Triggered Spell Initialization
+    code: 'Creature* creature = ...;
+
+      SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(67890);
+
+      Spell* triggeredSpell = new Spell(creature, spellInfo, TRIGGERED_CAST_BY_SPELL,
+      player->GetGUID().GetCounter(), 12345);'
+    language: cpp
+  notes: This constructor does not execute the spell; it only initializes the object
+    state. The actual spell effect is executed via Spell::Prepare() or Spell::Cast().
+    Ensure that both caster and info parameters are valid before calling this constructor.
+  warnings: Do not call this constructor directly unless you're implementing custom
+    spell logic. Most spells should be created using Spell::CreateSpell() or similar
+    factory methods to ensure proper initialization and handling.
+  related:
+  - Spell::Prepare
+  - Spell::Cast
+  - Spell::CreateSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:55:40.639072'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

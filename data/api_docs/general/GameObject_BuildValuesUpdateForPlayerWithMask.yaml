@@ -1,0 +1,66 @@
+api:
+  class: GameObject
+  method: BuildValuesUpdateForPlayerWithMask
+  signature: void GameObject::BuildValuesUpdateForPlayerWithMask(int * data, const
+    int & requestedObjectMask, const int & requestedGameObjectMask, const int * target)
+    const
+documentation:
+  brief: Populates update data for a game object with specified masks for player visibility.
+  description: 'The BuildValuesUpdateForPlayerWithMask method constructs and fills
+    an update packet containing the game object''s data, applying specific masks to
+    determine which fields are included in the update. This method is used internally
+    by the TrinityCore server to efficiently send only relevant object data to players
+    based on their view distance, visibility flags, and other conditions. The method
+    takes three parameters: a data buffer to populate, a mask for the base object
+    fields, a mask for game object-specific fields, and a target player reference.
+    It ensures that only necessary data is sent over the network, optimizing performance
+    for large-scale world updates.'
+  parameters:
+  - name: data
+    description: Pointer to an integer array where the update data will be written.
+      This buffer must be pre-allocated with sufficient space to hold all relevant
+      object fields based on the provided masks.
+  - name: requestedObjectMask
+    description: Integer mask specifying which base object fields should be included
+      in the update packet. Each bit corresponds to a specific field in the object's
+      update mask.
+  - name: requestedGameObjectMask
+    description: Integer mask specifying which game object-specific fields should
+      be included in the update packet. This mask is applied after the base object
+      mask and determines the visibility of GameObject-specific properties.
+  - name: target
+    description: Pointer to an integer array representing the target player's update
+      context. Used to determine visibility conditions and apply appropriate filtering
+      based on the player's view range and state.
+  returns: null
+  examples:
+  - title: Basic usage for updating a game object with specific masks
+    code: 'int updateData[100];
+
+      int objectMask = 0x0001;
+
+      int gameObjectMask = 0x0002;
+
+      Player* player = ...; // Get target player
+
+      gameObject->BuildValuesUpdateForPlayerWithMask(updateData, objectMask, gameObjectMask,
+      reinterpret_cast<int*>(player));'
+    language: cpp
+  notes: This method is typically called internally by the server's update system
+    and should not be invoked directly in most cases. The data buffer must be large
+    enough to accommodate all fields specified by the masks. The method assumes that
+    the target player is valid and properly initialized.
+  warnings: Incorrectly setting the mask values can result in incomplete or malformed
+    update packets, potentially causing client-side issues or missing object data.
+    Ensure that the data buffer size matches the expected output from the masks to
+    avoid memory corruption.
+  related:
+  - GameObject::BuildValuesUpdate
+  - GameObject::BuildOutOfRangeUpdate
+  - GameObject::SendUpdateToPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:19:54.217017'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

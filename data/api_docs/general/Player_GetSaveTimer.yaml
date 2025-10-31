@@ -1,0 +1,56 @@
+api:
+  class: Player
+  method: GetSaveTimer
+  signature: uint32 Player::GetSaveTimer() const
+documentation:
+  brief: Returns the remaining time in seconds until the player's data is automatically
+    saved to the database.
+  description: The GetSaveTimer method retrieves the number of seconds remaining before
+    the player's character data will be automatically persisted to the database. This
+    timer is managed internally by the TrinityCore server and is typically reset whenever
+    the player performs actions that would trigger a save, such as logging out, changing
+    zones, or modifying character state. The save timer helps balance performance
+    with data integrity by preventing excessive database writes while ensuring that
+    recent changes are not lost in case of server crashes. This method is commonly
+    used in server-side logic to determine when it's safe to perform certain operations
+    or to display status information to the player.
+  parameters: []
+  returns: A uint32 value representing the number of seconds remaining until the next
+    automatic save. Returns 0 if the player data is due for immediate saving or if
+    no save timer is currently active.
+  examples:
+  - title: Check Save Timer Before Logout
+    code: "void HandlePlayerLogout(Player* player)\n{\n    uint32 secondsRemaining\
+      \ = player->GetSaveTimer();\n    if (secondsRemaining > 0)\n    {\n        //\
+      \ Notify player that data will be saved in X seconds\n        player->SendNotification(\"\
+      Data will be saved in %u seconds.\", secondsRemaining);\n    }\n    else\n \
+      \   {\n        // Data is due for immediate save\n        player->SaveToDB();\n\
+      \    }\n}"
+    language: cpp
+  - title: Implement Custom Save Logic
+    code: "void CheckPlayerSaveStatus(Player* player)\n{\n    uint32 timer = player->GetSaveTimer();\n\
+      \    if (timer <= 30) // Less than 30 seconds remaining\n    {\n        // Force\
+      \ save to prevent data loss\n        player->SaveToDB();\n        sLog->outString(\"\
+      Forced save for player %s\", player->GetName().c_str());\n    }\n    else if\
+      \ (timer > 60)\n    {\n        // Log long timer for debugging purposes\n  \
+      \      sLog->outString(\"Player %s has %u seconds until next auto-save.\", player->GetName().c_str(),\
+      \ timer);\n    }\n}"
+    language: cpp
+  notes: The save timer is managed by the server's internal update loop and may vary
+    based on server configuration settings. The actual save interval can be configured
+    via the 'player.save_interval' setting in the worldserver.conf file. This method
+    is thread-safe as it only reads from a member variable that is updated in a controlled
+    manner.
+  warnings: Do not rely on this timer for critical data operations, as it may return
+    0 even when the player has recent unsaved changes. Always ensure proper error
+    handling when using this value in time-sensitive operations.
+  related:
+  - SaveToDB
+  - SetSaveTimer
+  - GetSession
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:40:28.731843'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

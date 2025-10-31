@@ -1,0 +1,67 @@
+api:
+  class: Creature
+  method: BuildValuesUpdateForPlayerWithMask
+  signature: void Creature::BuildValuesUpdateForPlayerWithMask(int * data, const int
+    & requestedObjectMask, const int & requestedUnitMask, const Player * target) const
+documentation:
+  brief: Populates an update buffer with object and unit data for a specific player
+    target.
+  description: This method constructs an update packet containing the creature's object
+    and unit fields, filtered by the provided masks, for transmission to a specific
+    player. It is used internally by the TrinityCore server to efficiently send only
+    relevant data about the creature to each client, reducing network overhead. The
+    method respects the object and unit update masks to determine which fields should
+    be included in the update packet. This functionality is essential for maintaining
+    performance in multiplayer environments where many creatures exist within the
+    same world.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be populated with the update
+      data. The size of this buffer must be sufficient to hold all relevant fields
+      based on the masks provided.
+  - name: requestedObjectMask
+    description: Bitmask specifying which object fields should be included in the
+      update packet. Each bit corresponds to a specific object field in the update
+      mask structure.
+  - name: requestedUnitMask
+    description: Bitmask specifying which unit fields should be included in the update
+      packet. Similar to the object mask, each bit represents a particular unit field.
+  - name: target
+    description: Pointer to the Player object for whom the update data is being prepared.
+      The method ensures that only data relevant to this specific player is included
+      in the update.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: 'int updateData[100];
+
+      uint32 objectMask = 0x0001;
+
+      uint32 unitMask = 0x0002;
+
+      Player* targetPlayer = player;
+
+      creature->BuildValuesUpdateForPlayerWithMask(updateData, objectMask, unitMask,
+      targetPlayer);'
+    language: cpp
+  notes: This method is typically called during the update process of a creature when
+    sending updates to players in the creature's visibility range. It's important
+    that the data buffer passed in is large enough to accommodate all fields specified
+    by the masks, otherwise memory corruption may occur. The implementation uses internal
+    field accessors and relies on proper mask definitions defined in the game's update
+    system.
+  warnings: Incorrectly setting the object or unit masks can result in incomplete
+    updates or missing data for the client. Ensure that the buffer size is adequate
+    to prevent overflows. This method should not be called directly from outside the
+    core update logic unless you understand the implications of modifying update packet
+    contents.
+  related:
+  - BuildValuesUpdate
+  - BuildOutOfRangeUpdate
+  - GetUpdateMask
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T20:44:29.717893'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

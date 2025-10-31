@@ -1,0 +1,63 @@
+api:
+  class: WorldObject
+  method: GetMagicHitRedirectTarget
+  signature: Unit * WorldObject::GetMagicHitRedirectTarget(Unit * victim, const SpellInfo
+    * spellInfo)
+documentation:
+  brief: Returns the target unit that magic hits are redirected to for the specified
+    victim and spell.
+  description: The GetMagicHitRedirectTarget method determines which unit will receive
+    magic damage intended for the provided victim when a spell is cast. This functionality
+    supports game mechanics such as spell redirection effects, taunt abilities, or
+    defensive cooldowns that alter the target of incoming magical attacks. The method
+    evaluates whether any redirection effects are active on the victim and returns
+    the appropriate redirect target if one exists. If no redirection is in effect,
+    it returns the original victim unit. The returned Unit pointer can be null if
+    there's an error in the redirection logic or if the victim is invalid.
+  parameters:
+  - name: victim
+    description: The unit that is the intended target of the magic hit. This parameter
+      must not be null and represents the unit whose magical attack is being redirected.
+  - name: spellInfo
+    description: The SpellInfo structure describing the spell that is causing the
+      redirection. This parameter is used to determine if specific redirection effects
+      apply to this spell type or school of magic.
+  returns: A pointer to the Unit that will receive the redirected magic hit, or nullptr
+    if no redirection is active or if an error occurs during evaluation.
+  examples:
+  - title: Basic usage in spell processing
+    code: "Unit* redirectTarget = attacker->GetMagicHitRedirectTarget(victim, spellInfo);\n\
+      if (redirectTarget && redirectTarget != victim)\n{\n    // Apply spell damage\
+      \ to redirectTarget instead of victim\n    DoSpellDamage(redirectTarget, spellInfo);\n\
+      }\nelse\n{\n    // Apply spell damage normally to victim\n    DoSpellDamage(victim,\
+      \ spellInfo);\n}"
+    language: cpp
+  - title: Checking for redirection before applying damage
+    code: "Unit* target = GetMagicHitRedirectTarget(targetUnit, spellInfo);\nif (target)\n\
+      {\n    // Log redirection event\n    sLog->outDebug(LOG_FILTER_SPELLS_AURAS,\
+      \ \"Spell %u redirected from %s to %s\", \n                   spellInfo->Id,\
+      \ targetUnit->GetName().c_str(), target->GetName().c_str());\n    // Proceed\
+      \ with damage application to the redirect target\n    ApplyDamage(target, damageAmount);\n\
+      }\nelse\n{\n    // Normal damage handling\n    ApplyDamage(targetUnit, damageAmount);\n\
+      }"
+    language: cpp
+  notes: This method is primarily used internally by the spell system and aura management
+    to handle redirection effects. Developers should be aware that the returned Unit
+    pointer may be invalidated if the redirect target dies or becomes invalid during
+    the spell's execution. The method does not perform any direct damage application;
+    it only determines the correct target for further processing.
+  warnings: Do not assume that the returned Unit is always a valid target for damage
+    application. Always check for null returns and verify that the redirect target
+    is still alive and eligible to receive the spell effect before applying damage
+    or effects. Failure to do so can lead to crashes or unexpected behavior in combat
+    scenarios.
+  related:
+  - GetSpellHitRedirectTarget
+  - IsSpellRedirected
+  - SetMagicHitRedirectTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T22:02:35.962959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

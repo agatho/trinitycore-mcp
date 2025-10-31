@@ -1,0 +1,53 @@
+api:
+  class: AuraEffect
+  method: GetTickNumber
+  signature: uint32 AuraEffect::GetTickNumber() const
+documentation:
+  brief: Returns the current tick number of the aura effect.
+  description: The GetTickNumber method retrieves the current tick count for an aura
+    effect that is currently active on a unit. In World of Warcraft's TrinityCore,
+    auras can be applied with periodic effects that occur at regular intervals, known
+    as ticks. This method allows developers to determine how many times the aura's
+    periodic effect has been applied since it was initially cast. The tick number
+    is typically used for tracking the progression of effects like DoT (damage over
+    time) or HoT (heal over time) spells, and can be important for calculating damage
+    values, managing aura duration, or implementing custom behavior based on the number
+    of ticks that have occurred.
+  parameters: []
+  returns: A uint32 value representing the current tick number of the aura effect.
+    This value starts at 1 when the first tick occurs and increments with each subsequent
+    tick until the aura expires or is removed.
+  examples:
+  - title: Checking Tick Number for a Damage Over Time Aura
+    code: "AuraEffect* auraEffect = unit->GetAuraEffect(SPELL_ID_DOOM, 0);\nif (auraEffect)\n\
+      {\n    uint32 tickNumber = auraEffect->GetTickNumber();\n    if (tickNumber\
+      \ >= 5)\n    {\n        // Apply special effect after 5 ticks\n        unit->CastSpell(target,\
+      \ SPELL_SPECIAL_EFFECT, true);\n    }\n}"
+    language: cpp
+  - title: Tracking Aura Tick Progression for Custom Logic
+    code: "Unit* target = player->GetSelectedUnit();\nif (target && target->HasAura(SPELL_ID_CORRUPTION))\n\
+      {\n    Aura* aura = target->GetAura(SPELL_ID_CORRUPTION);\n    if (aura)\n \
+      \   {\n        AuraEffect* effect = aura->GetEffect(0);\n        if (effect)\n\
+      \        {\n            uint32 currentTick = effect->GetTickNumber();\n    \
+      \        // Log or display tick progression\n            sLog->outString(\"\
+      Corruption tick: %u\", currentTick);\n        }\n    }\n}"
+    language: cpp
+  notes: This method should only be called on active aura effects. If the aura effect
+    is not currently active or has expired, the returned value may be unreliable or
+    zero. The tick number is managed internally by the aura system and increments
+    each time a periodic effect is applied.
+  warnings: Do not assume that the tick number will always increment linearly. Some
+    aura effects may skip ticks under certain conditions (e.g., when the target is
+    immune, or during combat lockdown). Also, be cautious when using this value in
+    calculations that might affect gameplay balance.
+  related:
+  - GetAura
+  - GetEffect
+  - GetTickTime
+  - GetMaxTicks
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:00:57.471697'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

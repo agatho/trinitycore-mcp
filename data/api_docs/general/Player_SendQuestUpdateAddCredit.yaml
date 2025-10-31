@@ -1,0 +1,63 @@
+api:
+  class: Player
+  method: SendQuestUpdateAddCredit
+  signature: void Player::SendQuestUpdateAddCredit(const Quest * quest, int guid,
+    const int & obj, uint16 count) const
+documentation:
+  brief: Sends a quest update to the player indicating added credit for an objective.
+  description: The SendQuestUpdateAddCredit method is used to notify a player's client
+    about progress made toward completing a quest objective. It updates the quest
+    log UI to reflect that the player has made progress, typically by collecting items,
+    defeating creatures, or interacting with game objects. This method is part of
+    TrinityCore's quest system and ensures that the client displays accurate quest
+    status information. The method does not directly modify quest state in memory
+    but rather sends a network packet to update the client-side UI. It requires valid
+    quest data and proper GUID/object references to function correctly.
+  parameters:
+  - name: quest
+    description: Pointer to the Quest object that is being updated. Must be a valid
+      pointer to an existing quest in the game database.
+  - name: guid
+    description: The global unique identifier of the object or creature related to
+      the quest objective (e.g., NPC GUID, item GUID).
+  - name: obj
+    description: Reference to an integer representing the quest objective index or
+      type. This determines which specific objective in the quest is being updated.
+  - name: count
+    description: The number of items or objectives completed toward the quest goal.
+      Typically used for item collection or kill count objectives.
+  returns: null
+  examples:
+  - title: Basic usage when player collects an item
+    code: "void Player::OnItemLooted(Item* item)\n{\n    if (item->GetEntry() == 12345)\n\
+      \    {\n        Quest const* quest = sObjectMgr->GetQuestTemplate(54321);\n\
+      \        SendQuestUpdateAddCredit(quest, item->GetGUID().GetRawValue(), 0, 1);\n\
+      \    }\n}"
+    language: cpp
+  - title: Updating progress for a creature kill objective
+    code: "void Player::OnCreatureKilled(Creature* creature)\n{\n    if (creature->GetEntry()\
+      \ == 98765)\n    {\n        Quest const* quest = sObjectMgr->GetQuestTemplate(11223);\n\
+      \        SendQuestUpdateAddCredit(quest, creature->GetGUID().GetRawValue(),\
+      \ 1, 1);\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the core when quest objectives
+    are completed. Developers should ensure that the quest pointer is valid and that
+    the GUID corresponds to an actual in-game object. The obj parameter usually maps
+    to the QuestObjective index within the quest template, and count represents how
+    many times the objective was met.
+  warnings: Calling this method with invalid parameters can cause client-side UI glitches
+    or incorrect quest progress display. Ensure that the quest exists in the database
+    and that the GUID corresponds to a valid object before calling this function.
+    Do not call this method outside of proper game logic contexts as it may disrupt
+    synchronization between server and client.
+  related:
+  - SendQuestUpdateComplete
+  - SendQuestUpdateFailed
+  - SendQuestUpdateAddItem
+  - SendQuestUpdateAddKill
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:23:28.034179'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: WorldObject
+  method: GetFirstCollisionPosition
+  signature: Position WorldObject::GetFirstCollisionPosition(float dist, float angle)
+documentation:
+  brief: Calculates and returns the first collision position along a specified direction
+    and distance from the WorldObject.
+  description: The GetFirstCollisionPosition method computes the first point of collision
+    along a given direction and distance from the current WorldObject's position.
+    It is typically used in game mechanics involving line-of-sight checks, spell targeting,
+    or movement pathfinding where it's necessary to determine where an object would
+    collide with terrain, obstacles, or other entities. The method takes into account
+    the object's orientation and uses the provided distance and angle to calculate
+    the target point, then performs a collision check to find the actual first point
+    of contact. This is particularly useful for determining valid spell targets, projectile
+    paths, or movement boundaries in the game world.
+  parameters:
+  - name: dist
+    description: The maximum distance to check for collisions along the specified
+      direction. Must be a positive value representing units in the game world.
+  - name: angle
+    description: The angle (in radians) relative to the object's facing direction
+      to calculate the collision point. Zero radians represents the forward direction
+      of the object.
+  returns: Returns a Position object representing the first collision point along
+    the specified direction and distance. If no collision is found within the given
+    distance, it returns the position at the maximum distance in the specified direction.
+  examples:
+  - title: Basic usage to find collision point in front of object
+    code: "Position pos = unit->GetFirstCollisionPosition(50.0f, 0.0f); // 50 units\
+      \ forward\nif (pos.IsInWorld()) {\n    // Use the collision position for spell\
+      \ targeting or movement\n    TC_LOG_DEBUG(\"entities.unit\", \"Collision at:\
+      \ %f, %f, %f\", pos.x, pos.y, pos.z);\n}"
+    language: cpp
+  - title: Finding collision point at an angle to check for obstacles
+    code: "float angle = M_PI / 4; // 45 degrees\nPosition pos = unit->GetFirstCollisionPosition(30.0f,\
+      \ angle);\nif (pos.GetExactDist(unit) < 30.0f) {\n    TC_LOG_DEBUG(\"entities.unit\"\
+      , \"Obstacle detected at: %f, %f, %f\", pos.x, pos.y, pos.z);\n} else {\n  \
+      \  TC_LOG_DEBUG(\"entities.unit\", \"No obstacle within 30 units\");\n}"
+    language: cpp
+  notes: This method performs collision detection using the game's navigation system
+    and terrain data. It may be computationally expensive in complex environments
+    with many obstacles. The method considers both static world geometry and dynamic
+    entities that can block movement or line-of-sight. For performance-critical applications,
+    consider caching results or limiting the maximum distance used.
+  warnings: The returned Position may not always represent a valid navigable point
+    if the collision occurs at an invalid location (e.g., inside solid geometry).
+    Always validate the returned position before using it for movement or targeting
+    operations. The method does not account for dynamic changes in the world state
+    that might occur between the time of calculation and when the result is used.
+  related:
+  - GetPosition
+  - GetOrientation
+  - IsInWorld
+  - GetExactDist
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T22:10:23.198935'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

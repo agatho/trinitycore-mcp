@@ -1,0 +1,72 @@
+api:
+  class: Unit
+  method: SpellHealingBonusTaken
+  signature: int32 Unit::SpellHealingBonusTaken(Unit * caster, const SpellInfo * spellProto,
+    int32 healamount, DamageEffectType damagetype) const
+documentation:
+  brief: Calculates and returns the total healing bonus applied to a spell based on
+    caster's attributes and spell properties.
+  description: This method determines the healing bonus that a caster contributes
+    to a spell's healing amount, taking into account various factors such as the caster's
+    spell power, healing bonuses, and the specific spell being cast. It is used in
+    the context of World of Warcraft's spell system to calculate effective healing
+    values during healing spells. The method considers both direct and indirect healing
+    effects, including bonus healing from different sources like mastery, critical
+    strikes, and other spell modifiers.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit that is casting the spell; this unit's attributes
+      are used to calculate the healing bonus. Must not be nullptr.
+  - name: spellProto
+    description: Pointer to the SpellInfo structure defining the spell being cast;
+      determines which healing bonuses apply based on spell properties like school,
+      type, etc.
+  - name: healamount
+    description: The base healing amount that is being modified by bonus calculations;
+      represents the original healing value before applying bonus modifiers.
+  - name: damagetype
+    description: Enum specifying the damage type of the spell, used to determine which
+      healing bonuses apply based on the spell's nature (e.g., Holy, Nature, Shadow).
+  returns: Returns an integer value representing the total healing bonus applied to
+    the spell. This value can be positive or negative depending on whether bonuses
+    increase or decrease the healing amount. A return value of 0 indicates no bonus
+    was applied.
+  examples:
+  - title: Basic Healing Bonus Calculation
+    code: 'int32 bonus = unit->SpellHealingBonusTaken(caster, spellInfo, healAmount,
+      SPELL_DAMAGE_TYPE_HOLY);
+
+      int32 totalHeal = healAmount + bonus;'
+    language: cpp
+  - title: Advanced Healing Bonus with Multiple Spell Types
+    code: 'Unit* caster = player->GetPet();
+
+      SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(12345);
+
+      int32 healAmount = 100;
+
+      int32 bonus = unit->SpellHealingBonusTaken(caster, spellInfo, healAmount, SPELL_DAMAGE_TYPE_NATURE);
+
+      int32 totalHeal = healAmount + bonus;'
+    language: cpp
+  notes: This method is typically used in conjunction with other healing calculation
+    methods to determine final healing values. Performance considerations include
+    avoiding unnecessary calls when the spell does not require bonus calculations.
+    Thread safety is generally ensured as long as the unit and spell data are properly
+    synchronized.
+  warnings: The method may return negative values if certain bonuses reduce healing
+    effectiveness. Be cautious of potential null pointer exceptions if caster or spellProto
+    is nullptr. Ensure that the damage type matches the actual spell being cast to
+    avoid incorrect bonus calculations.
+  related:
+  - SpellHealingBonusDone
+  - SpellDamageBonusTaken
+  - SpellDamageBonusDone
+  - Unit::GetUInt32Value
+  - Unit::GetFloatValue
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-30T20:12:23.716192'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

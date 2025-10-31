@@ -1,0 +1,52 @@
+api:
+  class: Player
+  method: IsLoading
+  signature: bool Player::IsLoading() const
+documentation:
+  brief: Checks if the player is currently in the process of loading their character
+    data from the database.
+  description: The IsLoading method returns a boolean value indicating whether the
+    player object is in a transitional state where its character data is being loaded
+    from the database. This typically occurs during the initial login sequence, when
+    a player's account is authenticated and their character information is being retrieved
+    and populated into memory. The method is commonly used to prevent operations that
+    require complete player data from executing while the character is still loading.
+    It can also be used to defer certain actions until the player is fully initialized
+    and ready for gameplay.
+  parameters: []
+  returns: Returns true if the player's character data is currently being loaded from
+    the database, false otherwise. This indicates that the player object is in an
+    incomplete state and may not have all required data populated yet.
+  examples:
+  - title: Basic usage to check loading status
+    code: "if (!player->IsLoading()) {\n    // Player is fully loaded, safe to perform\
+      \ actions\n    player->SendChatMessage(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, \"Player\
+      \ is ready!\");\n} else {\n    // Player is still loading, defer action\n  \
+      \  sLog->outString(\"Player data still loading...\");\n}"
+    language: cpp
+  - title: Using IsLoading in a login handler
+    code: "void OnPlayerLogin(Player* player) {\n    if (player->IsLoading()) {\n\
+      \        // Schedule delayed action until player is fully loaded\n        sWorld->SchedulePlayerLogin(player);\n\
+      \    } else {\n        // Player is ready, proceed with normal login logic\n\
+      \        player->SendUpdateWorldState(WORLD_STATE_PLAYER_READY, 1);\n    }\n\
+      }"
+    language: cpp
+  notes: This method is typically used internally by the TrinityCore framework to
+    manage player state transitions. It's important to note that while a player is
+    loading, many operations may be blocked or delayed until the loading process completes.
+    The loading state usually occurs during the initial connection handshake and character
+    selection phase.
+  warnings: Avoid performing critical gameplay operations on players who are still
+    loading as their data may be incomplete. This can lead to undefined behavior or
+    crashes if methods that expect complete player data are called before the loading
+    is finished.
+  related:
+  - Player::SetLoading
+  - Player::IsInWorld
+  - Player::IsBeingTeleported
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:37:23.327862'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

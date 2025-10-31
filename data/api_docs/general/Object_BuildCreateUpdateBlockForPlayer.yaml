@@ -1,0 +1,62 @@
+api:
+  class: Object
+  method: BuildCreateUpdateBlockForPlayer
+  signature: void Object::BuildCreateUpdateBlockForPlayer(UpdateData * data, Player
+    * target) const
+documentation:
+  brief: Populates an UpdateData object with create update packets for the specified
+    player target.
+  description: The BuildCreateUpdateBlockForPlayer method constructs and fills an
+    UpdateData structure with the necessary create update packets that inform a specific
+    Player about the presence of this Object in the game world. This method is typically
+    invoked during the process of sending initial object state to players, such as
+    when a player enters a zone or when objects are spawned. It ensures that the target
+    player receives all relevant creation data for the object, including its type,
+    position, and other properties needed for proper rendering and interaction within
+    the game client. The method operates on the const instance and modifies the provided
+    UpdateData object in-place.
+  parameters:
+  - name: data
+    description: Pointer to an UpdateData object that will be populated with create
+      update packets for this object.
+  - name: target
+    description: Pointer to the Player object for whom the create update packets are
+      being generated.
+  returns: null
+  examples:
+  - title: Basic Usage in Object Spawning
+    code: 'Object* obj = new GameObject();
+
+      UpdateData data;
+
+      Player* player = ...; // Get a valid player reference
+
+      obj->BuildCreateUpdateBlockForPlayer(&data, player);
+
+      player->GetSession()->SendUpdateData(&data);'
+    language: cpp
+  - title: Usage in Player Zone Entry
+    code: "void HandlePlayerEnterZone(Player* player)\n{\n    UpdateData updateData;\n\
+      \    // Iterate through objects in the zone\n    for (auto& obj : zoneObjects)\n\
+      \    {\n        if (obj->IsVisibleTo(player))\n        {\n            obj->BuildCreateUpdateBlockForPlayer(&updateData,\
+      \ player);\n        }\n    }\n    player->GetSession()->SendUpdateData(&updateData);\n\
+      }"
+    language: cpp
+  notes: This method is part of the core update system in TrinityCore and should only
+    be called when an object needs to be made visible to a specific player. It does
+    not perform any visibility checks itself; it's expected that callers verify visibility
+    before invoking this method. The UpdateData object must be properly initialized
+    before calling this method.
+  warnings: Calling this method without proper initialization of the UpdateData object
+    or with invalid Player pointers can lead to undefined behavior or crashes. Ensure
+    that the target player is valid and connected before using this method.
+  related:
+  - Object::BuildValuesUpdateBlockForPlayer
+  - Object::BuildOutOfRangeUpdateBlock
+  - Object::SendCreateUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T20:06:41.836039'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

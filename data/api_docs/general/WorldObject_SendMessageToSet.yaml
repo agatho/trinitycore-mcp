@@ -1,0 +1,68 @@
+api:
+  class: WorldObject
+  method: SendMessageToSet
+  signature: void WorldObject::SendMessageToSet(const WorldPacket * data, const Player
+    * skipped_rcvr) const
+documentation:
+  brief: Sends a packet to all players in the object's update distance
+  description: The SendMessageToSet method broadcasts a WorldPacket to all Player
+    objects within the object's update distance, excluding any specified player. This
+    is commonly used for sending updates or messages that should be visible to nearby
+    players, such as combat events, spell effects, or object state changes. The method
+    leverages the object's visibility system to determine which players should receive
+    the message. It is typically called on game objects like creatures, players, or
+    game objects that need to communicate with nearby players.
+  parameters:
+  - name: data
+    description: Pointer to the WorldPacket containing the data to be sent to players
+      in the set
+  - name: skipped_rcvr
+    description: Optional pointer to a Player object whose updates should be skipped
+      during the broadcast. Can be NULL to send to all players.
+  returns: null
+  examples:
+  - title: Sending a combat message to nearby players
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT, 100);
+
+      packet << uint32(CHAT_MSG_MONSTER_SAY);
+
+      packet << uint32(LANG_UNIVERSAL);
+
+      packet << uint64(m_guid);
+
+      packet << uint32(0); // target guid
+
+      packet << "Hello, nearby players!";
+
+      SendMessageToSet(&packet, nullptr);'
+    language: cpp
+  - title: Broadcasting a spell effect to players while skipping the caster
+    code: 'WorldPacket packet(SMSG_SPELL_GO, 50);
+
+      packet << uint64(m_guid);
+
+      packet << uint64(caster->GetGUID());
+
+      packet << uint32(SPELL_ID);
+
+      SendMessageToSet(&packet, caster);'
+    language: cpp
+  notes: This method uses the object's visibility system and update distances to determine
+    which players receive the packet. It is optimized for performance by using internal
+    set structures rather than iterating through all players in the world. The method
+    does not send the packet to the player specified in skipped_rcvr, which is useful
+    when broadcasting effects that should not be seen by the caster.
+  warnings: Ensure that the WorldPacket passed is properly constructed and valid before
+    calling this method, as invalid packets can cause client-side crashes or unexpected
+    behavior. Be cautious with large packets, as they will be sent to potentially
+    many players and may impact performance.
+  related:
+  - SendMessageToSetInRange
+  - SendForcedUpdateToPlayer
+  - UpdateVisibilityAndView
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:09:21.981112'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

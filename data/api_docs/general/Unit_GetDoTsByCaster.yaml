@@ -1,0 +1,57 @@
+api:
+  class: Unit
+  method: GetDoTsByCaster
+  signature: uint32 Unit::GetDoTsByCaster(int casterGUID) const
+documentation:
+  brief: Returns the count of DoT (Damage over Time) effects applied by a specific
+    caster on this unit.
+  description: The GetDoTsByCaster method retrieves the number of active Damage over
+    Time (DoT) spells that were cast by a specified caster and are currently affecting
+    this unit. This is commonly used in spell effect tracking, aura management, and
+    combat logic to determine how many harmful periodic effects from a particular
+    source are active on the target. The method takes a caster's GUID as input and
+    returns a count of matching DoTs. It does not distinguish between different types
+    of DoTs (e.g., damage vs. healing), but rather counts all DoT auras originating
+    from the given caster.
+  parameters:
+  - name: casterGUID
+    description: The unique identifier (GUID) of the caster whose DoT effects are
+      being counted. This should be a valid GUID representing a player, creature,
+      or game object that has cast DoT spells on this unit.
+  returns: A uint32 value representing the number of active DoT effects applied by
+    the specified caster to this unit. Returns zero if no matching DoTs are found
+    or if the casterGUID is invalid.
+  examples:
+  - title: Count DoTs from a specific player
+    code: "Unit* target = ...;\nPlayer* player = ...;\nuint32 dotCount = target->GetDoTsByCaster(player->GetGUID());\n\
+      if (dotCount > 0)\n{\n    // Player has X DoT effects on the target\n    sLog->outString(\"\
+      Target has %u DoTs from player.\", dotCount);\n}"
+    language: cpp
+  - title: Use in spell effect logic
+    code: "void ApplySpellEffect(Unit* caster, Unit* target)\n{\n    if (caster->GetTypeId()\
+      \ == TYPEID_PLAYER)\n    {\n        uint32 existingDots = target->GetDoTsByCaster(caster->GetGUID());\n\
+      \        if (existingDots >= 5) // Max allowed DoTs\n        {\n           \
+      \ // Prevent stacking more DoTs\n            return;\n        }\n    }\n   \
+      \ // Proceed with applying the new DoT\n}"
+    language: cpp
+  notes: This method relies on internal aura tracking and may not reflect DoTs that
+    are in the process of being applied or removed. It is typically used during combat
+    state updates or spell application logic. The method does not account for DoTs
+    from different spell families or types, only counts all DoT auras from the specified
+    caster.
+  warnings: Ensure that the casterGUID passed to this method is valid and represents
+    an actual unit in the world; passing invalid GUIDs may lead to unexpected behavior
+    or errors. This function should not be used for modifying aura states directly
+    but rather for querying existing effects.
+  related:
+  - GetAuraCount
+  - GetAuraBySpellId
+  - HasAura
+  - GetAuraApplication
+  - RemoveAurasDueToSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T08:48:39.225191'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: Aura
+  method: GetWorldObjectCaster
+  signature: WorldObject * Aura::GetWorldObjectCaster() const
+documentation:
+  brief: Returns the WorldObject that cast this aura, or nullptr if the caster is
+    not a WorldObject.
+  description: The GetWorldObjectCaster method retrieves the WorldObject instance
+    that originally applied this aura to its target. This is particularly useful in
+    World of Warcraft-style gameplay where auras are often applied by units such as
+    players, creatures, game objects, or even items. The returned pointer will be
+    valid only if the original caster was a WorldObject; otherwise, it returns nullptr.
+    This method does not perform any ownership transfer or reference counting, so
+    callers must ensure the returned object remains valid during use. It's commonly
+    used in aura application and removal handlers to determine the source of an effect.
+  parameters: []
+  returns: A pointer to the WorldObject that cast this aura, or nullptr if the caster
+    is not a WorldObject (e.g., if it was cast by a spell with no valid WorldObject
+    caster).
+  examples:
+  - title: Basic usage in an aura effect handler
+    code: "void OnAuraEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes\
+      \ mode)\n{\n    WorldObject* caster = GetWorldObjectCaster();\n    if (caster\
+      \ && caster->IsPlayer())\n    {\n        Player* player = caster->ToPlayer();\n\
+      \        player->SendNotification(\"You applied an aura!\");\n    }\n}"
+    language: cpp
+  - title: Checking for valid caster before using it
+    code: "void HandleAuraPeriodicTick(AuraEffect const* aurEff)\n{\n    WorldObject*\
+      \ caster = GetWorldObjectCaster();\n    if (!caster)\n        return;\n\n  \
+      \  // Safe to use caster here\n    if (caster->IsCreature())\n    {\n      \
+      \  Creature* creature = caster->ToCreature();\n        creature->AI()->OnAuraTick(this);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the aura has a valid caster. If the aura was created
+    without a proper WorldObject caster (e.g., through script or spell with no explicit
+    source), it will return nullptr. The returned pointer is not managed by the aura
+    and should not be deleted. This method is thread-safe as long as the underlying
+    WorldObject remains valid.
+  warnings: Be cautious when using the returned pointer directly without checking
+    for null. Dereferencing a null pointer will cause a crash. Also, ensure that the
+    returned WorldObject hasn't been removed from the world or destroyed before accessing
+    its members.
+  related:
+  - GetCaster
+  - GetUnitCaster
+  - GetOwner
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:14:10.685297'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

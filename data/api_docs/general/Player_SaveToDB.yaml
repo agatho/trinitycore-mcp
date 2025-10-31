@@ -1,0 +1,52 @@
+api:
+  class: Player
+  method: SaveToDB
+  signature: void Player::SaveToDB(int loginTransaction, int trans, bool create)
+documentation:
+  brief: Saves the player's data to the database with optional transaction handling.
+  description: The SaveToDB method persists all current player data, including character
+    attributes, inventory, quests, and other game state information, into the TrinityCore
+    database. It supports transaction management through the loginTransaction and
+    trans parameters for atomic operations. The create parameter determines whether
+    this is a new character creation or an update operation. This method ensures data
+    consistency and is typically called during player logout or at regular intervals
+    to prevent data loss.
+  parameters:
+  - name: loginTransaction
+    description: Database transaction identifier used for login-related operations.
+      If set to -1, no specific login transaction is applied.
+  - name: trans
+    description: Optional database transaction handle for grouping related database
+      operations. Can be null or -1 if no transaction is required.
+  - name: create
+    description: Boolean flag indicating whether this is a new character creation
+      (true) or an existing character update (false).
+  returns: void
+  examples:
+  - title: Basic Player Save
+    code: 'Player* player = ...;
+
+      player->SaveToDB(-1, -1, false);'
+    language: cpp
+  - title: Create New Character
+    code: 'Player* newPlayer = ...;
+
+      newPlayer->SaveToDB(0, 1, true);'
+    language: cpp
+  notes: This method internally handles serialization of player data and may involve
+    multiple database writes. It should not be called from within a transaction context
+    unless explicitly managed by the caller. The method blocks until all database
+    operations are complete.
+  warnings: Calling this method during active gameplay without proper transaction
+    handling can lead to inconsistent character states or data corruption. Avoid calling
+    it in high-frequency loops as it may impact performance due to database I/O operations.
+  related:
+  - Player::LoadFromDB
+  - Player::SaveInventoryToDB
+  - Player::UpdateDatabase
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:26:22.846500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

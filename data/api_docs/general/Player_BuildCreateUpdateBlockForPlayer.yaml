@@ -1,0 +1,56 @@
+api:
+  class: Player
+  method: BuildCreateUpdateBlockForPlayer
+  signature: void Player::BuildCreateUpdateBlockForPlayer(int * data, Player * target)
+    const
+documentation:
+  brief: Populates update block data for a player's creation state in the game world.
+  description: The BuildCreateUpdateBlockForPlayer method constructs an update block
+    containing all necessary data to initialize a player's presence in the game world.
+    This method is typically invoked during player login or when a player enters a
+    zone where other players are present. It prepares the player's update data structure
+    that will be sent to clients to represent the player's initial state, including
+    appearance, stats, and other relevant attributes. The method populates the provided
+    data buffer with serialized player information according to the World of Warcraft
+    packet format.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be populated with the update
+      block data. This buffer must be large enough to hold all required update fields
+      for the player.
+  - name: target
+    description: Pointer to the target Player object whose creation state is being
+      built. This represents the player whose update data is being constructed for
+      another player's view.
+  returns: null
+  examples:
+  - title: Basic usage in player login context
+    code: "void HandlePlayerLogin(Player* player)\n{\n    int updateData[MAX_UPDATE_FIELDS];\n\
+      \    player->BuildCreateUpdateBlockForPlayer(updateData, player);\n    // Send\
+      \ updateData to client\n}"
+    language: cpp
+  - title: Usage when adding a new player to a zone
+    code: "void AddPlayerToZone(Player* newPlayer, Player* existingPlayer)\n{\n  \
+      \  int updateBlock[1024];\n    newPlayer->BuildCreateUpdateBlockForPlayer(updateBlock,\
+      \ existingPlayer);\n    // Send update block to existingPlayer's client\n}"
+    language: cpp
+  notes: This method is part of the core update system in TrinityCore and directly
+    affects network traffic. The data buffer size should be sufficient to accommodate
+    all player fields. This method is usually called internally by the core update
+    mechanism, but may be invoked manually during special circumstances like zone
+    transitions or custom player creation logic.
+  warnings: Incorrectly sized data buffers can lead to memory corruption or client-side
+    crashes. This method modifies the provided data array directly and should not
+    be called with null pointers for either parameter. Improper usage can cause synchronization
+    issues between server and client states.
+  related:
+  - BuildValuesUpdateBlockForPlayer
+  - BuildOutOfRangeUpdateBlock
+  - UpdateObject
+  - SendUpdateToPlayer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:56:15.648266'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: WorldObject
+  method: GetDBPhase
+  signature: int32 WorldObject::GetDBPhase() const
+documentation:
+  brief: Retrieves the database phase mask associated with this WorldObject.
+  description: The GetDBPhase method returns the phase mask value stored in the database
+    for this WorldObject. This phase mask determines which phases of the game world
+    this object is active in, allowing for conditional visibility and interaction
+    based on player phase settings. The returned value typically corresponds to a
+    bitmask that can be used with phase-related functions to check if an object should
+    be visible or interactable to a specific player. This method does not account
+    for runtime phase changes; it only returns the static phase information loaded
+    from the database during object creation or loading.
+  parameters: []
+  returns: An int32 value representing the phase mask as stored in the database for
+    this WorldObject. This is typically a bitmask where each bit represents a different
+    phase, and multiple phases can be active simultaneously by combining bits using
+    bitwise OR operations.
+  examples:
+  - title: Check if object is visible in current phase
+    code: "WorldObject* obj = ...;\nuint32 dbPhase = obj->GetDBPhase();\nif (dbPhase\
+      \ == 0 || (player->GetPhaseMask() & dbPhase) != 0)\n{\n    // Object should\
+      \ be visible to player\n}"
+    language: cpp
+  - title: Debug phase information
+    code: 'WorldObject* obj = ...;
+
+      uint32 phase = obj->GetDBPhase();
+
+      TC_LOG_DEBUG("phase", "Object {} has DB phase mask: {}", obj->GetGUID().ToString(),
+      phase);'
+    language: cpp
+  notes: This method returns only the database-stored phase information and does not
+    reflect any runtime modifications to the object's phase state. The phase mask
+    is typically loaded from creature_template, gameobject_template, or similar database
+    tables during object initialization. This value may be 0 for objects that are
+    active in all phases.
+  warnings: Be aware that this method returns only static database phase information.
+    For dynamic phase checking, you should combine this with runtime phase masks using
+    bitwise operations. Using this value alone without considering player phase masks
+    may result in incorrect visibility behavior.
+  related:
+  - GetPhaseMask
+  - SetPhaseMask
+  - IsInPhase
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T22:20:56.778681'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

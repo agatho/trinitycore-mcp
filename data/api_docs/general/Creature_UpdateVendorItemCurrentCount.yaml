@@ -1,0 +1,63 @@
+api:
+  class: Creature
+  method: UpdateVendorItemCurrentCount
+  signature: uint32 Creature::UpdateVendorItemCurrentCount(const VendorItem * vItem,
+    uint32 used_count)
+documentation:
+  brief: Updates the current count of a vendor item, decrementing its available quantity
+    and returning the new count.
+  description: The UpdateVendorItemCurrentCount method is used to manage the inventory
+    tracking of items sold by creatures acting as vendors. When a player purchases
+    an item from a vendor, this method is called to reduce the item's available stock
+    by the purchased quantity. It ensures that the vendor's item list accurately reflects
+    how many items remain for sale. The method takes a pointer to a VendorItem structure
+    and the number of items that have been sold or used, then updates the internal
+    count accordingly. This mechanism supports vendor item restocking logic and prevents
+    over-selling of limited inventory items.
+  parameters:
+  - name: vItem
+    description: Pointer to the VendorItem structure representing the item being updated
+      in the vendor's inventory.
+  - name: used_count
+    description: The number of items that have been purchased or used, which will
+      be subtracted from the current item count.
+  returns: Returns the updated current count of the vendor item after decrementing
+    by used_count. If the item has no remaining stock, it may return zero or trigger
+    restocking logic depending on implementation.
+  examples:
+  - title: Updating Vendor Item Count After Purchase
+    code: "Creature* vendor = ...; // Get a vendor creature\nVendorItem* item = vendor->GetVendorItem(0);\
+      \ // Get first vendor item\nuint32 remaining = vendor->UpdateVendorItemCurrentCount(item,\
+      \ 1); // Decrease count by 1\nif (remaining == 0) {\n    // Handle item sold\
+      \ out logic\n}"
+    language: cpp
+  - title: Bulk Purchase Tracking
+    code: 'Creature* vendor = ...;
+
+      VendorItem* item = vendor->GetVendorItem(5);
+
+      uint32 purchased = 3;
+
+      uint32 new_count = vendor->UpdateVendorItemCurrentCount(item, purchased);
+
+      // new_count now represents how many of this item are left in the vendor''s
+      inventory'
+    language: cpp
+  notes: This method is typically invoked during transaction processing when a player
+    buys an item from a vendor. It may also be used internally to handle automatic
+    restocking or reset behavior for vendor items. The method assumes that the VendorItem
+    pointer is valid and that used_count does not exceed the current available quantity.
+  warnings: Ensure that the VendorItem pointer passed in is valid and that used_count
+    is non-negative. Passing an invalid pointer or negative values could lead to undefined
+    behavior or incorrect inventory tracking.
+  related:
+  - GetVendorItem
+  - AddVendorItem
+  - RemoveVendorItem
+  - UpdateVendorItemStock
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:21:42.565244'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

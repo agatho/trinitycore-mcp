@@ -1,0 +1,60 @@
+api:
+  class: Player
+  method: SendQuestUpdateAddItem
+  signature: void Player::SendQuestUpdateAddItem(const ItemTemplate * itemTemplate,
+    const int & obj, uint16 count) const
+documentation:
+  brief: Sends a quest update packet to the player indicating an item has been added
+    to their quest progress.
+  description: The SendQuestUpdateAddItem method is used to notify a player's client
+    about an item addition in a quest objective. This method sends a specific packet
+    that updates the quest log UI to reflect that a required item has been acquired
+    or added to the player's inventory, typically as part of a quest progression.
+    It is commonly invoked when a player picks up an item that is required for a quest,
+    or when an item is automatically added to their inventory through quest rewards
+    or scripted events. The method takes an item template reference, an object identifier
+    (likely related to the quest objective), and a count of items added.
+  parameters:
+  - name: itemTemplate
+    description: A pointer to the ItemTemplate structure that defines the properties
+      of the item being added to the quest. This is used to determine visual and functional
+      aspects of the item in the quest UI.
+  - name: obj
+    description: An integer identifier representing the quest objective or item reference
+      within the context of the current quest. This typically corresponds to an entry
+      in the quest_template or quest_item table.
+  - name: count
+    description: A 16-bit unsigned integer indicating how many items of the specified
+      type have been added to the player's progress for this quest objective.
+  returns: null
+  examples:
+  - title: Basic Usage in Quest Completion
+    code: "void OnQuestAccept(Player* player, Quest const* quest)\n{\n    // Assume\
+      \ we're adding a specific item to the quest progress\n    ItemTemplate const*\
+      \ itemTemplate = sObjectMgr->GetItemTemplate(12345);\n    player->SendQuestUpdateAddItem(itemTemplate,\
+      \ 67890, 1);\n}"
+    language: cpp
+  - title: Updating Multiple Items in Quest
+    code: "void OnItemPickup(Player* player, uint32 itemId)\n{\n    // Simulate adding\
+      \ multiple items to quest progress\n    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);\n\
+      \    if (itemTemplate && itemTemplate->ItemId == 54321)\n    {\n        player->SendQuestUpdateAddItem(itemTemplate,\
+      \ 98765, 5);\n    }\n}"
+    language: cpp
+  notes: This method directly sends a network packet to the client and should only
+    be called when the quest state actually changes. It is typically used internally
+    by the core during quest progression events, but can also be invoked manually
+    in custom scripts or quest handlers.
+  warnings: Ensure that the itemTemplate pointer is valid and not null before calling
+    this method. Also, verify that obj corresponds to a valid quest objective; otherwise,
+    the client may display incorrect UI elements or fail to update properly.
+  related:
+  - Player::SendQuestUpdateAddKill
+  - Player::SendQuestUpdateComplete
+  - Player::SendQuestUpdateFailed
+  - Player::SendQuestUpdateObjective
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:21:50.085982'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

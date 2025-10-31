@@ -1,0 +1,57 @@
+api:
+  class: WorldObject
+  method: IsWithinDist2d
+  signature: bool WorldObject::IsWithinDist2d(const Position * pos, float dist) const
+documentation:
+  brief: Checks if the WorldObject is within a specified 2D distance from a given
+    position.
+  description: 'The IsWithinDist2d method determines whether the calling WorldObject
+    (such as a player, creature, or game object) is within a specified 2D Euclidean
+    distance from another Position object. This method only considers X and Y coordinates,
+    ignoring Z (height) differences. It''s commonly used in game logic for range-based
+    checks such as determining if a target is in attack range, within hearing distance,
+    or close enough to interact with an object. The method performs a fast distance
+    comparison using squared distances internally to avoid expensive square root calculations.
+    Precondition: The input Position pointer must not be null. Postcondition: Returns
+    true if the object is within the specified distance, false otherwise.'
+  parameters:
+  - name: pos
+    description: A pointer to a Position object representing the reference point in
+      3D space (X, Y, Z). Only X and Y coordinates are used for the 2D distance calculation.
+      Must not be null.
+  - name: dist
+    description: The maximum allowed 2D distance (Euclidean) from the WorldObject's
+      current position to the provided Position. Must be a non-negative value.
+  returns: Returns true if the WorldObject's 2D X and Y coordinates are within the
+    specified distance from the given Position; otherwise returns false.
+  examples:
+  - title: Basic usage to check if player is near an NPC
+    code: "Player* player = ...;\nPosition npcPos = npc->GetPosition();\nif (player->IsWithinDist2d(&npcPos,\
+      \ 5.0f)) {\n    // Player is within 5 yards of the NPC\n    player->SendNotification(\"\
+      You are near the NPC!\");\n}"
+    language: cpp
+  - title: Using with a custom position for spell targeting
+    code: "Unit* caster = ...;\nPosition targetPos = ...; // Some calculated position\n\
+      float maxRange = 30.0f;\nif (caster->IsWithinDist2d(&targetPos, maxRange)) {\n\
+      \    // Cast spell on target\n    caster->CastSpell(target, SPELL_ID, true);\n\
+      } else {\n    // Target out of range\n    caster->SendSpellFailed(1, SPELL_ID,\
+      \ 0, 0, 0);\n}"
+    language: cpp
+  notes: This method uses squared distance comparisons internally for performance
+    optimization. It's recommended to use this instead of IsWithinDist when Z-coordinate
+    differences are not required. The method is thread-safe for read operations as
+    long as the WorldObject and Position objects remain valid during the call.
+  warnings: Ensure that the provided Position pointer is valid and not null, otherwise
+    the behavior is undefined. Be cautious with very large distance values which might
+    cause precision issues in floating-point calculations.
+  related:
+  - IsWithinDist
+  - IsWithinDist3d
+  - GetPosition
+  - GetDistance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:15:54.183910'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

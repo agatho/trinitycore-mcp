@@ -1,0 +1,54 @@
+api:
+  class: Creature
+  method: AIM_Destroy
+  signature: bool Creature::AIM_Destroy()
+documentation:
+  brief: Destroys the creature's AI system and releases associated resources.
+  description: The AIM_Destroy method is responsible for properly cleaning up and
+    destroying the AI component of a Creature object within the TrinityCore framework.
+    This method ensures that all AI-related data structures, memory allocations, and
+    references are safely deallocated to prevent memory leaks. It typically gets called
+    during creature destruction or when switching AI types. The method performs cleanup
+    operations such as stopping AI threads, clearing AI state variables, and removing
+    any AI-specific callbacks or event handlers. This is an essential part of the
+    creature lifecycle management system in World of Warcraft server emulation.
+  parameters: []
+  returns: Returns true if the AI destruction process completed successfully, false
+    if there were issues during cleanup or if the AI was already destroyed.
+  examples:
+  - title: Basic AI Destruction Usage
+    code: "Creature* creature = ...; // Get a creature instance\nif (creature->AIM_Destroy())\
+      \ {\n    // AI successfully destroyed\n    sLog->outString(\"AI destroyed successfully\
+      \ for creature %u\", creature->GetEntry());\n} else {\n    // Failed to destroy\
+      \ AI\n    sLog->outError(\"Failed to destroy AI for creature %u\", creature->GetEntry());\n\
+      }"
+    language: cpp
+  - title: AI Destruction in Creature Destructor
+    code: "class MyCreature : public Creature {\npublic:\n    ~MyCreature() override\
+      \ {\n        // Ensure AI is destroyed before base class cleanup\n        if\
+      \ (!AIM_Destroy()) {\n            sLog->outError(\"Warning: Failed to destroy\
+      \ AI for creature %u during destruction\", GetEntry());\n        }\n       \
+      \ // Continue with base destruction\n        Creature::~Creature();\n    }\n\
+      };"
+    language: cpp
+  notes: This method should only be called when the creature is no longer needed or
+    when transitioning between different AI behaviors. It's important to note that
+    calling this method multiple times on the same creature instance may result in
+    undefined behavior or crashes. The destruction process is not immediate - it may
+    involve asynchronous cleanup operations depending on the AI implementation.
+  warnings: Calling AIM_Destroy on a creature whose AI is already destroyed or in
+    an inconsistent state can lead to memory corruption or crashes. Always verify
+    that the AI system is active before calling this method. Additionally, ensure
+    that no other threads are actively using the creature's AI components when this
+    method is invoked.
+  related:
+  - AIM_Create
+  - AIM_Update
+  - GetAI
+  - SetAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:46:03.300299'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

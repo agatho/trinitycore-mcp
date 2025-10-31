@@ -1,0 +1,55 @@
+api:
+  class: WorldObject
+  method: GetInstanceId
+  signature: uint32 WorldObject::GetInstanceId() const
+documentation:
+  brief: Retrieves the instance identifier for the WorldObject, which uniquely identifies
+    the specific instance of a map or dungeon.
+  description: The GetInstanceId method returns the unique identifier associated with
+    the instance that the WorldObject belongs to. In World of Warcraft's TrinityCore
+    implementation, objects such as players, creatures, and game objects can exist
+    in different instances of the same map (e.g., multiple raid encounters in the
+    same dungeon). This identifier is crucial for managing object visibility, quest
+    tracking, and ensuring proper interaction within specific instance contexts. The
+    method is const and does not modify any internal state of the object. It is typically
+    used in conjunction with other instance-related methods to determine if two objects
+    are in the same instance or to filter objects based on their instance context.
+  parameters: []
+  returns: A uint32 value representing the unique identifier for the instance that
+    this WorldObject belongs to. A return value of 0 typically indicates that the
+    object is not bound to any specific instance (i.e., it exists in the default world
+    context).
+  examples:
+  - title: Checking if a player is in an instance
+    code: "Player* player = ...;\nuint32 instanceId = player->GetInstanceId();\nif\
+      \ (instanceId != 0)\n{\n    // Player is in an instance\n    sLog->outString(\"\
+      Player is in instance %u\", instanceId);\n}\nelse\n{\n    // Player is in the\
+      \ default world context\n    sLog->outString(\"Player is in the default world\"\
+      );\n}"
+    language: cpp
+  - title: Comparing instance IDs for object interaction
+    code: "Creature* creature = ...;\nPlayer* player = ...;\nuint32 creatureInstanceId\
+      \ = creature->GetInstanceId();\nuint32 playerInstanceId = player->GetInstanceId();\n\
+      \nif (creatureInstanceId == playerInstanceId)\n{\n    // Both objects are in\
+      \ the same instance, safe to interact\n    creature->AI()->OnTalk(player);\n\
+      }\nelse\n{\n    // Objects are in different instances, cannot interact\n   \
+      \ player->SendSystemMessage(\"You cannot interact with that creature.\");\n}"
+    language: cpp
+  notes: The instance ID returned by this method is assigned when the object enters
+    an instance zone (such as a dungeon or raid). For objects that are not part of
+    any instance, the method returns 0. This value is used extensively in TrinityCore's
+    core systems for managing object visibility and interaction within different instance
+    contexts.
+  warnings: Be cautious when comparing instance IDs with 0, as this may indicate either
+    default world context or an uninitialized state. Ensure that objects are properly
+    initialized before calling this method to avoid unexpected behavior.
+  related:
+  - GetInstance
+  - SetInstanceId
+  - IsInInstance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T22:06:00.014072'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

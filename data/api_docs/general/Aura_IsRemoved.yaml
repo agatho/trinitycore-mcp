@@ -1,0 +1,44 @@
+api:
+  class: Aura
+  method: IsRemoved
+  signature: bool Aura::IsRemoved() const
+documentation:
+  brief: Checks whether the aura has been removed from the target.
+  description: The IsRemoved method determines if an aura object has been marked for
+    removal from its target. In TrinityCore's implementation, auras can be removed
+    due to various conditions such as duration expiration, manual removal by spells,
+    or when the target dies. This method returns true if the aura is in a removed
+    state and false otherwise. The removal status of an aura affects whether it continues
+    to apply its effects or not.
+  parameters: []
+  returns: Returns true if the aura has been removed from its target, false otherwise.
+    An aura that is removed will no longer apply its effects to the target.
+  examples:
+  - title: Check if an aura is removed before applying effects
+    code: "if (!aura->IsRemoved()) {\n    // Apply aura effects\n    aura->ApplyEffect();\n\
+      } else {\n    // Handle removed aura case\n    LOG_DEBUG(\"auras\", \"Aura {}\
+      \ is already removed.\", aura->GetId());\n}"
+    language: cpp
+  - title: Use in spell effect processing to avoid double application
+    code: "void Spell::HandleAuraEffect(SpellEffIndex effIndex) {\n    Aura* aura\
+      \ = GetCaster()->GetAura(GetSpellInfo()->Effects[effIndex].TriggerSpell);\n\
+      \    if (aura && !aura->IsRemoved()) {\n        // Process aura effect\n   \
+      \     aura->HandleEffect(this, effIndex, AURA_REMOVE);\n    }\n}"
+    language: cpp
+  notes: This method should be used carefully in performance-critical code paths as
+    it may involve checking internal state flags. The removal status of an aura is
+    typically set during the aura's update cycle or when specific removal conditions
+    are met.
+  warnings: Do not assume that a non-removed aura will remain active throughout its
+    duration. Auras can be removed at any time by various game mechanics including
+    spell effects, target death, or explicit removal calls.
+  related:
+  - Aura::Remove
+  - Aura::IsExpired
+  - Aura::GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:10:52.766751'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

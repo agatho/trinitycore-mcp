@@ -1,0 +1,59 @@
+api:
+  class: Creature
+  method: CreateCreatureFromDB
+  signature: Creature * Creature::CreateCreatureFromDB(int spawnId, int * map, bool
+    addToMap, bool allowDuplicate)
+documentation:
+  brief: Creates a Creature instance from database data using the specified spawn
+    identifier.
+  description: The CreateCreatureFromDB method instantiates a new Creature object
+    by loading its data from the database based on the provided spawn ID. This method
+    is typically used during world initialization or when spawning creatures dynamically
+    in response to game events. The created creature can optionally be added to the
+    map and duplicate handling can be controlled via parameters. The method ensures
+    that all necessary creature properties are initialized from the database before
+    returning the instance.
+  parameters:
+  - name: spawnId
+    description: Unique identifier for the creature spawn entry in the database. This
+      corresponds to the 'id' field in the creature_spawn table.
+  - name: map
+    description: Pointer to the map object where the creature should be placed. If
+      null, the creature will not be added to any specific map.
+  - name: addToMap
+    description: Boolean flag indicating whether the created creature should automatically
+      be added to the specified map. If true, the creature is registered with the
+      map's object manager.
+  - name: allowDuplicate
+    description: Boolean flag controlling whether duplicate creature instances are
+      permitted. When false, the method will prevent creating multiple creatures with
+      the same spawn ID.
+  returns: Returns a pointer to the newly created Creature instance if successful,
+    or nullptr if the creation fails due to invalid data or database errors.
+  examples:
+  - title: Basic creature creation from database
+    code: "Creature* creature = Creature::CreateCreatureFromDB(12345, &map, true,\
+      \ false);\nif (creature)\n{\n    // Creature successfully created and added\
+      \ to map\n    creature->AI()->OnSpawn();\n}"
+    language: cpp
+  - title: Creating a creature without adding it to the map
+    code: "Map* map = sMapMgr->FindMap(0, 0);\nCreature* creature = Creature::CreateCreatureFromDB(67890,\
+      \ map, false, true);\nif (creature)\n{\n    // Creature created but not yet\
+      \ added to the map\n    // Can be added later using AddToMap()\n}"
+    language: cpp
+  notes: This method performs database lookups and should be used judiciously in performance-critical
+    sections. The returned creature object must be properly managed to avoid memory
+    leaks. The method assumes that the spawn data exists in the database and is valid.
+  warnings: Using an invalid spawnId may result in a null return value without error
+    reporting. Always check for null before using the returned pointer. Setting addToMap
+    to true with a null map pointer will cause undefined behavior.
+  related:
+  - Creature::CreateFromDB
+  - Creature::AddToMap
+  - Creature::RemoveFromMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:41:02.380287'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

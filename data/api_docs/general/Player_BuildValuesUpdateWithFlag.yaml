@@ -1,0 +1,77 @@
+api:
+  class: Player
+  method: BuildValuesUpdateWithFlag
+  signature: void Player::BuildValuesUpdateWithFlag(int * data, int flags, const Player
+    * target) const
+documentation:
+  brief: Populates an update buffer with player data flags for synchronization with
+    target player.
+  description: The BuildValuesUpdateWithFlag method constructs an update packet containing
+    specific player data fields marked by the provided flags. This method is typically
+    used in TrinityCore's packet update system to synchronize player state information
+    between the server and client. The data buffer is populated based on the specified
+    flags, which determine which player attributes should be included in the update.
+    The target parameter specifies the player whose data should be synchronized with
+    the current player's state. This method is essential for maintaining accurate
+    player state representation in the game world and is commonly invoked during player
+    updates, login sequences, or when sending periodic state information to clients.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be filled with the update data
+      values. The array must be pre-allocated with sufficient space to hold all relevant
+      field values based on the flags provided.
+  - name: flags
+    description: Integer bitmask specifying which player data fields should be included
+      in the update. Each bit corresponds to a specific player field, allowing selective
+      updates of player state information.
+  - name: target
+    description: Pointer to the target Player object whose state information will
+      be used for the update. This parameter determines what data is actually written
+      to the buffer based on the flags.
+  returns: null
+  examples:
+  - title: Basic usage for player state synchronization
+    code: 'int updateData[MAX_PLAYER_FIELDS];
+
+      Player* targetPlayer = ...; // some target player
+
+      uint32 updateFlags = PLAYER_FIELD_BYTES | PLAYER_FIELD_FLAGS;
+
+      player->BuildValuesUpdateWithFlag(updateData, updateFlags, targetPlayer);
+
+      // updateData now contains the requested player field values'
+    language: cpp
+  - title: Updating specific player combat state fields
+    code: 'int combatUpdate[10];
+
+      Player* target = ...;
+
+      uint32 combatFlags = PLAYER_FIELD_COMBAT_RATING_1 | PLAYER_FIELD_ARENA_TEAM_1;
+
+      player->BuildValuesUpdateWithFlag(combatUpdate, combatFlags, target);
+
+      // combatUpdate contains only combat-related player data'
+    language: cpp
+  notes: This method is part of TrinityCore's internal update system and should typically
+    be called by the core framework rather than directly by custom code. The method
+    assumes that the provided data buffer has sufficient capacity to hold all values
+    corresponding to the specified flags. It's important to note that this method
+    doesn't send packets directly - it only populates the data buffer for later use
+    in packet construction.
+  warnings: Direct usage of this method should be avoided unless you understand the
+    internal structure of player field flags and update mechanisms. Incorrect flag
+    combinations may result in incomplete or malformed updates. The target parameter
+    must not be null, as it's used to determine which values to populate in the data
+    buffer.
+  related:
+  - BuildValuesUpdate
+  - BuildOutOfRangeUpdate
+  - SendUpdateToPlayer
+  - GetUInt32Value
+  - SetUInt32Value
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-29T19:54:17.298143'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: Player
+  method: Create
+  signature: bool Player::Create(int guidlow, const WorldPackets::Character::CharacterCreateInfo
+    * createInfo)
+documentation:
+  brief: Initializes a new player character with the specified creation information
+    and assigns a unique low GUID.
+  description: The Create method is responsible for initializing a new Player object
+    with the provided character creation data. It sets up the player's basic attributes,
+    including race, class, gender, and appearance based on the CharacterCreateInfo
+    packet received from the client. The method assigns a unique low GUID to the player
+    and performs necessary setup operations such as initializing the player's inventory,
+    skills, and other core systems. This method is typically called during character
+    creation or when loading an existing player character from the database. The method
+    returns true if the player was successfully created and initialized, or false
+    if there were any errors during the process.
+  parameters:
+  - name: guidlow
+    description: The low GUID value to assign to the new player character. This is
+      a unique identifier within the server's namespace that distinguishes this player
+      from others.
+  - name: createInfo
+    description: A pointer to the CharacterCreateInfo packet containing all necessary
+      information for creating the new character, including race, class, gender, appearance
+      options, and initial stats.
+  returns: Returns true if the player was successfully created and initialized with
+    the provided creation information. Returns false if the creation process failed
+    due to invalid data, resource constraints, or other initialization errors.
+  examples:
+  - title: Basic Player Creation
+    code: "Player* player = new Player();\nWorldPackets::Character::CharacterCreateInfo\
+      \ createInfo;\n// ... populate createInfo with character data ...\nbool success\
+      \ = player->Create(12345, &createInfo);\nif (success)\n{\n    // Player created\
+      \ successfully\n    player->SaveToDB();\n}"
+    language: cpp
+  - title: Player Creation with Error Handling
+    code: "Player* player = new Player();\nWorldPackets::Character::CharacterCreateInfo\
+      \ createInfo;\n// ... populate createInfo with character data ...\nif (!player->Create(12345,\
+      \ &createInfo))\n{\n    // Handle creation failure\n    sLog->outError(\"Failed\
+      \ to create player with GUID %u\", 12345);\n    delete player;\n    return false;\n\
+      }\nelse\n{\n    // Player created successfully\n    sLog->outString(\"Player\
+      \ created successfully with GUID %u\", 12345);\n    player->SaveToDB();\n  \
+      \  return true;\n}"
+    language: cpp
+  notes: This method is typically called during character creation flow and should
+    only be invoked once per Player instance. The method performs several database
+    operations internally, so it's recommended to call it in a transaction context
+    to ensure data consistency. The GUID low value must be unique within the server's
+    namespace to prevent conflicts.
+  warnings: Do not call this method on an already initialized Player object as it
+    may cause memory leaks or inconsistent state. Ensure that the createInfo parameter
+    is properly validated before calling this method, as invalid data can lead to
+    undefined behavior or crashes. This method should only be called during server
+    initialization or character creation phases.
+  related:
+  - Player::LoadFromDB
+  - Player::SaveToDB
+  - Player::Update
+  - Player::SetGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:50:17.893924'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: Player
+  method: DestroyForPlayer
+  signature: void Player::DestroyForPlayer(Player * target) const
+documentation:
+  brief: Removes the player's object from the specified target's client view.
+  description: The DestroyForPlayer method instructs the server to send a destroy
+    packet for this player object to the specified target player's client. This effectively
+    makes the player invisible to the target player, as if the player had logged out
+    or moved out of sight. The method is typically used during player logout, zone
+    changes, or when a player should no longer be visible to another player. It does
+    not actually destroy the player object in memory; it only removes the visual representation
+    from the target's client. This method is part of the core World of Warcraft packet
+    handling system and is crucial for maintaining proper visibility mechanics between
+    players.
+  parameters:
+  - name: target
+    description: A pointer to the Player object whose client will receive the destroy
+      packet for this player. The target must be a valid Player instance that is currently
+      logged in and connected to the server.
+  returns: null
+  examples:
+  - title: Basic Usage During Logout
+    code: "void Player::OnLogout()\n{\n    // Notify all nearby players that this\
+      \ player is logging out\n    for (auto& pair : m_playerReputation)\n    {\n\
+      \        if (Player* player = ObjectAccessor::FindPlayer(pair.first))\n    \
+      \    {\n            DestroyForPlayer(player);\n        }\n    }\n}"
+    language: cpp
+  - title: Using in Zone Change Logic
+    code: "void Player::OnAreaChanged(uint32 newArea)\n{\n    // Remove this player\
+      \ from all other players' views when changing zones\n    for (auto& pair : m_playerReputation)\n\
+      \    {\n        if (Player* player = ObjectAccessor::FindPlayer(pair.first))\n\
+      \        {\n            if (player->GetMap() == GetMap())\n            {\n \
+      \               DestroyForPlayer(player);\n            }\n        }\n    }\n\
+      }"
+    language: cpp
+  notes: This method only sends a destroy packet to the target player's client. It
+    does not affect the actual player object in memory or any server-side data structures.
+    The method should be called for each player that needs to lose visibility of this
+    player, typically in a loop over nearby players or the player's reputation list.
+    It is part of the standard visibility system and is automatically handled by the
+    core during certain events like logout or zone changes.
+  warnings: Calling DestroyForPlayer with a null target pointer will result in undefined
+    behavior or a crash. Always ensure that the target parameter points to a valid
+    Player object that is currently connected. Improper use may cause client-side
+    visual glitches or desynchronization between server and client states.
+  related:
+  - Player::AddToVisibleList
+  - Player::UpdateVisibilityForPlayer
+  - Player::BuildDestroyUpdateBlockForPlayer
+  - Player::IsVisible
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:46:45.676065'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

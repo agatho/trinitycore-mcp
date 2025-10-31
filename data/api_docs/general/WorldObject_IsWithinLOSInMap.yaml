@@ -1,0 +1,62 @@
+api:
+  class: WorldObject
+  method: IsWithinLOSInMap
+  signature: bool WorldObject::IsWithinLOSInMap(const WorldObject * obj, int checks,
+    int ignoreFlags) const
+documentation:
+  brief: Checks if the object has line-of-sight visibility to another object within
+    the same map.
+  description: The IsWithinLOSInMap method determines whether there is an unobstructed
+    line of sight between this WorldObject and the specified target object within
+    the same map instance. This function performs a raycast check through the map's
+    geometry to verify that no solid objects (such as walls, terrain features, or
+    other entities) block the direct path between the two objects. It is commonly
+    used in game mechanics such as spell casting, NPC interaction, and visibility
+    checks where line-of-sight is required for valid interactions. The method respects
+    various ignore flags that can be passed to exclude certain types of obstacles
+    from the LOS check.
+  parameters:
+  - name: obj
+    description: Pointer to the target WorldObject to test line-of-sight against.
+      Must not be null.
+  - name: checks
+    description: Integer value specifying how many checks or samples to perform along
+      the LOS path. Higher values increase accuracy but reduce performance. Default
+      is typically 1 for basic checks.
+  - name: ignoreFlags
+    description: Bitmask of flags indicating which types of obstacles should be ignored
+      during the LOS check. Common values include ignoring terrain, creatures, or
+      game objects based on defined constants.
+  returns: Returns true if a clear line-of-sight exists between this object and the
+    target object within the same map; otherwise returns false.
+  examples:
+  - title: Basic LOS Check Between Two Players
+    code: "if (player1->IsWithinLOSInMap(player2)) {\n    // Player 1 can see player\
+      \ 2 directly\n    player1->SendPacket(...);\n}"
+    language: cpp
+  - title: Spell Casting with LOS Requirement
+    code: "if (caster->IsWithinLOSInMap(target, 3, IGNORE_CREATURES)) {\n    // Cast\
+      \ spell if target is visible\n    caster->CastSpell(target, SPELL_ID);\n} else\
+      \ {\n    // Send error message\n    caster->SendSpellFailed(...);\n}"
+    language: cpp
+  notes: This method only checks visibility within the same map instance and does
+    not account for different maps or instances. The accuracy of the LOS check depends
+    on the number of samples performed (checks parameter). Performance impact increases
+    with higher check counts. This function is often used in conjunction with other
+    visibility or targeting logic in combat systems.
+  warnings: Ensure that both objects are valid pointers before calling this method,
+    as passing null values may lead to undefined behavior. The ignoreFlags parameter
+    must use predefined constants from the TrinityCore API; incorrect flag combinations
+    might cause unexpected results. Avoid using high check counts in performance-critical
+    code paths like update loops.
+  related:
+  - IsWithinDist
+  - IsInMap
+  - HasInArc
+  - GetDistance
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-29T21:10:54.280347'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

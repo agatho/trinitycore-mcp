@@ -1,0 +1,76 @@
+api:
+  class: Player
+  method: UpdateCriteria
+  signature: void Player::UpdateCriteria(int type, uint64 miscValue1, uint64 miscValue2,
+    uint64 miscValue3, int * ref)
+documentation:
+  brief: Updates player criteria progress based on specified type and miscellaneous
+    values.
+  description: The UpdateCriteria method is used to update a player's progression
+    in various game achievements, quests, or other criteria-based systems within TrinityCore.
+    It takes a criteria type and associated miscellaneous values to determine how
+    the player's progress should be modified. This method is typically invoked internally
+    by the core when events occur that might affect criteria completion, such as killing
+    creatures, collecting items, or reaching certain levels. The method does not directly
+    modify the database but rather updates internal tracking structures that may eventually
+    persist to the database upon save.
+  parameters:
+  - name: type
+    description: The type of criteria being updated. This corresponds to predefined
+      criterion types in the game's database, such as killing a specific creature
+      (CRITERIA_TYPE_KILL_CREATURE), collecting an item (CRITERIA_TYPE_GET_ITEM),
+      or achieving a level (CRITERIA_TYPE_REACH_LEVEL). Valid values are defined by
+      the CRITERIA_TYPE enum.
+  - name: miscValue1
+    description: A miscellaneous value that provides additional context for the criteria
+      update. The meaning of this value depends on the criteria type. For example,
+      it might represent a creature entry ID when updating kill criteria, or an item
+      entry ID for item collection criteria.
+  - name: miscValue2
+    description: An optional second miscellaneous value that can be used to provide
+      further context for complex criteria types. This field is often unused or set
+      to zero for simple criteria but may contain meaningful data such as a quest
+      ID or a specific skill level.
+  - name: miscValue3
+    description: An optional third miscellaneous value, typically used for more complex
+      criterion conditions. It might represent a spell ID, a zone ID, or another relevant
+      identifier depending on the criteria type.
+  - name: ref
+    description: A pointer to an integer reference that may be updated during the
+      process. This parameter is generally used internally by the core to pass back
+      information about the update operation, such as whether a criterion was completed
+      or if any progress was made.
+  returns: null
+  examples:
+  - title: Updating Kill Creature Criteria
+    code: 'Player* player = ...;
+
+      player->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, 12345, 0, 0, nullptr); //
+      Player kills creature with entry ID 12345'
+    language: cpp
+  - title: Updating Item Collection Criteria
+    code: 'Player* player = ...;
+
+      int progress = 0;
+
+      player->UpdateCriteria(CRITERIA_TYPE_GET_ITEM, 67890, 0, 0, &progress); // Player
+      collects item with entry ID 67890'
+    language: cpp
+  notes: This method is part of the internal criteria system and is usually called
+    automatically by the core upon relevant events. Developers should not typically
+    call this method directly unless implementing custom game logic that needs to
+    trigger criteria updates. The actual persistence of updated criteria data occurs
+    during player save operations.
+  warnings: Incorrect usage of the miscValue parameters can lead to incorrect criteria
+    progression or even crashes if invalid values are passed. Ensure that the type
+    and associated values align with valid criterion definitions in the database.
+  related:
+  - Player::UpdateAchievementCriteria
+  - Player::CompletedCriteria
+  - Player::GetCriteriaProgress
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:05:05.987528'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

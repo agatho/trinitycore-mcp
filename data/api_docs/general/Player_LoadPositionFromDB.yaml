@@ -1,0 +1,70 @@
+api:
+  class: Player
+  method: LoadPositionFromDB
+  signature: bool Player::LoadPositionFromDB(uint32 & mapid, float & x, float & y,
+    float & z, float & o, bool & in_flight, int guid)
+documentation:
+  brief: Loads the player's position data from the database into provided variables.
+  description: The LoadPositionFromDB method retrieves the current map identifier,
+    coordinates (X, Y, Z), orientation (O), and in-flight status for a specific player
+    from the database. This method is typically used during player login or respawn
+    scenarios to restore the player's last known position in the game world. It requires
+    a valid GUID to identify which player's data should be loaded. The method updates
+    the provided reference parameters with the retrieved values, allowing the caller
+    to use this information for positioning the player character correctly within
+    the game environment.
+  parameters:
+  - name: mapid
+    description: Reference to a uint32 variable that will be updated with the player's
+      current map identifier from the database.
+  - name: x
+    description: Reference to a float variable that will be updated with the player's
+      X coordinate from the database.
+  - name: y
+    description: Reference to a float variable that will be updated with the player's
+      Y coordinate from the database.
+  - name: z
+    description: Reference to a float variable that will be updated with the player's
+      Z coordinate from the database.
+  - name: o
+    description: Reference to a float variable that will be updated with the player's
+      orientation (heading) from the database.
+  - name: in_flight
+    description: Reference to a bool variable that will be updated with the player's
+      in-flight status from the database.
+  - name: guid
+    description: The unique identifier of the player whose position data is being
+      loaded from the database.
+  returns: Returns true if the player's position data was successfully retrieved from
+    the database, or false if an error occurred during the database query or if no
+    matching record was found for the given GUID.
+  examples:
+  - title: Load Player Position on Login
+    code: "uint32 mapId;\nfloat x, y, z, o;\nbool inFlight;\nint playerGuid = 12345;\n\
+      \nif (player->LoadPositionFromDB(mapId, x, y, z, o, inFlight, playerGuid)) {\n\
+      \    // Successfully loaded position data\n    player->SetMapId(mapId);\n  \
+      \  player->Relocate(x, y, z, o);\n    player->SetInFlight(inFlight);\n} else\
+      \ {\n    // Handle error case - default position or error logging\n    sLog->outError(\"\
+      Failed to load position for player GUID %d\", playerGuid);\n}"
+    language: cpp
+  notes: This method performs a direct database query and should be used judiciously
+    to avoid performance bottlenecks. It is typically called during player session
+    initialization or when respawning players after death. The method assumes that
+    the database connection is already established and that proper error handling
+    is in place for cases where no data exists for the given GUID.
+  warnings: This method modifies reference parameters directly, so callers must ensure
+    these variables are properly initialized before calling this method. Additionally,
+    if the database query fails or returns no results, the method will return false
+    but may leave the reference parameters in an undefined state. Always check the
+    return value before using the loaded data.
+  related:
+  - Player::SavePositionToDB
+  - Player::GetMapId
+  - Player::GetPosition
+  - Player::Relocate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:35:00.481508'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

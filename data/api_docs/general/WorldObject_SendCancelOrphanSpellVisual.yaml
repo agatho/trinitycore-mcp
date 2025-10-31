@@ -1,0 +1,53 @@
+api:
+  class: WorldObject
+  method: SendCancelOrphanSpellVisual
+  signature: void WorldObject::SendCancelOrphanSpellVisual(uint32 id)
+documentation:
+  brief: Sends a spell visual cancellation packet to nearby players for an orphaned
+    spell effect.
+  description: The SendCancelOrphanSpellVisual method is used to notify nearby players
+    that a specific spell visual effect should be canceled or removed from the client.
+    This typically occurs when a spell's visual effect becomes orphaned, meaning it
+    was initiated but no longer has a valid target or context. The method sends a
+    packet to all players within the object's visibility range, instructing them to
+    remove the specified spell visual effect. This is commonly used in scenarios where
+    a spell's effects are no longer relevant due to target removal, movement, or other
+    game state changes.
+  parameters:
+  - name: id
+    description: The unique identifier of the spell visual effect to cancel. This
+      corresponds to the spell ID or visual effect ID that was previously sent to
+      clients.
+  returns: null
+  examples:
+  - title: Canceling an orphaned spell visual effect
+    code: "void MySpellHandler::HandleOrphanedEffect(Unit* caster, uint32 spellId)\n\
+      {\n    // Cancel the spell visual effect for nearby players\n    caster->SendCancelOrphanSpellVisual(spellId);\n\
+      }"
+    language: cpp
+  - title: Using within a spell effect cleanup routine
+    code: "void Spell::HandleSpellEffectCleanup(SpellEffIndex effIndex)\n{\n    if\
+      \ (m_caster && m_spellInfo)\n    {\n        // Cancel any orphaned visual effects\
+      \ associated with this spell\n        m_caster->SendCancelOrphanSpellVisual(m_spellInfo->Id);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method only affects players within the object's visibility range. The
+    packet sent is specifically designed for client-side visual effect cancellation
+    and does not affect server-side spell state or logic. It should be called when
+    a spell effect becomes invalid or needs to be removed from display without affecting
+    the spell's actual functionality.
+  warnings: Calling this method with an incorrect spell ID may result in unintended
+    visual effects being canceled on clients. Ensure that the provided ID corresponds
+    to a valid spell visual effect that was previously displayed to players. This
+    method should not be used for regular spell cancellation, as it is specifically
+    designed for orphaned effects.
+  related:
+  - SendSpellVisual
+  - SendSpellGo
+  - SendSpellCastResult
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T21:10:03.639285'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

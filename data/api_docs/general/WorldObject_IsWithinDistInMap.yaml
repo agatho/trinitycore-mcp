@@ -1,0 +1,60 @@
+api:
+  class: WorldObject
+  method: IsWithinDistInMap
+  signature: bool WorldObject::IsWithinDistInMap(const WorldObject * obj, float dist2compare,
+    bool is3D, bool incOwnRadius, bool incTargetRadius) const
+documentation:
+  brief: Determines whether another WorldObject is within a specified distance in
+    the same map.
+  description: The IsWithinDistInMap method checks if the calling WorldObject is within
+    a given distance of another WorldObject, considering only objects that exist within
+    the same map instance. This method is commonly used for determining proximity-based
+    interactions such as spell targeting, combat range, or NPC behavior triggers.
+    It supports both 2D (flat) and 3D (height-aware) distance calculations. The method
+    accounts for object radii when calculating distances if enabled via parameters.
+  parameters:
+  - name: obj
+    description: Pointer to the WorldObject to compare against. Must not be null.
+  - name: dist2compare
+    description: The maximum allowed distance between this object and the target object.
+      Should be a positive value representing units in the game world.
+  - name: is3D
+    description: If true, calculates 3D distance including height differences; if
+      false, uses 2D (flat) distance only.
+  - name: incOwnRadius
+    description: If true, includes the radius of this object in the distance calculation.
+      If false, only considers the core positions.
+  - name: incTargetRadius
+    description: If true, includes the radius of the target object in the distance
+      calculation. If false, only considers the core positions.
+  returns: Returns true if the two objects are within the specified distance (accounting
+    for radii and dimensionality as configured), false otherwise.
+  examples:
+  - title: Basic usage to check if a player is within 10 yards of an NPC
+    code: "if (player->IsWithinDistInMap(npc, 10.0f, true, true, true)) {\n    //\
+      \ Player is within 10 yards of the NPC including both radii\n}"
+    language: cpp
+  - title: Check if two units are within combat range using 2D distance
+    code: "if (attacker->IsWithinDistInMap(defender, ATTACK_DISTANCE, false, false,\
+      \ false)) {\n    // Units are within standard attack distance in 2D space\n}"
+    language: cpp
+  notes: This method is optimized for performance by leveraging spatial partitioning
+    and map-based checks. It does not perform any cross-map comparisons; both objects
+    must reside in the same map instance. The radius inclusion flags allow fine-grained
+    control over how distance is interpreted, which is essential for accurate game
+    mechanics like spell targeting or movement behavior.
+  warnings: Ensure that the provided WorldObject pointer is valid and not null to
+    prevent undefined behavior. Be cautious when using large values for dist2compare
+    as it may impact performance in densely populated areas. When incOwnRadius or
+    incTargetRadius are enabled, the actual distance used in comparison will be smaller
+    than the specified value due to inclusion of object radii.
+  related:
+  - IsWithinDist
+  - GetDistance
+  - GetPosition
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:12:40.142971'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: Player
+  method: DestroyItemCount
+  signature: void Player::DestroyItemCount(Item * item, uint32 & count, bool update)
+documentation:
+  brief: Destroys a specified number of items from the player's inventory, updating
+    the item count and optionally refreshing the UI.
+  description: The DestroyItemCount method removes a specified quantity of a given
+    item from the player's inventory. It modifies the item's stack count directly,
+    and if the count reaches zero, the item is fully removed. The 'update' parameter
+    controls whether the client UI should be notified of the change, which typically
+    triggers a visual update in the player's inventory interface. This method is commonly
+    used when items are consumed, traded, or destroyed through game mechanics such
+    as crafting, quest completion, or spell effects. It ensures proper synchronization
+    between server-side item tracking and client-side display.
+  parameters:
+  - name: item
+    description: Pointer to the Item object that should be destroyed. Must not be
+      null; passing a null pointer will result in undefined behavior.
+  - name: count
+    description: Reference to a uint32 value representing the number of items to destroy.
+      The method modifies this value to reflect how many items were actually destroyed,
+      which may be less than requested if the player doesn't have enough items.
+  - name: update
+    description: Boolean flag indicating whether to send an update packet to the client
+      UI. If true, the client will refresh its inventory display; if false, no UI
+      update occurs.
+  returns: null
+  examples:
+  - title: Destroy one item from player's inventory
+    code: 'Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 0);
+
+      uint32 count = 1;
+
+      player->DestroyItemCount(item, count, true);'
+    language: cpp
+  - title: Destroy multiple items without UI update
+    code: "Item* item = player->GetItemByGuid(itemGuid);\nuint32 count = 5;\nplayer->DestroyItemCount(item,\
+      \ count, false); // No client update\nif (count > 0) {\n    // Handle case where\
+      \ not all requested items could be destroyed\n}"
+    language: cpp
+  notes: This method directly manipulates the item's stack count and may trigger internal
+    inventory management logic. It is important to ensure that the item pointer is
+    valid before calling this function. The update flag controls network traffic,
+    so setting it to false can improve performance when multiple operations are performed
+    in sequence.
+  warnings: Passing a null item pointer will cause a crash or undefined behavior.
+    Also, if the count parameter is not properly initialized, its value after the
+    call may be misleading. Always check the modified count value if partial destruction
+    occurs.
+  related:
+  - Player::AddItem
+  - Player::RemoveItem
+  - Player::GetItemCount
+  - Player::DestroyItem
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:45:08.571979'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

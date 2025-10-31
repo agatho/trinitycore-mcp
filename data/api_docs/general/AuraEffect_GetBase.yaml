@@ -1,0 +1,46 @@
+api:
+  class: AuraEffect
+  method: GetBase
+  signature: Aura * AuraEffect::GetBase() const
+documentation:
+  brief: Returns the base Aura object that this AuraEffect belongs to
+  description: The GetBase method retrieves a pointer to the parent Aura object that
+    contains this specific AuraEffect. In World of Warcraft's aura system, an Aura
+    is a container for multiple effects (AuraEffects), and each effect references
+    its parent aura. This method allows developers to access the overarching aura
+    properties and state from within a specific effect handler. The returned pointer
+    is typically valid as long as the aura is active and has not been removed from
+    the target.
+  parameters: []
+  returns: A pointer to the Aura object that owns this AuraEffect, or nullptr if the
+    effect is not associated with any aura
+  examples:
+  - title: Accessing parent aura from effect handler
+    code: "void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)\n{\n\
+      \    Aura* baseAura = aurEff->GetBase();\n    if (baseAura)\n    {\n       \
+      \ // Access aura properties\n        Unit* caster = baseAura->GetCaster();\n\
+      \        SpellInfo const* spellInfo = baseAura->GetSpellInfo();\n        //\
+      \ ... process aura data\n    }\n}"
+    language: cpp
+  - title: Checking aura type from effect
+    code: "void OnPeriodic(AuraEffect const* aurEff)\n{\n    Aura* baseAura = aurEff->GetBase();\n\
+      \    if (baseAura && baseAura->GetSpellInfo()->IsPositive())\n    {\n      \
+      \  // Handle positive aura effects\n        // ... implementation\n    }\n}"
+    language: cpp
+  notes: This method is commonly used in aura effect handlers to access the broader
+    context of the aura that triggered the effect. The returned Aura pointer should
+    be checked for null before use, as effects may be detached from their parent aura
+    during removal or destruction phases.
+  warnings: Do not store the returned pointer beyond the scope of the current handler
+    function, as the aura might be destroyed while the effect is still active. Always
+    verify that the returned pointer is valid before dereferencing it.
+  related:
+  - GetAuraType
+  - GetSpellInfo
+  - GetCaster
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T09:05:37.476751'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

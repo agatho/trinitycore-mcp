@@ -1,0 +1,59 @@
+api:
+  class: Object
+  method: BuildValuesUpdateBlockForPlayer
+  signature: void Object::BuildValuesUpdateBlockForPlayer(UpdateData * data, const
+    Player * target) const
+documentation:
+  brief: Builds an update block for a specific player containing object data changes.
+  description: The BuildValuesUpdateBlockForPlayer method constructs an update packet
+    that contains the current state of an object's dynamic fields, specifically tailored
+    for a given target player. This method is used internally by the TrinityCore server
+    to efficiently send only relevant object updates to players in proximity, reducing
+    network overhead. The update data includes changes to object fields such as health,
+    mana, orientation, and other dynamic properties that may have changed since the
+    last update. It ensures that each player receives only the information they need
+    about objects within their view distance.
+  parameters:
+  - name: data
+    description: Pointer to an UpdateData object where the constructed update block
+      will be stored. This parameter must not be null and will be populated with the
+      relevant update information.
+  - name: target
+    description: Pointer to the Player object for whom the update block is being built.
+      This determines which fields are included in the update based on visibility
+      rules and player-specific conditions. Must not be null.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: 'UpdateData data;
+
+      Player* targetPlayer = ...; // some valid player
+
+      object->BuildValuesUpdateBlockForPlayer(&data, targetPlayer);
+
+      // Send data to targetPlayer''s client'
+    language: cpp
+  - title: Usage in update loop
+    code: "void UpdatePlayerObjects(Player* player) {\n    UpdateData data;\n    for\
+      \ (auto& obj : visibleObjects) {\n        if (obj->IsType(TYPEMASK_UNIT)) {\n\
+      \            obj->BuildValuesUpdateBlockForPlayer(&data, player);\n        }\n\
+      \    }\n    player->GetSession()->SendUpdateData(&data);\n}"
+    language: cpp
+  notes: This method is typically called during the update cycle when preparing packets
+    for transmission to players. It respects visibility rules and will not send updates
+    for objects that are not visible to the target player. The implementation uses
+    internal caching mechanisms to avoid unnecessary processing of unchanged fields.
+  warnings: Do not call this method directly unless you understand the update system's
+    internals. Incorrect usage may result in incomplete or incorrect updates being
+    sent to players, potentially causing client-side issues or visual glitches.
+  related:
+  - Object::BuildUpdateData
+  - Object::SendUpdateToPlayer
+  - Object::UpdateVisibility
+  - Player::BuildUpdateData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T20:03:30.166173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

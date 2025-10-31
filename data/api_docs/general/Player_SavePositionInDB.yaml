@@ -1,0 +1,61 @@
+api:
+  class: Player
+  method: SavePositionInDB
+  signature: void Player::SavePositionInDB(const int & loc, uint16 zoneId, int guid,
+    int trans)
+documentation:
+  brief: Saves the player's position and associated zone information to the database.
+  description: The SavePositionInDB method persists the player's current location
+    data, including the specific location identifier, zone ID, and optional GUID and
+    transport information, into the game database. This functionality is typically
+    used during player logout or when updating persistent world state to ensure that
+    a player's last known position is accurately recorded. The method does not return
+    any value but directly modifies database entries related to player positioning.
+    It is an essential part of maintaining player state consistency in TrinityCore's
+    persistent world system.
+  parameters:
+  - name: loc
+    description: Reference to an integer representing the specific location identifier
+      within the zone. This typically corresponds to a predefined location index or
+      coordinate reference used by the game engine.
+  - name: zoneId
+    description: The unique identifier of the current zone where the player is located.
+      This value maps to a zone in the database and helps determine the player's geographical
+      context.
+  - name: guid
+    description: Optional player GUID (Global Unique Identifier) used to identify
+      the specific player record in the database. If not provided, the method likely
+      uses the current player's GUID.
+  - name: trans
+    description: Transport identifier, if applicable, indicating whether the player
+      is on a transport such as a boat or elevator. This helps track player position
+      relative to moving objects.
+  returns: null
+  examples:
+  - title: Basic usage during logout
+    code: "void Player::OnLogout()\n{\n    int location = GetPositionX() > 0 ? 1 :\
+      \ 2;\n    SavePositionInDB(location, GetZoneId(), GetGUID().GetCounter(), GetTransportId());\n\
+      }"
+    language: cpp
+  - title: Saving position with default GUID
+    code: "void Player::UpdatePlayerPosition()\n{\n    int location = 5;\n    uint16\
+      \ zoneId = GetZoneId();\n    SavePositionInDB(location, zoneId, 0, 0);\n}"
+    language: cpp
+  notes: This method is typically invoked automatically by the core system during
+    player logout or periodic state updates. Developers should be aware that database
+    writes occur synchronously and may impact performance if called too frequently.
+    The method assumes valid parameters and does not perform validation checks.
+  warnings: Calling this method with invalid zone IDs or GUIDs can result in data
+    corruption or inconsistent player states. Ensure all parameters are validated
+    before calling, especially when used outside of standard logout procedures.
+  related:
+  - Player::GetZoneId
+  - Player::GetPositionX
+  - Player::GetGUID
+  - Player::GetTransportId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T19:27:33.963822'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

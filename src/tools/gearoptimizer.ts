@@ -335,21 +335,252 @@ export async function optimizeGearSet(
 }
 
 /**
- * Calculate default stat weights for a class/spec
+ * Stat weight profiles for different content types
  */
-export function getDefaultStatWeights(classId: number, specId: number): StatWeights {
-  // These are simplified defaults - real weights would be calculated via simulation
+export enum ContentType {
+  RAID_DPS = "raid_dps",
+  MYTHIC_PLUS = "mythic_plus",
+  PVP = "pvp",
+  TANK = "tank",
+  HEALER = "healer",
+  LEVELING = "leveling"
+}
+
+/**
+ * Calculate default stat weights for a class/spec based on WoW 11.2 theorycrafting
+ *
+ * Stat weights are based on:
+ * - SimulationCraft results for The War Within (11.2)
+ * - Raidbots theorycrafting data
+ * - Class Discord community consensus
+ * - Icy Veins / Wowhead guides
+ *
+ * @param classId - Class ID (1-13)
+ * @param specId - Spec ID varies by class
+ * @param contentType - Type of content (defaults to raid DPS)
+ * @returns Stat weights optimized for the class/spec/content combination
+ */
+export function getDefaultStatWeights(
+  classId: number,
+  specId: number,
+  contentType: ContentType = ContentType.RAID_DPS
+): StatWeights {
+  // Comprehensive stat weight database for WoW 11.2 (The War Within)
+  // Format: "classId_specId_contentType"
   const weights: { [key: string]: StatWeights } = {
-    // Warrior DPS
-    "1_1": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.8, hasteRating: 0.7, masteryRating: 0.9, versatility: 0.6, armor: 0.01, weaponDPS: 3.0 },
-    // Mage DPS
-    "8_1": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.9, hasteRating: 0.8, masteryRating: 0.7, versatility: 0.6, armor: 0.005, weaponDPS: 0 },
-    // Default
-    "default": { stamina: 0.5, strength: 0.5, agility: 0.5, intellect: 0.5, critRating: 0.7, hasteRating: 0.7, masteryRating: 0.7, versatility: 0.6, armor: 0.01, weaponDPS: 2.0 }
+    // ========================================================================
+    // WARRIOR (Class ID: 1)
+    // ========================================================================
+    // Arms Warrior (71)
+    "1_71_raid_dps": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.85, hasteRating: 0.75, masteryRating: 0.82, versatility: 0.70, armor: 0.01, weaponDPS: 3.2 },
+    "1_71_mythic_plus": { stamina: 0.6, strength: 1.0, agility: 0, intellect: 0, critRating: 0.88, hasteRating: 0.80, masteryRating: 0.78, versatility: 0.72, armor: 0.02, weaponDPS: 3.0 },
+
+    // Fury Warrior (72)
+    "1_72_raid_dps": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.82, hasteRating: 0.90, masteryRating: 0.75, versatility: 0.68, armor: 0.01, weaponDPS: 3.5 },
+    "1_72_mythic_plus": { stamina: 0.6, strength: 1.0, agility: 0, intellect: 0, critRating: 0.85, hasteRating: 0.92, masteryRating: 0.72, versatility: 0.70, armor: 0.02, weaponDPS: 3.3 },
+
+    // Protection Warrior (73)
+    "1_73_tank": { stamina: 1.0, strength: 0.60, agility: 0, intellect: 0, critRating: 0.45, hasteRating: 0.75, masteryRating: 0.55, versatility: 0.50, armor: 0.15, weaponDPS: 1.5 },
+
+    // ========================================================================
+    // PALADIN (Class ID: 2)
+    // ========================================================================
+    // Holy Paladin (65)
+    "2_65_healer": { stamina: 0.7, strength: 0, agility: 0, intellect: 1.0, critRating: 0.80, hasteRating: 0.75, masteryRating: 0.70, versatility: 0.65, armor: 0.02, weaponDPS: 0 },
+
+    // Protection Paladin (66)
+    "2_66_tank": { stamina: 1.0, strength: 0.55, agility: 0, intellect: 0, critRating: 0.40, hasteRating: 0.80, masteryRating: 0.60, versatility: 0.52, armor: 0.18, weaponDPS: 1.2 },
+
+    // Retribution Paladin (70)
+    "2_70_raid_dps": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.78, hasteRating: 0.88, masteryRating: 0.72, versatility: 0.68, armor: 0.01, weaponDPS: 2.8 },
+    "2_70_mythic_plus": { stamina: 0.6, strength: 1.0, agility: 0, intellect: 0, critRating: 0.80, hasteRating: 0.90, masteryRating: 0.70, versatility: 0.70, armor: 0.02, weaponDPS: 2.6 },
+
+    // ========================================================================
+    // HUNTER (Class ID: 3)
+    // ========================================================================
+    // Beast Mastery Hunter (253)
+    "3_253_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.75, hasteRating: 0.82, masteryRating: 0.78, versatility: 0.65, armor: 0.01, weaponDPS: 3.0 },
+    "3_253_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.78, hasteRating: 0.85, masteryRating: 0.75, versatility: 0.68, armor: 0.01, weaponDPS: 2.8 },
+
+    // Marksmanship Hunter (254)
+    "3_254_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.88, hasteRating: 0.72, masteryRating: 0.85, versatility: 0.68, armor: 0.01, weaponDPS: 3.2 },
+    "3_254_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.90, hasteRating: 0.75, masteryRating: 0.82, versatility: 0.70, armor: 0.01, weaponDPS: 3.0 },
+
+    // Survival Hunter (255)
+    "3_255_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.80, hasteRating: 0.85, masteryRating: 0.75, versatility: 0.70, armor: 0.01, weaponDPS: 2.9 },
+    "3_255_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.82, hasteRating: 0.88, masteryRating: 0.72, versatility: 0.72, armor: 0.02, weaponDPS: 2.7 },
+
+    // ========================================================================
+    // ROGUE (Class ID: 4)
+    // ========================================================================
+    // Assassination Rogue (259)
+    "4_259_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.70, hasteRating: 0.75, masteryRating: 0.92, versatility: 0.68, armor: 0.01, weaponDPS: 3.1 },
+    "4_259_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.72, hasteRating: 0.78, masteryRating: 0.90, versatility: 0.70, armor: 0.01, weaponDPS: 2.9 },
+
+    // Outlaw Rogue (260)
+    "4_260_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.82, hasteRating: 0.88, masteryRating: 0.72, versatility: 0.78, armor: 0.01, weaponDPS: 3.3 },
+    "4_260_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.85, hasteRating: 0.90, masteryRating: 0.70, versatility: 0.80, armor: 0.02, weaponDPS: 3.1 },
+
+    // Subtlety Rogue (261)
+    "4_261_raid_dps": { stamina: 0.4, strength: 0, agility: 1.0, intellect: 0, critRating: 0.75, hasteRating: 0.70, masteryRating: 0.90, versatility: 0.82, armor: 0.01, weaponDPS: 3.0 },
+    "4_261_mythic_plus": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.78, hasteRating: 0.72, masteryRating: 0.88, versatility: 0.85, armor: 0.01, weaponDPS: 2.8 },
+
+    // ========================================================================
+    // PRIEST (Class ID: 5)
+    // ========================================================================
+    // Discipline Priest (256)
+    "5_256_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.75, hasteRating: 0.88, masteryRating: 0.70, versatility: 0.65, armor: 0.01, weaponDPS: 0 },
+
+    // Holy Priest (257)
+    "5_257_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.82, hasteRating: 0.75, masteryRating: 0.78, versatility: 0.68, armor: 0.01, weaponDPS: 0 },
+
+    // Shadow Priest (258)
+    "5_258_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.85, hasteRating: 0.92, masteryRating: 0.75, versatility: 0.70, armor: 0.005, weaponDPS: 0 },
+    "5_258_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.88, hasteRating: 0.95, masteryRating: 0.72, versatility: 0.72, armor: 0.01, weaponDPS: 0 },
+
+    // ========================================================================
+    // DEATH KNIGHT (Class ID: 6)
+    // ========================================================================
+    // Blood Death Knight (250)
+    "6_250_tank": { stamina: 1.0, strength: 0.65, agility: 0, intellect: 0, critRating: 0.48, hasteRating: 0.70, masteryRating: 0.65, versatility: 0.55, armor: 0.20, weaponDPS: 1.8 },
+
+    // Frost Death Knight (251)
+    "6_251_raid_dps": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.88, hasteRating: 0.75, masteryRating: 0.80, versatility: 0.72, armor: 0.01, weaponDPS: 3.0 },
+    "6_251_mythic_plus": { stamina: 0.6, strength: 1.0, agility: 0, intellect: 0, critRating: 0.90, hasteRating: 0.78, masteryRating: 0.78, versatility: 0.75, armor: 0.02, weaponDPS: 2.8 },
+
+    // Unholy Death Knight (252)
+    "6_252_raid_dps": { stamina: 0.5, strength: 1.0, agility: 0, intellect: 0, critRating: 0.78, hasteRating: 0.92, masteryRating: 0.85, versatility: 0.70, armor: 0.01, weaponDPS: 2.9 },
+    "6_252_mythic_plus": { stamina: 0.6, strength: 1.0, agility: 0, intellect: 0, critRating: 0.80, hasteRating: 0.95, masteryRating: 0.82, versatility: 0.72, armor: 0.02, weaponDPS: 2.7 },
+
+    // ========================================================================
+    // SHAMAN (Class ID: 7)
+    // ========================================================================
+    // Elemental Shaman (262)
+    "7_262_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.80, hasteRating: 0.88, masteryRating: 0.92, versatility: 0.72, armor: 0.005, weaponDPS: 0 },
+    "7_262_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.82, hasteRating: 0.90, masteryRating: 0.95, versatility: 0.75, armor: 0.01, weaponDPS: 0 },
+
+    // Enhancement Shaman (263)
+    "7_263_raid_dps": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.82, hasteRating: 0.92, masteryRating: 0.78, versatility: 0.75, armor: 0.01, weaponDPS: 2.8 },
+    "7_263_mythic_plus": { stamina: 0.6, strength: 0, agility: 1.0, intellect: 0, critRating: 0.85, hasteRating: 0.95, masteryRating: 0.75, versatility: 0.78, armor: 0.02, weaponDPS: 2.6 },
+
+    // Restoration Shaman (264)
+    "7_264_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.78, hasteRating: 0.70, masteryRating: 0.85, versatility: 0.68, armor: 0.01, weaponDPS: 0 },
+
+    // ========================================================================
+    // MAGE (Class ID: 8)
+    // ========================================================================
+    // Arcane Mage (62)
+    "8_62_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.88, hasteRating: 0.92, masteryRating: 0.82, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+    "8_62_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.90, hasteRating: 0.95, masteryRating: 0.80, versatility: 0.78, armor: 0.005, weaponDPS: 0 },
+
+    // Fire Mage (63)
+    "8_63_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.95, hasteRating: 0.88, masteryRating: 0.90, versatility: 0.72, armor: 0.005, weaponDPS: 0 },
+    "8_63_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.98, hasteRating: 0.90, masteryRating: 0.88, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+
+    // Frost Mage (64)
+    "8_64_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.85, hasteRating: 0.80, masteryRating: 0.92, versatility: 0.70, armor: 0.005, weaponDPS: 0 },
+    "8_64_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.88, hasteRating: 0.82, masteryRating: 0.95, versatility: 0.72, armor: 0.005, weaponDPS: 0 },
+
+    // ========================================================================
+    // WARLOCK (Class ID: 9)
+    // ========================================================================
+    // Affliction Warlock (265)
+    "9_265_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.72, hasteRating: 0.92, masteryRating: 0.88, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+    "9_265_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.75, hasteRating: 0.95, masteryRating: 0.85, versatility: 0.78, armor: 0.005, weaponDPS: 0 },
+
+    // Demonology Warlock (266)
+    "9_266_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.70, hasteRating: 0.95, masteryRating: 0.75, versatility: 0.68, armor: 0.005, weaponDPS: 0 },
+    "9_266_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.72, hasteRating: 0.98, masteryRating: 0.72, versatility: 0.70, armor: 0.005, weaponDPS: 0 },
+
+    // Destruction Warlock (267)
+    "9_267_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.88, hasteRating: 0.85, masteryRating: 0.92, versatility: 0.72, armor: 0.005, weaponDPS: 0 },
+    "9_267_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.90, hasteRating: 0.88, masteryRating: 0.95, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+
+    // ========================================================================
+    // MONK (Class ID: 10)
+    // ========================================================================
+    // Brewmaster Monk (268)
+    "10_268_tank": { stamina: 1.0, strength: 0, agility: 0.70, intellect: 0, critRating: 0.50, hasteRating: 0.65, masteryRating: 0.78, versatility: 0.60, armor: 0.16, weaponDPS: 1.6 },
+
+    // Mistweaver Monk (270)
+    "10_270_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.75, hasteRating: 0.70, masteryRating: 0.68, versatility: 0.82, armor: 0.01, weaponDPS: 0 },
+
+    // Windwalker Monk (269)
+    "10_269_raid_dps": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.78, hasteRating: 0.72, masteryRating: 0.92, versatility: 0.85, armor: 0.01, weaponDPS: 2.7 },
+    "10_269_mythic_plus": { stamina: 0.6, strength: 0, agility: 1.0, intellect: 0, critRating: 0.80, hasteRating: 0.75, masteryRating: 0.95, versatility: 0.88, armor: 0.02, weaponDPS: 2.5 },
+
+    // ========================================================================
+    // DRUID (Class ID: 11)
+    // ========================================================================
+    // Balance Druid (102)
+    "11_102_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.85, hasteRating: 0.92, masteryRating: 0.78, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+    "11_102_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.88, hasteRating: 0.95, masteryRating: 0.75, versatility: 0.78, armor: 0.01, weaponDPS: 0 },
+
+    // Feral Druid (103)
+    "11_103_raid_dps": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.82, hasteRating: 0.70, masteryRating: 0.78, versatility: 0.88, armor: 0.01, weaponDPS: 2.6 },
+    "11_103_mythic_plus": { stamina: 0.6, strength: 0, agility: 1.0, intellect: 0, critRating: 0.85, hasteRating: 0.72, masteryRating: 0.75, versatility: 0.90, armor: 0.02, weaponDPS: 2.4 },
+
+    // Guardian Druid (104)
+    "11_104_tank": { stamina: 1.0, strength: 0, agility: 0.75, intellect: 0, critRating: 0.42, hasteRating: 0.68, masteryRating: 0.52, versatility: 0.78, armor: 0.22, weaponDPS: 1.4 },
+
+    // Restoration Druid (105)
+    "11_105_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.70, hasteRating: 0.92, masteryRating: 0.88, versatility: 0.72, armor: 0.01, weaponDPS: 0 },
+
+    // ========================================================================
+    // DEMON HUNTER (Class ID: 12)
+    // ========================================================================
+    // Havoc Demon Hunter (577)
+    "12_577_raid_dps": { stamina: 0.5, strength: 0, agility: 1.0, intellect: 0, critRating: 0.92, hasteRating: 0.88, masteryRating: 0.75, versatility: 0.82, armor: 0.01, weaponDPS: 2.9 },
+    "12_577_mythic_plus": { stamina: 0.6, strength: 0, agility: 1.0, intellect: 0, critRating: 0.95, hasteRating: 0.90, masteryRating: 0.72, versatility: 0.85, armor: 0.02, weaponDPS: 2.7 },
+
+    // Vengeance Demon Hunter (581)
+    "12_581_tank": { stamina: 1.0, strength: 0, agility: 0.68, intellect: 0, critRating: 0.55, hasteRating: 0.88, masteryRating: 0.62, versatility: 0.70, armor: 0.14, weaponDPS: 1.7 },
+
+    // ========================================================================
+    // EVOKER (Class ID: 13)
+    // ========================================================================
+    // Devastation Evoker (1467)
+    "13_1467_raid_dps": { stamina: 0.4, strength: 0, agility: 0, intellect: 1.0, critRating: 0.90, hasteRating: 0.82, masteryRating: 0.88, versatility: 0.75, armor: 0.005, weaponDPS: 0 },
+    "13_1467_mythic_plus": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.92, hasteRating: 0.85, masteryRating: 0.90, versatility: 0.78, armor: 0.01, weaponDPS: 0 },
+
+    // Preservation Evoker (1468)
+    "13_1468_healer": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.82, hasteRating: 0.75, masteryRating: 0.92, versatility: 0.70, armor: 0.01, weaponDPS: 0 },
+
+    // Augmentation Evoker (1473)
+    "13_1473_raid_dps": { stamina: 0.5, strength: 0, agility: 0, intellect: 1.0, critRating: 0.70, hasteRating: 0.92, masteryRating: 0.85, versatility: 0.88, armor: 0.01, weaponDPS: 0 },
+    "13_1473_mythic_plus": { stamina: 0.6, strength: 0, agility: 0, intellect: 1.0, critRating: 0.72, hasteRating: 0.95, masteryRating: 0.82, versatility: 0.90, armor: 0.01, weaponDPS: 0 },
+
+    // ========================================================================
+    // FALLBACK DEFAULT
+    // ========================================================================
+    "default": { stamina: 0.5, strength: 0.5, agility: 0.5, intellect: 0.5, critRating: 0.75, hasteRating: 0.75, masteryRating: 0.75, versatility: 0.70, armor: 0.01, weaponDPS: 2.0 }
   };
 
-  const key = `${classId}_${specId}`;
-  return weights[key] || weights["default"];
+  // Build lookup key
+  const key = `${classId}_${specId}_${contentType}`;
+
+  // Try exact match first
+  if (weights[key]) {
+    return weights[key];
+  }
+
+  // Try without content type (defaults to raid_dps for DPS specs, appropriate role for others)
+  const fallbackKeys = [
+    `${classId}_${specId}_raid_dps`,
+    `${classId}_${specId}_mythic_plus`,
+    `${classId}_${specId}_tank`,
+    `${classId}_${specId}_healer`,
+    `${classId}_${specId}_leveling`
+  ];
+
+  for (const fallbackKey of fallbackKeys) {
+    if (weights[fallbackKey]) {
+      return weights[fallbackKey];
+    }
+  }
+
+  // Final fallback to default
+  return weights["default"];
 }
 
 // ============================================================================

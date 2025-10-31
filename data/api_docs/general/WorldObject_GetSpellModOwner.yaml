@@ -1,0 +1,52 @@
+api:
+  class: WorldObject
+  method: GetSpellModOwner
+  signature: Player * WorldObject::GetSpellModOwner() const
+documentation:
+  brief: Returns the Player object that owns the spell modification for this WorldObject.
+  description: The GetSpellModOwner method retrieves the Player instance that is responsible
+    for applying spell modifications to this WorldObject. In World of Warcraft's TrinityCore
+    implementation, spell modifiers can be applied by players through various means
+    such as enchantments, talents, or buffs. This method allows the system to identify
+    which player's influence is currently affecting the spell properties of the object.
+    The returned Player pointer may be nullptr if no player is actively modifiying
+    spells on this object, or if the object itself is not a type that supports spell
+    modifications. This functionality is crucial for maintaining accurate spell behavior
+    and ensuring proper application of player-based spell modifications within the
+    game's combat and ability systems.
+  parameters: []
+  returns: A pointer to the Player object that owns the spell modification, or nullptr
+    if no such owner exists. The returned pointer should be used carefully as it may
+    become invalid if the player logs out or is removed from the world.
+  examples:
+  - title: Basic usage to check for spell modifier owner
+    code: "Player* spellOwner = worldObject->GetSpellModOwner();\nif (spellOwner !=\
+      \ nullptr)\n{\n    // Process spell modification logic\n    sLog->outString(\"\
+      Spell modifier owner found: %s\", spellOwner->GetName().c_str());\n}\nelse\n\
+      {\n    sLog->outString(\"No spell modifier owner found.\");\n}"
+    language: cpp
+  - title: Using spell modifier owner to apply custom logic
+    code: "Player* owner = unit->GetSpellModOwner();\nif (owner && owner->HasAura(12345))\
+      \ // Check if owner has specific aura\n{\n    // Apply additional spell effect\
+      \ based on owner's state\n    float bonus = owner->GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_POS);\n\
+      \    // Modify spell damage calculation\n}"
+    language: cpp
+  notes: This method is primarily used in spell processing systems where player-specific
+    modifications need to be tracked and applied. The returned Player pointer should
+    not be stored long-term as the player may disconnect or be destroyed. Performance-wise,
+    this operation is generally fast but should be avoided in high-frequency loops
+    without caching.
+  warnings: Be cautious when storing the returned Player pointer beyond the scope
+    of a single function call, as the player object may be deleted or become invalid.
+    Always check for nullptr before dereferencing the returned pointer to prevent
+    segmentation faults.
+  related:
+  - SetSpellModOwner
+  - GetSpellMod
+  - HasSpellMod
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T21:40:37.392304'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

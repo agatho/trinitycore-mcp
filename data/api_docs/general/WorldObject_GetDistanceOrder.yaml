@@ -1,0 +1,65 @@
+api:
+  class: WorldObject
+  method: GetDistanceOrder
+  signature: bool WorldObject::GetDistanceOrder(const WorldObject * obj1, const WorldObject
+    * obj2, bool is3D) const
+documentation:
+  brief: Compares the distance between two WorldObjects from this object's perspective,
+    returning true if obj1 is closer than obj2.
+  description: The GetDistanceOrder method determines the relative ordering of two
+    WorldObject instances based on their distances from the calling WorldObject. It
+    evaluates whether the first specified object (obj1) is closer to the current object
+    than the second specified object (obj2). This comparison can be performed in either
+    3D space or 2D projection depending on the is3D parameter. The method is commonly
+    used for sorting objects by proximity, such as determining which enemy is closest
+    to a player or NPC for targeting purposes. It's particularly useful in AI logic
+    and spell targeting mechanics where object positioning and distance are critical
+    factors.
+  parameters:
+  - name: obj1
+    description: Pointer to the first WorldObject to compare distances from this object
+  - name: obj2
+    description: Pointer to the second WorldObject to compare distances from this
+      object
+  - name: is3D
+    description: Boolean flag indicating whether to use 3D distance calculation (true)
+      or 2D projection (false)
+  returns: Returns true if obj1 is closer to this WorldObject than obj2, false otherwise.
+    If both objects are equidistant, the method returns false.
+  examples:
+  - title: Basic usage for sorting targets
+    code: "WorldObject* player = ...;\nWorldObject* target1 = ...;\nWorldObject* target2\
+      \ = ...;\n\nif (player->GetDistanceOrder(target1, target2, true)) {\n    //\
+      \ target1 is closer than target2 in 3D space\n    // Use target1 for targeting\
+      \ logic\n}"
+    language: cpp
+  - title: Using with AI decision making
+    code: "class EnemyAI {\npublic:\n    void SelectClosestTarget(WorldObject* current,\
+      \ std::vector<WorldObject*>& targets) {\n        if (targets.empty()) return;\n\
+      \        \n        WorldObject* closest = targets[0];\n        for (size_t i\
+      \ = 1; i < targets.size(); ++i) {\n            if (current->GetDistanceOrder(targets[i],\
+      \ closest, true)) {\n                closest = targets[i];\n            }\n\
+      \        }\n        // closest now points to the nearest enemy\n    }\n};"
+    language: cpp
+  notes: 'The method internally uses the standard distance calculation formulas. For
+    performance reasons, it''s recommended to cache distance calculations when comparing
+    multiple objects against a single reference point. The is3D parameter affects
+    the calculation method: true uses Euclidean distance in three dimensions (x, y,
+    z), while false uses only x and y coordinates for 2D projection. This method does
+    not account for object size or collision detection.'
+  warnings: This method assumes both obj1 and obj2 are valid pointers and will crash
+    if either is null. When using with dynamic objects that may be destroyed during
+    execution, ensure proper lifecycle management. The comparison result can vary
+    significantly between 3D and 2D calculations, especially for objects at different
+    elevations.
+  related:
+  - GetDistance
+  - GetExactDistance
+  - IsWithinDist
+  - IsWithinDist3D
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T22:14:38.434148'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

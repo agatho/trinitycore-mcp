@@ -1,0 +1,66 @@
+api:
+  class: GameObject
+  method: SaveToDB
+  signature: void GameObject::SaveToDB(uint32 mapid, const int & spawnDifficulties)
+documentation:
+  brief: Saves the game object's current state to the database, including its position,
+    orientation, and spawn difficulties.
+  description: The SaveToDB method persists the current state of a GameObject instance
+    to the database. This includes all relevant properties such as the object's position
+    (X, Y, Z coordinates), orientation (O), map ID, and spawn difficulties. The method
+    is typically invoked when changes to the game object need to be committed to the
+    persistent world state. It ensures that upon server restart or reload, the object
+    will maintain its updated configuration. This method requires that the GameObject
+    has already been initialized with valid data and that the database connection
+    is active. The mapid parameter specifies which map the object belongs to, while
+    spawnDifficulties defines the difficulty levels at which this object should be
+    spawned.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the map where the game object is located.
+      This value determines the correct database table and context for saving the
+      object's data.
+  - name: spawnDifficulties
+    description: An integer reference representing the spawn difficulties associated
+      with this game object. This value typically corresponds to difficulty levels
+      defined in the game's configuration, such as normal, heroic, or mythic modes.
+  returns: null
+  examples:
+  - title: Basic usage of SaveToDB
+    code: 'GameObject* go = ...; // Assume a valid GameObject instance
+
+      uint32 mapId = go->GetMapId();
+
+      int spawnDiff = 0; // Example difficulty level
+
+      go->SaveToDB(mapId, spawnDiff);'
+    language: cpp
+  - title: Saving GameObject with dynamic difficulty
+    code: 'GameObject* go = ...;
+
+      uint32 mapId = go->GetMapId();
+
+      int spawnDiff = sWorld->getIntConfig(CONFIG_DIFFICULTY);
+
+      go->SaveToDB(mapId, spawnDiff);'
+    language: cpp
+  notes: This method should only be called after ensuring that the GameObject has
+    been properly initialized and that its data is valid. It's important to note that
+    calling SaveToDB on an object that hasn't been added to the world yet may result
+    in unexpected behavior or database inconsistencies. Additionally, this operation
+    is typically synchronous and can impact performance if many objects are saved
+    simultaneously.
+  warnings: Calling SaveToDB without proper initialization of the GameObject may lead
+    to invalid data being written to the database. Also, frequent calls to this method
+    during high-traffic periods might cause performance bottlenecks due to database
+    I/O operations.
+  related:
+  - GameObject::LoadFromDB
+  - GameObject::Update
+  - GameObject::AddToWorld
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:12:27.107173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,92 @@
+api:
+  class: Player
+  method: BuildValuesUpdateForPlayerWithMask
+  signature: void Player::BuildValuesUpdateForPlayerWithMask(int * data, const int
+    & requestedObjectMask, const int & requestedUnitMask, const int & requestedPlayerMask,
+    const int & requestedActivePlayerMask, const Player * target) const
+documentation:
+  brief: Populates a data buffer with update values for a player based on specified
+    object, unit, player, and active player masks.
+  description: The BuildValuesUpdateForPlayerWithMask method constructs an update
+    packet containing specific player data fields based on the provided masks. It
+    is used internally by the TrinityCore server to efficiently serialize player state
+    information for transmission to clients. The method takes four mask parameters
+    that determine which parts of the player's update data should be included in the
+    output buffer. This allows for selective updates, reducing bandwidth usage and
+    improving performance. The target player parameter specifies which player's data
+    is being serialized, while the data buffer is populated with the relevant field
+    values according to the mask specifications.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be filled with the update values.
+      This buffer must be pre-allocated with sufficient space to hold all the requested
+      fields.
+  - name: requestedObjectMask
+    description: Bitmask specifying which object-related fields should be included
+      in the update data. Each bit corresponds to a specific object field in the update
+      packet structure.
+  - name: requestedUnitMask
+    description: Bitmask specifying which unit-related fields should be included in
+      the update data. This includes fields such as health, power, and other unit-specific
+      attributes.
+  - name: requestedPlayerMask
+    description: Bitmask specifying which player-specific fields should be included
+      in the update data. These typically include player statistics, inventory information,
+      and character-specific properties.
+  - name: requestedActivePlayerMask
+    description: Bitmask specifying which active player-related fields should be included
+      in the update data. This mask is used for fields that are only relevant when
+      the player is actively engaged in gameplay.
+  - name: target
+    description: Pointer to the Player object whose data will be serialized into the
+      data buffer. If null, the method may use the current player instance or throw
+      an error depending on implementation details.
+  returns: void
+  examples:
+  - title: Basic usage example for building player update data
+    code: 'int updateData[100];
+
+      Player* targetPlayer = ...; // some player instance
+
+      Player::BuildValuesUpdateForPlayerWithMask(updateData, 0x01, 0x02, 0x04, 0x08,
+      targetPlayer);
+
+      // updateData now contains selected player fields based on the provided masks'
+    language: cpp
+  - title: Advanced usage with custom mask combinations
+    code: 'int buffer[50];
+
+      uint32 objectMask = 0x0001 | 0x0002; // Include object fields 0 and 1
+
+      uint32 unitMask = 0x0004 | 0x0008; // Include unit fields 2 and 3
+
+      uint32 playerMask = 0x0010 | 0x0020; // Include player fields 4 and 5
+
+      uint32 activeMask = 0x0040 | 0x0080; // Include active player fields 6 and 7
+
+      Player::BuildValuesUpdateForPlayerWithMask(buffer, objectMask, unitMask, playerMask,
+      activeMask, target);
+
+      // Buffer now contains a custom combination of update fields'
+    language: cpp
+  notes: This method is typically used internally by the server's update system. The
+    data buffer size should be carefully managed to avoid overflow. The masks are
+    usually defined as bitmasks that correspond to specific field indices in the player's
+    update packet structure. Performance considerations include avoiding unnecessary
+    calls when no updates are needed, and ensuring proper memory alignment for the
+    target buffer.
+  warnings: The method assumes that the data buffer has sufficient space allocated
+    to hold all requested fields. Passing an insufficiently sized buffer can lead
+    to memory corruption. The target parameter must not be null unless the implementation
+    handles null cases gracefully. Incorrect mask values may result in incomplete
+    or malformed update packets.
+  related:
+  - Player::BuildValuesUpdateForPlayer
+  - Player::BuildUpdateData
+  - Player::SendUpdateToPlayer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-29T19:55:29.416266'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

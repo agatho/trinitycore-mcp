@@ -1,0 +1,61 @@
+api:
+  class: WorldObject
+  method: GetZoneAndAreaId
+  signature: void WorldObject::GetZoneAndAreaId(uint32 & zoneid, uint32 & areaid)
+    const
+documentation:
+  brief: Retrieves the zone and area identifiers for the WorldObject's current position.
+  description: The GetZoneAndAreaId method populates two uint32 parameters with the
+    zone ID and area ID corresponding to the WorldObject's current location in the
+    game world. This method is essential for determining the geographical context
+    of an object, which is used extensively in zone-based gameplay mechanics such
+    as quest tracking, zone-specific events, and area-triggered actions. The zone
+    ID typically represents a larger region (e.g., a city or major landmass), while
+    the area ID denotes a more specific subregion (e.g., a district within a city).
+    This method performs no direct calculations but relies on internal spatial indexing
+    and zone mapping systems maintained by the TrinityCore server.
+  parameters:
+  - name: zoneid
+    description: Reference to a uint32 variable that will be set to the zone identifier
+      of the object's current location. This ID corresponds to a specific zone in
+      the game world database.
+  - name: areaid
+    description: Reference to a uint32 variable that will be set to the area identifier
+      of the object's current location. This ID corresponds to a more granular area
+      within the zone, often used for sub-zone specific mechanics.
+  returns: null
+  examples:
+  - title: Basic usage to determine zone and area
+    code: 'WorldObject* obj = player->GetMap()->GetCreature(12345);
+
+      uint32 zoneId, areaId;
+
+      obj->GetZoneAndAreaId(zoneId, areaId);
+
+      TC_LOG_INFO("server.world", "Object is in zone %u, area %u", zoneId, areaId);'
+    language: cpp
+  - title: Using zone and area IDs for conditional logic
+    code: "Player* player = ...;\nuint32 zoneId, areaId;\nplayer->GetZoneAndAreaId(zoneId,\
+      \ areaId);\nif (zoneId == 1411) // Dalaran\n{\n    // Perform Dalaran-specific\
+      \ actions\n}\nelse if (areaId == 5087) // Stormwind Stockade\n{\n    // Handle\
+      \ Stormwind Stockade events\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with map and grid management
+    systems. It is important to note that the zone and area IDs returned may be zero
+    if the object's location has not been properly initialized or if it is outside
+    of a mapped region. The values are cached internally, so calling this method multiple
+    times on the same object should not incur performance penalties.
+  warnings: Do not assume that zoneId and areaId will always be non-zero; objects
+    in invalid locations may return zero values. Additionally, zone/area IDs can change
+    during server updates or if custom content modifies the map data.
+  related:
+  - GetZoneId
+  - GetAreaId
+  - GetPosition
+  - IsInMap
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:32:08.523577'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

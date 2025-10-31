@@ -1,0 +1,79 @@
+api:
+  class: Player
+  method: CanStoreItem
+  signature: int Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec & dest,
+    uint32 entry, uint32 count, Item * pItem, bool swap, uint32 * no_space_count)
+    const
+documentation:
+  brief: Checks if an item can be stored in a player's inventory and returns the appropriate
+    result code.
+  description: The CanStoreItem method determines whether a given item can be stored
+    in a player's inventory, taking into account the item's entry, count, and various
+    inventory constraints. It evaluates the destination bag and slot, considering
+    both the item's properties and the player's current inventory state. This method
+    is commonly used during item creation or when attempting to add items to a player's
+    inventory to ensure proper handling of item stacking, slot availability, and inventory
+    limits. The method returns specific codes indicating success or failure conditions,
+    making it essential for game mechanics involving item management.
+  parameters:
+  - name: bag
+    description: The bag identifier where the item should be stored, or 0xFF if any
+      bag is acceptable.
+  - name: slot
+    description: The slot within the specified bag where the item should be placed,
+      or 0xFF if any slot is acceptable.
+  - name: dest
+    description: Reference to a vector of ItemPosCountVec structures that will store
+      the result of the operation, indicating where and how much of the item can be
+      stored.
+  - name: entry
+    description: The item entry ID to be stored, used for identifying the specific
+      item type.
+  - name: count
+    description: The number of items to store, representing how many of the item are
+      being added.
+  - name: pItem
+    description: Pointer to the item object being stored, used for checking item properties
+      and potential stacking.
+  - name: swap
+    description: Boolean indicating whether swapping is allowed if the item cannot
+      be placed in the specified slot, allowing for item exchange with existing items.
+  - name: no_space_count
+    description: Pointer to a uint32 value that will store the number of items that
+      could not be stored due to lack of space, or NULL if not needed.
+  returns: 'Returns one of several possible codes indicating success or failure: 0
+    for success, 1 for item not found, 2 for invalid item, 3 for invalid bag, 4 for
+    invalid slot, 5 for item stackable, 6 for item not stackable, 7 for item cannot
+    be stored due to inventory constraints, and other values depending on specific
+    conditions.'
+  examples:
+  - title: Basic usage example
+    code: "ItemPosCountVec dest;\nint result = player->CanStoreItem(0, 0, dest, 12345,\
+      \ 1, nullptr, false);\nif (result == 0) {\n    // Item can be stored\n}"
+    language: cpp
+  - title: Advanced usage example
+    code: "ItemPosCountVec dest;\nuint32 no_space_count = 0;\nint result = player->CanStoreItem(0,\
+      \ 0, dest, 12345, 10, nullptr, true, &no_space_count);\nif (result == 0) {\n\
+      \    // Item can be stored\n} else if (result == 7) {\n    // No space available\
+      \ for item\n}\n// no_space_count will contain the number of items that couldn't\
+      \ be stored"
+    language: cpp
+  notes: The method is typically used in conjunction with other inventory-related
+    methods like Item::GetBagAndSlot or Item::GetItemTemplate to determine item storage
+    eligibility. It's important to note that this method does not actually store the
+    item, but rather evaluates whether it can be stored. Performance considerations
+    include checking for valid item entry and ensuring proper handling of slot constraints.
+  warnings: The method may return different codes depending on the specific conditions,
+    so developers should carefully check each result code to determine if items can
+    be stored or if there's a failure due to inventory constraints. Also, using swap=true
+    can lead to unexpected behavior if not properly handled.
+  related:
+  - CanStoreItem
+  - Item::GetBagAndSlot
+  - Item::GetItemTemplate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-30T17:40:16.613483'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

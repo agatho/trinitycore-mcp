@@ -1,0 +1,55 @@
+api:
+  class: WorldObject
+  method: GetRandomPoint
+  signature: Position WorldObject::GetRandomPoint(const Position & srcPos, float distance)
+    const
+documentation:
+  brief: Calculates and returns a random point within a specified distance from a
+    source position.
+  description: The GetRandomPoint method generates a random position at a given distance
+    from a provided source position. This is commonly used in game mechanics for spawning
+    creatures, placing objects, or determining movement targets. The method takes
+    into account the world's geometry to ensure the resulting point is valid and walkable.
+    It's particularly useful for AI behavior, loot placement, and area-of-effect spell
+    calculations where randomness is required but constrained by distance.
+  parameters:
+  - name: srcPos
+    description: The source position from which the random point will be calculated.
+      This represents the center point of the random distribution.
+  - name: distance
+    description: The maximum distance from the source position to the returned random
+      point. Must be a positive value.
+  returns: A Position object representing the calculated random point within the specified
+    distance from the source position. The returned position will be valid for use
+    in world operations.
+  examples:
+  - title: Basic usage for creature spawning
+    code: "Position spawnPos = creature->GetRandomPoint(creature->GetPosition(), 10.0f);\n\
+      // Spawn a creature at a random point within 10 yards\nif (Map* map = creature->GetMap())\n\
+      {\n    Creature* newCreature = map->SummonCreature(NPC_TYPE, spawnPos);\n}"
+    language: cpp
+  - title: Using random point for spell effect area
+    code: "Position center = caster->GetPosition();\nPosition randomPoint = target->GetRandomPoint(center,\
+      \ 15.0f);\n// Cast a spell at a random point within 15 yards of the target\n\
+      SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ID);\nif (spellInfo)\n\
+      {\n    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);\n    spell->Prepare(&randomPoint);\n\
+      }"
+    language: cpp
+  notes: The method internally uses the world's navigation system to ensure that generated
+    points are valid for movement. It accounts for terrain height and obstacles where
+    possible. Performance is generally good for single calls but may be impacted when
+    used in tight loops with many concurrent operations.
+  warnings: Be cautious when using large distances as this can result in points that
+    are far outside of expected boundaries or invalid locations. Always validate the
+    returned position before using it in critical game logic, especially if the world
+    state has changed since the call.
+  related:
+  - GetPosition
+  - IsWithinDist
+  - GetDistance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:46:45.867444'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: GameObject
+  method: DespawnForPlayer
+  signature: void GameObject::DespawnForPlayer(int * seer, int respawnTime)
+documentation:
+  brief: Removes a game object from a player's client view and optionally schedules
+    its respawn.
+  description: The DespawnForPlayer method removes a GameObject from the specified
+    player's client view, making it invisible to that player. This is typically used
+    for temporary removal of interactive objects such as doors, chests, or quest items.
+    The method accepts an optional respawn time parameter that determines when the
+    object will reappear to the player. If respawnTime is set to 0, the object will
+    not respawn automatically and must be manually spawned again using SpawnForPlayer.
+    This method does not destroy the GameObject itself but only affects its visibility
+    for a specific player.
+  parameters:
+  - name: seer
+    description: Pointer to an integer representing the player's GUID or reference.
+      This identifies which player's client will lose visibility of the game object.
+  - name: respawnTime
+    description: Integer value specifying the respawn time in milliseconds. If set
+      to 0, the object will not respawn automatically and must be manually spawned
+      again using SpawnForPlayer. A positive value indicates how long (in milliseconds)
+      before the object reappears to the player.
+  returns: null
+  examples:
+  - title: Basic Despawn with Respawn
+    code: 'GameObject* go = ...; // Get a reference to a GameObject
+
+      Player* player = ...; // Get a reference to a Player
+
+      uint32 respawnDelay = 5000; // 5 seconds
+
+      go->DespawnForPlayer(&player->GetGUID().GetRawValue(), respawnDelay);'
+    language: cpp
+  - title: Despawn Without Respawn
+    code: 'GameObject* go = ...;
+
+      Player* player = ...;
+
+      go->DespawnForPlayer(&player->GetGUID().GetRawValue(), 0); // No respawn
+
+      // Object will remain invisible until manually spawned again'
+    language: cpp
+  notes: This method operates on a per-player basis, meaning that other players in
+    the area will still see the object. The GameObject's data remains intact in memory
+    and can be re-spawned using SpawnForPlayer. It is commonly used for quest-related
+    objects or temporary environmental elements.
+  warnings: Calling this method with an invalid player GUID pointer may lead to undefined
+    behavior. Ensure that the seer parameter points to a valid player object before
+    calling this method. Also, if respawnTime is set to a very large value, it may
+    cause performance issues due to delayed cleanup of internal tracking structures.
+  related:
+  - SpawnForPlayer
+  - IsSpawned
+  - GetGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T20:16:59.605894'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

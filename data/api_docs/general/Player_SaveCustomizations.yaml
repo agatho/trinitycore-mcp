@@ -1,0 +1,69 @@
+api:
+  class: Player
+  method: SaveCustomizations
+  signature: void Player::SaveCustomizations(int trans, int guid, int customizations)
+documentation:
+  brief: Saves player customizations to the database with transaction support
+  description: The SaveCustomizations method persists player appearance and customization
+    data to the database. It accepts transaction, GUID, and customizations parameters
+    to ensure proper database handling. This method is typically called when a player
+    modifies their character's appearance, such as changing race, gender, facial features,
+    or hair style. The method handles database transactions to maintain data consistency
+    and ensures that all customization changes are properly saved to the account's
+    character records.
+  parameters:
+  - name: trans
+    description: Database transaction handle used for atomic operations. If non-zero,
+      the save operation will be performed within the specified transaction context.
+  - name: guid
+    description: Unique identifier of the player character. This value is used to
+      locate and update the correct character record in the database.
+  - name: customizations
+    description: Integer value representing the customization data to be saved. This
+      typically contains packed appearance information including race, gender, facial
+      features, hair style, and other visual attributes.
+  returns: null
+  examples:
+  - title: Basic usage with transaction
+    code: 'Player* player = ...;
+
+      uint32 trans = 0;
+
+      uint32 guid = player->GetGUID().GetCounter();
+
+      int customizations = player->GetCustomizationData();
+
+      player->SaveCustomizations(trans, guid, customizations);'
+    language: cpp
+  - title: Saving customizations within a database transaction
+    code: 'Player* player = ...;
+
+      uint32 guid = player->GetGUID().GetCounter();
+
+      int customizations = player->GetCustomizationData();
+
+      WorldDatabaseTransaction* trans = new WorldDatabaseTransaction();
+
+      player->SaveCustomizations((int)trans, guid, customizations);
+
+      trans->Execute();'
+    language: cpp
+  notes: This method is typically invoked automatically when a player's appearance
+    changes through the game interface. The implementation uses database transactions
+    to ensure data integrity during save operations. Developers should be aware that
+    this method may perform blocking database I/O operations and should consider performance
+    implications in high-traffic scenarios.
+  warnings: Calling this method with invalid GUID values or improper transaction handles
+    can result in database corruption or failed saves. The customizations parameter
+    must contain valid packed appearance data; otherwise, the save operation may fail
+    silently or corrupt existing customization data.
+  related:
+  - GetCustomizationData
+  - SetCustomizationData
+  - SaveToDB
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-29T19:29:38.197852'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

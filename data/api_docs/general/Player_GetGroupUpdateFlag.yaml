@@ -1,0 +1,54 @@
+api:
+  class: Player
+  method: GetGroupUpdateFlag
+  signature: uint32 Player::GetGroupUpdateFlag() const
+documentation:
+  brief: Returns the group update flag for the player, indicating which fields have
+    changed in the group member data.
+  description: The GetGroupUpdateFlag method retrieves a bitmask representing the
+    current state of group member updates for this player. This flag is used internally
+    by the TrinityCore server to determine what information needs to be sent to group
+    members when updating their status. The returned value consists of bits that correspond
+    to different aspects of player data such as health, mana, level, etc., which are
+    tracked for synchronization within the group. When a player's group-related attributes
+    change, the corresponding bit in this flag is set, and it gets cleared after the
+    update has been processed and sent to the group members.
+  parameters: []
+  returns: A uint32 bitmask where each bit represents a specific field or aspect of
+    the player's group data that has been modified. The bits are defined by constants
+    such as GROUP_UPDATE_FLAG_NONE, GROUP_UPDATE_FLAG_POWER_TYPE, GROUP_UPDATE_FLAG_HEALTH,
+    etc., which indicate what kind of update information is pending for transmission
+    to the group.
+  examples:
+  - title: Check if player health has changed in group update
+    code: "uint32 flag = player->GetGroupUpdateFlag();\nif (flag & GROUP_UPDATE_FLAG_HEALTH)\n\
+      {\n    // Player's health has changed and needs to be updated in the group\n\
+      \    // Process health update here\n}"
+    language: cpp
+  - title: Clear group update flag after processing
+    code: "uint32 flag = player->GetGroupUpdateFlag();\n// Process all pending updates\
+      \ based on the flag\nif (flag)\n{\n    // Handle different types of updates\n\
+      \    if (flag & GROUP_UPDATE_FLAG_POWER_TYPE)\n        // Update power type\n\
+      \    if (flag & GROUP_UPDATE_FLAG_HEALTH)\n        // Update health\n    //\
+      \ ... other update handling\n    \n    // Clear the flag after processing\n\
+      \    player->SetGroupUpdateFlag(0);\n}"
+    language: cpp
+  notes: This method is primarily used internally by the group management system and
+    should not typically be called directly by external code. The update flags are
+    automatically managed by the server when player attributes change. Developers
+    should be aware that this flag may be modified by other systems during normal
+    operation, so checking it at arbitrary points in time might return outdated information.
+  warnings: Do not modify the returned value directly as it's a read-only representation
+    of the current update state. Modifying the returned flag could cause synchronization
+    issues within the group. This method should only be used for reading the current
+    update status, not for setting or clearing flags.
+  related:
+  - SetGroupUpdateFlag
+  - GetGroup
+  - IsInGroup
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T19:41:46.620215'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

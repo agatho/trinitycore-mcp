@@ -1,0 +1,72 @@
+api:
+  class: Object
+  method: BuildValuesUpdateWithFlag
+  signature: void Object::BuildValuesUpdateWithFlag(ByteBuffer * data, int flags,
+    const Player * target) const
+documentation:
+  brief: Builds and appends object update data to a ByteBuffer with specified flags
+    for a target player.
+  description: The BuildValuesUpdateWithFlag method constructs an update packet containing
+    the object's data fields, applying the specified update flags. This method is
+    used internally by the TrinityCore server to send object state updates to players
+    in the world. The update includes only those fields that have changed and are
+    relevant to the target player's perspective. The method respects visibility rules
+    and field access permissions based on the target player's view of the object.
+    It is typically called during object serialization for network transmission, ensuring
+    that only necessary data is sent to reduce bandwidth usage.
+  parameters:
+  - name: data
+    description: Pointer to a ByteBuffer where the constructed update packet will
+      be appended. This buffer is used to build the serialized object update data.
+  - name: flags
+    description: Integer flags that determine which fields should be included in the
+      update and how they should be processed. These flags control visibility, change
+      detection, and update behavior.
+  - name: target
+    description: Pointer to the Player object for whom this update is being constructed.
+      The update data will be tailored based on the target's perspective and visibility
+      rules.
+  returns: null
+  examples:
+  - title: Basic usage in update construction
+    code: 'ByteBuffer updateData;
+
+      int updateFlags = UPDATEFLAG_ALL;
+
+      Player* targetPlayer = ...;
+
+      object->BuildValuesUpdateWithFlag(&updateData, updateFlags, targetPlayer);
+
+      // updateData now contains the serialized object update for targetPlayer'
+    language: cpp
+  - title: Using specific update flags for partial updates
+    code: 'ByteBuffer partialUpdate;
+
+      int partialFlags = UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING;
+
+      Player* viewer = ...;
+
+      unit->BuildValuesUpdateWithFlag(&partialUpdate, partialFlags, viewer);
+
+      // Constructs an update with only high GUID and living status fields'
+    language: cpp
+  notes: This method is part of the core object update system in TrinityCore. It's
+    typically called from within the UpdateObject or SendUpdateToPlayer methods. The
+    implementation handles field visibility based on player-object relationships,
+    including stealth detection, faction visibility, and object type-specific rules.
+    Performance-wise, this method should be used carefully as it may involve multiple
+    field checks and conditional serialization.
+  warnings: Do not call this method directly unless you understand the update system
+    internals. Incorrect flag usage can result in incomplete or invalid updates that
+    cause client-side errors. The target parameter must not be null, as it's used
+    to determine visibility and access permissions for fields.
+  related:
+  - Object::BuildValuesUpdate
+  - Object::BuildOutOfRangeUpdate
+  - Object::SendUpdateToPlayer
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-29T20:01:59.620739'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

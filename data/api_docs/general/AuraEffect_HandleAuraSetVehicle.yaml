@@ -1,0 +1,67 @@
+api:
+  class: AuraEffect
+  method: HandleAuraSetVehicle
+  signature: void AuraEffect::HandleAuraSetVehicle(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes a vehicle aura effect on the target based on the aura
+    application state.
+  description: The HandleAuraSetVehicle method is responsible for managing the application
+    and removal of vehicle aura effects in World of Warcraft. This method is typically
+    invoked during aura application or removal events to control whether a unit (such
+    as a player or creature) becomes mounted on a vehicle. It handles the necessary
+    updates to the target's state, including setting appropriate flags, updating movement
+    information, and ensuring that the vehicle relationship is properly established
+    or broken. The method operates based on the AuraApplication context and the mode
+    of operation (apply or remove).
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This contains information about which aura is active, the
+      target unit, and other relevant application data.
+  - name: mode
+    description: The mode of operation indicating how the aura should be handled (apply
+      or remove). Typically 0 for apply and 1 for remove, though exact values may
+      vary based on internal TrinityCore implementation.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the vehicle effect. When true, the target is mounted on the vehicle; when false,
+      the target dismounts.
+  returns: null
+  examples:
+  - title: Basic usage in aura application
+    code: "void MyAuraEffect::HandleAuraSetVehicle(const AuraApplication* aurApp,\
+      \ uint8 mode, bool apply) const {\n    if (apply) {\n        // Apply vehicle\
+      \ effect\n        aurApp->GetTarget()->SetUnitMovementFlags(MOVEMENTFLAG_ON_TRANSPORT);\n\
+      \    } else {\n        // Remove vehicle effect\n        aurApp->GetTarget()->RemoveUnitMovementFlag(MOVEMENTFLAG_ON_TRANSPORT);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced usage with vehicle ID handling
+    code: "void AuraEffect::HandleAuraSetVehicle(const AuraApplication* aurApp, uint8\
+      \ mode, bool apply) const {\n    Unit* target = aurApp->GetTarget();\n    if\
+      \ (!target || !target->IsPlayer()) return;\n\n    Player* player = target->ToPlayer();\n\
+      \    if (apply) {\n        // Set vehicle ID for the player\n        player->SetVehicleId(GetMiscValue());\n\
+      \        player->SetUnitMovementFlags(MOVEMENTFLAG_ON_TRANSPORT);\n    } else\
+      \ {\n        // Clear vehicle ID and reset movement\n        player->SetVehicleId(0);\n\
+      \        player->RemoveUnitMovementFlag(MOVEMENTFLAG_ON_TRANSPORT);\n    }\n\
+      }"
+    language: cpp
+  notes: This method is part of the aura handling system in TrinityCore and is called
+    automatically by the core engine when vehicle auras are applied or removed. Developers
+    should ensure that any custom aura effects using this pattern properly manage
+    the target's state transitions, especially regarding movement flags and unit relationships.
+  warnings: Improper handling of vehicle auras can lead to client-server desynchronization,
+    causing players to become stuck on vehicles or unable to dismount. Always verify
+    that the target is valid before performing operations and ensure proper cleanup
+    when removing vehicle effects.
+  related:
+  - AuraEffect::HandleAuraApply
+  - AuraEffect::HandleAuraRemove
+  - Unit::SetVehicleId
+  - Unit::GetVehicleId
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T08:59:28.368658'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

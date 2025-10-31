@@ -1,0 +1,63 @@
+api:
+  class: WorldObject
+  method: GetLevelForTarget
+  signature: uint8 WorldObject::GetLevelForTarget(const WorldObject * param0) const
+documentation:
+  brief: Returns the effective level of this WorldObject as it should be displayed
+    to the specified target.
+  description: The GetLevelForTarget method calculates and returns the level that
+    should be shown for this WorldObject when viewed by a specific target. This is
+    particularly important in World of Warcraft's context where creatures may display
+    different levels to players based on level differences, player progression, or
+    game mechanics such as level scaling. The returned value represents the adjusted
+    level that accounts for these factors and ensures proper visual feedback to the
+    user interface. This method typically considers the relationship between the object
+    and its target, including whether the target is a player, and adjusts the displayed
+    level accordingly.
+  parameters: []
+  returns: A uint8 value representing the effective level of this WorldObject as it
+    should be displayed for the target. The value is typically within the normal level
+    range (1-255) but may be adjusted based on game mechanics such as level scaling
+    or player-target relationship.
+  examples:
+  - title: Basic usage to get level for a player target
+    code: 'Player* player = ...;
+
+      uint8 displayLevel = creature->GetLevelForTarget(player);
+
+      // Use displayLevel in UI or combat calculations'
+    language: cpp
+  - title: Using within a packet send operation
+    code: 'WorldPacket data(SMSG_UPDATE_OBJECT, 100);
+
+      ObjectGuid guid = unit->GetGUID();
+
+      data << uint8(1); // number of updates
+
+      data << guid;
+
+      data << uint8(UPDATE_TYPE_VALUES);
+
+      uint8 level = unit->GetLevelForTarget(targetPlayer);
+
+      data << uint8(level); // Send adjusted level to client'
+    language: cpp
+  notes: This method is commonly used when sending object updates to clients, especially
+    for creatures and players. It's important to note that the returned level may
+    differ from the actual internal level of the object due to game mechanics like
+    level scaling or player progression systems. The implementation likely takes into
+    account the target's own level and the difference between it and the WorldObject's
+    base level.
+  warnings: This method should not be used for determining combat effectiveness or
+    actual stat calculations, as it only returns the display level. For accurate level-based
+    computations, use the object's internal level methods instead.
+  related:
+  - GetLevel
+  - GetEffectiveLevel
+  - IsVisibleToPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-29T22:04:20.357774'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,48 @@
+api:
+  class: WorldObject
+  method: GetZoneId
+  signature: uint32 WorldObject::GetZoneId() const
+documentation:
+  brief: Retrieves the zone identifier for the current WorldObject's location.
+  description: The GetZoneId method returns the unique identifier of the zone where
+    the WorldObject is currently located. This identifier corresponds to entries in
+    the Zone.dbc file and is used throughout the TrinityCore framework to determine
+    zone-specific behaviors, quests, and environmental properties. The method performs
+    a lookup based on the object's current coordinates and returns the appropriate
+    zone ID even if the object is inside a subzone or area. This value is essential
+    for zone-based gameplay mechanics such as quest tracking, zone-specific loot,
+    and area-triggered events.
+  parameters: []
+  returns: A uint32 value representing the zone identifier. Returns 0 if the object
+    is not in any valid zone or if the zone information cannot be determined.
+  examples:
+  - title: Basic usage to check zone ID
+    code: "WorldObject* obj = player->GetMap()->GetWorldObject(ObjectGuid::Create<HighGuid::Player>(12345));\n\
+      uint32 zoneId = obj->GetZoneId();\nif (zoneId != 0)\n{\n    sLog->outString(\"\
+      Object is in zone: %u\", zoneId);\n}"
+    language: cpp
+  - title: Using zone ID for quest validation
+    code: "Player* player = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(12345));\n\
+      uint32 currentZone = player->GetZoneId();\nif (currentZone == 141)\n{\n    //\
+      \ Player is in Elwynn Forest\n    player->CompleteQuest(1234);\n}"
+    language: cpp
+  notes: The zone ID returned by this method may be different from the area ID, which
+    represents a more granular subdivision within a zone. The implementation uses
+    internal spatial indexing to efficiently determine zone boundaries. This method
+    is thread-safe for read operations but should not be called during map loading
+    or unloading phases.
+  warnings: Calling GetZoneId on objects that are not yet fully initialized or have
+    been removed from the world may return invalid values. Always verify that the
+    object exists and is in a valid state before calling this method to prevent unexpected
+    behavior.
+  related:
+  - GetAreaId
+  - GetMap
+  - GetPosition
+  - IsInZone
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:31:17.301236'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

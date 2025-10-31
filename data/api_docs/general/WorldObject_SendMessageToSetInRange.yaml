@@ -1,0 +1,75 @@
+api:
+  class: WorldObject
+  method: SendMessageToSetInRange
+  signature: void WorldObject::SendMessageToSetInRange(const WorldPacket * data, float
+    dist, bool self) const
+documentation:
+  brief: Sends a packet to all players within a specified range of the object.
+  description: The SendMessageToSetInRange method broadcasts a WorldPacket to all
+    players in the set of players that are within a given distance from the calling
+    WorldObject. This is commonly used for sending area-based messages, such as emotes
+    or announcements, that should only be visible to nearby players. The method utilizes
+    the object's current position and the provided distance threshold to determine
+    which players receive the message. If the 'self' parameter is set to true, the
+    packet will also be sent to the object itself if it is a player. This function
+    is essential for implementing localized game events and interactions that respect
+    spatial boundaries.
+  parameters:
+  - name: data
+    description: A pointer to the WorldPacket containing the message data to be sent.
+      This packet should be properly constructed with the appropriate opcode and payload
+      before being passed to this method.
+  - name: dist
+    description: The maximum distance in yards from the object within which players
+      will receive the message. Must be a positive value; negative values may produce
+      unexpected behavior.
+  - name: self
+    description: A boolean flag indicating whether to include the object itself in
+      the set of recipients. If true and the object is a player, the packet will be
+      sent to the object as well.
+  returns: null
+  examples:
+  - title: Send Emote to Nearby Players
+    code: 'WorldPacket packet(SMSG_EMOTE);
+
+      packet << uint32(EMOTE_STATE_SALUTE);
+
+      packet << GetObjectGuid();
+
+      SendMessageToSetInRange(&packet, 50.0f, false); // Send to players within 50
+      yards, excluding self'
+    language: cpp
+  - title: Broadcast Announcement to Players in Range
+    code: 'WorldPacket packet(SMSG_MESSAGECHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_ANNOUNCEMENT);
+
+      packet << GetObjectGuid();
+
+      packet << uint32(0); // Language
+
+      packet << "Server Announcement";
+
+      SendMessageToSetInRange(&packet, 100.0f, true); // Send to players within 100
+      yards including self'
+    language: cpp
+  notes: This method internally uses the object's current position and the player's
+    position to calculate distances. It is optimized for performance by using spatial
+    partitioning techniques in TrinityCore's implementation. The method does not send
+    packets to players who are not in the same map or instance as the object.
+  warnings: Ensure that the WorldPacket passed to this method is properly constructed
+    with valid opcodes and data, otherwise it may cause client-side errors or unexpected
+    behavior. Passing negative distance values can lead to undefined behavior or incorrect
+    results.
+  related:
+  - SendMessageToSet
+  - SendPacketToSet
+  - GetPlayersInRange
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-29T21:07:49.355122'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
