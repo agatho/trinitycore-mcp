@@ -1,0 +1,49 @@
+api:
+  class: ThreatManager
+  method: ClearThreat
+  signature: void ThreatManager::ClearThreat(ThreatReference * ref)
+documentation:
+  brief: Removes threat from a specific target reference in the threat manager.
+  description: The ClearThreat method removes threat data associated with a given
+    ThreatReference object from the current ThreatManager. This operation is typically
+    used when a creature or NPC needs to have its threat level reset for a particular
+    target, such as when switching targets or when a mob becomes uninterested in pursuing
+    a player. The method operates on a single threat reference and does not affect
+    other entries in the threat manager. It's commonly called during AI behavior updates
+    or when threat management logic determines that a specific threat entry should
+    be cleared.
+  parameters:
+  - name: ref
+    description: Pointer to the ThreatReference object whose threat data will be removed
+      from the threat manager. Must not be null, otherwise behavior is undefined.
+  returns: null
+  examples:
+  - title: Clearing threat for a specific target
+    code: "void MyAI::OnTargetDied(Unit* target)\n{\n    if (ThreatReference* ref\
+      \ = m_threatManager.GetThreatReference(target))\n    {\n        m_threatManager.ClearThreat(ref);\n\
+      \    }\n}"
+    language: cpp
+  - title: Clearing threat during AI update
+    code: "void MyCreatureAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = m_threatManager.GetMostHated())\n\
+      \    {\n        if (target->IsDead())\n        {\n            ThreatReference*\
+      \ ref = m_threatManager.GetThreatReference(target);\n            if (ref)\n\
+      \                m_threatManager.ClearThreat(ref);\n        }\n    }\n}"
+    language: cpp
+  notes: This method only clears the threat for a specific reference and does not
+    remove the reference itself from the manager. The ThreatManager may still maintain
+    other references with valid threat data. Ensure that the provided ThreatReference
+    is valid and has been previously added to the manager to avoid unexpected behavior.
+  warnings: Passing a null pointer to this method will likely result in undefined
+    behavior or crash. Always verify that the ThreatReference exists before calling
+    ClearThreat. Additionally, clearing threat for a reference that was not added
+    to the manager may cause internal inconsistencies in the threat system.
+  related:
+  - GetThreatReference
+  - AddThreat
+  - UpdateThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:46:35.272674'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
