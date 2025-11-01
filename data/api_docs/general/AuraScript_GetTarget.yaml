@@ -1,0 +1,49 @@
+api:
+  class: AuraScript
+  method: GetTarget
+  signature: Unit * AuraScript::GetTarget() const
+documentation:
+  brief: Returns the target unit associated with the aura script instance
+  description: The GetTarget method retrieves the Unit object that represents the
+    target of the aura script. This is typically the unit that the aura was applied
+    to, or in some cases, the unit that triggered the aura application. The returned
+    Unit pointer can be used to access various properties and methods related to the
+    target, such as health, position, or status effects. In the context of TrinityCore's
+    Aura system, this method provides access to the target entity for scripted aura
+    behavior, allowing developers to implement custom logic based on the target's
+    state or characteristics.
+  parameters: []
+  returns: A pointer to the Unit object representing the aura's target. Returns nullptr
+    if the aura has no valid target or if the target has been destroyed.
+  examples:
+  - title: Basic usage to check target health
+    code: "void MyAuraScript::OnUpdate(int32 duration)\n{\n    Unit* target = GetTarget();\n\
+      \    if (target && target->GetHealth() < target->GetMaxHealth() / 2)\n    {\n\
+      \        // Apply additional effect when target's health drops below 50%\n \
+      \       target->AddAura(12345, target);\n    }\n}"
+    language: cpp
+  - title: Advanced usage with target type checking
+    code: "void MyAuraScript::OnRemove(AuraEffect const* /*aurEff*/, AuraRemoveMode\
+      \ removeMode)\n{\n    Unit* target = GetTarget();\n    if (!target)\n      \
+      \  return;\n\n    // Only apply logic for player targets\n    if (Player* player\
+      \ = target->ToPlayer())\n    {\n        player->SendNotification(\"Aura removed\
+      \ from player: %s\", player->GetName().c_str());\n    }\n}"
+    language: cpp
+  notes: The returned Unit pointer is valid only during the aura script execution
+    context. If the target unit is removed from the world or destroyed, subsequent
+    calls to GetTarget() may return nullptr. Developers should always check for null
+    returns before dereferencing the returned pointer.
+  warnings: Never assume that the returned Unit pointer is valid beyond the immediate
+    scope of the method call. Always perform null checks before accessing target properties.
+    Be cautious when storing references to the target unit outside of the aura script
+    context, as the target may be destroyed or moved.
+  related:
+  - GetCaster
+  - GetAura
+  - GetUnitOwner
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:14:55.913871'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

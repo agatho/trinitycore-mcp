@@ -1,0 +1,56 @@
+api:
+  class: ObjectMgr
+  method: GetTrinityString
+  signature: const char * ObjectMgr::GetTrinityString(uint32 entry, LocaleConstant
+    locale) const
+documentation:
+  brief: Retrieves a localized string message from the database based on the provided
+    entry ID and locale.
+  description: The GetTrinityString method fetches a localized string message from
+    the TrinityCore database system. It is commonly used to retrieve in-game text
+    messages, such as system notifications, error messages, or localized quest text.
+    The method takes an entry identifier and a locale constant to determine which
+    version of the string to return. This allows for internationalization support
+    within the game, enabling different languages to be displayed based on player
+    settings. The returned string is managed by the ObjectMgr class and should not
+    be modified or freed by the caller.
+  parameters:
+  - name: entry
+    description: The unique identifier for the string entry in the database. This
+      corresponds to the 'entry' field in the trinity_string table.
+  - name: locale
+    description: The locale constant specifying which language version of the string
+      to retrieve. Valid values are defined by the LocaleConstant enum, such as LOCALE_en,
+      LOCALE_ko, LOCALE_fr, etc.
+  returns: A pointer to a null-terminated character array containing the localized
+    string message. Returns NULL if no matching entry is found for the given locale
+    or if the entry ID is invalid.
+  examples:
+  - title: Retrieve a localized system message
+    code: "const char* message = sObjectMgr->GetTrinityString(1001, LOCALE_en);\n\
+      if (message)\n{\n    printf(\"Message: %s\\n\", message);\n}"
+    language: cpp
+  - title: Use with player locale setting
+    code: "Player* player = ...; // Assume player is valid\nconst char* greeting =\
+      \ sObjectMgr->GetTrinityString(2005, player->GetSession()->GetSessionDbLocaleIndex());\n\
+      if (greeting)\n{\n    player->SendNotification(greeting);\n}"
+    language: cpp
+  notes: This method accesses the database through the ObjectMgr singleton and may
+    have performance implications if called frequently. The returned string is cached
+    internally by the ObjectMgr, so multiple calls with the same parameters will return
+    the same pointer. The method assumes that the database has been properly initialized
+    with trinity_string entries.
+  warnings: Do not modify or free the returned string pointer as it is managed internally
+    by the ObjectMgr. Ensure that the entry ID exists in the trinity_string table,
+    otherwise the method may return NULL. Be cautious when using this in high-frequency
+    code paths due to potential database access overhead.
+  related:
+  - GetTrinityString
+  - LoadTrinityStrings
+  - GetPlayerByGUID
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:05:56.599523'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

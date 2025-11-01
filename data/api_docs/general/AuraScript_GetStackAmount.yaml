@@ -1,0 +1,53 @@
+api:
+  class: AuraScript
+  method: GetStackAmount
+  signature: int AuraScript::GetStackAmount() const
+documentation:
+  brief: Retrieves the current stack count of the aura associated with this AuraScript
+    instance.
+  description: The GetStackAmount method returns the number of times an aura is currently
+    applied to a unit. In World of Warcraft's TrinityCore implementation, auras can
+    be stacked multiple times, and this method provides access to the current stack
+    amount. This value is crucial for determining the effectiveness of stacking effects
+    such as buffs, debuffs, or proc-based abilities. The returned integer represents
+    how many 'layers' of the aura are active on the target. If the aura does not support
+    stacking or has been removed, this method will return 0. This function should
+    only be called from within an AuraScript context where the aura is actively applied
+    to a unit.
+  parameters: []
+  returns: An integer representing the current stack count of the aura. Returns 0
+    if the aura is not active or does not support stacking.
+  examples:
+  - title: Basic Usage in AuraScript
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnUpdate(int32\
+      \ diff) override\n    {\n        int stackAmount = GetStackAmount();\n     \
+      \   if (stackAmount >= 5)\n        {\n            // Apply special effect when\
+      \ aura reaches 5 stacks\n            GetUnitOwner()->AddAura(12345, GetUnitOwner());\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Checking Stack Amount for Conditional Logic
+    code: "class StackingBuffScript : public AuraScript\n{\npublic:\n    void OnAuraApply()\
+      \ override\n    {\n        int stacks = GetStackAmount();\n        if (stacks\
+      \ > 0)\n        {\n            // Modify spell damage based on stack count\n\
+      \            float multiplier = 1.0f + (0.1f * stacks);\n            // Apply\
+      \ multiplier to damage calculation\n        }\n    }\n};"
+    language: cpp
+  notes: This method is only valid when called from within an active AuraScript context
+    where the aura has been applied to a unit. Calling this method outside of such
+    a context may result in undefined behavior or incorrect values. The stack amount
+    returned is directly tied to the aura's application state and will automatically
+    update as stacks are added or removed.
+  warnings: Do not assume that a non-zero return value indicates an active aura -
+    always verify the aura's existence using GetAura() before relying on this value.
+    This method should not be used in contexts where the aura might have been removed
+    but the script hasn't yet been cleaned up.
+  related:
+  - GetAura
+  - SetStackAmount
+  - GetMaxStackAmount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:15:29.851314'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

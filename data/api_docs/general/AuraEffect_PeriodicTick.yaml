@@ -1,0 +1,54 @@
+api:
+  class: AuraEffect
+  method: PeriodicTick
+  signature: void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster)
+    const
+documentation:
+  brief: Applies periodic effects of an aura to the target unit during each tick interval.
+  description: The PeriodicTick method is invoked by the TrinityCore server when a
+    periodic aura effect (such as DoT or HoT) needs to be applied to a target. This
+    method handles the logic for applying damage, healing, or other effects based
+    on the aura's properties and the current tick count. It is called automatically
+    by the aura system during each tick interval, typically synchronized with the
+    game's update cycle. The method takes into account the caster's influence, the
+    target's state, and any applicable modifiers or conditions that may affect the
+    effect application.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the current aura
+      application instance on the target unit. This contains information about how
+      the aura is applied, including the target, caster, and application state.
+  - name: caster
+    description: Pointer to the Unit that cast the aura. This may be nullptr if the
+      aura was applied without a direct caster, or in certain special cases like environment-based
+      effects. The caster is used to determine spell power, buffs, or other caster-specific
+      modifiers.
+  returns: null
+  examples:
+  - title: Basic usage in custom aura effect
+    code: "void MyAuraEffect::PeriodicTick(AuraApplication* aurApp, Unit* caster)\
+      \ const\n{\n    if (!aurApp || !caster)\n        return;\n\n    Unit* target\
+      \ = aurApp->GetTarget();\n    if (!target)\n        return;\n\n    // Apply\
+      \ damage based on aura level and caster stats\n    int32 damage = CalculateSpellDamage(caster,\
+      \ GetSpellInfo(), 1.0f);\n    target->DealDamage(caster, damage, nullptr, DIRECT_DAMAGE,\
+      \ SPELL_SCHOOL_MASK_NORMAL, nullptr, false);\n}"
+    language: cpp
+  notes: This method is part of the core aura tick system and is automatically invoked
+    by the TrinityCore engine. Developers should avoid calling it directly unless
+    implementing custom aura behavior. The method may be called multiple times per
+    second depending on the aura's tick rate, so performance considerations are important
+    for complex effects.
+  warnings: Do not modify the aura application or target state in a way that could
+    cause infinite loops or invalid memory access. Ensure all pointers are validated
+    before use, especially when dealing with potentially removed units or expired
+    auras.
+  related:
+  - AuraEffect::HandlePeriodicTick
+  - AuraApplication::GetTarget
+  - Aura::GetCaster
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:54:17.180702'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: ObjectMgr
+  method: GetSpawnMetadata
+  signature: const int * ObjectMgr::GetSpawnMetadata(int type, int spawnId) const
+documentation:
+  brief: Retrieves spawn metadata for a given spawn type and ID
+  description: The GetSpawnMetadata method retrieves metadata associated with a specific
+    spawn type and spawn identifier. This method is typically used in TrinityCore's
+    object management system to access configuration data or runtime properties related
+    to spawned game objects, creatures, or game events. The returned pointer points
+    to an array of integers that contain metadata values for the specified spawn.
+    The method does not perform any validation on the input parameters, so callers
+    must ensure valid type and spawnId values are provided. The returned metadata
+    is read-only and should not be modified directly.
+  parameters:
+  - name: type
+    description: The spawn type identifier that defines the category of spawned object
+      (e.g., creature, gameobject, event). Valid values depend on internal TrinityCore
+      definitions.
+  - name: spawnId
+    description: The unique identifier for a specific spawn instance within the given
+      type. This corresponds to the spawn's database entry ID or internal tracking
+      number.
+  returns: A pointer to an array of integers containing metadata values for the specified
+    spawn, or nullptr if no metadata is found for the given type and spawnId combination.
+  examples:
+  - title: Basic usage to retrieve creature spawn metadata
+    code: "const int* metadata = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE,\
+      \ 12345);\nif (metadata != nullptr) {\n    // Process metadata values\n    printf(\"\
+      Metadata value 0: %d\\n\", metadata[0]);\n    printf(\"Metadata value 1: %d\\\
+      n\", metadata[1]);\n}"
+    language: cpp
+  - title: Safe usage with null check
+    code: "const int* metadata = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT,\
+      \ 98765);\nif (metadata != nullptr) {\n    for (int i = 0; i < MAX_METADATA_FIELDS;\
+      \ ++i) {\n        if (metadata[i] == -1) break;\n        printf(\"Field %d:\
+      \ %d\\n\", i, metadata[i]);\n    }\n} else {\n    printf(\"No metadata found\
+      \ for spawn ID 98765\\n\");\n}"
+    language: cpp
+  notes: This method accesses internal spawn metadata tables that are populated during
+    server startup or when spawns are loaded from the database. The returned array
+    should be treated as read-only and must not be freed or modified by the caller.
+    Metadata arrays may have variable lengths, so callers should be aware of the expected
+    structure for each spawn type.
+  warnings: The method returns a raw pointer to internal data structures. If the spawn
+    ID or type is invalid, the method may return nullptr, which must be checked before
+    dereferencing. Do not assume fixed array sizes; always validate the metadata structure
+    based on the spawn type.
+  related:
+  - GetSpawnData
+  - LoadSpawnMetadata
+  - UpdateSpawnMetadata
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:37:04.364717'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

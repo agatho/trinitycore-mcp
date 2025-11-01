@@ -1,0 +1,50 @@
+api:
+  class: AuraScript
+  method: GetCharges
+  signature: int AuraScript::GetCharges() const
+documentation:
+  brief: Retrieves the current charge count of the aura.
+  description: The GetCharges method returns the number of charges currently remaining
+    on the aura. This is commonly used in aura scripts to determine how many times
+    an aura can be consumed or applied before it expires. The returned value represents
+    the active charge count, which may be modified by various game mechanics such
+    as charge gain effects, charge loss from usage, or aura refreshes. This method
+    is typically called within AuraScript implementations to control behavior based
+    on remaining charges.
+  parameters: []
+  returns: An integer representing the current number of charges remaining on the
+    aura. Returns 0 if the aura has no charges or has expired.
+  examples:
+  - title: Basic Usage in Aura Script
+    code: "class MyAuraScript : public AuraScript\n{\n    void OnApply(AuraEffect\
+      \ const* aurEff, AuraEffectHandleModes mode) override\n    {\n        int charges\
+      \ = GetCharges();\n        if (charges > 0)\n        {\n            // Perform\
+      \ actions based on remaining charges\n            GetAura()->SetDuration(5000\
+      \ * charges);\n        }\n    }\n};"
+    language: cpp
+  - title: Conditional Logic Based on Charges
+    code: "class ChargeBasedDamageAuraScript : public AuraScript\n{\n    void OnPeriodicTick(AuraEffect\
+      \ const* aurEff) override\n    {\n        int charges = GetCharges();\n    \
+      \    if (charges > 0)\n        {\n            // Apply damage based on remaining\
+      \ charges\n            Unit* target = GetTarget();\n            target->CastSpell(target,\
+      \ SPELL_CHARGE_DAMAGE, true);\n            \n            // Reduce charges\n\
+      \            ModifyCharges(-1);\n        }\n    }\n};"
+    language: cpp
+  notes: This method should only be called within the context of an active aura script.
+    The returned value reflects the current state of the aura's charge counter and
+    may change during execution if other effects modify the charges. For performance
+    reasons, avoid calling this method excessively in tight loops or high-frequency
+    events.
+  warnings: Do not assume that a non-zero return value guarantees that the aura will
+    remain active; the aura could expire between calls. Also, be aware that some aura
+    effects may reset or modify charge counts unexpectedly during execution.
+  related:
+  - GetAura
+  - ModifyCharges
+  - SetCharges
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:20:36.034760'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

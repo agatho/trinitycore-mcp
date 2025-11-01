@@ -1,0 +1,64 @@
+api:
+  class: AuraEffect
+  method: HandleTriggerSpellOnHealthPercent
+  signature: void AuraEffect::HandleTriggerSpellOnHealthPercent(const AuraApplication
+    * aurApp, uint8 mode, bool apply) const
+documentation:
+  brief: Triggers a spell when the target's health percentage falls below a specified
+    threshold.
+  description: The HandleTriggerSpellOnHealthPercent method is responsible for executing
+    a triggered spell effect when an aura's application causes the target's health
+    to drop to or below a defined percentage. This method is typically invoked during
+    aura application or removal events, and it evaluates whether the current health
+    percentage of the affected unit meets the trigger condition. The method operates
+    within the context of World of Warcraft's aura system, where certain spells can
+    be configured to activate automatically when specific conditions are met, such
+    as reaching a low health threshold. It ensures that the spell is only triggered
+    once per health percentage crossing, preventing redundant activations.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This parameter provides context for the aura's state and
+      target.
+  - name: mode
+    description: The mode of operation indicating how the aura is being applied (e.g.,
+      apply or remove). Used internally to determine appropriate behavior during different
+      aura states.
+  - name: apply
+    description: Boolean flag indicating whether the aura is being applied (true)
+      or removed (false). Controls execution path for applying or cleaning up the
+      health percent trigger logic.
+  returns: null
+  examples:
+  - title: Basic Usage in Aura Application
+    code: "void MyAuraEffect::HandleTriggerSpellOnHealthPercent(const AuraApplication*\
+      \ aurApp, uint8 mode, bool apply) const {\n    if (apply && aurApp->GetTarget()->GetHealthPct()\
+      \ <= 30.0f) {\n        aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), 12345,\
+      \ true);\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Thresholds
+    code: "void MyAuraEffect::HandleTriggerSpellOnHealthPercent(const AuraApplication*\
+      \ aurApp, uint8 mode, bool apply) const {\n    Unit* target = aurApp->GetTarget();\n\
+      \    float healthPct = target->GetHealthPct();\n    if (apply && healthPct <=\
+      \ 25.0f && healthPct > 10.0f) {\n        target->CastSpell(target, 67890, true);\n\
+      \    } else if (apply && healthPct <= 10.0f) {\n        target->CastSpell(target,\
+      \ 54321, true);\n    }\n}"
+    language: cpp
+  notes: This method is part of the aura effect handling system and relies on the
+    AuraApplication context to determine when to trigger spells. It should be used
+    carefully in performance-sensitive code paths as it may involve frequent health
+    checks and spell casting operations.
+  warnings: Ensure that the target unit exists and is valid before attempting to cast
+    spells, as invalid targets can cause crashes or undefined behavior. Also, avoid
+    creating infinite loops by ensuring that triggered spells do not reapply the same
+    aura condition.
+  related:
+  - AuraEffect::HandlePeriodicDummy
+  - AuraEffect::HandleTriggerSpell
+  - AuraApplication::GetTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:57:08.447079'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

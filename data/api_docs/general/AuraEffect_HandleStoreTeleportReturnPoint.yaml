@@ -1,0 +1,65 @@
+api:
+  class: AuraEffect
+  method: HandleStoreTeleportReturnPoint
+  signature: void AuraEffect::HandleStoreTeleportReturnPoint(const AuraApplication
+    * aurApp, uint8 mode, bool apply) const
+documentation:
+  brief: Stores the current location as a teleport return point when an aura effect
+    is applied or removed.
+  description: The HandleStoreTeleportReturnPoint method manages the storage of teleport
+    return points for players affected by specific aura effects. When applied, it
+    records the player's current position as a potential return location, typically
+    used in conjunction with teleportation mechanics such as those found in area-of-effect
+    spells or debuffs that may cause involuntary movement. The method interacts with
+    the AuraApplication context to determine when and how to store this information.
+    This functionality is crucial for maintaining proper player positioning during
+    complex spell interactions and ensuring correct behavior of return-point-based
+    mechanics like those used in certain dungeon or raid encounters.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object that contains context about
+      the aura being applied or removed. This provides access to the target unit,
+      aura properties, and application state.
+  - name: mode
+    description: The mode of operation indicating how the return point should be handled.
+      Values typically represent different storage behaviors such as immediate storage,
+      delayed storage, or conditional storage based on specific conditions.
+  - name: apply
+    description: Boolean flag indicating whether the aura is being applied (true)
+      or removed (false). This determines the action taken with the return point data
+      - storing it when applying and potentially clearing it when removing.
+  returns: null
+  examples:
+  - title: Basic usage in aura effect handler
+    code: "void MyAuraEffect::HandleApply(const AuraApplication* aurApp, uint8 mode,\
+      \ bool apply) const {\n    if (apply) {\n        HandleStoreTeleportReturnPoint(aurApp,\
+      \ mode, true);\n    } else {\n        HandleStoreTeleportReturnPoint(aurApp,\
+      \ mode, false);\n    }\n}"
+    language: cpp
+  - title: Using with custom teleportation logic
+    code: "class CustomTeleportAura : public Aura {\npublic:\n    void HandlePeriodic(AuraEffect*\
+      \ aurEff) override {\n        if (Unit* target = GetTarget()) {\n          \
+      \  if (target->IsPlayer()) {\n                Player* player = target->ToPlayer();\n\
+      \                // Store current location as return point\n               \
+      \ AuraApplication* app = GetApplicationOf(target);\n                HandleStoreTeleportReturnPoint(app,\
+      \ 0, true);\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is typically invoked from within aura effect handlers and relies
+    on the AuraApplication context to determine the correct target unit. It's important
+    to note that this functionality may be part of a larger system managing player
+    movement and positioning, particularly in scenarios involving forced teleportation
+    or displacement effects.
+  warnings: Improper handling of return point storage can lead to incorrect teleport
+    behavior or position desynchronization between client and server. Developers should
+    ensure proper validation of aura application states before calling this method.
+  related:
+  - GetTarget
+  - GetApplicationOf
+  - HandleRemove
+  - StoreReturnPoint
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T11:58:41.281581'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

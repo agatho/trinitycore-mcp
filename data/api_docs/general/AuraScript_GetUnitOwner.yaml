@@ -1,0 +1,51 @@
+api:
+  class: AuraScript
+  method: GetUnitOwner
+  signature: Unit * AuraScript::GetUnitOwner() const
+documentation:
+  brief: Returns the Unit object that owns this aura effect.
+  description: The GetUnitOwner method retrieves the Unit instance that is the owner
+    or target of the aura script. This is typically the unit to which the aura was
+    applied, such as a player or creature. The returned pointer can be used to access
+    various properties and methods of the owning unit, including health, position,
+    and other combat-related data. It's commonly used within aura scripts to perform
+    actions based on the owner's state or to modify the owner's behavior. This method
+    is safe to call during aura application, removal, or update events.
+  parameters: []
+  returns: A pointer to the Unit object that owns this aura effect. Returns nullptr
+    if the aura has no valid owner or if the owner has been destroyed.
+  examples:
+  - title: Basic usage in an aura script
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnApply(AuraEffect\
+      \ const* aurEff, AuraEffectHandleModes mode) override\n    {\n        Unit*\
+      \ owner = GetUnitOwner();\n        if (owner && owner->IsPlayer())\n       \
+      \ {\n            // Perform actions specific to player owners\n            owner->CastSpell(owner,\
+      \ 12345, true);\n        }\n    }\n};"
+    language: cpp
+  - title: Using owner in periodic tick handler
+    code: "class MyPeriodicAuraScript : public AuraScript\n{\npublic:\n    void OnPeriodic(AuraEffect\
+      \ const* aurEff) override\n    {\n        Unit* owner = GetUnitOwner();\n  \
+      \      if (owner)\n        {\n            // Apply damage or healing based on\
+      \ owner's stats\n            int32 damage = owner->GetMaxHealth() / 10;\n  \
+      \          owner->CastCustomSpell(owner, 98765, &damage, nullptr, nullptr, true);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: The returned Unit pointer is valid only during the lifetime of the aura and
+    its owner. If the owner unit is removed from the world or destroyed, subsequent
+    calls to GetUnitOwner() may return nullptr. This method should not be used outside
+    of aura event handlers as it might not reflect the current state of the aura's
+    owner.
+  warnings: Do not store the returned pointer for later use as it may become invalid.
+    Always check for null before dereferencing the returned Unit pointer to prevent
+    crashes. Avoid modifying the owner unit directly from within aura scripts unless
+    explicitly intended, as this can lead to unexpected behavior or infinite loops.
+  related:
+  - GetAura
+  - GetCaster
+  - GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:12:57.633722'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: ObjectMgr
+  method: GetTaxiMountDisplayId
+  signature: uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool
+    allowed_alt_team)
+documentation:
+  brief: Retrieves the display ID of a taxi mount for a given player team and mount
+    ID.
+  description: The GetTaxiMountDisplayId method retrieves the display ID of a taxi
+    mount associated with a specific mount ID and player team. This function is used
+    internally by the TrinityCore server to determine which visual mount model should
+    be displayed when a player uses a taxi service. The method considers the player's
+    team (Alliance or Horde) and whether alternative team mounts are allowed, returning
+    the appropriate display ID for the taxi mount. It plays a crucial role in maintaining
+    game consistency and visual accuracy during taxi travel.
+  parameters:
+  - name: id
+    description: The unique identifier of the taxi mount entry in the database. This
+      corresponds to entries in the taxi_mounts table or similar.
+  - name: team
+    description: The player's team identifier (0 for Alliance, 1 for Horde). Determines
+      which mount model is returned based on faction.
+  - name: allowed_alt_team
+    description: Boolean flag indicating whether alternative team mounts are permitted.
+      When true, the method may return a mount from the opposing team if the primary
+      team's mount is not available.
+  returns: Returns a uint32 representing the display ID of the taxi mount model. If
+    no valid mount is found for the given parameters, it typically returns 0, indicating
+    an invalid or missing mount.
+  examples:
+  - title: Basic Usage
+    code: uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(12345, TEAM_ALLIANCE,
+      true);
+    language: cpp
+  - title: Determining Mount for Horde Player
+    code: "uint32 hordeMountId = sObjectMgr->GetTaxiMountDisplayId(67890, TEAM_HORDE,\
+      \ false);\nif (hordeMountId != 0)\n{\n    // Use the mount display ID to set\
+      \ up taxi travel\n    player->SetTaxiMountDisplayId(hordeMountId);\n}"
+    language: cpp
+  notes: This method is typically called during taxi initialization or when setting
+    up a player's mount for travel. It relies on internal data structures that map
+    mount IDs to display IDs per team. The implementation may cache results for performance
+    reasons, especially in high-traffic server environments.
+  warnings: Ensure that the provided 'id' parameter corresponds to an actual entry
+    in the database; otherwise, the method will return 0. Incorrectly handling the
+    returned display ID can lead to visual glitches or missing mount models during
+    taxi travel.
+  related:
+  - GetTaxiMountEntry
+  - GetTaxiPath
+  - GetPlayerTeamByRace
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:09:09.327245'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

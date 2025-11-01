@@ -1,0 +1,55 @@
+api:
+  class: AuraScript
+  method: GetTargetApplication
+  signature: const AuraApplication * AuraScript::GetTargetApplication() const
+documentation:
+  brief: Retrieves the AuraApplication associated with the target of the aura script.
+  description: The GetTargetApplication method returns a pointer to the AuraApplication
+    object that represents the application state of the aura on its target. This method
+    is typically used within AuraScript implementations to access detailed information
+    about how the aura is applied to a specific unit, including application flags,
+    removal reasons, and the timing of the application. The returned pointer is valid
+    only during the execution of the aura script's event handlers and should not be
+    stored for later use as it may become invalid. This method is essential for implementing
+    custom aura behaviors that require knowledge of the application state.
+  parameters: []
+  returns: A const pointer to the AuraApplication object representing the aura's application
+    on its target. Returns nullptr if the aura is not currently applied or if the
+    script context is invalid.
+  examples:
+  - title: Accessing Application Flags
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnApply(AuraEffect\
+      \ const* aurEff, AuraApplication const* app)\n    {\n        AuraApplication\
+      \ const* targetApp = GetTargetApplication();\n        if (targetApp && targetApp->GetFlags()\
+      \ & AURA_FLAG_UNK1)\n        {\n            // Handle special application case\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Checking Removal Reason
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnRemove(AuraEffect\
+      \ const* aurEff, AuraApplication const* app)\n    {\n        AuraApplication\
+      \ const* targetApp = GetTargetApplication();\n        if (targetApp)\n     \
+      \   {\n            switch (targetApp->GetRemoveMode())\n            {\n    \
+      \            case AURA_REMOVE_BY_DEATH:\n                    // Handle aura\
+      \ removal due to death\n                    break;\n                case AURA_REMOVE_BY_EXPIRE:\n\
+      \                    // Handle aura expiration\n                    break;\n\
+      \                default:\n                    break;\n            }\n     \
+      \   }\n    }\n};"
+    language: cpp
+  notes: The returned AuraApplication pointer is only valid during the execution of
+    the script's event handler. Do not store this pointer for later use as it may
+    become invalid after the event completes. The method should be called from within
+    an aura script context where the target application state is known and accessible.
+  warnings: Calling this method outside of an aura script event handler context will
+    likely return a null pointer or cause undefined behavior. Avoid storing the returned
+    pointer beyond the scope of the current event handler to prevent use-after-free
+    errors.
+  related:
+  - GetAura
+  - GetTarget
+  - GetCaster
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:14:00.983770'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

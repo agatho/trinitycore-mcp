@@ -1,0 +1,52 @@
+api:
+  class: AuraScript
+  method: GetAura
+  signature: Aura * AuraScript::GetAura() const
+documentation:
+  brief: Retrieves the Aura object associated with the current AuraScript instance
+  description: The GetAura method returns a pointer to the Aura object that this AuraScript
+    is currently attached to. This method is typically used within AuraScript implementations
+    to access the aura's properties, apply effects, or modify aura behavior during
+    various aura events such as application, removal, or update. The returned Aura
+    pointer is valid only while the aura is active and should not be stored for later
+    use without proper validation. This method serves as a bridge between the script
+    logic and the underlying aura instance, allowing scripts to interact with the
+    aura's state and data.
+  parameters: []
+  returns: A pointer to the Aura object that this AuraScript is associated with. Returns
+    nullptr if the AuraScript is not currently bound to an aura or if the aura has
+    been removed from the target.
+  examples:
+  - title: Basic Usage in AuraScript
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnApply(AuraEffect\
+      \ const* aurEff, AuraEffectHandleModes mode) override\n    {\n        Aura*\
+      \ aura = GetAura();\n        if (aura)\n        {\n            // Access aura\
+      \ properties\n            Unit* target = aura->GetTarget();\n            //\
+      \ Perform actions based on aura state\n        }\n    }\n};"
+    language: cpp
+  - title: Using GetAura to Modify Aura Properties
+    code: "class HealingAuraScript : public AuraScript\n{\npublic:\n    void OnPeriodic(AuraEffect\
+      \ const* aurEff) override\n    {\n        Aura* aura = GetAura();\n        if\
+      \ (aura && aura->GetCaster())\n        {\n            // Modify aura duration\
+      \ or effect\n            aura->SetDuration(aura->GetDuration() + 1000);\n  \
+      \      }\n    }\n};"
+    language: cpp
+  notes: The Aura pointer returned by GetAura is only valid during the execution of
+    AuraScript callbacks. If you need to store a reference to an aura for later use,
+    consider using the aura's GUID instead. This method should not be called outside
+    of AuraScript event handlers where the aura context is guaranteed to exist.
+  warnings: Calling GetAura() outside of proper AuraScript event contexts may result
+    in a null pointer return or undefined behavior. Always validate the returned pointer
+    before dereferencing it. Avoid storing the returned Aura pointer for extended
+    periods as the aura may be removed from the target during script execution.
+  related:
+  - GetCaster
+  - GetTarget
+  - GetEffect
+  - IsRemoved
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:22:28.253910'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

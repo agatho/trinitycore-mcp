@@ -1,0 +1,72 @@
+api:
+  class: AuraEffect
+  method: HandleProcTriggerDamageAuraProc
+  signature: void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication * aurApp,
+    ProcEventInfo & eventInfo)
+documentation:
+  brief: Handles the proc trigger damage aura effect when a spell or ability triggers
+    a damage proc.
+  description: The HandleProcTriggerDamageAuraProc method is responsible for processing
+    the logic associated with aura effects that trigger damage procs. This method
+    is typically invoked during the aura application process when an event occurs
+    that matches the conditions defined for triggering damage. It evaluates the proc
+    event information and applies the appropriate damage effect based on the aura's
+    configuration, including any modifiers or scaling factors. The method ensures
+    proper handling of damage calculations, crit chances, and spell school interactions
+    as defined by the aura's properties.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura application
+      context. This parameter provides access to the aura's state, target information,
+      and other relevant data needed for proc processing.
+  - name: eventInfo
+    description: Reference to a ProcEventInfo structure containing detailed information
+      about the triggering event. This includes damage dealt, spell school, proc chances,
+      and other event-specific data required for accurate damage application.
+  returns: null
+  examples:
+  - title: Basic usage in aura effect handler
+    code: "void MyAuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp,\
+      \ ProcEventInfo& eventInfo)\n{\n    // Validate aura application\n    if (!aurApp\
+      \ || !eventInfo.GetActor())\n        return;\n    \n    // Apply damage based\
+      \ on aura properties\n    uint32 damage = CalculateDamage(aurApp->GetTarget(),\
+      \ GetSpellInfo());\n    eventInfo.SetDamage(damage);\n    \n    // Trigger the\
+      \ actual damage application\n    eventInfo.GetActor()->DealDamage(eventInfo.GetTarget(),\
+      \ damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);\n}"
+    language: cpp
+  - title: Advanced usage with crit handling
+    code: "void MyAuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp,\
+      \ ProcEventInfo& eventInfo)\n{\n    if (!aurApp || !eventInfo.GetActor() ||\
+      \ !eventInfo.GetTarget())\n        return;\n    \n    // Get base damage from\
+      \ aura\n    uint32 baseDamage = GetAmount();\n    \n    // Apply scaling based\
+      \ on caster's level or other factors\n    float scale = 1.0f;\n    if (Unit*\
+      \ caster = aurApp->GetTarget())\n        scale = caster->GetLevel() / 70.0f;\n\
+      \    \n    uint32 finalDamage = uint32(baseDamage * scale);\n    \n    // Handle\
+      \ critical strike chance\n    bool isCrit = eventInfo.GetProcFlags() & PROC_FLAG_SUCCESSFUL_MELEE_HIT;\n\
+      \    if (isCrit)\n        finalDamage *= 2; // Double damage for crit\n    \n\
+      \    eventInfo.SetDamage(finalDamage);\n    eventInfo.GetActor()->DealDamage(eventInfo.GetTarget(),\
+      \ finalDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's aura system and is typically called
+    internally by the core engine when proc conditions are met. Developers should
+    ensure that any custom implementations properly validate input parameters before
+    processing damage calculations. The method assumes proper initialization of eventInfo
+    data and correct handling of spell school masks for accurate damage application.
+  warnings: Improper handling of the aura application context or event information
+    can lead to crashes or incorrect damage calculations. Always verify that aurApp
+    and eventInfo are valid before using them. Be cautious when modifying damage values
+    directly through eventInfo as it may affect other systems relying on consistent
+    damage reporting.
+  related:
+  - AuraEffect::HandleProcTriggerSpellAuraProc
+  - AuraEffect::HandleProcTriggerDamageAuraProc
+  - AuraApplication::GetTarget
+  - ProcEventInfo::GetDamage
+  - Unit::DealDamage
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T12:02:56.914634'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

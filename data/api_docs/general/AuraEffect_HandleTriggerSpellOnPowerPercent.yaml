@@ -1,0 +1,63 @@
+api:
+  class: AuraEffect
+  method: HandleTriggerSpellOnPowerPercent
+  signature: void AuraEffect::HandleTriggerSpellOnPowerPercent(const AuraApplication
+    * aurApp, uint8 mode, bool apply) const
+documentation:
+  brief: Triggers a spell when the target's power percentage falls below a specified
+    threshold.
+  description: The HandleTriggerSpellOnPowerPercent method is responsible for executing
+    a triggered spell effect when an aura's application causes the target's power
+    (such as mana, rage, or energy) to drop to or below a defined percentage. This
+    method is typically invoked during aura application or removal events and operates
+    based on the mode parameter which determines whether the effect is being applied
+    or removed. It evaluates the current power level of the target against the aura's
+    configured power threshold and triggers the associated spell if conditions are
+    met. The method integrates with TrinityCore's aura system to provide dynamic spell
+    effects that respond to character resource changes.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This parameter provides context about which aura is triggering
+      the power check and contains information about the target and aura state.
+  - name: mode
+    description: Specifies the mode of operation for the aura effect. Typically indicates
+      whether the aura is being applied (1) or removed (0). The mode affects how the
+      method processes the power percentage trigger and determines if the spell should
+      be cast.
+  - name: apply
+    description: Boolean flag indicating whether the aura is being applied (true)
+      or removed (false). This parameter controls conditional logic within the method
+      to handle different behaviors during aura activation versus deactivation.
+  returns: null
+  examples:
+  - title: Basic usage in aura effect handler
+    code: "void MyAuraEffect::HandleTriggerSpellOnPowerPercent(const AuraApplication*\
+      \ aurApp, uint8 mode, bool apply) const {\n    if (!apply || mode != AURA_EFFECT_HANDLE_REAL)\n\
+      \        return;\n    \n    Unit* target = aurApp->GetTarget();\n    if (!target)\n\
+      \        return;\n    \n    // Check if power is below threshold\n    uint32\
+      \ power = target->GetPower(POWER_MANA);\n    uint32 maxPower = target->GetMaxPower(POWER_MANA);\n\
+      \    float percent = (float)power / (float)maxPower * 100.0f;\n    \n    if\
+      \ (percent <= GetAmount()) // Assume GetAmount() returns the threshold\n   \
+      \     target->CastSpell(target, GetSpellId(), true);\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's aura effect handling system and relies
+    on proper initialization of aura parameters including power type, threshold values,
+    and spell IDs. The implementation assumes that the aura has been properly configured
+    with relevant data such as trigger conditions and target spell information.
+  warnings: Improper configuration of aura parameters may lead to incorrect triggering
+    behavior or performance issues. Care must be taken when handling multiple auras
+    that might trigger simultaneously on power changes, as this could cause excessive
+    spell casting or stack overflow conditions.
+  related:
+  - AuraEffect::HandleTriggerSpell
+  - AuraEffect::GetAmount
+  - AuraApplication::GetTarget
+  - Unit::GetPower
+  - Unit::CastSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:56:04.909253'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: ObjectMgr
+  method: GetSkillTier
+  signature: const SkillTiersEntry * ObjectMgr::GetSkillTier(uint32 skillTierId) const
+documentation:
+  brief: Retrieves a skill tier entry by its unique identifier from the object manager's
+    internal data structures.
+  description: The GetSkillTier method fetches a SkillTiersEntry object corresponding
+    to the specified skill tier ID. This method is used internally by the TrinityCore
+    server to access predefined skill tier configurations that define how skills scale
+    or are categorized within the game. The returned pointer provides access to properties
+    such as the tier's name, associated skill values, and other metadata relevant
+    to skill progression systems. This method performs a lookup in an internal container
+    or database structure managed by ObjectMgr, ensuring efficient retrieval of skill
+    tier data without requiring additional database queries during runtime.
+  parameters: []
+  returns: A pointer to a const SkillTiersEntry object if the skill tier ID exists;
+    otherwise, returns nullptr if no matching entry is found. The returned pointer
+    should not be modified and remains valid for the lifetime of the server process.
+  examples:
+  - title: Basic Usage Example
+    code: "const SkillTiersEntry* tier = sObjectMgr->GetSkillTier(5);\nif (tier)\n\
+      {\n    printf(\"Skill Tier Name: %s\\n\", tier->Name.c_str());\n}"
+    language: cpp
+  - title: Usage in Skill Progression Logic
+    code: "uint32 currentTierId = player->GetSkillValue(skillId) / 100;\nconst SkillTiersEntry*\
+      \ tier = sObjectMgr->GetSkillTier(currentTierId);\nif (tier && tier->MaxSkillValue\
+      \ > player->GetSkillValue(skillId))\n{\n    // Apply skill progression logic\n\
+      }"
+    language: cpp
+  notes: This method is thread-safe as it only reads from immutable data structures.
+    It relies on internal caching mechanisms for performance, so repeated calls with
+    the same ID will return cached results. The SkillTiersEntry structure typically
+    contains information about skill tiers such as name, minimum and maximum skill
+    values, and other game-specific attributes used in skill progression systems.
+  warnings: Ensure that the provided skillTierId is valid before calling this method
+    to avoid unexpected behavior or crashes. While the method returns nullptr for
+    invalid IDs, it's best practice to validate inputs when possible. Also note that
+    modifying the returned SkillTiersEntry pointer directly may cause undefined behavior
+    since these entries are usually read-only.
+  related:
+  - GetSkillLine
+  - GetSkillRaceClassInfo
+  - GetSkillLineAbility
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:11:00.159101'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

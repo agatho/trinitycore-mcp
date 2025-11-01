@@ -1,0 +1,57 @@
+api:
+  class: AuraEffect
+  method: RecalculateAmount
+  signature: void AuraEffect::RecalculateAmount(Unit * caster, const AuraEffect *
+    triggeredBy)
+documentation:
+  brief: Recalculates the amount of an aura effect based on the caster and optionally
+    a triggering aura effect.
+  description: The RecalculateAmount method updates the current value or strength
+    of an AuraEffect, typically used when the effect's parameters need to be recalculated
+    due to changes in the caster's state, level, or other dynamic factors. This method
+    is crucial for maintaining accurate aura effects during gameplay, especially for
+    effects that scale with caster attributes or are influenced by external triggers.
+    It may be invoked automatically by the core system or manually during custom spell
+    logic. The recalculation process considers both the caster unit and an optional
+    triggering aura effect to determine the new amount.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit object that is casting or influencing this aura
+      effect. This parameter determines how the aura's amount is recalculated, particularly
+      for effects that scale with caster stats or level.
+  - name: triggeredBy
+    description: Optional pointer to another AuraEffect that triggered this recalculation.
+      Used in cases where one aura effect causes another to update its amount, such
+      as in cascading effects or proc-based mechanics.
+  returns: null
+  examples:
+  - title: Basic Usage in Custom Spell Logic
+    code: "void MySpell::OnCast(Unit* caster)\n{\n    if (Aura* aura = caster->GetAura(SPELL_ID))\n\
+      \    {\n        if (AuraEffect* effect = aura->GetEffect(EFFECT_INDEX))\n  \
+      \      {\n            effect->RecalculateAmount(caster);\n        }\n    }\n\
+      }"
+    language: cpp
+  - title: Triggered Effect Recalculation
+    code: "void ProcHandler(Unit* caster, Unit* target)\n{\n    if (Aura* aura = target->GetAura(TRIGGERED_SPELL_ID))\n\
+      \    {\n        if (AuraEffect* effect = aura->GetEffect(EFFECT_INDEX))\n  \
+      \      {\n            // Recalculate using the original caster and triggered\
+      \ aura\n            effect->RecalculateAmount(caster, triggerAura);\n      \
+      \  }\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework when
+    aura states change or during spell application. Developers should be aware that
+    calling RecalculateAmount manually may override existing calculations and could
+    affect gameplay balance if not used carefully.
+  warnings: Manual invocation of RecalculateAmount can lead to unexpected behavior
+    if the caster or triggered aura parameters are invalid or null. Ensure proper
+    validation before calling this method in custom code.
+  related:
+  - AuraEffect::GetAmount
+  - AuraEffect::SetAmount
+  - Aura::GetEffect
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:53:48.443520'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

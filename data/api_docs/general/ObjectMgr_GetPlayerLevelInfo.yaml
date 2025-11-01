@@ -1,0 +1,63 @@
+api:
+  class: ObjectMgr
+  method: GetPlayerLevelInfo
+  signature: void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8
+    level, PlayerLevelInfo * info) const
+documentation:
+  brief: Retrieves player level-up statistics for a given race, class, and level.
+  description: The GetPlayerLevelInfo method populates a PlayerLevelInfo structure
+    with statistics such as health, mana, and stat gains for a specific player race,
+    class, and level combination. This information is used by the game engine to calculate
+    player progression and ensure correct attribute scaling as players level up. The
+    method accesses internal data tables that define how each race-class combination
+    scales with level.
+  parameters:
+  - name: race
+    description: The player's race identifier (e.g., RACE_HUMAN = 1, RACE_ORC = 2).
+      Must be a valid race constant defined in the game.
+  - name: class_
+    description: The player's class identifier (e.g., CLASS_WARRIOR = 1, CLASS_MAGE
+      = 8). Must be a valid class constant defined in the game.
+  - name: level
+    description: The player's current level (typically between 1 and MAX_PLAYER_LEVEL).
+      Level must be within valid range for the game.
+  - name: info
+    description: Pointer to a PlayerLevelInfo structure that will be filled with level-up
+      statistics. Must not be null.
+  returns: None. The method modifies the provided PlayerLevelInfo structure in-place.
+  examples:
+  - title: Retrieve level info for a human warrior at level 10
+    code: '#include "ObjectMgr.h"
+
+      PlayerLevelInfo levelInfo;
+
+      ObjectMgr::Instance()->GetPlayerLevelInfo(RACE_HUMAN, CLASS_WARRIOR, 10, &levelInfo);
+
+      // levelInfo now contains health, mana, and stat values for a human warrior
+      at level 10'
+    language: cpp
+  - title: Iterate through all race/class combinations to build level progression
+      data
+    code: "for (uint32 race = 1; race <= MAX_RACE; ++race)\n{\n    for (uint32 cls\
+      \ = 1; cls <= MAX_CLASS; ++cls)\n    {\n        PlayerLevelInfo info;\n    \
+      \    ObjectMgr::Instance()->GetPlayerLevelInfo(race, cls, 60, &info);\n    \
+      \    // Process level 60 stats for this race/class\n    }\n}"
+    language: cpp
+  notes: This method accesses internal lookup tables that are typically loaded from
+    database or DBC files during server startup. The PlayerLevelInfo structure contains
+    precomputed values that reflect the game's progression system, including base
+    stats and growth rates. Performance is generally good as it's a simple table lookup
+    operation.
+  warnings: Ensure that the race and class parameters are valid constants; invalid
+    values may lead to undefined behavior or incorrect data being returned. The info
+    parameter must not be null, otherwise a crash will occur.
+  related:
+  - GetPlayerInfo
+  - GetPlayerClassLevelInfo
+  - LoadPlayerLevelInfo
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:21:59.591775'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

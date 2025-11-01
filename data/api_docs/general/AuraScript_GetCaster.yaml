@@ -1,0 +1,51 @@
+api:
+  class: AuraScript
+  method: GetCaster
+  signature: Unit * AuraScript::GetCaster() const
+documentation:
+  brief: Returns the Unit that cast the aura.
+  description: The GetCaster method retrieves the Unit object that originally applied
+    the aura to its target. This is typically the caster of the spell that created
+    the aura, which could be a player, creature, game object, or any other Unit subclass.
+    The returned pointer can be used to access caster-specific properties such as
+    GUID, faction, health, or to perform actions like applying additional effects
+    or checking conditions. It's important to note that in some cases, especially
+    with triggered or periodic auras, the caster might not be directly accessible
+    or may have been destroyed, so proper null checks should be performed before using
+    the returned Unit pointer.
+  parameters: []
+  returns: A pointer to the Unit object that cast the aura. Returns nullptr if the
+    caster is no longer valid or has been destroyed.
+  examples:
+  - title: Basic usage to check caster type
+    code: "void OnApply(AuraEffect const* aurEff, AuraAction action)\n{\n    Unit*\
+      \ caster = GetCaster();\n    if (!caster)\n        return;\n\n    if (caster->IsPlayer())\n\
+      \    {\n        // Handle player-specific logic\n        caster->ToPlayer()->SendNotification(\"\
+      You cast this aura!\");\n    }\n}"
+    language: cpp
+  - title: Using caster to modify target based on caster's faction
+    code: "void OnPeriodic(AuraEffect const* aurEff)\n{\n    Unit* caster = GetCaster();\n\
+      \    if (!caster)\n        return;\n\n    Player* player = GetTarget()->ToPlayer();\n\
+      \    if (!player)\n        return;\n\n    if (caster->GetFaction() == player->GetFaction())\n\
+      \    {\n        // Apply beneficial effect\n        GetTarget()->CastSpell(GetTarget(),\
+      \ SPELL_BENEFICIAL_AURA, true);\n    }\n}"
+    language: cpp
+  notes: The returned Unit pointer is valid only as long as the caster unit exists
+    in the world. If the caster dies or is removed from the game, the pointer becomes
+    invalid and should not be used. Additionally, some aura effects may have a null
+    caster, particularly if they were applied through non-standard means such as scripts
+    or direct aura application without a proper caster context.
+  warnings: Always perform a null check on the returned Unit pointer before using
+    it to avoid accessing invalid memory. Be cautious when assuming that the caster
+    is still alive or in the game world, especially for periodic or triggered auras
+    where the original caster may have been removed.
+  related:
+  - GetTarget
+  - GetSpellInfo
+  - GetAura
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:21:34.725416'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

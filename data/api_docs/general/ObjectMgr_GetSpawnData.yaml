@@ -1,0 +1,65 @@
+api:
+  class: ObjectMgr
+  method: GetSpawnData
+  signature: const int * ObjectMgr::GetSpawnData(int type, int spawnId) const
+documentation:
+  brief: Retrieves spawn data for a given type and spawn ID from the object manager's
+    internal storage.
+  description: The GetSpawnData method retrieves a pointer to an array of integers
+    representing spawn data associated with a specific type and spawn identifier.
+    This method is typically used within the TrinityCore server to access pre-defined
+    spawn configurations for game entities such as creatures, game objects, or other
+    world objects. The returned integer array may contain various metadata related
+    to how the entity should be spawned, including position coordinates, orientation,
+    respawn timers, and other spawn-related parameters. The data is stored in an internal
+    lookup structure managed by ObjectMgr, which is populated during server startup
+    or map loading phases. This method does not perform any validation on input parameters
+    beyond what is implied by the internal data structure, so calling with invalid
+    type or spawnId values may result in undefined behavior or null pointer returns.
+  parameters:
+  - name: type
+    description: The type identifier for the spawn data. This typically corresponds
+      to a specific category of game objects such as creatures (0), game objects (1),
+      or other entity types. Valid values are determined by the internal mapping system.
+  - name: spawnId
+    description: The unique identifier for a specific spawn instance within the given
+      type. This ID maps to a particular entry in the spawn database and is used to
+      retrieve the corresponding spawn configuration data.
+  returns: A pointer to a constant integer array containing the spawn data for the
+    specified type and spawnId. Returns nullptr if no matching spawn data is found
+    or if invalid parameters are provided.
+  examples:
+  - title: Retrieve creature spawn data
+    code: "const int* spawnData = sObjectMgr->GetSpawnData(0, 12345);\nif (spawnData\
+      \ != nullptr) {\n    // Process spawn data\n    int x = spawnData[0];\n    int\
+      \ y = spawnData[1];\n    int z = spawnData[2];\n}"
+    language: cpp
+  - title: Safe usage with error checking
+    code: "const int* data = sObjectMgr->GetSpawnData(SPAWN_TYPE_CREATURE, creatureSpawnId);\n\
+      if (data != nullptr && data[0] != 0) {\n    // Use spawn data safely\n    float\
+      \ posX = static_cast<float>(data[0]);\n    float posY = static_cast<float>(data[1]);\n\
+      \    float posZ = static_cast<float>(data[2]);\n} else {\n    // Handle invalid\
+      \ or missing spawn data\n    sLog->outError(\"Failed to retrieve spawn data\
+      \ for creature %u\", creatureSpawnId);\n}"
+    language: cpp
+  notes: This method accesses internal data structures that are typically populated
+    during server initialization. The returned pointer is valid only as long as the
+    ObjectMgr instance remains active and no modifications occur to the underlying
+    spawn data. It's recommended to cache or copy the returned data if it needs to
+    be used outside of immediate scope. Performance-wise, this lookup should be relatively
+    fast due to internal hash maps or similar structures.
+  warnings: Calling this method with invalid type or spawnId values can lead to undefined
+    behavior or segmentation faults. Always validate inputs before calling and check
+    for null returns. The returned data pointer is not owned by the caller and must
+    not be freed or modified directly.
+  related:
+  - GetCreatureData
+  - GetGameObjectData
+  - LoadSpawnData
+  - GetObjectData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:39:26.545208'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

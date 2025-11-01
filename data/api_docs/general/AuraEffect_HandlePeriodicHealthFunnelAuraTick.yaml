@@ -1,0 +1,59 @@
+api:
+  class: AuraEffect
+  method: HandlePeriodicHealthFunnelAuraTick
+  signature: void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit * target, Unit
+    * caster) const
+documentation:
+  brief: Applies a periodic health funnel effect from the caster to the target unit.
+  description: The HandlePeriodicHealthFunnelAuraTick method processes the tick of
+    a periodic health funnel aura, which transfers health from the caster to the target
+    unit at regular intervals. This mechanism is typically used for spells like 'Health
+    Funnel' where a warlock drains life from a pet and transfers it to themselves.
+    The method ensures that the health transfer occurs only if both the caster and
+    target are valid units and within range. It also respects any immunity or invulnerability
+    states of the target. The effect is applied each time the aura's tick interval
+    expires, making it part of the ongoing periodic damage or healing system in TrinityCore.
+  parameters:
+  - name: target
+    description: The unit receiving the health funnel effect. Must be a valid Unit
+      object and within the aura's range.
+  - name: caster
+    description: The unit providing the health for the funnel effect. Must be a valid
+      Unit object and capable of transferring health to the target.
+  returns: null
+  examples:
+  - title: Basic usage in aura tick handler
+    code: "void MyAuraScript::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit*\
+      \ caster) const\n{\n    if (!target || !caster)\n        return;\n\n    // Apply\
+      \ health transfer logic here\n    int32 amount = 100; // Example fixed amount\n\
+      \    caster->ModifyHealth(-amount);\n    target->ModifyHealth(amount);\n}"
+    language: cpp
+  - title: Advanced usage with dynamic calculation
+    code: "void MyAuraScript::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit*\
+      \ caster) const\n{\n    if (!target || !caster)\n        return;\n\n    // Calculate\
+      \ amount based on caster's max health percentage\n    int32 maxHealth = caster->GetMaxHealth();\n\
+      \    int32 amount = maxHealth * 0.05f; // 5% of caster's max health\n\n    //\
+      \ Ensure we don't exceed available health\n    int32 availableHealth = caster->GetHealth();\n\
+      \    amount = std::min(amount, availableHealth);\n\n    if (amount > 0)\n  \
+      \  {\n        caster->ModifyHealth(-amount);\n        target->ModifyHealth(amount);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically invoked as part of an aura's periodic tick mechanism.
+    The implementation assumes that the aura has already been validated for proper
+    targeting and range. It does not perform any additional checks for spell immunity
+    or damage prevention, which are handled at a higher level in the aura application
+    system.
+  warnings: Ensure that both target and caster pointers are valid before accessing
+    their properties. Improper handling of these parameters can lead to crashes or
+    undefined behavior. Also, be cautious when modifying health directly without considering
+    combat state or other game mechanics that might interfere with the intended effect.
+  related:
+  - AuraEffect::HandlePeriodicTick
+  - AuraEffect::ApplyAuraEffect
+  - Unit::ModifyHealth
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T12:09:46.151131'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

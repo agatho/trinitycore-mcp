@@ -1,0 +1,47 @@
+api:
+  class: AuraScript
+  method: GetOwner
+  signature: WorldObject * AuraScript::GetOwner() const
+documentation:
+  brief: Returns the WorldObject that owns this aura effect
+  description: The GetOwner method retrieves the WorldObject instance that is the
+    target or caster of the aura script. This is typically used within AuraScript
+    implementations to access the object that the aura is applied to or originates
+    from, depending on the context. The returned pointer can be used to perform operations
+    such as checking the object's type, accessing its properties, or triggering actions
+    based on the owner's state. In World of Warcraft's TrinityCore framework, auras
+    are attached to various game objects including players, creatures, and game objects,
+    and this method provides access to that specific owner instance.
+  parameters: []
+  returns: A pointer to the WorldObject that owns this aura effect. The returned value
+    may be nullptr if the aura has no valid owner or if the owner has been destroyed.
+  examples:
+  - title: Basic usage to check owner type
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void OnApply(AuraEffect\
+      \ const* aurEff, AuraEffectHandleModes mode) override\n    {\n        WorldObject*\
+      \ owner = GetOwner();\n        if (owner && owner->IsPlayer())\n        {\n\
+      \            // Perform player-specific logic\n        }\n    }\n};"
+    language: cpp
+  - title: Accessing owner's GUID for logging or identification
+    code: "class CombatAuraScript : public AuraScript\n{\npublic:\n    void OnRemove(AuraEffect\
+      \ const* aurEff, AuraEffectHandleModes mode) override\n    {\n        WorldObject*\
+      \ owner = GetOwner();\n        if (owner)\n        {\n            TC_LOG_INFO(\"\
+      spell\", \"Aura removed from object with GUID: %u\", owner->GetGUID().GetCounter());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: The returned WorldObject pointer is valid only during the execution of the
+    AuraScript method. If the owner object is destroyed or removed from the world,
+    subsequent calls to GetOwner() may return a null pointer. This method should not
+    be used outside of an active aura script context.
+  warnings: Do not store the returned pointer for later use as it might become invalid
+    if the owner is destroyed or despawned. Always check for null before using the
+    returned pointer to prevent crashes.
+  related:
+  - GetCaster
+  - GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:16:30.470425'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

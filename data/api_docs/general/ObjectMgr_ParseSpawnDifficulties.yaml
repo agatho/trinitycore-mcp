@@ -1,0 +1,62 @@
+api:
+  class: ObjectMgr
+  method: ParseSpawnDifficulties
+  signature: int ObjectMgr::ParseSpawnDifficulties(std::string_view difficultyString,
+    std::string_view table, int spawnId, uint32 mapId, const int & mapDifficulties)
+documentation:
+  brief: Parses difficulty settings for a spawn entry in the database and returns
+    the parsed difficulty value.
+  description: The ParseSpawnDifficulties method processes a difficulty string provided
+    for a specific spawn entry within a given map. It interprets the difficulty configuration,
+    validates it against known map difficulties, and returns an integer representing
+    the effective difficulty level. This method is typically used during world object
+    loading or spawn initialization to ensure that creatures, game objects, or other
+    entities are correctly assigned their intended difficulty settings based on the
+    map and spawn ID. The method relies on internal lookup tables and configurations
+    defined in the TrinityCore database schema for map difficulties.
+  parameters:
+  - name: difficultyString
+    description: A string view containing the difficulty specification (e.g., 'normal',
+      'heroic', 'mythic') for the spawn entry.
+  - name: table
+    description: The name of the database table where the spawn data is stored (e.g.,
+      'creature_spawn', 'gameobject_spawn').
+  - name: spawnId
+    description: Unique identifier for the specific spawn entry within the given table.
+  - name: mapId
+    description: The ID of the map where the spawn is located, used to determine valid
+      difficulty levels.
+  - name: mapDifficulties
+    description: Reference to an integer representing the maximum allowed difficulty
+      level for the specified map.
+  returns: Returns an integer indicating the parsed difficulty value. A return value
+    of -1 typically indicates an error or invalid difficulty string, while a positive
+    integer corresponds to a valid difficulty level (e.g., 0 = normal, 1 = heroic,
+    etc.).
+  examples:
+  - title: Parsing Spawn Difficulty for a Creature
+    code: "int difficulty = sObjectMgr->ParseSpawnDifficulties(\"heroic\", \"creature_spawn\"\
+      , 12345, 141, mapDifficulties);\nif (difficulty >= 0)\n{\n    // Valid difficulty\
+      \ parsed\n    printf(\"Creature spawn has difficulty level: %d\\n\", difficulty);\n\
+      }\nelse\n{\n    // Error occurred during parsing\n    printf(\"Failed to parse\
+      \ difficulty for spawn ID 12345\\n\");\n}"
+    language: cpp
+  notes: This method assumes that the mapDifficulties parameter is correctly initialized
+    and reflects the valid difficulty levels supported by the map. The method may
+    perform database lookups or internal caching depending on how the system is configured.
+    It's important to ensure that difficulty strings match expected formats defined
+    in the game logic.
+  warnings: Incorrectly formatted difficulty strings or mismatched map IDs can cause
+    this function to return -1, which should be handled gracefully by calling code.
+    Avoid passing null or invalid table names as they may lead to undefined behavior
+    or crashes.
+  related:
+  - GetMapDifficulty
+  - LoadSpawnDifficulties
+  - ValidateSpawnDifficulty
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T21:20:35.639399'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
