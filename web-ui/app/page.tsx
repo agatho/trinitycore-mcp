@@ -5,6 +5,7 @@ import { Search, Database, Zap, Code, BookOpen, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { useMCPTools } from "@/hooks/useMCP";
 import Link from "next/link";
 
@@ -59,6 +60,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      {/* Global Search - Always Available */}
+      <div className="fixed top-4 right-4 z-50">
+        <GlobalSearch />
+      </div>
+
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center space-y-8">
