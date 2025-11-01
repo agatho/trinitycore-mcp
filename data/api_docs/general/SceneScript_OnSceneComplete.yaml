@@ -1,0 +1,64 @@
+api:
+  class: SceneScript
+  method: OnSceneComplete
+  signature: void SceneScript::OnSceneComplete(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate)
+documentation:
+  brief: Called when a scene instance has completed playback for a player
+  description: The OnSceneComplete method is invoked by the TrinityCore framework
+    when a scene instance finishes playing for a specific player. This callback allows
+    script developers to execute custom logic once a scene has fully executed, such
+    as rewarding players, triggering additional events, or cleaning up resources associated
+    with the scene. Scenes in World of Warcraft are cinematic sequences that can involve
+    NPCs, objects, and environmental effects. The method provides access to both the
+    player who experienced the scene and metadata about the scene itself through the
+    scene template.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the scene has completed playback.
+      This parameter is never null during the callback execution.
+  - name: sceneInstanceID
+    description: Unique identifier for the specific instance of the scene that was
+      played. Used to distinguish between multiple simultaneous or repeated scene
+      plays.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object defining the structure and behavior
+      of the scene that completed. Contains information about triggers, actors, and
+      effects used in the scene.
+  returns: null
+  examples:
+  - title: Basic Scene Completion Handler
+    code: "class MySceneScript : public SceneScript\n{\npublic:\n    void OnSceneComplete(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        // Reward the player upon scene completion\n        player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n        // Log completion\n        LOG_INFO(\"scene\", \"Player {} completed\
+      \ scene {}.\", player->GetName(), sceneInstanceID);\n    }\n};"
+    language: cpp
+  - title: Conditional Scene Completion Logic
+    code: "class QuestSceneScript : public SceneScript\n{\npublic:\n    void OnSceneComplete(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        if (sceneTemplate->GetSceneId() == SCENE_ID_QUEST_START)\n \
+      \       {\n            // Trigger quest completion\n            player->CompleteQuest(QUEST_ID);\n\
+      \        }\n        else if (sceneTemplate->GetSceneId() == SCENE_ID_BOSS_DEFEAT)\n\
+      \        {\n            // Spawn loot or NPCs\n            player->SummonCreature(NPC_ID_LOOT_SPARK,\
+      \ player->GetPosition());\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the SceneScript interface and should only be overridden
+    in custom script classes derived from SceneScript. The sceneInstanceID allows
+    for tracking multiple concurrent scenes per player, which may be useful for complex
+    quest or event systems. Ensure that any modifications to the player's state or
+    world objects within this callback are thread-safe if used in a multi-threaded
+    context.
+  warnings: Do not perform heavy computations or blocking operations inside OnSceneComplete
+    as it can affect game performance and responsiveness. Avoid calling methods that
+    might modify the scene itself or cause recursive scene triggers, which could lead
+    to unexpected behavior or infinite loops.
+  related:
+  - OnSceneStart
+  - OnSceneTriggered
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:07:30.444440'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

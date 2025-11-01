@@ -1,0 +1,67 @@
+api:
+  class: SceneScript
+  method: OnSceneTriggerEvent
+  signature: void SceneScript::OnSceneTriggerEvent(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate, const std::string & triggerName)
+documentation:
+  brief: Handles scene trigger events for players during cinematic or quest-related
+    scenes in World of Warcraft.
+  description: The OnSceneTriggerEvent method is invoked when a specific trigger within
+    a scene template is activated for a player. This method allows script developers
+    to execute custom logic when certain conditions are met during scene playback,
+    such as when a character speaks, an object animates, or a quest objective is completed.
+    It provides access to the player involved, the unique identifier of the scene
+    instance, and the template defining the scene's behavior. The trigger name parameter
+    specifies which particular event within the scene has occurred, enabling fine-grained
+    control over scene interactions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the scene is being played.
+      This represents the player who triggered or is involved in the scene.
+  - name: sceneInstanceID
+    description: Unique identifier of the scene instance currently playing. Used to
+      distinguish between multiple simultaneous scenes or instances of the same scene
+      template.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object that defines the structure and
+      behavior of the scene being played. Contains information about triggers, animations,
+      and other scene properties.
+  - name: triggerName
+    description: String representing the name of the trigger that was activated within
+      the scene. Used to identify specific events like 'Speak', 'PlayAnimation', or
+      custom named triggers.
+  returns: null
+  examples:
+  - title: Basic Scene Trigger Handling
+    code: "class MySceneScript : public SceneScript\n{\npublic:\n    void OnSceneTriggerEvent(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate, const\
+      \ std::string& triggerName) override\n    {\n        if (triggerName == \"Speak\"\
+      )\n        {\n            player->SendNotification(\"Character spoke during\
+      \ scene!\");\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Trigger Logic with Scene Instance ID
+    code: "class QuestSceneScript : public SceneScript\n{\npublic:\n    void OnSceneTriggerEvent(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate, const\
+      \ std::string& triggerName) override\n    {\n        if (triggerName == \"QuestComplete\"\
+      )\n        {\n            // Only process this event for a specific scene instance\n\
+      \            if (sceneInstanceID == 12345)\n            {\n                player->CompleteQuest(12345);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core scene execution engine and should
+    not be used to modify scene flow directly. Modifications to the player state or
+    quest progression should be handled carefully to avoid conflicts with the scene's
+    intended behavior. The SceneTemplate pointer remains valid only during the scope
+    of this function call.
+  warnings: Avoid performing heavy operations in this method as it can block scene
+    execution. Do not attempt to modify the scene instance itself from within this
+    callback, as doing so may cause undefined behavior or crashes.
+  related:
+  - OnSceneStart
+  - OnSceneComplete
+  - OnSceneCancel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T23:05:42.578222'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

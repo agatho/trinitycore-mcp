@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnAddCreaturePassenger
+  signature: void ScriptMgr::OnAddCreaturePassenger(Transport * transport, Creature
+    * creature)
+documentation:
+  brief: Invoked when a creature is added as a passenger to a transport object in
+    the game world.
+  description: The OnAddCreaturePassenger method is a hook called by the TrinityCore
+    script manager whenever a Creature is added as a passenger to a Transport. This
+    event occurs during the transportation system's operation, typically when creatures
+    are loaded onto transports such as boats, zeppelins, or other moving game objects.
+    The method allows scripts to execute custom logic in response to this event, such
+    as triggering quest events, applying status effects, or modifying creature behavior
+    while aboard the transport. This hook is part of the broader transport and passenger
+    management system within World of Warcraft's TrinityCore emulation framework.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object that the creature is being added
+      to as a passenger. Must be a valid Transport instance.
+  - name: creature
+    description: Pointer to the Creature object that is being added as a passenger.
+      Must be a valid Creature instance.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnAddCreaturePassenger(Transport* transport, Creature*\
+      \ creature) override\n    {\n        // Log when a creature is added to a transport\n\
+      \        sLog->outString(\"Creature %u boarded transport %u\", creature->GetEntry(),\
+      \ transport->GetEntry());\n    }\n};"
+    language: cpp
+  - title: Advanced Example with Conditional Logic
+    code: "class TransportPassengerScript : public ScriptObject\n{\npublic:\n    TransportPassengerScript()\
+      \ : ScriptObject(\"TransportPassengerScript\") {}\n\n    void OnAddCreaturePassenger(Transport*\
+      \ transport, Creature* creature) override\n    {\n        // Only act if the\
+      \ creature is a specific type (e.g., NPC)\n        if (creature->GetEntry()\
+      \ == 12345)\n        {\n            // Apply temporary buff or trigger quest\
+      \ event\n            creature->AddAura(12345, creature);\n            sQuestData->HandleQuestEvent(transport,\
+      \ creature, QUEST_EVENT_ON_PASSENGER_ADD);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the scriptable event system and should be implemented
+    carefully to avoid performance issues or infinite loops. The transport and creature
+    pointers are guaranteed to be valid at the time of invocation, but modifications
+    to their state during this call may affect subsequent operations.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it's called frequently during transport loading. Also, modifying the
+    transport or creature objects in a way that could cause recursion or invalidation
+    should be avoided.
+  related:
+  - OnRemoveCreaturePassenger
+  - OnTransportAddCreature
+  - OnTransportRemoveCreature
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T23:01:06.060638'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

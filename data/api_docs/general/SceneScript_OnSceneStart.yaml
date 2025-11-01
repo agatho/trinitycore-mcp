@@ -1,0 +1,68 @@
+api:
+  class: SceneScript
+  method: OnSceneStart
+  signature: void SceneScript::OnSceneStart(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate)
+documentation:
+  brief: Called when a scene begins for a player, allowing scripts to execute custom
+    logic during scene start.
+  description: The OnSceneStart method is invoked by the TrinityCore framework when
+    a scene animation or cinematic sequence starts for a specific player. This method
+    serves as a hook for custom script implementations that need to respond to scene
+    initiation events. It provides access to the player object, the unique instance
+    ID of the scene, and the template defining the scene's properties. The method
+    is typically used to trigger additional game logic such as quest updates, NPC
+    behavior changes, or custom effects when a scene begins. Developers can use this
+    callback to enhance gameplay experiences with dynamic content that responds to
+    scene events.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the scene is starting. This
+      represents the player character who will experience the scene.
+  - name: sceneInstanceID
+    description: Unique identifier for the specific instance of the scene being started.
+      This ID distinguishes different occurrences of the same scene template.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object defining the properties and behavior
+      of the scene. Contains metadata about the scene such as duration, actors, and
+      effects.
+  returns: null
+  examples:
+  - title: Basic Scene Start Handler
+    code: "class MySceneScript : public SceneScript\n{\npublic:\n    void OnSceneStart(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        // Log scene start event\n        sLog->outString(\"Scene %u\
+      \ started for player %s\", sceneInstanceID, player->GetName().c_str());\n  \
+      \      \n        // Trigger quest update\n        if (player->GetQuestStatus(12345)\
+      \ == QUEST_STATUS_INCOMPLETE)\n            player->AreaExploredOrEventHappens(12345);\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Scene Start with Conditional Logic
+    code: "class AdvancedSceneScript : public SceneScript\n{\npublic:\n    void OnSceneStart(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        // Check if this is a specific type of scene\n        if (sceneTemplate->GetSceneType()\
+      \ == SCENE_TYPE_CINEMATIC)\n        {\n            // Disable player movement\
+      \ during cinematic\n            player->SetCanFly(true);\n            player->SetMovement(SPEED_RUN,\
+      \ 0.0f);\n            \n            // Send custom message to player\n     \
+      \       player->SendNotification(\"Cinematic sequence initiated.\");\n     \
+      \   }\n        \n        // Store scene data for later use\n        player->SetPhaseMask(1,\
+      \ true);\n    }\n};"
+    language: cpp
+  notes: This method is called from the game's main thread and should not perform
+    heavy computations that could block gameplay. The sceneTemplate parameter provides
+    read-only access to scene configuration data. Scene instance IDs are unique per
+    player and can be used to track multiple concurrent scenes if needed.
+  warnings: Avoid modifying player state in ways that could conflict with the scene's
+    intended behavior. Be cautious when using this method in combination with other
+    scene-related callbacks as they may execute in sequence. Do not call blocking
+    operations or long-running functions within this method.
+  related:
+  - OnSceneUpdate
+  - OnSceneComplete
+  - OnSceneCancel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:06:27.968511'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

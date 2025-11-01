@@ -1,0 +1,71 @@
+api:
+  class: ScriptMgr
+  method: OnAchievementCompleted
+  signature: void ScriptMgr::OnAchievementCompleted(Player * player, const AchievementEntry
+    * achievement)
+documentation:
+  brief: Invoked when a player completes an achievement, allowing scripts to execute
+    custom logic.
+  description: The OnAchievementCompleted method is a callback function in the ScriptMgr
+    class that gets triggered whenever a player successfully finishes an achievement
+    in World of Warcraft. This method serves as a hook for custom scripts and modifications
+    to extend or alter the behavior when achievements are earned. It provides access
+    to both the player who completed the achievement and the specific achievement
+    entry, enabling developers to implement custom rewards, logging, or game state
+    changes. The method is called after the achievement has been fully processed by
+    the core system, ensuring that all standard achievement mechanics have been applied
+    before custom code executes.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who completed the achievement. This
+      parameter represents the specific player instance and should not be null when
+      the method is invoked.
+  - name: achievement
+    description: Pointer to the AchievementEntry structure representing the completed
+      achievement. This contains metadata about the achievement such as its ID, criteria,
+      and rewards.
+  returns: void
+  examples:
+  - title: Basic Achievement Completion Handler
+    code: "class MyScript : public PlayerScript\n{\npublic:\n    MyScript() : PlayerScript(\"\
+      MyScript\") {}\n\n    void OnAchievementCompleted(Player* player, const AchievementEntry*\
+      \ achievement) override\n    {\n        // Log the achievement completion\n\
+      \        sLog->outString(\"Player %s completed achievement %u\", player->GetName().c_str(),\
+      \ achievement->ID);\n        \n        // Give custom reward\n        if (achievement->ID\
+      \ == 12345)\n        {\n            player->AddItem(40698, 1); // Item ID for\
+      \ a custom reward\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Achievement Completion with Conditional Logic
+    code: "class AdvancedScript : public PlayerScript\n{\npublic:\n    AdvancedScript()\
+      \ : PlayerScript(\"AdvancedScript\") {}\n\n    void OnAchievementCompleted(Player*\
+      \ player, const AchievementEntry* achievement) override\n    {\n        // Check\
+      \ if achievement is related to a specific category\n        if (achievement->Category\
+      \ == 1234)\n        {\n            // Broadcast message to all players\n   \
+      \         ChatHandler(player->GetSession()).SendSysMessage(\"Congratulations!\
+      \ A player has earned an achievement.\");\n            \n            // Update\
+      \ player's custom data\n            player->SetUInt32Value(PLAYER_FIELD_ACHIEVEMENT_POINTS,\
+      \ player->GetUInt32Value(PLAYER_FIELD_ACHIEVEMENT_POINTS) + 10);\n        }\n\
+      \        \n        // Handle special case for PvP achievements\n        if (achievement->Flags\
+      \ & ACHIEVEMENT_FLAG_COUNTER)\n        {\n            // Increment custom counter\n\
+      \            player->SetAchievementCounter(achievement->ID, player->GetAchievementCounter(achievement->ID)\
+      \ + 1);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the global script manager system and is called synchronously
+    during the achievement completion process. Developers should be aware that modifying
+    player state or other systems within this callback might affect the achievement
+    processing flow. The achievement entry passed to this method is read-only and
+    should not be modified directly.
+  warnings: Do not perform operations that could cause stack overflow or infinite
+    recursion within this method, as it's called during critical achievement processing.
+    Be cautious when modifying player data or triggering other events from this callback,
+    as it may interfere with the normal achievement progression flow.
+  related:
+  - OnPlayerAchievementEarned
+  - OnAchievementCriteriaProgress
+  - OnAchievementSave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:01:51.590402'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

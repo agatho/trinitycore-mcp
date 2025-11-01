@@ -1,0 +1,56 @@
+api:
+  class: ScriptMgr
+  method: ModifyPeriodicDamageAurasTick
+  signature: void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit * target, Unit * attacker,
+    uint32 & damage)
+documentation:
+  brief: Modifies the damage value of periodic damage auras ticked on a target.
+  description: The ModifyPeriodicDamageAurasTick method is a hook point in TrinityCore's
+    script manager that allows custom scripts to modify the damage amount applied
+    by periodic damage auras (such as DoTs) during each tick. This method is invoked
+    for every periodic damage aura tick on a unit, providing an opportunity to adjust
+    the damage value before it is applied. It serves as part of the game's aura system
+    and can be used to implement custom mechanics such as damage scaling, resistance
+    adjustments, or special effects that modify how periodic damage behaves in combat.
+  parameters:
+  - name: target
+    description: The Unit object that is receiving the periodic damage tick. This
+      represents the affected creature or player.
+  - name: attacker
+    description: The Unit object that is the source of the periodic damage. This could
+      be a caster, spell, or effect causing the damage.
+  - name: damage
+    description: A reference to the uint32 damage value that will be applied during
+      this tick. The script can modify this value directly to alter the final damage
+      dealt.
+  returns: null
+  examples:
+  - title: Basic Damage Reduction Script
+    code: "void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32&\
+      \ damage)\n{\n    if (target->GetTypeId() == TYPEID_PLAYER)\n    {\n       \
+      \ // Reduce all periodic damage by 25%\n        damage = damage * 0.75f;\n \
+      \   }\n}"
+    language: cpp
+  - title: Conditional Damage Modification Based on Target
+    code: "void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32&\
+      \ damage)\n{\n    // If the target is a boss, reduce damage by 50%\n    if (target->ToCreature()\
+      \ && target->ToCreature()->IsDungeonBoss())\n    {\n        damage /= 2;\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is called during the aura tick processing phase, so changes made
+    to the damage value will affect how much damage is actually applied. It's important
+    that scripts do not introduce infinite loops or excessive computation here as
+    it may impact performance during combat.
+  warnings: Modifying the damage value directly can lead to unexpected behavior if
+    not handled carefully. Ensure that modifications are within reasonable bounds
+    and do not cause negative damage or overflow issues.
+  related:
+  - OnAuraTick
+  - ModifySpellDamage
+  - ModifyHeal
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T23:03:38.860107'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

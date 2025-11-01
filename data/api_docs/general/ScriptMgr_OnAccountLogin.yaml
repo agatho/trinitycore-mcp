@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnAccountLogin
+  signature: void ScriptMgr::OnAccountLogin(uint32 accountId)
+documentation:
+  brief: Called when an account successfully logs into the game server
+  description: The OnAccountLogin method is a callback function invoked by the ScriptMgr
+    when a player's account has been authenticated and successfully logs into the
+    World of Warcraft server. This method serves as a hook for custom scripts to execute
+    logic upon successful account login, such as initializing player data, triggering
+    events, or performing administrative tasks. The method is called after the authentication
+    process completes but before the player character selection screen is displayed.
+    It provides a way for script developers to extend or modify the default login
+    behavior without modifying core server code.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account that has successfully logged
+      in. This value corresponds to the ID field in the auth.account table and is
+      used to identify the specific account within the database.
+  returns: null
+  examples:
+  - title: Basic Account Login Hook Implementation
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnAccountLogin(uint32\
+      \ accountId) override\n    {\n        // Log successful login to database or\
+      \ external system\n        sLog->outString(\"Account %u has logged in successfully.\"\
+      , accountId);\n        \n        // Perform custom initialization logic here\n\
+      \        // e.g., load account-specific settings, update login statistics\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Account Login with Data Synchronization
+    code: "class AdvancedAccountScript : public AccountScript\n{\npublic:\n    void\
+      \ OnAccountLogin(uint32 accountId) override\n    {\n        // Load account-specific\
+      \ data from database\n        QueryResult result = LoginDatabase.Query(\"SELECT\
+      \ last_login, login_count FROM account WHERE id = {}\", accountId);\n      \
+      \  if (result)\n        {\n            Field* fields = result->Fetch();\n  \
+      \          uint32 lastLogin = fields[0].Get<uint32>();\n            uint32 loginCount\
+      \ = fields[1].Get<uint32>() + 1;\n            \n            // Update login\
+      \ count and timestamp\n            LoginDatabase.Execute(\"UPDATE account SET\
+      \ last_login = {}, login_count = {} WHERE id = {}\", time(nullptr), loginCount,\
+      \ accountId);\n            \n            // Trigger custom event or send notification\n\
+      \            sScriptMgr->OnAccountLoginComplete(accountId, lastLogin, loginCount);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is executed in the context of the main server thread and should
+    avoid long-running operations to prevent blocking other login attempts. The accountId
+    parameter is guaranteed to be valid and corresponds to an existing account in
+    the database. Multiple scripts can register for this callback, and they will all
+    be invoked sequentially.
+  warnings: Do not perform heavy database operations or blocking I/O within this method
+    as it may impact login performance. Avoid modifying account data directly within
+    this callback without proper locking mechanisms to prevent race conditions. Ensure
+    that any custom logic does not interfere with the normal authentication flow.
+  related:
+  - OnAccountLogout
+  - OnPlayerLogin
+  - OnAccountCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:02:29.784803'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

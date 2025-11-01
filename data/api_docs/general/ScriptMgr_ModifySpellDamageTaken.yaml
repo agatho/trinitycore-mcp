@@ -1,0 +1,63 @@
+api:
+  class: ScriptMgr
+  method: ModifySpellDamageTaken
+  signature: void ScriptMgr::ModifySpellDamageTaken(Unit * target, Unit * attacker,
+    int32 & damage, const SpellInfo * spellInfo)
+documentation:
+  brief: Modifies the damage taken by a unit from a spell attack.
+  description: The ModifySpellDamageTaken method is invoked during spell damage calculation
+    to allow scripts to adjust the amount of damage a target receives from an attacker's
+    spell. This method provides a hook for custom logic such as damage reduction,
+    mitigation effects, or special spell interactions. It modifies the damage value
+    in place, allowing scripts to increase or decrease the final damage dealt. The
+    method is called after initial damage calculation but before the final damage
+    is applied to the target.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that is receiving the spell damage. This
+      represents the victim of the spell attack.
+  - name: attacker
+    description: Pointer to the Unit object that is casting the spell and dealing
+      damage. This represents the caster of the spell.
+  - name: damage
+    description: Reference to an int32 value representing the current calculated damage
+      amount. This value can be modified by the script to adjust the final damage
+      dealt.
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell being cast, including spell ID, effects, and properties.
+  returns: null
+  examples:
+  - title: Basic Damage Reduction Script
+    code: "void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage,\
+      \ const SpellInfo* spellInfo)\n{\n    // Reduce all damage by 25% for players\n\
+      \    if (target->IsPlayer())\n    {\n        damage = damage * 0.75;\n    }\n\
+      }"
+    language: cpp
+  - title: Spell-Specific Damage Modification
+    code: "void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage,\
+      \ const SpellInfo* spellInfo)\n{\n    // Apply 50% damage reduction for Fireball\
+      \ spells\n    if (spellInfo->Id == 133)\n    {\n        damage = damage * 0.5;\n\
+      \    }\n    \n    // Increase damage by 10% for targets with a specific aura\n\
+      \    if (target->HasAura(12345))\n    {\n        damage = damage * 1.1;\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method is called during the spell damage calculation phase and should
+    not be used to completely prevent damage or alter spell behavior beyond damage
+    modification. Modifications to damage are applied in a chain, so multiple scripts
+    may modify the same value. Be cautious of negative damage values or overflow conditions
+    when modifying the damage amount.
+  warnings: Modifying damage values can significantly affect gameplay balance. Avoid
+    creating infinite loops or extremely large damage modifications that could crash
+    the server. Ensure that any changes to damage are within reasonable bounds and
+    consistent with game mechanics.
+  related:
+  - ModifySpellDamage
+  - ModifyHealing
+  - ModifyHealingReceived
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:03:06.539684'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
