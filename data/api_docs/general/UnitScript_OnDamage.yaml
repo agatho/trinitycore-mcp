@@ -1,0 +1,57 @@
+api:
+  class: UnitScript
+  method: OnDamage
+  signature: void UnitScript::OnDamage(Unit * attacker, Unit * victim, uint32 & damage)
+documentation:
+  brief: Invoked when a unit takes damage from an attacker, allowing scripts to modify
+    or react to the damage event.
+  description: The OnDamage method is a virtual callback function in the UnitScript
+    class that gets triggered whenever a Unit (such as a player or creature) receives
+    damage from another Unit. This method allows custom scripts to intercept and potentially
+    alter the damage amount before it's applied to the victim. The method provides
+    access to both the attacker and victim units, along with a reference to the damage
+    value which can be modified. It is part of TrinityCore's scripting system that
+    enables developers to extend or override default game behavior for combat events.
+  parameters:
+  - name: attacker
+    description: Pointer to the Unit object that is dealing the damage. Can be NULL
+      if the damage comes from environment or other non-unit sources.
+  - name: victim
+    description: Pointer to the Unit object that is receiving the damage. This represents
+      the target of the attack.
+  - name: damage
+    description: Reference to the uint32 damage value being applied. This value can
+      be modified by the script to increase or decrease the actual damage dealt.
+  returns: null
+  examples:
+  - title: Basic Damage Modification Example
+    code: "class MyUnitScript : public UnitScript\n{\npublic:\n    void OnDamage(Unit*\
+      \ attacker, Unit* victim, uint32& damage) override\n    {\n        // Reduce\
+      \ incoming damage by 25%\n        damage = damage * 0.75f;\n    }\n};"
+    language: cpp
+  - title: Conditional Damage Reduction Based on Attacker Type
+    code: "class MyUnitScript : public UnitScript\n{\npublic:\n    void OnDamage(Unit*\
+      \ attacker, Unit* victim, uint32& damage) override\n    {\n        // If attacker\
+      \ is a player, reduce damage by 10%\n        if (attacker->IsPlayer())\n   \
+      \         damage = damage * 0.9f;\n        // If attacker is a boss, increase\
+      \ damage by 5%\n        else if (attacker->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_BOSS))\n\
+      \            damage = damage * 1.05f;\n    }\n};"
+    language: cpp
+  notes: This method is called during the combat processing phase and should not be
+    used to perform operations that might cause recursion or modify unit state in
+    ways that could lead to instability. The damage reference allows modification
+    of the value, but care must be taken to ensure values remain within valid ranges.
+  warnings: Modifying the damage value directly can have cascading effects on combat
+    calculations and may interfere with other scripts or game mechanics. Ensure any
+    modifications are within reasonable bounds to prevent exploits or game-breaking
+    changes.
+  related:
+  - OnDamageTaken
+  - OnDamageDealt
+  - OnHeal
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:02:16.640138'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

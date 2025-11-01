@@ -1,0 +1,83 @@
+api:
+  class: Group
+  method: BroadcastPacket
+  signature: void Group::BroadcastPacket(const WorldPacket * packet, bool ignorePlayersInBGRaid,
+    int group, int ignoredPlayer) const
+documentation:
+  brief: Sends a packet to all members of the group, with optional filtering based
+    on raid status and group assignment.
+  description: The BroadcastPacket method sends a WorldPacket to all players in the
+    group, allowing for selective broadcasting based on group membership and raid
+    status. It supports ignoring players in battleground raids and can target specific
+    groups within a larger raid. This functionality is commonly used for sending synchronized
+    updates, such as loot notifications, combat messages, or other game state changes
+    that should be visible to all group members. The method ensures efficient packet
+    delivery while respecting player grouping and battleground constraints.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket object containing the data to be broadcasted
+      to group members. This packet must be properly constructed with valid opcode
+      and payload before being passed to this method.
+  - name: ignorePlayersInBGRaid
+    description: Boolean flag indicating whether players in battleground raids should
+      be excluded from receiving the broadcast. When true, players currently engaged
+      in battlegrounds will not receive the packet.
+  - name: group
+    description: Integer specifying which subgroup (0-4) to target within the group.
+      A value of -1 indicates all groups, while valid values range from 0 to 4 representing
+      individual subgroups.
+  - name: ignoredPlayer
+    description: Integer representing the GUID of a player who should be excluded
+      from receiving the broadcast. Set to 0 or invalid GUID to include all players
+      in the broadcast.
+  returns: null
+  examples:
+  - title: Broadcast loot notification to all group members
+    code: 'WorldPacket packet(SMSG_LOOT_START_ROLL, 12);
+
+      packet << uint32(12345); // Loot ID
+
+      packet << uint32(67890); // Item ID
+
+      packet << uint8(1);     // Roll type
+
+
+      // Broadcast to all group members, ignoring battleground players
+
+      this->BroadcastPacket(&packet, true, -1, 0);'
+    language: cpp
+  - title: Send combat message to specific subgroup in raid
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT, 64);
+
+      packet << uint8(CHAT_MSG_RAID); // Chat type
+
+      packet << uint32(LANG_YOUR_RAID_LEADER); // Language
+
+      packet << "Raid update for group 2"; // Message
+
+
+      // Broadcast to subgroup 2 only, excluding battleground players
+
+      this->BroadcastPacket(&packet, true, 2, 0);'
+    language: cpp
+  notes: This method operates on the assumption that the Group object is properly
+    initialized and contains valid group members. It internally handles player filtering
+    based on battleground status and group assignments. The packet must be fully constructed
+    with appropriate opcode and data before calling this method, as it does not perform
+    any validation of the packet contents.
+  warnings: Improperly constructed WorldPackets can cause client-side crashes or undefined
+    behavior. Always ensure that packets are properly formatted before broadcasting.
+    Using invalid GUID values for ignoredPlayer may result in unexpected filtering
+    behavior. The group parameter should be validated to prevent out-of-bounds access
+    when targeting specific subgroups.
+  related:
+  - SendPacket
+  - GetMembers
+  - IsInRaid
+  - GetMemberGroup
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T01:00:08.433496'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

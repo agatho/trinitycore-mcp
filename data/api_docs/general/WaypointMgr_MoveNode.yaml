@@ -1,0 +1,59 @@
+api:
+  class: WaypointMgr
+  method: MoveNode
+  signature: void WaypointMgr::MoveNode(const WaypointPath * path, const WaypointNode
+    * node, const int & pos)
+documentation:
+  brief: Moves a waypoint node to a new position within a waypoint path
+  description: The MoveNode method repositions a specified waypoint node to a new
+    index within a given waypoint path. This functionality is typically used in AI
+    path management for creatures or game objects that need their movement waypoints
+    adjusted dynamically during runtime. The method modifies the internal ordering
+    of nodes in the path, which affects how the entity follows the path. It's commonly
+    used when adjusting patrol routes or modifying NPC movement patterns based on
+    game events or player actions.
+  parameters:
+  - name: path
+    description: Pointer to the WaypointPath object containing the node to be moved.
+      Must not be null and must represent a valid path in the system.
+  - name: node
+    description: Pointer to the WaypointNode that should be relocated within the path.
+      Must not be null and must be part of the specified path.
+  - name: pos
+    description: Integer index indicating the new position where the node should be
+      moved. Valid range is typically 0 to path size minus 1, though exact bounds
+      may depend on implementation details.
+  returns: null
+  examples:
+  - title: Move a waypoint node to the beginning of a path
+    code: 'WaypointPath* myPath = sWaypointMgr->GetPath(12345);
+
+      WaypointNode* targetNode = myPath->GetNode(2);
+
+      sWaypointMgr->MoveNode(myPath, targetNode, 0);'
+    language: cpp
+  - title: Reorder a node to the end of a patrol path
+    code: "if (Creature* npc = me->FindNearestCreature(12345, 50.0f))\n{\n    WaypointPath*\
+      \ patrolPath = sWaypointMgr->GetPath(npc->GetSpawnId());\n    if (patrolPath)\n\
+      \    {\n        WaypointNode* lastNode = patrolPath->GetNode(patrolPath->GetNodeCount()\
+      \ - 1);\n        sWaypointMgr->MoveNode(patrolPath, lastNode, 0);\n    }\n}"
+    language: cpp
+  notes: This method modifies the internal structure of the waypoint path directly.
+    Care should be taken when calling this during active AI updates to avoid race
+    conditions or inconsistent state. The method assumes that all parameters are valid
+    and properly initialized, as no validation is performed internally.
+  warnings: Calling MoveNode with invalid node pointers or out-of-bounds position
+    values may lead to undefined behavior or crashes. Ensure the node belongs to the
+    specified path before calling this method. Avoid frequent calls during high-frequency
+    AI updates to prevent performance degradation.
+  related:
+  - GetPath
+  - AddNode
+  - RemoveNode
+  - RebuildPath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T19:39:35.477180'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

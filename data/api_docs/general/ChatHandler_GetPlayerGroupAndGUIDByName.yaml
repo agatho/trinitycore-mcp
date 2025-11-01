@@ -1,0 +1,69 @@
+api:
+  class: ChatHandler
+  method: GetPlayerGroupAndGUIDByName
+  signature: bool ChatHandler::GetPlayerGroupAndGUIDByName(const char * cname, Player
+    *& player, Group *& group, int & guid, bool offline)
+documentation:
+  brief: Retrieves a player's group and GUID by their name, with optional offline
+    support.
+  description: The GetPlayerGroupAndGUIDByName method searches for a player by their
+    character name and retrieves associated data including the player object, their
+    group (if any), and their unique identifier (GUID). This function is commonly
+    used in game command implementations where administrative actions need to target
+    specific players. The method supports both online and offline player lookups based
+    on the 'offline' parameter. If the player is not found or cannot be retrieved,
+    the function returns false. When a player is found, the method populates the provided
+    output parameters with valid data.
+  parameters:
+  - name: cname
+    description: The character name of the player to search for. Must be a null-terminated
+      string representing a valid in-game character name.
+  - name: player
+    description: Reference to a Player pointer that will be set to point to the found
+      player object if successful. Will be set to nullptr if not found or on error.
+  - name: group
+    description: Reference to a Group pointer that will be set to point to the player's
+      group if they are in one. Will be set to nullptr if the player is not in a group
+      or if not found.
+  - name: guid
+    description: Reference to an integer that will be set to the player's unique identifier
+      (GUID) upon successful lookup.
+  - name: offline
+    description: Boolean flag indicating whether offline players should be considered.
+      If true, the method attempts to find offline players in the database; if false,
+      only online players are considered.
+  returns: Returns true if a player matching the provided name is found and all output
+    parameters are successfully populated. Returns false if no player is found or
+    if an error occurs during lookup.
+  examples:
+  - title: Basic usage to find an online player
+    code: "Player* player = nullptr;\nGroup* group = nullptr;\nint guid = 0;\n\nif\
+      \ (handler->GetPlayerGroupAndGUIDByName(\"JohnDoe\", player, group, guid, false))\
+      \ {\n    handler->PSendSysMessage(\"Found player: %s with GUID: %u\", \"JohnDoe\"\
+      , guid);\n} else {\n    handler->PSendSysMessage(\"Player not found.\");\n}"
+    language: cpp
+  - title: Finding an offline player with GUID
+    code: "Player* player = nullptr;\nGroup* group = nullptr;\nint guid = 0;\n\nif\
+      \ (handler->GetPlayerGroupAndGUIDByName(\"JaneSmith\", player, group, guid,\
+      \ true)) {\n    handler->PSendSysMessage(\"Found offline player: %s with GUID:\
+      \ %u\", \"JaneSmith\", guid);\n} else {\n    handler->PSendSysMessage(\"Offline\
+      \ player not found.\");\n}"
+    language: cpp
+  notes: This method internally uses the WorldSession and ObjectAccessor systems to
+    locate players. It may perform database queries when searching for offline players,
+    which can impact performance if called frequently. The function assumes that the
+    ChatHandler instance has valid access to the game world state and session management.
+  warnings: Be cautious when using this method with the 'offline' parameter as it
+    might trigger database lookups and could potentially block or slow down command
+    execution. Avoid calling this in high-frequency loops or performance-critical
+    code paths without proper caching mechanisms.
+  related:
+  - GetPlayerByName
+  - GetPlayerGroupAndGUIDByGUID
+  - FindPlayerByName
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:22:41.112198'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

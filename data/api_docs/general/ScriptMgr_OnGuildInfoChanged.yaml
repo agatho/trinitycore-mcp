@@ -1,0 +1,60 @@
+api:
+  class: ScriptMgr
+  method: OnGuildInfoChanged
+  signature: void ScriptMgr::OnGuildInfoChanged(Guild * guild, const std::string &
+    newInfo)
+documentation:
+  brief: Notifies scripts when a guild's information text has been updated
+  description: This method is invoked by the TrinityCore server whenever a guild's
+    information text (typically set via the /guild info command) is modified. It serves
+    as a hook for custom scripts or modules to react to changes in guild metadata,
+    allowing for dynamic behavior such as logging, synchronization with external systems,
+    or enforcing guild policies. The method provides access to both the guild object
+    and the new information string, enabling scripts to perform actions based on the
+    updated content.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object whose information has been changed. This
+      parameter is never null and represents the specific guild instance affected
+      by the change.
+  - name: newInfo
+    description: The new information text that was set for the guild. This string
+      contains the complete updated guild info as provided by the player who executed
+      the command.
+  returns: null
+  examples:
+  - title: Basic Guild Info Change Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    MyGuildScript()\
+      \ : GuildScript(\"MyGuildScript\") {}\n\n    void OnGuildInfoChanged(Guild*\
+      \ guild, const std::string& newInfo) override\n    {\n        // Log the change\
+      \ to the server console\n        sLog->outString(\"Guild %s info changed to:\
+      \ %s\", guild->GetName().c_str(), newInfo.c_str());\n    }\n};"
+    language: cpp
+  - title: Enforcing Guild Info Policy
+    code: "class PolicyGuildScript : public GuildScript\n{\npublic:\n    PolicyGuildScript()\
+      \ : GuildScript(\"PolicyGuildScript\") {}\n\n    void OnGuildInfoChanged(Guild*\
+      \ guild, const std::string& newInfo) override\n    {\n        // Prevent setting\
+      \ info with forbidden words\n        if (newInfo.find(\"forbidden_word\") !=\
+      \ std::string::npos)\n        {\n            // Revert to previous info or notify\
+      \ admin\n            sLog->outString(\"Guild %s attempted to set forbidden content\
+      \ in info.\", guild->GetName().c_str());\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core game logic after a successful guild info
+    update. Scripts should avoid performing heavy operations or blocking calls within
+    this handler to prevent performance degradation. The guild object passed in is
+    guaranteed to be valid and fully initialized.
+  warnings: Do not modify the guild's information text directly inside this callback,
+    as it may lead to undefined behavior or infinite recursion if not handled carefully.
+    Ensure any changes to guild data are done through proper game mechanics rather
+    than modifying the internal state directly.
+  related:
+  - OnGuildCreate
+  - OnGuildDisband
+  - OnGuildMemberAdd
+  - OnGuildMemberRemove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:40:07.822842'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

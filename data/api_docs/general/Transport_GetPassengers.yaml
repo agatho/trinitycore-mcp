@@ -1,0 +1,49 @@
+api:
+  class: Transport
+  method: GetPassengers
+  signature: const PassengerSet & Transport::GetPassengers() const
+documentation:
+  brief: Returns a constant reference to the set of passengers currently aboard the
+    transport.
+  description: The GetPassengers method provides access to the collection of all creatures
+    or players that are currently mounted on this transport object. This is typically
+    used for managing transport-related game mechanics such as ensuring passengers
+    are properly moved with the transport, handling passenger dismounting when the
+    transport stops, or checking the current load of a transport. The returned PassengerSet
+    is read-only and should not be modified directly. This method is essential for
+    maintaining synchronization between the transport's position and its passengers'
+    positions in the game world.
+  parameters: []
+  returns: A constant reference to the internal PassengerSet data structure containing
+    all current passengers of this transport. The set contains unique identifiers
+    (GUIDs) of the entities aboard the transport.
+  examples:
+  - title: Iterating Through Transport Passengers
+    code: "for (const auto& passenger : transport->GetPassengers()) {\n    if (passenger.IsPlayer())\
+      \ {\n        // Handle player-specific logic\n        sLog->outString(\"Player\
+      \ %u is on the transport.\", passenger.GetGUID().GetCounter());\n    }\n}"
+    language: cpp
+  - title: Checking if Transport Has Passengers
+    code: "const auto& passengers = transport->GetPassengers();\nif (!passengers.empty())\
+      \ {\n    sLog->outString(\"Transport has %zu passengers.\", passengers.size());\n\
+      } else {\n    sLog->outString(\"Transport is empty.\");\n}"
+    language: cpp
+  notes: The returned PassengerSet is a const reference, meaning modifications to
+    the set are not allowed through this interface. Any changes to passenger membership
+    should be handled via dedicated transport methods like AddPassenger or RemovePassenger.
+    This method does not perform any locking internally, so if used in a multithreaded
+    context, proper synchronization must be implemented by the caller.
+  warnings: Modifying the PassengerSet returned by this method directly will result
+    in undefined behavior since it's a const reference. Additionally, the set may
+    change during iteration if other threads or systems modify passenger membership
+    concurrently without proper locking.
+  related:
+  - AddPassenger
+  - RemovePassenger
+  - HasPassenger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:41:38.580350'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

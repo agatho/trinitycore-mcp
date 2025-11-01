@@ -1,0 +1,48 @@
+api:
+  class: AuctionManager
+  method: GetMaxActiveAuctions
+  signature: uint32 AuctionManager::GetMaxActiveAuctions() const
+documentation:
+  brief: Returns the maximum number of active auctions allowed for a player.
+  description: The GetMaxActiveAuctions method retrieves the upper limit of auctions
+    that a player can have listed simultaneously in the auction house. This value
+    is typically determined by game rules, player account type, or server configuration
+    settings. The returned value represents a soft cap that affects how many items
+    a player can auction at once without exceeding the system's limits. This method
+    does not perform any validation or modification of auction state; it simply returns
+    the configured maximum count.
+  parameters: []
+  returns: A uint32 value representing the maximum number of active auctions allowed
+    per player. This is typically a fixed server configuration value, often ranging
+    from 5 to 50 depending on the server settings and player account type.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 maxAuctions = auctionMgr->GetMaxActiveAuctions();\nif (playerAuctionCount\
+      \ >= maxAuctions)\n{\n    // Inform player they've reached the auction limit\n\
+      \    player->SendAuctionError(AUCTION_ERROR_NO_MORE_AUCTIONS);\n}"
+    language: cpp
+  - title: Checking Auction Limit Before Listing
+    code: "uint32 maxActive = auctionMgr->GetMaxActiveAuctions();\nuint32 currentActive\
+      \ = player->GetAuctionListCount();\nif (currentActive >= maxActive)\n{\n   \
+      \ // Prevent listing new auction\n    SendAuctionError(AUCTION_ERROR_NO_MORE_AUCTIONS);\n\
+      \    return;\n}\n// Proceed with auction listing\nCreateNewAuction(player, item,\
+      \ bid, buyout);"
+    language: cpp
+  notes: This method is typically used in conjunction with player-specific auction
+    counting logic to enforce server-side limits. The value returned may vary based
+    on account privileges or server configuration, and it's recommended to cache this
+    value if accessed frequently during high-volume operations.
+  warnings: The returned value represents a hard limit enforced by the server. Exceeding
+    this limit may result in auction listing failures or player warnings. This method
+    should not be used as a substitute for actual auction counting logic when determining
+    whether a new auction can be created.
+  related:
+  - GetAuctionListCount
+  - GetAuctionHouseEntry
+  - IsAuctionAllowed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:26:15.602084'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

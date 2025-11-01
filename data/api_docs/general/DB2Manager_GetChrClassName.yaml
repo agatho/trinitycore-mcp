@@ -1,0 +1,57 @@
+api:
+  class: DB2Manager
+  method: GetChrClassName
+  signature: const char * DB2Manager::GetChrClassName(uint8 class_, LocaleConstant
+    locale)
+documentation:
+  brief: Retrieves the localized class name for a given class ID and locale.
+  description: The GetChrClassName method retrieves the localized name of a character
+    class based on the provided class identifier and locale constant. This function
+    is typically used to display user-friendly class names in the game interface,
+    such as in character creation screens, player lists, or tooltips. The method accesses
+    internal DB2 data structures that contain localized string entries for class names.
+    It's important to note that this method may return a default or fallback string
+    if the requested locale does not contain the specific class name entry. The returned
+    pointer points to an internal static buffer and should not be modified or freed
+    by the caller.
+  parameters:
+  - name: class_
+    description: The character class identifier (0-11) representing different player
+      classes in World of Warcraft such as Warrior, Paladin, Hunter, etc.
+  - name: locale
+    description: The LocaleConstant enum value specifying the desired language for
+      localization. Valid values include LOCALE_enUS, LOCALE_koKR, LOCALE_frFR, LOCALE_deDE,
+      LOCALE_zhCN, LOCALE_twCN, LOCALE_esES, LOCALE_esMX, LOCALE_ruRU.
+  returns: A const char* pointer to the localized class name string. Returns NULL
+    if the class ID is invalid or no localized entry exists for the specified locale.
+  examples:
+  - title: Basic usage to get English class name
+    code: "const char* className = sDB2Manager->GetChrClassName(1, LOCALE_enUS); //\
+      \ Returns \"Paladin\" for class ID 1\nif (className)\n{\n    printf(\"Class\
+      \ name: %s\\n\", className);\n}"
+    language: cpp
+  - title: Using with different locales
+    code: "uint8 playerClass = 3; // Hunter\nconst char* frenchName = sDB2Manager->GetChrClassName(playerClass,\
+      \ LOCALE_frFR); // Returns \"Chasseur\"\nconst char* germanName = sDB2Manager->GetChrClassName(playerClass,\
+      \ LOCALE_deDE); // Returns \"J\xE4ger\"\nprintf(\"French: %s, German: %s\\n\"\
+      , frenchName ? frenchName : \"Not found\", germanName ? germanName : \"Not found\"\
+      );"
+    language: cpp
+  notes: This method accesses cached DB2 data and is optimized for frequent calls.
+    The returned string is stored in an internal static buffer, so it's not thread-safe
+    for modification but safe for reading. Performance is generally fast due to caching
+    mechanisms within the DB2Manager class.
+  warnings: Do not attempt to modify or free the returned string pointer as it points
+    to internal memory managed by the DB2Manager. Ensure that the class ID parameter
+    is within valid range (0-11) to avoid undefined behavior. If locale is invalid,
+    the method may return NULL or a default value.
+  related:
+  - GetChrRaceName
+  - GetChrFilename
+  - GetAreaName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:16:45.180304'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: CooldownManager
+  method: GetGCDRemaining
+  signature: uint32 CooldownManager::GetGCDRemaining() const
+documentation:
+  brief: Returns the remaining time in milliseconds for the Global Cooldown (GCD)
+    of the player
+  description: The GetGCDRemaining method retrieves the current time remaining on
+    the Global Cooldown (GCD) for the associated unit. In World of Warcraft, the GCD
+    is a universal cooldown that prevents players from casting spells too rapidly.
+    This method returns the number of milliseconds until the GCD expires. A return
+    value of 0 indicates that the GCD has fully expired and a new spell can be cast
+    immediately. The GCD typically lasts 1 second for most classes and abilities,
+    though it may vary based on specific game mechanics or modifications.
+  parameters: []
+  returns: Returns a uint32 value representing the time in milliseconds remaining
+    on the Global Cooldown. If the GCD has expired, returns 0.
+  examples:
+  - title: Check if player can cast a spell
+    code: "if (player->GetGCDRemaining() == 0)\n{\n    // Player can cast a new spell\n\
+      \    player->CastSpell(target, SPELL_FIREBALL, true);\n}\nelse\n{\n    // Player\
+      \ must wait for GCD to expire\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You must wait %u ms before casting another spell.\", player->GetGCDRemaining());\n\
+      }"
+    language: cpp
+  - title: Implement cooldown tracking in a custom spell system
+    code: "class CustomSpellHandler\n{\npublic:\n    void CastSpellWithGCD(Unit* caster,\
+      \ uint32 spellId)\n    {\n        if (caster->GetGCDRemaining() > 0)\n     \
+      \   {\n            // Handle GCD violation or delay casting\n            return;\n\
+      \        }\n        \n        // Proceed with spell cast\n        caster->CastSpell(caster,\
+      \ spellId, true);\n        \n        // Apply GCD after casting\n        caster->ApplyGCD(1000);\
+      \ // 1 second GCD\n    }\n};"
+    language: cpp
+  notes: This method is typically used in conjunction with spell casting logic to
+    enforce game balance. The GCD is applied automatically by the core when a spell
+    is cast, and this method allows scripts or systems to query the current state
+    of that cooldown. The returned value represents the exact time remaining and can
+    be used for UI updates or gameplay logic.
+  warnings: Be aware that calling this method on a unit without a valid GCD context
+    may return unexpected values. Always ensure proper initialization of the unit's
+    cooldown system before querying GCD status.
+  related:
+  - GetGCD
+  - ApplyGCD
+  - HasGCD
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:45:25.132303'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

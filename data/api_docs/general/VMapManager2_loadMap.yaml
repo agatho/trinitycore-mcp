@@ -1,0 +1,70 @@
+api:
+  class: VMapManager2
+  method: loadMap
+  signature: LoadResult VMapManager2::loadMap(const char * pBasePath, unsigned int
+    mapId, int x, int y)
+documentation:
+  brief: Loads a virtual map instance for the specified map ID and grid coordinates
+  description: The loadMap method initializes and loads a virtual map instance for
+    a given map ID and grid coordinates (x, y). This function is responsible for managing
+    the loading of terrain data, height maps, and other spatial information required
+    for collision detection and line-of-sight calculations in the game world. The
+    method typically checks if the map data is already loaded or needs to be loaded
+    from disk, and handles the necessary resource allocation for the virtual map system.
+    It integrates with TrinityCore's VMap (Virtual Map) system which provides efficient
+    spatial queries for gameplay mechanics such as spell targeting, movement validation,
+    and object placement.
+  parameters:
+  - name: pBasePath
+    description: The base path where map data files are stored. This should point
+      to the directory containing the VMap files for the game world.
+  - name: mapId
+    description: Unique identifier for the map to be loaded. This corresponds to the
+      Map.dbc entry ID and identifies which game world map should be loaded.
+  - name: x
+    description: X coordinate of the grid tile to load (typically -64 to 63 for standard
+      maps).
+  - name: y
+    description: Y coordinate of the grid tile to load (typically -64 to 63 for standard
+      maps).
+  returns: Returns a LoadResult enum indicating the success or failure state of the
+    map loading operation. Possible values include LOAD_RESULT_SUCCESS, LOAD_RESULT_ERROR,
+    and LOAD_RESULT_ALREADY_LOADED depending on whether the map was successfully loaded,
+    encountered an error, or was already present in memory.
+  examples:
+  - title: Basic Map Loading
+    code: "VMapManager2* vmapManager = VMapFactory::createOrGetVMapManager();\nLoadResult\
+      \ result = vmapManager->loadMap(\"./vmaps\", 0, 10, 15);\nif (result == LOAD_RESULT_SUCCESS)\
+      \ {\n    // Map loaded successfully\n    printf(\"Map 0 grid (10,15) loaded\\\
+      n\");\n} else if (result == LOAD_RESULT_ALREADY_LOADED) {\n    // Map was already\
+      \ loaded\n    printf(\"Map 0 grid (10,15) already loaded\\n\");\n}"
+    language: cpp
+  - title: Loading Multiple Grids
+    code: "VMapManager2* vmapManager = VMapFactory::createOrGetVMapManager();\nfor\
+      \ (int x = -5; x <= 5; ++x) {\n    for (int y = -5; y <= 5; ++y) {\n       \
+      \ LoadResult result = vmapManager->loadMap(\"./vmaps\", 1, x, y);\n        if\
+      \ (result != LOAD_RESULT_SUCCESS && result != LOAD_RESULT_ALREADY_LOADED) {\n\
+      \            printf(\"Failed to load map 1 grid (%d,%d)\\n\", x, y);\n     \
+      \   }\n    }\n}"
+    language: cpp
+  notes: This method is typically called during player movement or when entering new
+    areas of the game world. The VMap system uses a grid-based approach where each
+    grid tile represents a portion of the map. The implementation may perform lazy
+    loading, meaning it only loads data as needed. Thread safety should be considered
+    since multiple threads might attempt to load the same map simultaneously.
+  warnings: Calling this method with invalid map IDs or grid coordinates can lead
+    to undefined behavior or crashes. Ensure that the base path points to valid VMap
+    files and that the map ID corresponds to an existing map in the database. Repeated
+    calls with the same parameters will return LOAD_RESULT_ALREADY_LOADED but may
+    still perform internal checks.
+  related:
+  - loadMap
+  - unloadMap
+  - getVMap
+  - isMapLoaded
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:53:20.483383'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

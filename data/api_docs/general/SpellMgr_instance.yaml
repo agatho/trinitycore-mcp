@@ -1,0 +1,48 @@
+api:
+  class: SpellMgr
+  method: instance
+  signature: SpellMgr * SpellMgr::instance()
+documentation:
+  brief: Returns the singleton instance of the SpellMgr class
+  description: The instance() method implements the singleton pattern for the SpellMgr
+    class, providing global access to the spell management system. This method ensures
+    that only one instance of SpellMgr exists throughout the application lifecycle,
+    allowing all parts of the TrinityCore codebase to access centralized spell data
+    and functionality. The returned pointer is guaranteed to be valid during normal
+    operation and should not be deleted by callers. This is a core component for spell
+    handling, spell effects, and spell-related game mechanics.
+  parameters: []
+  returns: A pointer to the single SpellMgr instance. The method never returns NULL
+    under normal circumstances as the singleton is initialized during server startup.
+  examples:
+  - title: Accessing SpellMgr for Spell Lookup
+    code: "SpellInfo const* spellInfo = SpellMgr::instance()->GetSpellInfo(12345);\n\
+      if (spellInfo)\n{\n    // Use spell information\n    sLog->outString(\"Spell\
+      \ name: %s\", spellInfo->SpellName[0]);\n}"
+    language: cpp
+  - title: Using SpellMgr in Custom Spell Handler
+    code: "void MyCustomSpellHandler(Unit* caster, Unit* target)\n{\n    SpellMgr*\
+      \ spellMgr = SpellMgr::instance();\n    SpellInfo const* spellInfo = spellMgr->GetSpellInfo(98765);\n\
+      \    if (spellInfo && spellInfo->IsPositive())\n    {\n        // Handle positive\
+      \ spell effect\n        caster->CastSpell(target, 98765, true);\n    }\n}"
+    language: cpp
+  notes: This method uses the singleton pattern which means it's thread-safe in TrinityCore's
+    implementation. The SpellMgr instance is initialized during server startup and
+    remains valid for the entire runtime of the application. It's important to note
+    that while this is a singleton, the underlying spell data can be modified at runtime
+    through hotfixes or database updates.
+  warnings: Never attempt to delete or manage the memory of the returned SpellMgr
+    pointer as it's managed by the singleton pattern. Be cautious when using this
+    in multithreaded contexts where spell data might be modified concurrently. Avoid
+    calling this method during server shutdown when the singleton might already be
+    destroyed.
+  related:
+  - GetSpellInfo
+  - IsSpellValid
+  - LoadSpellTemplates
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:04:57.044178'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

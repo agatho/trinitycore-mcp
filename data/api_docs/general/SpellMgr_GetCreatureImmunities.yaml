@@ -1,0 +1,54 @@
+api:
+  class: SpellMgr
+  method: GetCreatureImmunities
+  signature: const CreatureImmunities * SpellMgr::GetCreatureImmunities(int32 creatureImmunitiesId)
+documentation:
+  brief: Retrieves creature immunity data by its unique identifier from the spell
+    manager's internal database.
+  description: The GetCreatureImmunities method fetches a const pointer to a CreatureImmunities
+    structure based on the provided creatureImmunitiesId parameter. This structure
+    contains information about which spells, damage types, or effects a creature is
+    immune to. The method serves as a lookup utility within TrinityCore's spell management
+    system, allowing game logic to determine how creatures respond to various magical
+    attacks or status effects. It is typically used during combat calculations when
+    evaluating whether a spell should affect a target based on its immunity settings.
+    The returned pointer is valid only for the lifetime of the SpellMgr instance and
+    should not be freed by the caller.
+  parameters:
+  - name: creatureImmunitiesId
+    description: The unique identifier associated with a specific creature's immunity
+      configuration. This ID corresponds to entries in the creature_immunities database
+      table or internal lookup structures.
+  returns: A const pointer to a CreatureImmunities structure if an entry exists for
+    the given ID; otherwise, returns nullptr if no matching record is found.
+  examples:
+  - title: Basic Usage Example
+    code: "const CreatureImmunities* immunities = sSpellMgr->GetCreatureImmunities(12345);\n\
+      if (immunities != nullptr)\n{\n    // Process creature immunities\n    if (immunities->immuneToDamageType\
+      \ & SPELL_SCHOOL_MASK_FIRE)\n        printf(\"Creature is immune to fire damage\\\
+      n\");\n}"
+    language: cpp
+  - title: Combat Immunity Check
+    code: "void ApplySpellEffect(Unit* target, SpellInfo const* spellInfo)\n{\n  \
+      \  const CreatureImmunities* immunities = sSpellMgr->GetCreatureImmunities(target->GetCreatureTemplate()->SpellSchoolImmunities);\n\
+      \    if (immunities && (immunities->immuneToDamageType & spellInfo->GetSchoolMask()))\n\
+      \    {\n        // Skip applying effect due to immunity\n        return;\n \
+      \   }\n    // Apply normal spell effect\n}"
+    language: cpp
+  notes: This method performs a lookup in an internal hash map or similar data structure,
+    making it efficient for repeated calls. The returned pointer is managed by the
+    SpellMgr and must not be deleted by the caller. Ensure that creatureImmunitiesId
+    corresponds to valid entries in the database to avoid unexpected nullptr returns.
+  warnings: Do not assume that a non-null return value means all immunity fields are
+    populated; always check individual flags or values before use. Using invalid IDs
+    may result in returning nullptr, which could lead to crashes if not properly checked.
+  related:
+  - GetSpellInfo
+  - GetSpellCastTime
+  - GetSpellDifficultyId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:27:57.634585'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

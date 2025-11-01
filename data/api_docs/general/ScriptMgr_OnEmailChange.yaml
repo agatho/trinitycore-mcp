@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnEmailChange
+  signature: void ScriptMgr::OnEmailChange(uint32 accountId)
+documentation:
+  brief: Notifies scripts when a player's email address is changed in the account
+    system.
+  description: The OnEmailChange method is a hook in the ScriptMgr class that gets
+    invoked whenever a player's email address is updated within the TrinityCore database.
+    This method serves as an event handler for email modification actions, allowing
+    custom scripts or modules to react to such changes. It is typically called during
+    account management operations, such as when a user updates their email through
+    the game client or administrative interface. The method does not return any value
+    but can be used by script developers to implement logging, synchronization with
+    external systems, or other post-email-change logic.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the player's account for which the email
+      address has been changed. This value corresponds to the 'id' field in the 'account'
+      table of the TrinityCore database.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyEmailChangeHandler : public ScriptObject\n{\npublic:\n    MyEmailChangeHandler()\
+      \ : ScriptObject(\"MyEmailChangeHandler\") {}\n\n    void OnEmailChange(uint32\
+      \ accountId) override\n    {\n        // Log the email change event\n      \
+      \  sLog->outString(\"Email changed for account ID: %u\", accountId);\n    }\n\
+      };"
+    language: cpp
+  - title: Advanced Usage with Database Update
+    code: "class EmailSyncHandler : public ScriptObject\n{\npublic:\n    EmailSyncHandler()\
+      \ : ScriptObject(\"EmailSyncHandler\") {}\n\n    void OnEmailChange(uint32 accountId)\
+      \ override\n    {\n        // Retrieve the new email from database\n       \
+      \ QueryResult result = LoginDatabase.Query(\"SELECT email FROM account WHERE\
+      \ id = {}\", accountId);\n        if (result)\n        {\n            Field*\
+      \ fields = result->Fetch();\n            std::string newEmail = fields[0].GetString();\n\
+      \            // Perform external system synchronization here\n            SyncExternalSystem(accountId,\
+      \ newEmail);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the global scripting system and is called from within
+    the core account management logic. It is important to ensure that any code executed
+    within this handler does not block or cause performance issues, as it may be invoked
+    frequently during active gameplay sessions. The method is designed to be thread-safe
+    in the context of TrinityCore's architecture.
+  warnings: Avoid performing heavy database operations or long-running tasks inside
+    this method, as it could impact server performance. Also, be cautious when modifying
+    account data within this handler, as recursive calls or inconsistent states might
+    occur if not handled carefully.
+  related:
+  - OnAccountLogin
+  - OnAccountLogout
+  - OnPlayerEmailChange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:51:09.435398'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

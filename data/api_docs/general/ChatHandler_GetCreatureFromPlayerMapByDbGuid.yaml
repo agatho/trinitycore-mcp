@@ -1,0 +1,45 @@
+api:
+  class: ChatHandler
+  method: GetCreatureFromPlayerMapByDbGuid
+  signature: Creature * ChatHandler::GetCreatureFromPlayerMapByDbGuid(int lowguid)
+documentation:
+  brief: Retrieves a Creature object from the player's map using its database GUID.
+  description: This method searches through the current player's map for a creature
+    with the specified database GUID (low GUID). It is typically used in game command
+    implementations where a player needs to reference a specific creature by its unique
+    identifier within their current world context. The method performs a lookup in
+    the player's associated map instance, ensuring that only creatures present in
+    the same map as the player are returned. This helps prevent cross-map references
+    and maintains proper game state consistency.
+  parameters:
+  - name: lowguid
+    description: The low GUID (database identifier) of the creature to retrieve from
+      the player's current map.
+  returns: A pointer to the Creature object if found in the player's current map;
+    otherwise, returns nullptr if no matching creature exists or if the creature is
+    not present in the player's map.
+  examples:
+  - title: Retrieve a creature by database GUID
+    code: "Creature* target = handler->GetCreatureFromPlayerMapByDbGuid(12345);\n\
+      if (target)\n{\n    handler->PSendSysMessage(\"Found creature: %s\", target->GetName().c_str());\n\
+      }\nelse\n{\n    handler->SendSysMessage(\"Creature not found in current map.\"\
+      );\n}"
+    language: cpp
+  notes: This method assumes the ChatHandler instance has an active player context.
+    The returned Creature pointer is valid only as long as the creature exists in
+    the map and hasn't been removed or despawned. It's important to check for nullptr
+    before using the returned pointer to avoid null pointer dereferences.
+  warnings: Using this method without verifying that the player is in a valid map
+    context may lead to incorrect results. Additionally, if multiple creatures share
+    the same low GUID across different maps, this method will only return the one
+    present in the current player's map.
+  related:
+  - GetPlayerFromPlayerMapByDbGuid
+  - GetGameObjectFromPlayerMapByDbGuid
+  - GetSession
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:25:48.552591'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

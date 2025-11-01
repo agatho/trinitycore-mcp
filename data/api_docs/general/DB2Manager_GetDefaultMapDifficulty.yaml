@@ -1,0 +1,62 @@
+api:
+  class: DB2Manager
+  method: GetDefaultMapDifficulty
+  signature: const MapDifficultyEntry * DB2Manager::GetDefaultMapDifficulty(uint32
+    mapId, Difficulty * difficulty) const
+documentation:
+  brief: Retrieves the default map difficulty entry for a specified map ID and difficulty
+    level.
+  description: The GetDefaultMapDifficulty method fetches the default difficulty settings
+    for a given map ID, returning a pointer to the corresponding MapDifficultyEntry
+    structure. This entry contains information such as the default difficulty level,
+    loot and experience multipliers, and other game mechanics modifiers that apply
+    to the specified map. The method takes an optional difficulty parameter which
+    can be used to retrieve the difficulty entry for a specific difficulty mode. If
+    no matching entry is found, the method may return nullptr or a default fallback
+    entry depending on internal implementation. This functionality is crucial for
+    determining how game content scales and behaves across different difficulty levels
+    in World of Warcraft.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map for which to retrieve the default
+      difficulty settings. Valid values are map identifiers defined in the game's
+      DB2 files.
+  - name: difficulty
+    description: Pointer to a Difficulty enum value that specifies the difficulty
+      level. If nullptr, the method will use the default difficulty level for the
+      map.
+  returns: Returns a pointer to a MapDifficultyEntry structure containing the default
+    difficulty settings for the specified map and difficulty level. Returns nullptr
+    if no matching entry is found or if invalid parameters are provided.
+  examples:
+  - title: Basic usage to get default difficulty for a map
+    code: "const MapDifficultyEntry* difficultyEntry = sDB2Manager->GetDefaultMapDifficulty(1234,\
+      \ nullptr);\nif (difficultyEntry)\n{\n    // Use the difficulty entry\n    printf(\"\
+      Default difficulty: %u\\n\", difficultyEntry->Difficulty);\n}"
+    language: cpp
+  - title: Retrieving difficulty for a specific difficulty level
+    code: "Difficulty diff = DIFFICULTY_NORMAL;\nconst MapDifficultyEntry* difficultyEntry\
+      \ = sDB2Manager->GetDefaultMapDifficulty(1234, &diff);\nif (difficultyEntry)\n\
+      {\n    // Process the difficulty entry\n    printf(\"Map %u, Difficulty %u:\
+      \ Loot multiplier %.2f\\n\", 1234, diff, difficultyEntry->LootMultiplier);\n\
+      }"
+    language: cpp
+  notes: This method relies on internal DB2 data structures and assumes that the MapDifficulty.db2
+    file has been properly loaded. The returned pointer is valid only as long as the
+    DB2Manager instance remains active and no reload operations occur. This method
+    may be called from multiple threads, but thread safety depends on the underlying
+    implementation of DB2Manager.
+  warnings: The returned MapDifficultyEntry pointer should not be modified directly
+    as it points to read-only data structures within the DB2 manager. Calling this
+    method with invalid map IDs or difficulty values may result in undefined behavior
+    or nullptr returns.
+  related:
+  - GetMapDifficulty
+  - LoadDB2Files
+  - GetDifficultyForMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:07:48.017870'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

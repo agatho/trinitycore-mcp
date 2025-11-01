@@ -1,0 +1,63 @@
+api:
+  class: Battleground
+  method: _GetPlayer
+  signature: Player * Battleground::_GetPlayer(int itr, const char * context) const
+documentation:
+  brief: Retrieves a player object from the battleground using an iterator index and
+    context string.
+  description: The _GetPlayer method is used internally by the Battleground class
+    to retrieve a specific Player object from its internal collection of players participating
+    in the battleground. The method takes an iterator index and a context string to
+    determine which player to return. This function is typically used during battleground
+    operations such as scoring, player management, or event handling where individual
+    player data needs to be accessed. The context parameter may be used to differentiate
+    between various player states or roles within the battleground. It's important
+    to note that this method is marked as private (_), indicating it should only be
+    called from within the Battleground class or its derived classes.
+  parameters:
+  - name: itr
+    description: An integer iterator index used to identify which player to retrieve
+      from the battleground's internal player collection. This index typically corresponds
+      to a specific position in the player list maintained by the battleground.
+  - name: context
+    description: A null-terminated character string providing context for the player
+      retrieval operation. This parameter may be used to determine which type of player
+      or player state should be returned, such as 'alive', 'dead', or 'spectator'.
+  returns: Returns a pointer to a Player object if a valid player exists at the specified
+    iterator index with matching context. Returns nullptr if no player is found at
+    the given index or if the context does not match any existing players.
+  examples:
+  - title: Basic usage in battleground event handling
+    code: "void MyBattleground::HandlePlayerDeath(int playerIndex)\n{\n    Player*\
+      \ deadPlayer = this->_GetPlayer(playerIndex, \"alive\");\n    if (deadPlayer)\n\
+      \    {\n        // Process the death of the player\n        deadPlayer->KillPlayer();\n\
+      \    }\n}"
+    language: cpp
+  - title: Retrieving a player for scoring purposes
+    code: "void Battleground::UpdateScores()\n{\n    for (int i = 0; i < GetPlayerCount();\
+      \ ++i)\n    {\n        Player* player = this->_GetPlayer(i, \"active\");\n \
+      \       if (player && player->IsAlive())\n        {\n            // Update score\
+      \ logic\n            ++player->GetBattlegroundScore()->KillingBlows;\n     \
+      \   }\n    }\n}"
+    language: cpp
+  notes: This method is a private helper function and should not be called directly
+    from outside the Battleground class hierarchy. The iterator index must be within
+    valid bounds of the internal player collection, otherwise it may return nullptr
+    or cause undefined behavior. The context string is used for filtering purposes
+    but its exact implementation depends on how the battleground subclass uses this
+    functionality.
+  warnings: Calling this method with an invalid iterator index or null context string
+    can result in undefined behavior or crashes. Always validate the returned pointer
+    before dereferencing it. Since this is a private method, relying on it directly
+    in custom code may break with future TrinityCore updates.
+  related:
+  - GetPlayerCount
+  - AddPlayer
+  - RemovePlayer
+  - GetPlayerByGUID
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T17:48:31.603727'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

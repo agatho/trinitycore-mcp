@@ -1,0 +1,70 @@
+api:
+  class: TransportMgr
+  method: CreateTransport
+  signature: Transport * TransportMgr::CreateTransport(int entry, Map * map, int guid,
+    int phaseUseFlags, int phaseId, int phaseGroupId)
+documentation:
+  brief: Creates a new transport object with the specified parameters and associates
+    it with the given map.
+  description: The CreateTransport method instantiates a new Transport object using
+    the provided entry ID, map reference, and GUID. It initializes the transport with
+    phase information and returns a pointer to the newly created transport instance.
+    This method is typically used during world initialization or when dynamically
+    spawning transports such as boats or elevators in the game world. The transport
+    will be managed by the TransportMgr and integrated into the specified map's transport
+    system. The method requires valid input parameters, particularly the entry ID
+    which must correspond to a valid transport template in the database.
+  parameters:
+  - name: entry
+    description: The unique identifier (entry) of the transport template from the
+      database. This value determines the transport's properties, model, and behavior.
+  - name: map
+    description: Pointer to the Map object where the transport will be created and
+      managed. The transport will be associated with this map's transport system.
+  - name: guid
+    description: The global unique identifier for the new transport instance. Must
+      be unique within the server's scope to avoid conflicts.
+  - name: phaseUseFlags
+    description: Bitmask indicating which phases this transport should use. Controls
+      visibility and interaction based on player phase settings.
+  - name: phaseId
+    description: The specific phase ID that the transport belongs to. Used for phase-based
+      visibility and interaction control.
+  - name: phaseGroupId
+    description: The phase group ID associated with this transport. Allows grouping
+      of transports under common phase management rules.
+  returns: A pointer to the newly created Transport object, or nullptr if creation
+    failed due to invalid parameters or resource constraints.
+  examples:
+  - title: Basic Transport Creation
+    code: "Transport* transport = sTransportMgr->CreateTransport(181645, map, 12345,\
+      \ 0, 1, 0);\nif (transport)\n{\n    // Transport successfully created and initialized\n\
+      \    transport->AddPassenger(player);\n}"
+    language: cpp
+  - title: Transport Creation with Phase Management
+    code: "Transport* transport = sTransportMgr->CreateTransport(181645, map, 12345,\
+      \ PHASE_USE_FLAGS_DEFAULT, 5, 2);\nif (transport)\n{\n    // Set up phase-specific\
+      \ behavior\n    transport->SetPhaseMask(0x10);\n    transport->SetPhaseId(5);\n\
+      }"
+    language: cpp
+  notes: This method does not automatically add the transport to the map's active
+    transports list. The caller must ensure proper integration with the map's transport
+    system. The GUID parameter should be unique across all objects in the world to
+    prevent conflicts. Transport creation may fail if the entry ID doesn't correspond
+    to a valid transport template in the database.
+  warnings: Do not call this method with invalid or null parameters, especially the
+    map pointer and entry ID. Passing an invalid GUID can cause undefined behavior.
+    The returned transport object must be properly managed to prevent memory leaks.
+    This method should typically only be called during server initialization or world
+    loading phases.
+  related:
+  - GetTransport
+  - RemoveTransport
+  - LoadTransports
+  - UpdateTransports
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:40:51.663208'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

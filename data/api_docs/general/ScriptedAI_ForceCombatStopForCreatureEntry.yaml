@@ -1,0 +1,67 @@
+api:
+  class: ScriptedAI
+  method: ForceCombatStopForCreatureEntry
+  signature: void ScriptedAI::ForceCombatStopForCreatureEntry(int creatureEntries,
+    float maxSearchRange, bool samePhase, bool reset)
+documentation:
+  brief: Stops combat for all creatures with the specified entry within a given range,
+    optionally filtering by phase and resetting their state.
+  description: The ForceCombatStopForCreatureEntry method is used to forcibly terminate
+    combat for all creatures in the world that match a specific creature entry ID.
+    It searches within a defined maximum range and can be configured to only affect
+    creatures in the same phase as the caller. This method is particularly useful
+    for scripted events or quest triggers where it's necessary to ensure that certain
+    creatures stop fighting, regardless of their current combat state. The method
+    supports optional resetting of the creature's combat-related states, such as clearing
+    threat tables and stopping any ongoing attacks. It operates on a per-creature
+    basis, iterating through all matching creatures in the specified search range.
+  parameters:
+  - name: creatureEntries
+    description: The creature entry ID or IDs to target for combat stop. This can
+      be a single entry or multiple entries defined as a bitmask if supported by the
+      underlying implementation.
+  - name: maxSearchRange
+    description: Maximum distance in yards within which to search for matching creatures.
+      Creatures beyond this range will not be affected.
+  - name: samePhase
+    description: If true, only affects creatures that are in the same phase as the
+      calling creature. If false, all matching creatures regardless of phase will
+      be affected.
+  - name: reset
+    description: If true, resets the combat state and threat table for each affected
+      creature. If false, only stops combat but does not reset internal states.
+  returns: null
+  examples:
+  - title: Basic usage to stop combat for all creatures with entry ID 12345
+    code: "void OnQuestAccept(Player* player, Quest const* quest)\n{\n    // Stop\
+      \ combat for all creatures with entry ID 12345 within 50 yards\n    ForceCombatStopForCreatureEntry(12345,\
+      \ 50.0f, false, true);\n}"
+    language: cpp
+  - title: Advanced usage to stop combat only for same-phase creatures
+    code: "void OnEventTriggered(uint32 eventId)\n{\n    // Stop combat for all creatures\
+      \ with entry ID 98765 within 100 yards\n    // but only if they are in the same\
+      \ phase as this creature\n    ForceCombatStopForCreatureEntry(98765, 100.0f,\
+      \ true, false);\n}"
+    language: cpp
+  notes: This method performs a global search through all creatures in the world that
+    match the specified entry ID, which may have performance implications if used
+    excessively or with large ranges. The implementation relies on internal creature
+    tracking and threat management systems, so it's important to ensure that the calling
+    context is valid (e.g., not called from within combat processing). The 'reset'
+    parameter can cause additional overhead as it involves clearing internal state
+    variables for each affected creature.
+  warnings: Using this method with a large search range or on frequently spawned creatures
+    may lead to performance degradation. Avoid calling this method in tight loops
+    or high-frequency events. Also, be cautious when using the reset flag, as it might
+    interfere with scripted combat behaviors or quest-specific AI logic.
+  related:
+  - CombatStop
+  - SetCombatMode
+  - GetCreatureEntry
+  - IsInCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T21:46:52.708306'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

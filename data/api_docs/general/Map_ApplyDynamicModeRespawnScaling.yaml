@@ -1,0 +1,62 @@
+api:
+  class: Map
+  method: ApplyDynamicModeRespawnScaling
+  signature: void Map::ApplyDynamicModeRespawnScaling(const WorldObject * obj, int
+    spawnId, uint32 & respawnDelay, uint32 mode) const
+documentation:
+  brief: Adjusts respawn delay for dynamic mode creatures based on game difficulty
+    and object context
+  description: The ApplyDynamicModeRespawnScaling method modifies the respawn delay
+    of creatures in dynamic mode environments, taking into account the current game
+    mode (normal, heroic, mythic, etc.) and the specific WorldObject context. This
+    ensures that creature respawns scale appropriately with the difficulty level and
+    game progression. The method adjusts the respawnDelay parameter in-place based
+    on internal scaling factors defined for each game mode. It is typically invoked
+    during creature respawn logic to ensure proper difficulty scaling across different
+    encounter modes.
+  parameters:
+  - name: obj
+    description: Pointer to the WorldObject (typically a creature) that requires respawn
+      delay adjustment. Must not be null.
+  - name: spawnId
+    description: Unique identifier for the spawn point or instance of the object.
+      Used to determine specific scaling rules for this particular spawn.
+  - name: respawnDelay
+    description: Reference to the respawn delay value that will be modified in-place
+      according to dynamic mode scaling factors.
+  - name: mode
+    description: Current game mode identifier (e.g., normal, heroic, mythic) that
+      determines the scaling multiplier applied to the respawn delay.
+  returns: null
+  examples:
+  - title: Basic usage in creature respawn logic
+    code: "void Creature::Respawn()\n{\n    uint32 delay = GetRespawnDelay();\n  \
+      \  Map* map = GetMap();\n    map->ApplyDynamicModeRespawnScaling(this, GetSpawnId(),\
+      \ delay, sWorld->getGameType());\n    SetRespawnDelay(delay);\n}"
+    language: cpp
+  - title: Usage with custom spawn ID and mode
+    code: "void InstanceMap::HandleCreatureRespawn(Creature* creature)\n{\n    uint32\
+      \ delay = creature->GetRespawnDelay();\n    int spawnId = creature->GetSpawnId();\n\
+      \    uint32 currentMode = GetDifficulty();\n    ApplyDynamicModeRespawnScaling(creature,\
+      \ spawnId, delay, currentMode);\n    creature->SetRespawnDelay(delay);\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's dynamic difficulty scaling system. The
+    respawn delay values are adjusted based on internal configuration tables and game
+    mode settings. The method modifies the respawnDelay parameter directly, so it
+    should be called before setting the actual respawn timer. Performance impact is
+    minimal as it only performs simple arithmetic operations.
+  warnings: Ensure that the obj parameter is not null to avoid undefined behavior.
+    The respawnDelay value will be modified in-place, so make sure to capture or store
+    original values if needed elsewhere. Incorrect mode values may result in unexpected
+    scaling behavior.
+  related:
+  - GetRespawnDelay
+  - SetRespawnDelay
+  - GetDifficulty
+  - GetSpawnId
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T11:13:56.510196'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

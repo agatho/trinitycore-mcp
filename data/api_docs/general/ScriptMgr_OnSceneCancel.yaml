@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnSceneCancel
+  signature: void ScriptMgr::OnSceneCancel(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate)
+documentation:
+  brief: Invoked when a scene is canceled for a player, allowing custom handling of
+    scene termination events.
+  description: The OnSceneCancel method is a callback function within the ScriptMgr
+    class that gets triggered whenever a scene (typically a cinematic or quest-related
+    visual sequence) is canceled for a player. This event occurs during gameplay when
+    a scene is interrupted or explicitly stopped before completion, such as when a
+    player logs out, moves away from the scene trigger, or when the server cancels
+    the scene due to game state changes. The method provides developers with an opportunity
+    to execute custom logic in response to scene cancellation, including cleaning
+    up resources, resetting player states, or triggering other game events. It is
+    part of TrinityCore's scripting system that allows modifications to default behavior
+    without directly altering core engine code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the scene was canceled. This
+      parameter represents the specific player instance involved in the cancellation
+      event.
+  - name: sceneInstanceID
+    description: Unique identifier of the scene instance that was canceled. This ID
+      distinguishes between different active scenes and can be used to track or identify
+      specific scene events.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object defining the structure and properties
+      of the canceled scene. Provides access to scene configuration data such as duration,
+      actors, and effects.
+  returns: null
+  examples:
+  - title: Basic Scene Cancel Handler Implementation
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnSceneCancel(Player* player, uint32 sceneInstanceID,\
+      \ const SceneTemplate* sceneTemplate) override\n    {\n        // Log the cancellation\
+      \ event\n        sLog->outString(\"Scene %u canceled for player %s\", sceneInstanceID,\
+      \ player->GetName().c_str());\n        \n        // Reset player state if needed\n\
+      \        player->RemoveAura(12345); // Example aura removal\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting framework and should be
+    implemented in custom script classes that inherit from ScriptObject. The sceneInstanceID
+    and sceneTemplate parameters provide contextual information about which scene
+    was canceled, allowing for targeted handling logic. Be aware that this callback
+    may be invoked multiple times during a single session depending on how scenes
+    are managed.
+  warnings: Ensure that any cleanup or state reset logic within OnSceneCancel does
+    not interfere with other systems or cause race conditions. Since this method can
+    be called rapidly in certain scenarios, avoid heavy computations or blocking operations
+    inside the handler.
+  related:
+  - OnSceneStart
+  - OnSceneTrigger
+  - OnSceneComplete
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:47:38.139443'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

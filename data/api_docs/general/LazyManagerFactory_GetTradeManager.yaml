@@ -1,0 +1,48 @@
+api:
+  class: LazyManagerFactory
+  method: GetTradeManager
+  signature: TradeManager * LazyManagerFactory::GetTradeManager()
+documentation:
+  brief: Returns the singleton TradeManager instance used for handling trade operations
+    in the game world.
+  description: The GetTradeManager method retrieves the global TradeManager singleton
+    instance, which is responsible for managing all trade-related functionality within
+    the TrinityCore server. This includes handling player trades, validating trade
+    states, and maintaining trade sessions between players. The method ensures thread-safe
+    access to the trade manager and initializes it on first call if not already created.
+    The returned pointer is guaranteed to be valid during server runtime and should
+    not be deleted or managed by the caller.
+  parameters: []
+  returns: A pointer to the singleton TradeManager instance. Returns nullptr only
+    in exceptional circumstances such as severe initialization failures or memory
+    corruption, but typically will always return a valid pointer during normal operation.
+  examples:
+  - title: Basic Usage
+    code: "TradeManager* tradeMgr = sObjectAccessor->GetTradeManager();\nif (tradeMgr)\n\
+      {\n    // Use the trade manager to handle trades\n    tradeMgr->HandlePlayerTrade(player1,\
+      \ player2);\n}"
+    language: cpp
+  - title: Checking Trade State
+    code: "TradeManager* tradeMgr = sLazyManagerFactory->GetTradeManager();\nif (tradeMgr\
+      \ && tradeMgr->IsPlayerTrading(player1))\n{\n    // Player is currently in a\
+      \ trade session\n    LOG_DEBUG(\"trade\", \"Player {} is trading with {}\",\
+      \ player1->GetName(), player2->GetName());\n}"
+    language: cpp
+  notes: This method follows the singleton pattern and is thread-safe. The TradeManager
+    instance is created lazily on first access and persists for the lifetime of the
+    server process. It's recommended to cache the returned pointer if used frequently
+    within a single function or context to avoid repeated lookups.
+  warnings: Do not delete or attempt to manage the memory of the returned TradeManager
+    pointer. The object is managed by the global factory system and will be destroyed
+    when the server shuts down. Avoid calling this method during server initialization
+    phases where the manager might not be fully constructed yet.
+  related:
+  - LazyManagerFactory::GetItemManager
+  - LazyManagerFactory::GetPlayerManager
+  - LazyManagerFactory::GetGuildManager
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T11:32:25.815206'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

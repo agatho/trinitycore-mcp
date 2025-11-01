@@ -1,0 +1,52 @@
+api:
+  class: PlayerbotDatabaseConnection
+  method: IsConnected
+  signature: bool PlayerbotDatabaseConnection::IsConnected() const
+documentation:
+  brief: Checks whether the playerbot database connection is currently active and
+    ready for queries.
+  description: The IsConnected method determines if the PlayerbotDatabaseConnection
+    object has an established and valid connection to the database. This method is
+    essential for ensuring that database operations can be safely performed without
+    encountering connection-related errors. It typically checks internal connection
+    state flags or performs a lightweight ping operation to verify connectivity. In
+    the context of TrinityCore's playerbot system, this method helps prevent attempts
+    to execute database queries when the connection is broken or unavailable, which
+    could lead to crashes or data corruption. The method returns immediately without
+    performing any heavy operations, making it safe to call frequently during gameplay.
+  parameters: []
+  returns: Returns true if the database connection is active and ready for queries;
+    returns false if the connection is closed, lost, or has not yet been established.
+  examples:
+  - title: Basic Connection Check
+    code: "if (playerbotDbConnection.IsConnected()) {\n    // Safe to perform database\
+      \ operations\n    playerbotDbConnection.Execute(\"INSERT INTO playerbots VALUES\
+      \ (1, 'TestBot');\");\n} else {\n    // Handle disconnected state\n    sLog->outError(\"\
+      Playerbot database connection lost!\");\n}"
+    language: cpp
+  - title: Connection Health Monitoring
+    code: "class BotManager {\npublic:\n    void UpdateBotDatabase() {\n        if\
+      \ (!playerbotDbConnection.IsConnected()) {\n            // Attempt to reconnect\n\
+      \            if (playerbotDbConnection.Open()) {\n                sLog->outString(\"\
+      Playerbot database reconnected.\");\n            }\n        }\n        // Proceed\
+      \ with database operations only if connected\n    }\n};"
+    language: cpp
+  notes: This method is typically implemented using lightweight connection state checks
+    rather than full database queries. It's designed to be called frequently and should
+    not block execution. The underlying implementation may use internal flags, socket
+    status checks, or minimal ping operations to determine connection health.
+  warnings: While this method provides a quick check for connection status, it does
+    not guarantee that the connection will remain valid for subsequent database operations.
+    Network issues can occur between the time of checking and executing queries. Always
+    implement proper error handling around database operations even after confirming
+    connection status.
+  related:
+  - PlayerbotDatabaseConnection::Open
+  - PlayerbotDatabaseConnection::Close
+  - PlayerbotDatabaseConnection::Execute
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T08:26:35.131383'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

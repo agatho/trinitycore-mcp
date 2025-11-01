@@ -1,0 +1,52 @@
+api:
+  class: LfgPlayerData
+  method: GetGroup
+  signature: int LfgPlayerData::GetGroup() const
+documentation:
+  brief: Retrieves the group identifier associated with the player's current LFG (Looking
+    for Group) data.
+  description: The GetGroup method returns the group identifier that is currently
+    assigned to the player within the Looking for Group system. This identifier typically
+    corresponds to a specific dungeon group or raid instance that the player has joined
+    or is queued for. The method provides access to the internal group tracking mechanism
+    used by TrinityCore's LFG framework, allowing other systems to query which group
+    a player belongs to without directly manipulating the group state. It is commonly
+    used in LFG-related event handling and group management logic.
+  parameters: []
+  returns: An integer representing the group identifier (GUID) of the player's current
+    LFG group. Returns 0 if the player is not currently part of any LFG group or if
+    no group has been assigned yet.
+  examples:
+  - title: Basic Usage
+    code: "LfgPlayerData* playerData = sLFGMgr->GetPlayerData(playerGuid);\nint groupId\
+      \ = playerData->GetGroup();\nif (groupId != 0)\n{\n    // Player is in an LFG\
+      \ group\n    sLog->outString(\"Player %u is in group %d\", playerGuid, groupId);\n\
+      }"
+    language: cpp
+  - title: Checking Group Membership
+    code: "void HandleLfgStatusUpdate(Player* player)\n{\n    LfgPlayerData* data\
+      \ = sLFGMgr->GetPlayerData(player->GetGUID());\n    int groupId = data->GetGroup();\n\
+      \    if (groupId > 0)\n    {\n        // Player is in a group, check if it's\
+      \ a valid group\n        Group* group = sObjectMgr->GetGroupById(groupId);\n\
+      \        if (group && group->IsMember(player->GetGUID()))\n        {\n     \
+      \       // Valid group membership\n            player->SendLfgUpdateStatus(LFG_UPDATETYPE_GROUP_FOUND);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method does not perform any validation on whether the returned group
+    ID actually corresponds to a valid group object in the system. It simply returns
+    the stored value from the LfgPlayerData structure. The returned group ID may be
+    zero if the player has not yet joined a group or if they have left it.
+  warnings: Do not assume that the returned group ID will always correspond to an
+    active group object. Always validate the group exists before attempting operations
+    on it, especially when using the group ID for further lookups or actions.
+  related:
+  - SetGroup
+  - GetState
+  - GetRoles
+  - GetSelectedDungeons
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:25:22.428121'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

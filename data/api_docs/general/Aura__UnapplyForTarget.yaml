@@ -1,0 +1,63 @@
+api:
+  class: Aura
+  method: _UnapplyForTarget
+  signature: void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication
+    * auraApp)
+documentation:
+  brief: Removes an aura application from a target unit, handling cleanup and notifications.
+  description: The _UnapplyForTarget method is responsible for removing a specific
+    aura application from a target unit within the TrinityCore framework. It manages
+    the deactivation of aura effects on the target, ensures proper cleanup of resources
+    associated with the aura, and notifies relevant systems about the aura removal.
+    This method is typically called internally by the aura system when an aura expires,
+    is removed manually, or when the target is no longer valid for the aura's application.
+    The method takes into account the caster unit to determine if any special handling
+    is required during removal, such as maintaining aura stacking or triggering related
+    effects.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object from which the aura application is being
+      removed. This represents the unit that was affected by the aura and must be
+      a valid Unit instance.
+  - name: caster
+    description: Pointer to the Unit object that originally applied the aura. This
+      may be nullptr if the aura was applied without a specific caster, or if the
+      caster is no longer valid at the time of removal.
+  - name: auraApp
+    description: Pointer to the AuraApplication object representing the specific application
+      instance being removed. This contains all necessary information about how and
+      why the aura was applied to the target.
+  returns: null
+  examples:
+  - title: Basic usage in aura removal
+    code: "Aura* aura = target->GetAuraBySpellId(spellId);\nif (aura)\n{\n    AuraApplication*\
+      \ app = aura->GetApplicationForTarget(target);\n    if (app)\n    {\n      \
+      \  aura->_UnapplyForTarget(target, caster, app);\n    }\n}"
+    language: cpp
+  - title: Removing aura during expiration
+    code: "void Aura::HandleAuraExpiration()\n{\n    for (auto& pair : _applications)\n\
+      \    {\n        Unit* target = pair.first;\n        AuraApplication* app = pair.second;\n\
+      \        if (app && app->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)\n       \
+      \ {\n            _UnapplyForTarget(target, GetCaster(), app);\n        }\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is an internal implementation detail of the Aura system and should
+    not be called directly from outside the aura framework. It assumes that all parameters
+    are valid and properly initialized. The method performs cleanup operations such
+    as removing effect modifiers, updating unit stats, and notifying subsystems about
+    changes in the aura state.
+  warnings: Calling this method with invalid or null parameters can lead to undefined
+    behavior or crashes. Ensure that the target unit and aura application are still
+    valid before calling this function. This method modifies internal aura state and
+    should only be invoked during controlled removal scenarios.
+  related:
+  - Aura::ApplyForTarget
+  - Aura::AddApplication
+  - Aura::RemoveApplication
+  - Aura::IsRemoved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:45:20.686930'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

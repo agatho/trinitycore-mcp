@@ -1,0 +1,58 @@
+api:
+  class: Battleground
+  method: PSendMessageToAll
+  signature: void Battleground::PSendMessageToAll(int entry, int type, const Player
+    * source)
+documentation:
+  brief: Sends a localized message to all players in the battleground.
+  description: The PSendMessageToAll method broadcasts a localized message to every
+    player currently participating in the battleground. This method is typically used
+    for sending game events, announcements, or notifications that should be visible
+    to all players in the arena. The message is sent using the provided entry and
+    type parameters which determine how the message is formatted and displayed to
+    players. The source parameter allows specifying which player initiated the message,
+    useful for tracking or logging purposes. This method operates on the battleground's
+    internal messaging system and does not directly interact with the global chat
+    system.
+  parameters:
+  - name: entry
+    description: The message entry ID used to look up the localized message text in
+      the database. This ID corresponds to entries in the 'broadcast_text' table.
+  - name: type
+    description: The type of message being sent, which determines how the message
+      is formatted and displayed. Common values include 0 for normal chat messages,
+      1 for system messages, etc.
+  - name: source
+    description: Pointer to the Player object that initiated the message. Can be NULL
+      if no specific source player is associated with the message.
+  returns: null
+  examples:
+  - title: Send a battleground start announcement
+    code: "Battleground* bg = sObjectMgr->GetBattleground(12345);\nif (bg)\n{\n  \
+      \  bg->PSendMessageToAll(12345, 0, nullptr);\n}"
+    language: cpp
+  - title: Send a custom message from a specific player
+    code: "Battleground* bg = sObjectMgr->GetBattleground(67890);\nPlayer* sourcePlayer\
+      \ = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, 12345));\nif (bg\
+      \ && sourcePlayer)\n{\n    bg->PSendMessageToAll(54321, 1, sourcePlayer);\n}"
+    language: cpp
+  notes: This method only sends messages to players currently in the battleground.
+    It does not send messages to spectators or players who have left the battleground.
+    The message entry must exist in the broadcast_text database table for the message
+    to be properly displayed. Performance is optimized as it uses internal battleground
+    messaging rather than individual player communication.
+  warnings: Ensure that the entry ID provided corresponds to an existing broadcast
+    text entry, otherwise the message may not display correctly or could cause errors.
+    The source parameter should be validated before passing to avoid null pointer
+    dereferences. This method should only be called from within a battleground context
+    where players are actively participating.
+  related:
+  - SendMessageToAll
+  - PSendMessageToPlayer
+  - SendPacketToAll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T02:18:54.998065'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

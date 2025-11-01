@@ -1,0 +1,68 @@
+api:
+  class: ScriptMgr
+  method: OnGuildRemoveMember
+  signature: void ScriptMgr::OnGuildRemoveMember(Guild * guild, int guid, bool isDisbanding,
+    bool isKicked)
+documentation:
+  brief: Invoked when a player is removed from a guild, either by leaving or being
+    kicked.
+  description: The OnGuildRemoveMember method is a callback function in the ScriptMgr
+    class that gets triggered whenever a member is removed from a guild. This event
+    occurs during player disbanding, kicking, or voluntary guild leave. The method
+    provides information about the guild, the removed member's GUID, and whether the
+    removal was part of a disbanding process or a kick. It allows custom scripts to
+    execute logic such as updating player data, sending notifications, or modifying
+    in-game behavior upon guild membership changes.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object from which the member is being removed.
+      This parameter represents the guild instance that owns the member.
+  - name: guid
+    description: The global unique identifier (GUID) of the player who is being removed
+      from the guild. This value uniquely identifies the player in the game world.
+  - name: isDisbanding
+    description: Boolean flag indicating whether the guild is being disbanded. If
+      true, the member is removed as part of a full guild destruction process; if
+      false, it's due to a kick or leave.
+  - name: isKicked
+    description: Boolean flag indicating whether the player was kicked from the guild.
+      If true, the removal was initiated by another player with sufficient permissions;
+      if false, it's due to voluntary leave or disbanding.
+  returns: null
+  examples:
+  - title: Basic Guild Removal Logging
+    code: "#include \"ScriptMgr.h\"\n\nclass MyGuildScript : public GuildScript\n\
+      {\npublic:\n    MyGuildScript() : GuildScript(\"MyGuildScript\") {}\n\n    void\
+      \ OnGuildRemoveMember(Guild* guild, uint32 guid, bool isDisbanding, bool isKicked)\
+      \ override\n    {\n        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(guid)))\n\
+      \        {\n            LOG_INFO(\"scripts\", \"Player {} was removed from guild\
+      \ {}.\", player->GetName(), guild->GetName());\n        }\n    }\n};"
+    language: cpp
+  - title: Custom Behavior on Guild Kick
+    code: "#include \"ScriptMgr.h\"\n\nclass KickBehaviorScript : public GuildScript\n\
+      {\npublic:\n    KickBehaviorScript() : GuildScript(\"KickBehaviorScript\") {}\n\
+      \n    void OnGuildRemoveMember(Guild* guild, uint32 guid, bool isDisbanding,\
+      \ bool isKicked) override\n    {\n        if (isKicked && !isDisbanding)\n \
+      \       {\n            // Apply a penalty or cooldown for being kicked\n   \
+      \         if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(guid)))\n\
+      \            {\n                player->AddAura(12345, player); // Example aura\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called after the guild member has been successfully removed
+    from the guild structure. It should not be used to prevent removal, as that would
+    require intercepting the operation before it occurs. The GUID provided refers
+    to the player's unique identifier within the game world.
+  warnings: Do not attempt to modify or delete the guild object directly inside this
+    callback, as it may lead to undefined behavior or crashes. Ensure all operations
+    are safe and do not cause race conditions with other systems.
+  related:
+  - OnGuildCreate
+  - OnGuildDisband
+  - OnGuildMemberAdd
+  - OnGuildMemberAccept
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:36:54.602059'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

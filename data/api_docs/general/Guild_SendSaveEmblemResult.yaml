@@ -1,0 +1,60 @@
+api:
+  class: Guild
+  method: SendSaveEmblemResult
+  signature: void Guild::SendSaveEmblemResult(WorldSession * session, GuildEmblemError
+    errCode)
+documentation:
+  brief: Sends a response to the client indicating the result of an emblem save operation
+    for a guild.
+  description: The SendSaveEmblemResult method is used by the Guild class to communicate
+    the outcome of a guild emblem save request back to the player's client. This method
+    takes a GuildEmblemError enumeration value that indicates whether the emblem save
+    was successful or if an error occurred. It is typically invoked after a player
+    attempts to update their guild's emblem through the UI, and it ensures that the
+    client receives appropriate feedback regarding the operation's success or failure.
+    The method directly interacts with the WorldSession associated with the requesting
+    player to send the relevant packet.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession of the player who initiated the emblem
+      save request. This session is used to send the response packet back to the client.
+  - name: errCode
+    description: Enumeration value of type GuildEmblemError that specifies the result
+      of the emblem save operation. Possible values include GUILD_EMBLEM_SUCCESS,
+      GUILD_EMBLEM_INVALID_TABARD, GUILD_EMBLEM_NOT_ENOUGH_MONEY, etc., indicating
+      success or specific failure conditions.
+  returns: null
+  examples:
+  - title: Sending a successful emblem save result
+    code: "void HandleGuildEmblemSave(WorldSession* session, const std::string& emblemData)\n\
+      {\n    // Assume validation and processing logic here\n    Guild* guild = session->GetPlayer()->GetGuild();\n\
+      \    if (guild)\n    {\n        guild->SendSaveEmblemResult(session, GUILD_EMBLEM_SUCCESS);\n\
+      \    }\n}"
+    language: cpp
+  - title: Sending an emblem save error result
+    code: "void ProcessEmblemUpdate(WorldSession* session)\n{\n    Guild* guild =\
+      \ session->GetPlayer()->GetGuild();\n    if (!guild)\n        return;\n\n  \
+      \  // Simulate a validation failure\n    if (IsEmblemInvalid(session->GetPlayer(),\
+      \ emblemData))\n    {\n        guild->SendSaveEmblemResult(session, GUILD_EMBLEM_INVALID_TABARD);\n\
+      \        return;\n    }\n\n    // Proceed with saving if valid\n    guild->SaveEmblem();\n\
+      \    guild->SendSaveEmblemResult(session, GUILD_EMBLEM_SUCCESS);\n}"
+    language: cpp
+  notes: This method directly sends a packet to the client and should only be called
+    from within the context of a valid WorldSession. The GuildEmblemError enum values
+    are defined in the TrinityCore source code and must match the expected client-side
+    handling. Performance-wise, this method is lightweight as it only sends a simple
+    packet with an error code.
+  warnings: Ensure that the session pointer is valid before calling this method to
+    avoid potential crashes or undefined behavior. Also, make sure that errCode corresponds
+    to a valid enumeration value; otherwise, the client may not interpret the result
+    correctly.
+  related:
+  - Guild::SaveEmblem
+  - Guild::SendGuildUpdate
+  - WorldSession::SendPacket
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:34:23.218051'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

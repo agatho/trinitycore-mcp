@@ -1,0 +1,60 @@
+api:
+  class: ScenarioMgr
+  method: GetScenarioPOIs
+  signature: const ScenarioPOIVector * ScenarioMgr::GetScenarioPOIs(int32 criteriaTreeID)
+    const
+documentation:
+  brief: Retrieves the scenario points of interest (POIs) associated with a given
+    criteria tree ID.
+  description: The GetScenarioPOIs method fetches a collection of scenario points
+    of interest that are linked to a specific criteria tree ID. These POIs typically
+    represent interactive locations or objectives within a scenario, such as quest
+    markers, boss encounter locations, or other notable positions in the game world.
+    The returned pointer provides access to a vector of ScenarioPOI structures which
+    contain positional and visual data for these points. This method is commonly used
+    by the client and server-side systems to display scenario-related markers on the
+    minimap or in the world. The criteriaTreeID parameter determines which set of
+    POIs is retrieved, as different scenarios may have unique sets of objectives or
+    locations.
+  parameters:
+  - name: criteriaTreeID
+    description: The identifier of the criteria tree associated with a scenario. This
+      ID links to specific scenario data and determines which points of interest are
+      returned.
+  returns: A constant pointer to a vector of ScenarioPOI structures, representing
+    all points of interest for the specified criteria tree. Returns nullptr if no
+    POIs are found for the given criteriaTreeID.
+  examples:
+  - title: Retrieve and iterate through scenario POIs
+    code: "const ScenarioPOIVector* pois = sScenarioMgr->GetScenarioPOIs(12345);\n\
+      if (pois)\n{\n    for (const auto& poi : *pois)\n    {\n        // Process each\
+      \ point of interest\n        printf(\"POI ID: %u, Position: (%f, %f, %f)\\n\"\
+      , poi.ID, poi.X, poi.Y, poi.Z);\n    }\n}"
+    language: cpp
+  - title: Check if POIs exist before accessing them
+    code: "int32 criteriaID = player->GetScenarioCriteriaTree();\nconst ScenarioPOIVector*\
+      \ pois = sScenarioMgr->GetScenarioPOIs(criteriaID);\nif (pois && !pois->empty())\n\
+      {\n    // Display scenario POIs to the player\n    for (const auto& poi : *pois)\n\
+      \    {\n        // Send POI data to client\n        player->SendPOI(&poi);\n\
+      \    }\n}\nelse\n{\n    // No POIs found for this scenario\n    player->SendNotification(\"\
+      No scenario objectives available.\");\n}"
+    language: cpp
+  notes: The returned vector is managed by the ScenarioMgr and should not be modified
+    or deleted. The method performs a lookup based on criteriaTreeID, so performance
+    may depend on how efficiently the internal data structures are indexed. This method
+    is typically called during scenario initialization or when updating player UI
+    elements related to scenario objectives.
+  warnings: Calling this method with an invalid or non-existent criteriaTreeID will
+    return nullptr. Always check for null before dereferencing the returned pointer.
+    The vector contents should not be modified as they are shared across multiple
+    systems.
+  related:
+  - GetScenarioByCriteriaTree
+  - GetScenarioPOIForPlayer
+  - UpdateScenarioPOIs
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:59:05.855196'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

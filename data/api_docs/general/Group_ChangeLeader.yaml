@@ -1,0 +1,50 @@
+api:
+  class: Group
+  method: ChangeLeader
+  signature: void Group::ChangeLeader(int guid)
+documentation:
+  brief: Changes the group leader to the player with the specified GUID
+  description: The ChangeLeader method transfers leadership of the group to another
+    player identified by their GUID. This operation updates the group's leader information
+    and broadcasts the change to all group members. The method typically requires
+    the calling player to be the current leader or have appropriate permissions. When
+    executed, it will invalidate the previous leader's authority and grant it to the
+    new leader. This is commonly used during group reorganization, player disconnection
+    scenarios, or when assigning leadership for specific activities.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player who will become the new
+      group leader. Must correspond to a valid online player in the group.
+  returns: null
+  examples:
+  - title: Transfer leadership to another player
+    code: "Group* group = player->GetGroup();\nif (group && group->IsLeader(player->GetGUID()))\
+      \ {\n    group->ChangeLeader(12345); // Transfer leadership to player with GUID\
+      \ 12345\n}"
+    language: cpp
+  - title: Ensure valid target before changing leader
+    code: "Group* group = player->GetGroup();\nif (group && group->IsLeader(player->GetGUID()))\
+      \ {\n    Player* newLeader = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ 67890));\n    if (newLeader && group->IsMember(newLeader->GetGUID())) {\n\
+      \        group->ChangeLeader(newLeader->GetGUID());\n    }\n}"
+    language: cpp
+  notes: This method internally handles the necessary updates to group data structures
+    and sends leader change notifications to all group members. It does not validate
+    whether the target player is online or in the same map, so callers should ensure
+    the player is a valid group member before calling. The operation is immediate
+    and affects all group members synchronously.
+  warnings: Calling this method on a group where the current player is not the leader
+    will likely result in no change or an error condition. Ensure that only authorized
+    players (typically the current leader) invoke this method to prevent unauthorized
+    leadership changes. Do not call this method with invalid GUIDs as it may cause
+    undefined behavior.
+  related:
+  - Group::GetLeaderGUID
+  - Group::IsLeader
+  - Group::AddMember
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:59:28.594109'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

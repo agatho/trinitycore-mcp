@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnWorldUpdate
+  signature: void ScriptMgr::OnWorldUpdate(uint32 diff)
+documentation:
+  brief: Executes world update logic every game tick, processing global server events
+    and system updates.
+  description: The OnWorldUpdate method is a core callback in TrinityCore's script
+    management system that gets invoked during each world update cycle. This method
+    serves as the primary hook for custom scripts to perform periodic global operations,
+    such as handling time-based events, updating server statistics, or managing global
+    cooldowns. It is called from the main game loop with a delta time parameter (diff)
+    indicating how much time has passed since the last update. The method allows script
+    developers to implement logic that should run consistently across all world instances
+    and server threads without requiring direct integration into core server code.
+  parameters:
+  - name: diff
+    description: The time delta in milliseconds since the last world update cycle.
+      This value represents how much time has passed and is used to determine timing
+      for various time-based operations.
+  returns: null
+  examples:
+  - title: Basic World Update Handler
+    code: "class MyWorldScript : public WorldScript\n{\npublic:\n    void OnWorldUpdate(uint32\
+      \ diff) override\n    {\n        // Process global events every update cycle\n\
+      \        if (diff >= 1000)\n        {\n            // Execute logic once per\
+      \ second\n            sWorld->SendServerMessage(SERVER_MSG_STRING, \"World updated\"\
+      );\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Time-Based Processing
+    code: "class AdvancedWorldScript : public WorldScript\n{\nprivate:\n    uint32\
+      \ m_updateTimer = 0;\n\npublic:\n    void OnWorldUpdate(uint32 diff) override\n\
+      \    {\n        m_updateTimer += diff;\n        \n        // Run specific logic\
+      \ every 5 seconds\n        if (m_updateTimer >= 5000)\n        {\n         \
+      \   m_updateTimer = 0;\n            // Perform periodic server maintenance tasks\n\
+      \            sWorld->UpdateRealmTime();\n            sWorld->SaveAllPlayers();\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should not block for
+    extended periods. It's recommended to keep processing time minimal to avoid performance
+    degradation of the entire server. The diff parameter provides timing information
+    that can be used to implement precise time-based logic without relying on external
+    timing mechanisms.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it directly impacts server performance and responsiveness. Do not call
+    methods that might cause deadlocks or recursive updates, as this could lead to
+    server instability or crashes.
+  related:
+  - OnWorldTick
+  - OnUpdate
+  - OnStartup
+  - OnShutdown
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:07:33.695542'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

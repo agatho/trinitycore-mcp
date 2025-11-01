@@ -1,0 +1,64 @@
+api:
+  class: DB2Manager
+  method: GetTextSoundEmoteFor
+  signature: const EmotesTextSoundEntry * DB2Manager::GetTextSoundEmoteFor(uint32
+    emote, uint8 race, uint8 gender, uint8 class_) const
+documentation:
+  brief: Retrieves the text sound emote entry associated with a specific emote, race,
+    gender, and class combination.
+  description: The GetTextSoundEmoteFor method is used to fetch the EmotesTextSoundEntry
+    from the DB2 database that corresponds to a given emote ID, race, gender, and
+    class. This lookup is typically used in World of Warcraft's client-server communication
+    to determine which sound or animation should be played when a player performs
+    an emote. The method uses a combination of parameters to uniquely identify the
+    correct entry in the EmotesTextSound.db2 file. It returns a pointer to the EmotesTextSoundEntry
+    structure, which contains information about the associated sound, text, and visual
+    effects for the emote. This functionality is essential for ensuring that players
+    receive appropriate feedback when performing emotes based on their character's
+    attributes.
+  parameters:
+  - name: emote
+    description: The emote ID to look up in the database. This corresponds to an entry
+      in the Emotes.db2 file.
+  - name: race
+    description: The race of the character performing the emote. Valid values are
+      defined by the Race enum in TrinityCore.
+  - name: gender
+    description: The gender of the character performing the emote. Valid values are
+      0 for male, 1 for female, and 2 for none.
+  - name: class_
+    description: The class of the character performing the emote. This corresponds
+      to the Class enum in TrinityCore.
+  returns: A pointer to an EmotesTextSoundEntry structure that matches the provided
+    parameters, or nullptr if no matching entry is found in the database.
+  examples:
+  - title: Basic usage of GetTextSoundEmoteFor
+    code: "const EmotesTextSoundEntry* entry = sDB2Manager->GetTextSoundEmoteFor(1,\
+      \ RACE_HUMAN, GENDER_MALE, CLASS_WARRIOR);\nif (entry)\n{\n    // Process the\
+      \ emote sound and text\n    printf(\"Found emote sound ID: %u\\n\", entry->SoundId);\n\
+      }"
+    language: cpp
+  - title: Using GetTextSoundEmoteFor in an emote handler
+    code: "void Player::HandleEmoteCommand(uint32 emoteId)\n{\n    const EmotesTextSoundEntry*\
+      \ entry = sDB2Manager->GetTextSoundEmoteFor(emoteId, GetRace(), GetGender(),\
+      \ getClass());\n    if (entry)\n    {\n        // Play the associated sound\n\
+      \        SendPlaySpellVisual(entry->SoundId);\n        // Display any associated\
+      \ text\n        if (entry->TextId)\n            SendChatMessage(entry->TextId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method performs a lookup in the DB2 database, which is loaded at startup.
+    The performance of this method depends on the efficiency of the internal data
+    structures used for lookups. It's recommended to cache results if the same emote/race/gender/class
+    combinations are queried frequently.
+  warnings: The method returns nullptr when no matching entry is found, so callers
+    must always check for null before using the returned pointer. Additionally, incorrect
+    race, gender, or class values can lead to unexpected results or missing entries.
+  related:
+  - GetEmoteEntry
+  - GetEmotesTextSound
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T14:36:27.307166'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

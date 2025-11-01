@@ -1,0 +1,53 @@
+api:
+  class: ScriptMgr
+  method: OnAuctionExpire
+  signature: void ScriptMgr::OnAuctionExpire(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Called when an auction expires in the auction house system
+  description: The OnAuctionExpire method is a callback function invoked by the TrinityCore
+    script manager when an auction item in the auction house system reaches its expiration
+    time. This method allows custom scripts to execute logic when an auction ends,
+    such as sending notifications to players, updating database records, or performing
+    cleanup operations. The method is part of the general scripting interface and
+    is typically used for implementing custom auction behaviors or logging auction
+    events. It is important to note that this method is called during the auction
+    house processing cycle and should not perform heavy operations that could block
+    other systems.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      instance where the auction expired
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the specific auction
+      that has expired
+  returns: null
+  examples:
+  - title: Basic Auction Expiry Handler
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionExpire(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        // Log the expired auction\n        sLog->outString(\"Auction\
+      \ for item %u expired in AH %u\", auction->itemTemplate->ItemId, ah->GetId());\n\
+      \        \n        // Send notification to the auction owner\n        if (Player*\
+      \ owner = ObjectAccessor::FindPlayer(auction->owner))\n        {\n         \
+      \   ChatHandler(owner->GetSession()).PSendSysMessage(\"Your auction for %s has\
+      \ expired.\", auction->itemTemplate->Name1);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the auction house processing thread. Scripts should
+    avoid performing blocking operations or database transactions that could impact
+    performance. The auction object passed to this method may be in an inconsistent
+    state after expiration, so it's recommended to only read data rather than modify
+    it.
+  warnings: Modifying auction data directly within this callback can lead to undefined
+    behavior or data corruption. Always ensure that any modifications are properly
+    synchronized and do not interfere with the auction house's internal state management.
+  related:
+  - OnAuctionSold
+  - OnAuctionAdd
+  - OnAuctionRemove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:57:17.992546'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

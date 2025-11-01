@@ -1,0 +1,86 @@
+api:
+  class: Map
+  method: getObjectHitPos
+  signature: bool Map::getObjectHitPos(const PhaseShift & phaseShift, float x1, float
+    y1, float z1, float x2, float y2, float z2, float & rx, float & ry, float & rz,
+    float modifyDist)
+documentation:
+  brief: Calculates the hit position of an object between two points, considering
+    phase shifts and collision detection.
+  description: The getObjectHitPos method determines the precise point where a line
+    segment from (x1,y1,z1) to (x2,y2,z2) intersects with an object in the map, taking
+    into account the current phase shift for phased environments. It performs raycasting
+    with collision detection and modifies the result based on the provided distance
+    modifier. This method is commonly used for spell targeting, line-of-sight checks,
+    and determining where projectiles or abilities hit their targets. The function
+    returns true if a valid hit position is found within the map's boundaries, false
+    otherwise.
+  parameters:
+  - name: phaseShift
+    description: The phase shift information that defines which phases of the map
+      are currently active. This affects which objects are considered during collision
+      detection.
+  - name: x1
+    description: The X coordinate of the starting point of the ray or line segment.
+  - name: y1
+    description: The Y coordinate of the starting point of the ray or line segment.
+  - name: z1
+    description: The Z coordinate of the starting point of the ray or line segment.
+  - name: x2
+    description: The X coordinate of the ending point of the ray or line segment.
+  - name: y2
+    description: The Y coordinate of the ending point of the ray or line segment.
+  - name: z2
+    description: The Z coordinate of the ending point of the ray or line segment.
+  - name: rx
+    description: Output parameter that will contain the X coordinate of the calculated
+      hit position.
+  - name: ry
+    description: Output parameter that will contain the Y coordinate of the calculated
+      hit position.
+  - name: rz
+    description: Output parameter that will contain the Z coordinate of the calculated
+      hit position.
+  - name: modifyDist
+    description: A distance modifier applied to adjust the final hit position, typically
+      used to prevent clipping or to account for object size.
+  returns: True if a valid hit position is found and calculated within the map's boundaries;
+    false if no intersection occurs or if the calculation fails due to invalid parameters
+    or out-of-bounds conditions.
+  examples:
+  - title: Basic usage for spell targeting
+    code: "PhaseShift phase;\nfloat x1 = player->GetPositionX();\nfloat y1 = player->GetPositionY();\n\
+      float z1 = player->GetPositionZ();\nfloat x2 = target->GetPositionX();\nfloat\
+      \ y2 = target->GetPositionY();\nfloat z2 = target->GetPositionZ();\nfloat hitX,\
+      \ hitY, hitZ;\n\nif (map->getObjectHitPos(phase, x1, y1, z1, x2, y2, z2, hitX,\
+      \ hitY, hitZ, 0.0f)) {\n    // Use hitX, hitY, hitZ for spell effect positioning\n\
+      \    // e.g., create visual effect at hit position\n}"
+    language: cpp
+  - title: Using modifyDist to avoid clipping
+    code: "PhaseShift phase;\nfloat x1 = caster->GetPositionX();\nfloat y1 = caster->GetPositionY();\n\
+      float z1 = caster->GetPositionZ() + 2.0f; // Slightly above ground\nfloat x2\
+      \ = target->GetPositionX();\nfloat y2 = target->GetPositionY();\nfloat z2 =\
+      \ target->GetPositionZ() + 2.0f;\nfloat hitX, hitY, hitZ;\n\n// Adjust hit position\
+      \ to avoid clipping into the target\nif (map->getObjectHitPos(phase, x1, y1,\
+      \ z1, x2, y2, z2, hitX, hitY, hitZ, -0.5f)) {\n    // Apply modified hit position\
+      \ for spell impact\n}"
+    language: cpp
+  notes: This method internally uses the map's collision system to determine object
+    intersections. It is optimized for performance but may be slower in complex environments
+    with many objects. The phaseShift parameter is crucial when working in phased
+    instances or areas where certain objects are only visible during specific phases.
+  warnings: The method assumes valid input coordinates and will return false if either
+    the start or end point is outside the map boundaries. Ensure that z1 and z2 values
+    are within reasonable vertical bounds to avoid unexpected behavior. The modifyDist
+    parameter should be used carefully as it can result in positions outside normal
+    object boundaries if set too aggressively.
+  related:
+  - GetHeight
+  - IsInLineOfSight
+  - getObjectHitPosWithCollision
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T10:49:04.077648'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: Vehicle
+  method: AddVehiclePassenger
+  signature: bool Vehicle::AddVehiclePassenger(Unit * unit, int8 seatId)
+documentation:
+  brief: Adds a unit as a passenger to the vehicle at the specified seat.
+  description: The AddVehiclePassenger method assigns a Unit (such as a player or
+    creature) to a specific seat on the vehicle. This method is typically used during
+    vehicle entry mechanics, where passengers are added to the vehicle's passenger
+    list and associated with a particular seat ID. The method ensures that the unit
+    is properly linked to the vehicle and that the seat is available for the passenger.
+    It handles necessary updates to the vehicle's internal state and may trigger related
+    events or actions such as mounting animations or passenger-specific behavior adjustments.
+    The operation is only successful if the seat is valid and unoccupied.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object (player or creature) that will be added
+      as a passenger to the vehicle. Must not be null.
+  - name: seatId
+    description: The seat identifier (int8) where the unit will be placed. Valid values
+      depend on the vehicle's configuration, typically ranging from 0 to the maximum
+      number of seats minus one. A value of -1 may indicate a default or unspecified
+      seat.
+  returns: Returns true if the passenger was successfully added to the specified seat;
+    otherwise returns false if the seat is invalid, occupied, or if the unit could
+    not be added due to other constraints.
+  examples:
+  - title: Basic Vehicle Passenger Addition
+    code: "if (vehicle->AddVehiclePassenger(player, 0)) {\n    // Successfully added\
+      \ player to seat 0\n    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSENGER);\n\
+      } else {\n    // Failed to add passenger\n    player->SendSystemMessage(\"Unable\
+      \ to board the vehicle.\");\n}"
+    language: cpp
+  - title: Adding Passenger with Seat Validation
+    code: "int8 seatId = 2;\nif (seatId >= 0 && seatId < vehicle->GetMaxPassengers())\
+      \ {\n    if (vehicle->AddVehiclePassenger(unit, seatId)) {\n        // Passenger\
+      \ added successfully\n        unit->SetOwnerGUID(vehicle->GetGUID());\n    }\
+      \ else {\n        // Seat might be occupied or invalid\n        sLog->outError(\"\
+      Failed to add passenger to vehicle %u at seat %d\", vehicle->GetEntry(), seatId);\n\
+      \    }\n} else {\n    // Invalid seat ID\n    sLog->outError(\"Invalid seat\
+      \ ID %d for vehicle %u\", seatId, vehicle->GetEntry());\n}"
+    language: cpp
+  notes: This method is part of the core vehicle system in TrinityCore. It updates
+    internal passenger tracking and may interact with AI or movement systems depending
+    on how the vehicle is implemented. The seat ID must be within valid bounds for
+    the vehicle type, otherwise the operation will fail.
+  warnings: Do not call this method directly without verifying that the unit is eligible
+    to enter the vehicle (e.g., not already mounted, not in combat). Also, ensure
+    that the seatId is valid and not already occupied by another passenger. Improper
+    usage may lead to inconsistent vehicle state or client-side issues.
+  related:
+  - RemoveVehiclePassenger
+  - GetVehicleSeat
+  - HasPassenger
+  - GetPassengerCount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:36:37.433735'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnHeal
+  signature: void ScriptMgr::OnHeal(Unit * healer, Unit * reciever, uint32 & gain)
+documentation:
+  brief: Invoked when a unit heals another unit, allowing scripts to modify or react
+    to the healing event.
+  description: The OnHeal method is a hook in TrinityCore's ScriptMgr class that gets
+    called whenever a unit performs a healing action on another unit. This method
+    provides an opportunity for custom scripts to intercept and modify the healing
+    process, such as adjusting the amount of health restored or triggering additional
+    effects. It is part of the game's event system and allows developers to extend
+    or alter default healing behavior without modifying core game logic. The method
+    receives references to both the healer and the healed unit, along with a reference
+    to the healing gain value which can be modified by scripts.
+  parameters:
+  - name: healer
+    description: Pointer to the Unit object that is performing the heal action. Can
+      be any game entity capable of healing such as players, NPCs, or pets.
+  - name: reciever
+    description: Pointer to the Unit object that is receiving the heal. This can be
+      any unit that can take damage and be healed.
+  - name: gain
+    description: Reference to a uint32 value representing the amount of health that
+      will be restored. Scripts can modify this value to increase or decrease the
+      healing amount.
+  returns: void
+  examples:
+  - title: Basic Healing Modification Script
+    code: "class MyHealScript : public UnitScript\n{\npublic:\n    void OnHeal(Unit*\
+      \ healer, Unit* receiver, uint32& gain) override\n    {\n        // Double the\
+      \ healing amount for all heals\n        gain *= 2;\n    }\n};"
+    language: cpp
+  - title: Conditional Healing Adjustment
+    code: "class ConditionalHealScript : public UnitScript\n{\npublic:\n    void OnHeal(Unit*\
+      \ healer, Unit* receiver, uint32& gain) override\n    {\n        // Reduce healing\
+      \ by 50% if the target is a player\n        if (receiver->IsPlayer())\n    \
+      \        gain /= 2;\n    }\n};"
+    language: cpp
+  notes: This method is called during the healing process, so modifications to the
+    'gain' parameter directly affect how much health is restored. Be cautious when
+    modifying healing values as it can significantly impact gameplay balance. The
+    method is invoked from within the core healing logic and may be called multiple
+    times per heal depending on the healing type (e.g., direct heals vs periodic heals).
+  warnings: Modifying the 'gain' parameter can cause unexpected behavior if not handled
+    carefully. Ensure that changes to healing amounts remain within reasonable bounds
+    to avoid game balance issues or exploits. Be aware that this hook may be called
+    frequently during combat, so performance considerations should be taken into account
+    in script implementations.
+  related:
+  - OnDealDamage
+  - OnTakeDamage
+  - OnHealEffect
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:36:08.792403'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

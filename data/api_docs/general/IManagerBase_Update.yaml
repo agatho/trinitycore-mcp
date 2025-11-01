@@ -1,0 +1,53 @@
+api:
+  class: IManagerBase
+  method: Update
+  signature: void IManagerBase::Update(uint32 diff)
+documentation:
+  brief: Updates the manager's internal state based on the elapsed game time.
+  description: The Update method is a core virtual function in the IManagerBase class
+    that handles periodic updates for manager instances. It is typically called by
+    the game loop at regular intervals, with the 'diff' parameter representing the
+    milliseconds elapsed since the last update call. This method allows managers to
+    perform time-based operations such as updating timers, processing queued events,
+    or managing game objects that require periodic attention. The implementation should
+    be efficient and not block the main thread for extended periods.
+  parameters:
+  - name: diff
+    description: The number of milliseconds elapsed since the last update call. This
+      value is used to determine how much time has passed for time-based calculations
+      within the manager.
+  returns: null
+  examples:
+  - title: Basic Update Implementation
+    code: "class MyManager : public IManagerBase\n{\npublic:\n    void Update(uint32\
+      \ diff) override\n    {\n        // Process timed events\n        if (m_timer\
+      \ <= diff)\n        {\n            m_timer = 0;\n            // Perform periodic\
+      \ task\n        }\n        else\n        {\n            m_timer -= diff;\n \
+      \       }\n    }\nprivate:\n    uint32 m_timer = 1000; // 1 second timer\n};"
+    language: cpp
+  - title: Update with Multiple Timers
+    code: "class EventManager : public IManagerBase\n{\npublic:\n    void Update(uint32\
+      \ diff) override\n    {\n        m_eventTimer += diff;\n        m_cleanupTimer\
+      \ += diff;\n        \n        if (m_eventTimer >= 5000)\n        {\n       \
+      \     ProcessEvents();\n            m_eventTimer = 0;\n        }\n        \n\
+      \        if (m_cleanupTimer >= 30000)\n        {\n            CleanupExpiredObjects();\n\
+      \            m_cleanupTimer = 0;\n        }\n    }\nprivate:\n    uint32 m_eventTimer\
+      \ = 0;\n    uint32 m_cleanupTimer = 0;\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should avoid long-running
+    operations. Managers should use the 'diff' parameter to calculate time-based behavior
+    rather than relying on wall-clock time. The frequency of calls depends on the
+    server's update rate, typically around 100ms per tick.
+  warnings: Do not perform blocking operations or heavy computations in this method
+    as it runs in the main game thread and can cause frame drops. Avoid calling other
+    managers' Update methods directly from within this implementation to prevent potential
+    deadlocks or infinite recursion.
+  related:
+  - IManagerBase::Initialize
+  - IManagerBase::Deinitialize
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:17:59.860790'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

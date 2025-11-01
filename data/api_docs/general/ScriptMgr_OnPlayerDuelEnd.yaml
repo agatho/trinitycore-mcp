@@ -1,0 +1,56 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerDuelEnd
+  signature: void ScriptMgr::OnPlayerDuelEnd(Player * winner, Player * loser, DuelCompleteType
+    type)
+documentation:
+  brief: Invoked when a duel between two players concludes, providing access to winner,
+    loser, and duel result information.
+  description: The OnPlayerDuelEnd method is a callback function in the ScriptMgr
+    class that gets triggered whenever a player duel ends in World of Warcraft's TrinityCore
+    server. This method provides developers with the opportunity to execute custom
+    logic or modify game behavior based on the outcome of duels. It receives references
+    to both the winning and losing players, along with the type of duel completion
+    (e.g., victory, surrender, timeout). The method is typically used in custom scripts
+    to implement rewards, penalties, or other game mechanics that should occur after
+    a duel concludes.
+  parameters:
+  - name: winner
+    description: Pointer to the Player object representing the winner of the duel.
+      This parameter will be null if the duel ends in a draw or if no player wins.
+  - name: loser
+    description: Pointer to the Player object representing the loser of the duel.
+      This parameter will be null if the duel ends in a draw or if no player loses.
+  - name: type
+    description: An enum value of type DuelCompleteType indicating how the duel concluded.
+      Possible values include DUEL_WON, DUEL_LOST, DUEL_FLED, and others depending
+      on the implementation.
+  returns: null
+  examples:
+  - title: Basic Duel End Handler
+    code: "class MyDuelScript : public PlayerScript\n{\npublic:\n    MyDuelScript()\
+      \ : PlayerScript(\"MyDuelScript\") {}\n\n    void OnPlayerDuelEnd(Player* winner,\
+      \ Player* loser, DuelCompleteType type) override\n    {\n        if (winner\
+      \ && loser)\n        {\n            // Log the duel outcome\n            sLog->outString(\"\
+      Duel ended: %s defeated %s\", winner->GetName().c_str(), loser->GetName().c_str());\n\
+      \            \n            // Award bonus to winner\n            if (type ==\
+      \ DUEL_WON)\n                winner->ModifyMoney(1000);\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This method is called from within the core duel system and should not be
+    used to modify player state in ways that could interfere with the duel's integrity.
+    Ensure any modifications to player data are safe and do not cause race conditions
+    or unexpected behavior.
+  warnings: Avoid performing heavy operations or blocking calls within this function
+    as it may affect server performance. Also, be cautious when modifying player stats
+    or inventory directly, as these changes might conflict with other systems or lead
+    to inconsistent game states.
+  related:
+  - OnPlayerDuelStart
+  - OnPlayerDuelUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:21:23.514748'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

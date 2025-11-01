@@ -1,0 +1,66 @@
+api:
+  class: PoolMgr
+  method: DespawnPool
+  signature: void PoolMgr::DespawnPool(SpawnedPoolData & spawnedPoolData, uint32 pool_id,
+    bool alwaysDeleteRespawnTime)
+documentation:
+  brief: Despawns all game objects and creatures in a specified pool, optionally deleting
+    respawn times.
+  description: The DespawnPool method removes all spawned objects (creatures and game
+    objects) associated with a given pool ID from the world. It iterates through the
+    spawned pool data and removes each entry from the world, effectively despawning
+    them. The method also has an option to delete the respawn time information for
+    the pool, which prevents the pool from respawning automatically. This functionality
+    is essential for managing dynamic spawning systems in World of Warcraft content,
+    particularly when pools need to be temporarily or permanently removed from the
+    game world.
+  parameters:
+  - name: spawnedPoolData
+    description: Reference to the SpawnedPoolData structure containing information
+      about currently spawned objects in the pool. This data is used to identify and
+      remove each individual object from the world.
+  - name: pool_id
+    description: Unique identifier of the pool to be despawned. This ID corresponds
+      to a specific pool definition in the database that contains the spawn information
+      for creatures and game objects.
+  - name: alwaysDeleteRespawnTime
+    description: Boolean flag indicating whether to delete the respawn time information
+      for the pool. If true, the pool will not respawn automatically; if false, the
+      respawn timer may persist based on other logic.
+  returns: null
+  examples:
+  - title: Basic Despawn Pool Usage
+    code: 'SpawnedPoolData spawnedData;
+
+      // Assume spawnedData is populated with pool entries
+
+      PoolMgr::instance()->DespawnPool(spawnedData, 12345, true);
+
+      // This despawns all objects in pool 12345 and prevents it from respawning'
+    language: cpp
+  - title: Conditional Despawn Pool
+    code: "if (player->GetMap()->IsDungeon()) {\n    SpawnedPoolData spawnedData;\n\
+      \    // Populate with pool data\n    PoolMgr::instance()->DespawnPool(spawnedData,\
+      \ 54321, false);\n    // Despawns objects but keeps respawn timer for instance\
+      \ cleanup\n}"
+    language: cpp
+  notes: This method directly interacts with the world object management system and
+    should be called carefully to avoid performance issues during high-traffic periods.
+    The SpawnedPoolData parameter must contain valid entries; otherwise, undefined
+    behavior may occur. The pool_id must exist in the database or the operation will
+    have no effect.
+  warnings: Calling this method without proper validation of the SpawnedPoolData can
+    lead to crashes or memory corruption. Ensure that all objects referenced in spawnedPoolData
+    are actually spawned and managed by the PoolMgr before calling this function.
+    Also, be cautious when setting alwaysDeleteRespawnTime to true as it permanently
+    disables automatic respawning for that pool.
+  related:
+  - SpawnPool
+  - UpdatePool
+  - GetSpawnedPoolData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T20:52:53.914151'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,70 @@
+api:
+  class: AccountMgr
+  method: CreateAccount
+  signature: AccountOpResult AccountMgr::CreateAccount(std::string username, std::string
+    password, std::string email, uint32 bnetAccountId, uint8 bnetIndex)
+documentation:
+  brief: Creates a new account with the specified username, password, and email, optionally
+    associating it with a Battle.net account.
+  description: The CreateAccount method is responsible for creating a new user account
+    within the TrinityCore database. It accepts a username, password, email address,
+    and optional Battle.net account identifier to establish a new account record.
+    The method performs validation on the input parameters and ensures that the account
+    does not already exist before attempting creation. This function is typically
+    used during account registration processes or when integrating with external authentication
+    systems such as Battle.net. The created account will be assigned a unique identifier
+    within the database, and the method returns an operation result indicating success
+    or failure of the account creation process.
+  parameters:
+  - name: username
+    description: The desired username for the new account. Must be unique and follow
+      the game's naming conventions. Typically limited to alphanumeric characters
+      and underscores.
+  - name: password
+    description: The password for the new account. Should be securely hashed before
+      being passed to this method, as it will be stored in the database with appropriate
+      encryption.
+  - name: email
+    description: The email address associated with the account. Must be a valid email
+      format and is used for account recovery and communication purposes.
+  - name: bnetAccountId
+    description: Optional Battle.net account identifier. If provided, links the new
+      account to an existing Battle.net account. Set to 0 if not linking to Battle.net.
+  - name: bnetIndex
+    description: The index of the Battle.net account when multiple accounts are associated
+      with a single Battle.net ID. Defaults to 0 for single-account scenarios.
+  returns: An AccountOpResult enum value indicating whether the account creation was
+    successful or if an error occurred. Possible values include SUCCESS, ACCOUNT_ALREADY_EXISTS,
+    INVALID_USERNAME, INVALID_PASSWORD, INVALID_EMAIL, and other related error codes.
+  examples:
+  - title: Basic Account Creation
+    code: "AccountOpResult result = AccountMgr::CreateAccount(\"newuser\", \"securepassword123\"\
+      , \"user@example.com\", 0, 0);\nif (result == ACCOUNT_SUCCESS)\n{\n    printf(\"\
+      Account created successfully\\n\");\n}\nelse\n{\n    printf(\"Failed to create\
+      \ account: %d\\n\", result);\n}"
+    language: cpp
+  - title: Battle.net Account Linking
+    code: "AccountOpResult result = AccountMgr::CreateAccount(\"bnetuser\", \"securepassword123\"\
+      , \"user@example.com\", 123456789, 0);\nif (result == ACCOUNT_SUCCESS)\n{\n\
+      \    printf(\"Battle.net linked account created successfully\\n\");\n}"
+    language: cpp
+  notes: This method should be called from a thread-safe context, as database operations
+    are involved. The password parameter must already be hashed using the appropriate
+    hashing algorithm before being passed to this function. Consider implementing
+    additional validation checks for usernames and emails beyond what is handled internally
+    by this method.
+  warnings: Do not pass plain text passwords directly to this method; they must be
+    pre-hashed. Ensure that the username and email are validated for uniqueness before
+    calling this function to avoid unnecessary database operations. Be cautious when
+    linking accounts to Battle.net identifiers, as incorrect values may lead to account
+    linking issues.
+  related:
+  - GetAccount
+  - UpdateAccount
+  - DeleteAccount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T02:48:05.687149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

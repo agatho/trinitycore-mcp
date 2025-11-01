@@ -1,0 +1,75 @@
+api:
+  class: ScriptMgr
+  method: OnGuildBankEvent
+  signature: void ScriptMgr::OnGuildBankEvent(Guild * guild, uint8 eventType, uint8
+    tabId, int playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+documentation:
+  brief: Invoked when a guild bank event occurs, providing details about the transaction.
+  description: The OnGuildBankEvent method is a callback function in the ScriptMgr
+    class that gets triggered whenever an event occurs within a guild's bank system.
+    This includes actions such as depositing items, withdrawing items, moving items
+    between tabs, or logging monetary transactions. The method provides comprehensive
+    information about the event, including the type of event, involved player, item
+    or money details, and tab locations. It allows custom scripts to react to these
+    events for logging, restrictions, or modification of behavior.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object where the bank event occurred. This represents
+      the guild whose bank system was involved in the transaction.
+  - name: eventType
+    description: Identifier for the type of guild bank event that occurred. Common
+      values include deposit, withdrawal, tab movement, and money transactions. Valid
+      range is typically 0-255.
+  - name: tabId
+    description: The source tab ID from which the item was moved or withdrawn. For
+      events involving a specific tab, this indicates the originating tab. Value of
+      255 may indicate no tab (e.g., money transactions).
+  - name: playerGuid
+    description: The GUID of the player who initiated the event. This is used to identify
+      which character performed the action in the guild bank.
+  - name: itemOrMoney
+    description: Either the item entry ID (for item-related events) or the amount
+      of money (in copper) involved in the transaction. The interpretation depends
+      on the eventType.
+  - name: itemStackCount
+    description: The number of items stacked in the transaction, or 0 if it's a money
+      transaction. For example, if a player withdraws 5 stacks of health potions,
+      this value would be 5.
+  - name: destTabId
+    description: The destination tab ID where an item was moved to. This is only relevant
+      for tab-moving events and may be set to 255 if the item was moved outside of
+      tabs (e.g., to the guild's money pool).
+  returns: null
+  examples:
+  - title: Basic Event Logging
+    code: "#include \"ScriptMgr.h\"\n\nvoid MyGuildBankScript::OnGuildBankEvent(Guild*\
+      \ guild, uint8 eventType, uint8 tabId, int playerGuid, uint64 itemOrMoney, uint16\
+      \ itemStackCount, uint8 destTabId)\n{\n    sLog->outString(\"Guild Bank Event:\
+      \ Player %d performed action %u in tab %u\", playerGuid, eventType, tabId);\n\
+      }"
+    language: cpp
+  - title: Restricting Item Withdrawals
+    code: "#include \"ScriptMgr.h\"\n\nvoid MyGuildBankScript::OnGuildBankEvent(Guild*\
+      \ guild, uint8 eventType, uint8 tabId, int playerGuid, uint64 itemOrMoney, uint16\
+      \ itemStackCount, uint8 destTabId)\n{\n    if (eventType == GUILD_BANK_EVENT_WITHDRAW\
+      \ && itemOrMoney == 12345) // Example restricted item\n    {\n        // Cancel\
+      \ the withdrawal by preventing it from completing\n        sLog->outString(\"\
+      Player %d attempted to withdraw restricted item!\", playerGuid);\n    }\n}"
+    language: cpp
+  notes: This method is called during the execution of guild bank operations and should
+    not block or perform heavy computations. The event type constants (like GUILD_BANK_EVENT_DEPOSIT)
+    are defined in the TrinityCore source code. Custom implementations must be thread-safe
+    as this method may be invoked from different threads depending on server configuration.
+  warnings: Modifying the behavior of a guild bank event directly within this callback
+    can cause unexpected behavior or crashes if not handled carefully. Ensure that
+    any modifications to game state are done safely and asynchronously where necessary.
+  related:
+  - OnGuildEvent
+  - OnGuildBankItemMove
+  - OnGuildBankMoneyWithdrawn
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:42:28.365753'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

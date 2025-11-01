@@ -1,0 +1,72 @@
+api:
+  class: SpellMgr
+  method: AddSameEffectStackRuleSpellGroups
+  signature: bool SpellMgr::AddSameEffectStackRuleSpellGroups(const SpellInfo * spellInfo,
+    uint32 auraType, int32 amount, int & groups) const
+documentation:
+  brief: Adds spell groups for same effect stacking rules based on aura type and amount.
+  description: The AddSameEffectStackRuleSpellGroups method is responsible for determining
+    and assigning spell groups that enforce stacking rules for spells with identical
+    effects. It evaluates whether a given spell's aura type and amount should cause
+    it to be grouped with other spells sharing the same stacking characteristics.
+    This mechanism ensures proper handling of spell interactions, particularly when
+    multiple spells of the same type are applied to a target, preventing unintended
+    stacking or overriding behaviors. The method is typically invoked during spell
+    loading or initialization phases within the SpellMgr class to build internal data
+    structures that govern how similar effects interact with each other.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure representing the spell being processed
+      for stacking rule assignment. Must not be null.
+  - name: auraType
+    description: The type of aura (e.g., SPELL_AURA_MOD_STAT, SPELL_AURA_PERIODIC_DAMAGE)
+      that determines which stacking rules apply. Valid aura types are defined in
+      the SpellAuraType enum.
+  - name: amount
+    description: The amount or intensity value associated with the aura effect. Used
+      to determine if multiple spells with this aura should be grouped together for
+      stacking purposes.
+  - name: groups
+    description: Reference to an integer that will store the resulting spell group
+      ID after processing. The method modifies this value to indicate which group
+      the spell belongs to.
+  returns: Returns true if the spell was successfully added to a stacking rule group,
+    or false if no applicable group could be determined or assigned. A return of false
+    may indicate that the spell does not require special stacking behavior or that
+    an error occurred during processing.
+  examples:
+  - title: Basic Usage Example
+    code: "const SpellInfo* spell = sSpellMgr->GetSpellInfo(12345);\nint groupID =\
+      \ 0;\nbool result = sSpellMgr->AddSameEffectStackRuleSpellGroups(spell, SPELL_AURA_MOD_STAT,\
+      \ 10, groupID);\nif (result)\n{\n    // Spell successfully added to stacking\
+      \ group\n    printf(\"Spell added to group %d\\n\", groupID);\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Aura Types
+    code: "const SpellInfo* spell = sSpellMgr->GetSpellInfo(67890);\nint groupID =\
+      \ 0;\n\n// Process different aura types for the same spell\nfor (uint32 i =\
+      \ 0; i < MAX_SPELL_AURA_TYPES; ++i)\n{\n    if (spell->AuraInterruptFlags[i]\
+      \ & AURA_INTERRUPT_FLAG_DAMAGE)\n    {\n        bool result = sSpellMgr->AddSameEffectStackRuleSpellGroups(spell,\
+      \ i, spell->EffectBasePoints[0], groupID);\n        if (result)\n        {\n\
+      \            printf(\"Spell grouped under aura type %u with group ID %d\\n\"\
+      , i, groupID);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the internal spell management system and is usually
+    called during server startup or spell loading phases. It relies on predefined
+    stacking rules defined in the spell database and configuration files. The groups
+    assigned by this function are used later during combat to determine how overlapping
+    auras behave, especially for effects like stat modifiers, damage over time, or
+    healing effects.
+  warnings: Do not call this method directly unless you understand the internal spell
+    grouping system. Misuse can lead to incorrect stacking behavior in game mechanics.
+    Ensure that all parameters (especially spellInfo and auraType) are valid before
+    invoking this function to avoid undefined behavior.
+  related:
+  - GetSpellInfo
+  - LoadSpellGroups
+  - IsSpellGroupToStack
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:08:33.817759'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,49 @@
+api:
+  class: WorldScript
+  method: OnConfigLoad
+  signature: void WorldScript::OnConfigLoad(bool reload)
+documentation:
+  brief: Executes code when the world configuration is loaded or reloaded
+  description: The OnConfigLoad method is a callback function in the WorldScript class
+    that is invoked whenever the World of Warcraft server loads or reloads its configuration
+    files. This method allows custom scripts to perform initialization or update operations
+    based on the current configuration settings. It is typically used to apply settings,
+    register event handlers, or adjust server behavior according to loaded configuration
+    values. The method is called during server startup and can also be triggered when
+    configuration files are reloaded using the /reload command in-game.
+  parameters:
+  - name: reload
+    description: Boolean flag indicating whether the configuration is being loaded
+      for the first time (false) or reloaded (true). When true, the method should
+      handle updating existing configurations rather than performing initial setup.
+  returns: null
+  examples:
+  - title: Basic Configuration Loading
+    code: "class MyWorldScript : public WorldScript\n{\npublic:\n    void OnConfigLoad(bool\
+      \ reload) override\n    {\n        // Load configuration values\n        uint32\
+      \ newMaxPlayers = sConfigMgr->GetOption<uint32>(\"MaxPlayers\", 100);\n    \
+      \    \n        if (!reload)\n        {\n            // Initial setup\n     \
+      \       sWorld->SetMaxPlayerCount(newMaxPlayers);\n            sLog->outString(\"\
+      Max players set to %u\", newMaxPlayers);\n        }\n        else\n        {\n\
+      \            // Reload handling\n            sWorld->SetMaxPlayerCount(newMaxPlayers);\n\
+      \            sLog->outString(\"Max players reloaded to %u\", newMaxPlayers);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main server thread and should not perform
+    long-running operations that could block the game loop. Configuration changes
+    made during reload may affect active players, so care must be taken to ensure
+    safe updates.
+  warnings: Avoid performing expensive operations in this method as it can impact
+    server startup time or reload performance. Be cautious when modifying global server
+    settings during a reload, as it might cause unexpected behavior for connected
+    players.
+  related:
+  - OnWorldUpdate
+  - OnOpenStateChange
+  - OnBeforeWorldInitialized
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:28:54.040837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,70 @@
+api:
+  class: DB2Manager
+  method: LoadStores
+  signature: uint32 DB2Manager::LoadStores(const std::string & dataPath, LocaleConstant
+    defaultLocale)
+documentation:
+  brief: Loads all DB2 data stores from the specified directory path using the default
+    locale.
+  description: The LoadStores method initializes and loads all available DB2 (Database
+    2) data files from the provided data path. It processes these binary database
+    files which contain static game data such as item templates, creature information,
+    spell effects, and other game mechanics definitions. The method uses the specified
+    default locale to determine which localized versions of the data should be loaded.
+    This is a critical initialization step for TrinityCore's data management system,
+    ensuring that all game systems have access to their required static data before
+    the server begins accepting connections. The method typically called during server
+    startup or when reloading game data dynamically.
+  parameters:
+  - name: dataPath
+    description: The absolute or relative path to the directory containing DB2 files.
+      This should point to the folder where all .db2 files are stored, typically located
+      in the 'DB2' subdirectory of the TrinityCore installation.
+  - name: defaultLocale
+    description: The default locale to use when loading localized data from DB2 files.
+      This determines which language versions of strings and localized fields will
+      be loaded. Valid values are defined by the LocaleConstant enum, such as LOCALE_enUS,
+      LOCALE_koKR, etc.
+  returns: Returns a uint32 value representing the total number of DB2 stores successfully
+    loaded. A return value of zero indicates that no stores were loaded, which may
+    occur if the data path is invalid or contains no valid DB2 files.
+  examples:
+  - title: Basic usage during server initialization
+    code: 'std::string dataPath = "./DB2";
+
+      LocaleConstant defaultLocale = LOCALE_enUS;
+
+      uint32 loadedStores = sDB2Manager->LoadStores(dataPath, defaultLocale);
+
+      TC_LOG_INFO(LOG_FILTER_SERVER, "Loaded %u DB2 stores", loadedStores);'
+    language: cpp
+  - title: Loading stores with error handling
+    code: "std::string dataPath = \"./DB2\";\nLocaleConstant defaultLocale = LOCALE_enUS;\n\
+      uint32 loadedCount = sDB2Manager->LoadStores(dataPath, defaultLocale);\nif (loadedCount\
+      \ == 0)\n{\n    TC_LOG_ERROR(LOG_FILTER_SERVER, \"Failed to load any DB2 stores\
+      \ from %s\", dataPath.c_str());\n    // Handle error appropriately\n}\nelse\n\
+      {\n    TC_LOG_INFO(LOG_FILTER_SERVER, \"Successfully loaded %u DB2 stores\"\
+      , loadedCount);\n}"
+    language: cpp
+  notes: This method is typically called once during server startup and may be called
+    again to reload data dynamically. The DB2 files are binary format and must match
+    the expected schema version of the TrinityCore build. Loading large numbers of
+    DB2 files can be resource-intensive and may cause temporary performance degradation.
+    The method internally handles file validation, memory allocation, and indexing
+    of loaded data structures.
+  warnings: Calling this method after the server has started processing requests may
+    lead to inconsistent game state or crashes if systems depend on the data being
+    loaded. Ensure that all DB2 files are compatible with your TrinityCore version
+    before calling this method. The dataPath must be accessible and contain valid
+    DB2 files; otherwise, partial loading or errors may occur.
+  related:
+  - LoadDB2
+  - GetLocale
+  - HasStore
+  - GetStore
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T01:11:46.300631'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

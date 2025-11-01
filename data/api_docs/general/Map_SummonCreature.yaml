@@ -1,0 +1,81 @@
+api:
+  class: Map
+  method: SummonCreature
+  signature: TempSummon * Map::SummonCreature(uint32 entry, const Position & pos,
+    const SummonPropertiesEntry * properties, int duration, WorldObject * summoner,
+    uint32 spellId, uint32 vehId, int privateObjectOwner, const SmoothPhasingInfo
+    * smoothPhasingInfo)
+documentation:
+  brief: Summons a temporary creature onto the map at the specified position with
+    given properties and duration.
+  description: The SummonCreature method creates and spawns a temporary creature on
+    the map at the specified location. It supports various summoning properties including
+    duration, summoner reference, spell ID, vehicle ID, and private object owner.
+    The summoned creature will be of type TempSummon, which is a specialized subclass
+    of WorldObject designed for temporary creatures that are automatically removed
+    after their duration expires or under certain conditions. This method is commonly
+    used in AI scripts, spells, and game mechanics where temporary creatures need
+    to be created dynamically.
+  parameters:
+  - name: entry
+    description: The creature entry ID (creature_template.entry) that defines the
+      type of creature to summon
+  - name: pos
+    description: The Position structure specifying the x, y, z coordinates and orientation
+      where the creature will be summoned
+  - name: properties
+    description: Pointer to SummonPropertiesEntry that defines summoning behavior,
+      such as faction, flags, and summon type
+  - name: duration
+    description: Duration in milliseconds for how long the summoned creature will
+      exist (negative value means infinite duration)
+  - name: summoner
+    description: Pointer to WorldObject that is the source of this summoning, typically
+      a player or creature
+  - name: spellId
+    description: The spell ID associated with this summoning, used for tracking and
+      effects
+  - name: vehId
+    description: Vehicle ID if the summoned creature should be mounted on a vehicle
+      (0 means no vehicle)
+  - name: privateObjectOwner
+    description: Private object owner identifier, used for ownership tracking and
+      cleanup purposes
+  - name: smoothPhasingInfo
+    description: Pointer to SmoothPhasingInfo for handling phasing transitions during
+      summoning (can be NULL)
+  returns: Returns a pointer to the created TempSummon object representing the summoned
+    creature. Returns NULL if the summoning fails due to invalid parameters or resource
+    constraints.
+  examples:
+  - title: Basic creature summon
+    code: "Position pos = {100.0f, 200.0f, 300.0f, 0.0f};\nTempSummon* summoned =\
+      \ map->SummonCreature(12345, pos, nullptr, 5000, player, 0, 0, 0);\nif (summoned)\n\
+      {\n    // Creature successfully summoned\n}"
+    language: cpp
+  - title: Summon with specific properties and duration
+    code: "Position pos = {50.0f, 60.0f, 70.0f, M_PI / 2};\nSummonPropertiesEntry*\
+      \ props = sSummonPropertiesStore.LookupEntry(1);\nTempSummon* summoned = map->SummonCreature(98765,\
+      \ pos, props, 10000, npc, 12345, 0, 0);\nif (summoned)\n{\n    // Creature summoned\
+      \ with specific properties for 10 seconds\n}"
+    language: cpp
+  notes: The returned TempSummon object is automatically managed by the map and will
+    be destroyed when its duration expires or when explicitly removed. The method
+    performs internal validation of parameters, but invalid entries or positions may
+    cause silent failures or undefined behavior. This method should only be called
+    from a valid Map context.
+  warnings: Do not call this method with NULL summoner parameter unless absolutely
+    necessary, as it can lead to broken references. Be careful with negative duration
+    values as they create permanent summons that must be manually cleaned up. The
+    position coordinates should be within valid map boundaries to avoid spawning issues.
+  related:
+  - SummonGameObject
+  - CreateCreature
+  - RemoveCreature
+  - GetCreature
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:53:26.605268'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

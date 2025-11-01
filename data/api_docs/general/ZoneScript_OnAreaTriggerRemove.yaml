@@ -1,0 +1,64 @@
+api:
+  class: ZoneScript
+  method: OnAreaTriggerRemove
+  signature: void ZoneScript::OnAreaTriggerRemove(AreaTrigger * areaTrigger)
+documentation:
+  brief: Called when an area trigger is removed from the zone, allowing for cleanup
+    or event handling.
+  description: The OnAreaTriggerRemove method is a virtual callback function in the
+    ZoneScript class that is invoked whenever an AreaTrigger is removed from the game
+    world. This typically occurs when the trigger's duration expires, its conditions
+    are no longer met, or it is explicitly destroyed by the game engine. The method
+    provides developers with an opportunity to perform cleanup operations, trigger
+    additional events, or modify game state based on the removal of the area trigger.
+    It serves as a counterpart to OnAreaTriggerCreate and allows for proper management
+    of area-based gameplay elements such as spell effects, quest triggers, or environmental
+    interactions.
+  parameters:
+  - name: areaTrigger
+    description: Pointer to the AreaTrigger object that has been removed from the
+      zone. This parameter provides access to all properties and methods of the area
+      trigger, including its position, script data, and associated game objects.
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnAreaTriggerRemove(AreaTrigger*\
+      \ areaTrigger) override\n    {\n        // Log the removal of an area trigger\n\
+      \        TC_LOG_INFO(\"scripts\", \"Area trigger %u removed from zone.\", areaTrigger->GetEntry());\n\
+      \        \n        // Perform cleanup operations here\n        // For example,\
+      \ reset related quest objectives or remove temporary effects\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with State Management
+    code: "class QuestTriggerZoneScript : public ZoneScript\n{\npublic:\n    void\
+      \ OnAreaTriggerRemove(AreaTrigger* areaTrigger) override\n    {\n        if\
+      \ (!areaTrigger)\n            return;\n        \n        // Retrieve custom\
+      \ data stored in the area trigger\n        uint32 questId = areaTrigger->GetScriptId();\n\
+      \        \n        // Notify players in the area that the trigger has been removed\n\
+      \        Map* map = areaTrigger->GetMap();\n        if (map)\n        {\n  \
+      \          for (auto& player : map->GetPlayers())\n            {\n         \
+      \       if (player)\n                {\n                    // Send a message\
+      \ or update quest status\n                    player->SendNotification(\"Area\
+      \ trigger has expired.\");\n                }\n            }\n        }\n  \
+      \      \n        // Remove any temporary game state associated with this trigger\n\
+      \        // e.g., remove buffs, reset flags, etc.\n    }\n};"
+    language: cpp
+  notes: This method is called on the main game thread and should avoid long-running
+    operations to prevent performance degradation. The AreaTrigger object passed in
+    may be invalid or destroyed after this call, so any access to its members should
+    be done carefully. ZoneScript implementations should ensure that they properly
+    handle null pointers and maintain thread safety if interacting with shared data
+    structures.
+  warnings: Do not attempt to modify or delete the areaTrigger pointer directly within
+    this method as it may lead to undefined behavior. Be cautious when accessing player
+    data from this callback, especially if the trigger removal is related to a player's
+    actions, as race conditions might occur. Avoid performing heavy computations in
+    this method to prevent lag spikes.
+  related:
+  - OnAreaTriggerCreate
+  - OnAreaTriggerUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:04:07.834170'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

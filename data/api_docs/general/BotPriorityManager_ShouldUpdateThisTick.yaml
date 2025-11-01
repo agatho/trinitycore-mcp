@@ -1,0 +1,58 @@
+api:
+  class: BotPriorityManager
+  method: ShouldUpdateThisTick
+  signature: bool BotPriorityManager::ShouldUpdateThisTick(int botGuid, uint32 currentTick)
+    const
+documentation:
+  brief: Determines whether a specific bot should be updated during the current tick
+    based on its priority and scheduling logic.
+  description: The ShouldUpdateThisTick method evaluates if a given bot, identified
+    by its GUID, should undergo an update operation during the current game tick.
+    This decision is typically based on the bot's priority level, internal scheduling
+    rules, and potentially cooldowns or throttling mechanisms to prevent excessive
+    processing. The method ensures that bots are updated efficiently without overloading
+    the system, especially in environments with many active bots. It returns true
+    if the bot should be updated this tick, false otherwise. This functionality is
+    crucial for maintaining performance and ensuring fair distribution of CPU resources
+    among multiple AI-controlled entities.
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot that needs to be evaluated
+      for update eligibility. This value uniquely identifies a specific bot instance
+      within the game world.
+  - name: currentTick
+    description: The current game tick number used as reference point for determining
+      whether the bot should be updated. This value typically represents the global
+      tick counter in the TrinityCore system.
+  returns: Returns true if the specified bot should be updated during the current
+    tick, false otherwise. A return value of true indicates that the bot's priority
+    and scheduling logic allow for an update at this time.
+  examples:
+  - title: Basic usage in bot management loop
+    code: "if (botPriorityManager->ShouldUpdateThisTick(botGuid, currentTick)) {\n\
+      \    // Perform bot update logic here\n    bot->Update();\n}"
+    language: cpp
+  - title: Integration with a tick-based AI update system
+    code: "void BotManager::UpdateAllBots(uint32 currentTick) {\n    for (auto& bot\
+      \ : activeBots) {\n        if (botPriorityManager->ShouldUpdateThisTick(bot->GetGUID(),\
+      \ currentTick)) {\n            bot->DoAIUpdate();\n        }\n    }\n}"
+    language: cpp
+  notes: The method likely uses internal state tracking to determine bot update eligibility.
+    It may consider factors such as bot priority levels, last updated timestamps,
+    and system load to make decisions. This function is expected to be called frequently
+    during the game loop, so performance is important. The implementation may involve
+    caching or precomputed values to avoid expensive calculations on every call.
+  warnings: Do not assume that calling this method guarantees a bot will be updated;
+    it only indicates eligibility. The actual update logic should still be implemented
+    separately. Also, ensure that botGuid and currentTick are valid values to prevent
+    unexpected behavior or crashes.
+  related:
+  - GetBotPriority
+  - SetBotPriority
+  - ScheduleNextUpdate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T01:40:05.244155'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

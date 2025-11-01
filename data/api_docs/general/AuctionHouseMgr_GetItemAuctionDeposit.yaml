@@ -1,0 +1,61 @@
+api:
+  class: AuctionHouseMgr
+  method: GetItemAuctionDeposit
+  signature: uint64 AuctionHouseMgr::GetItemAuctionDeposit(const Player * player,
+    const Item * item, int time)
+documentation:
+  brief: Calculates and returns the auction deposit amount required for listing an
+    item on the auction house.
+  description: The GetItemAuctionDeposit method computes the auction house deposit
+    fee that a player must pay when listing an item for auction. This deposit is deducted
+    from the player's inventory or gold before the auction is created and is refundable
+    upon successful sale or auction expiration. The calculation takes into account
+    the item's quality, level, and the auction duration time. The method ensures that
+    players cannot list items without paying the required deposit, which helps maintain
+    the integrity of the auction house system.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who is listing
+      the item for auction. Must not be null.
+  - name: item
+    description: Pointer to the Item object that is being listed for auction. Must
+      not be null and must have a valid item template.
+  - name: time
+    description: Integer value representing the auction duration in seconds (typically
+      1, 2, or 4 hours). Valid values are usually 3600, 7200, or 14400.
+  returns: Returns a uint64 value representing the gold amount (in copper) that must
+    be paid as auction deposit. Returns 0 if the item cannot be auctioned or if there's
+    an error in calculation.
+  examples:
+  - title: Basic Usage Example
+    code: "uint64 deposit = sAuctionHouseMgr->GetItemAuctionDeposit(player, item,\
+      \ 7200);\nif (deposit > 0)\n{\n    // Player can proceed with auction creation\n\
+      \    player->ModifyMoney(-deposit);\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "uint64 deposit = sAuctionHouseMgr->GetItemAuctionDeposit(player, item,\
+      \ 14400);\nif (deposit == 0)\n{\n    player->SendNotification(\"This item cannot\
+      \ be auctioned.\");\n    return;\n}\nelse if (player->GetMoney() < deposit)\n\
+      {\n    player->SendNotification(\"Not enough gold to cover the auction deposit.\"\
+      );\n    return;\n}\n// Proceed with auction creation\nplayer->ModifyMoney(-deposit);"
+    language: cpp
+  notes: The method internally uses the item's template data and player's auction
+    house settings to calculate the deposit. The exact formula may vary based on server
+    configuration and item properties such as item level, quality, and whether the
+    item is bound or soulbound. This method does not perform any gold deduction; it
+    only calculates the required amount.
+  warnings: Ensure that the player and item parameters are valid before calling this
+    method to avoid crashes or incorrect calculations. The time parameter should be
+    one of the standard auction durations (1, 2, or 4 hours) for proper calculation.
+    Calling this method with invalid parameters may result in unexpected behavior
+    or zero deposit values.
+  related:
+  - GetAuctionHouseDeposit
+  - GetAuctionTime
+  - CreateAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:31:28.479579'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

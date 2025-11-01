@@ -1,0 +1,74 @@
+api:
+  class: Item
+  method: BuildValuesCreate
+  signature: void Item::BuildValuesCreate(int * data, int flags, const Player * target)
+    const
+documentation:
+  brief: Populates the data array with item creation values for network transmission
+    to a target player.
+  description: The BuildValuesCreate method prepares and fills a data array with the
+    necessary object fields and values required to create an Item object in the game
+    world. This method is typically invoked when sending item information to a specific
+    player, such as during initial login, loot distribution, or when an item is added
+    to a player's inventory. It handles the serialization of item properties into
+    a format suitable for network transmission using the provided flags and target
+    player context. The method ensures that only relevant data fields are included
+    based on the specified flags and the target player's perspective.
+  parameters:
+  - name: data
+    description: Pointer to an integer array where the serialized item values will
+      be written. This array must be pre-allocated with sufficient space to hold all
+      required field values.
+  - name: flags
+    description: Integer flags that determine which fields should be included in the
+      data array. These flags control the granularity and scope of information being
+      sent, such as visibility or update type.
+  - name: target
+    description: Pointer to the Player object for whom the item creation values are
+      being built. The method uses this target to customize the data based on player-specific
+      context like visibility or field restrictions.
+  returns: null
+  examples:
+  - title: Basic usage of BuildValuesCreate
+    code: 'Item* item = new Item();
+
+      Player* targetPlayer = ...; // some player object
+
+      int data[ITEM_FIELD_END];
+
+      item->BuildValuesCreate(data, UPDATEFLAG_ALL, targetPlayer);
+
+      // Now ''data'' contains the serialized item values for the target player'
+    language: cpp
+  - title: Using BuildValuesCreate with specific update flags
+    code: 'Item* item = ...; // existing item
+
+      Player* targetPlayer = ...;
+
+      int data[ITEM_FIELD_END];
+
+      int flags = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LIVING;
+
+      item->BuildValuesCreate(data, flags, targetPlayer);
+
+      // Only specific fields related to transport and living objects are included'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore. It's crucial
+    for proper synchronization between server state and client views. The data array
+    size must be sufficient to accommodate all item fields, typically defined by ITEM_FIELD_END
+    or similar constants. The method does not perform any network transmission itself
+    but prepares the data structure for subsequent use in update packets.
+  warnings: Ensure that the 'data' array is properly sized before calling this method,
+    otherwise memory corruption may occur. Be cautious with the flags parameter as
+    incorrect flag combinations might result in incomplete or invalid object states
+    being sent to clients.
+  related:
+  - Item::BuildValuesUpdate
+  - Item::BuildOutOfRangeUpdate
+  - Item::BuildUpdateData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:31:22.311502'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

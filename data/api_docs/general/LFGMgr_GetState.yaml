@@ -1,0 +1,56 @@
+api:
+  class: LFGMgr
+  method: GetState
+  signature: LfgState LFGMgr::GetState(int guid)
+documentation:
+  brief: Retrieves the current LFG state for a player identified by their GUID
+  description: The GetState method retrieves the current Looking For Group (LFG) state
+    of a player using their unique identifier (GUID). This state indicates whether
+    the player is currently in a queue, waiting for a group, or has completed their
+    LFG activity. The returned LfgState enum provides detailed information about the
+    player's current LFG status including if they are queued, in a dungeon, or have
+    been matched with a group. This method is essential for managing player LFG behavior
+    and synchronizing client-side UI elements with server-side LFG state.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose LFG state is being
+      retrieved. Must be a valid player GUID from the TrinityCore database.
+  returns: Returns an LfgState enum value representing the current LFG status of the
+    specified player. Possible values include LFG_STATE_NONE, LFG_STATE_IDLE, LFG_STATE_JOIN,
+    LFG_STATE_ROLECHECK, LFG_STATE_QUEUED, LFG_STATE_PROPOSAL, LFG_STATE_SUMMON, LFG_STATE_TELEPORT,
+    LFG_STATE_REWARDS, and LFG_STATE_DONE.
+  examples:
+  - title: Basic usage to check player LFG state
+    code: "uint64 playerGuid = player->GetGUID();\nLfgState state = sLFGMgr->GetState(playerGuid);\n\
+      if (state == LFG_STATE_QUEUED)\n{\n    // Player is currently in an LFG queue\n\
+      \    sLog->outString(\"Player %u is queued for LFG\", GUID_LOPART(playerGuid));\n\
+      }"
+    language: cpp
+  - title: Using LFG state to update UI elements
+    code: "void UpdateLFGStatus(Player* player)\n{\n    uint64 guid = player->GetGUID();\n\
+      \    LfgState state = sLFGMgr->GetState(guid);\n    \n    switch (state)\n \
+      \   {\n        case LFG_STATE_NONE:\n            // No LFG activity\n      \
+      \      break;\n        case LFG_STATE_QUEUED:\n            // Show queued status\
+      \ in UI\n            player->SendLFGQueueStatus();\n            break;\n   \
+      \     case LFG_STATE_DONE:\n            // Player finished LFG activity\n  \
+      \          player->SendLFGPlayerReward();\n            break;\n    }\n}"
+    language: cpp
+  notes: This method accesses the internal LFG manager's state tracking system which
+    maintains player LFG status in memory. The method is thread-safe as it uses appropriate
+    locking mechanisms internally. Performance is optimized for frequent calls since
+    it only retrieves pre-stored state information without complex computations.
+  warnings: Ensure that the GUID parameter corresponds to a valid player object, otherwise
+    behavior is undefined. This method should not be called with invalid or non-player
+    GUIDs as it may cause crashes or return incorrect states. Always verify player
+    existence before calling this method in critical code paths.
+  related:
+  - SetState
+  - UpdateState
+  - GetQueueId
+  - IsPlayerInLFG
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T11:42:43.328594'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ReputationMgr
+  method: SetOneFactionReputation
+  signature: bool ReputationMgr::SetOneFactionReputation(const FactionEntry * factionEntry,
+    int32 standing, bool incremental)
+documentation:
+  brief: Sets the reputation level for a specific faction, optionally incrementing
+    the current value.
+  description: The SetOneFactionReputation method updates the player's standing with
+    a specified faction. It allows setting an absolute reputation value or incrementing
+    the existing value by a given amount. The method handles validation of the faction
+    entry and ensures that the new reputation value adheres to game-defined limits.
+    This function is typically used in quest rewards, NPC interactions, or GM commands
+    to modify player reputation. The incremental parameter determines whether the
+    standing value is added to the current reputation or replaces it entirely.
+  parameters:
+  - name: factionEntry
+    description: Pointer to the FactionEntry structure defining the faction whose
+      reputation will be modified. Must not be null and must correspond to a valid
+      faction in the game database.
+  - name: standing
+    description: The reputation value to set or add to the current standing. Can be
+      positive (to increase reputation) or negative (to decrease). When incremental
+      is true, this value is added to the current standing; otherwise, it replaces
+      the current standing.
+  - name: incremental
+    description: Boolean flag indicating whether the standing should be added to the
+      current value (true) or replace it entirely (false).
+  returns: Returns true if the reputation was successfully updated, false otherwise.
+    Failure may occur due to invalid faction entry, invalid standing values, or internal
+    game state issues.
+  examples:
+  - title: Set Absolute Reputation
+    code: "FactionEntry* faction = sFactionStore.LookupEntry(1118); // Argent Dawn\n\
+      if (faction)\n{\n    reputationMgr->SetOneFactionReputation(faction, 42000,\
+      \ false); // Set to maximum standing\n}"
+    language: cpp
+  - title: Increment Reputation
+    code: "FactionEntry* faction = sFactionStore.LookupEntry(1118); // Argent Dawn\n\
+      if (faction)\n{\n    reputationMgr->SetOneFactionReputation(faction, 500, true);\
+      \ // Add 500 to current standing\n}"
+    language: cpp
+  notes: This method may trigger reputation change events and updates to the client's
+    UI. It does not directly send packets to the player; those are handled by other
+    systems in the game loop. The method assumes that all necessary checks for faction
+    validity have been performed before calling.
+  warnings: Passing a null factionEntry pointer will likely cause undefined behavior
+    or crashes. Ensure that the faction exists in the database and that standing values
+    do not exceed the maximum allowed reputation thresholds (typically 42000 for Exalted).
+  related:
+  - GetReputation
+  - SetReputation
+  - AddReputation
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T07:23:49.549945'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

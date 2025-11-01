@@ -1,0 +1,63 @@
+api:
+  class: DB2Manager
+  method: GetContentTuningData
+  signature: int DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag,
+    bool forItem) const
+documentation:
+  brief: Retrieves content tuning data for a specified content tuning ID, handling
+    redirection flags and item-specific logic.
+  description: The GetContentTuningData method fetches content tuning information
+    from the DB2 database based on the provided content tuning ID. It supports handling
+    of redirect flags to determine if the data should be redirected to another content
+    tuning entry, and can adjust behavior based on whether the request is for item-specific
+    data. This method is used in World of Warcraft's TrinityCore to manage dynamic
+    content adjustments such as difficulty scaling, loot modifications, and quest
+    progression based on player level or instance settings. The method accesses internal
+    DB2 data structures and returns an integer identifier that represents the resolved
+    content tuning entry.
+  parameters:
+  - name: contentTuningId
+    description: The unique identifier of the content tuning entry to retrieve. This
+      ID corresponds to entries in the ContentTuning.db2 file, typically representing
+      different difficulty levels or instance configurations.
+  - name: redirectFlag
+    description: A flag that determines whether to follow redirections when resolving
+      the content tuning data. If set, the method may redirect to another content
+      tuning entry based on game logic or configuration.
+  - name: forItem
+    description: A boolean flag indicating if the retrieved data should be adjusted
+      for item-specific context. When true, the returned data may include modifications
+      relevant to item-level scaling or restrictions.
+  returns: Returns an integer representing the resolved content tuning ID after applying
+    any necessary redirections and processing based on the 'forItem' flag. If no valid
+    content tuning is found, it may return zero or a default value depending on internal
+    logic.
+  examples:
+  - title: Basic usage to fetch content tuning data
+    code: "int tuningId = db2Manager->GetContentTuningData(12345, 0, false);\nif (tuningId\
+      \ > 0)\n{\n    // Process the retrieved content tuning ID\n    printf(\"Resolved\
+      \ content tuning ID: %d\\n\", tuningId);\n}"
+    language: cpp
+  - title: Using redirect flag and item-specific logic
+    code: "int tuningId = db2Manager->GetContentTuningData(12345, 1, true);\nif (tuningId\
+      \ > 0)\n{\n    // Use the resolved tuning ID for item-level adjustments\n  \
+      \  printf(\"Item-specific resolved tuning ID: %d\\n\", tuningId);\n}"
+    language: cpp
+  notes: This method relies on internal DB2 caching and may perform lookups in the
+    ContentTuning.db2 file. It is recommended to cache results when frequently accessing
+    the same content tuning IDs to avoid redundant database queries. The method is
+    thread-safe as long as the underlying DB2 manager instance is properly synchronized.
+  warnings: Ensure that the provided contentTuningId exists in the ContentTuning.db2
+    file, otherwise behavior may be undefined or return invalid data. Incorrect use
+    of redirectFlag or forItem parameters can lead to unexpected tuning behavior in
+    game mechanics such as loot drops or quest progression.
+  related:
+  - GetContentTuningMap
+  - GetContentTuningByLevel
+  - LoadContentTuningData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T15:13:48.003248'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

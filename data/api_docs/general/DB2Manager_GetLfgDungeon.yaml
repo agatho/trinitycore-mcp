@@ -1,0 +1,57 @@
+api:
+  class: DB2Manager
+  method: GetLfgDungeon
+  signature: const LFGDungeonsEntry * DB2Manager::GetLfgDungeon(uint32 mapId, Difficulty
+    difficulty)
+documentation:
+  brief: Retrieves the LFG dungeon entry for a specified map ID and difficulty.
+  description: The GetLfgDungeon method fetches the LFGDungeonsEntry data structure
+    associated with a given map identifier and difficulty level. This is used internally
+    by TrinityCore to determine dungeon properties such as required level, group size,
+    and loot distribution for Looking For Group (LFG) systems. The method performs
+    a lookup in the DB2 database using the provided parameters and returns a pointer
+    to the corresponding entry. If no matching dungeon is found, it returns nullptr.
+    This function is essential for LFG system operations and dungeon-related gameplay
+    mechanics.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map or dungeon. This corresponds to
+      the MapID field in the DB2 files.
+  - name: difficulty
+    description: The difficulty level of the dungeon. Valid values are typically 0
+      (Normal), 1 (Heroic), 2 (Mythic), etc., depending on the game version and expansion.
+  returns: A pointer to a LFGDungeonsEntry structure containing the dungeon's properties
+    if found; otherwise, returns nullptr when no matching entry exists for the given
+    mapId and difficulty combination.
+  examples:
+  - title: Basic Usage Example
+    code: "const LFGDungeonsEntry* dungeon = sDB2Manager->GetLfgDungeon(1234, DIFFICULTY_NORMAL);\n\
+      if (dungeon)\n{\n    // Use dungeon data\n    printf(\"Dungeon Name: %s\\n\"\
+      , dungeon->Name);\n}"
+    language: cpp
+  - title: Checking for Valid Dungeon Entry
+    code: "uint32 mapId = 1234;\nDifficulty difficulty = DIFFICULTY_HEROIC;\nconst\
+      \ LFGDungeonsEntry* dungeon = sDB2Manager->GetLfgDungeon(mapId, difficulty);\n\
+      \nif (dungeon && dungeon->LevelMin > 0)\n{\n    // Proceed with LFG logic\n\
+      \    printf(\"Minimum level required: %u\\n\", dungeon->LevelMin);\n}\nelse\n\
+      {\n    // Handle invalid or missing dungeon\n    printf(\"No valid dungeon found\
+      \ for map ID %u and difficulty %u\\n\", mapId, difficulty);\n}"
+    language: cpp
+  notes: This method accesses internal DB2 data structures which are pre-loaded at
+    server startup. It's thread-safe as long as the underlying DB2 manager is properly
+    synchronized. The returned pointer should not be stored or used beyond the scope
+    where the DB2 data remains valid.
+  warnings: Be cautious when using this function without checking for nullptr returns,
+    as attempting to access members of a null pointer will cause a crash. Also note
+    that some dungeon entries might not exist for all difficulty levels, especially
+    in older content.
+  related:
+  - GetLfgDungeonByIndex
+  - GetLfgDungeonsMap
+  - GetLfgDungeonForPlayer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T14:57:02.122444'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

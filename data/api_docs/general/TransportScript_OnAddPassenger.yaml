@@ -1,0 +1,58 @@
+api:
+  class: TransportScript
+  method: OnAddPassenger
+  signature: void TransportScript::OnAddPassenger(Transport * transport, Player *
+    player)
+documentation:
+  brief: Called when a player is added as a passenger to a transport vehicle
+  description: This method is invoked by the TrinityCore framework whenever a Player
+    object is successfully added as a passenger to a Transport object. It serves as
+    a hook for custom script logic that needs to execute when passengers board transport
+    vehicles such as boats, zeppelins, or other moving transports within Azeroth.
+    The method provides access to both the transport vehicle and the player who has
+    boarded it, allowing scripts to perform actions like sending messages, modifying
+    player states, or triggering quest events. This callback is part of the TransportScript
+    system which enables developers to extend default transport behavior through scripting.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object that the player is boarding. This
+      represents the vehicle entity such as a boat or zeppelin.
+  - name: player
+    description: Pointer to the Player object who has been added as a passenger to
+      the transport. This is the player who triggered the event.
+  returns: null
+  examples:
+  - title: Basic Transport Passenger Logging
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnAddPassenger(Transport* transport, Player* player) override\n    {\n   \
+      \     if (player && transport)\n        {\n            LOG_INFO(\"scripts\"\
+      , \"Player {} has boarded transport {}\", player->GetName(), transport->GetGUID().ToString());\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Trigger Quest Event on Passenger Boarding
+    code: "class QuestTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnAddPassenger(Transport* transport, Player* player) override\n    {\n   \
+      \     if (player && transport)\n        {\n            // Check if player has\
+      \ a specific quest active\n            if (player->GetQuestStatus(12345) ==\
+      \ QUEST_STATUS_INCOMPLETE)\n            {\n                // Award quest credit\
+      \ or modify quest state\n                player->AreaExploredOrEventHappens(12345);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the transport boarding process, after the player's
+    position has been updated to match the transport. The transport and player pointers
+    are guaranteed to be valid at this point. Scripts should avoid performing heavy
+    operations in this callback as it may affect performance during player movement.
+  warnings: Do not modify the transport or player objects in a way that could cause
+    instability or infinite loops. Avoid calling methods that might recursively trigger
+    OnAddPassenger again. Be aware that multiple players can board a single transport
+    simultaneously, so ensure thread safety if using shared resources.
+  related:
+  - OnRemovePassenger
+  - OnTransportUpdate
+  - OnRelocate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:10:01.877723'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

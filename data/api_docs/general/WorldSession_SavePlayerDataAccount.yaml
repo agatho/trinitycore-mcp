@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: SavePlayerDataAccount
+  signature: void WorldSession::SavePlayerDataAccount(const int & transaction)
+documentation:
+  brief: Saves player data to the account associated with the current session.
+  description: The SavePlayerDataAccount method persists player-related data to the
+    database for the account currently bound to this WorldSession. This typically
+    includes character information, inventory state, quest progress, and other persistent
+    game data that should be retained between sessions. The method operates within
+    the context of a database transaction specified by the transaction parameter,
+    ensuring data consistency during save operations. It is commonly invoked during
+    player logout or at regular intervals to prevent data loss.
+  parameters:
+  - name: transaction
+    description: An integer reference representing the database transaction identifier
+      used for saving player data. This parameter ensures that all related database
+      operations are committed together as a single atomic unit.
+  returns: null
+  examples:
+  - title: Basic Usage During Logout
+    code: "void WorldSession::HandlePlayerLogout(WorldPacket& recvData)\n{\n    //\
+      \ ... other logout logic ...\n    SavePlayerDataAccount(m_transaction);\n  \
+      \  // ... finalize logout ...\n}"
+    language: cpp
+  - title: Saving Player Data in a Regular Interval
+    code: "void WorldSession::UpdatePlayerData()\n{\n    static uint32 lastSave =\
+      \ 0;\n    uint32 currentTime = getMSTime();\n    if (currentTime - lastSave\
+      \ > 30000) // Save every 30 seconds\n    {\n        SavePlayerDataAccount(m_transaction);\n\
+      \        lastSave = currentTime;\n    }\n}"
+    language: cpp
+  notes: This method should only be called when the session has an active database
+    transaction. It's typically used in conjunction with other session management
+    functions to ensure data integrity during player sessions. The actual saving process
+    may involve multiple database writes depending on the amount of player data that
+    needs to be persisted.
+  warnings: Calling this method without a valid transaction context can lead to database
+    corruption or inconsistent state. Always verify that the transaction is properly
+    initialized before invoking this function. Additionally, frequent calls to this
+    method may impact server performance during high-traffic periods.
+  related:
+  - SavePlayerData
+  - SaveAccountData
+  - CommitTransaction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:10:03.466377'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

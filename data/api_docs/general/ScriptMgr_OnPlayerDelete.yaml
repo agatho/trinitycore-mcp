@@ -1,0 +1,54 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerDelete
+  signature: void ScriptMgr::OnPlayerDelete(int guid, uint32 accountId)
+documentation:
+  brief: Called when a player is deleted from the database, allowing scripts to perform
+    cleanup or logging operations.
+  description: 'The OnPlayerDelete method is a hook in the ScriptMgr class that gets
+    invoked whenever a player character is removed from the game database. This event
+    typically occurs during account deletion or character removal processes. The method
+    provides two key pieces of information: the global unique identifier (GUID) of
+    the player being deleted and the associated account ID. Scripts can utilize this
+    hook to perform necessary cleanup tasks such as removing related data entries,
+    logging the deletion event, or updating external systems that track player activity.
+    The method is executed synchronously within the game''s main thread context.'
+  parameters:
+  - name: guid
+    description: The global unique identifier (GUID) of the player character being
+      deleted. This value uniquely identifies the specific player instance in the
+      database.
+  - name: accountId
+    description: The numeric account ID associated with the player's account. This
+      represents the owning account that is linked to the character being removed.
+  returns: null
+  examples:
+  - title: Basic Logging of Player Deletion
+    code: "void MyScript::OnPlayerDelete(int guid, uint32 accountId)\n{\n    sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Player with GUID %u and Account ID %u was deleted.\", guid, accountId);\n\
+      }"
+    language: cpp
+  - title: Cleanup Related Database Entries
+    code: "void MyScript::OnPlayerDelete(int guid, uint32 accountId)\n{\n    // Remove\
+      \ any custom player data\n    CharacterDatabase.PExecute(\"DELETE FROM custom_player_data\
+      \ WHERE guid = %u\", guid);\n    \n    // Log deletion event\n    sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Cleaned up data for deleted player GUID: %u\", guid);\n}"
+    language: cpp
+  notes: This method is called during the final stages of a player's removal process,
+    so any database operations should be performed carefully to avoid conflicts. The
+    method runs in the main game thread and should not block for extended periods
+    to prevent performance degradation.
+  warnings: Be cautious when performing database operations within this hook as it
+    may be invoked during critical sections of the deletion process. Avoid calling
+    methods that might trigger additional deletions or cause recursive calls which
+    could lead to deadlocks or inconsistent states.
+  related:
+  - OnPlayerLogin
+  - OnPlayerLogout
+  - OnAccountDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:21:51.529184'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

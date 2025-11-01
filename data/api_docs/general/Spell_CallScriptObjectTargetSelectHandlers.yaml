@@ -1,0 +1,66 @@
+api:
+  class: Spell
+  method: CallScriptObjectTargetSelectHandlers
+  signature: void Spell::CallScriptObjectTargetSelectHandlers(WorldObject *& target,
+    int effIndex, const SpellImplicitTargetInfo & targetType)
+documentation:
+  brief: Invokes script object target selection handlers for a spell effect, allowing
+    custom logic to modify or select targets.
+  description: The CallScriptObjectTargetSelectHandlers method is responsible for
+    executing any registered script handlers that are designed to influence or override
+    the target selection process for a specific spell effect. This method plays a
+    crucial role in custom spell behavior implementations within TrinityCore, particularly
+    when using scripted spells or custom AI logic. It takes a reference to a WorldObject
+    pointer, an effect index, and information about the implicit target type to determine
+    how targets should be selected or modified during spell execution. The method
+    allows for dynamic target selection based on custom conditions defined in scripts,
+    enhancing the flexibility of spell mechanics beyond standard game rules.
+  parameters:
+  - name: target
+    description: Reference to a pointer to the WorldObject that will serve as the
+      target for the spell effect. This can be modified by script handlers to change
+      the actual target selected.
+  - name: effIndex
+    description: The index of the spell effect being processed. Used to identify which
+      specific effect's target selection logic should be applied.
+  - name: targetType
+    description: An object containing information about the implicit target type for
+      the spell effect, including valid target types and selection rules.
+  returns: null
+  examples:
+  - title: Basic usage in a custom spell handler
+    code: "void MySpellHandler::OnEffectExecute(SpellEffIndex effIndex)\n{\n    WorldObject*\
+      \ target = nullptr;\n    SpellImplicitTargetInfo targetType = GetSpellInfo()->GetEffectImplicitTargetInfo(effIndex);\n\
+      \    CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);\n \
+      \   // Use the potentially modified target\n    if (target)\n        DoSomethingWithTarget(target);\n\
+      }"
+    language: cpp
+  - title: Modifying target selection based on custom conditions
+    code: "void CustomTargetSelector::OnTargetSelect(Spell* spell, WorldObject*& target,\
+      \ int effIndex, const SpellImplicitTargetInfo& targetType)\n{\n    if (spell->GetSpellInfo()->Id\
+      \ == 12345 && effIndex == EFFECT_0)\n    {\n        // Select a specific type\
+      \ of unit\n        target = GetClosestUnitInGrid(target, 10.0f, UNIT_MASK_PLAYER);\n\
+      \    }\n}\n\nvoid Spell::CallScriptObjectTargetSelectHandlers(WorldObject*&\
+      \ target, int effIndex, const SpellImplicitTargetInfo& targetType)\n{\n    //\
+      \ Implementation would iterate through registered scripts and call OnTargetSelect\n\
+      \    // for each matching spell effect\n}"
+    language: cpp
+  notes: This method is typically called internally during spell execution as part
+    of the spell processing pipeline. It's important to ensure that any modifications
+    made to the target pointer are valid and do not introduce memory corruption or
+    invalid object references. Script handlers should be careful not to cause infinite
+    recursion or modify targets in ways that could break game logic.
+  warnings: Modifying the target reference inside script handlers can have significant
+    consequences on spell behavior. Ensure all target changes result in valid WorldObject
+    pointers, as invalid targets may cause crashes or undefined behavior. Avoid modifying
+    targets during effects that are not meant to be overridden by scripts.
+  related:
+  - Spell::CallScriptObjectHitHandlers
+  - Spell::CallScriptObjectEffectHandlers
+  - Spell::GetSpellInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:56:12.051811'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

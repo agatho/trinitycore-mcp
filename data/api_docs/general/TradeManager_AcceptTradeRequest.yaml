@@ -1,0 +1,54 @@
+api:
+  class: TradeManager
+  method: AcceptTradeRequest
+  signature: bool TradeManager::AcceptTradeRequest(int requesterGuid)
+documentation:
+  brief: Accepts a trade request from another player and initiates the trade process.
+  description: The AcceptTradeRequest method is used by the TradeManager class to
+    accept an incoming trade request from another player. This method validates that
+    a valid trade request exists for the specified requester GUID, ensures both players
+    are in a valid state to engage in trading (e.g., not in combat, within range),
+    and begins the trade session. It handles the necessary game state transitions
+    and updates internal trade data structures to reflect the acceptance of the trade.
+    The method returns true if the trade was successfully accepted and false otherwise,
+    which may occur due to invalid request states, player conditions, or other game
+    logic constraints.
+  parameters:
+  - name: requesterGuid
+    description: The unique identifier (GUID) of the player who initiated the trade
+      request. This value must correspond to a valid online player in the game world.
+  returns: Returns true if the trade request was successfully accepted and the trade
+    session began; returns false if the trade could not be accepted due to invalid
+    state, player conditions, or other constraints.
+  examples:
+  - title: Basic Trade Acceptance
+    code: "if (tradeManager->AcceptTradeRequest(playerGuid)) {\n    // Trade successfully\
+      \ initiated\n    SendTradeStatus(TRADE_STATUS_ACCEPTED);\n} else {\n    // Failed\
+      \ to accept trade\n    SendTradeStatus(TRADE_STATUS_CANCELLED);\n}"
+    language: cpp
+  - title: Trade Acceptance with Validation
+    code: "Player* player = ObjectAccessor::FindPlayer(requesterGuid);\nif (!player\
+      \ || !player->IsInWorld()) {\n    return false;\n}\n\nif (tradeManager->AcceptTradeRequest(requesterGuid))\
+      \ {\n    // Proceed with trade UI updates and state synchronization\n    UpdateTradeUI();\n\
+      \    return true;\n}\nreturn false;"
+    language: cpp
+  notes: This method assumes that a valid trade request has already been initiated
+    by the requester. It does not perform the initial trade request creation, which
+    is typically handled by another method such as SendTradeRequest. The method may
+    be called from different threads depending on how the TrinityCore server handles
+    player interactions, so thread safety should be considered if used in asynchronous
+    contexts.
+  warnings: Calling this method without verifying that a valid trade request exists
+    for the requester GUID can lead to undefined behavior or failed trades. Additionally,
+    calling this during combat or when players are not within trading range will likely
+    result in failure and may trigger client-side error messages.
+  related:
+  - SendTradeRequest
+  - CancelTrade
+  - InitiateTrade
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T20:25:28.215204'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: Map
+  method: _GetScriptUnit
+  signature: Unit * Map::_GetScriptUnit(Object * obj, bool isSource, const ScriptInfo
+    * scriptInfo) const
+documentation:
+  brief: Retrieves the Unit object associated with a given Object for script execution
+    context.
+  description: The _GetScriptUnit method is an internal utility function used within
+    the TrinityCore scripting system to resolve and return a Unit pointer from a generic
+    Object pointer. This method serves as a helper in script evaluation contexts where
+    it's necessary to determine if an object can be interpreted as a Unit (such as
+    a player or creature) for script execution purposes. The method performs type
+    checking and may return null if the provided object cannot be safely cast to a
+    Unit. It is typically invoked during script processing when evaluating conditions,
+    triggers, or effects that require unit-based context.
+  parameters:
+  - name: obj
+    description: Pointer to the Object instance from which to extract the Unit. This
+      can be any object type such as Player, Creature, GameObject, etc., but only
+      if it's a subclass of Unit will a valid Unit pointer be returned.
+  - name: isSource
+    description: Boolean flag indicating whether the object is being used as the source
+      in a script context. This may influence how the method interprets or processes
+      the object for script evaluation purposes.
+  - name: scriptInfo
+    description: Pointer to the ScriptInfo structure that contains metadata about
+      the script currently being executed. This parameter may be used to determine
+      context-specific behavior or validation rules for the Unit retrieval.
+  returns: Returns a pointer to a Unit object if the provided Object can be safely
+    cast to a Unit type; otherwise returns nullptr. The returned Unit pointer represents
+    either a Player, Creature, or other subclass of Unit that is valid in the current
+    script execution context.
+  examples:
+  - title: Basic usage in script evaluation
+    code: "Unit* targetUnit = map->_GetScriptUnit(someObject, true, &scriptInfo);\n\
+      if (targetUnit != nullptr)\n{\n    // Proceed with unit-specific logic\n   \
+      \ targetUnit->Say(\"Hello from script!\", LANG_UNIVERSAL);\n}"
+    language: cpp
+  - title: Checking for valid Unit before processing
+    code: "Object* obj = GetGameObject();\nUnit* unit = map->_GetScriptUnit(obj, false,\
+      \ &currentScript);\nif (unit && unit->IsAlive())\n{\n    // Apply effect only\
+      \ to alive units\n    DoDamage(unit, 100);\n}"
+    language: cpp
+  notes: This is an internal method and should not be called directly from external
+    code. It's primarily used by the TrinityCore scripting engine during script execution.
+    The method performs dynamic casting and null checks internally, so callers do
+    not need to validate object types before calling.
+  warnings: Because this method is part of the internal scripting infrastructure,
+    changes to its behavior may affect script execution. Avoid relying on this method
+    in custom modules unless you're certain about the underlying assumptions. Also
+    note that it's marked as const, meaning it does not modify the Map instance but
+    may still perform non-trivial operations.
+  related:
+  - _GetScriptObject
+  - _GetScriptPlayer
+  - _GetScriptCreature
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:48:35.132423'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

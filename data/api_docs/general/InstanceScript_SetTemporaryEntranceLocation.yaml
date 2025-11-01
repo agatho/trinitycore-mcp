@@ -1,0 +1,54 @@
+api:
+  class: InstanceScript
+  method: SetTemporaryEntranceLocation
+  signature: void InstanceScript::SetTemporaryEntranceLocation(uint32 worldSafeLocationId)
+documentation:
+  brief: Sets the temporary entrance location for the instance to a specified world
+    safe location ID.
+  description: The SetTemporaryEntranceLocation method configures the instance script
+    to use a specific world safe location ID as the temporary entrance point for players
+    entering the instance. This is typically used during instance creation or reset
+    scenarios where players need to be teleported to a designated safe area upon entry.
+    The method updates internal state tracking for the instance's entrance location
+    without affecting the actual player teleportation process, which is handled separately
+    by the core systems. This functionality supports dynamic instance management and
+    ensures proper player positioning when entering complex raid or dungeon environments.
+  parameters:
+  - name: worldSafeLocationId
+    description: The unique identifier of the world safe location to set as the temporary
+      entrance point. This ID corresponds to entries in the WorldSafeLocs.dbc file
+      and defines valid teleportation destinations within the game world.
+  returns: null
+  examples:
+  - title: Setting Temporary Entrance Location
+    code: "class BossInstanceScript : public InstanceScript\n{\npublic:\n    void\
+      \ OnPlayerEnter(Player* player) override\n    {\n        // Set temporary entrance\
+      \ to the instance's main hub location\n        SetTemporaryEntranceLocation(12345);\n\
+      \    }\n};"
+    language: cpp
+  - title: Dynamic Entrance Location Based on Instance State
+    code: "class RaidInstanceScript : public InstanceScript\n{\npublic:\n    void\
+      \ OnInstanceReset() override\n    {\n        // Set different entrance locations\
+      \ based on raid difficulty\n        if (GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC)\n\
+      \            SetTemporaryEntranceLocation(54321);\n        else\n          \
+      \  SetTemporaryEntranceLocation(12345);\n    }\n};"
+    language: cpp
+  notes: This method only updates the internal tracking of the temporary entrance
+    location. Actual player teleportation requires separate handling through the core
+    systems. The provided worldSafeLocationId must correspond to a valid entry in
+    WorldSafeLocs.dbc, otherwise the behavior is undefined. This method should be
+    called during instance initialization or reset phases to ensure proper state management.
+  warnings: Incorrect worldSafeLocationId values may cause unexpected behavior or
+    teleportation failures. Ensure that the specified ID references a legitimate safe
+    location in the database. Calling this method after players have already entered
+    the instance might lead to inconsistent player positioning.
+  related:
+  - GetTemporaryEntranceLocation
+  - SetBossState
+  - GetInstanceId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T12:43:48.848547'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

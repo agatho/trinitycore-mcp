@@ -1,0 +1,52 @@
+api:
+  class: SpellScript
+  method: IsInModifiableHook
+  signature: bool SpellScript::IsInModifiableHook() const
+documentation:
+  brief: Determines whether the current spell script is executing within a modifiable
+    hook context.
+  description: The IsInModifiableHook method checks if the current execution context
+    of a SpellScript is inside a hook that allows modifications to the spell's behavior
+    or properties. This is commonly used in spell scripts where certain hooks (like
+    BeforeHit, BeforeCast, etc.) provide the ability to alter spell parameters, effects,
+    or conditions before they are applied. The method returns true when the script
+    is currently within such a modifiable context and false otherwise. This functionality
+    is essential for implementing dynamic spell behavior modifications in TrinityCore's
+    spell system.
+  parameters: []
+  returns: Returns true if the current spell script execution is within a modifiable
+    hook context, allowing for changes to spell properties or behavior; returns false
+    if the execution is in a read-only or non-modifiable hook context.
+  examples:
+  - title: Basic Usage in Spell Script
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleBeforeHit()\n\
+      \    {\n        if (IsInModifiableHook())\n        {\n            // Modify\
+      \ spell effects or properties here\n            SetEffectValue(0, 100); // Example\
+      \ modification\n        }\n    }\n};"
+    language: cpp
+  - title: Conditional Modification Based on Hook Context
+    code: "class AdvancedSpellScript : public SpellScript\n{\npublic:\n    void OnApply()\n\
+      \    {\n        if (IsInModifiableHook())\n        {\n            // Only modify\
+      \ spell parameters in modifiable hooks\n            if (GetSpellInfo()->Id ==\
+      \ 12345)\n                SetEffectRadius(0, 5.0f);\n        }\n        else\n\
+      \        {\n            // Handle read-only execution path\n            SendSystemMessage(\"\
+      Spell is not in modifiable context\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method should only be called from within a SpellScript's hook methods.
+    The modifiable hook context is typically limited to specific spell lifecycle events
+    such as BeforeHit, BeforeCast, and similar pre-execution hooks. Calling this method
+    outside of these contexts may return unpredictable results.
+  warnings: Do not rely on the return value for critical logic flow decisions without
+    verifying the current execution context. Incorrect usage in non-modifiable hooks
+    might lead to unexpected behavior or runtime errors.
+  related:
+  - IsInCheckHook
+  - IsInExecuteHook
+  - GetSpellInfo
+  - SetEffectValue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:46:44.370243'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

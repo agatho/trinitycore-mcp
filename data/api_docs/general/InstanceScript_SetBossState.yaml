@@ -1,0 +1,57 @@
+api:
+  class: InstanceScript
+  method: SetBossState
+  signature: bool InstanceScript::SetBossState(uint32 id, EncounterState state)
+documentation:
+  brief: Sets the encounter state for a specified boss in the instance.
+  description: The SetBossState method updates the saved encounter state for a specific
+    boss within an instance script. This method is used to track the progress and
+    status of bosses during dungeon or raid encounters, allowing the game to remember
+    whether a boss has been defeated, is in progress, or has not yet been encountered.
+    The method typically stores this information internally and may trigger related
+    events or updates based on the new state. It's commonly called when a boss dies
+    or when an encounter transitions between different phases.
+  parameters:
+  - name: id
+    description: The unique identifier of the boss for which to set the state. This
+      ID corresponds to the boss entry in the database and is used to distinguish
+      between different encounters within the same instance.
+  - name: state
+    description: The new encounter state to assign to the boss. Valid values are typically
+      defined by the EncounterState enum, which includes states such as NOT_STARTED,
+      IN_PROGRESS, FAIL, and DONE.
+  returns: Returns true if the boss state was successfully updated; false otherwise.
+    A return value of false may indicate that the provided boss ID is invalid or that
+    the state update failed for some reason.
+  examples:
+  - title: Setting a Boss as Defeated
+    code: "if (instance->SetBossState(BOSS_MARWYN, DONE))\n{\n    // Boss state updated\
+      \ successfully\n    instance->DoUpdateWorldState(WORLD_STATE_MARWYN_DEFEATED,\
+      \ 1);\n}"
+    language: cpp
+  - title: Handling Boss Encounter State Changes
+    code: "void InstanceScript::OnCreatureDeath(Creature* creature)\n{\n    switch\
+      \ (creature->GetEntry())\n    {\n        case BOSS_LORD_MARWYN:\n          \
+      \  SetBossState(BOSS_LORD_MARWYN, DONE);\n            break;\n        case BOSS_SINDRAGOSA:\n\
+      \            SetBossState(BOSS_SINDRAGOSA, IN_PROGRESS);\n            break;\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the instance scripting system in TrinityCore and integrates
+    with the overall encounter tracking mechanism. It's important to ensure that boss
+    IDs match those defined in the instance script and that valid EncounterState values
+    are used. The method may also trigger internal state synchronization or event
+    notifications depending on how the instance script is implemented.
+  warnings: Incorrect boss IDs can lead to silent failures or unexpected behavior.
+    Always validate boss IDs before calling this method, especially when dealing with
+    dynamic or conditional encounters. Also, be aware that changing a boss's state
+    might affect other systems like loot distribution or quest progression.
+  related:
+  - GetBossState
+  - SetData
+  - GetData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T12:44:44.671421'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

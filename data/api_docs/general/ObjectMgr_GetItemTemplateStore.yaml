@@ -1,0 +1,49 @@
+api:
+  class: ObjectMgr
+  method: GetItemTemplateStore
+  signature: const ItemTemplateContainer & ObjectMgr::GetItemTemplateStore() const
+documentation:
+  brief: Returns a constant reference to the item template container storing all item
+    templates in the game database.
+  description: The GetItemTemplateStore method provides access to the internal container
+    that holds all ItemTemplate objects loaded from the game database. This container
+    is used by the server to quickly retrieve item information such as stats, display
+    IDs, and other properties when items are created or referenced during gameplay.
+    The returned reference is constant, meaning the data should not be modified through
+    this interface. This method is typically called during server initialization and
+    item creation processes to fetch item definitions.
+  parameters: []
+  returns: A constant reference to an ItemTemplateContainer object which contains
+    all loaded item templates indexed by their entry IDs. This allows efficient lookup
+    of item properties without requiring repeated database queries.
+  examples:
+  - title: Accessing Item Template Information
+    code: "const ItemTemplateContainer& itemTemplates = ObjectMgr::Instance()->GetItemTemplateStore();\n\
+      const ItemTemplate* itemTemplate = itemTemplates.LookupEntry(12345);\nif (itemTemplate)\n\
+      {\n    // Use itemTemplate->Name, itemTemplate->DisplayInfoID, etc.\n    sLog->outString(\"\
+      Found item: %s\", itemTemplate->Name.c_str());\n}"
+    language: cpp
+  - title: Iterating Through All Item Templates
+    code: "const ItemTemplateContainer& itemTemplates = ObjectMgr::Instance()->GetItemTemplateStore();\n\
+      for (const auto& pair : itemTemplates)\n{\n    const ItemTemplate* item = pair.second;\n\
+      \    if (item && item->Class == ITEM_CLASS_WEAPON)\n    {\n        // Process\
+      \ weapon items\n        sLog->outString(\"Weapon ID: %u, Name: %s\", item->ItemId,\
+      \ item->Name.c_str());\n    }\n}"
+    language: cpp
+  notes: The ItemTemplateContainer is populated during server startup when loading
+    data from the database. Modifications to item templates after this point should
+    not be made through this interface as it may lead to inconsistent behavior. The
+    returned reference remains valid for the lifetime of the ObjectMgr instance.
+  warnings: Do not modify the contents of the returned container, as it contains shared
+    data used throughout the server. Any modifications should be done through appropriate
+    database update mechanisms or dedicated item modification APIs.
+  related:
+  - GetItemTemplate
+  - LoadItemTemplates
+  - AddItemTemplate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:33:23.785694'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

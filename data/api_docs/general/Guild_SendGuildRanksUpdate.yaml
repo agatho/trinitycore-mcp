@@ -1,0 +1,55 @@
+api:
+  class: Guild
+  method: SendGuildRanksUpdate
+  signature: void Guild::SendGuildRanksUpdate(int setterGuid, int targetGuid, GuildRankId
+    rank)
+documentation:
+  brief: Sends a guild rank update message to all online guild members.
+  description: The SendGuildRanksUpdate method is responsible for notifying all currently
+    online members of a guild about a change in a specific member's guild rank. This
+    method ensures that the guild interface and related UI elements are updated across
+    all client instances. The update includes information about which player's rank
+    has changed, who made the change (setter), and what the new rank is. It typically
+    gets invoked when a guild officer or leader promotes or demotes a guild member
+    through the in-game guild management system.
+  parameters:
+  - name: setterGuid
+    description: The global unique identifier (GUID) of the player who is making the
+      rank change. This should be a valid player GUID from the game world.
+  - name: targetGuid
+    description: The global unique identifier (GUID) of the player whose guild rank
+      is being updated. This must correspond to an actual guild member.
+  - name: rank
+    description: The new GuildRankId that the target player is being assigned. This
+      value should be a valid rank ID within the range of allowed guild ranks for
+      this guild.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "Guild* guild = sObjectAccessor->GetGuildById(guildId);\nif (guild)\n{\n\
+      \    guild->SendGuildRanksUpdate(player1Guid, player2Guid, GR_OFFICER);\n}"
+    language: cpp
+  - title: Advanced Usage with Rank Validation
+    code: "if (guild && guild->IsMember(playerGuid))\n{\n    // Ensure the rank is\
+      \ valid before sending update\n    if (newRank >= GR_INITIATE && newRank <=\
+      \ GR_GUILD_MASTER)\n    {\n        guild->SendGuildRanksUpdate(setterGuid, playerGuid,\
+      \ newRank);\n    }\n}"
+    language: cpp
+  notes: This method only sends updates to players currently online. Offline members
+    will receive the updated rank information upon logging back in. The method does
+    not perform any validation on the input parameters beyond basic type checking;
+    it's expected that callers ensure valid GUIDs and rank IDs are passed.
+  warnings: Calling this method without proper validation may result in incorrect
+    UI updates or client-side errors if invalid GUIDs or out-of-range rank values
+    are provided. It should only be called from within a valid game context where
+    guild operations are permitted.
+  related:
+  - Guild::SendGuildUpdate
+  - Guild::SendGuildCommandResult
+  - Guild::SetMemberRank
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T13:13:37.580834'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

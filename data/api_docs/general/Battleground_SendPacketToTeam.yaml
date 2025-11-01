@@ -1,0 +1,78 @@
+api:
+  class: Battleground
+  method: SendPacketToTeam
+  signature: void Battleground::SendPacketToTeam(int team, const WorldPacket * packet,
+    Player * except) const
+documentation:
+  brief: Sends a packet to all players on a specified team in the battleground, excluding
+    one optional player.
+  description: The SendPacketToTeam method broadcasts a WorldPacket to all players
+    participating in the battleground who belong to the specified team. This is commonly
+    used for sending game state updates, notifications, or synchronized data to one
+    side of a battleground match. The method allows an optional Player pointer to
+    be excluded from receiving the packet, which is useful when the packet originates
+    from a specific player and should not be sent back to them. The team parameter
+    typically corresponds to either TEAM_ALLIANCE (0) or TEAM_HORDE (1), though other
+    values may be valid depending on battleground implementation. This method operates
+    within the context of TrinityCore's battleground system and ensures proper network
+    communication between server and clients for real-time gameplay synchronization.
+  parameters:
+  - name: team
+    description: The team identifier to send the packet to. Typically TEAM_ALLIANCE
+      (0) or TEAM_HORDE (1), but may vary based on battleground type.
+  - name: packet
+    description: Pointer to the WorldPacket containing the data to be sent. Must not
+      be null.
+  - name: except
+    description: Optional pointer to a Player who should not receive the packet. If
+      null, all players on the team will receive it.
+  returns: null
+  examples:
+  - title: Send a message to all players on the Horde team
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT, 100);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_BATTLEGROUND_END);
+
+      // Send to all Horde players except the one who triggered it
+
+      SendPacketToTeam(TEAM_HORDE, &packet, player);'
+    language: cpp
+  - title: Broadcast a score update to both teams
+    code: 'WorldPacket packet(SMSG_UPDATE_WORLD_STATE, 8);
+
+      packet << uint32(WORLD_STATE_TEAM_SCORE_ALLIANCE);
+
+      packet << uint32(allianceScore);
+
+      SendPacketToTeam(TEAM_ALLIANCE, &packet, nullptr);
+
+
+      packet.Clear();
+
+      packet << uint32(WORLD_STATE_TEAM_SCORE_HORDE);
+
+      packet << uint32(hordeScore);
+
+      SendPacketToTeam(TEAM_HORDE, &packet, nullptr);'
+    language: cpp
+  notes: This method internally iterates through all players in the battleground and
+    checks their team membership. It's optimized for frequent use during battleground
+    events but should not be called excessively in tight loops without consideration
+    for performance impact. The packet is sent directly to each player's socket, bypassing
+    general message queues.
+  warnings: Ensure that the WorldPacket passed is properly constructed before calling
+    this method; sending malformed packets can cause client disconnects or crashes.
+    The 'except' parameter should be carefully managed to avoid unintended behavior
+    when dealing with player-specific actions.
+  related:
+  - SendPacketToPlayers
+  - SendPacketToAll
+  - GetPlayerByGUID
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T02:09:37.542076'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

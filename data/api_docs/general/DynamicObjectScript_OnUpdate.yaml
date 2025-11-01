@@ -1,0 +1,64 @@
+api:
+  class: DynamicObjectScript
+  method: OnUpdate
+  signature: void DynamicObjectScript::OnUpdate(DynamicObject * obj, uint32 diff)
+documentation:
+  brief: Updates the dynamic object's state based on the elapsed time since last update.
+  description: The OnUpdate method is a callback function invoked by the TrinityCore
+    server framework to allow custom scripts to modify the behavior of dynamic objects
+    over time. This method is called periodically with a time delta (diff) parameter
+    indicating how much time has passed since the last execution. It provides an opportunity
+    for developers to implement logic such as fading effects, periodic damage application,
+    or conditional removal of the dynamic object. The method operates within the game's
+    main loop and must be efficient to avoid performance degradation. Dynamic objects
+    are typically used for spells like area-of-effect effects, traps, or environmental
+    interactions that persist for a duration.
+  parameters:
+  - name: obj
+    description: Pointer to the DynamicObject instance being updated. This represents
+      the specific dynamic object whose state is being modified by this script.
+  - name: diff
+    description: Time delta in milliseconds since the last update call. Used to calculate
+      time-based effects such as fading, duration tracking, or timed actions.
+  returns: null
+  examples:
+  - title: Basic Dynamic Object Update Implementation
+    code: "class MyDynamicObjectScript : public DynamicObjectScript\n{\npublic:\n\
+      \    void OnUpdate(DynamicObject* obj, uint32 diff) override\n    {\n      \
+      \  // Example: Remove object after 5 seconds\n        static uint32 timer =\
+      \ 0;\n        timer += diff;\n        if (timer >= 5000)\n        {\n      \
+      \      obj->Remove();\n        }\n    }\n};"
+    language: cpp
+  - title: Periodic Damage Application to Units
+    code: "class PoisonCloudScript : public DynamicObjectScript\n{\npublic:\n    void\
+      \ OnUpdate(DynamicObject* obj, uint32 diff) override\n    {\n        static\
+      \ uint32 timer = 0;\n        timer += diff;\n        if (timer >= 1000) // Apply\
+      \ damage every second\n        {\n            timer = 0;\n            // Get\
+      \ units in area and apply damage\n            std::list<WorldObject*> targets;\n\
+      \            obj->GetObjectsInRange(targets, 5.0f);\n            for (auto&\
+      \ target : targets)\n            {\n                if (target->IsPlayer() ||\
+      \ target->IsCreature())\n                {\n                    target->CastSpell(target,\
+      \ 12345, true); // Poison damage spell\n                }\n            }\n \
+      \       }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should not block or perform
+    heavy computations. The diff parameter represents real-time elapsed milliseconds,
+    which may vary based on server performance. DynamicObjectScript implementations
+    must be registered with the server using the appropriate registration mechanism
+    to take effect.
+  warnings: Avoid performing expensive operations within this function as it can cause
+    frame rate drops. Do not call methods that might modify the object's state in
+    ways that could lead to race conditions or undefined behavior. Be cautious when
+    removing objects during update cycles, as this may cause access violations if
+    other systems are still referencing the object.
+  related:
+  - DynamicObjectScript::OnRemove
+  - DynamicObjectScript::OnHit
+  - DynamicObject::GetDuration
+  - DynamicObject::SetDuration
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T01:08:18.990127'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

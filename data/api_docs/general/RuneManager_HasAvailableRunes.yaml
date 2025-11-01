@@ -1,0 +1,59 @@
+api:
+  class: RuneManager
+  method: HasAvailableRunes
+  signature: bool RuneManager::HasAvailableRunes(RuneType type, uint32 count) const
+documentation:
+  brief: Checks if the player has enough available runes of a specified type to satisfy
+    a given count requirement.
+  description: The HasAvailableRunes method determines whether a player possesses
+    a sufficient number of usable runes for a specific rune type. This is commonly
+    used in World of Warcraft's Death Knight class mechanics, where players must manage
+    their rune resources for abilities like Death Strike and Obliterate. The method
+    evaluates the current state of available runes against the requested count and
+    returns true if enough runes are present, false otherwise. It does not modify
+    any internal state and is typically called before attempting to consume runes
+    for an ability.
+  parameters:
+  - name: type
+    description: The type of rune to check availability for. This corresponds to the
+      RuneType enumeration which includes types such as RUNE_BLOOD, RUNE_UNHOLY, RUNE_FROST,
+      and RUNE_DEATH.
+  - name: count
+    description: The number of runes of the specified type that must be available.
+      Must be a positive integer value representing how many runes are required for
+      the operation.
+  returns: Returns true if the player has at least 'count' available runes of the
+    specified 'type', false otherwise. If the count is zero or negative, the method
+    will return true as no runes are needed.
+  examples:
+  - title: Check for Available Blood Runes
+    code: "if (player->GetRuneManager()->HasAvailableRunes(RUNE_BLOOD, 2)) {\n   \
+      \ // Player has at least 2 blood runes available\n    player->CastSpell(target,\
+      \ SPELL_DEATH_STRIKE, true);\n}"
+    language: cpp
+  - title: Verify Unholy Rune Availability Before Casting
+    code: "RuneManager* runeMgr = player->GetRuneManager();\nif (runeMgr->HasAvailableRunes(RUNE_UNHOLY,\
+      \ 1) && runeMgr->HasAvailableRunes(RUNE_DEATH, 1)) {\n    // Both unholy and\
+      \ death runes are available\n    player->CastSpell(target, SPELL_SUMMON_GARGOYLE,\
+      \ true);\n}"
+    language: cpp
+  notes: This method only checks for currently available runes; it does not account
+    for runes that may become available due to regeneration over time. The rune manager
+    tracks the state of each rune type separately and maintains a count of how many
+    are ready for use. This function is often used in conjunction with other rune
+    management functions such as ConsumeRune or GetRuneCount.
+  warnings: Ensure that the RuneType parameter passed is valid, as invalid values
+    may lead to undefined behavior or incorrect results. Also note that this method
+    does not perform any rune consumption itself; it only checks availability. If
+    you intend to use runes after calling this function, make sure to call a corresponding
+    consume method afterward.
+  related:
+  - GetRuneCount
+  - ConsumeRune
+  - ResetRunes
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T07:02:49.255051'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

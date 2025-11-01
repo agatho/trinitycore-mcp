@@ -1,0 +1,63 @@
+api:
+  class: Guild
+  method: HandleSetMemberNote
+  signature: void Guild::HandleSetMemberNote(WorldSession * session, std::string_view
+    note, int guid, bool isPublic)
+documentation:
+  brief: Sets the private or public note for a guild member
+  description: The HandleSetMemberNote method updates either a guild member's private
+    note or public note based on the isPublic flag. This functionality allows guild
+    leaders and officers to maintain personal or shared information about members
+    within the guild. The method processes a note string provided by the WorldSession,
+    validates the target member's GUID, and stores the note in the guild member's
+    record. It ensures that only authorized individuals can modify notes and handles
+    both private (visible only to officers) and public (visible to all members) note
+    types.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      making the request. Used to verify permissions and identify the requesting player.
+  - name: note
+    description: String view containing the note text to be set for the guild member.
+      The note can contain any valid UTF-8 characters, up to the maximum allowed length
+      by the game client.
+  - name: guid
+    description: Integer representing the global unique identifier (GUID) of the target
+      guild member whose note is being modified. Must correspond to an active guild
+      member.
+  - name: isPublic
+    description: Boolean flag indicating whether to set the public note (true) or
+      private note (false). Public notes are visible to all guild members, while private
+      notes are only visible to officers.
+  returns: No return value. The method performs the note update operation directly
+    and does not return any result.
+  examples:
+  - title: Setting a Public Note for a Guild Member
+    code: "Guild* guild = player->GetGuild();\nif (guild)\n{\n    WorldSession* session\
+      \ = player->GetSession();\n    std::string_view note = \"Important member\"\
+      ;\n    int targetGuid = 123456789;\n    guild->HandleSetMemberNote(session,\
+      \ note, targetGuid, true);\n}"
+    language: cpp
+  - title: Setting a Private Note for a Guild Member
+    code: "Guild* guild = player->GetGuild();\nif (guild)\n{\n    WorldSession* session\
+      \ = player->GetSession();\n    std::string_view note = \"Needs attention\";\n\
+      \    int targetGuid = 123456789;\n    guild->HandleSetMemberNote(session, note,\
+      \ targetGuid, false);\n}"
+    language: cpp
+  notes: This method assumes that the calling session has appropriate permissions
+    to modify notes for the specified guild member. It likely checks if the requesting
+    player is a guild leader or officer before allowing modifications. The implementation
+    may involve database updates and synchronization with the client UI.
+  warnings: Ensure that the GUID parameter refers to an actual guild member, as invalid
+    GUIDs could lead to undefined behavior or errors. Note that note length limits
+    are enforced by the client, so extremely long notes might be truncated upon display.
+  related:
+  - Guild::HandleSetMemberPublicNote
+  - Guild::HandleSetMemberPrivateNote
+  - Guild::GetMemberNote
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T15:04:14.381307'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

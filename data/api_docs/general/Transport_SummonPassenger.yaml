@@ -1,0 +1,79 @@
+api:
+  class: Transport
+  method: SummonPassenger
+  signature: int * Transport::SummonPassenger(int entry, const int & pos, int summonType,
+    const SummonPropertiesEntry * properties, int duration, int * summoner, int spellId,
+    int vehId)
+documentation:
+  brief: Summons a passenger onto the transport with specified properties and duration.
+  description: The SummonPassenger method creates and adds a new passenger (creature
+    or player) to the transport at the given position. It handles the summoning logic
+    including setting up summon properties, duration, and linking the passenger to
+    the summoner. The method returns a pointer to the summoned creature's GUID, which
+    can be used for further manipulation or tracking. This is commonly used in transport
+    systems such as boats, zeppelins, or other moving objects within World of Warcraft.
+    The summonType parameter determines how the passenger is summoned (e.g., temporary,
+    permanent), and the properties parameter defines specific summon behavior like
+    duration, faction, and control type.
+  parameters:
+  - name: entry
+    description: The creature entry ID to summon as a passenger. This corresponds
+      to the creature_template.entry field in the database.
+  - name: pos
+    description: Reference to an integer array or structure representing the position
+      (x, y, z) where the passenger will be summoned on the transport.
+  - name: summonType
+    description: The type of summoning to perform. Valid values typically include
+      temporary summons, permanent summons, and specific transport-related summon
+      types.
+  - name: properties
+    description: Pointer to a SummonPropertiesEntry structure that defines summon
+      behavior such as duration, faction, and control settings.
+  - name: duration
+    description: The duration (in milliseconds) for which the passenger will remain
+      on the transport. Zero or negative values may indicate permanent summoning.
+  - name: summoner
+    description: Pointer to an integer representing the GUID of the summoner (the
+      entity that initiated the summoning). Can be null if no specific summoner is
+      involved.
+  - name: spellId
+    description: The spell ID associated with this summoning event, used for tracking
+      or effects. Zero indicates no spell was used.
+  - name: vehId
+    description: Vehicle ID to associate with the summoned passenger, if applicable.
+      Used for linking passengers to vehicle systems.
+  returns: Returns a pointer to an integer representing the GUID of the summoned passenger.
+    If the summoning fails, it may return NULL or a special error value depending
+    on implementation.
+  examples:
+  - title: Basic Summon Passenger
+    code: "int pos[3] = {0.0f, 0.0f, 0.0f};\nint* summonerGuid = nullptr;\nconst SummonPropertiesEntry*\
+      \ props = nullptr;\nint* result = transport->SummonPassenger(12345, pos, SUMMON_TYPE_CREATURE,\
+      \ props, 60000, summonerGuid, 0, 0);\nif (result != nullptr) {\n    // Passenger\
+      \ successfully summoned\n}"
+    language: cpp
+  - title: Summon with Specific Properties and Duration
+    code: "int pos[3] = {10.0f, 20.0f, 5.0f};\nint summonerGuid = 123456;\nSummonPropertiesEntry\
+      \ props;\nprops.Duration = 30000;\nprops.Faction = 14;\nint* result = transport->SummonPassenger(98765,\
+      \ pos, SUMMON_TYPE_PET, &props, 30000, &summonerGuid, 12345, 0);\nif (result\
+      \ != nullptr) {\n    // Passenger summoned with custom properties\n}"
+    language: cpp
+  notes: This method is typically called during transport initialization or when passengers
+    are added dynamically. It relies on proper positioning data and summon properties
+    to ensure correct behavior. The returned GUID pointer should be used carefully,
+    as it may become invalid if the passenger despawns or is removed from the transport.
+  warnings: Ensure that the entry ID corresponds to a valid creature template in the
+    database; otherwise, the summoning will fail silently or cause an error. Be cautious
+    with the pos array size and content, as incorrect values can lead to passengers
+    appearing outside the transport bounds or causing client-side issues.
+  related:
+  - GetPassenger
+  - RemovePassenger
+  - HasPassenger
+  - GetPassengerCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T17:42:03.375992'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

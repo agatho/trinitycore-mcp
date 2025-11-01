@@ -1,0 +1,69 @@
+api:
+  class: InstanceLockMgr
+  method: UpdateSharedInstanceLock
+  signature: void InstanceLockMgr::UpdateSharedInstanceLock(int trans, InstanceLockUpdateEvent
+    && updateEvent)
+documentation:
+  brief: Updates the shared instance lock with the provided event data.
+  description: The UpdateSharedInstanceLock method is responsible for processing and
+    applying updates to a shared instance lock within the TrinityCore framework. This
+    method handles synchronization of instance lock states across multiple players
+    or sessions, ensuring consistency in shared instance access. It typically operates
+    within a transaction context to maintain data integrity when modifying shared
+    lock information. The method accepts an update event that contains the necessary
+    data to modify the current lock state.
+  parameters:
+  - name: trans
+    description: Transaction identifier used for database operations. This parameter
+      ensures that all related database updates are performed within a single transaction
+      scope, maintaining consistency and preventing partial updates.
+  - name: updateEvent
+    description: An rvalue reference to an InstanceLockUpdateEvent object containing
+      the update data. This event specifies what changes need to be applied to the
+      shared instance lock, including lock status, expiration times, or player access
+      permissions.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'InstanceLockUpdateEvent updateEvent;
+
+      updateEvent.SetInstanceId(1234);
+
+      updateEvent.SetLockStatus(InstanceLockStatus::LOCKED);
+
+      instanceLockMgr.UpdateSharedInstanceLock(0, std::move(updateEvent));'
+    language: cpp
+  - title: Advanced Usage with Transaction Handling
+    code: 'Transaction trans = sDatabase->BeginTransaction();
+
+      int transactionId = trans.GetId();
+
+      InstanceLockUpdateEvent updateEvent;
+
+      updateEvent.SetInstanceId(5678);
+
+      updateEvent.SetLockStatus(InstanceLockStatus::UNLOCKED);
+
+      instanceLockMgr.UpdateSharedInstanceLock(transactionId, std::move(updateEvent));
+
+      sDatabase->CommitTransaction(trans);'
+    language: cpp
+  notes: This method is typically called during instance management operations where
+    shared locks need to be synchronized across multiple players. The transaction
+    parameter ensures atomicity of database updates related to instance locking. Developers
+    should ensure that the updateEvent contains valid data before calling this method
+    to avoid inconsistent lock states.
+  warnings: Improper use of the transaction ID can lead to database consistency issues.
+    Always verify that the InstanceLockUpdateEvent contains valid and complete data
+    before passing it to this method. Failure to properly manage the transaction context
+    may result in partial updates or deadlocks.
+  related:
+  - GetInstanceLock
+  - SetInstanceLock
+  - ReleaseInstanceLock
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T00:15:09.233184'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

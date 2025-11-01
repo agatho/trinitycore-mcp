@@ -1,0 +1,65 @@
+api:
+  class: Aura
+  method: CallScriptEffectSplitHandlers
+  signature: void Aura::CallScriptEffectSplitHandlers(AuraEffect * aurEff, const AuraApplication
+    * aurApp, DamageInfo & dmgInfo, uint32 & splitAmount)
+documentation:
+  brief: Calls script handlers for aura effect splitting during damage application.
+  description: The CallScriptEffectSplitHandlers method invokes registered script
+    handlers associated with a specific aura effect when damage is split during an
+    aura application. This method is typically called internally by the TrinityCore
+    framework to process custom logic defined in aura scripts, particularly for effects
+    that modify how damage is distributed or handled. It allows for dynamic adjustments
+    to damage amounts based on scripted conditions and can be used to implement complex
+    mechanics such as damage splitting, absorption, or redirection. The method modifies
+    the splitAmount parameter to reflect any changes made by the script handlers.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object that triggered this handler call.
+      Represents the specific aura effect being processed.
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the application
+      state of the aura. Contains information about how the aura is applied to a target.
+  - name: dmgInfo
+    description: Reference to a DamageInfo object containing details about the damage
+      being processed, including source, target, and damage values.
+  - name: splitAmount
+    description: Reference to a uint32 value representing the amount of damage that
+      will be split. This value can be modified by script handlers to adjust the split
+      amount.
+  returns: null
+  examples:
+  - title: Basic usage in custom aura script
+    code: "void MyAuraScript::OnEffectSplit(AuraEffect const* aurEff, AuraApplication\
+      \ const* aurApp, DamageInfo& dmgInfo, uint32& splitAmount)\n{\n    // Modify\
+      \ the split amount based on some condition\n    if (aurEff->GetAmount() > 100)\n\
+      \        splitAmount = aurEff->GetAmount() / 2;\n    else\n        splitAmount\
+      \ = 0;\n}"
+    language: cpp
+  - title: Advanced usage with multiple conditions
+    code: "void MyAuraScript::OnEffectSplit(AuraEffect const* aurEff, AuraApplication\
+      \ const* aurApp, DamageInfo& dmgInfo, uint32& splitAmount)\n{\n    // Check\
+      \ if target has specific buff\n    if (aurApp->GetTarget()->HasAura(12345))\n\
+      \    {\n        // Reduce split amount by 25%\n        splitAmount = splitAmount\
+      \ * 0.75;\n    }\n    else\n    {\n        // Increase split amount by 10%\n\
+      \        splitAmount = splitAmount * 1.10;\n    }\n}"
+    language: cpp
+  notes: This method is part of the aura script system and is automatically invoked
+    during damage processing when an aura effect supports splitting. Developers should
+    ensure that modifications to splitAmount are within valid ranges to prevent unexpected
+    behavior or overflow issues. The method does not directly modify the original
+    damage but adjusts how it's distributed among targets.
+  warnings: Modifying splitAmount can significantly affect gameplay balance and damage
+    distribution. Ensure that any changes made by script handlers align with intended
+    game mechanics. Incorrect handling of this value may lead to unbalanced gameplay
+    or client-side issues.
+  related:
+  - Aura::CallScriptEffectApply
+  - Aura::CallScriptEffectRemove
+  - Aura::CallScriptEffect periodicHandlers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T14:01:37.872842'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

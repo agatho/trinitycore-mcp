@@ -1,0 +1,61 @@
+api:
+  class: GuildBankManager
+  method: GetDailyWithdrawLimit
+  signature: uint32 GuildBankManager::GetDailyWithdrawLimit(int * player, uint32 tabId)
+documentation:
+  brief: Retrieves the daily withdraw limit for a guild bank tab.
+  description: The GetDailyWithdrawLimit method calculates and returns the maximum
+    amount of items that can be withdrawn from a specific guild bank tab within a
+    24-hour period. This value is typically determined by the player's rank, guild
+    level, or other in-game permissions. The method takes into account the player's
+    access rights to the specified tab and applies appropriate restrictions based
+    on guild configuration and player privileges. It ensures that players cannot exceed
+    their configured daily withdrawal limits, which helps maintain balance and prevent
+    abuse of guild resources.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's GUID or identifier.
+      This parameter is used to determine the player's rank and permissions within
+      the guild.
+  - name: tabId
+    description: The unique identifier of the guild bank tab for which the daily withdraw
+      limit is being retrieved. Valid values are typically between 0 and the maximum
+      number of tabs configured for the guild.
+  returns: Returns a uint32 value representing the maximum number of items that can
+    be withdrawn from the specified guild bank tab within a 24-hour period. A return
+    value of 0 indicates no withdrawal limit or insufficient permissions.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 limit = guildBankManager->GetDailyWithdrawLimit(&playerGuid, 2);\n\
+      if (limit > 0)\n{\n    // Allow player to withdraw up to 'limit' items\n   \
+      \ printf(\"Daily withdrawal limit: %u items\\n\", limit);\n}\nelse\n{\n    //\
+      \ No withdrawal allowed\n    printf(\"No withdrawal permission or limit reached\\\
+      n\");\n}"
+    language: cpp
+  - title: Integration with Guild Bank Operations
+    code: "void ProcessWithdrawal(int playerGuid, uint32 tabId)\n{\n    uint32 dailyLimit\
+      \ = guildBankManager->GetDailyWithdrawLimit(&playerGuid, tabId);\n    if (dailyLimit\
+      \ == 0)\n    {\n        SendGuildMessage(\"You do not have permission to withdraw\
+      \ from this tab.\");\n        return;\n    }\n    \n    uint32 currentWithdrawals\
+      \ = GetPlayerWithdrawalCount(playerGuid, tabId);\n    if (currentWithdrawals\
+      \ >= dailyLimit)\n    {\n        SendGuildMessage(\"Daily withdrawal limit reached\
+      \ for this tab.\");\n        return;\n    }\n    \n    // Proceed with withdrawal\
+      \ logic\n    PerformWithdrawal(playerGuid, tabId);\n}"
+    language: cpp
+  notes: The method likely caches or retrieves data from internal guild bank configuration
+    tables. It may also interact with the player's rank and permissions system to
+    determine applicable limits. Developers should be aware that this value can vary
+    per player based on their guild membership status and rank.
+  warnings: Ensure that the player parameter points to a valid GUID, as invalid or
+    null pointers could lead to undefined behavior. The tabId must correspond to an
+    existing guild bank tab; otherwise, results may be unpredictable or return zero.
+  related:
+  - GetGuildBankTabCount
+  - SetDailyWithdrawLimit
+  - IsPlayerAllowedToWithdraw
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T13:08:59.024714'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

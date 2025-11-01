@@ -1,0 +1,56 @@
+api:
+  class: AccountMgr
+  method: GetName
+  signature: bool AccountMgr::GetName(uint32 accountId, std::string & name)
+documentation:
+  brief: Retrieves the account name associated with a given account ID.
+  description: The GetName method fetches the username (account name) for a specified
+    account identifier. It performs a lookup in the database to find the corresponding
+    account record and returns the name if found. This method is commonly used in
+    game systems that need to resolve account IDs to their human-readable names, such
+    as for logging, messaging, or administrative functions. The method requires a
+    valid account ID to be passed as input, and will return false if no matching account
+    exists. It's important to note that this operation involves database access and
+    should be used judiciously in performance-critical sections of code.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account to look up. Must be a valid,
+      non-zero account ID present in the database.
+  - name: name
+    description: Reference to a string where the retrieved account name will be stored
+      upon successful lookup. The string is cleared and populated with the result
+      if found.
+  returns: Returns true if an account with the given ID exists and the name was successfully
+    retrieved; otherwise returns false if no matching account is found or on database
+    error.
+  examples:
+  - title: Basic Usage
+    code: "uint32 accountId = 12345;\nstd::string accountName;\nif (AccountMgr::GetName(accountId,\
+      \ accountName)) {\n    printf(\"Account name: %s\\n\", accountName.c_str());\n\
+      } else {\n    printf(\"Account not found\\n\");\n}"
+    language: cpp
+  - title: In Administrative Context
+    code: "void LogPlayerAccount(uint32 playerId) {\n    uint32 accountId = sObjectAccessor->GetPlayer(playerId)->GetSession()->GetAccountId();\n\
+      \    std::string accountName;\n    if (AccountMgr::GetName(accountId, accountName))\
+      \ {\n        sLog->outString(\"Player %u belongs to account: %s\", playerId,\
+      \ accountName.c_str());\n    }\n}"
+    language: cpp
+  notes: This method performs a database query and should not be called frequently
+    in tight loops. Consider caching results where possible. The implementation may
+    use internal caching mechanisms to improve performance for repeated lookups of
+    the same account ID.
+  warnings: Do not pass invalid or zero account IDs as they will likely result in
+    failed lookups. Ensure that the accountId parameter is validated before calling
+    this method if input comes from external sources. This method does not validate
+    whether the account ID actually corresponds to an active account, only that it
+    exists in the database.
+  related:
+  - GetId
+  - IsPlayerAccount
+  - GetSecurity
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:52:42.793367'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

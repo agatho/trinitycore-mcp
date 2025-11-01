@@ -1,0 +1,65 @@
+api:
+  class: Aura
+  method: CallScriptEffectCalcAmountHandlers
+  signature: void Aura::CallScriptEffectCalcAmountHandlers(const AuraEffect * aurEff,
+    int32 & amount, bool & canBeRecalculated)
+documentation:
+  brief: Calls all script handlers responsible for calculating aura effect amounts.
+  description: "The CallScriptEffectCalcAmountHandlers method invokes registered script\
+    \ handlers that are designed to modify or calculate the final amount of an aura\
+    \ effect. This function is typically called during aura application or recalculation\
+    \ phases, allowing scripted behavior to adjust the base value of the aura's effect.\
+    \ The method modifies the 'amount' parameter in place and determines whether the\
+    \ calculation can be recalculated later based on the script handlers' logic. It\
+    \ plays a crucial role in dynamic aura effects where the final\u6570\u503C might\
+    \ depend on various conditions or custom game logic implemented through scripts."
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object for which the amount calculation
+      is being performed. This parameter specifies which specific aura effect is being
+      processed and provides access to its properties and configuration.
+  - name: amount
+    description: Reference to an int32 variable that holds the current calculated
+      amount of the aura effect. This value may be modified by script handlers to
+      reflect any adjustments or calculations performed during the handler execution.
+  - name: canBeRecalculated
+    description: Reference to a boolean flag indicating whether the aura effect's
+      amount can be recalculated at a later time. Script handlers may set this flag
+      to true if further recalculation is needed, such as when conditions change that
+      affect the aura's value.
+  returns: null
+  examples:
+  - title: Basic Usage in Aura Application
+    code: "void MyAuraScript::OnApply(AuraEffect const* aurEff, AuraApplication const*\
+      \ aurApp)\n{\n    int32 amount = aurEff->GetAmount();\n    bool canBeRecalculated\
+      \ = true;\n    GetAura()->CallScriptEffectCalcAmountHandlers(aurEff, amount,\
+      \ canBeRecalculated);\n    // Use updated amount for further processing\n}"
+    language: cpp
+  - title: Modifying Amount Based on Custom Logic
+    code: "class MyCustomAuraScript : public AuraScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnEffectCalcAmount += AuraEffectCalcAmountFn(MyCustomAuraScript::CalculateAmount);\n\
+      \    }\n\nprivate:\n    void CalculateAmount(AuraEffect const* aurEff, int32\
+      \ & amount, bool & canBeRecalculated)\n    {\n        // Apply custom logic\
+      \ to modify the aura effect amount\n        if (Unit* caster = GetCaster())\n\
+      \        {\n            amount += caster->GetLevel() * 5;\n            canBeRecalculated\
+      \ = true;\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore's scripting system and is intended
+    to be used within aura scripts. It should only be called when there are active
+    script handlers registered for effect calculation. The method does not perform
+    any direct calculations itself but delegates to registered handlers, making it
+    a key point in the extensibility of aura effects.
+  warnings: Improper handling of the 'amount' or 'canBeRecalculated' parameters can
+    lead to incorrect aura behavior. Ensure that all script handlers properly validate
+    input and do not introduce infinite recursion when modifying these values.
+  related:
+  - Aura::GetEffect
+  - Aura::GetAuraScript
+  - AuraEffect::GetAmount
+  - AuraEffect::SetAmount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T14:06:10.184552'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

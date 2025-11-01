@@ -1,0 +1,63 @@
+api:
+  class: ScriptMgr
+  method: OnMapUpdate
+  signature: void ScriptMgr::OnMapUpdate(Map * map, uint32 diff)
+documentation:
+  brief: Invoked during map updates to allow scripts to perform custom logic or modifications.
+  description: The OnMapUpdate method is a hook in the ScriptMgr class that gets called
+    periodically during each map update cycle. This method allows custom scripts and
+    modules to execute specific logic or perform operations on a given map instance
+    at regular intervals. It's typically used for implementing game mechanics, handling
+    timed events, or performing periodic checks on the map state. The method receives
+    both the map object being updated and the time difference (in milliseconds) since
+    the last update, which can be used to calculate elapsed time or schedule future
+    actions.
+  parameters:
+  - name: map
+    description: Pointer to the Map object that is currently being updated. This represents
+      the game world map instance where the update is occurring.
+  - name: diff
+    description: The time difference in milliseconds since the last update cycle for
+      this map. Used to calculate elapsed time and manage timed events or actions.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyMapScript : public MapScript\n{\npublic:\n    void OnMapUpdate(Map*\
+      \ map, uint32 diff) override\n    {\n        // Perform custom logic on each\
+      \ map update\n        if (map->GetPlayers().isEmpty())\n            return;\n\
+      \        \n        // Example: Process timed events or AI updates\n        for\
+      \ (auto& player : map->GetPlayers())\n        {\n            if (player)\n \
+      \               player->UpdateAI(diff);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Time-Based Logic
+    code: "class AdvancedMapScript : public MapScript\n{\nprivate:\n    uint32 m_lastEventTime\
+      \ = 0;\n    static const uint32 EVENT_INTERVAL = 5000; // 5 seconds\n    \n\
+      public:\n    void OnMapUpdate(Map* map, uint32 diff) override\n    {\n     \
+      \   m_lastEventTime += diff;\n        \n        if (m_lastEventTime >= EVENT_INTERVAL)\n\
+      \        {\n            // Execute periodic event logic\n            ProcessPeriodicEvents(map);\n\
+      \            m_lastEventTime = 0;\n        }\n        \n        // Update all\
+      \ creatures and objects\n        map->Update(diff);\n    }\n    \nprivate:\n\
+      \    void ProcessPeriodicEvents(Map* map)\n    {\n        // Custom event processing\
+      \ logic here\n        // e.g., check for area triggers, spawn NPCs, etc.\n \
+      \   }\n};"
+    language: cpp
+  notes: This method is called from the core game loop during each map update cycle.
+    It's important to keep the implementation lightweight to avoid performance degradation.
+    The diff parameter can be used to implement time-based logic without relying on
+    external timing mechanisms. Multiple scripts can register for this hook, and they
+    will all be executed in sequence.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it runs frequently during the game loop. Long-running operations may
+    cause frame rate drops or lag. Be cautious when modifying map state directly from
+    this function to prevent race conditions or inconsistent states.
+  related:
+  - OnMapStart
+  - OnMapCleanup
+  - OnGridUnload
+  - OnGridLoad
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:10:48.435862'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

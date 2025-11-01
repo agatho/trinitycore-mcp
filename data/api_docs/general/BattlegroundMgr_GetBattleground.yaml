@@ -1,0 +1,55 @@
+api:
+  class: BattlegroundMgr
+  method: GetBattleground
+  signature: Battleground * BattlegroundMgr::GetBattleground(uint32 InstanceID, int
+    bgTypeId)
+documentation:
+  brief: Retrieves a battleground instance by its unique identifier and type.
+  description: The GetBattleground method retrieves a pointer to a Battleground object
+    using its instance ID and battleground type. This method is used internally by
+    the TrinityCore server to access active battleground instances during gameplay.
+    It searches through the list of currently running battlegrounds and returns a
+    pointer to the matching battleground if found, or nullptr if no such battleground
+    exists. The method ensures that only valid battleground instances are returned,
+    making it safe for use in game logic where battleground state needs to be checked
+    or modified.
+  parameters:
+  - name: InstanceID
+    description: The unique instance identifier of the battleground to retrieve. This
+      is a numeric ID that uniquely identifies a specific battleground instance within
+      the server.
+  - name: bgTypeId
+    description: The type ID of the battleground to retrieve. This corresponds to
+      the battleground type (e.g., AV, WS, AB) and is used to filter the correct battleground
+      type from the list of active battlegrounds.
+  returns: Returns a pointer to the Battleground object if a matching instance is
+    found; otherwise returns nullptr if no battleground exists with the specified
+    instance ID and type.
+  examples:
+  - title: Basic usage to retrieve a battleground
+    code: "Battleground* bg = sBattlegroundMgr->GetBattleground(12345, BATTLEGROUND_AV);\n\
+      if (bg)\n{\n    // Use the battleground object\n    bg->Update(1000);\n}"
+    language: cpp
+  - title: Checking if a battleground exists before using it
+    code: "uint32 instanceId = player->GetBattlegroundInstanceId();\nBattleground*\
+      \ bg = sBattlegroundMgr->GetBattleground(instanceId, player->GetBattlegroundTypeId());\n\
+      if (bg && bg->IsArena())\n{\n    // Handle arena-specific logic\n    bg->AddPlayer(player);\n\
+      }"
+    language: cpp
+  notes: This method performs a linear search through the list of active battlegrounds,
+    so performance may degrade with many concurrent battlegrounds. The method is thread-safe
+    as it accesses the battleground manager's internal data structures in a synchronized
+    manner. It should be used carefully in time-sensitive code paths.
+  warnings: Always check for nullptr return values before using the returned Battleground
+    pointer to avoid null pointer dereferences. This method may return nullptr if
+    the battleground has ended or been destroyed, so proper error handling is required.
+  related:
+  - GetBattlegroundTemplate
+  - GetBattlegroundByType
+  - GetBattlegroundInstance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T17:45:04.366627'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: TradeManager
+  method: IsWhitelisted
+  signature: bool TradeManager::IsWhitelisted(int guid) const
+documentation:
+  brief: Checks if a player GUID is whitelisted for trading in the TradeManager.
+  description: The IsWhitelisted method determines whether a specific player, identified
+    by their global unique identifier (GUID), is allowed to participate in trading
+    operations within the TrinityCore framework. This functionality is typically used
+    to enforce trade restrictions based on player status, account permissions, or
+    server-specific rules. The method performs a lookup in an internal whitelist data
+    structure and returns true if the GUID exists in that list, otherwise false. It's
+    commonly invoked during trade initiation or validation processes to ensure only
+    authorized players can engage in trading activities.
+  parameters: []
+  returns: Returns true if the specified player GUID is present in the trade whitelist;
+    otherwise returns false. A return value of true indicates the player is permitted
+    to trade, while false means they are either not whitelisted or the GUID does not
+    correspond to a valid player.
+  examples:
+  - title: Basic Usage
+    code: "if (tradeManager.IsWhitelisted(playerGuid)) {\n    // Proceed with trade\
+      \ logic\n    SendTradeStatus(TRADE_STATUS_ACCEPTED);\n} else {\n    // Deny\
+      \ trade and send appropriate message\n    SendTradeStatus(TRADE_STATUS_NOT_ALLOWED);\n\
+      }"
+    language: cpp
+  - title: Integration with Trade Validation
+    code: "bool CanPlayerTrade(int playerGuid) {\n    if (!IsWhitelisted(playerGuid))\
+      \ {\n        return false;\n    }\n    // Additional checks can be performed\
+      \ here\n    return true;\n}\n\n// Usage in trade handler\nif (CanPlayerTrade(player1Guid)\
+      \ && CanPlayerTrade(player2Guid)) {\n    StartTrade(player1Guid, player2Guid);\n\
+      }"
+    language: cpp
+  notes: This method assumes the GUID parameter refers to a valid player entity in
+    the game world. The internal whitelist is likely populated from database entries
+    or configuration files and may be updated dynamically during runtime. Performance
+    of this lookup depends on the size of the whitelist and the underlying data structure
+    used (e.g., hash table, set). This method should be thread-safe if accessed from
+    multiple threads, but developers should verify the implementation details.
+  warnings: Ensure that GUIDs passed to this method are valid player identifiers;
+    invalid or non-player GUIDs may cause undefined behavior or incorrect results.
+    The whitelist mechanism might not account for temporary restrictions like character
+    bans or GM lockdowns, which could require additional checks beyond this method.
+  related:
+  - AddToWhitelist
+  - RemoveFromWhitelist
+  - IsTradeAllowed
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T05:07:34.953013'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

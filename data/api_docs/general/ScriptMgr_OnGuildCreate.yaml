@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnGuildCreate
+  signature: void ScriptMgr::OnGuildCreate(Guild * guild, Player * leader, const std::string
+    & name)
+documentation:
+  brief: Invoked when a new guild is created in the game world
+  description: This method is called by the TrinityCore scripting system whenever
+    a player successfully creates a new guild. It provides a hook for custom scripts
+    to execute logic when a guild is formed, such as logging the event, applying custom
+    rules, or modifying guild properties. The method receives the newly created guild
+    object, the player who created it (the leader), and the guild's name. This callback
+    allows developers to extend or modify default guild creation behavior without
+    directly modifying core game code.
+  parameters:
+  - name: guild
+    description: Pointer to the newly created Guild object that represents the guild
+      being formed. This object contains all guild data including members, permissions,
+      and properties.
+  - name: leader
+    description: Pointer to the Player object who initiated the guild creation process
+      and becomes the guild leader. This player is automatically added to the guild
+      as its founder.
+  - name: name
+    description: String containing the name of the newly created guild. This name
+      is validated against game rules before the method is invoked, but scripts can
+      still modify or react to it.
+  returns: null
+  examples:
+  - title: Basic Guild Creation Logging
+    code: "void OnGuildCreate(Guild* guild, Player* leader, const std::string& name)\
+      \ override\n{\n    sLog->outString(\"New guild created: %s by player %s\", name.c_str(),\
+      \ leader->GetName().c_str());\n}"
+    language: cpp
+  - title: Apply Custom Guild Properties on Creation
+    code: "void OnGuildCreate(Guild* guild, Player* leader, const std::string& name)\
+      \ override\n{\n    // Set a custom guild level or other properties\n    guild->SetGuildLevel(5);\n\
+      \    guild->SaveToDB();\n}"
+    language: cpp
+  notes: This method is part of the global script manager and is executed in the main
+    game thread. Scripts should avoid long-running operations or blocking calls to
+    prevent performance degradation. The guild object passed to this function is fully
+    initialized, but modifications made during this callback may not be persisted
+    unless explicitly saved.
+  warnings: Modifying the guild or player objects within this callback can affect
+    gameplay mechanics and should be done carefully. Avoid modifying core game data
+    structures directly without proper validation to prevent unexpected behavior or
+    crashes.
+  related:
+  - OnGuildDisband
+  - OnGuildMemberAdd
+  - OnGuildMemberRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:11:18.255010'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

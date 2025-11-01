@@ -1,0 +1,49 @@
+api:
+  class: SmartGameObjectAI
+  method: Destroyed
+  signature: void SmartGameObjectAI::Destroyed(WorldObject * attacker, uint32 eventId)
+documentation:
+  brief: Handles the destruction event of a smart game object, triggered when the
+    object is destroyed by an attacker.
+  description: The Destroyed method is invoked when a SmartGameObjectAI-controlled
+    game object is destroyed, typically as a result of being damaged to zero health
+    or otherwise removed from the world. This method allows for custom behavior to
+    be executed upon destruction, such as spawning loot, triggering events, or notifying
+    other systems. It is part of the AI system's lifecycle management and is called
+    by the core engine when the object's destruction state is reached. The method
+    accepts an attacker reference and an event ID which can be used to determine context
+    for the destruction action.
+  parameters:
+  - name: attacker
+    description: Pointer to the WorldObject that caused the destruction of this game
+      object. May be nullptr if the destruction was not caused by a direct attack.
+  - name: eventId
+    description: Identifier for the event that triggered the destruction. Used to
+      distinguish between different types of destruction triggers within the AI logic.
+  returns: null
+  examples:
+  - title: Basic Destruction Handling
+    code: "void SmartGameObjectAI::Destroyed(WorldObject* attacker, uint32 eventId)\n\
+      {\n    // Spawn loot upon destruction\n    if (attacker && attacker->IsPlayer())\n\
+      \    {\n        Player* player = attacker->ToPlayer();\n        player->AddItem(ITEM_ID_LOOT,\
+      \ 1);\n    }\n    // Trigger a custom event\n    if (eventId == EVENT_ON_DESTROY)\n\
+      \    {\n        DoAction(ACTION_TRIGGER_EVENT);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during the game object's destruction process
+    and should not be used to modify the object's state after it has been fully destroyed.
+    It is recommended to avoid heavy computations or database operations within this
+    method due to potential performance implications.
+  warnings: Ensure that any pointers passed to this method are valid before dereferencing
+    them, as attacker may be nullptr. Also, be cautious about modifying or deleting
+    other objects from within this function to prevent potential crashes or undefined
+    behavior.
+  related:
+  - UpdateAI
+  - Initialize
+  - OnSpawn
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:32:24.903238'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

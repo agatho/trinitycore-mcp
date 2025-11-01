@@ -1,0 +1,70 @@
+api:
+  class: ScriptMgr
+  method: OnWorldStateValueChange
+  signature: void ScriptMgr::OnWorldStateValueChange(const WorldStateTemplate * worldStateTemplate,
+    int32 oldValue, int32 newValue, const Map * map)
+documentation:
+  brief: Invoked when a world state value changes on a map, allowing scripts to respond
+    to dynamic game state updates.
+  description: The OnWorldStateValueChange method is a callback function within the
+    ScriptMgr class that gets triggered whenever a world state value is modified on
+    a specific map. This method serves as an event handler for dynamic game state
+    changes, enabling custom scripts or modules to react to such modifications in
+    real-time. It provides access to the world state template, old and new values,
+    and the map where the change occurred, making it useful for implementing dynamic
+    UI updates, quest tracking, or other systems that depend on changing world states.
+    The method is typically called during game loop processing when a world state
+    value is updated through various means such as player actions, NPC interactions,
+    or environmental events.
+  parameters:
+  - name: worldStateTemplate
+    description: Pointer to the WorldStateTemplate object that defines the world state
+      being modified. This contains metadata about the world state including its ID
+      and display properties.
+  - name: oldValue
+    description: The previous integer value of the world state before the change occurred.
+  - name: newValue
+    description: The new integer value that the world state has been updated to.
+  - name: map
+    description: Pointer to the Map object where the world state change took place.
+      This identifies the specific map instance where the event occurred.
+  returns: null
+  examples:
+  - title: Basic World State Change Handler
+    code: "void MyScript::OnWorldStateValueChange(const WorldStateTemplate* worldStateTemplate,\
+      \ int32 oldValue, int32 newValue, const Map* map)\n{\n    if (worldStateTemplate->GetId()\
+      \ == WORLD_STATE_ID_QUEST_PROGRESS)\n    {\n        // Update UI or trigger\
+      \ quest-related logic\n        sWorld->SendWorldText(L\"Quest progress updated\
+      \ to %d\", newValue);\n    }\n}"
+    language: cpp
+  - title: Advanced World State Monitoring with Conditional Logic
+    code: "void AdvancedScript::OnWorldStateValueChange(const WorldStateTemplate*\
+      \ worldStateTemplate, int32 oldValue, int32 newValue, const Map* map)\n{\n \
+      \   // Only process changes for specific world states\n    if (worldStateTemplate->GetId()\
+      \ >= 1000 && worldStateTemplate->GetId() <= 2000)\n    {\n        // Log the\
+      \ change for debugging purposes\n        sLog->outString(\"World state %u changed\
+      \ from %d to %d on map %u\", \n                       worldStateTemplate->GetId(),\
+      \ oldValue, newValue, map->GetId());\n        \n        // Trigger custom logic\
+      \ based on value ranges\n        if (newValue > 50 && oldValue <= 50)\n    \
+      \    {\n            // Handle event when threshold is crossed\n            ProcessThresholdEvent(worldStateTemplate,\
+      \ map);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is called from the game's main loop and should avoid heavy computations
+    or blocking operations to maintain performance. The world state template pointer
+    is guaranteed to be valid during the callback execution. Multiple scripts may
+    register for this event, so implementations should be careful not to interfere
+    with each other's logic.
+  warnings: Do not modify world state values directly from within this callback as
+    it may cause recursion or unexpected behavior. Be aware that this method can be
+    called very frequently during active gameplay, so performance optimization is
+    crucial for custom implementations.
+  related:
+  - OnWorldStateCreate
+  - OnWorldStateDestroy
+  - GetWorldStateValue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:01:03.849501'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

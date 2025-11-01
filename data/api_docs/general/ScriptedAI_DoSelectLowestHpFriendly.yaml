@@ -1,0 +1,55 @@
+api:
+  class: ScriptedAI
+  method: DoSelectLowestHpFriendly
+  signature: int * ScriptedAI::DoSelectLowestHpFriendly(float range, int minHPDiff)
+documentation:
+  brief: Selects the GUID of the lowest health friendly unit within a specified range.
+  description: The DoSelectLowestHpFriendly method searches for the lowest health
+    friendly unit within a given range and returns its unique identifier (GUID). This
+    method is commonly used in AI scripts to determine which ally to target or assist.
+    It evaluates all friendly units within the specified range, considering their
+    current health values, and selects the one with the lowest HP that meets the minimum
+    HP difference threshold. The method is particularly useful for healing or support
+    abilities where prioritizing injured allies is important. The returned GUID can
+    be used to perform actions on the selected unit such as casting spells or moving
+    towards it.
+  parameters:
+  - name: range
+    description: The maximum distance in yards to search for friendly units. Must
+      be a positive value.
+  - name: minHPDiff
+    description: Minimum health difference threshold between the lowest HP unit and
+      others. Units with HP differences below this value will be ignored.
+  returns: Returns a pointer to an int representing the GUID of the selected friendly
+    unit, or nullptr if no suitable unit is found within range.
+  examples:
+  - title: Basic usage in AI script
+    code: "if (Unit* target = ObjectAccessor::GetUnit(*me, DoSelectLowestHpFriendly(30.0f,\
+      \ 1000)))\n{\n    DoCast(target, SPELL_HEAL);\n}"
+    language: cpp
+  - title: Using with conditional checks
+    code: "int* lowestHpGuid = DoSelectLowestHpFriendly(25.0f, 500);\nif (lowestHpGuid\
+      \ && *lowestHpGuid != 0)\n{\n    Unit* target = ObjectAccessor::GetUnit(*me,\
+      \ *lowestHpGuid);\n    if (target && target->IsAlive())\n    {\n        // Perform\
+      \ action on the lowest HP friendly unit\n        me->AI()->AttackStart(target);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method performs a search through all nearby friendly units within the
+    specified range. It's recommended to use reasonable range values to avoid performance
+    issues with large groups of units. The method considers only alive units and ignores
+    dead or invisible targets. The minHPDiff parameter helps filter out units that
+    are not significantly lower in health than others.
+  warnings: Ensure that the range parameter is set appropriately to avoid excessive
+    processing time when searching through many units. Using a very large range may
+    cause performance degradation. Also, be cautious when using this method in high-frequency
+    AI loops as it can impact frame rate if not optimized properly.
+  related:
+  - DoSelectNearestTarget
+  - DoSelectLowestHpEnemy
+  - DoSelectRandomFriendly
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:51:46.768795'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

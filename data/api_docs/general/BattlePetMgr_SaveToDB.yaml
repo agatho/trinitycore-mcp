@@ -1,0 +1,53 @@
+api:
+  class: BattlePetMgr
+  method: SaveToDB
+  signature: void BattlePetMgr::SaveToDB(int trans)
+documentation:
+  brief: Saves all battle pet data to the database with optional transaction support
+  description: The SaveToDB method persists all currently managed battle pet information
+    to the TrinityCore database. This method handles the serialization and storage
+    of battle pet attributes, including creature entries, levels, experience, and
+    any custom properties. The optional transaction parameter allows for batch saving
+    operations within a database transaction context, ensuring data consistency across
+    multiple related saves. This method is typically invoked during player logout
+    or periodic save intervals to maintain persistent pet data across server restarts.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided, the save operation
+      will be executed within the specified transaction context. A value of -1 indicates
+      no transaction should be used, while positive values represent active transaction
+      handles.
+  returns: void
+  examples:
+  - title: Basic Save Operation
+    code: 'BattlePetMgr* petMgr = player->GetBattlePetMgr();
+
+      petMgr->SaveToDB(); // Saves using default transaction handling'
+    language: cpp
+  - title: Save with Transaction Context
+    code: 'BattlePetMgr* petMgr = player->GetBattlePetMgr();
+
+      Transaction* trans = new Transaction();
+
+      petMgr->SaveToDB(trans); // Saves within transaction context
+
+      trans->Execute();'
+    language: cpp
+  notes: This method performs synchronous database I/O operations and may block execution
+    until completion. It's recommended to call this method during appropriate game
+    state transitions rather than in high-frequency update loops. The method internally
+    handles serialization of battle pet data structures into database-ready formats.
+  warnings: Calling this method without proper transaction management can lead to
+    partial saves if the operation fails midway. Always ensure that any transaction
+    context is properly committed or rolled back after calling this method.
+  related:
+  - LoadFromDB
+  - AddBattlePet
+  - RemoveBattlePet
+  - GetBattlePet
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T02:30:43.538719'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

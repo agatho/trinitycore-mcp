@@ -1,0 +1,61 @@
+api:
+  class: AccountMgr
+  method: GetSecurityAsync
+  signature: int AccountMgr::GetSecurityAsync(uint32 accountId, int32 realmId, std::function<void
+    (uint32)> callback)
+documentation:
+  brief: Retrieves the security level of an account asynchronously for a specified
+    realm.
+  description: The GetSecurityAsync method retrieves the security level (access rights)
+    associated with a given account ID for a specific realm. This is a non-blocking
+    asynchronous operation that uses a callback function to return the result once
+    the database query completes. The method is commonly used in TrinityCore's authentication
+    and authorization system to determine what permissions a player has within the
+    game world. It allows for efficient handling of database queries without blocking
+    the main game thread, which is essential for maintaining performance in a multi-user
+    environment.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account for which to retrieve security
+      level. Must be a valid, existing account ID in the database.
+  - name: realmId
+    description: The identifier of the realm for which to check the account's security
+      level. Use -1 to check for global (cross-realm) permissions or a specific realm
+      ID.
+  - name: callback
+    description: A std::function callback that will be invoked with the retrieved
+      security level as its parameter. The callback is executed on the same thread
+      where the result is available.
+  returns: 'Returns an integer representing the operation status: 0 for success, negative
+    values for errors (e.g., invalid parameters, database failure). A positive return
+    value may indicate a pending async operation or other non-error status.'
+  examples:
+  - title: Basic usage of GetSecurityAsync
+    code: "AccountMgr::GetSecurityAsync(12345, 0, [](uint32 securityLevel) {\n   \
+      \ printf(\"Account security level: %u\\n\", securityLevel);\n});"
+    language: cpp
+  - title: Using GetSecurityAsync with realm-specific check
+    code: "AccountMgr::GetSecurityAsync(12345, 1, [](uint32 securityLevel) {\n   \
+      \ if (securityLevel >= SEC_ADMINISTRATOR) {\n        printf(\"Admin access granted\\\
+      n\");\n    } else {\n        printf(\"Insufficient privileges\\n\");\n    }\n\
+      });"
+    language: cpp
+  notes: This method is designed to be thread-safe and should not block the calling
+    thread. The callback will be executed once the database query completes, potentially
+    on a different thread depending on the internal implementation of the async system.
+    Ensure that the accountId provided exists in the database, otherwise the result
+    may be undefined or an error.
+  warnings: Do not assume that the callback will execute immediately after calling
+    this method; it is truly asynchronous and may take some time to complete. Also,
+    be cautious about using negative realm IDs unless you understand how global permissions
+    are handled in your TrinityCore setup.
+  related:
+  - GetSecurity
+  - SetSecurity
+  - AccountMgr::GetAccountId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:50:13.204143'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

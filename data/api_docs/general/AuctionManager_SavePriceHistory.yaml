@@ -1,0 +1,49 @@
+api:
+  class: AuctionManager
+  method: SavePriceHistory
+  signature: void AuctionManager::SavePriceHistory(uint32 itemId, uint64 price)
+documentation:
+  brief: Saves auction price history for a specific item to the database
+  description: The SavePriceHistory method records the most recent auction price for
+    a given item ID into the auction house price history table. This function is typically
+    invoked when an auction item is successfully sold or when price data needs to
+    be updated in the system. The method ensures that historical pricing information
+    is preserved for analysis and future reference, supporting features like price
+    trend tracking and market behavior monitoring within the auction house system.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item for which the auction price history
+      is being saved. This corresponds to the item's entry in the ItemTemplate table.
+  - name: price
+    description: The final auction price paid for the item, represented as copper
+      (100 copper = 1 silver, 100 silver = 1 gold). This value is typically obtained
+      from the winning bid of an auction.
+  returns: null
+  examples:
+  - title: Save price history after successful auction
+    code: 'AuctionManager* auctionMgr = sAuctionMgr;
+
+      auctionMgr->SavePriceHistory(18732, 50000); // Save 5g for item ID 18732 (e.g.,
+      a rare weapon)'
+    language: cpp
+  - title: Integrate with auction sale event
+    code: "void OnAuctionSuccessful(uint32 itemId, uint64 finalPrice)\n{\n    sAuctionMgr->SavePriceHistory(itemId,\
+      \ finalPrice);\n    // Additional logic for updating item statistics or notifying\
+      \ players\n}"
+    language: cpp
+  notes: This method likely performs database I/O operations and may be called frequently
+    during active auction house usage. It is recommended to batch updates if performance
+    becomes an issue. The method does not validate the itemId or price parameters,
+    so callers should ensure they are valid before invoking it.
+  warnings: Calling this method with invalid item IDs or prices may result in corrupted
+    data or database errors. Ensure that itemId corresponds to a real item template
+    and that price is a positive value representing a valid auction outcome.
+  related:
+  - GetAuctionPriceHistory
+  - UpdateAuctionPrice
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T02:36:07.246317'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

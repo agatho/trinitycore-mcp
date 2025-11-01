@@ -1,0 +1,69 @@
+api:
+  class: BotDatabasePool
+  method: Initialize
+  signature: bool BotDatabasePool::Initialize(const std::string & connectionString,
+    uint8 asyncThreads, uint8 syncThreads)
+documentation:
+  brief: Initializes the bot database connection pool with specified connection string
+    and thread configuration.
+  description: The Initialize method sets up the database connection pool for bot-related
+    operations within TrinityCore. It configures both asynchronous and synchronous
+    threads to handle database requests efficiently. This method must be called before
+    any bot database operations can be performed. The connection string specifies
+    how to connect to the database, while asyncThreads and syncThreads define the
+    number of worker threads for concurrent and sequential operations respectively.
+    Proper initialization ensures that bot functionality can interact with the database
+    without blocking game threads.
+  parameters:
+  - name: connectionString
+    description: A string containing database connection parameters including host,
+      port, username, password, and database name. Format typically follows 'mysql://user:password@host:port/database'
+      or similar depending on the database backend.
+  - name: asyncThreads
+    description: Number of asynchronous worker threads to be created for handling
+      non-blocking database operations. Must be a positive integer, typically between
+      1-8 based on system capabilities.
+  - name: syncThreads
+    description: Number of synchronous worker threads to be created for handling blocking
+      database operations. Must be a positive integer, typically between 1-4 based
+      on system capabilities.
+  returns: Returns true if the database pool was successfully initialized with all
+    specified parameters and connections established; otherwise returns false if initialization
+    failed due to invalid connection string, insufficient resources, or other configuration
+    errors.
+  examples:
+  - title: Basic Initialization
+    code: "if (!BotDatabasePool::Instance().Initialize(\"mysql://botuser:botpass@localhost:3306/trinity_bot\"\
+      , 4, 2)) {\n    TC_LOG_ERROR(\"bot\", \"Failed to initialize bot database pool\"\
+      );\n    return false;\n}\nTC_LOG_INFO(\"bot\", \"Bot database pool initialized\
+      \ successfully\");"
+    language: cpp
+  - title: Initialization with Error Handling
+    code: "std::string connStr = \"mysql://root:password@127.0.0.1:3306/trinitycore_bot\"\
+      ;\nuint8 asyncCount = 8;\nuint8 syncCount = 4;\n\nif (!BotDatabasePool::Instance().Initialize(connStr,\
+      \ asyncCount, syncCount)) {\n    // Handle initialization failure\n    std::cerr\
+      \ << \"Failed to initialize bot database pool\" << std::endl;\n    return false;\n\
+      }\n\n// Proceed with bot operations\nTC_LOG_INFO(\"bot\", \"Bot DB initialized\
+      \ with %u async and %u sync threads\", asyncCount, syncCount);"
+    language: cpp
+  notes: This method is typically called during server startup or when the bot system
+    is first enabled. The database pool uses connection pooling to minimize overhead
+    from repeated connection establishment. Async threads are used for operations
+    that don't require immediate results, while sync threads handle critical operations
+    that must complete before proceeding. The method blocks until all connections
+    are established and verified.
+  warnings: Calling this method multiple times without proper cleanup may lead to
+    resource leaks or undefined behavior. Ensure the connection string is properly
+    formatted and accessible before calling. Using too many threads can cause performance
+    degradation due to context switching overhead. Always check the return value to
+    confirm successful initialization.
+  related:
+  - BotDatabasePool::Get
+  - BotDatabasePool::Shutdown
+  - BotDatabasePool::IsInitialized
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T01:53:29.952529'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

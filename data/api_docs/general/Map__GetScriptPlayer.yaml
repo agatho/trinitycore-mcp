@@ -1,0 +1,62 @@
+api:
+  class: Map
+  method: _GetScriptPlayer
+  signature: Player * Map::_GetScriptPlayer(Object * obj, bool isSource, const ScriptInfo
+    * scriptInfo) const
+documentation:
+  brief: Retrieves a Player object from an Object for script execution context.
+  description: The _GetScriptPlayer method is used internally by the TrinityCore scripting
+    system to extract a Player pointer from a generic Object instance. This method
+    is typically invoked during script execution when the system needs to determine
+    which player triggered a specific event or action. It performs type checking and
+    safely casts the provided Object to a Player, returning nullptr if the conversion
+    fails. The method considers whether the object is a source or target in the script
+    context, potentially affecting how the player reference is interpreted within
+    the script's execution flow.
+  parameters:
+  - name: obj
+    description: A pointer to the Object instance from which to extract the Player.
+      This can be any GameObject, Creature, Item, or Player object.
+  - name: isSource
+    description: Boolean flag indicating if the object is the source of the script
+      event (true) or target (false). Used to determine correct player context in
+      script execution.
+  - name: scriptInfo
+    description: Pointer to the ScriptInfo structure containing metadata about the
+      script being executed. Used for context-aware player retrieval logic.
+  returns: A pointer to a Player object if successful, or nullptr if the provided
+    Object cannot be cast to a Player or if the conversion fails due to invalid type
+    or context.
+  examples:
+  - title: Basic usage in script context
+    code: "Player* player = map->_GetScriptPlayer(eventObject, true, &scriptInfo);\n\
+      if (player)\n{\n    // Process player-specific logic\n    player->SendNotification(\"\
+      Event triggered by you!\");\n}"
+    language: cpp
+  - title: Using with conditional logic
+    code: "Player* source = map->_GetScriptPlayer(sourceObject, true, &scriptInfo);\n\
+      Player* target = map->_GetScriptPlayer(targetObject, false, &scriptInfo);\n\n\
+      if (source && target)\n{\n    // Both are players - perform player-to-player\
+      \ interaction\n    source->TeleportTo(target->GetMapId(), target->GetPositionX(),\
+      \ target->GetPositionY(), target->GetPositionZ(), 0);\n}"
+    language: cpp
+  notes: This method is primarily used internally by the TrinityCore scripting engine
+    and should not typically be called directly from custom scripts. The method performs
+    type validation and may return nullptr even if the Object is valid, depending
+    on the script context and execution flow. It's designed to work within the broader
+    scripting framework where object types are expected to conform to specific usage
+    patterns.
+  warnings: Calling this method with invalid or null parameters can lead to undefined
+    behavior. The returned Player pointer should always be checked for nullptr before
+    use. This method is not thread-safe and should only be called from within the
+    context of a valid script execution thread.
+  related:
+  - _GetScriptObject
+  - _GetScriptCreature
+  - _GetScriptGameObject
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:49:41.061548'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

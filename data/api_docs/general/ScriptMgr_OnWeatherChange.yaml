@@ -1,0 +1,66 @@
+api:
+  class: ScriptMgr
+  method: OnWeatherChange
+  signature: void ScriptMgr::OnWeatherChange(Weather * weather, WeatherState state,
+    float grade)
+documentation:
+  brief: Notifies scripts when weather conditions change in the game world.
+  description: The OnWeatherChange method is a callback function within the ScriptMgr
+    class that is invoked whenever the weather state in a specific zone changes. This
+    method allows custom scripts to react to environmental changes such as rain, snow,
+    or clear skies. It provides information about the new weather state and its intensity
+    through the grade parameter. The method is typically used by script developers
+    to implement dynamic world effects, quest triggers, or visual enhancements that
+    respond to changing weather conditions.
+  parameters:
+  - name: weather
+    description: Pointer to the Weather object representing the current weather system
+      in a zone. This object contains information about the weather type and state.
+  - name: state
+    description: The new WeatherState enum value indicating the type of weather change
+      (e.g., rain, snow, clear).
+  - name: grade
+    description: A float value representing the intensity or severity of the weather
+      change, typically ranging from 0.0f (no effect) to 1.0f (maximum effect).
+  returns: null
+  examples:
+  - title: Basic Weather Change Handler
+    code: "#include \"ScriptMgr.h\"\n\nclass MyWeatherScript : public ScriptedMapEvent\n\
+      {\npublic:\n    void OnWeatherChange(Weather* weather, WeatherState state, float\
+      \ grade) override\n    {\n        if (state == WEATHER_STATE_RAIN)\n       \
+      \ {\n            // Trigger rain effects or quest events\n            sWorld->SendWorldText(LANG_WEATHER_RAIN_START);\n\
+      \        }\n        else if (state == WEATHER_STATE_CLEAR)\n        {\n    \
+      \        // Clear weather effects\n            sWorld->SendWorldText(LANG_WEATHER_CLEAR);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Advanced Weather with Intensity Handling
+    code: "#include \"ScriptMgr.h\"\n\nclass AdvancedWeatherScript : public ScriptedMapEvent\n\
+      {\npublic:\n    void OnWeatherChange(Weather* weather, WeatherState state, float\
+      \ grade) override\n    {\n        switch (state)\n        {\n            case\
+      \ WEATHER_STATE_RAIN:\n                if (grade > 0.7f)\n                 \
+      \   sWorld->SendWorldText(LANG_WEATHER_HEAVY_RAIN);\n                else if\
+      \ (grade > 0.3f)\n                    sWorld->SendWorldText(LANG_WEATHER_LIGHT_RAIN);\n\
+      \                break;\n            case WEATHER_STATE_SNOW:\n            \
+      \    if (grade > 0.8f)\n                    sWorld->SendWorldText(LANG_WEATHER_HEAVY_SNOW);\n\
+      \                break;\n            default:\n                break;\n    \
+      \    }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core weather system and may be invoked frequently
+    during weather transitions. Script implementations should avoid heavy computations
+    or blocking operations within this callback to maintain performance. The WeatherState
+    enum values are defined in the core and represent standard weather conditions
+    like clear, rain, snow, storm, etc.
+  warnings: Modifying weather state directly from this method can cause infinite loops
+    or unexpected behavior. Scripts should only react to changes, not modify them.
+    Be cautious when using global world messages as they may affect performance if
+    triggered too frequently.
+  related:
+  - OnWeatherUpdate
+  - GetWeatherState
+  - SetWeather
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:02:01.632080'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

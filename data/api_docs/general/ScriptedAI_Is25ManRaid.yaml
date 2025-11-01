@@ -1,0 +1,54 @@
+api:
+  class: ScriptedAI
+  method: Is25ManRaid
+  signature: bool ScriptedAI::Is25ManRaid() const
+documentation:
+  brief: Determines whether the current encounter is taking place in a 25-player raid
+    instance.
+  description: The Is25ManRaid method checks if the ScriptedAI instance is currently
+    operating within a 25-player raid environment. This is commonly used in boss encounters
+    and scripted events where behavior needs to differ between normal (10-player)
+    and raid (25-player) modes. The method returns true when the current map or instance
+    is configured for 25-player raids, and false otherwise. This functionality is
+    essential for implementing encounter-specific mechanics that scale based on player
+    count, such as different damage values, additional mechanics, or altered spawn
+    patterns.
+  parameters: []
+  returns: Returns true if the current instance is a 25-player raid, false if it's
+    not. The return value indicates whether the encounter should use raid-specific
+    logic or normal mode behavior.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "class MyBossAI : public ScriptedAI\n{\npublic:\n    void JustEngagedWith(Unit*\
+      \ who) override\n    {\n        if (Is25ManRaid())\n        {\n            //\
+      \ Apply raid-specific mechanics\n            DoCast(SPELL_RAID_BUFF);\n    \
+      \    }\n        else\n        {\n            // Apply normal mode mechanics\n\
+      \            DoCast(SPELL_NORMAL_BUFF);\n        }\n    }\n};"
+    language: cpp
+  - title: Conditional spell casting based on raid size
+    code: "void UpdateAI(uint32 diff) override\n{\n    if (Is25ManRaid())\n    {\n\
+      \        // Use higher damage spells for 25-player raids\n        if (me->HasAura(SPELL_WEAK_AURA))\n\
+      \            me->RemoveAura(SPELL_WEAK_AURA);\n        \n        if (!me->HasAura(SPELL_STRONG_AURA))\n\
+      \            DoCast(me, SPELL_STRONG_AURA);\n    }\n    else\n    {\n      \
+      \  // Use lower damage spells for 10-player raids\n        if (me->HasAura(SPELL_STRONG_AURA))\n\
+      \            me->RemoveAura(SPELL_STRONG_AURA);\n        \n        if (!me->HasAura(SPELL_WEAK_AURA))\n\
+      \            DoCast(me, SPELL_WEAK_AURA);\n    }\n}"
+    language: cpp
+  notes: This method relies on the instance's difficulty setting and map configuration.
+    It should be called during encounter setup or at key moments in AI execution to
+    ensure proper behavior. The check is typically fast and does not involve expensive
+    operations, making it suitable for frequent calls within update loops.
+  warnings: Do not rely solely on this method for critical encounter mechanics without
+    considering other instance-related checks. Ensure that your logic properly handles
+    both 10-player and 25-player scenarios to prevent unexpected behavior in different
+    raid configurations.
+  related:
+  - IsHeroic
+  - GetDifficultyID
+  - IsRegularDifficulty
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T06:43:37.327149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

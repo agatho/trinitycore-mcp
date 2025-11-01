@@ -1,0 +1,53 @@
+api:
+  class: BotThreatManager
+  method: GetThreatTargetCount
+  signature: uint32 BotThreatManager::GetThreatTargetCount() const
+documentation:
+  brief: Returns the total number of threat targets currently tracked by the bot's
+    threat manager.
+  description: The GetThreatTargetCount method retrieves the count of unique entities
+    that currently have threat assigned to them within the bot's threat management
+    system. This value represents how many different units or players are actively
+    contributing to the bot's current threat state, which is crucial for determining
+    aggro behavior and combat decisions in World of Warcraft's TrinityCore environment.
+    The method operates on the internal tracking structure of the BotThreatManager
+    class and provides a quick way to assess the complexity of the current threat
+    landscape without needing to iterate through individual threat entries.
+  parameters: []
+  returns: A uint32 value representing the total number of distinct threat targets
+    currently being tracked by this bot's threat manager. Returns zero if no threat
+    targets are present or if the threat manager is uninitialized.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 targetCount = bot->GetThreatManager()->GetThreatTargetCount();\n\
+      if (targetCount > 0)\n{\n    // Bot has active threat targets\n    sLog->outString(\"\
+      Bot has %u threat targets\", targetCount);\n}"
+    language: cpp
+  - title: Combat Decision Logic
+    code: "BotThreatManager* threatMgr = bot->GetThreatManager();\nuint32 threatCount\
+      \ = threatMgr->GetThreatTargetCount();\n\nif (threatCount >= 3)\n{\n    // Consider\
+      \ switching to defensive stance or fleeing\n    bot->SetReactState(REACT_DEFENSIVE);\n\
+      }\nelse if (threatCount == 0)\n{\n    // No threat, can safely engage new targets\n\
+      \    bot->SetReactState(REACT_AGGRESSIVE);\n}"
+    language: cpp
+  notes: This method provides a constant-time lookup of the threat target count and
+    does not perform any expensive operations. The value returned reflects only those
+    targets that have been explicitly added to the threat manager's tracking system,
+    which may differ from all units currently in combat with the bot. This method
+    should be used primarily for strategic decision-making rather than real-time combat
+    calculations.
+  warnings: The returned count may not include all entities that are technically threatening
+    the bot if those targets were never added to the threat manager's internal tracking
+    structure. Additionally, this value can change rapidly during combat, so caching
+    the result for extended periods might lead to stale data in dynamic situations.
+  related:
+  - GetThreatTarget
+  - AddThreatTarget
+  - RemoveThreatTarget
+  - ClearAllThreatTargets
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T16:41:16.823795'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

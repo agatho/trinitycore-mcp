@@ -1,0 +1,67 @@
+api:
+  class: Guild
+  method: HandleMemberWithdrawMoney
+  signature: bool Guild::HandleMemberWithdrawMoney(WorldSession * session, uint64
+    amount, bool repair)
+documentation:
+  brief: Processes a guild member's request to withdraw gold from the guild bank.
+  description: The HandleMemberWithdrawMoney method handles the logic for a guild
+    member withdrawing money from the guild's bank account. It validates that the
+    requesting player has sufficient permissions, checks if the requested amount is
+    available in the guild funds, and performs the transaction by deducting the amount
+    from the guild's gold reserves and adding it to the player's personal inventory.
+    This method is typically invoked when a player uses the guild bank interface to
+    withdraw funds for repairs or other expenses. The method ensures proper synchronization
+    of guild financial state and maintains audit trails of all transactions.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the player's active
+      game session. Used to identify the requesting player and validate their permissions
+      within the guild.
+  - name: amount
+    description: The amount of gold (in copper) that the player wishes to withdraw
+      from the guild bank. Must be a positive value representing the exact amount
+      to be transferred.
+  - name: repair
+    description: Boolean flag indicating whether the withdrawal is for repair purposes.
+      When true, special handling may apply to ensure proper accounting of repair-related
+      expenses within the guild's financial records.
+  returns: Returns true if the withdrawal was successfully processed and the gold
+    amount was transferred from the guild bank to the player's inventory; returns
+    false if the transaction failed due to insufficient funds, lack of permissions,
+    or other validation errors.
+  examples:
+  - title: Basic Guild Withdrawal
+    code: "if (guild->HandleMemberWithdrawMoney(session, 100000, false)) {\n    //\
+      \ Withdrawal successful\n    session->SendGuildBankWithdrawMoney();\n} else\
+      \ {\n    // Withdrawal failed\n    session->SendGuildBankWithdrawError();\n}"
+    language: cpp
+  - title: Repair-Focused Withdrawal
+    code: "uint64 repairCost = CalculateRepairCost(player, item);\nif (guild->HandleMemberWithdrawMoney(session,\
+      \ repairCost, true)) {\n    // Repair funds successfully withdrawn\n    player->SetMoney(player->GetMoney()\
+      \ + repairCost);\n    // Apply repair logic here\n} else {\n    // Failed to\
+      \ withdraw funds for repairs\n    session->SendNotification(\"Insufficient guild\
+      \ funds for repairs.\");\n}"
+    language: cpp
+  notes: This method assumes that the calling code has already validated that the
+    player is a member of the guild and has appropriate permissions to access the
+    guild bank. The method does not perform any direct network communication; it only
+    processes the logic. It's important to note that this function may be called from
+    multiple threads, so thread safety considerations should be taken into account
+    when implementing related code.
+  warnings: This method modifies shared guild state and must be protected against
+    race conditions in multi-threaded environments. Failure to properly validate permissions
+    or check available funds can lead to inconsistent guild financial states. The
+    repair flag parameter may affect how the transaction is logged or accounted for
+    in guild financial reports, so it should be used consistently with game mechanics.
+  related:
+  - HandleMemberDepositMoney
+  - IsMember
+  - HasPermission
+  - GetGuildBankMoney
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T00:36:12.140720'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

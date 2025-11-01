@@ -1,0 +1,62 @@
+api:
+  class: DB2Manager
+  method: GetHotfixBlobData
+  signature: const int * DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId,
+    LocaleConstant locale) const
+documentation:
+  brief: Retrieves hotfix blob data for a specified table hash and record ID.
+  description: The GetHotfixBlobData method fetches raw binary data associated with
+    a specific database table hash and record identifier, typically used for applying
+    hotfixes or modifications to game content at runtime. This method is part of the
+    DB2Manager class which handles loading and managing database table files (DB2)
+    in TrinityCore. The returned data is usually interpreted as a blob of binary information
+    that can be processed by the client or server to modify game behavior, localization,
+    or other dynamic properties. The locale parameter determines which localized version
+    of the data should be retrieved if applicable.
+  parameters:
+  - name: tableHash
+    description: A unique hash value representing the database table structure being
+      accessed. This identifies the specific DB2 file and its schema.
+  - name: recordId
+    description: The identifier of a specific record within the table. Used to locate
+      the exact data row to retrieve from the hotfix blob.
+  - name: locale
+    description: The locale constant specifying which localized version of the data
+      should be returned. If no localization exists, it may return default data or
+      null.
+  returns: A pointer to an array of integers representing the hotfix blob data for
+    the specified table and record. Returns nullptr if no data is found or if the
+    parameters are invalid.
+  examples:
+  - title: Basic Usage Example
+    code: "const int* data = sDB2Manager->GetHotfixBlobData(0x12345678, 42, LOCALE_enUS);\n\
+      if (data != nullptr) {\n    // Process the blob data\n    printf(\"Retrieved\
+      \ %d integers from hotfix blob\\n\", data[0]);\n}"
+    language: cpp
+  - title: Checking for Valid Data Before Use
+    code: "uint32 tableHash = 0xABCDEF12;\nint32 recordId = 1001;\nLocaleConstant\
+      \ locale = LOCALE_koKR;\nconst int* blobData = sDB2Manager->GetHotfixBlobData(tableHash,\
+      \ recordId, locale);\nif (blobData != nullptr && blobData[0] > 0) {\n    //\
+      \ Safe to process the blob data\n    for (int i = 0; i < blobData[0]; ++i) {\n\
+      \        printf(\"Data[%d]: %d\\n\", i, blobData[i]);\n    }\n} else {\n   \
+      \ printf(\"No valid hotfix data found for record ID %d\\n\", recordId);\n}"
+    language: cpp
+  notes: This method is primarily used in TrinityCore's hotfix system where game content
+    can be modified without requiring a full server restart. The returned integer
+    array typically contains metadata about the blob size followed by the actual binary
+    data. It's important to ensure that the tableHash and recordId are valid, as invalid
+    values may lead to undefined behavior or crashes.
+  warnings: Do not assume the returned pointer is always valid; always check for null
+    before dereferencing it. Also, be aware that the first element of the returned
+    array often indicates the size of the data block, so do not treat it as part of
+    the actual data unless explicitly documented otherwise.
+  related:
+  - GetHotfixData
+  - LoadHotfixes
+  - GetDB2Record
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:02:50.438533'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

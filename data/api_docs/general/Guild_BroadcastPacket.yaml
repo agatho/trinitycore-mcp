@@ -1,0 +1,60 @@
+api:
+  class: Guild
+  method: BroadcastPacket
+  signature: void Guild::BroadcastPacket(const WorldPacket * packet) const
+documentation:
+  brief: Sends a packet to all online guild members
+  description: The BroadcastPacket method sends a specified WorldPacket to all currently
+    online members of the guild. This method is typically used for broadcasting guild-related
+    messages, updates, or notifications to all active guild members in real-time.
+    The packet is transmitted directly to each member's client without any filtering
+    or additional processing. This operation is synchronous and will block until all
+    packets have been sent to connected clients.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket object containing the data to be broadcasted
+      to all online guild members. The packet should be properly constructed with
+      appropriate opcode and data before being passed to this method.
+  returns: null
+  examples:
+  - title: Broadcast a Guild Chat Message
+    code: 'WorldPacket packet(SMSG_GUILD_CHAT, 100);
+
+      packet << uint8(0); // Channel type
+
+      packet << "Guild Master"; // Sender name
+
+      packet << "Important announcement for all guild members!"; // Message
+
+      guild->BroadcastPacket(&packet);'
+    language: cpp
+  - title: Broadcast Guild Event Notification
+    code: 'WorldPacket packet(SMSG_GUILD_EVENT, 50);
+
+      packet << uint32(GUILD_EVENT_TYPE::GUILD_EVENT_MEETING);
+
+      packet << uint64(eventTime);
+
+      packet << "Guild meeting scheduled for tomorrow at 7 PM";
+
+      guild->BroadcastPacket(&packet);'
+    language: cpp
+  notes: This method only sends packets to online guild members. Offline members will
+    not receive the broadcast. The method does not perform any packet validation or
+    error handling beyond sending the packet to connected clients. It's recommended
+    to ensure the packet is properly constructed before calling this method to avoid
+    client-side issues.
+  warnings: Using this method with large packets may impact performance as it sends
+    individual packets to each online member. Avoid broadcasting unnecessary data
+    to prevent network overhead. The packet pointer must not be null or invalid, as
+    this could lead to undefined behavior or crashes.
+  related:
+  - Guild::SendPacket
+  - Guild::GetMembers
+  - Guild::IsMemberOnline
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:42:53.462252'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

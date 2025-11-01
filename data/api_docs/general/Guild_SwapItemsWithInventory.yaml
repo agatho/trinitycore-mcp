@@ -1,0 +1,67 @@
+api:
+  class: Guild
+  method: SwapItemsWithInventory
+  signature: void Guild::SwapItemsWithInventory(Player * player, bool toChar, uint8
+    tabId, uint8 slotId, uint8 playerBag, uint8 playerSlotId, uint32 splitedAmount)
+documentation:
+  brief: Swaps items between a player's inventory and guild bank inventory.
+  description: The SwapItemsWithInventory method facilitates the transfer of items
+    between a player's personal inventory and the guild bank. It allows moving items
+    from the player's inventory to a specified guild bank tab or vice versa. This
+    method handles the necessary validation, updates item counts, and ensures proper
+    synchronization with the game state. The operation may involve splitting stacks
+    if only part of an item stack is being moved.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory will be involved in
+      the swap operation.
+  - name: toChar
+    description: 'Boolean flag indicating direction of the swap: true for moving from
+      guild bank to player inventory, false for moving from player inventory to guild
+      bank.'
+  - name: tabId
+    description: The index of the guild bank tab where the item is located or will
+      be placed (0-based).
+  - name: slotId
+    description: The slot index within the specified guild bank tab where the item
+      is located or will be placed (0-based).
+  - name: playerBag
+    description: The bag ID of the player's inventory where the item resides or will
+      be placed (0 for main backpack, 1-11 for bags).
+  - name: playerSlotId
+    description: The slot index within the specified player bag where the item is
+      located or will be placed (0-based).
+  - name: splitedAmount
+    description: Number of items to move from a stack; 0 means move entire stack.
+  returns: null
+  examples:
+  - title: Move item from guild bank to player inventory
+    code: 'Guild* guild = player->GetGuild();
+
+      guild->SwapItemsWithInventory(player, true, 0, 5, 0, 3, 0); // Move item from
+      tab 0 slot 5 to player bag 0 slot 3'
+    language: cpp
+  - title: Move partial stack from player inventory to guild bank
+    code: 'Guild* guild = player->GetGuild();
+
+      guild->SwapItemsWithInventory(player, false, 1, 2, 4, 7, 10); // Move 10 items
+      from player bag 4 slot 7 to tab 1 slot 2'
+    language: cpp
+  notes: This method assumes that the player has sufficient permissions to access
+    and modify the guild bank. It performs internal validation checks including item
+    existence, stack limits, and inventory space availability. The method does not
+    directly send packets to clients; it relies on other systems to propagate changes.
+  warnings: Incorrect parameter values can lead to undefined behavior or client desynchronization.
+    Ensure that tabId and slotId are valid indices for the guild bank structure. Also,
+    be cautious when splitting stacks as partial moves might cause unexpected results
+    if not handled properly by calling code.
+  related:
+  - Guild::DepositItem
+  - Guild::WithdrawItem
+  - Guild::MoveItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:24:25.245303'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnGainCalculation
+  signature: void ScriptMgr::OnGainCalculation(uint32 & gain, Player * player, Unit
+    * unit)
+documentation:
+  brief: Modifies the experience gain amount for a player when they earn experience
+    from killing a unit.
+  description: The OnGainCalculation method is invoked during the experience gain
+    process in TrinityCore to allow custom scripts to modify the amount of experience
+    a player will receive. This method provides a hook for developers to implement
+    custom logic that can increase or decrease experience rewards based on various
+    conditions such as player level, unit type, or game events. The method takes a
+    reference to the experience gain value, allowing it to be modified in-place. It
+    is typically called after base experience calculations are performed but before
+    the final amount is awarded to the player.
+  parameters:
+  - name: gain
+    description: Reference to the calculated experience gain amount that can be modified
+      by scripts. This value represents the base experience points the player will
+      receive.
+  - name: player
+    description: Pointer to the Player object who earned the experience. This parameter
+      provides access to player-specific data and methods for modifying the experience
+      calculation based on player attributes.
+  - name: unit
+    description: Pointer to the Unit object that was killed to provide the experience.
+      This can be any unit type including NPCs, creatures, or other players, and allows
+      scripts to adjust experience based on the target's characteristics.
+  returns: null
+  examples:
+  - title: Basic Experience Modifier
+    code: "void OnGainCalculation(uint32& gain, Player* player, Unit* unit)\n{\n \
+      \   // Double experience for killing rare creatures\n    if (unit->GetCreatureTemplate()->Rank\
+      \ == CREATURE_RANK_RARE)\n        gain *= 2;\n}"
+    language: cpp
+  - title: Level-Based Experience Adjustment
+    code: "void OnGainCalculation(uint32& gain, Player* player, Unit* unit)\n{\n \
+      \   // Reduce experience for high-level players killing low-level mobs\n   \
+      \ if (player->GetLevel() > unit->GetLevel() + 5)\n        gain = uint32(gain\
+      \ * 0.7f);\n}"
+    language: cpp
+  notes: This method is called during the combat and experience calculation phase,
+    so any modifications to the gain value will directly affect how much experience
+    the player receives. The method should be used carefully as it can significantly
+    impact game balance if not implemented properly. It's recommended to use this
+    hook for implementing game mechanics that modify experience rewards rather than
+    for core gameplay logic.
+  warnings: Modifying the gain value directly can lead to unbalanced gameplay if not
+    carefully considered. Be cautious when reducing experience gains, as this may
+    discourage player engagement. Avoid performing heavy operations in this method
+    as it's called frequently during combat.
+  related:
+  - OnGainCalculation
+  - OnPlayerLevelUp
+  - OnCreatureKill
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T22:48:29.859842'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

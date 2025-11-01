@@ -1,0 +1,60 @@
+api:
+  class: SpellScript
+  method: SetHitDamage
+  signature: void SpellScript::SetHitDamage(int damage)
+documentation:
+  brief: Sets the damage amount that will be dealt by the spell's hit effect.
+  description: The SetHitDamage method is used within SpellScript implementations
+    to directly modify the damage value that will be applied when a spell successfully
+    hits its target. This method allows developers to dynamically adjust spell damage
+    based on various conditions, such as player stats, buffs, debuffs, or environmental
+    factors. It is typically called during the spell's hit phase, often within event
+    handlers like OnHit or similar callbacks. The modified damage value will be used
+    in the final damage calculation and applied to the target accordingly.
+  parameters:
+  - name: damage
+    description: The new damage value to set for the spell's hit effect. This should
+      be a positive integer representing the amount of damage to be dealt.
+  returns: null
+  examples:
+  - title: Basic Damage Modification in SpellScript
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void OnHit()\
+      \ override\n    {\n        // Modify damage based on target's health percentage\n\
+      \        Unit* target = GetHitUnit();\n        if (target)\n        {\n    \
+      \        float healthPercent = target->GetHealth() / target->GetMaxHealth();\n\
+      \            int baseDamage = GetHitDamage();\n            int newDamage = static_cast<int>(baseDamage\
+      \ * (1.0f - healthPercent * 0.5f));\n            SetHitDamage(newDamage);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Conditional Damage Scaling Based on Player Level
+    code: "class ScalingSpellScript : public SpellScript\n{\npublic:\n    void OnHit()\
+      \ override\n    {\n        Unit* caster = GetCaster();\n        Unit* target\
+      \ = GetHitUnit();\n        if (caster && target)\n        {\n            int\
+      \ baseDamage = GetHitDamage();\n            int casterLevel = caster->GetLevel();\n\
+      \            int targetLevel = target->GetLevel();\n            \n         \
+      \   // Scale damage based on level difference\n            int levelDiff = casterLevel\
+      \ - targetLevel;\n            float scale = 1.0f + (levelDiff * 0.02f);\n  \
+      \          \n            if (scale < 0.5f) scale = 0.5f; // Minimum 50% damage\n\
+      \            int newDamage = static_cast<int>(baseDamage * scale);\n       \
+      \     SetHitDamage(newDamage);\n        }\n    }\n};"
+    language: cpp
+  notes: This method only affects the damage value for the current hit and does not
+    persist across multiple hits or effects. It should be called before the spell's
+    damage is applied to ensure changes take effect. The method operates on the spell's
+    hit damage specifically, not the total spell damage which may include multiple
+    effects or modifiers.
+  warnings: Calling this method after the spell has already been processed for damage
+    application will have no effect. Ensure that SetHitDamage is called within an
+    appropriate event handler such as OnHit to guarantee the modification takes place
+    before damage is calculated and applied.
+  related:
+  - GetHitDamage
+  - SetEffectDamage
+  - SpellScript::GetCaster
+  - SpellScript::GetHitUnit
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:43:17.505500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

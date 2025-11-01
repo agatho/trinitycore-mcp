@@ -1,0 +1,52 @@
+api:
+  class: PathfindingManager
+  method: IsPathfindingComplete
+  signature: bool PathfindingManager::IsPathfindingComplete(uint32 requestId) const
+documentation:
+  brief: Checks whether the pathfinding request with the specified ID has completed.
+  description: The IsPathfindingComplete method determines if a previously initiated
+    pathfinding operation identified by the given request ID has finished processing.
+    This is typically used in conjunction with asynchronous pathfinding operations
+    where the client needs to know when results are available. The method returns
+    true if the pathfinding task is complete, and false otherwise. In World of Warcraft's
+    TrinityCore implementation, this method helps manage the state of AI pathfinding
+    tasks for creatures and NPCs, ensuring that path computations are not queried
+    before they are ready.
+  parameters:
+  - name: requestId
+    description: A unique identifier for a specific pathfinding request. This ID is
+      typically generated when initiating a pathfinding operation and must be valid
+      and previously registered within the PathfindingManager.
+  returns: Returns true if the pathfinding request with the specified ID has completed
+    processing, false otherwise. If the requestId does not correspond to any active
+    or previously initiated pathfinding task, the behavior is undefined and may result
+    in incorrect return values or exceptions.
+  examples:
+  - title: Basic usage of IsPathfindingComplete
+    code: "uint32 requestId = sPathfinder->StartPathfinding(...);\nif (sPathfinder->IsPathfindingComplete(requestId))\
+      \ {\n    // Process completed path\n    std::vector<Position> path = sPathfinder->GetPath(requestId);\n\
+      }"
+    language: cpp
+  - title: Polling for pathfinding completion
+    code: "uint32 requestId = sPathfinder->StartPathfinding(...);\nwhile (!sPathfinder->IsPathfindingComplete(requestId))\
+      \ {\n    // Wait or perform other tasks\n    std::this_thread::sleep_for(std::chrono::milliseconds(10));\n\
+      }\n// Path is now complete\nstd::vector<Position> path = sPathfinder->GetPath(requestId);"
+    language: cpp
+  notes: This method should be used carefully in performance-critical sections as
+    it may involve locking or checking internal state. The underlying implementation
+    likely uses atomic operations or mutexes to ensure thread safety when checking
+    the completion status of pathfinding tasks.
+  warnings: Using an invalid requestId can lead to undefined behavior. Always ensure
+    that the request ID corresponds to a valid and active pathfinding task before
+    calling this method. Additionally, polling this method in tight loops without
+    delays may cause unnecessary CPU usage.
+  related:
+  - StartPathfinding
+  - GetPath
+  - CancelPathfinding
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T08:35:23.211398'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

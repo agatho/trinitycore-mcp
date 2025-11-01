@@ -1,0 +1,80 @@
+api:
+  class: Player
+  method: CanStoreItem_InInventorySlots
+  signature: int Player::CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end,
+    ItemPosCountVec & dest, const ItemTemplate * pProto, uint32 & count, bool merge,
+    Item * pSrcItem, uint8 skip_bag, uint8 skip_slot) const
+documentation:
+  brief: Checks if an item can be stored within a specified range of inventory slots.
+  description: The CanStoreItem_InInventorySlots method evaluates whether a given
+    item prototype can be stored in the player's inventory within a defined slot range.
+    It considers factors such as item type, stack limits, and existing items in the
+    target slots. The method populates a destination vector with valid positions where
+    the item could be placed, and returns a status code indicating success or failure.
+    This function is commonly used during item transactions, loot distribution, and
+    inventory management operations within the TrinityCore framework.
+  parameters:
+  - name: slot_begin
+    description: The starting slot index (inclusive) in the inventory where the search
+      for available space begins.
+  - name: slot_end
+    description: The ending slot index (exclusive) in the inventory where the search
+      for available space stops.
+  - name: dest
+    description: A reference to a vector of ItemPosCountVec that will be populated
+      with valid slot positions and counts where items can be placed.
+  - name: pProto
+    description: Pointer to the ItemTemplate structure defining the item properties
+      to be checked for storage.
+  - name: count
+    description: Reference to a uint32 value that represents the number of items to
+      be stored; updated upon successful evaluation.
+  - name: merge
+    description: Boolean flag indicating whether existing stacks should be merged
+      with new items if possible.
+  - name: pSrcItem
+    description: Pointer to an existing Item object that may influence the storage
+      decision, such as when moving items within inventory.
+  - name: skip_bag
+    description: The bag ID to skip during slot checking (0 means no bag is skipped).
+  - name: skip_slot
+    description: The slot index within the bag to skip during slot checking (0 means
+      no slot is skipped).
+  returns: 'Returns an integer status code: 0 indicates success and valid positions
+    were found; non-zero values indicate failure or no suitable slots available. Specific
+    error codes may vary based on internal implementation but typically denote issues
+    like invalid parameters, full inventory, or incompatible item types.'
+  examples:
+  - title: Basic usage to check if an item can be stored in backpack slots
+    code: "ItemTemplate const* proto = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ count = 10;\nItemPosCountVec dest;\nint result = player->CanStoreItem_InInventorySlots(INVENTORY_SLOT_BAG_0\
+      \ + 1, INVENTORY_SLOT_BAG_0 + 5, dest, proto, count, true, nullptr);\nif (result\
+      \ == 0) {\n    // Item can be stored\n}"
+    language: cpp
+  - title: Advanced usage with item merging and skipping specific slots
+    code: "ItemTemplate const* proto = sObjectMgr->GetItemTemplate(67890);\nuint32\
+      \ count = 1;\nItemPosCountVec dest;\nItem* srcItem = player->GetItemByGuid(itemGuid);\n\
+      int result = player->CanStoreItem_InInventorySlots(INVENTORY_SLOT_BAG_0 + 1,\
+      \ INVENTORY_SLOT_BAG_0 + 10, dest, proto, count, true, srcItem, 0, 3);\nif (result\
+      \ == 0 && !dest.empty()) {\n    // Item can be stored at position(s) in dest\n\
+      }"
+    language: cpp
+  notes: This method does not actually perform the item storage operation; it only
+    evaluates feasibility. The dest vector must be cleared before calling this function
+    to avoid accumulating previous results. This function is thread-safe as long as
+    no other threads modify the player's inventory during execution.
+  warnings: Ensure that slot_begin and slot_end are valid indices within the player's
+    inventory range. Passing invalid pointers for pProto or pSrcItem may lead to crashes
+    or undefined behavior. The count parameter is modified by this function, so ensure
+    it holds the correct initial value before calling.
+  related:
+  - CanStoreItem
+  - StoreItem
+  - AddItem
+  - HasItemCount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:14:42.480250'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

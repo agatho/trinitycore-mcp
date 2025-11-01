@@ -1,0 +1,70 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetingPlayerChoiceResponseConditions
+  signature: bool ConditionMgr::IsObjectMeetingPlayerChoiceResponseConditions(uint32
+    playerChoiceId, int32 playerChoiceResponseId, const Player * player) const
+documentation:
+  brief: Checks if a player meets the conditions required to interact with a specific
+    player choice response.
+  description: The IsObjectMeetingPlayerChoiceResponseConditions method evaluates
+    whether a given player satisfies all the conditional requirements associated with
+    a specific player choice response in the World of Warcraft game system. This function
+    is typically used during interaction with quest gossip options or NPC dialogue
+    systems where certain choices are only available based on player state, quest
+    progress, or other game conditions. The method leverages TrinityCore's condition
+    management system to validate these prerequisites before allowing the player to
+    select a particular response option.
+  parameters:
+  - name: playerChoiceId
+    description: The unique identifier of the player choice (gossip menu option) that
+      the player is interacting with. This ID corresponds to entries in the playerchoice
+      table.
+  - name: playerChoiceResponseId
+    description: The specific response ID within the player choice that the player
+      is attempting to select. This ID maps to a particular response option in the
+      player choice entry.
+  - name: player
+    description: Pointer to the Player object representing the interacting player.
+      This parameter is essential for evaluating player-specific conditions such as
+      quest status, item ownership, or reputation levels.
+  returns: Returns true if all conditions required for the specified player choice
+    response are met by the player; otherwise returns false. A return value of false
+    typically means that the player cannot select this option due to unmet prerequisites.
+  examples:
+  - title: Basic usage in NPC gossip handling
+    code: "if (sConditionMgr->IsObjectMeetingPlayerChoiceResponseConditions(12345,\
+      \ 67890, player))\n{\n    // Player can select this choice\n    player->PlayerTalkClass->SendGossipMenu(98765,\
+      \ npc->GetGUID());\n}\nelse\n{\n    // Player cannot select this choice\n  \
+      \  player->PlayerTalkClass->SendCloseGossip();\n}"
+    language: cpp
+  - title: Using within a custom quest system
+    code: "void PlayerChoiceHandler::HandlePlayerChoiceSelect(Player* player, uint32\
+      \ choiceId, int32 responseId)\n{\n    if (sConditionMgr->IsObjectMeetingPlayerChoiceResponseConditions(choiceId,\
+      \ responseId, player))\n    {\n        // Proceed with the selected choice logic\n\
+      \        switch (responseId)\n        {\n            case 1:\n             \
+      \   player->AddQuestReward(12345);\n                break;\n            case\
+      \ 2:\n                player->TeleportTo(0, 100.0f, 200.0f, 300.0f);\n     \
+      \           break;\n        }\n    }\n    else\n    {\n        // Notify player\
+      \ that they cannot make this selection\n        player->SendNotification(\"\
+      You do not meet the requirements for this choice.\");\n    }\n}"
+    language: cpp
+  notes: This method relies on TrinityCore's condition system which supports various
+    condition types including quest status, item ownership, player level, faction
+    standing, and more. The conditions are typically defined in the database tables
+    such as playerchoice_response_conditions or similar. Performance-wise, this function
+    may involve database lookups or complex conditional evaluations depending on how
+    many conditions are attached to a specific choice response.
+  warnings: Ensure that the player pointer is valid before calling this method; passing
+    a null pointer will result in undefined behavior. Also, be aware that condition
+    evaluation might involve expensive operations like database queries or complex
+    logic checks, so use this function judiciously in performance-critical code paths.
+  related:
+  - GetPlayerChoice
+  - IsObjectMeetingConditionList
+  - CheckCondition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:55:54.626902'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

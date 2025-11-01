@@ -1,0 +1,59 @@
+api:
+  class: AuraEffect
+  method: GetCritChanceFor
+  signature: float AuraEffect::GetCritChanceFor(const Unit * caster, const Unit *
+    target) const
+documentation:
+  brief: Calculates the critical strike chance modifier applied by this aura effect
+    for a given caster and target.
+  description: The GetCritChanceFor method computes the modified critical strike chance
+    that is influenced by this aura effect. It takes into account both the caster
+    and target units to determine how the aura's critical strike bonus should be applied
+    in combat calculations. This method is typically used during spell damage or attack
+    computations to determine whether a hit should be treated as a critical strike
+    based on the aura's influence. The returned value represents a percentage chance
+    (e.g., 0.25 for 25%) that can be added to or modified by other game mechanics
+    such as base crit chance, talents, and buffs.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit object representing the caster of the spell or
+      effect that this aura is attached to. Can be null if the aura does not require
+      a specific caster context.
+  - name: target
+    description: Pointer to the Unit object representing the target of the spell or
+      attack. This parameter is crucial for determining how the aura's critical strike
+      modifier should be applied based on combat context.
+  returns: A float value representing the critical strike chance modifier (as a decimal,
+    e.g., 0.10 for 10%) that this aura effect contributes to the overall critical
+    strike chance calculation. Returns 0.0 if no modifier is applicable or if the
+    aura does not affect critical strike chance.
+  examples:
+  - title: Basic Usage in Spell Damage Calculation
+    code: "float critChance = auraEffect->GetCritChanceFor(caster, target);\nif (roll\
+      \ < critChance)\n{\n    // Apply critical strike damage\n}"
+    language: cpp
+  - title: Accumulating Multiple Crit Modifiers
+    code: "float totalCritChance = baseCritChance;\nfor (auto& aura : target->GetAuraEffectsByType(SPELL_AURA_MOD_CRIT_PERCENT))\n\
+      {\n    totalCritChance += aura->GetCritChanceFor(caster, target);\n}\n// Use\
+      \ totalCritChance in final damage calculation"
+    language: cpp
+  notes: This method is part of the aura effect system in TrinityCore and relies on
+    internal game mechanics to compute modifiers. It may return different values depending
+    on the specific type of aura effect, such as SPELL_AURA_MOD_CRIT_PERCENT or similar
+    critical strike-related effects. The method assumes valid Unit pointers are passed;
+    passing null pointers could lead to undefined behavior.
+  warnings: Ensure that both caster and target pointers are valid before calling this
+    method. Passing invalid or uninitialized Unit pointers may result in crashes or
+    incorrect calculations. This method should only be called during active combat
+    scenarios where aura effects are relevant.
+  related:
+  - GetAuraType
+  - GetAmount
+  - GetSpellInfo
+  - IsPositive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T02:34:27.680346'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

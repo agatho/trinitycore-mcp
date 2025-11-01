@@ -1,0 +1,56 @@
+api:
+  class: InterruptManager
+  method: GetMemberInterruptCooldown
+  signature: uint32 InterruptManager::GetMemberInterruptCooldown(int memberGuid)
+documentation:
+  brief: Retrieves the interrupt cooldown duration for a specified group member.
+  description: The GetMemberInterruptCooldown method returns the current interrupt
+    cooldown value in milliseconds for a given group member identified by their GUID.
+    This cooldown represents the time period during which the member cannot be interrupted
+    by spells or abilities. The method is typically used within group-based gameplay
+    mechanics such as raids or dungeons where managing interrupt timing is crucial
+    for successful encounters. It ensures that players do not spam interrupts too
+    frequently, maintaining game balance and preventing exploit scenarios.
+  parameters:
+  - name: memberGuid
+    description: The globally unique identifier (GUID) of the group member whose interrupt
+      cooldown is being queried. This should be a valid player GUID from the World
+      of Warcraft database.
+  returns: Returns a uint32 value representing the remaining interrupt cooldown time
+    in milliseconds. A return value of 0 indicates that the member is currently not
+    on cooldown and can be interrupted immediately.
+  examples:
+  - title: Check Interrupt Cooldown for Group Member
+    code: "uint32 cooldown = interruptManager->GetMemberInterruptCooldown(playerGuid);\n\
+      if (cooldown == 0)\n{\n    // Player can be interrupted\n    // Proceed with\
+      \ interrupt logic\n}\nelse\n{\n    // Player is on cooldown\n    // Delay interrupt\
+      \ action by 'cooldown' milliseconds\n}"
+    language: cpp
+  - title: Implement Interrupt Timing Logic
+    code: "void HandleInterruptAttempt(Player* caster, uint32 targetGuid)\n{\n   \
+      \ uint32 cooldown = interruptManager->GetMemberInterruptCooldown(targetGuid);\n\
+      \    if (cooldown == 0)\n    {\n        // Allow interrupt\n        caster->CastSpell(target,\
+      \ SPELL_INTERRUPT, true);\n        // Apply new cooldown\n        interruptManager->SetMemberInterruptCooldown(targetGuid,\
+      \ 1500); // 1.5 second cooldown\n    }\n    else\n    {\n        // Inform player\
+      \ they're on cooldown\n        WorldPacket data(SMSG_CAST_FAILED, 4);\n    \
+      \    data << uint32(0) << uint32(SPELL_FAILED_INTERRUPTED);\n        caster->SendDirectMessage(&data);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the InterruptManager class which manages interrupt-related
+    cooldowns for group members. The returned value represents a real-time cooldown
+    that may vary based on game state, player actions, or server configuration. It's
+    important to note that this method does not modify any internal state; it only
+    retrieves the current cooldown value.
+  warnings: Ensure that the provided memberGuid is valid and corresponds to an actual
+    player in the group to avoid unexpected behavior. This method should not be used
+    outside of appropriate group contexts as it may return incorrect values for non-group
+    members.
+  related:
+  - SetMemberInterruptCooldown
+  - ResetMemberInterruptCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T12:34:22.529565'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

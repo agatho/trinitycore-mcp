@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnPacketReceive
+  signature: void ScriptMgr::OnPacketReceive(WorldSession * session, const WorldPacket
+    & packet)
+documentation:
+  brief: Invoked when a packet is received from a client session, allowing scripts
+    to intercept and modify packet data before it's processed.
+  description: The OnPacketReceive method is a hook point in TrinityCore's scripting
+    system that gets called whenever a WorldPacket is received from a client session.
+    This method allows custom scripts to inspect, modify, or block packets before
+    they are processed by the core game logic. It serves as a crucial mechanism for
+    implementing custom gameplay mechanics, anti-cheat systems, or packet filtering.
+    The method receives both the session information and the raw packet data, enabling
+    developers to perform actions such as logging suspicious activity, altering packet
+    contents, or preventing certain operations from proceeding based on custom conditions.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      that sent the packet. This provides access to session-specific data including
+      player information, connection details, and session state.
+  - name: packet
+    description: Reference to the WorldPacket object containing the raw packet data
+      received from the client. This represents the actual network message being processed
+      and can be inspected or modified by scripts.
+  returns: null
+  examples:
+  - title: Basic Packet Interception
+    code: "void OnPacketReceive(WorldSession* session, const WorldPacket& packet)\n\
+      {\n    if (packet.GetOpcode() == CMSG_CHAT_MESSAGE)\n    {\n        // Log chat\
+      \ messages\n        sLog->outString(\"Player %s sent chat message: %s\", session->GetPlayer()->GetName(),\
+      \ packet.contents());\n    }\n}"
+    language: cpp
+  - title: Packet Filtering Example
+    code: "void OnPacketReceive(WorldSession* session, const WorldPacket& packet)\n\
+      {\n    if (packet.GetOpcode() == CMSG_PLAYER_LOGIN)\n    {\n        // Prevent\
+      \ login for players with invalid account status\n        if (!session->GetPlayer()->IsAccountValid())\n\
+      \        {\n            session->KickPlayer();\n        }\n    }\n}"
+    language: cpp
+  notes: This method is called on the main game thread and should avoid long-running
+    operations to prevent blocking other sessions. The packet data can be modified
+    in-place, but care must be taken to maintain packet integrity. Scripts should
+    not delete or modify the session pointer as it's managed by the core system.
+  warnings: Modifying packet contents can cause client desynchronization or unexpected
+    behavior if not handled carefully. Be cautious when blocking packets as it may
+    affect gameplay functionality. This hook is called for every single packet, so
+    performance implications must be considered in high-traffic scenarios.
+  related:
+  - OnPacketSend
+  - OnWorldUpdate
+  - OnPlayerLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:28:46.145925'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

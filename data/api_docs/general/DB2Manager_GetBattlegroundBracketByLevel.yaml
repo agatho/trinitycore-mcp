@@ -1,0 +1,58 @@
+api:
+  class: DB2Manager
+  method: GetBattlegroundBracketByLevel
+  signature: const PVPDifficultyEntry * DB2Manager::GetBattlegroundBracketByLevel(uint32
+    mapid, uint32 level)
+documentation:
+  brief: Retrieves the PvP difficulty entry for a given battleground map and player
+    level.
+  description: The GetBattlegroundBracketByLevel method looks up and returns the appropriate
+    PVPDifficultyEntry based on the specified battleground map ID and player's current
+    level. This is used internally by TrinityCore to determine which PvP bracket a
+    player should be placed in when entering a battleground, ensuring that players
+    are matched with opponents of similar levels. The method accesses pre-loaded DB2
+    data structures containing battleground difficulty configurations. It returns
+    a pointer to the PVPDifficultyEntry structure which contains information such
+    as minimum and maximum level limits for the bracket, as well as other PvP-related
+    settings for that specific map and level range.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the battleground map. This corresponds to
+      the Map ID defined in the game's database.
+  - name: level
+    description: The player's current level. Used to determine which PvP bracket is
+      appropriate for this level within the specified battleground.
+  returns: A pointer to a PVPDifficultyEntry structure that defines the PvP bracket
+    settings for the given map and level combination. Returns NULL if no matching
+    bracket is found for the provided parameters.
+  examples:
+  - title: Basic usage to find PvP bracket for a player in Alterac Valley at level
+      60
+    code: "const PVPDifficultyEntry* bracket = sDB2Manager->GetBattlegroundBracketByLevel(30,\
+      \ 60);\nif (bracket)\n{\n    // Use bracket data\n    printf(\"Min Level: %u,\
+      \ Max Level: %u\\n\", bracket->minLevel, bracket->maxLevel);\n}"
+    language: cpp
+  - title: Using the returned bracket to validate player eligibility for a battleground
+    code: "uint32 playerLevel = 70;\nconst PVPDifficultyEntry* bracket = sDB2Manager->GetBattlegroundBracketByLevel(1,\
+      \ playerLevel);\nif (bracket && playerLevel >= bracket->minLevel && playerLevel\
+      \ <= bracket->maxLevel)\n{\n    // Player is eligible for this battleground\n\
+      }\nelse\n{\n    // Player not eligible or bracket not found\n}"
+    language: cpp
+  notes: This method relies on pre-loaded DB2 data files which are typically loaded
+    during server startup. The returned pointer is valid only as long as the DB2Manager's
+    internal data structures remain intact. Performance is generally fast due to internal
+    caching mechanisms, but repeated calls with varying parameters may cause cache
+    misses.
+  warnings: The method returns NULL when no matching bracket is found, so callers
+    must always check for null before dereferencing the returned pointer. Incorrect
+    map IDs or level values can result in unexpected behavior or NULL returns.
+  related:
+  - GetBattlegroundBracketByLevel
+  - GetBattlegroundTemplate
+  - GetPVPDifficultyEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:19:07.946412'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

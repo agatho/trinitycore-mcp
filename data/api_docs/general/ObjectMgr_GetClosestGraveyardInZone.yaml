@@ -1,0 +1,66 @@
+api:
+  class: ObjectMgr
+  method: GetClosestGraveyardInZone
+  signature: const WorldSafeLocsEntry * ObjectMgr::GetClosestGraveyardInZone(const
+    int & location, uint32 team, int * conditionObject, uint32 zoneId) const
+documentation:
+  brief: Finds and returns the closest graveyard location within a specified zone
+    for a given team.
+  description: The GetClosestGraveyardInZone method retrieves the nearest graveyard
+    (WorldSafeLocsEntry) available in a specific zone for a player of a given team.
+    It is primarily used during player death or teleportation to determine where a
+    player should be sent upon resurrection or when entering a new zone. The method
+    considers the player's team (Alliance or Horde) and can optionally apply conditions
+    based on a provided condition object. If no suitable graveyard exists in the specified
+    zone, the method returns nullptr. This functionality is essential for maintaining
+    proper game mechanics related to player respawns and safe locations.
+  parameters:
+  - name: location
+    description: The location identifier or map ID where the search for a graveyard
+      begins. Used to determine proximity and zone context.
+  - name: team
+    description: The team identifier (Alliance = 0, Horde = 1) to filter gravestones
+      by faction. Only gravestones valid for the specified team will be considered.
+  - name: conditionObject
+    description: Optional pointer to a condition object that may further restrict
+      the selection of gravestones based on additional criteria such as quest status
+      or player state.
+  - name: zoneId
+    description: The zone identifier to limit the search scope to a specific area.
+      Ensures only graveyards within this zone are considered.
+  returns: A pointer to a WorldSafeLocsEntry structure representing the closest available
+    graveyard in the specified zone for the given team, or nullptr if no valid graveyard
+    is found.
+  examples:
+  - title: Finding Closest Graveyard for Player
+    code: "const WorldSafeLocsEntry* graveyard = sObjectMgr->GetClosestGraveyardInZone(1234,\
+      \ TEAM_ALLIANCE, nullptr, 567);\nif (graveyard)\n{\n    // Use the graveyard\
+      \ location\n    printf(\"Closest graveyard found at: %f, %f\\n\", graveyard->x,\
+      \ graveyard->y);\n}\nelse\n{\n    printf(\"No valid graveyard found in zone.\\\
+      n\");\n}"
+    language: cpp
+  - title: Using Condition Object for Advanced Filtering
+    code: "int condition = 1001; // Example condition ID\nconst WorldSafeLocsEntry*\
+      \ graveyard = sObjectMgr->GetClosestGraveyardInZone(1234, TEAM_HORDE, &condition,\
+      \ 567);\nif (graveyard)\n{\n    // Proceed with teleportation logic using the\
+      \ selected graveyard\n}\nelse\n{\n    // Fallback to default behavior or error\
+      \ handling\n}"
+    language: cpp
+  notes: This method relies on internal data structures that map zones and teams to
+    valid safe locations. Performance is optimized through spatial indexing, but repeated
+    calls in tight loops may impact server performance. The method assumes valid input
+    parameters and does not perform validation checks internally.
+  warnings: Ensure the zoneId and location parameters are valid; invalid IDs can lead
+    to incorrect results or crashes. The conditionObject parameter must point to a
+    valid condition structure if used, otherwise it should be set to nullptr. This
+    function is not thread-safe when modifying internal graveyard data structures.
+  related:
+  - GetClosestGraveyard
+  - GetGraveyardByInstanceId
+  - GetWorldSafeLocsEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:02:26.777971'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

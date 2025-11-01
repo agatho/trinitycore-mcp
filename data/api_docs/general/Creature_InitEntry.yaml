@@ -1,0 +1,65 @@
+api:
+  class: Creature
+  method: InitEntry
+  signature: bool Creature::InitEntry(uint32 entry, const CreatureData * data)
+documentation:
+  brief: Initializes a creature entry with the specified creature data, setting up
+    its base properties and configuration.
+  description: The InitEntry method is responsible for initializing a Creature object
+    with the provided entry ID and associated creature data. This method sets up the
+    fundamental properties of the creature such as its display ID, faction, equipment,
+    and other static attributes defined in the database. It typically gets called
+    during creature creation or respawn processes to ensure that each creature instance
+    is properly configured according to its template in the database. The method returns
+    true if initialization was successful, false otherwise. This process is crucial
+    for maintaining consistency between the creature's in-game behavior and its database
+    definition.
+  parameters:
+  - name: entry
+    description: The unique identifier (entry ID) of the creature template to initialize.
+      This corresponds to the 'entry' field in the creature_template table.
+  - name: data
+    description: Pointer to the CreatureData structure containing runtime-specific
+      data for this creature instance, such as spawn position, orientation, and respawn
+      timers.
+  returns: True if the creature was successfully initialized with the provided entry
+    and data; false if initialization failed due to invalid parameters or missing
+    template data.
+  examples:
+  - title: Basic Creature Initialization
+    code: "Creature* creature = new Creature();\nuint32 entryId = 12345;\nCreatureData\
+      \ const* data = sObjectMgr->GetCreatureData(entryId);\nif (creature->InitEntry(entryId,\
+      \ data)) {\n    // Creature initialized successfully\n    creature->SetRespawnTime(300);\
+      \ // Set respawn time to 5 minutes\n} else {\n    // Handle initialization failure\n\
+      \    delete creature;\n}"
+    language: cpp
+  - title: Initialization with Error Handling
+    code: "Creature* creature = new Creature();\nuint32 entryId = 12345;\nCreatureData\
+      \ const* data = sObjectMgr->GetCreatureData(entryId);\nif (!data) {\n    //\
+      \ Handle missing creature data\n    delete creature;\n    return false;\n}\n\
+      \nif (creature->InitEntry(entryId, data)) {\n    // Successfully initialized\
+      \ - proceed with further setup\n    creature->LoadFromDB();\n    creature->SetVisible(true);\n\
+      \    sMapMgr->AddCreatureToGrid(creature);\n} else {\n    // Log error and cleanup\n\
+      \    sLog->outError(\"Failed to initialize creature with entry %u\", entryId);\n\
+      \    delete creature;\n    return false;\n}"
+    language: cpp
+  notes: This method is typically called internally by the core during creature creation
+    or loading from database. It's important that the CreatureData pointer passed
+    to this method is valid and not null. The method does not handle dynamic updates
+    to creature properties after initialization; those should be handled separately
+    through other methods like SetDisplayId() or SetFaction().
+  warnings: Calling InitEntry on an already initialized creature may lead to undefined
+    behavior or memory leaks. Always ensure that the CreatureData object pointed to
+    remains valid for the lifetime of the Creature instance. Do not call this method
+    directly unless you are certain about the initialization sequence and data validity.
+  related:
+  - Creature::LoadFromDB
+  - Creature::SetDisplayId
+  - Creature::SetFaction
+  - Creature::SetEntry
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:45:59.296390'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: DeathRecoveryManager
+  method: GetCorpseDistance
+  signature: float DeathRecoveryManager::GetCorpseDistance() const
+documentation:
+  brief: Calculates and returns the distance to the player's corpse in yards.
+  description: The GetCorpseDistance method computes the Euclidean distance between
+    the current player's position and their corpse location in the game world. This
+    method is typically used during death recovery mechanics to determine how far
+    a player is from their corpse, which may affect resurrection timing, corpse decay
+    rates, or loot availability. The returned value represents the straight-line distance
+    in yards, accounting for the 3D spatial coordinates of both the player and the
+    corpse within the game environment. This calculation includes height differences
+    between the player's current location and the corpse position.
+  parameters: []
+  returns: A float value representing the distance in yards between the player's current
+    position and their corpse location. Returns 0.0f if no corpse exists or if the
+    player is at the same location as the corpse.
+  examples:
+  - title: Basic usage to check corpse distance
+    code: "float distance = player->GetDeathRecoveryManager()->GetCorpseDistance();\n\
+      if (distance > 50.0f)\n{\n    // Player is far from corpse, may affect resurrection\
+      \ mechanics\n    sLog->outString(\"Player is %.2f yards from corpse\", distance);\n\
+      }"
+    language: cpp
+  - title: Using corpse distance for loot eligibility
+    code: "DeathRecoveryManager* deathMgr = player->GetDeathRecoveryManager();\nfloat\
+      \ distance = deathMgr->GetCorpseDistance();\nif (distance <= 10.0f)\n{\n   \
+      \ // Player is close enough to loot corpse immediately\n    player->AddItem(LOOT_ITEM_ID,\
+      \ 1);\n}\nelse if (distance <= 50.0f)\n{\n    // Player can see corpse but must\
+      \ wait for decay\n    sLog->outString(\"Corpse will decay in %d seconds\", 300\
+      \ - static_cast<int>(distance * 2));\n}"
+    language: cpp
+  notes: This method performs a direct spatial calculation using the player's current
+    position and corpse coordinates stored in the DeathRecoveryManager. The distance
+    is calculated in 3D space, including vertical height differences. The method may
+    return 0.0f if either the player or corpse positions are invalid or if the player
+    has no corpse (e.g., after resurrection). Performance impact is minimal as it
+    only involves basic mathematical operations.
+  warnings: This method should not be called during critical game state transitions
+    where player or corpse positions might be inconsistent. The returned distance
+    value may be inaccurate if the player's position hasn't been properly updated
+    or if the corpse location data is corrupted. Avoid using this in high-frequency
+    loops as it performs coordinate calculations that could impact performance under
+    heavy load.
+  related:
+  - GetCorpsePosition
+  - HasCorpse
+  - GetCorpseTimeRemaining
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T14:27:01.355928'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

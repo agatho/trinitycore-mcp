@@ -1,0 +1,64 @@
+api:
+  class: AuraEffect
+  method: HandleAuraModRoot
+  signature: void AuraEffect::HandleAuraModRoot(const AuraApplication * aurApp, uint8
+    mode, bool apply) const
+documentation:
+  brief: Applies or removes the root effect aura on a target.
+  description: The HandleAuraModRoot method is responsible for managing the application
+    and removal of root effects on targets within the TrinityCore framework. This
+    method is typically invoked during aura application or removal events to modify
+    the movement capabilities of affected units. When applied, it prevents the target
+    from moving, effectively 'rooting' them in place. The method interacts with the
+    AuraApplication object to determine the context of the aura effect and applies
+    appropriate game mechanics such as disabling movement commands and updating the
+    unit's state accordingly. This is commonly used for spells like Fear, Cyclone,
+    or other immobilizing effects.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object that contains information about
+      the aura being applied or removed. This parameter provides context about which
+      aura effect is being handled and on which target.
+  - name: mode
+    description: The mode of operation for the aura effect, typically indicating whether
+      it's being applied (1) or removed (0). This value determines how the root state
+      should be modified on the target.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the root effect. When true, the target is rooted; when false, the target becomes
+      unrooted.
+  returns: null
+  examples:
+  - title: Basic Root Aura Application
+    code: "void ApplyRootAura(Unit* target, SpellInfo const* spellInfo)\n{\n    AuraApplication*\
+      \ aurApp = new AuraApplication(target, target, spellInfo);\n    AuraEffect*\
+      \ auraEffect = spellInfo->GetAura(0);\n    auraEffect->HandleAuraModRoot(aurApp,\
+      \ 1, true);\n}"
+    language: cpp
+  - title: Removing Root Effect from Target
+    code: "void RemoveRootAura(Unit* target)\n{\n    AuraApplication* aurApp = target->GetAuraApplication(12345);\
+      \ // Example aura ID\n    if (aurApp)\n    {\n        AuraEffect* auraEffect\
+      \ = aurApp->GetBase()->GetEffect(0);\n        auraEffect->HandleAuraModRoot(aurApp,\
+      \ 1, false);\n    }\n}"
+    language: cpp
+  notes: This method directly modifies the target's movement state and may interact
+    with the unit's underlying movement handlers. It's important to ensure that the
+    AuraApplication object passed is valid and properly initialized before calling
+    this method. The method assumes that the aura effect being handled is indeed a
+    root-type effect, and incorrect usage could lead to unexpected behavior.
+  warnings: Improper use of this method can cause units to become stuck in place or
+    lose their ability to move even after the root effect should have been removed.
+    Always ensure that any applied root effects are properly removed when the aura
+    duration expires or is manually removed. Incorrect handling may result in client-side
+    movement glitches.
+  related:
+  - HandleAuraModSpeed
+  - HandleAuraModStun
+  - HandleAuraModSilence
+  - AuraEffect::HandleAuraApply
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:09:36.698166'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

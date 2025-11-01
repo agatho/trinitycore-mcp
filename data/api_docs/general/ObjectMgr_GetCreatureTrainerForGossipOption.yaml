@@ -1,0 +1,62 @@
+api:
+  class: ObjectMgr
+  method: GetCreatureTrainerForGossipOption
+  signature: uint32 ObjectMgr::GetCreatureTrainerForGossipOption(uint32 creatureId,
+    uint32 gossipMenuId, uint32 gossipOptionId) const
+documentation:
+  brief: Retrieves the trainer ID associated with a specific gossip option for a creature.
+  description: The GetCreatureTrainerForGossipOption method is used to determine which
+    trainer ID corresponds to a given gossip menu and option for a specified creature.
+    This functionality is essential for handling trainer-related gossip interactions
+    in World of Warcraft's TrinityCore-based servers. The method allows the game to
+    correctly route player requests to appropriate trainers based on their selected
+    gossip options, ensuring proper interaction with NPC trainers. It typically operates
+    within the context of a creature's gossip menu system where multiple options may
+    lead to different training services or quests related to the same NPC.
+  parameters:
+  - name: creatureId
+    description: The unique identifier (GUID) of the creature whose gossip options
+      are being queried. This must correspond to a valid NPC in the database.
+  - name: gossipMenuId
+    description: The ID of the gossip menu associated with the creature. This identifies
+      which specific menu is being accessed by the player.
+  - name: gossipOptionId
+    description: The ID of the specific gossip option within the menu. This determines
+      which particular action the player selected from the menu.
+  returns: Returns a uint32 representing the trainer ID associated with the specified
+    gossip option for the creature. If no matching trainer is found, it returns 0,
+    indicating that the option does not lead to a trainer interaction.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 trainerId = sObjectMgr->GetCreatureTrainerForGossipOption(12345,\
+      \ 67890, 1);\nif (trainerId != 0)\n{\n    // Process trainer interaction\n \
+      \   TC_LOG_INFO(\"server.loading\", \"Player selected trainer ID: %u\", trainerId);\n\
+      }"
+    language: cpp
+  - title: Integration with Gossip Handling
+    code: "void Player::OnGossipHello(Creature* creature)\n{\n    uint32 trainerId\
+      \ = sObjectMgr->GetCreatureTrainerForGossipOption(creature->GetGUID().GetCounter(),\
+      \ 1001, 3);\n    if (trainerId != 0)\n    {\n        AddGossipItemFor(player,\
+      \ GOSSIP_ICON_TRAINER, \"Train me!\", GOSSIP_SENDER_MAIN, trainerId);\n    \
+      \    SendGossipMenuFor(player, 1001, creature->GetGUID());\n    }\n}"
+    language: cpp
+  notes: This method likely queries internal databases or cached data structures that
+    map creature gossip menus to trainer information. It's important for performance
+    that these mappings are efficiently indexed and cached. The method should be called
+    only when a valid gossip interaction is occurring, as invalid parameters may result
+    in zero returns without error reporting.
+  warnings: Ensure that all input parameters (creatureId, gossipMenuId, gossipOptionId)
+    are valid before calling this method to avoid unexpected behavior or incorrect
+    trainer assignments. Invalid IDs could lead to silent failures where the method
+    returns 0 instead of a proper trainer ID.
+  related:
+  - GetCreatureTemplate
+  - GetGossipMenuForNpc
+  - GetTrainerTemplate
+  - GetGossipOptionForMenu
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:51:16.537298'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

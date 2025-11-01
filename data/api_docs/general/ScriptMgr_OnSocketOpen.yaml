@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnSocketOpen
+  signature: void ScriptMgr::OnSocketOpen(const std::shared_ptr<WorldSocket> & socket)
+documentation:
+  brief: Invoked when a new socket connection is established with the server.
+  description: The OnSocketOpen method is a callback function in the ScriptMgr class
+    that gets triggered whenever a new client socket connection is successfully opened
+    and accepted by the TrinityCore server. This method serves as an entry point for
+    custom scripting logic that needs to execute upon client connection, such as initializing
+    connection-specific data, logging connection events, or performing authentication
+    checks before the client can proceed with further communication. It's part of
+    the server's event-driven architecture where scripts can hook into various lifecycle
+    events of network connections.
+  parameters:
+  - name: socket
+    description: A shared pointer to the WorldSocket object representing the newly
+      opened network connection. This parameter provides access to socket-level operations
+      and connection metadata, including client IP address, connection state, and
+      methods for sending/receiving data.
+  returns: null
+  examples:
+  - title: Basic Socket Open Handler
+    code: "#include \"ScriptMgr.h\"\n#include \"WorldSocket.h\"\n\nvoid MyScript::OnSocketOpen(const\
+      \ std::shared_ptr<WorldSocket>& socket)\n{\n    // Log the new connection\n\
+      \    sLog->outInfo(LOG_FILTER_GENERAL, \"New client connected from IP: %s\"\
+      , socket->GetRemoteAddress().c_str());\n    \n    // Initialize custom data\
+      \ for this connection\n    socket->SetSessionData(new MyCustomSessionData());\n\
+      }"
+    language: cpp
+  - title: Connection Validation with Custom Logic
+    code: "#include \"ScriptMgr.h\"\n#include \"WorldSocket.h\"\n\nvoid MySecurityScript::OnSocketOpen(const\
+      \ std::shared_ptr<WorldSocket>& socket)\n{\n    // Get client IP address\n \
+      \   std::string ip = socket->GetRemoteAddress();\n    \n    // Block connections\
+      \ from certain IPs\n    if (ip == \"192.168.1.100\")\n    {\n        sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Blocked connection attempt from: %s\", ip.c_str());\n        socket->CloseSocket();\n\
+      \        return;\n    }\n    \n    // Perform additional validation here\n \
+      \   sLog->outInfo(LOG_FILTER_GENERAL, \"Validated new connection from: %s\"\
+      , ip.c_str());\n}"
+    language: cpp
+  notes: This method is called on the main server thread and should avoid long-running
+    operations to prevent blocking other connections. The socket object passed in
+    is fully initialized and ready for use, but may not yet have a valid session associated
+    with it. It's recommended to store connection-specific data using the socket's
+    SetSessionData() method if needed.
+  warnings: Avoid performing heavy computations or blocking I/O operations within
+    this callback as it can delay acceptance of new connections and impact server
+    performance. Also, be cautious when closing sockets from this method - ensure
+    proper cleanup of any associated resources to prevent memory leaks.
+  related:
+  - OnSocketClose
+  - OnPacketReceived
+  - OnPacketSent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:03:19.218068'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

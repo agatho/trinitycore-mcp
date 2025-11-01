@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnItemRemove
+  signature: bool ScriptMgr::OnItemRemove(Player * player, Item * item)
+documentation:
+  brief: Called when an item is removed from a player's inventory, allowing scripts
+    to intercept and modify the removal behavior.
+  description: The OnItemRemove method is a hook in the TrinityCore scripting system
+    that gets invoked whenever an item is removed from a player's inventory. This
+    can occur during various game actions such as dropping items, selling them, trading,
+    or consuming them. The method allows script developers to implement custom logic
+    that responds to these removal events, potentially preventing the removal, modifying
+    the item properties, or triggering other game mechanics. It serves as a key point
+    for modding and custom behavior implementation within the TrinityCore framework.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory is being modified. This
+      parameter represents the player who owns the item being removed.
+  - name: item
+    description: Pointer to the Item object that is being removed from the player's
+      inventory. This represents the specific item instance being processed.
+  returns: Returns a boolean value indicating whether the item removal should be allowed
+    (true) or blocked (false). If false is returned, the item removal process will
+    typically be cancelled.
+  examples:
+  - title: Basic Item Removal Prevention
+    code: "bool ScriptMgr::OnItemRemove(Player* player, Item* item)\n{\n    // Prevent\
+      \ removal of quest items\n    if (item->GetTemplate()->IsQuestItem())\n    \
+      \    return false; // Block removal\n    \n    return true; // Allow removal\n\
+      }"
+    language: cpp
+  - title: Conditional Item Removal with Logging
+    code: "bool ScriptMgr::OnItemRemove(Player* player, Item* item)\n{\n    // Log\
+      \ item removal for debugging purposes\n    sLog->outString(\"Player %s removed\
+      \ item %u (%s)\",\n        player->GetName().c_str(),\n        item->GetEntry(),\n\
+      \        item->GetTemplate()->Name1.c_str());\n    \n    // Allow removal but\
+      \ prevent certain rare items from being dropped\n    if (item->GetTemplate()->Quality\
+      \ == ITEM_QUALITY_EPIC)\n        return false;\n    \n    return true;\n}"
+    language: cpp
+  notes: This method is part of the global script manager and is called during item
+    removal operations. It's important to note that modifying the player or item objects
+    within this callback may have unintended side effects. The method should generally
+    be used for validation or logging rather than complex modifications.
+  warnings: Returning false from this method will cancel the item removal, but it's
+    crucial to ensure that such cancellation doesn't lead to inconsistent game state.
+    Avoid performing operations that might cause race conditions or modify data structures
+    that are being actively processed by the core engine.
+  related:
+  - OnItemCreate
+  - OnItemUse
+  - OnPlayerLogin
+  - OnPlayerLogout
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:33:11.643700'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

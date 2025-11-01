@@ -1,0 +1,55 @@
+api:
+  class: Pet
+  method: GenerateActionBarData
+  signature: std::string Pet::GenerateActionBarData() const
+documentation:
+  brief: Generates and returns the action bar data string for the pet, containing
+    spell and ability information for client display.
+  description: The GenerateActionBarData method constructs and returns a formatted
+    string that represents the pet's action bar data. This data includes information
+    about the spells, abilities, and commands available to the pet, which is used
+    by the client to render the pet's action bar interface. The returned string typically
+    contains serialized data that the game client interprets to display the appropriate
+    buttons and their associated actions. This method is essential for synchronizing
+    the pet's action bar state between the server and the client, ensuring that players
+    see accurate information about their pet's available abilities. The method does
+    not modify any internal state of the pet object but rather provides a read-only
+    view of its action bar configuration.
+  parameters: []
+  returns: A std::string containing the serialized action bar data for the pet. This
+    string typically includes spell IDs, cooldown information, and other metadata
+    required by the client to properly display the pet's action bar. The format is
+    specific to TrinityCore's internal serialization protocol.
+  examples:
+  - title: Basic Usage
+    code: 'Pet* myPet = player->GetPet();
+
+      std::string actionBarData = myPet->GenerateActionBarData();
+
+      // actionBarData now contains the serialized pet action bar information'
+    language: cpp
+  - title: Sending to Client
+    code: "Pet* pet = player->GetPet();\nif (pet)\n{\n    std::string data = pet->GenerateActionBarData();\n\
+      \    WorldPacket packet(SMSG_PET_ACTION_BAR, data.length() + 1);\n    packet\
+      \ << uint8(0); // Unknown field\n    packet << data;\n    player->SendDirectMessage(&packet);\n\
+      }"
+    language: cpp
+  notes: This method is typically called when the pet's action bar needs to be refreshed
+    or sent to a client. The returned string format may vary depending on the pet
+    type and its current abilities. The method assumes that the pet has valid action
+    bar data and does not perform any validation checks internally.
+  warnings: The returned string should not be modified directly as it is generated
+    on-demand. Any changes to the pet's action bar state (such as adding/removing
+    spells) will require calling this method again to get updated data. This method
+    may return an empty string if the pet has no valid action bar configuration.
+  related:
+  - GetPetSpell
+  - SetPetSpell
+  - HasPetSpells
+  - ClearActionBar
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T21:12:12.192064'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

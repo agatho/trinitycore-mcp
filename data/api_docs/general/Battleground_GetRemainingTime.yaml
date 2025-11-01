@@ -1,0 +1,46 @@
+api:
+  class: Battleground
+  method: GetRemainingTime
+  signature: int Battleground::GetRemainingTime() const
+documentation:
+  brief: Returns the remaining time in seconds for the battleground match.
+  description: The GetRemainingTime method retrieves the amount of time left in seconds
+    until the current battleground match ends. This value is typically used to display
+    countdown timers to players, determine when reinforcements arrive, or manage game
+    state transitions. The returned value represents the time remaining from the start
+    of the battleground's active phase, not including any pre-match or post-match
+    periods. The method is const and safe to call from any thread context.
+  parameters: []
+  returns: An integer representing the number of seconds remaining in the battleground
+    match. Returns 0 if the match has ended or if no match is currently active.
+  examples:
+  - title: Display remaining time to players
+    code: "void SendRemainingTimeToPlayers(Battleground* bg)\n{\n    int timeLeft\
+      \ = bg->GetRemainingTime();\n    if (timeLeft > 0)\n    {\n        ChatHandler(bg->GetPlayers().begin()->second)->SendSysMessage(\"\
+      Time remaining: \" + std::to_string(timeLeft) + \" seconds.\");\n    }\n}"
+    language: cpp
+  - title: Check if time is running out
+    code: "void CheckForTimeOut(Battleground* bg)\n{\n    int timeLeft = bg->GetRemainingTime();\n\
+      \    if (timeLeft <= 30 && timeLeft > 0)\n    {\n        // Send warning message\n\
+      \        bg->SendPacketToAll(new WorldPacket(SMSG_BATTLEGROUND_WAIT_TIME, 4));\n\
+      \    }\n    else if (timeLeft == 0)\n    {\n        // Handle match end logic\n\
+      \        bg->EndBattleground(RESULT_TIMEOUT);\n    }\n}"
+    language: cpp
+  notes: This method relies on internal battleground timers that are managed by the
+    game server. The returned value updates dynamically as time passes and is affected
+    by game mechanics such as player disconnections or match start delays. It's recommended
+    to cache this value only for short periods to avoid stale data.
+  warnings: Do not use this method to determine if a battleground is active; instead,
+    check the battleground state using IsArena() or GetStatus(). Calling this method
+    on a non-active battleground may return unexpected values or zero.
+  related:
+  - GetStatus
+  - GetStartTime
+  - GetEndTime
+  - IsArena
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:09:14.816695'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

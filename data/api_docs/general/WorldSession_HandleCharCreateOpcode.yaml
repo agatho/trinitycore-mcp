@@ -1,0 +1,60 @@
+api:
+  class: WorldSession
+  method: HandleCharCreateOpcode
+  signature: void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter
+    & charCreate)
+documentation:
+  brief: Processes a character creation request from a client and validates the data
+    before creating the new character.
+  description: The HandleCharCreateOpcode method is responsible for handling the client's
+    request to create a new character in the game world. It receives a CreateCharacter
+    packet containing the player's desired character details such as name, race, class,
+    gender, and appearance options. The method performs validation checks including
+    ensuring the character name is valid, checking if the requested race and class
+    combination is allowed, verifying that the character does not already exist, and
+    confirming that the player has sufficient resources or permissions to create a
+    new character. After successful validation, it proceeds to instantiate the new
+    character in the database and sends appropriate responses back to the client,
+    including success or failure messages. This method is part of the core authentication
+    and character management system within TrinityCore's WorldSession class.
+  parameters:
+  - name: charCreate
+    description: A reference to a WorldPackets::Character::CreateCharacter packet
+      containing all the data required for character creation, including name, race,
+      class, gender, and appearance settings.
+  returns: null
+  examples:
+  - title: Basic Character Creation Handling
+    code: "void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter\
+      \ & charCreate)\n{\n    // Validate character name\n    if (!IsNameValid(charCreate.Name))\n\
+      \    {\n        SendCharacterCreateResponse(RESPONSE_CHAR_CREATE_NAME_IN_USE);\n\
+      \        return;\n    }\n    \n    // Check if race and class are valid\n  \
+      \  if (!IsRaceClassAllowed(charCreate.Race, charCreate.Class))\n    {\n    \
+      \    SendCharacterCreateResponse(RESPONSE_CHAR_CREATE_INVALID_RACE_CLASS);\n\
+      \        return;\n    }\n    \n    // Create the character in database\n   \
+      \ CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();\n\
+      \    Player::CreateCharacter(trans, GetAccountId(), charCreate.Name, charCreate.Race,\
+      \ charCreate.Class, charCreate.Gender);\n    CharacterDatabase.CommitTransaction(trans);\n\
+      \    \n    SendCharacterCreateResponse(RESPONSE_CHAR_CREATE_SUCCESS);\n}"
+    language: cpp
+  notes: This method is typically invoked during the character selection screen when
+    a player chooses to create a new character. It must be thread-safe as multiple
+    sessions may attempt to create characters simultaneously. The method relies heavily
+    on database transactions for consistency and should properly handle rollback scenarios
+    in case of validation failures.
+  warnings: Improper validation of character data can lead to security vulnerabilities
+    or database corruption. Always validate all input fields including name length,
+    race/class combinations, and appearance settings before proceeding with creation.
+    Failure to properly check for existing characters may result in duplicate entries
+    or unexpected behavior.
+  related:
+  - SendCharacterCreateResponse
+  - IsNameValid
+  - IsRaceClassAllowed
+  - HandleCharDeleteOpcode
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:24:36.597252'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

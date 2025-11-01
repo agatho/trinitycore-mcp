@@ -1,0 +1,46 @@
+api:
+  class: SmartAreaTriggerAI
+  method: OnUpdate
+  signature: void SmartAreaTriggerAI::OnUpdate(uint32 diff)
+documentation:
+  brief: Updates the area trigger AI behavior based on elapsed time
+  description: The OnUpdate method is called periodically by the TrinityCore AI system
+    to process the logic of an area trigger. It handles the timing-based behaviors
+    of the area trigger, such as checking for player interactions, managing cooldowns,
+    and executing associated smart scripts. This method is invoked with a delta time
+    parameter representing the milliseconds since the last update call, allowing for
+    precise timing control of trigger effects. The method typically manages the lifecycle
+    of the area trigger's active state and ensures proper execution of scripted events.
+  parameters:
+  - name: diff
+    description: The time elapsed in milliseconds since the last OnUpdate call. This
+      value is used to calculate time-based behaviors and ensure consistent timing
+      for trigger effects.
+  returns: null
+  examples:
+  - title: Basic area trigger update logic
+    code: "void SmartAreaTriggerAI::OnUpdate(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    // Handle time-based behavior\n    if (me->HasUnitState(UNIT_STATE_CASTING))\n\
+      \        return;\n\n    // Execute smart scripts based on time elapsed\n   \
+      \ if (m_updateTimer <= diff)\n    {\n        m_updateTimer = 1000; // Reset\
+      \ timer\n        // Trigger smart script execution\n        if (Unit* target\
+      \ = SelectTarget(SELECT_TARGET_RANDOM, 0))\n            DoCast(target, SPELL_AREA_TRIGGER_EFFECT);\n\
+      \    }\n    else\n        m_updateTimer -= diff;\n}"
+    language: cpp
+  notes: This method is automatically called by the AI system and should not be invoked
+    directly. The 'diff' parameter represents actual game time, so timing-sensitive
+    logic should account for potential frame rate variations. The method may be called
+    multiple times per second depending on server configuration.
+  warnings: Do not modify the area trigger's position or state in this method without
+    proper safeguards to prevent undefined behavior. Avoid performing heavy computations
+    in this method as it runs frequently and can impact performance.
+  related:
+  - SmartAreaTriggerAI::OnEnter
+  - SmartAreaTriggerAI::OnLeave
+  - SmartAreaTriggerAI::Initialize
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:32:49.964793'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: ServerScript
+  method: OnSocketClose
+  signature: void ServerScript::OnSocketClose(std::shared_ptr<WorldSocket> socket)
+documentation:
+  brief: Called when a WorldSocket connection is closed, allowing server scripts to
+    perform cleanup or logging operations.
+  description: The OnSocketClose method is invoked by the TrinityCore server whenever
+    a client socket connection is terminated. This callback provides an opportunity
+    for server-side scripts to execute cleanup routines, log disconnection events,
+    or perform any necessary state management related to the closed connection. The
+    method receives a shared pointer to the WorldSocket object that was closed, allowing
+    access to connection details such as the associated player's GUID, IP address,
+    and other socket properties. This method is part of the general server script
+    interface and is typically used for monitoring, logging, or cleanup purposes in
+    custom server extensions.
+  parameters:
+  - name: socket
+    description: A shared pointer to the WorldSocket object representing the closed
+      connection. This parameter provides access to socket properties including IP
+      address, player GUID (if authenticated), and connection state information.
+  returns: void
+  examples:
+  - title: Basic logging of socket disconnections
+    code: "class MyServerScript : public ServerScript\n{\npublic:\n    void OnSocketClose(std::shared_ptr<WorldSocket>\
+      \ socket) override\n    {\n        if (socket)\n        {\n            TC_LOG_INFO(\"\
+      server.script\", \"Client disconnected from IP: %s\", socket->GetRemoteAddress().c_str());\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Cleanup player-related data on socket close
+    code: "class MyServerScript : public ServerScript\n{\npublic:\n    void OnSocketClose(std::shared_ptr<WorldSocket>\
+      \ socket) override\n    {\n        if (socket && socket->GetPlayer())\n    \
+      \    {\n            uint64 guid = socket->GetPlayer()->GetGUID().GetRawValue();\n\
+      \            TC_LOG_INFO(\"server.script\", \"Player with GUID %llu disconnected\"\
+      , guid);\n            // Perform any cleanup related to this player's session\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the network thread context, so any operations
+    performed should be thread-safe. Avoid heavy computations or blocking operations
+    within this callback to prevent performance degradation. The socket parameter
+    may be null in edge cases, though typically it will contain a valid reference
+    to the closed connection.
+  warnings: Do not attempt to modify or delete the socket object directly from this
+    method as it is managed by the core system. Be cautious about accessing player
+    data through the socket if the player has already been removed from the world,
+    as this may lead to access violations.
+  related:
+  - OnSocketOpen
+  - OnPacketReceived
+  - OnPacketSent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:41:10.668608'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

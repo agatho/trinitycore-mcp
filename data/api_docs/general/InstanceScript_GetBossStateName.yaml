@@ -1,0 +1,52 @@
+api:
+  class: InstanceScript
+  method: GetBossStateName
+  signature: const char * InstanceScript::GetBossStateName(uint8 state)
+documentation:
+  brief: Returns the string name of a boss state given its numeric identifier
+  description: The GetBossStateName method translates a numeric boss state value into
+    its corresponding human-readable string representation. This utility function
+    is commonly used in instance scripts to provide debug information, logging, or
+    UI feedback about the current state of bosses within a dungeon or raid. The method
+    accepts a uint8 parameter representing the boss state and returns a const char*
+    pointer to the appropriate state name string. Boss states typically represent
+    different phases or conditions of a boss fight such as NOT_STARTED, IN_PROGRESS,
+    FAIL, or DONE. This function helps developers and administrators quickly identify
+    the current status of bosses during development, debugging, or runtime monitoring.
+  parameters:
+  - name: state
+    description: The numeric identifier representing the boss state to translate.
+      Valid values are typically 0-4 representing NOT_STARTED, IN_PROGRESS, FAIL,
+      DONE, and other internal states respectively.
+  returns: A const char* pointer to a null-terminated string containing the human-readable
+    name of the boss state, or nullptr if the state value is invalid.
+  examples:
+  - title: Basic Usage in Instance Script
+    code: "class BossInstanceScript : public InstanceScript\n{\npublic:\n    void\
+      \ OnBossDeath(uint8 bossId) override\n    {\n        uint8 state = GetBossState(bossId);\n\
+      \        const char* stateName = GetBossStateName(state);\n        if (stateName)\n\
+      \        {\n            sLog->outString(\"Boss %u is now in state: %s\", bossId,\
+      \ stateName);\n        }\n    }\n};"
+    language: cpp
+  - title: Debug Logging with Boss State Names
+    code: "void BossInstanceScript::LogAllBossStates()\n{\n    for (uint8 i = 0; i\
+      \ < MAX_BOSSES; ++i)\n    {\n        uint8 state = GetBossState(i);\n      \
+      \  const char* name = GetBossStateName(state);\n        sLog->outString(\"Boss\
+      \ %u state: %s\", i, name ? name : \"UNKNOWN\");\n    }\n}"
+    language: cpp
+  notes: This method is typically implemented as a lookup table or switch statement
+    internally. The returned string pointers are static and should not be modified
+    or freed by the caller. The method assumes valid input values but may return nullptr
+    for invalid state numbers.
+  warnings: Ensure that the input state parameter is within expected bounds (typically
+    0-4) to avoid undefined behavior. The returned pointer should never be freed or
+    modified as it points to static memory.
+  related:
+  - GetBossState
+  - SetBossState
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T12:52:04.943230'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

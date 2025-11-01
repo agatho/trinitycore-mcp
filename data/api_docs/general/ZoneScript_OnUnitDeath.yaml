@@ -1,0 +1,61 @@
+api:
+  class: ZoneScript
+  method: OnUnitDeath
+  signature: void ZoneScript::OnUnitDeath(Unit * unit)
+documentation:
+  brief: Called when a unit dies within the zone script's area of influence
+  description: The OnUnitDeath method is a virtual callback function that gets invoked
+    whenever a Unit (such as a player or creature) dies within the boundaries of a
+    zone script. This method allows developers to implement custom logic in response
+    to unit deaths, such as triggering events, updating quest progress, rewarding
+    players, or modifying game state. It serves as an integral part of zone-based
+    scripting and event handling in TrinityCore's scripting system. The method is
+    typically used in conjunction with ZoneScript classes that are associated with
+    specific zones or areas.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that has died. This can be a Player, Creature,
+      or any other subclass of Unit. The unit's data and state can be accessed through
+      this pointer after death.
+  returns: null
+  examples:
+  - title: Basic ZoneScript Death Handler
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnUnitDeath(Unit*\
+      \ unit) override\n    {\n        if (unit->GetTypeId() == TYPEID_PLAYER)\n \
+      \       {\n            // Handle player death logic here\n            ChatHandler(unit->ToPlayer()->GetSession()).SendSysMessage(\"\
+      You have died!\");\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Death Event with Quest Update
+    code: "class BossZoneScript : public ZoneScript\n{\npublic:\n    void OnUnitDeath(Unit*\
+      \ unit) override\n    {\n        if (unit->GetTypeId() == TYPEID_UNIT && unit->GetEntry()\
+      \ == 12345)\n        {\n            // Update quest progress for boss kill\n\
+      \            Map* map = unit->GetMap();\n            if (map)\n            {\n\
+      \                for (auto& player : map->GetPlayers())\n                {\n\
+      \                    if (player.GetSource())\n                    {\n      \
+      \                  Player* plr = player.GetSource();\n                     \
+      \   if (plr->GetQuestStatus(54321) == QUEST_STATUS_INCOMPLETE)\n           \
+      \             {\n                            plr->AreaExploredOrEventHappens(54321);\n\
+      \                        }\n                    }\n                }\n     \
+      \       }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the game's main update loop and should not perform
+    heavy operations that could block the game thread. ZoneScript instances are typically
+    associated with specific zones, so this method will only be invoked for units
+    that die within those zones. The unit parameter may be in a post-death state,
+    so care must be taken when accessing certain properties.
+  warnings: Avoid performing operations that might cause memory leaks or access violations
+    on the unit pointer after death. Be cautious with long-running computations in
+    this method as it can impact performance. Ensure that any modifications to player
+    data or quest states are thread-safe if the zone script is used in a multi-threaded
+    context.
+  related:
+  - OnUnitEnter
+  - OnUnitExit
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:58:54.319920'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

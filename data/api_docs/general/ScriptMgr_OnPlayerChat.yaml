@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerChat
+  signature: void ScriptMgr::OnPlayerChat(Player * player, uint32 type, uint32 lang,
+    std::string & msg, Channel * channel)
+documentation:
+  brief: Invoked when a player sends a chat message, allowing scripts to modify or
+    prevent the message from being sent.
+  description: The OnPlayerChat method is a hook in TrinityCore's scripting system
+    that gets called whenever a player attempts to send a chat message. This method
+    provides an opportunity for custom scripts to intercept, modify, or block chat
+    messages before they are processed by the game server. It is part of the general
+    scripting framework and can be used to implement features such as chat filtering,
+    custom command handling, or message transformations. The method receives information
+    about the player, the type and language of the message, and the actual message
+    content, allowing for flexible control over chat behavior.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who sent the chat message. This parameter
+      provides access to all player-related data and methods.
+  - name: type
+    description: The type of chat message being sent (e.g., SAY, YELL, WHISPER). Valid
+      values are defined in the ChatMsg enumeration.
+  - name: lang
+    description: The language ID used for the message. This typically corresponds
+      to a language defined in the game's language system.
+  - name: msg
+    description: Reference to a std::string containing the actual chat message content.
+      This can be modified by scripts to alter the message before it is sent.
+  - name: channel
+    description: Pointer to the Channel object if the message is being sent through
+      a specific channel (e.g., guild, raid). May be NULL for direct messages or general
+      chat.
+  returns: null
+  examples:
+  - title: Blocking a Specific Word in Chat
+    code: "void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string&\
+      \ msg, Channel* channel) {\n    if (msg.find(\"badword\") != std::string::npos)\
+      \ {\n        msg.clear(); // Clear the message to prevent sending\n    }\n}"
+    language: cpp
+  - title: Adding a Prefix to All Chat Messages
+    code: "void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string&\
+      \ msg, Channel* channel) {\n    if (type == CHAT_MSG_SAY || type == CHAT_MSG_YELL)\
+      \ {\n        msg = \"[MOD] \" + msg;\n    }\n}"
+    language: cpp
+  notes: This method is called during the chat processing pipeline, so modifications
+    to the message string will affect what is actually sent. Be cautious when modifying
+    the message content as it may impact gameplay or user experience. The method is
+    executed on the server thread and should avoid heavy computations or blocking
+    operations.
+  warnings: Modifying the message string directly can cause unexpected behavior if
+    not handled carefully. Ensure that any changes made to the message do not introduce
+    security vulnerabilities or break existing game mechanics. Avoid performing time-consuming
+    operations within this hook as it may affect server performance.
+  related:
+  - OnPlayerChat
+  - OnChat
+  - OnPlayerLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:26:31.347077'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

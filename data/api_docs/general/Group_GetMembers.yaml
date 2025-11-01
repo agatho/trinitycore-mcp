@@ -1,0 +1,51 @@
+api:
+  class: Group
+  method: GetMembers
+  signature: const GroupRefManager & Group::GetMembers() const
+documentation:
+  brief: Returns a constant reference to the group's member list manager.
+  description: The GetMembers method provides access to the internal GroupRefManager
+    that manages all members of the group. This manager holds references to all players
+    currently in the group, allowing iteration and lookup of group members. The returned
+    reference is const, meaning the member list itself cannot be modified through
+    this interface. This method is commonly used when iterating over group members
+    for actions like sending messages, checking loot settings, or performing group-wide
+    operations. The GroupRefManager provides efficient access to group members without
+    requiring additional lookups or computations.
+  parameters: []
+  returns: A constant reference to the GroupRefManager that contains all current group
+    members. This reference allows iteration over the group's members and access to
+    individual member data through standard container operations.
+  examples:
+  - title: Iterating Over Group Members
+    code: "for (GroupReference* ref = group->GetMembers().begin(); ref != group->GetMembers().end();\
+      \ ref = ref->next()) {\n    Player* member = ref->getSource();\n    if (member)\n\
+      \        SendChatMessage(\"Hello, \" + member->GetName());\n}"
+    language: cpp
+  - title: Checking Group Member Count
+    code: "uint8 memberCount = 0;\nfor (GroupReference* ref = group->GetMembers().begin();\
+      \ ref != group->GetMembers().end(); ref = ref->next()) {\n    ++memberCount;\n\
+      }\n// memberCount now contains the number of players in the group"
+    language: cpp
+  notes: The GroupRefManager returned by this method is an internal data structure
+    used by TrinityCore's group management system. It provides O(1) access to individual
+    members through its iterator interface. The reference remains valid as long as
+    the group exists and has not been destroyed. This method does not perform any
+    locking or thread safety checks internally, so callers should ensure proper synchronization
+    if accessing from multiple threads.
+  warnings: Do not attempt to modify the group membership through the returned GroupRefManager
+    reference - it is read-only. Modifying the group structure externally while iterating
+    over this manager may lead to undefined behavior or crashes. Always check for
+    null pointers when accessing individual members, as they might have left the group
+    during iteration.
+  related:
+  - GetMemberGroup
+  - AddMember
+  - RemoveMember
+  - IsLeader
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T16:43:43.538113'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: Item
+  method: ClearUpdateMask
+  signature: void Item::ClearUpdateMask(bool remove)
+documentation:
+  brief: Clears the update mask of the item, optionally removing it from updates.
+  description: The ClearUpdateMask method resets the internal update mask of an Item
+    object, which is used by the TrinityCore server to track which fields of the item
+    have been modified and need to be sent to clients. When remove is set to true,
+    the item is also removed from any active update queues or lists that manage pending
+    updates. This method is typically invoked during item destruction, removal from
+    inventory, or when preparing an item for serialization or network transmission.
+    It ensures that stale or irrelevant update data does not persist in memory and
+    helps maintain synchronization between server state and client views.
+  parameters:
+  - name: remove
+    description: If true, the item is removed from update queues; if false, only the
+      mask is cleared without removal.
+  returns: null
+  examples:
+  - title: Clearing Update Mask Before Item Destruction
+    code: "Item* item = player->GetItemByGuid(itemGuid);\nif (item)\n{\n    item->ClearUpdateMask(true);\
+      \ // Remove from updates and clear mask\n    player->RemoveItem(item->GetBagSlot(),\
+      \ item->GetSlot());\n}"
+    language: cpp
+  - title: Clearing Update Mask Without Removal
+    code: "Item* item = player->GetItemByGuid(itemGuid);\nif (item)\n{\n    item->ClearUpdateMask(false);\
+      \ // Only clear mask, keep in update queues\n    // Perform other operations\
+      \ on the item\n}"
+    language: cpp
+  notes: This method is part of the internal update system used by TrinityCore's GameObject
+    and Item classes. It should generally be called before an item is destroyed or
+    moved between containers to prevent sending stale data to clients. The remove
+    parameter controls whether the item is also removed from the server's update manager,
+    which affects memory usage and network traffic.
+  warnings: Improper use of this method can lead to memory leaks or incorrect client
+    updates. Always ensure that calling ClearUpdateMask(true) is followed by proper
+    cleanup of the item object if it's no longer needed. Calling this method on an
+    already cleared item may result in undefined behavior.
+  related:
+  - Item::BuildUpdateData
+  - Item::AddToUpdateQueue
+  - Item::RemoveFromUpdateQueue
+  - Item::SetUpdateMask
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T11:27:54.068201'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnQuestStatusChange
+  signature: void ScriptMgr::OnQuestStatusChange(Player * player, const Quest * quest,
+    QuestStatus oldStatus, QuestStatus newStatus)
+documentation:
+  brief: Invoked when a player's quest status changes, allowing scripts to react to
+    quest progress modifications.
+  description: The OnQuestStatusChange method is a hook in the ScriptMgr class that
+    gets called whenever a player's quest status transitions from one state to another.
+    This event occurs during quest progression, such as when a player accepts a quest,
+    completes it, or fails it. The method provides access to both the old and new
+    quest statuses, enabling custom logic to be executed based on the transition.
+    It is commonly used in custom scripts to implement quest-specific behaviors, rewards,
+    or modifications to gameplay mechanics.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose quest status has changed. This
+      represents the player who performed the action that triggered the status change.
+  - name: quest
+    description: Pointer to the Quest object associated with the status change. This
+      contains information about the quest being modified.
+  - name: oldStatus
+    description: The previous QuestStatus of the player for the specified quest. Valid
+      values are typically defined in the QuestStatus enum (e.g., QUEST_STATUS_NONE,
+      QUEST_STATUS_INCOMPLETE, QUEST_STATUS_COMPLETE).
+  - name: newStatus
+    description: The new QuestStatus of the player for the specified quest after the
+      change. This reflects the updated state of the quest.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "void OnQuestStatusChange(Player* player, const Quest* quest, QuestStatus\
+      \ oldStatus, QuestStatus newStatus)\n{\n    if (newStatus == QUEST_STATUS_COMPLETE)\n\
+      \    {\n        // Award bonus items or modify player stats upon quest completion\n\
+      \        player->AddItem(ITEM_ID_BONUS_REWARD, 1);\n    }\n}"
+    language: cpp
+  - title: Advanced Example with Conditional Logic
+    code: "void OnQuestStatusChange(Player* player, const Quest* quest, QuestStatus\
+      \ oldStatus, QuestStatus newStatus)\n{\n    if (oldStatus == QUEST_STATUS_INCOMPLETE\
+      \ && newStatus == QUEST_STATUS_COMPLETE)\n    {\n        // Trigger custom event\
+      \ only when a quest is completed\n        if (quest->GetQuestId() == 12345)\n\
+      \        {\n            player->SendNotification(\"Quest completed! You have\
+      \ gained experience.\");\n            player->ModifyBonusMoney(1000);\n    \
+      \    }\n    }\n}"
+    language: cpp
+  notes: This method is called from within the core game loop and should not perform
+    heavy operations to avoid performance degradation. It's important to ensure thread
+    safety if custom implementations involve shared resources or data structures.
+  warnings: Modifying quest status directly within this callback may cause unexpected
+    behavior or infinite loops. Avoid calling methods that could alter the quest state
+    again during this event unless absolutely necessary.
+  related:
+  - OnPlayerCompleteQuest
+  - OnPlayerAcceptQuest
+  - OnPlayerFailedQuest
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:09:25.225508'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

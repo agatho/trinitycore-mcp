@@ -1,0 +1,87 @@
+api:
+  class: ScriptMgr
+  method: OnGroupRemoveMember
+  signature: void ScriptMgr::OnGroupRemoveMember(Group * group, int guid, RemoveMethod
+    method, int kicker, const char * reason)
+documentation:
+  brief: Invoked when a player is removed from a group, allowing scripts to execute
+    custom logic during group member removal.
+  description: The OnGroupRemoveMember method is a callback function in the ScriptMgr
+    class that gets triggered whenever a player is removed from a group in TrinityCore.
+    This event occurs during various group operations such as kicking members, leaving
+    groups, or disbanding groups. The method provides detailed information about the
+    removal, including the group involved, the GUID of the removed member, the method
+    used for removal, and optionally the kicker's GUID and reason for removal. Scripters
+    can use this hook to implement custom behaviors like logging, sending notifications,
+    adjusting player stats, or modifying quest progress when players are removed from
+    groups.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the member is being removed.
+      This parameter represents the group context for the removal event.
+  - name: guid
+    description: Integer representing the unique identifier (GUID) of the player who
+      was removed from the group. This GUID uniquely identifies the removed member
+      within the game world.
+  - name: method
+    description: Integer value indicating the method used to remove the member. Common
+      values include RemoveMethod::METHOD_KICK, RemoveMethod::METHOD_LEAVE, or RemoveMethod::METHOD_DISBAND,
+      depending on how the player was removed from the group.
+  - name: kicker
+    description: Integer representing the GUID of the player who initiated the removal.
+      This is typically only valid when the removal method is METHOD_KICK. For other
+      methods, this value may be 0 or undefined.
+  - name: reason
+    description: Null-terminated character string providing a reason for the removal.
+      This parameter may be NULL or empty depending on the context and method of removal.
+      It can contain user-defined messages or system-generated reasons.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "#include \"ScriptMgr.h\"\n\nvoid MyScript::OnGroupRemoveMember(Group* group,\
+      \ int guid, RemoveMethod method, int kicker, const char* reason)\n{\n    //\
+      \ Log the removal event\n    sLog->outString(\"Player with GUID %d was removed\
+      \ from group %d using method %d\", guid, group->GetId(), method);\n    \n  \
+      \  // Perform custom logic based on removal method\n    if (method == RemoveMethod::METHOD_KICK)\n\
+      \    {\n        // Handle kick-specific behavior\n        sLog->outString(\"\
+      Player was kicked by player with GUID %d\", kicker);\n    }\n}"
+    language: cpp
+  - title: Advanced Example with Quest Handling
+    code: "#include \"ScriptMgr.h\"\n#include \"Player.h\"\n\nvoid MyScript::OnGroupRemoveMember(Group*\
+      \ group, int guid, RemoveMethod method, int kicker, const char* reason)\n{\n\
+      \    // Get the player who was removed\n    Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ guid));\n    \n    if (!player)\n        return;\n    \n    // If player was\
+      \ kicked and reason is provided, update quest progress\n    if (method == RemoveMethod::METHOD_KICK\
+      \ && reason && strlen(reason) > 0)\n    {\n        // Example: Cancel a group\
+      \ quest if player was kicked for specific reasons\n        if (strstr(reason,\
+      \ \"AFK\") || strstr(reason, \"Leave\"))\n        {\n            player->FailQuest(12345);\
+      \ // Fail a specific quest\n        }\n    }\n    \n    // Notify other group\
+      \ members\n    if (group)\n    {\n        for (GroupReference* ref = group->GetFirstMember();\
+      \ ref; ref = ref->next())\n        {\n            Player* member = ref->getSource();\n\
+      \            if (member && member != player)\n            {\n              \
+      \  ChatHandler(member->GetSession()).PSendSysMessage(\"Player %s was removed\
+      \ from the group.\", player->GetName().c_str());\n            }\n        }\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is called during the group removal process, so it's important
+    that any logic implemented here does not interfere with the normal group cleanup.
+    The 'group' parameter may be in an inconsistent state during this callback, especially
+    if the group is being disbanded. Developers should avoid modifying the group structure
+    directly from this hook unless absolutely necessary. The method is executed on
+    the main thread and should not block for extended periods to maintain game performance.
+  warnings: Avoid performing operations that might modify or delete the group object
+    itself during this callback, as it may lead to undefined behavior or crashes.
+    Be cautious with accessing player objects through GUIDs if they have already been
+    removed from the world, as these may be invalid pointers. The 'reason' parameter
+    should be checked for nullity before use to prevent potential crashes.
+  related:
+  - OnGroupCreate
+  - OnGroupDestroy
+  - OnGroupInviteMember
+  - OnGroupAddMember
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:43:57.709065'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

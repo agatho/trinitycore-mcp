@@ -1,0 +1,58 @@
+api:
+  class: TransportScript
+  method: OnAddCreaturePassenger
+  signature: void TransportScript::OnAddCreaturePassenger(Transport * transport, Creature
+    * creature)
+documentation:
+  brief: Called when a creature is added as a passenger to a transport.
+  description: This method is invoked by the TrinityCore scripting system whenever
+    a Creature object is added as a passenger to a Transport object. It serves as
+    a hook for custom behavior during the passenger addition process, allowing scripts
+    to execute logic such as adjusting creature positioning, triggering events, or
+    modifying the creature's state upon boarding the transport. The method provides
+    access to both the transport and creature objects involved in the operation, enabling
+    developers to implement game-specific mechanics related to transportation systems.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object to which the creature is being added
+      as a passenger. This represents the moving platform or vehicle that carries
+      the creature.
+  - name: creature
+    description: Pointer to the Creature object that is being added as a passenger
+      to the transport. This is the NPC or mob that will be carried by the transport.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnAddCreaturePassenger(Transport* transport, Creature* creature) override\n\
+      \    {\n        // Log when a creature boards the transport\n        sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Creature %u boarded transport %u\", creature->GetEntry(), transport->GetEntry());\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Example with State Change
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnAddCreaturePassenger(Transport* transport, Creature* creature) override\n\
+      \    {\n        // Set the creature to a specific state upon boarding\n    \
+      \    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);\n      \
+      \  \n        // Optionally move the creature to a specific position on the transport\n\
+      \        if (transport)\n        {\n            Position pos = transport->GetPassengerPosition(creature);\n\
+      \            creature->UpdatePosition(pos.GetX(), pos.GetY(), pos.GetZ(), pos.GetO());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the internal transport passenger management
+    process, so modifications to the transport or creature should be handled carefully
+    to avoid disrupting the core system. The method may be invoked multiple times
+    for a single creature if it is added and removed from different transports.
+  warnings: Avoid performing heavy operations or blocking calls within this method
+    as it can impact performance during transport updates. Also, modifying the creature's
+    state in ways that conflict with the transport system may cause unexpected behavior.
+  related:
+  - OnRemoveCreaturePassenger
+  - OnAddPlayerPassenger
+  - OnRemovePlayerPassenger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:10:35.832175'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

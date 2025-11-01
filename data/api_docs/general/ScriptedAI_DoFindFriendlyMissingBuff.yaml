@@ -1,0 +1,50 @@
+api:
+  class: ScriptedAI
+  method: DoFindFriendlyMissingBuff
+  signature: int ScriptedAI::DoFindFriendlyMissingBuff(float range, int spellId)
+documentation:
+  brief: Finds a friendly unit within range that is missing the specified buff.
+  description: The DoFindFriendlyMissingBuff method searches for a friendly target
+    within the given range that does not have the specified spell buff applied. It
+    returns the GUID of the first matching unit found, or 0 if no suitable target
+    is available. This method is commonly used in AI scripts to identify units that
+    need healing or buffing. The search considers only units that are alive and within
+    the specified distance from the AI's current position.
+  parameters:
+  - name: range
+    description: The maximum distance (in yards) to search for friendly targets. Must
+      be a positive value.
+  - name: spellId
+    description: The ID of the spell buff to check for. Only units missing this buff
+      will be considered.
+  returns: Returns the GUID of the first friendly unit within range that is missing
+    the specified buff, or 0 if no such unit is found.
+  examples:
+  - title: Basic usage to find a missing buff target
+    code: "if (Unit* target = ObjectAccessor::GetUnit(*me, DoFindFriendlyMissingBuff(30.0f,\
+      \ 12345)))\n{\n    // Found a friendly unit missing spell ID 12345 within 30\
+      \ yards\n    DoCast(target, 12345); // Apply the buff\n}"
+    language: cpp
+  - title: Using with a healing AI script
+    code: "void AI::UpdateAI(uint32 diff) override\n{\n    if (DoFindFriendlyMissingBuff(40.0f,\
+      \ 15286)) // Check for missing Power Word: Shield\n    {\n        if (Unit*\
+      \ target = ObjectAccessor::GetUnit(*me, DoFindFriendlyMissingBuff(40.0f, 15286)))\n\
+      \        {\n            DoCast(target, 15286);\n        }\n    }\n}"
+    language: cpp
+  notes: This method performs a search within the AI's current map and does not consider
+    units in other maps or instances. It is recommended to use this method with reasonable
+    range values to prevent performance issues. The method returns immediately upon
+    finding the first matching unit.
+  warnings: Ensure that the spellId parameter corresponds to an actual buff spell,
+    as invalid spell IDs may cause unexpected behavior. Avoid using very large ranges
+    in frequently called methods as it can impact server performance.
+  related:
+  - DoCast
+  - DoFindFriendly
+  - DoFindEnemy
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:53:11.723078'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerChoiceResponse
+  signature: void ScriptMgr::OnPlayerChoiceResponse(WorldObject * object, Player *
+    player, const PlayerChoice * choice, const PlayerChoiceResponse * response, uint16
+    clientIdentifier)
+documentation:
+  brief: Handles player choice response events in the game world
+  description: This method is invoked when a player makes a selection from a PlayerChoice
+    dialog. It provides access to the object that triggered the choice, the responding
+    player, the choice itself, and the specific response selected by the player. The
+    method serves as a hook for custom scripts to react to player decisions in interactive
+    quest or dialogue systems. This event is typically used to implement custom logic
+    such as quest progression, reward distribution, or conditional behavior based
+    on player choices.
+  parameters:
+  - name: object
+    description: Pointer to the WorldObject that initiated the PlayerChoice dialog
+      (e.g., NPC, GameObject). Can be null if not applicable.
+  - name: player
+    description: Pointer to the Player who made the choice response. Must not be null.
+  - name: choice
+    description: Pointer to the PlayerChoice structure containing information about
+      the available choices. Must not be null.
+  - name: response
+    description: Pointer to the PlayerChoiceResponse structure representing the specific
+      choice made by the player. Must not be null.
+  - name: clientIdentifier
+    description: A unique identifier sent from the client that helps distinguish between
+      different choice instances or sessions.
+  returns: None
+  examples:
+  - title: Basic implementation of OnPlayerChoiceResponse
+    code: "#include \"ScriptMgr.h\"\n\nvoid MyScript::OnPlayerChoiceResponse(WorldObject*\
+      \ object, Player* player, const PlayerChoice* choice, const PlayerChoiceResponse*\
+      \ response, uint16 clientIdentifier)\n{\n    if (!player || !choice || !response)\n\
+      \        return;\n\n    // Log the player's choice\n    sLog->outString(\"Player\
+      \ %s made choice %u in choice ID %u\", player->GetName().c_str(), response->ChoiceID,\
+      \ choice->ChoiceID);\n\n    // Handle specific choice logic\n    if (response->ChoiceID\
+      \ == 1)\n    {\n        // Give reward for first choice\n        player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and is called from
+    within the core's event handling loop. It should not be used for heavy computations
+    or blocking operations as it may affect game performance. Ensure that all pointers
+    are validated before use to prevent crashes.
+  warnings: Do not modify player state directly inside this handler without proper
+    checks; avoid calling methods that might cause recursion or infinite loops. Be
+    cautious when using the clientIdentifier, as incorrect handling can lead to unexpected
+    behavior in multi-choice scenarios.
+  related:
+  - OnPlayerChoiceOpen
+  - OnPlayerChoiceClose
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:22:50.879081'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

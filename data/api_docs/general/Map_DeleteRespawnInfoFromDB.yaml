@@ -1,0 +1,59 @@
+api:
+  class: Map
+  method: DeleteRespawnInfoFromDB
+  signature: void Map::DeleteRespawnInfoFromDB(SpawnObjectType type, int spawnId,
+    int dbTrans)
+documentation:
+  brief: Deletes respawn information for a specific spawn object from the database
+  description: The DeleteRespawnInfoFromDB method removes stored respawn data for
+    a given spawn object type and identifier from the database. This function is typically
+    used during map loading or cleanup processes to ensure that stale or outdated
+    respawn information does not persist in the database. The method accepts a spawn
+    object type, a unique spawn identifier, and an optional database transaction parameter
+    to manage the deletion within a larger transaction context. It directly interacts
+    with the database layer to perform the removal operation.
+  parameters:
+  - name: type
+    description: The type of spawn object to delete respawn info for. This is typically
+      an enum value indicating whether the object is a creature, gameobject, or other
+      spawnable entity type.
+  - name: spawnId
+    description: The unique identifier of the specific spawn instance to remove respawn
+      data for. This ID corresponds to the spawn's entry in the database.
+  - name: dbTrans
+    description: Optional database transaction handle. If provided, the deletion will
+      be executed within the context of this transaction, allowing for batch operations
+      or rollback capabilities.
+  returns: null
+  examples:
+  - title: Delete creature respawn info
+    code: 'Map* map = sMapMgr->FindMap(0, 0);
+
+      map->DeleteRespawnInfoFromDB(SPAWN_TYPE_CREATURE, 12345, 0);'
+    language: cpp
+  - title: Delete gameobject respawn info within transaction
+    code: 'Map* map = sMapMgr->FindMap(0, 0);
+
+      DatabaseTransaction trans = Database.GetTransaction();
+
+      map->DeleteRespawnInfoFromDB(SPAWN_TYPE_GAMEOBJECT, 67890, trans);
+
+      Database.ExecuteTransaction(trans);'
+    language: cpp
+  notes: This method directly modifies the database and should be used carefully during
+    map transitions or server maintenance. It's recommended to use this function only
+    when you're certain that the respawn data is no longer needed, as it cannot be
+    undone without a database backup.
+  warnings: Improper usage of this method may result in loss of valid respawn data,
+    potentially causing creatures or gameobjects to not respawn correctly after being
+    killed or destroyed. Always verify that the spawn ID and type are correct before
+    calling this function.
+  related:
+  - SaveRespawnInfoToDB
+  - LoadRespawnInfoFromDB
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:49:07.551278'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

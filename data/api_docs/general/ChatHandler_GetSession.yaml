@@ -1,0 +1,53 @@
+api:
+  class: ChatHandler
+  method: GetSession
+  signature: const WorldSession * ChatHandler::GetSession() const
+documentation:
+  brief: Returns the WorldSession associated with the ChatHandler instance
+  description: The GetSession method retrieves the WorldSession object that is currently
+    associated with this ChatHandler instance. In TrinityCore's architecture, a ChatHandler
+    is typically bound to a specific player session, allowing access to session-related
+    data such as player information, connection details, and authentication status.
+    This method provides direct access to the underlying session for performing operations
+    that require session context, such as sending messages, checking permissions,
+    or accessing player data. The returned pointer is const, indicating that the session
+    object should not be modified through this interface.
+  parameters: []
+  returns: A constant pointer to the WorldSession object associated with this ChatHandler.
+    Returns nullptr if no session is bound to the handler, which may occur in certain
+    administrative or console contexts where ChatHandler operates without an active
+    player session.
+  examples:
+  - title: Accessing Player Information Through Session
+    code: "void MyCommand(ChatHandler* handler)\n{\n    const WorldSession* session\
+      \ = handler->GetSession();\n    if (session && session->GetPlayer())\n    {\n\
+      \        uint32 accountId = session->GetAccountId();\n        std::string playerName\
+      \ = session->GetPlayer()->GetName();\n        handler->PSendSysMessage(\"Current\
+      \ player: %s (Account ID: %u)\", playerName.c_str(), accountId);\n    }\n  \
+      \  else\n    {\n        handler->SendSysMessage(\"No active session found.\"\
+      );\n    }\n}"
+    language: cpp
+  - title: Checking Session Authentication Status
+    code: "bool IsPlayerLoggedIn(ChatHandler* handler)\n{\n    const WorldSession*\
+      \ session = handler->GetSession();\n    if (!session)\n        return false;\n\
+      \    \n    // Check if player is authenticated\n    return session->GetPlayer()\
+      \ != nullptr && session->GetPlayer()->IsInWorld();\n}"
+    language: cpp
+  notes: The method assumes that the ChatHandler instance has been properly initialized
+    with a valid session context. In console or administrative commands where no player
+    is involved, this method may return nullptr. The returned WorldSession pointer
+    remains valid only as long as the session itself exists and has not been destroyed.
+  warnings: Using the returned session pointer without checking for null can lead
+    to crashes. Always verify that GetSession() does not return nullptr before dereferencing
+    the pointer. Additionally, be cautious when using this method in multi-threaded
+    contexts where session state might change concurrently.
+  related:
+  - SetSession
+  - GetPlayer
+  - GetAccountId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T16:21:52.573636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

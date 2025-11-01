@@ -1,0 +1,51 @@
+api:
+  class: MotionMaster
+  method: Size
+  signature: uint32 MotionMaster::Size() const
+documentation:
+  brief: Returns the number of active motion commands in the MotionMaster's queue
+  description: The Size method returns the current count of motion commands that are
+    queued and actively being processed by the MotionMaster. This value represents
+    how many movement-related actions are currently pending execution for the associated
+    unit. The MotionMaster manages various types of motion behaviors including movement,
+    rotation, and animation sequences. This method is commonly used for debugging
+    purposes, performance monitoring, or to determine if a unit has active movements
+    that need to be handled. The returned value can be zero when no motions are queued,
+    or it can represent the number of motions currently in progress or waiting to
+    be executed.
+  parameters: []
+  returns: A uint32 value representing the total count of motion commands currently
+    stored in the MotionMaster's motion queue. Returns 0 if no motions are active
+    or queued.
+  examples:
+  - title: Check Active Motions Before Movement
+    code: "if (unit->GetMotionMaster()->Size() == 0)\n{\n    // Safe to add new movement\n\
+      \    unit->GetMotionMaster()->MovePoint(1, targetPosition);\n}\nelse\n{\n  \
+      \  // Queue new motion after existing ones complete\n    unit->GetMotionMaster()->AddMotion(MOTION_TYPE_POINT,\
+      \ 1, targetPosition);\n}"
+    language: cpp
+  - title: Debug Motion Queue Length
+    code: "uint32 motionCount = unit->GetMotionMaster()->Size();\nTC_LOG_DEBUG(\"\
+      ai\", \"Unit %u has %u active motions in queue\", unit->GetGUID().GetCounter(),\
+      \ motionCount);\nif (motionCount > 10)\n{\n    TC_LOG_WARN(\"ai\", \"High motion\
+      \ queue count detected for unit %u\", unit->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: This method provides a snapshot of the current motion queue size and does
+    not account for motions that might be in transition or processing. The MotionMaster
+    maintains an internal list of active motions, and this count reflects that list's
+    current length. This is a read-only operation that does not modify any state.
+  warnings: The returned value may change immediately after calling this method due
+    to concurrent motion execution or new motions being added. In multithreaded environments,
+    the value should be considered volatile and should not be used for critical decision-making
+    without additional synchronization.
+  related:
+  - Clear
+  - UpdateMotion
+  - HasMovement
+  - GetMotionSlot
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:23:54.818713'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

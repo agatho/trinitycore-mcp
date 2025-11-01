@@ -1,0 +1,75 @@
+api:
+  class: Guild
+  method: HandleSetRankInfo
+  signature: void Guild::HandleSetRankInfo(WorldSession * session, GuildRankId rankId,
+    std::string_view name, uint32 rights, uint32 moneyPerDay, const std::array<GuildBankRightsAndSlots,
+    GUILD_BANK_MAX_TABS> & rightsAndSlots)
+documentation:
+  brief: Updates the rank information for a guild, including name, rights, and bank
+    slot permissions.
+  description: The HandleSetRankInfo method is responsible for updating the configuration
+    of a specific guild rank. It allows modification of the rank's name, granted rights
+    (such as guild chat permissions or officer visibility), daily bank withdrawal
+    limits, and access rights to individual guild bank tabs. This function is typically
+    invoked when a guild leader or officer uses the /grouprank command in-game to
+    adjust rank settings. The method ensures that all changes are properly validated
+    and applied to maintain guild structure integrity.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession of the player issuing the command. Used
+      to verify permissions and send responses back to the client.
+  - name: rankId
+    description: Identifier of the guild rank being modified. Must be a valid GuildRankId
+      within the range of existing ranks in the guild.
+  - name: name
+    description: New name for the guild rank. Should not exceed the maximum allowed
+      length for rank names, typically 16 characters.
+  - name: rights
+    description: Bitmask representing the rights granted to this rank. Includes flags
+      such as GUILD_BANK_RIGHT_VIEW_TAB, GUILD_BANK_RIGHT_DEPOSIT_ITEM, etc., which
+      control various guild functionalities.
+  - name: moneyPerDay
+    description: Maximum amount of gold that can be withdrawn from the guild bank
+      per day by members with this rank. Zero indicates no daily limit.
+  - name: rightsAndSlots
+    description: Array containing access rights and slot limits for each guild bank
+      tab. Each element corresponds to a specific tab index (0 to GUILD_BANK_MAX_TABS
+      - 1) and defines the right level and number of slots available for that tab.
+  returns: null
+  examples:
+  - title: Setting Rank Name and Rights
+    code: 'GuildRankId rankId = 2;
+
+      std::string_view name = "Senior Officer";
+
+      uint32 rights = GUILD_BANK_RIGHT_VIEW_TAB | GUILD_BANK_RIGHT_DEPOSIT_ITEM;
+
+      uint32 moneyPerDay = 100000;
+
+      std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> rightsAndSlots{};
+
+      // Initialize rightsAndSlots with appropriate values
+
+      // ...
+
+      guild->HandleSetRankInfo(session, rankId, name, rights, moneyPerDay, rightsAndSlots);'
+    language: cpp
+  notes: This method assumes that the calling player has sufficient permissions to
+    modify guild ranks. It performs internal validation on inputs like rankId and
+    rights bitmask to prevent invalid configurations. Changes made through this function
+    are immediately applied to the guild's data structure and may be synchronized
+    across all connected members.
+  warnings: Incorrectly setting the rights bitmask can lead to unintended access control
+    issues or denial of service for guild features. Ensure that moneyPerDay does not
+    exceed maximum allowed values to prevent exploits. The rightsAndSlots array must
+    contain valid entries for all tabs; otherwise, undefined behavior may occur.
+  related:
+  - Guild::GetRankInfo
+  - Guild::CreateRank
+  - Guild::DeleteRank
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T15:02:43.498977'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

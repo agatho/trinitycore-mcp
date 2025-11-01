@@ -1,0 +1,70 @@
+api:
+  class: ScriptMgr
+  method: OnCastItemCombatSpell
+  signature: bool ScriptMgr::OnCastItemCombatSpell(Player * player, Unit * victim,
+    const SpellInfo * spellInfo, Item * item)
+documentation:
+  brief: Executes scripts when a player casts a combat spell using an item.
+  description: The OnCastItemCombatSpell method is invoked by the TrinityCore script
+    manager when a player successfully casts a combat-related spell through the use
+    of an item, such as a wand or thrown weapon. This method allows custom scripts
+    to intercept and modify the behavior of item-based spell casting, including preventing
+    the cast, altering spell effects, or triggering additional actions. It serves
+    as a hook point for developers to implement custom game mechanics or balance adjustments
+    related to item-based combat abilities.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is casting the spell using an item.
+      Must be a valid player instance.
+  - name: victim
+    description: Pointer to the Unit object that is the target of the spell. Can be
+      null if the spell is not targeting a unit.
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell being cast. Must not be null.
+  - name: item
+    description: Pointer to the Item object that is being used to cast the spell.
+      Must be a valid item instance.
+  returns: Returns true if the script allows the spell to proceed normally, or false
+    if the script wishes to prevent the spell from casting. Returning false will cancel
+    the spell execution.
+  examples:
+  - title: Basic Script Implementation
+    code: "class MyItemSpellScript : public ItemScript\n{\npublic:\n    MyItemSpellScript()\
+      \ : ItemScript(\"MyItemSpellScript\") {}\n\n    bool OnCastItemCombatSpell(Player*\
+      \ player, Unit* victim, const SpellInfo* spellInfo, Item* item) override\n \
+      \   {\n        // Prevent casting of harmful spells from a specific item\n \
+      \       if (item->GetEntry() == 12345 && spellInfo->IsPositive())\n        \
+      \    return false; // Cancel the spell\n        \n        return true; // Allow\
+      \ normal execution\n    }\n};"
+    language: cpp
+  - title: Advanced Script with Conditional Logic
+    code: "class AdvancedItemSpellScript : public ItemScript\n{\npublic:\n    AdvancedItemSpellScript()\
+      \ : ItemScript(\"AdvancedItemSpellScript\") {}\n\n    bool OnCastItemCombatSpell(Player*\
+      \ player, Unit* victim, const SpellInfo* spellInfo, Item* item) override\n \
+      \   {\n        // Check if the player has a specific buff\n        if (player->HasAura(98765))\n\
+      \        {\n            // Modify spell damage or effects here\n           \
+      \ return true; // Allow spell to proceed\n        }\n        \n        // If\
+      \ not buffed, prevent certain spells from being cast\n        if (spellInfo->SpellFamilyFlags[0]\
+      \ & 0x1000)\n            return false; // Cancel the spell\n        \n     \
+      \   return true;\n    }\n};"
+    language: cpp
+  notes: This method is called during the spell casting process, after initial validation
+    but before the actual spell effect is applied. Scripts should avoid performing
+    heavy operations or blocking calls to maintain performance. The method is part
+    of the item scripting system and requires proper registration with the script
+    manager.
+  warnings: Modifying spell behavior through this hook can significantly affect gameplay
+    balance. Ensure that scripts do not introduce exploits or unintended consequences.
+    Be cautious when returning false, as it completely cancels the spell without any
+    fallback mechanism.
+  related:
+  - OnCastItemSpell
+  - OnItemUse
+  - OnPlayerCastSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:55:05.827295'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

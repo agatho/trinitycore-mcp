@@ -1,0 +1,62 @@
+api:
+  class: PoolMgr
+  method: IsPartOfAPool
+  signature: uint32 PoolMgr::IsPartOfAPool(int type, uint64 spawnId) const
+documentation:
+  brief: Checks if a given spawn ID belongs to any pool of the specified type and
+    returns the pool's entry ID if found.
+  description: The IsPartOfAPool method determines whether a specific spawn ID (such
+    as a game object or creature GUID) is associated with any active pool within the
+    specified pool type. It iterates through all registered pools of the given type
+    and checks if the provided spawn ID exists in their internal data structures.
+    This functionality is essential for managing dynamic spawns, where objects are
+    grouped into pools to control their respawning behavior and ensure proper distribution
+    across the game world. The method returns the pool entry ID if a match is found,
+    otherwise it returns zero. This helps identify which pool a particular spawn belongs
+    to, useful for debugging or implementing custom pool-related logic.
+  parameters:
+  - name: type
+    description: The type of pool to check against. Valid values are typically defined
+      by the game's pool system (e.g., POOL_TYPE_CREATURE, POOL_TYPE_GAMEOBJECT).
+      This determines which category of pools to search through.
+  - name: spawnId
+    description: The unique identifier (GUID) of the spawn object to check. This can
+      be a creature GUID or game object GUID depending on the context in which this
+      method is used.
+  returns: Returns the pool entry ID if the spawn ID is found within any pool of the
+    specified type; otherwise returns zero. A non-zero return indicates that the spawn
+    is part of a valid pool, and the returned value corresponds to the pool's unique
+    identifier.
+  examples:
+  - title: Check if a creature GUID belongs to any creature pool
+    code: "uint32 poolId = sPoolMgr->IsPartOfAPool(POOL_TYPE_CREATURE, creatureGuid);\n\
+      if (poolId != 0)\n{\n    // The creature is part of pool with ID 'poolId'\n\
+      \    sLog->outString(\"Creature %u belongs to pool %u\", creatureGuid, poolId);\n\
+      }"
+    language: cpp
+  - title: Verify if a game object GUID is associated with any game object pool
+    code: "uint32 poolId = sPoolMgr->IsPartOfAPool(POOL_TYPE_GAMEOBJECT, gameObjectGuid);\n\
+      if (poolId == 0)\n{\n    // The game object is not part of any pool\n    sLog->outString(\"\
+      GameObject %u is not in any pool\", gameObjectGuid);\n}\nelse\n{\n    // The\
+      \ game object belongs to a pool\n    sLog->outString(\"GameObject %u belongs\
+      \ to pool %u\", gameObjectGuid, poolId);\n}"
+    language: cpp
+  notes: This method performs a lookup operation across potentially multiple pools
+    of the same type. For performance reasons, it is recommended to cache results
+    when checking frequently accessed spawn IDs. The method assumes that all pools
+    have been initialized and registered with the PoolMgr before being called.
+  warnings: Ensure that the pool type passed matches the expected category (creature
+    vs gameobject), as mismatched types may lead to incorrect or misleading results.
+    Also, note that this function only checks for membership in a pool; it does not
+    verify whether the spawn is currently active or alive.
+  related:
+  - GetPoolFor
+  - IsSpawned
+  - AddToPool
+  - RemoveFromPool
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T08:18:53.094711'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

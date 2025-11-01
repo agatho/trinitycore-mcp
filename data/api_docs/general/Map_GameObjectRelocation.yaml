@@ -1,0 +1,69 @@
+api:
+  class: Map
+  method: GameObjectRelocation
+  signature: void Map::GameObjectRelocation(GameObject * go, float x, float y, float
+    z, float orientation, bool respawnRelocationOnFail)
+documentation:
+  brief: Relocates a game object to a new position on the map with optional respawn
+    handling.
+  description: The GameObjectRelocation method updates the position and orientation
+    of a specified GameObject within the map. This method is typically used during
+    dynamic map operations, such as when an object needs to be moved due to environmental
+    changes, quest events, or server-side manipulations. The method handles internal
+    map cell updates and ensures that the object's presence is correctly reflected
+    in the new location. When respawnRelocationOnFail is true, the method will attempt
+    to respawn the GameObject at its original location if relocation fails, which
+    helps maintain game state consistency. This functionality is essential for maintaining
+    proper object visibility and interaction across different map zones.
+  parameters:
+  - name: go
+    description: Pointer to the GameObject instance that needs to be relocated. Must
+      not be null.
+  - name: x
+    description: New X coordinate for the game object's position in world space.
+  - name: y
+    description: New Y coordinate for the game object's position in world space.
+  - name: z
+    description: New Z coordinate for the game object's position in world space.
+  - name: orientation
+    description: New orientation angle (in radians) for the game object, determining
+      its facing direction.
+  - name: respawnRelocationOnFail
+    description: Boolean flag indicating whether to attempt respawning the object
+      at its original location if relocation fails. If true, the method will try to
+      restore the object's previous state on failure.
+  returns: null
+  examples:
+  - title: Basic GameObject Relocation
+    code: "GameObject* go = player->GetGameObjectAtWorld(12345);\nif (go)\n{\n   \
+      \ Map* map = go->GetMap();\n    map->GameObjectRelocation(go, 100.0f, 200.0f,\
+      \ 300.0f, 1.57f, true);\n}"
+    language: cpp
+  - title: Conditional Relocation with Error Handling
+    code: "GameObject* go = player->GetGameObjectAtWorld(67890);\nif (go && go->IsInWorld())\n\
+      {\n    Map* map = go->GetMap();\n    float newX = go->GetPositionX() + 10.0f;\n\
+      \    float newY = go->GetPositionY() + 10.0f;\n    float newZ = go->GetPositionZ()\
+      \ + 5.0f;\n    float newO = go->GetOrientation();\n    \n    map->GameObjectRelocation(go,\
+      \ newX, newY, newZ, newO, false);\n}"
+    language: cpp
+  notes: This method internally manages the GameObject's presence in map cells and
+    ensures proper spatial indexing. It may trigger updates to nearby players' client
+    views if the object is visible. The method assumes that the provided coordinates
+    are valid for the current map context and does not perform bounds checking on
+    position values.
+  warnings: Calling this method with a null GameObject pointer will result in undefined
+    behavior or crashes. Ensure that the GameObject is properly initialized and in
+    world before calling this method. Be cautious when using respawnRelocationOnFail
+    as it may cause unexpected object duplication if not handled carefully in event-driven
+    scenarios.
+  related:
+  - GameObject::UpdateObjectVisibility
+  - Map::AddToWorld
+  - Map::RemoveFromWorld
+  - GameObject::SetPosition
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T11:08:41.371095'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

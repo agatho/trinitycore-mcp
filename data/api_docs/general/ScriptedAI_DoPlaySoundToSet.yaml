@@ -1,0 +1,57 @@
+api:
+  class: ScriptedAI
+  method: DoPlaySoundToSet
+  signature: void ScriptedAI::DoPlaySoundToSet(int * source, int soundId)
+documentation:
+  brief: Plays a specified sound to the set of players within the creature's threat
+    list or associated units.
+  description: The DoPlaySoundToSet method is used in TrinityCore's ScriptedAI framework
+    to play a sound effect to all players within the creature's current threat list
+    or to a predefined set of associated units. This method allows for targeted audio
+    feedback during combat, scripted events, or other AI-driven interactions. It typically
+    plays sounds defined in the game's sound database and is commonly used for boss
+    encounters, special abilities, or narrative moments. The method operates on the
+    creature's current target set and can be used to synchronize audio cues with visual
+    effects or gameplay events.
+  parameters:
+  - name: source
+    description: Pointer to an integer representing the source of the sound effect.
+      This parameter is typically used internally by TrinityCore to determine which
+      units should receive the sound. It may reference a specific player, group, or
+      the creature itself depending on context.
+  - name: soundId
+    description: Integer identifier for the sound to be played. This ID corresponds
+      to entries in the game's sound database (e.g., from the SoundEntries table).
+      Valid values are those defined in the game's sound files, typically ranging
+      from 0 to several thousand depending on the expansion.
+  returns: None. The method performs an action and does not return any value.
+  examples:
+  - title: Play a sound to all players in threat list
+    code: "void BossAI::JustEngagedWith(Unit* who) {\n    ScriptedAI::DoPlaySoundToSet(nullptr,\
+      \ 12345);\n}"
+    language: cpp
+  - title: Play a specific sound to a targeted player
+    code: "void CustomCreatureAI::DoSomethingSpecial() {\n    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,\
+      \ 0)) {\n        int source = target->GetGUID().GetRawValue();\n        DoPlaySoundToSet(&source,\
+      \ 67890);\n    }\n}"
+    language: cpp
+  notes: This method is designed to be used within AI scripts and relies on the creature's
+    current threat list or target set. It should not be called outside of a valid
+    AI context where the creature has an active combat state or associated players.
+    The sound ID must exist in the game's database, otherwise no audio will play.
+    Performance impact is minimal as it only sends a packet to clients with valid
+    targets.
+  warnings: Do not pass invalid sound IDs; they may cause silent failures or unexpected
+    behavior. Ensure that the source pointer points to a valid unit or is null when
+    appropriate. Calling this method during AI initialization or in non-combat situations
+    may result in no players receiving the sound effect.
+  related:
+  - DoPlaySoundToSet
+  - Talk
+  - PlayDirectSound
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:45:40.966064'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: ScriptReloadMgr
+  method: AcquireModuleReferenceOfContext
+  signature: std::shared_ptr<ModuleReference> ScriptReloadMgr::AcquireModuleReferenceOfContext(const
+    std::string & context)
+documentation:
+  brief: Acquires a shared pointer to a ModuleReference object associated with the
+    specified context string.
+  description: The AcquireModuleReferenceOfContext method retrieves or creates a ModuleReference
+    instance for a given context identifier. This method is typically used in the
+    TrinityCore scripting system to manage module lifecycle and dependencies during
+    runtime reloading operations. It ensures that each unique context maps to exactly
+    one ModuleReference object, which can be used to track and control loaded modules.
+    The returned shared_ptr manages the lifetime of the ModuleReference, allowing
+    for safe concurrent access and automatic cleanup when no longer referenced. This
+    method is essential for maintaining proper module state management in dynamic
+    script environments.
+  parameters:
+  - name: context
+    description: A string identifier that uniquely represents a specific module or
+      scripting context within the TrinityCore system. This identifier is used to
+      locate or create an appropriate ModuleReference object.
+  returns: A std::shared_ptr<ModuleReference> pointing to the ModuleReference associated
+    with the given context. If no existing reference exists for the context, a new
+    one will be created and returned. Returns nullptr if the context string is empty
+    or invalid.
+  examples:
+  - title: Basic usage of AcquireModuleReferenceOfContext
+    code: "std::shared_ptr<ModuleReference> moduleRef = scriptReloadMgr->AcquireModuleReferenceOfContext(\"\
+      MyCustomModule\");\nif (moduleRef)\n{\n    // Use the module reference for further\
+      \ operations\n    LOG_INFO(\"script\", \"Successfully acquired module reference\
+      \ for MyCustomModule\");\n}"
+    language: cpp
+  - title: Using acquired reference to check module status
+    code: "auto moduleRef = scriptReloadMgr->AcquireModuleReferenceOfContext(\"WorldHandlerModule\"\
+      );\nif (moduleRef && moduleRef->IsLoaded())\n{\n    LOG_DEBUG(\"script\", \"\
+      WorldHandlerModule is currently loaded and active\");\n}\nelse\n{\n    LOG_WARN(\"\
+      script\", \"WorldHandlerModule could not be acquired or is not loaded\");\n}"
+    language: cpp
+  notes: This method is thread-safe and can be safely called from multiple threads
+    concurrently. The internal implementation likely uses a map or similar data structure
+    to cache ModuleReference objects by context, ensuring that duplicate references
+    are not created unnecessarily. The returned shared_ptr allows for RAII-style management
+    of the ModuleReference lifecycle.
+  warnings: Calling this method with an empty string may result in undefined behavior
+    or return a null pointer. Ensure proper error checking after calling this function.
+    In high-frequency scenarios, repeated calls with different contexts might cause
+    performance overhead due to potential cache misses or synchronization costs.
+  related:
+  - ReleaseModuleReference
+  - GetModuleReference
+  - ReloadModule
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:57:36.925534'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

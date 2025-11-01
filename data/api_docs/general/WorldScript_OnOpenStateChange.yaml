@@ -1,0 +1,56 @@
+api:
+  class: WorldScript
+  method: OnOpenStateChange
+  signature: void WorldScript::OnOpenStateChange(bool open)
+documentation:
+  brief: Called when the world's open state changes, allowing scripts to respond to
+    server lockdown or release events.
+  description: The OnOpenStateChange method is a callback function in the WorldScript
+    class that is invoked whenever the global open state of the world changes. This
+    typically occurs when the server is locked down (closed to new players) or released
+    (opened to new players). The method provides a way for custom scripts and modules
+    to react to these critical server events, such as performing cleanup operations,
+    notifying players, or adjusting game mechanics based on whether the server is
+    open or closed. This event is particularly important for managing server maintenance
+    windows, seasonal events, or emergency closures.
+  parameters:
+  - name: open
+    description: Boolean flag indicating the new open state of the world. True if
+      the world is now open to players, false if it is closed.
+  returns: null
+  examples:
+  - title: Basic Implementation for Logging Open State Changes
+    code: "#include \"ScriptMgr.h\"\n#include \"World.h\"\n\nclass MyWorldScript :\
+      \ public WorldScript\n{\npublic:\n    void OnOpenStateChange(bool open) override\n\
+      \    {\n        if (open)\n            sLog->outString(\"Server is now open\
+      \ to players.\");\n        else\n            sLog->outString(\"Server is now\
+      \ closed to players.\");\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Player Notification
+    code: "#include \"ScriptMgr.h\"\n#include \"Player.h\"\n#include \"Chat.h\"\n\n\
+      \nclass MyWorldScript : public WorldScript\n{\npublic:\n    void OnOpenStateChange(bool\
+      \ open) override\n    {\n        if (!open)\n        {\n            // Server\
+      \ is closing, notify all players\n            sWorld->SendServerMessage(SERVER_MSG_STRING,\
+      \ \"Server will be closing in 5 minutes for maintenance.\");\n        }\n  \
+      \      else\n        {\n            // Server is opening, clear any temporary\
+      \ restrictions\n            sWorld->SendServerMessage(SERVER_MSG_STRING, \"\
+      Server is now open. Welcome back!\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game loop and should not perform heavy
+    operations that could block the server. The 'open' parameter directly reflects
+    the current state of the world's accessibility to new players, which may be controlled
+    by configuration settings or administrative commands.
+  warnings: Avoid performing time-consuming operations in this callback as it can
+    impact server performance. Do not modify the open state within this method as
+    it could lead to undefined behavior or infinite loops.
+  related:
+  - WorldScript::OnConfigLoad
+  - WorldScript::OnMotdChange
+  - WorldScript::OnShutdownInitiate
+  - WorldScript::OnShutdownCancel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:27:14.845426'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

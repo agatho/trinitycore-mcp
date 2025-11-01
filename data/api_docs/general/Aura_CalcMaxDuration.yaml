@@ -1,0 +1,69 @@
+api:
+  class: Aura
+  method: CalcMaxDuration
+  signature: int32 Aura::CalcMaxDuration(const SpellInfo * spellInfo, const WorldObject
+    * caster, const int * powerCosts)
+documentation:
+  brief: Calculates the maximum duration of an aura based on spell information and
+    caster data.
+  description: The CalcMaxDuration method computes the maximum possible duration for
+    an aura effect, taking into account the spell's properties, the caster object,
+    and power costs associated with the spell. This calculation is crucial for determining
+    how long a buff or debuff will persist in the game world. The method considers
+    various factors such as spell base duration, caster's buffs or debuffs that might
+    modify duration, and any power cost modifiers that could affect the final duration
+    value. It plays a key role in maintaining game balance by ensuring that auras
+    last for appropriate amounts of time based on their intended gameplay impact.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell that generated this aura. This includes base duration, duration
+      modifiers, and other spell properties that affect how long the aura should last.
+  - name: caster
+    description: Pointer to the WorldObject representing the caster of the spell.
+      This can be a player, creature, or game object. The caster's properties and
+      buffs/debuffs may influence the final duration calculation.
+  - name: powerCosts
+    description: Pointer to an array of integers representing the power costs (mana,
+      rage, energy, etc.) associated with the spell. These costs may be used in duration
+      calculations for certain types of auras or effects.
+  returns: Returns an int32 value representing the maximum duration in milliseconds
+    that the aura will last. A negative value typically indicates an error or invalid
+    calculation, while zero or positive values represent valid durations.
+  examples:
+  - title: Basic usage of CalcMaxDuration
+    code: "Aura* aura = new Aura();\nSpellInfo* spellInfo = sSpellMgr->GetSpellInfo(12345);\n\
+      WorldObject* caster = player;\nint powerCosts[] = {100, 50};\nint32 duration\
+      \ = aura->CalcMaxDuration(spellInfo, caster, powerCosts);\nif (duration > 0)\n\
+      {\n    // Apply the calculated duration to the aura\n    aura->SetMaxDuration(duration);\n\
+      }"
+    language: cpp
+  - title: Using CalcMaxDuration in aura application logic
+    code: "void ApplyAuraWithCalculatedDuration(Unit* target, uint32 spellId, Unit*\
+      \ caster)\n{\n    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);\n\
+      \    if (!spellInfo) return;\n\n    Aura* aura = Aura::Create(spellInfo, 1,\
+      \ nullptr, caster, target);\n    if (!aura) return;\n\n    int powerCosts[3]\
+      \ = {0};\n    // Fill power costs based on spell requirements\n    int32 maxDuration\
+      \ = aura->CalcMaxDuration(spellInfo, caster, powerCosts);\n    aura->SetMaxDuration(maxDuration);\n\
+      \    target->AddAura(aura);\n}"
+    language: cpp
+  notes: This method is typically called during aura creation or application to determine
+    how long an effect should last. The calculation may involve multiple modifiers
+    from the caster's stats, spell properties, and game rules. It's important to note
+    that this returns the maximum possible duration, not necessarily the actual duration
+    which might be reduced by other factors like diminishing returns.
+  warnings: Ensure that all input parameters are valid before calling this method,
+    as passing null pointers can lead to crashes or undefined behavior. Also, be aware
+    that the returned duration is in milliseconds and may need conversion depending
+    on how it's used within your application logic.
+  related:
+  - Aura::GetMaxDuration
+  - Aura::SetMaxDuration
+  - Aura::GetDuration
+  - Aura::SetDuration
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T14:18:25.518816'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

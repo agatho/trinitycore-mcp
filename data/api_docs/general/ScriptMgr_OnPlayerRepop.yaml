@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerRepop
+  signature: void ScriptMgr::OnPlayerRepop(Player * player)
+documentation:
+  brief: Called when a player triggers a repop event, typically upon death or teleportation
+    to a graveyard.
+  description: The OnPlayerRepop method is a hook in TrinityCore's scripting system
+    that gets invoked whenever a player undergoes a repop event. This occurs primarily
+    when a player dies and is teleported to their faction's graveyard, or when they
+    are moved to a different location via teleportation mechanics. The method allows
+    custom scripts to execute logic at this specific point in the player's lifecycle,
+    such as modifying stats, applying buffs, or triggering quest events. It serves
+    as an important integration point for addon developers and scripters who wish
+    to customize behavior during player respawn scenarios.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is repoping. This parameter provides
+      access to all player-related data and methods during the repop event, including
+      health, mana, inventory, and location information.
+  returns: null
+  examples:
+  - title: Basic repop event handler
+    code: "class MyScript : public PlayerScript\n{\npublic:\n    MyScript() : PlayerScript(\"\
+      MyScript\") {}\n\n    void OnPlayerRepop(Player* player) override\n    {\n \
+      \       // Example: Log the repop event\n        sLog->outString(\"Player %s\
+      \ repopped at %u, %u, %u\", player->GetName().c_str(),\n                   \
+      \     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());\n\
+      \    }\n};"
+    language: cpp
+  - title: Repop event with custom buff application
+    code: "class RepopBuffScript : public PlayerScript\n{\npublic:\n    RepopBuffScript()\
+      \ : PlayerScript(\"RepopBuffScript\") {}\n\n    void OnPlayerRepop(Player* player)\
+      \ override\n    {\n        // Apply a temporary immunity buff upon repop\n \
+      \       if (player->HasAura(12345)) // Check if aura exists\n            player->RemoveAura(12345);\n\
+      \        \n        player->AddAura(67890, player); // Apply new aura\n    }\n\
+      };"
+    language: cpp
+  notes: This method is called during the repop process, which happens after a player
+    dies and before they are teleported to their graveyard. It's important to note
+    that at this point, the player's health and mana are reset but not yet fully restored.
+    The method executes in the context of the game world thread and should avoid long-running
+    operations or blocking calls.
+  warnings: Avoid performing heavy computations or database operations within this
+    hook as it may impact performance during critical gameplay moments. Also, be cautious
+    when modifying player state directly, as improper handling could lead to unexpected
+    behavior or client desynchronization.
+  related:
+  - OnPlayerDeath
+  - OnPlayerEnterWorld
+  - OnPlayerLogout
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:14:09.252761'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

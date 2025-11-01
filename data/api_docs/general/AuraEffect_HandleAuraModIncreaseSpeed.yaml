@@ -1,0 +1,64 @@
+api:
+  class: AuraEffect
+  method: HandleAuraModIncreaseSpeed
+  signature: void AuraEffect::HandleAuraModIncreaseSpeed(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes a speed increase aura effect on the target.
+  description: The HandleAuraModIncreaseSpeed method is responsible for modifying
+    the movement speed of a unit when an aura that increases speed is applied or removed.
+    This method is part of the AuraEffect class and is called internally by the TrinityCore
+    framework during aura application or removal events. It adjusts the unit's speed
+    based on the aura's properties, ensuring that the character's movement speed reflects
+    the current state of active auras. The method takes into account whether the aura
+    is being applied (true) or removed (false), and updates the target's speed accordingly.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This contains information about the aura's state, duration,
+      and target.
+  - name: mode
+    description: The mode of operation, typically indicating how the aura should be
+      processed (e.g., application, removal, update). Values are usually defined by
+      the framework and control specific behavior during aura handling.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the speed increase effect. When true, the unit's speed is increased; when false,
+      it is restored to normal.
+  returns: null
+  examples:
+  - title: Basic usage in aura application
+    code: "void MyAuraEffect::HandleAuraModIncreaseSpeed(const AuraApplication* aurApp,\
+      \ uint8 mode, bool apply) const {\n    if (apply) {\n        // Apply speed\
+      \ increase\n        unit->SetSpeed(MOVE_RUN, 1.5f);\n    } else {\n        //\
+      \ Remove speed increase\n        unit->SetSpeed(MOVE_RUN, 1.0f);\n    }\n}"
+    language: cpp
+  - title: Advanced usage with percentage-based speed changes
+    code: "void MyAuraEffect::HandleAuraModIncreaseSpeed(const AuraApplication* aurApp,\
+      \ uint8 mode, bool apply) const {\n    float speedModifier = GetAmount(); //\
+      \ Get the percentage increase from aura\n    if (apply) {\n        unit->SetSpeed(MOVE_RUN,\
+      \ unit->GetSpeed(MOVE_RUN) * (1.0f + speedModifier));\n    } else {\n      \
+      \  unit->SetSpeed(MOVE_RUN, unit->GetSpeed(MOVE_RUN) / (1.0f + speedModifier));\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically invoked by the core aura handling system and should
+    not be called directly unless implementing custom aura effects. The actual speed
+    modification may involve multiple movement types (run, walk, swim) depending on
+    the aura's configuration. Performance-wise, this method should execute quickly
+    as it's called frequently during combat and movement updates.
+  warnings: Do not modify the unit's speed directly outside of this method without
+    considering the aura system's integrity. Incorrect handling can lead to inconsistent
+    movement behavior or exploits where players move faster than intended. Ensure
+    that all speed changes are properly tracked and reverted when auras expire or
+    are removed.
+  related:
+  - AuraEffect::HandleAuraModIncreaseSpeed
+  - AuraEffect::HandleAuraModDecreaseSpeed
+  - AuraEffect::ApplyAuraEffect
+  - AuraEffect::RemoveAuraEffect
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:17:39.276501'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

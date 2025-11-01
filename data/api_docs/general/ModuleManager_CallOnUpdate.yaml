@@ -1,0 +1,54 @@
+api:
+  class: ModuleManager
+  method: CallOnUpdate
+  signature: void ModuleManager::CallOnUpdate(uint32 diff)
+documentation:
+  brief: Invokes the OnUpdate method on all loaded modules with the specified time
+    difference.
+  description: The CallOnUpdate method is responsible for executing the OnUpdate callback
+    function on all active modules managed by the ModuleManager. This method is typically
+    called during the game loop's update cycle, passing a time delta (diff) parameter
+    that represents the milliseconds elapsed since the last update. It ensures that
+    each module can perform periodic updates, such as AI behavior, event handling,
+    or state management, based on the provided time interval. The method iterates
+    through all registered modules and invokes their OnUpdate function with the given
+    time difference, allowing for consistent and synchronized updates across the entire
+    module system.
+  parameters:
+  - name: diff
+    description: The time difference in milliseconds since the last update call. This
+      value is used by modules to calculate time-based behaviors, animations, or periodic
+      actions. Typical values are small integers representing frame time deltas.
+  returns: null
+  examples:
+  - title: Basic usage in game loop
+    code: "void GameLoop()\n{\n    while (true)\n    {\n        uint32 diff = sWorld->GetUpdateDiff();\n\
+      \        sModuleManager->CallOnUpdate(diff);\n        // Other game logic\n\
+      \    }\n}"
+    language: cpp
+  - title: Module update with time-based logic
+    code: "class MyModule : public Module\n{\npublic:\n    void OnUpdate(uint32 diff)\
+      \ override\n    {\n        if (m_timer > 0)\n            m_timer -= diff;\n\
+      \        else\n        {\n            // Perform periodic action\n         \
+      \   DoSomething();\n            m_timer = 1000; // Reset timer to 1 second\n\
+      \        }\n    }\nprivate:\n    uint32 m_timer = 0;\n};"
+    language: cpp
+  notes: This method is typically invoked from the main game loop and should be called
+    with accurate time deltas for proper module behavior. Modules are expected to
+    handle the diff parameter appropriately for time-based calculations. The method
+    does not perform any locking or thread synchronization, so it should only be called
+    from the main thread in single-threaded environments.
+  warnings: Calling this method with incorrect or zero time differences may cause
+    modules to behave unexpectedly. Ensure that the diff value accurately reflects
+    the elapsed time since the last update call for consistent behavior across all
+    modules.
+  related:
+  - ModuleManager::LoadModules
+  - ModuleManager::UnloadModules
+  - Module::OnUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T23:43:41.049554'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

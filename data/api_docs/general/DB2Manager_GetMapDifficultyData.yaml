@@ -1,0 +1,55 @@
+api:
+  class: DB2Manager
+  method: GetMapDifficultyData
+  signature: const MapDifficultyEntry * DB2Manager::GetMapDifficultyData(uint32 mapId,
+    Difficulty difficulty) const
+documentation:
+  brief: Retrieves map difficulty data for a specified map and difficulty level.
+  description: The GetMapDifficultyData method fetches the MapDifficultyEntry structure
+    that contains configuration data for a specific map and difficulty combination.
+    This data typically includes information such as the maximum number of players
+    allowed, loot rules, and other game mechanics adjustments based on difficulty.
+    The method is commonly used during dungeon or raid creation to determine appropriate
+    settings for player groups. It accesses pre-loaded DB2 files which contain static
+    game data about maps and their difficulties.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map for which difficulty data is requested.
+      Valid values correspond to map entries in the game's database.
+  - name: difficulty
+    description: The difficulty level for which data is being retrieved. This typically
+      corresponds to standard difficulty constants like Normal, Heroic, etc., defined
+      in the game's difficulty system.
+  returns: A pointer to a MapDifficultyEntry structure containing the configuration
+    data for the specified map and difficulty combination. Returns nullptr if no matching
+    entry exists for the given parameters.
+  examples:
+  - title: Basic usage to get dungeon difficulty settings
+    code: "const MapDifficultyEntry* diffEntry = sDB2Manager->GetMapDifficultyData(109,\
+      \ DIFFICULTY_NORMAL);\nif (diffEntry)\n{\n    // Use diffEntry->maxPlayers or\
+      \ other fields\n    printf(\"Max players: %u\\n\", diffEntry->maxPlayers);\n\
+      }"
+    language: cpp
+  - title: Checking if a specific map/difficulty combination exists
+    code: "uint32 mapId = 1234;\nDifficulty difficulty = DIFFICULTY_HEROIC;\nconst\
+      \ MapDifficultyEntry* entry = sDB2Manager->GetMapDifficultyData(mapId, difficulty);\n\
+      if (entry)\n{\n    // Proceed with logic using the difficulty data\n}\nelse\n\
+      {\n    // Handle unsupported map/difficulty combination\n}"
+    language: cpp
+  notes: This method relies on DB2 files being properly loaded and indexed. The returned
+    pointer is valid only as long as the DB2Manager instance remains active and the
+    data has not been reloaded or modified. Performance is generally fast due to internal
+    caching mechanisms.
+  warnings: Do not assume that all map/difficulty combinations will return valid entries;
+    always check for null before using the returned pointer. Incorrect mapId or difficulty
+    values may lead to unexpected behavior or crashes if not handled properly.
+  related:
+  - GetMapDifficultyData
+  - LoadDB2Files
+  - GetMapEntry
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T14:55:37.169597'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

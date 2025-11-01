@@ -1,0 +1,73 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetingVehicleSpellConditions
+  signature: bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId,
+    uint32 spellId, const Player * player, const Unit * vehicle) const
+documentation:
+  brief: Checks if a player meets the conditions to use a vehicle spell on a specific
+    creature.
+  description: The IsObjectMeetingVehicleSpellConditions method evaluates whether
+    a given player can use a specified spell on a creature while seated on a vehicle.
+    This function is typically used in the context of vehicle-based spells and mechanics
+    within World of Warcraft's TrinityCore emulation. It verifies various conditions
+    such as player state, vehicle status, spell requirements, and creature type to
+    determine if the action is valid. The method considers both the player's current
+    state (such as being mounted or in combat) and the vehicle's state (such as whether
+    it is active or usable). This check is essential for preventing invalid vehicle
+    interactions and ensuring proper game mechanics are enforced.
+  parameters:
+  - name: creatureId
+    description: The unique identifier of the creature that the player is attempting
+      to use a vehicle spell on. This ID corresponds to the creature_template entry
+      in the database.
+  - name: spellId
+    description: The unique identifier of the spell being used for the vehicle interaction.
+      This ID must correspond to a valid spell entry in the spell_template table.
+  - name: player
+    description: A pointer to the Player object representing the player attempting
+      to use the vehicle spell. Must not be null.
+  - name: vehicle
+    description: A pointer to the Unit object representing the vehicle on which the
+      player is seated. This may be null if no vehicle is present or if the check
+      is being performed without a vehicle context.
+  returns: Returns true if all conditions for using the specified spell on the creature
+    while seated on the vehicle are met; otherwise, returns false. The method will
+    return false if any of the required conditions fail, such as invalid player state,
+    incompatible spell or creature types, or missing vehicle context.
+  examples:
+  - title: Basic usage to check vehicle spell conditions
+    code: "if (sConditionMgr->IsObjectMeetingVehicleSpellConditions(12345, 67890,\
+      \ player, vehicle)) {\n    // Proceed with vehicle spell execution\n    player->CastSpell(vehicle,\
+      \ 67890, true);\n} else {\n    // Handle invalid conditions\n    player->SendSystemMessage(\"\
+      You cannot use this spell in your current state.\");\n}"
+    language: cpp
+  - title: Advanced usage with multiple checks
+    code: "uint32 creatureId = 12345;\nuint32 spellId = 67890;\nPlayer* player = unit->ToPlayer();\n\
+      Unit* vehicle = player ? player->GetVehicleBase() : nullptr;\n\nif (player &&\
+      \ sConditionMgr->IsObjectMeetingVehicleSpellConditions(creatureId, spellId,\
+      \ player, vehicle)) {\n    // Validate that the player is not in combat\n  \
+      \  if (!player->IsInCombat()) {\n        // Check if the player has sufficient\
+      \ mana\n        if (player->GetPower(POWER_MANA) >= 100) {\n            // Execute\
+      \ the spell\n            player->CastSpell(vehicle, spellId, true);\n      \
+      \  }\n    }\n}"
+    language: cpp
+  notes: This method relies on internal condition checking systems within TrinityCore
+    and may involve complex logic related to vehicle states, player conditions, and
+    spell restrictions. It is recommended to ensure that both the player and vehicle
+    parameters are valid before calling this function to avoid unexpected behavior.
+    The implementation may vary depending on the specific version of TrinityCore being
+    used.
+  warnings: Do not pass null pointers for player or vehicle unless explicitly supported
+    by the internal logic. Passing invalid creature or spell IDs can lead to undefined
+    behavior or assertion failures in debug builds. This method should be called only
+    when a valid vehicle interaction context exists.
+  related:
+  - GetCondition
+  - CheckCondition
+  - IsPlayerMeetingConditions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T15:52:56.152528'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: ScriptMgr
+  method: OnGroupDisband
+  signature: void ScriptMgr::OnGroupDisband(Group * group)
+documentation:
+  brief: Notifies scripts when a group is disbanded
+  description: The OnGroupDisband method is called by the TrinityCore scripting system
+    whenever a player's group is disbanded. This occurs when the group leader removes
+    all members from the group or when the group is automatically disbanded due to
+    inactivity or other game mechanics. The method serves as a hook for custom scripts
+    to perform actions such as cleaning up player data, sending notifications, or
+    modifying game state upon group dissolution. It provides a way for addon developers
+    and scripters to extend or modify behavior when groups are broken apart.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that is being disbanded. This parameter
+      represents the group instance that has just been disbanded from the game world.
+  returns: null
+  examples:
+  - title: Basic Group Disband Notification Handler
+    code: "class MyGroupScript : public GroupScript\n{\npublic:\n    MyGroupScript()\
+      \ : GroupScript(\"MyGroupScript\") {}\n\n    void OnGroupDisband(Group* group)\
+      \ override\n    {\n        // Log that a group was disbanded\n        sLog->outString(\"\
+      Group with leader %u has been disbanded.\", group->GetLeaderGuid().GetCounter());\n\
+      \        \n        // Perform cleanup operations for the group members\n   \
+      \     for (Group::MemberSlotList::const_iterator itr = group->GetMemberSlots().begin();\n\
+      \             itr != group->GetMemberSlots().end(); ++itr)\n        {\n    \
+      \        Player* player = ObjectAccessor::FindPlayer(itr->guid);\n         \
+      \   if (player)\n            {\n                // Custom logic for each player\
+      \ in the disbanded group\n                player->SendNotification(\"Your group\
+      \ has been disbanded.\");\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is invoked during the group disbanding process, so it's important
+    to ensure that any operations performed do not interfere with the group's destruction
+    sequence. The Group pointer passed to this function remains valid until after
+    the method returns, but should not be modified directly as it will be destroyed
+    shortly after.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it may impact performance during group disbanding events. Also, be cautious
+    when accessing player objects through the group members, as players might have
+    already been removed from the world or their sessions closed by the time this
+    callback executes.
+  related:
+  - OnGroupCreate
+  - OnGroupMemberAdd
+  - OnGroupMemberRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:45:33.466259'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

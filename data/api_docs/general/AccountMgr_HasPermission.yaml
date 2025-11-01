@@ -1,0 +1,59 @@
+api:
+  class: AccountMgr
+  method: HasPermission
+  signature: bool AccountMgr::HasPermission(uint32 accountId, uint32 permission, uint32
+    realmId)
+documentation:
+  brief: Checks whether an account has a specific permission for a given realm
+  description: The HasPermission method determines if a specified account possesses
+    a particular permission within the context of a specific realm. This function
+    is crucial for access control and authorization checks in TrinityCore's account
+    management system. It evaluates the account's permission level against the requested
+    permission, taking into account realm-specific configurations. The method performs
+    database lookups to verify permission assignments and returns a boolean result
+    indicating whether the check passes or fails.
+  parameters:
+  - name: accountId
+    description: Unique identifier of the account to check permissions for. Must be
+      a valid account ID present in the database.
+  - name: permission
+    description: The permission identifier to verify. This typically corresponds to
+      predefined permission constants or IDs defined in the TrinityCore permission
+      system.
+  - name: realmId
+    description: Identifier of the realm for which the permission check is performed.
+      Allows for realm-specific permission enforcement.
+  returns: Returns true if the account has the specified permission for the given
+    realm, false otherwise. The method will return false if any of the parameters
+    are invalid or if no permission mapping exists.
+  examples:
+  - title: Basic Permission Check
+    code: "if (AccountMgr::HasPermission(12345, RBAC_PERM_ACCOUNT_GM, 0)) {\n    //\
+      \ Account has GM permissions\n    sLog->outString(\"Account 12345 has GM access\"\
+      );\n}"
+    language: cpp
+  - title: Realm-Specific Permission Check
+    code: "uint32 accountId = player->GetSession()->GetAccountId();\nuint32 realmId\
+      \ = sWorld->GetRealmID();\nif (AccountMgr::HasPermission(accountId, RBAC_PERM_COMMANDS_RA,\
+      \ realmId)) {\n    // Allow access to RA commands for this realm\n    HandleRACommand(session,\
+      \ \"some_command\");\n}"
+    language: cpp
+  notes: This method relies on the Role-Based Access Control (RBAC) system. Permission
+    checks are cached in memory for performance reasons where possible. The realmId
+    parameter allows for per-realm permission configurations, which is essential for
+    multi-realm setups. Ensure that account IDs and permission IDs are valid before
+    calling this method to avoid unexpected behavior.
+  warnings: Calling this method with invalid account or permission IDs may result
+    in database errors or undefined behavior. Always validate input parameters before
+    invoking this function. The method performs database queries, so frequent calls
+    should be considered for performance impact in high-frequency scenarios.
+  related:
+  - AccountMgr::GetSecurity
+  - AccountMgr::SetSecurity
+  - AccountMgr::LoadPermissions
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:49:39.550770'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

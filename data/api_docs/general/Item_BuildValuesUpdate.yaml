@@ -1,0 +1,60 @@
+api:
+  class: Item
+  method: BuildValuesUpdate
+  signature: void Item::BuildValuesUpdate(int * data, int flags, const Player * target)
+    const
+documentation:
+  brief: Populates update buffer with item data for client synchronization
+  description: The BuildValuesUpdate method constructs and populates an update buffer
+    containing the item's current state and properties for transmission to a specific
+    player client. This method is typically invoked during packet building for object
+    updates, ensuring that the client receives accurate information about the item's
+    attributes, stack count, durability, and other relevant fields. The method respects
+    the provided flags to determine which data fields should be included in the update,
+    and it uses the target player parameter to apply any necessary per-player modifications
+    or visibility checks.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be filled with the item's update
+      data. This buffer must be pre-allocated with sufficient space to hold all relevant
+      update fields.
+  - name: flags
+    description: Integer flags that control which aspects of the item should be included
+      in the update. These flags typically determine visibility, modification state,
+      and field selection for the update packet.
+  - name: target
+    description: Pointer to the Player object for whom the update data is being constructed.
+      This allows per-player modifications or visibility filtering based on the target's
+      state or perspective.
+  returns: null
+  examples:
+  - title: Basic usage in update packet construction
+    code: "Item* item = player->GetItemByGuid(itemGuid);\nif (item)\n{\n    int updateData[MAX_ITEM_FIELDS];\n\
+      \    item->BuildValuesUpdate(updateData, UPDATEFLAG_ALL, player);\n    // Send\
+      \ updateData to player\n}"
+    language: cpp
+  - title: Selective field updates for specific player
+    code: "Item* item = player->GetItemByGuid(itemGuid);\nif (item)\n{\n    int updateData[MAX_ITEM_FIELDS];\n\
+      \    // Build only visible fields for this specific target\n    item->BuildValuesUpdate(updateData,\
+      \ UPDATEFLAG_VISIBLE, targetPlayer);\n    // Process and send update packet\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when constructing update packets for players. The data buffer must
+    be properly sized to accommodate all fields that might be written, typically defined
+    by MAX_ITEM_FIELDS or similar constants. The method may perform per-player visibility
+    checks based on the target parameter.
+  warnings: Do not call this method directly without proper synchronization or packet
+    building context. Ensure the updateData buffer is large enough to prevent memory
+    corruption. The target player parameter should not be null, as it affects field
+    visibility and filtering logic.
+  related:
+  - Item::BuildCreateUpdateBlockForPlayer
+  - Item::BuildValuesUpdateBlockForPlayer
+  - Item::GetUpdateFields
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T11:30:50.423740'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

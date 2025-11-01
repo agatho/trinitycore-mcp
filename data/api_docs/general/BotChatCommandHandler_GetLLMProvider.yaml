@@ -1,0 +1,57 @@
+api:
+  class: BotChatCommandHandler
+  method: GetLLMProvider
+  signature: std::shared_ptr<LLMProvider> BotChatCommandHandler::GetLLMProvider()
+documentation:
+  brief: Retrieves the LLM provider instance used by the bot chat command handler
+    for natural language processing tasks.
+  description: The GetLLMProvider method returns a shared pointer to the LLMProvider
+    object that is currently configured and active within the BotChatCommandHandler.
+    This provider is responsible for handling large language model interactions, including
+    generating responses to player queries, processing commands, and managing conversational
+    context. The returned shared_ptr ensures proper memory management and allows multiple
+    components to safely access the same LLM provider instance. This method is typically
+    called during bot initialization or when dynamic switching of LLM providers is
+    required. The method does not perform any validation or setup; it simply returns
+    the existing provider instance if one has been initialized, or a null pointer
+    if no provider is currently configured.
+  parameters: []
+  returns: A std::shared_ptr<LLMProvider> pointing to the active LLM provider instance,
+    or a null pointer if no provider has been initialized within the handler.
+  examples:
+  - title: Basic Usage
+    code: "auto llmProvider = botChatCommandHandler.GetLLMProvider();\nif (llmProvider)\
+      \ {\n    // Use the LLM provider for processing commands\n    std::string response\
+      \ = llmProvider->GenerateResponse(\"Hello, how are you?\");\n} else {\n    //\
+      \ Handle case where no LLM provider is configured\n    sLog->outError(\"No LLM\
+      \ provider configured for bot chat handler\");\n}"
+    language: cpp
+  - title: Integration with Bot Command Processing
+    code: "void ProcessPlayerCommand(BotChatCommandHandler& handler, const std::string&\
+      \ command) {\n    auto provider = handler.GetLLMProvider();\n    if (!provider)\
+      \ {\n        // Fallback to basic command handling\n        return;\n    }\n\
+      \    \n    // Use LLM for advanced command interpretation\n    std::string response\
+      \ = provider->ProcessCommand(command);\n    // Send response back to player\n\
+      }"
+    language: cpp
+  notes: The returned shared_ptr maintains a reference count, so the LLMProvider instance
+    will remain alive as long as there are active references to it. This method is
+    thread-safe in the sense that it returns an existing pointer without modifying
+    internal state, but concurrent access to the underlying provider should be handled
+    by the caller if needed. The method assumes that the BotChatCommandHandler has
+    already been initialized with a valid LLMProvider instance.
+  warnings: Calling this method on an uninitialized BotChatCommandHandler may return
+    a null pointer, which could lead to crashes if not properly checked. Ensure proper
+    error handling when using the returned shared_ptr. If multiple threads access
+    this method simultaneously, consider synchronization mechanisms around the provider
+    access for thread safety.
+  related:
+  - SetLLMProvider
+  - InitializeLLMProvider
+  - IsLLMProviderAvailable
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T17:26:48.203548'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

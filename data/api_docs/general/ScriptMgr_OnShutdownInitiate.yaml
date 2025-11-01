@@ -1,0 +1,48 @@
+api:
+  class: ScriptMgr
+  method: OnShutdownInitiate
+  signature: void ScriptMgr::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask
+    mask)
+documentation:
+  brief: Notifies scripts when the server shutdown process is initiated
+  description: The OnShutdownInitiate method is a callback function invoked by the
+    TrinityCore server when a shutdown sequence begins. This method allows scriptable
+    modules to perform cleanup operations, save data, or notify other systems before
+    the server terminates. The method receives information about the shutdown type
+    and mask, which can be used to determine how the shutdown should be handled. It
+    is typically called during server maintenance, patch updates, or emergency shutdowns.
+  parameters:
+  - name: code
+    description: The exit code indicating the reason for shutdown. Values include
+      ShutdownExitCode::SHUTDOWN_EXIT_CODE_NORMAL, SHUTDOWN_EXIT_CODE_ERROR, etc.
+  - name: mask
+    description: A bitmask indicating which components are affected by the shutdown.
+      Common values include SHUTDOWN_MASK_RESTART, SHUTDOWN_MASK_SHUTDOWN, etc.
+  returns: null
+  examples:
+  - title: Basic Shutdown Initiate Handler
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask\
+      \ mask) override\n    {\n        // Log shutdown event\n        TC_LOG_INFO(\"\
+      server.loading\", \"Custom shutdown initiated with code %u and mask %u\", \n\
+      \                   static_cast<uint32>(code), static_cast<uint32>(mask));\n\
+      \        \n        // Perform cleanup tasks here\n        SaveAllData();\n \
+      \   }\n};"
+    language: cpp
+  notes: This method is called from the main server thread during shutdown sequence.
+    Scripts should avoid performing long-running operations or blocking calls in this
+    handler as it may delay server termination. The method is part of the global script
+    manager and can be overridden by custom scripts.
+  warnings: Do not perform operations that might block or take significant time in
+    this callback, as it could delay server shutdown. Avoid modifying critical server
+    state from this method unless absolutely necessary.
+  related:
+  - OnShutdownCancel
+  - OnShutdown
+  - OnWorldUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:04:14.607721'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

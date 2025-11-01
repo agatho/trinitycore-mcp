@@ -1,0 +1,44 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerMoneyLimit
+  signature: void ScriptMgr::OnPlayerMoneyLimit(Player * player, int64 amount)
+documentation:
+  brief: Called when a player's money amount reaches the maximum limit
+  description: The OnPlayerMoneyLimit method is invoked by the ScriptMgr when a player
+    attempts to acquire or accumulate money that would exceed the game's defined maximum
+    money limit. This hook allows custom scripts to intercept and potentially modify
+    or prevent such actions. It serves as a safeguard mechanism to ensure players
+    do not surpass the monetary cap imposed by the game's configuration, which helps
+    maintain balance and prevents exploits related to infinite currency accumulation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose money limit is being checked.
+      This parameter represents the specific player instance involved in the operation.
+  - name: amount
+    description: The amount of money (in copper) that would be added to the player's
+      current balance, potentially exceeding the maximum limit. Negative values may
+      indicate removal of money.
+  returns: null
+  examples:
+  - title: Prevent Exceeding Money Limit
+    code: "void OnPlayerMoneyLimit(Player* player, int64 amount) override\n{\n   \
+      \ if (amount > 0)\n    {\n        // Log the attempt to exceed money limit\n\
+      \        sLog->outInfo(LOG_FILTER_SCRIPTS, \"Player %s attempted to exceed money\
+      \ limit by %\" PRIu64 \" copper.\", player->GetName().c_str(), amount);\n  \
+      \      // Optionally prevent the transaction or cap the amount\n    }\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's scripting system and is typically used
+    in custom scripts to enforce monetary limits. It may be called during transactions
+    such as looting, selling items, or receiving rewards. The actual enforcement of
+    the money limit is handled by the core game logic, but this hook allows for custom
+    behavior.
+  warnings: Modifying player money directly within this callback can lead to inconsistent
+    state. It's recommended to only log or conditionally prevent actions rather than
+    altering the money amount itself.
+  related: []
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:14:32.738129'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

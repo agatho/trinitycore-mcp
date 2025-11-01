@@ -1,0 +1,58 @@
+api:
+  class: InstanceLockMgr
+  method: CreateInstanceLockForNewInstance
+  signature: InstanceLock * InstanceLockMgr::CreateInstanceLockForNewInstance(const
+    int & playerGuid, const MapDb2Entries & entries, uint32 instanceId)
+documentation:
+  brief: Creates a new instance lock for a player entering a new instance
+  description: This method initializes and returns a new InstanceLock object for a
+    player who is about to enter a new instance. The lock manages access permissions
+    and tracking for the instance, ensuring proper synchronization between the player's
+    session and the instance state. It takes the player's GUID, map entries information,
+    and the instance ID to construct an appropriate lock. This method is typically
+    invoked during instance creation or entry logic within TrinityCore's instance
+    management system.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player requesting access to the
+      new instance
+  - name: entries
+    description: Database entries describing the map and its properties for the instance
+      being created
+  - name: instanceId
+    description: The unique identifier for the new instance being locked
+  returns: A pointer to the newly created InstanceLock object, or nullptr if creation
+    fails due to invalid parameters or system constraints
+  examples:
+  - title: Basic usage in instance entry logic
+    code: "InstanceLock* lock = instanceLockMgr->CreateInstanceLockForNewInstance(playerGuid,\
+      \ mapEntries, newInstanceId);\nif (lock)\n{\n    // Proceed with instance entry\
+      \ using the lock\n    lock->Acquire();\n}"
+    language: cpp
+  - title: Usage with error handling
+    code: "InstanceLock* lock = instanceLockMgr->CreateInstanceLockForNewInstance(playerGuid,\
+      \ mapEntries, newInstanceId);\nif (!lock)\n{\n    // Handle failure case\n \
+      \   sLog->outError(\"Failed to create instance lock for player %u\", playerGuid);\n\
+      \    return false;\n}\nelse\n{\n    // Lock successfully created and can be\
+      \ used\n    sLog->outDebug(\"Instance lock created for player %u in instance\
+      \ %u\", playerGuid, newInstanceId);\n}"
+    language: cpp
+  notes: This method assumes that the provided parameters are valid and that the instance
+    has not yet been locked. The returned InstanceLock object should be managed carefully
+    to prevent memory leaks or race conditions. It's recommended to call this method
+    only when a new instance is being created or entered, not during regular gameplay
+    operations.
+  warnings: Calling this method without proper validation of inputs may lead to undefined
+    behavior. Ensure that playerGuid and instanceId are valid before calling. Also,
+    be aware that the returned pointer must be properly managed and released when
+    no longer needed to avoid memory leaks.
+  related:
+  - GetInstanceLock
+  - ReleaseInstanceLock
+  - IsInstanceLocked
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:17:06.776483'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

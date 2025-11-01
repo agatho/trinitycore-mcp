@@ -1,0 +1,51 @@
+api:
+  class: Item
+  method: ToBag
+  signature: const Bag * Item::ToBag() const
+documentation:
+  brief: Returns a pointer to the Bag object if this item is contained within a bag,
+    otherwise returns nullptr.
+  description: The ToBag() method checks whether the current Item instance is currently
+    stored inside a Bag container. If the item is located within a bag (such as in
+    a player's inventory or bank), it returns a const pointer to the associated Bag
+    object. If the item is not contained in any bag (for example, it's equipped on
+    a player or lying on the ground), the method returns nullptr. This method is commonly
+    used in inventory management and item positioning logic within TrinityCore's game
+    systems. It provides a way to determine an item's container context without needing
+    to traverse the entire inventory structure manually.
+  parameters: []
+  returns: A const pointer to the Bag object if the item is inside a bag, or nullptr
+    if it is not contained in any bag.
+  examples:
+  - title: Check if an item is in a bag
+    code: "Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);\nif (Bag\
+      \ const* bag = item->ToBag()) {\n    // Item is inside a bag\n    sLog->outString(\"\
+      Item is in bag with ID: %u\", bag->GetGUID().GetCounter());\n} else {\n    //\
+      \ Item is not in a bag\n    sLog->outString(\"Item is not in a bag\");\n}"
+    language: cpp
+  - title: Use ToBag() to determine container type
+    code: "void HandleItemMovement(Player* player, uint8 bagSlot, uint8 slot) {\n\
+      \    Item* item = player->GetItemByPos(bagSlot, slot);\n    if (!item) return;\n\
+      \n    if (Bag const* bag = item->ToBag()) {\n        // Item is in a bag\n \
+      \       sLog->outString(\"Moving item from bag %u to another location\", bag->GetBagSlot());\n\
+      \    } else {\n        // Item is not in a bag, might be equipped or on ground\n\
+      \        sLog->outString(\"Moving item that is not in a bag\");\n    }\n}"
+    language: cpp
+  notes: This method performs a simple type check and does not involve any expensive
+    operations. It's safe to call from any thread context where the Item object is
+    valid. The returned pointer should be used carefully as it points to an object
+    owned by the container system, and must not be deleted or modified directly.
+  warnings: Be cautious when using the returned pointer; ensure that the item has
+    not been moved or destroyed before accessing the Bag object. Also note that this
+    method only checks if the item is inside a bag, not whether it's in a specific
+    bag slot or container.
+  related:
+  - Item::IsInBag
+  - Item::GetBagSlot
+  - Item::GetOwner
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:19:16.339282'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

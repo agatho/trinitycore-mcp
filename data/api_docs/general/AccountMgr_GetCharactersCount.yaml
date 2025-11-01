@@ -1,0 +1,57 @@
+api:
+  class: AccountMgr
+  method: GetCharactersCount
+  signature: uint32 AccountMgr::GetCharactersCount(uint32 accountId)
+documentation:
+  brief: Retrieves the total number of characters associated with a specified account
+    ID.
+  description: The GetCharactersCount method is used to determine how many characters
+    are currently registered under a specific account within the TrinityCore database.
+    This function is typically invoked during login processes or account management
+    operations to validate account state, enforce character limits, or display account
+    information such as total character count. The method performs a database query
+    to count all entries in the character table that match the provided account ID.
+    It assumes that the account ID is valid and corresponds to an existing account
+    in the system. No additional preconditions are required beyond having a valid
+    account ID.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account for which to retrieve the character
+      count. This value must correspond to a valid account entry in the database;
+      otherwise, the result will be zero or may cause undefined behavior.
+  returns: Returns a 32-bit unsigned integer representing the total number of characters
+    associated with the specified account ID. A return value of zero indicates that
+    no characters exist for the given account, while any positive integer reflects
+    the actual count of characters stored under that account.
+  examples:
+  - title: Basic Usage Example
+    code: 'uint32 accountId = 12345;
+
+      uint32 characterCount = AccountMgr::GetCharactersCount(accountId);
+
+      printf("Account %u has %u characters.\n", accountId, characterCount);'
+    language: cpp
+  - title: Character Limit Check Example
+    code: "uint32 accountId = player->GetSession()->GetAccountId();\nuint32 currentCharacters\
+      \ = AccountMgr::GetCharactersCount(accountId);\nif (currentCharacters >= MAX_CHARACTERS_PER_ACCOUNT)\
+      \ {\n    // Prevent creating new character\n    SendSystemMessage(\"You have\
+      \ reached the maximum number of characters allowed.\");\n} else {\n    // Allow\
+      \ character creation\n}"
+    language: cpp
+  notes: This method accesses the database to perform a COUNT query on the character
+    table. For high-traffic servers, repeated calls to this function without caching
+    may impact performance. It is recommended to cache account character counts where
+    possible for frequent access scenarios.
+  warnings: Passing an invalid or non-existent account ID could lead to incorrect
+    results or potential errors depending on database configuration. Always ensure
+    that the accountId parameter refers to a valid account before calling this method.
+  related:
+  - GetAccountName
+  - GetSecurityLevel
+  - GetCharactersList
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:54:03.248897'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

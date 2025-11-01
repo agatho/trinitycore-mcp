@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnWeatherUpdate
+  signature: void ScriptMgr::OnWeatherUpdate(Weather * weather, uint32 diff)
+documentation:
+  brief: Updates weather conditions for a given weather object with the specified
+    time delta.
+  description: The OnWeatherUpdate method is invoked by the TrinityCore server to
+    handle periodic updates to weather systems. It is called during the game loop
+    with a pointer to a Weather object and a time delta (in milliseconds) representing
+    how much time has passed since the last update. This method allows custom scripts
+    to modify or react to weather changes, such as adjusting precipitation intensity,
+    wind speed, or visual effects. The method is part of the scriptable event system
+    that enables developers to extend default weather behavior without modifying core
+    server code.
+  parameters:
+  - name: weather
+    description: Pointer to the Weather object that needs updating. This represents
+      a specific weather instance in the game world, such as rain, snow, or fog in
+      a particular zone.
+  - name: diff
+    description: Time delta in milliseconds since the last weather update. Used to
+      calculate how much the weather state should change over time, enabling smooth
+      transitions and realistic weather behavior.
+  returns: null
+  examples:
+  - title: Basic Weather Update Handler
+    code: "class MyWeatherScript : public WeatherScript\n{\npublic:\n    void OnWeatherUpdate(Weather*\
+      \ weather, uint32 diff) override\n    {\n        // Increase precipitation intensity\
+      \ over time\n        if (weather->GetPrecipitation() < 100)\n            weather->SetPrecipitation(weather->GetPrecipitation()\
+      \ + diff / 1000);\n    }\n};"
+    language: cpp
+  - title: Advanced Weather Transition with Sound Effects
+    code: "class AdvancedWeatherScript : public WeatherScript\n{\npublic:\n    void\
+      \ OnWeatherUpdate(Weather* weather, uint32 diff) override\n    {\n        //\
+      \ Change weather type based on time of day\n        if (GetGameTime() > 18000\
+      \ && weather->GetType() != WEATHER_TYPE_RAIN)\n        {\n            weather->SetType(WEATHER_TYPE_RAIN);\n\
+      \            PlaySoundToPlayers(weather->GetZoneId(), SOUND_WEATHER_RAIN);\n\
+      \        }\n        else if (GetGameTime() < 6000 && weather->GetType() == WEATHER_TYPE_RAIN)\n\
+      \        {\n            weather->SetType(WEATHER_TYPE_CLEAR);\n            PlaySoundToPlayers(weather->GetZoneId(),\
+      \ SOUND_WEATHER_CLEAR);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called frequently during the game loop, so implementations
+    should be optimized to avoid heavy computations or blocking operations. The diff
+    parameter represents actual time elapsed and may vary depending on server load
+    or tick rate settings.
+  warnings: Modifying weather objects directly within this callback can cause unexpected
+    behavior if not handled carefully. Avoid performing operations that might alter
+    the global state of the weather system in ways that conflict with other scripts
+    or core logic.
+  related:
+  - Weather::GetPrecipitation
+  - Weather::SetPrecipitation
+  - Weather::GetType
+  - Weather::SetType
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:08:08.470539'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

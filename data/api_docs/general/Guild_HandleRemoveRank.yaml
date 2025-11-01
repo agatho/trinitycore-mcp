@@ -1,0 +1,57 @@
+api:
+  class: Guild
+  method: HandleRemoveRank
+  signature: void Guild::HandleRemoveRank(WorldSession * session, GuildRankOrder rankOrder)
+documentation:
+  brief: Removes a rank from the guild, shifting all higher-ranked members down by
+    one position.
+  description: The HandleRemoveRank method is responsible for removing a specified
+    rank from a guild's hierarchy. When invoked, it shifts all ranks that are numerically
+    higher than the removed rank down by one position to fill the gap. This ensures
+    that the guild's rank structure remains contiguous and properly ordered. The method
+    operates within the context of World of Warcraft's TrinityCore server implementation,
+    handling administrative commands issued through a WorldSession. It is typically
+    called when a guild leader or officer wishes to reduce the number of ranks in
+    their guild, which may be necessary for simplifying guild management or adjusting
+    guild structure.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      that initiated the rank removal request. This session is used to send responses
+      back to the player and verify permissions.
+  - name: rankOrder
+    description: The GuildRankOrder value indicating which rank to remove from the
+      guild. This parameter determines the specific rank position in the guild hierarchy
+      that will be deleted, with all subsequent ranks being renumbered accordingly.
+  returns: null
+  examples:
+  - title: Removing the Highest Rank
+    code: "Guild* guild = player->GetGuild();\nif (guild)\n{\n    guild->HandleRemoveRank(session,\
+      \ GUILD_RANK_ORDER_5);\n}"
+    language: cpp
+  - title: Conditional Rank Removal Based on Permission
+    code: "if (session->GetPlayer()->GetGuildRank() <= GUILD_RANK_OFFICER)\n{\n  \
+      \  Guild* guild = session->GetPlayer()->GetGuild();\n    if (guild)\n    {\n\
+      \        guild->HandleRemoveRank(session, GUILD_RANK_ORDER_4);\n    }\n}"
+    language: cpp
+  notes: This method modifies the internal rank structure of the guild and may trigger
+    updates to player permissions and guild-related UI elements. It is important that
+    this operation be performed only by players with sufficient guild permissions,
+    typically officers or guild leaders. The method does not validate whether the
+    rank being removed contains members; it simply removes the rank definition itself.
+  warnings: Attempting to remove a rank that does not exist or removing the lowest
+    rank (typically the lowest numbered) can lead to undefined behavior or errors
+    in the guild's rank system. Always ensure that the rank order passed is valid
+    and within the bounds of the current guild's rank structure before calling this
+    method.
+  related:
+  - HandleCreateRank
+  - HandleUpdateRank
+  - GetGuildRank
+  - SetGuildRank
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:35:09.744080'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

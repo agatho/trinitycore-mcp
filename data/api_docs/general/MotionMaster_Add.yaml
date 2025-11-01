@@ -1,0 +1,62 @@
+api:
+  class: MotionMaster
+  method: Add
+  signature: void MotionMaster::Add(MovementGenerator * movement, MovementSlot slot)
+documentation:
+  brief: Adds a movement generator to the motion master at the specified slot.
+  description: The Add method integrates a MovementGenerator into the MotionMaster's
+    internal management system, associating it with a specific movement slot. This
+    allows the creature or unit to execute the provided movement behavior according
+    to the slot's priority and type. The method is typically used during AI initialization
+    or when changing movement behaviors dynamically. Movement slots define how different
+    movement types interact with each other, such as preventing conflicting movement
+    states from running simultaneously. The MotionMaster manages these generators
+    in a prioritized list, where higher-priority movements take precedence over lower-priority
+    ones.
+  parameters:
+  - name: movement
+    description: Pointer to the MovementGenerator instance to be added. This must
+      be a valid, initialized movement generator object that implements the MovementGenerator
+      interface. The caller retains ownership of this object and is responsible for
+      its lifetime management.
+  - name: slot
+    description: The MovementSlot enum value indicating where this movement generator
+      should be placed in the motion queue. Valid values typically include different
+      priority levels or movement types (e.g., idle, wander, chase, flee). The slot
+      determines how the movement interacts with other active movements.
+  returns: null
+  examples:
+  - title: Adding a Chase Movement
+    code: 'MovementGenerator* chaseGen = new ChaseMovement(target);
+
+      MotionMaster::Add(chaseGen, MOTION_SLOT_CHASE);'
+    language: cpp
+  - title: Adding a Waypoint Movement
+    code: 'MovementGenerator* wpGen = new WaypointMovement();
+
+      MotionMaster::Add(wpGen, MOTION_SLOT_ACTIVE);
+
+      // Later, to remove it:
+
+      delete wpGen;'
+    language: cpp
+  notes: The MotionMaster maintains a list of active movement generators, and calling
+    Add does not immediately start the movement. The movement will be executed on
+    the next update cycle. It is crucial that the MovementGenerator passed to Add
+    remains valid for as long as it's in use by the MotionMaster, otherwise undefined
+    behavior may occur.
+  warnings: Do not pass null pointers to the movement parameter; doing so will likely
+    cause a crash or undefined behavior. Also, be cautious about adding multiple movement
+    generators to the same slot without removing previous ones, which could lead to
+    unexpected movement behavior or resource leaks.
+  related:
+  - Remove
+  - Initialize
+  - UpdateMotion
+  - HasMovementGenerator
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:45:54.700018'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

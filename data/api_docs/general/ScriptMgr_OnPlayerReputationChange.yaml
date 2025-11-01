@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerReputationChange
+  signature: void ScriptMgr::OnPlayerReputationChange(Player * player, uint32 factionID,
+    int32 & standing, bool incremental)
+documentation:
+  brief: Invoked when a player's reputation with a faction changes, allowing scripts
+    to modify or react to the change.
+  description: The OnPlayerReputationChange method is a hook in TrinityCore's scripting
+    system that gets called whenever a player's standing with a specific faction is
+    modified. This method allows custom scripts to intercept and potentially alter
+    the reputation change behavior. It provides access to the player, the faction
+    ID, current standing value, and whether the change was incremental. The method
+    is typically used for implementing custom reputation mechanics, quest rewards,
+    or balancing adjustments that depend on faction standings.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose reputation is changing. Must be
+      a valid player instance.
+  - name: factionID
+    description: The unique identifier of the faction whose standing is being modified.
+      This corresponds to entries in the Faction.dbc file.
+  - name: standing
+    description: Reference to the current standing value with the faction. Can be
+      modified by scripts to adjust the final reputation amount.
+  - name: incremental
+    description: Boolean flag indicating whether the change is incremental (true)
+      or absolute (false). If true, the standing value represents a delta; if false,
+      it's the new absolute standing value.
+  returns: null
+  examples:
+  - title: Basic Reputation Change Handler
+    code: "void OnPlayerReputationChange(Player* player, uint32 factionID, int32&\
+      \ standing, bool incremental)\n{\n    // Reduce reputation gain by 50% for all\
+      \ factions\n    if (incremental)\n        standing /= 2;\n}"
+    language: cpp
+  - title: Custom Reputation Modifier for Specific Faction
+    code: "void OnPlayerReputationChange(Player* player, uint32 factionID, int32&\
+      \ standing, bool incremental)\n{\n    // Only modify reputation gain for a specific\
+      \ faction (e.g., faction ID 1234)\n    if (factionID == 1234 && incremental)\n\
+      \    {\n        // Double the reputation gain\n        standing *= 2;\n    }\n\
+      }"
+    language: cpp
+  notes: This method is called during reputation updates, such as when completing
+    quests or killing mobs that affect faction standing. Scripts should avoid performing
+    heavy operations in this function to prevent performance degradation. The standing
+    parameter can be modified directly to change the final reputation value.
+  warnings: Modifying the standing parameter may cause unexpected behavior if not
+    handled carefully. Ensure that changes to standing do not result in invalid values
+    (e.g., exceeding maximum or minimum allowed reputation levels). Avoid calling
+    player methods that might recursively trigger this hook, which could lead to stack
+    overflow.
+  related:
+  - OnPlayerLevelChanged
+  - OnPlayerKill
+  - OnPlayerQuestComplete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:13:36.324961'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

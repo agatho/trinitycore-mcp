@@ -1,0 +1,57 @@
+api:
+  class: VMapManager2
+  method: InitializeThreadUnsafe
+  signature: void VMapManager2::InitializeThreadUnsafe(uint32 mapId, int32 parentMapId)
+documentation:
+  brief: Initializes thread-unsafe virtual map data for a specified map ID and its
+    parent map ID.
+  description: The InitializeThreadUnsafe method prepares virtual map data structures
+    for a given map ID, including its parent map ID. This initialization is typically
+    performed during server startup or when loading new map data into memory. The
+    method ensures that the virtual map system has all necessary data to handle line-of-sight
+    and collision detection for the specified map. It is marked as thread-unsafe because
+    it should only be called from a single thread, typically during server initialization
+    or map loading phases. This method does not perform any locking mechanisms, so
+    concurrent access must be managed externally.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map to initialize virtual map data for.
+      This corresponds to the Map ID used internally by TrinityCore's map system.
+  - name: parentMapId
+    description: The identifier of the parent map, which may be -1 if the map has
+      no parent. This is used in hierarchical map structures where child maps inherit
+      properties from parent maps.
+  returns: null
+  examples:
+  - title: Basic Map Initialization
+    code: 'VMapManager2* vmapManager = VMapManager2::getInstance();
+
+      vmapManager->InitializeThreadUnsafe(0, -1); // Initialize map ID 0 (Eastern
+      Kingdoms) with no parent'
+    language: cpp
+  - title: Initializing Child Map with Parent
+    code: 'VMapManager2* vmapManager = VMapManager2::getInstance();
+
+      vmapManager->InitializeThreadUnsafe(1, 0); // Initialize map ID 1 (Kalimdor)
+      with parent map ID 0'
+    language: cpp
+  notes: This method is designed to be called during server initialization or when
+    loading new maps. It should not be invoked concurrently from multiple threads
+    without external synchronization. The method assumes that the necessary VMap files
+    are already available in the expected directory structure. Performance considerations
+    include memory allocation for map data structures, which can be significant for
+    large maps.
+  warnings: Calling this method with invalid map IDs or without proper file system
+    setup may lead to undefined behavior or crashes. This method is not thread-safe
+    and must be called from a single thread context. It's recommended to call this
+    method only during server startup or map loading phases, not during active gameplay.
+  related:
+  - GetVMap
+  - LoadMap
+  - UnloadMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T17:37:32.535274'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

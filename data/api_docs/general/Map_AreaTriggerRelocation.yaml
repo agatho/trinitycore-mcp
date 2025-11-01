@@ -1,0 +1,77 @@
+api:
+  class: Map
+  method: AreaTriggerRelocation
+  signature: void Map::AreaTriggerRelocation(AreaTrigger * at, float x, float y, float
+    z, float orientation)
+documentation:
+  brief: Moves an area trigger to a new position within the map
+  description: The AreaTriggerRelocation method updates the position and orientation
+    of an area trigger within the game world. This method is typically invoked when
+    an area trigger needs to be repositioned dynamically, such as during spell effects,
+    quest events, or other gameplay mechanics that require movement of trigger zones.
+    The method handles the necessary internal updates to ensure the area trigger's
+    new location is properly registered with the map system and that any players within
+    the trigger's bounds are notified of the relocation. It does not perform any validation
+    on the input coordinates, so callers should ensure the provided position is valid
+    for the current map.
+  parameters:
+  - name: at
+    description: Pointer to the AreaTrigger object that needs to be relocated. Must
+      not be null.
+  - name: x
+    description: The new X coordinate for the area trigger's position in world space.
+  - name: y
+    description: The new Y coordinate for the area trigger's position in world space.
+  - name: z
+    description: The new Z coordinate for the area trigger's position in world space.
+  - name: orientation
+    description: The new orientation (in radians) of the area trigger. Used for directional
+      triggers or effects that depend on facing.
+  returns: null
+  examples:
+  - title: Relocating an Area Trigger to a New Position
+    code: 'AreaTrigger* trigger = ...; // Assume this is a valid area trigger
+
+      float newX = 100.0f;
+
+      float newY = 200.0f;
+
+      float newZ = 50.0f;
+
+      float newOrientation = M_PI / 4.0f; // 45 degrees in radians
+
+      Map::AreaTriggerRelocation(trigger, newX, newY, newZ, newOrientation);'
+    language: cpp
+  - title: Moving an Area Trigger Based on Player Movement
+    code: 'Player* player = ...; // Assume this is a valid player
+
+      AreaTrigger* trigger = ...; // Assume this is a valid area trigger
+
+      Position playerPos;
+
+      player->GetPosition(&playerPos);
+
+      Map::AreaTriggerRelocation(trigger, playerPos.m_positionX, playerPos.m_positionY,
+      playerPos.m_positionZ, playerPos.m_orientation);'
+    language: cpp
+  notes: This method is part of the core map management system and should only be
+    called from within the game world thread. It does not validate whether the new
+    coordinates are within valid map boundaries; it's the caller's responsibility
+    to ensure that the position is valid for the target map. The area trigger's internal
+    state will be updated immediately, but clients may need time to receive updates
+    depending on network synchronization.
+  warnings: Calling this method with invalid or out-of-bounds coordinates can lead
+    to undefined behavior or client desynchronization. Always verify that the new
+    position is valid before calling this function. Do not call this method from outside
+    the game world thread as it may cause race conditions or data corruption.
+  related:
+  - AreaTrigger::GetPosition
+  - AreaTrigger::SetPosition
+  - Map::AddAreaTrigger
+  - Map::RemoveAreaTrigger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:13:23.784877'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

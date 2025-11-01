@@ -1,0 +1,56 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerFreeTalentPointsChanged
+  signature: void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player * player, uint32
+    newPoints)
+documentation:
+  brief: Notifies scripts when a player's free talent points have changed.
+  description: The OnPlayerFreeTalentPointsChanged method is a hook in the ScriptMgr
+    class that gets invoked whenever a player's available free talent points are modified.
+    This typically occurs when players gain levels, spend talent points, or undergo
+    other gameplay events that affect their talent point allocation. The method allows
+    custom scripts to react to these changes, such as updating UI elements, triggering
+    quest progress, or applying game logic based on the new point total. This hook
+    is part of TrinityCore's scripting system and enables developers to extend or
+    modify default behavior without directly modifying core game code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose free talent points have changed.
+      This parameter represents the specific player instance affected by the talent
+      point modification.
+  - name: newPoints
+    description: The new number of free talent points available for the player. This
+      value indicates how many points the player can now allocate to their talents.
+  returns: null
+  examples:
+  - title: Basic Talent Point Change Handler
+    code: "void MyScript::OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints)\n\
+      {\n    if (newPoints > 0)\n    {\n        // Notify the player they have available\
+      \ points\n        player->SendNotification(\"You have %u free talent points\
+      \ available!\", newPoints);\n    }\n}"
+    language: cpp
+  - title: Talent Point Change with Quest Progress Update
+    code: "void MyScript::OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints)\n\
+      {\n    // Check if player has gained enough points to complete a quest\n   \
+      \ if (newPoints >= 5 && !player->HasQuest(12345))\n    {\n        player->AddQuest(12345);\n\
+      \        player->CompleteQuest(12345);\n    }\n}"
+    language: cpp
+  notes: This method is called from the core game loop during talent point updates.
+    Scripts should avoid performing heavy operations or blocking calls within this
+    handler to maintain performance. The player object passed is guaranteed to be
+    valid at the time of invocation, but modifications to it should be done carefully
+    to prevent unintended side effects.
+  warnings: Do not modify the player's talent points directly from this method as
+    it may cause recursion or inconsistent state. Avoid calling methods that might
+    trigger further talent point changes within this handler to prevent potential
+    stack overflow or infinite loops.
+  related:
+  - OnPlayerTalentPointSpent
+  - OnPlayerLevelChanged
+  - OnPlayerLearnTalent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:18:47.601203'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: GuildBankManager
+  method: ShouldItemBeInGuildBank
+  signature: bool GuildBankManager::ShouldItemBeInGuildBank(int * player, uint32 itemId)
+documentation:
+  brief: Determines whether a specific item should be stored in the guild bank based
+    on item type and guild configuration.
+  description: The ShouldItemBeInGuildBank method evaluates if a given item meets
+    the criteria for being placed in the guild bank. This decision is typically based
+    on item quality, type, and guild settings such as allowed item classes or subclasses.
+    The method may consider factors like whether the item is bind-on-pickup, tradeable,
+    or restricted by guild permissions. It serves as a filter to maintain organized
+    and appropriate inventory management within the guild's shared storage system.
+  parameters:
+  - name: player
+    description: Pointer to the player object whose inventory or item context is being
+      evaluated. This parameter may be used to determine player permissions, guild
+      membership, or specific item restrictions.
+  - name: itemId
+    description: The unique identifier of the item to evaluate for guild bank eligibility.
+      This ID corresponds to the item's entry in the game's database and is used to
+      retrieve item properties such as class, subclass, and quality.
+  returns: Returns true if the specified item should be allowed in the guild bank
+    according to configured rules; otherwise returns false. A return value of false
+    typically indicates that the item is either not eligible due to its type, quality,
+    or guild configuration, or it has been explicitly restricted from being stored
+    in the guild bank.
+  examples:
+  - title: Basic Usage
+    code: "Player* player = ...;\nuint32 itemId = 12345;\nbool result = sGuildBankMgr->ShouldItemBeInGuildBank(&player,\
+      \ itemId);\nif (result) {\n    // Item can be placed in guild bank\n}"
+    language: cpp
+  - title: Integration with Guild Bank Logic
+    code: "void HandleItemDeposit(Player* player, uint32 itemId) {\n    if (!sGuildBankMgr->ShouldItemBeInGuildBank(&player,\
+      \ itemId)) {\n        player->SendNotification(\"This item cannot be stored\
+      \ in the guild bank.\");\n        return;\n    }\n    // Proceed with depositing\
+      \ item into guild bank\n}"
+    language: cpp
+  notes: The implementation likely checks against internal configuration tables or
+    settings that define which items are allowed in the guild bank. This method may
+    also interact with player permissions and guild rank restrictions to ensure only
+    authorized members can access certain items.
+  warnings: Ensure that the player pointer is valid before calling this function,
+    as passing a null pointer could lead to undefined behavior. Additionally, item
+    eligibility rules might change based on server configuration or expansion updates,
+    so relying solely on hardcoded checks may become obsolete.
+  related:
+  - GetGuildBankItem
+  - CanDepositItem
+  - IsGuildBankAllowed
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T13:02:04.755921'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

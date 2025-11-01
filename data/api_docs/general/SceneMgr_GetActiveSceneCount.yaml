@@ -1,0 +1,56 @@
+api:
+  class: SceneMgr
+  method: GetActiveSceneCount
+  signature: uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId) const
+documentation:
+  brief: Returns the count of active scenes associated with the specified scene script
+    package ID.
+  description: The GetActiveSceneCount method retrieves the number of currently active
+    scenes that are linked to a given scene script package identifier. In World of
+    Warcraft's TrinityCore implementation, scenes represent cinematic or visual events
+    that can be triggered during gameplay. This method is typically used by the SceneMgr
+    class to manage and query the state of active scenes for specific script packages.
+    The returned count reflects how many scene instances are currently running or
+    pending execution for the provided package ID. This functionality is essential
+    for managing scene lifecycle and ensuring proper cleanup when scenes complete
+    or are interrupted.
+  parameters:
+  - name: sceneScriptPackageId
+    description: The unique identifier of the scene script package for which to count
+      active scenes. This ID corresponds to a specific set of scene definitions in
+      the game's database.
+  returns: A uint32 value representing the number of active scenes currently associated
+    with the specified scene script package ID. Returns zero if no active scenes exist
+    for the given package ID or if the package ID is invalid.
+  examples:
+  - title: Basic Usage to Check Active Scenes
+    code: "uint32 activeCount = sSceneMgr->GetActiveSceneCount(12345);\nif (activeCount\
+      \ > 0)\n{\n    TC_LOG_INFO(\"scene\", \"There are %u active scenes for package\
+      \ ID 12345.\", activeCount);\n}"
+    language: cpp
+  - title: Using Count to Determine Scene State
+    code: "uint32 scenePackageId = player->GetScenePackageId();\nuint32 count = sSceneMgr->GetActiveSceneCount(scenePackageId);\n\
+      if (count == 0)\n{\n    // No active scenes, safe to start new ones\n    player->StartScene(12345);\n\
+      }\nelse\n{\n    TC_LOG_DEBUG(\"scene\", \"Cannot start new scene: %u active\
+      \ scenes already running.\", count);\n}"
+    language: cpp
+  notes: This method does not perform any locking or thread synchronization internally,
+    so callers should ensure thread safety if accessing from multiple threads. The
+    scene script package ID must correspond to a valid entry in the game's scene database;
+    otherwise, the result will be zero. Performance is generally good as it operates
+    on an internal lookup table.
+  warnings: Do not assume that a non-zero return value means all scenes are necessarily
+    visible or playing to players. Some scenes may be queued but not yet active. Also,
+    this method only counts active scenes and does not include completed or pending
+    scenes in its count.
+  related:
+  - GetActiveScene
+  - AddActiveScene
+  - RemoveActiveScene
+  - IsSceneActive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:57:01.106960'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

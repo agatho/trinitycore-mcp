@@ -1,0 +1,61 @@
+api:
+  class: AuraEffect
+  method: HandleLearnSpell
+  signature: void AuraEffect::HandleLearnSpell(const AuraApplication * aurApp, uint8
+    mode, bool apply) const
+documentation:
+  brief: Applies or removes a spell learning effect from the target based on aura
+    application state.
+  description: The HandleLearnSpell method is responsible for managing the logic that
+    allows an aura to teach a player a new spell. When applied, it grants the target
+    character access to a specific spell, typically used in conjunction with spells
+    like 'Learn Spell' or similar enchantments. The method checks whether the aura
+    is being applied or removed and accordingly either adds or removes the spell from
+    the target's known spells list. This functionality is commonly used in item enchantments,
+    quest rewards, or temporary buff effects that grant new abilities to players.
+    It operates within the context of the TrinityCore Aura system where each aura
+    effect can have multiple handlers for different game mechanics.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the current aura
+      application state. This parameter contains information about which unit is affected
+      by the aura and how it was applied.
+  - name: mode
+    description: The mode of operation, typically indicating whether this is a normal
+      application or a specific type of effect handling (e.g., temporary vs permanent).
+      Valid values depend on internal TrinityCore implementation but usually represent
+      different application contexts.
+  - name: apply
+    description: Boolean flag determining if the spell should be learned (true) or
+      unlearned (false). When true, the target gains access to the spell; when false,
+      it removes access.
+  returns: null
+  examples:
+  - title: Basic usage in aura effect handler
+    code: "void AuraEffect::HandleLearnSpell(const AuraApplication* aurApp, uint8\
+      \ mode, bool apply) const\n{\n    if (!aurApp || !aurApp->GetTarget())\n   \
+      \     return;\n\n    Player* player = aurApp->GetTarget()->ToPlayer();\n   \
+      \ if (!player)\n        return;\n\n    // Assuming spellId is defined elsewhere\
+      \ in the class\n    if (apply)\n        player->LearnSpell(spellId);\n    else\n\
+      \        player->RemoveSpell(spellId);\n}"
+    language: cpp
+  notes: This method is part of the core aura effect handling system and must be called
+    from within the appropriate aura application context. The spell ID used in the
+    implementation should be validated to ensure it exists in the game's spell database.
+    Performance-wise, this method should not be called excessively as it may trigger
+    client-side updates for spell learning.
+  warnings: Improper use of this method can lead to players gaining or losing spells
+    unexpectedly. Ensure that the spell ID being learned is valid and appropriate
+    for the context. Incorrectly setting the apply flag can cause unintended behavior
+    such as removing a player's ability to cast a spell they should retain.
+  related:
+  - Player::LearnSpell
+  - Player::RemoveSpell
+  - AuraApplication::GetTarget
+  - AuraEffect::GetSpellInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T12:47:29.871675'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: AuraEffect
+  method: HandleAuraModDisarm
+  signature: void AuraEffect::HandleAuraModDisarm(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes the disarm effect aura on a target.
+  description: The HandleAuraModDisarm method manages the application and removal
+    of the disarm aura effect, which prevents the target from using weapons. This
+    method is invoked during aura application or removal to modify the target's state
+    accordingly. The disarm effect typically disables the ability to wield melee weapons,
+    though it may not affect ranged weapons or spells that do not require weapon usage.
+    It is commonly used by abilities such as Disarm, which removes a target's main-hand
+    weapon for a specified duration.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. Contains information about the aura and its target.
+  - name: mode
+    description: The mode of the aura application, typically indicating whether it's
+      being applied (1) or removed (0). Used internally by TrinityCore to determine
+      how to process the effect.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the disarm effect. Controls the direction of the aura's behavior.
+  returns: null
+  examples:
+  - title: Basic Disarm Aura Application
+    code: "void ApplyDisarmAura(Unit* target, uint32 duration)\n{\n    AuraApplication*\
+      \ aurApp = new AuraApplication(target, target, SpellInfo::GetSpellInfo(14309),\
+      \ 0, nullptr);\n    AuraEffect* auraEff = new AuraEffect(SpellInfo::GetSpellInfo(14309),\
+      \ 0, nullptr);\n    auraEff->HandleAuraModDisarm(aurApp, 1, true);\n}"
+    language: cpp
+  - title: Removing Disarm Aura
+    code: "void RemoveDisarmAura(Unit* target)\n{\n    AuraApplication* aurApp = target->GetAuraApplication(14309);\n\
+      \    if (aurApp)\n    {\n        AuraEffect* auraEff = aurApp->GetEffect(0);\n\
+      \        auraEff->HandleAuraModDisarm(aurApp, 1, false);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core aura handling system in TrinityCore and interacts
+    with the target's weapon state. It modifies the unit's ability to attack with
+    melee weapons but does not affect spellcasting or ranged attacks directly. The
+    method is typically called from within the aura application process, so direct
+    invocation should be done carefully.
+  warnings: Improper use of this method without proper aura application context may
+    lead to inconsistent state in the target unit. Ensure that all related aura effects
+    are properly managed and cleaned up to prevent memory leaks or unexpected behavior.
+  related:
+  - AuraEffect::HandleAuraModUseSpell
+  - AuraEffect::HandleAuraModDisarmRanged
+  - AuraApplication::GetTarget
+  - Unit::RemoveAurasDueToSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:26:44.272103'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: DB2Manager
+  method: GetItemDisplayId
+  signature: uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId)
+    const
+documentation:
+  brief: Retrieves the display ID for a specified item and appearance modifier ID
+    from the DB2 database.
+  description: The GetItemDisplayId method fetches the visual display identifier associated
+    with a given item and its appearance modifier. This is used in World of Warcraft
+    to determine which model or texture should be displayed for an item in-game. The
+    method relies on internal DB2 data structures that store item appearance mappings.
+    It is commonly used when rendering items in the game world, inventory systems,
+    or during item tooltip generation. The method performs a lookup using the provided
+    item ID and appearance modifier ID to return the corresponding display ID.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item for which to retrieve the display
+      ID. This corresponds to the Item.db2 record's ID field.
+  - name: appearanceModId
+    description: The appearance modifier ID that defines how the item's visual appearance
+      should be modified. This is used to differentiate variants of the same item
+      (e.g., different colors, enchantments).
+  returns: Returns a uint32 representing the display ID for the specified item and
+    appearance modifier. If no matching record is found, it typically returns 0 or
+    a default value indicating invalid lookup.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 displayId = sDB2Manager->GetItemDisplayId(12345, 0);\nif (displayId\
+      \ != 0)\n{\n    // Use the display ID to set item model\n    // ... logic here\n\
+      }"
+    language: cpp
+  - title: Usage in Item Tooltip Context
+    code: "uint32 itemId = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 0)->GetEntry();\n\
+      uint32 appearanceModId = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 0)->GetItemRandomPropertyId();\n\
+      uint32 displayId = sDB2Manager->GetItemDisplayId(itemId, appearanceModId);\n\
+      if (displayId != 0)\n{\n    // Set tooltip model or visual\n    // ... logic\
+      \ here\n}"
+    language: cpp
+  notes: This method accesses internal DB2 lookup tables which are preloaded at server
+    startup. It is optimized for frequent lookups and should not be called in performance-critical
+    code paths without caching. The method assumes valid input parameters; invalid
+    item or appearance modifier IDs may result in undefined behavior or zero returns.
+  warnings: Calling this method with invalid itemId or appearanceModId values can
+    lead to incorrect visual representations. Ensure that the item exists in the database
+    before calling this function. Also, be aware that some items might not have a
+    display ID defined for certain appearance modifiers.
+  related:
+  - GetItemEntry
+  - GetItemVisual
+  - GetItemDisplayInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T14:59:50.573948'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

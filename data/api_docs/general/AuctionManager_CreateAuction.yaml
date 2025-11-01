@@ -1,0 +1,89 @@
+api:
+  class: AuctionManager
+  method: CreateAuction
+  signature: bool AuctionManager::CreateAuction(Player * bot, Item * item, uint64
+    bidPrice, uint64 buyoutPrice, uint32 duration, AuctionStrategy strategy)
+documentation:
+  brief: Creates a new auction entry for an item with specified bid and buyout prices,
+    duration, and strategy.
+  description: The CreateAuction method is responsible for generating a new auction
+    listing within the World of Warcraft auction house system. It takes an item owned
+    by a player (bot), sets its bid and buyout prices, defines how long the auction
+    will remain active, and applies a specific auction strategy to determine how the
+    item should be sold. This method integrates with TrinityCore's auction house subsystem
+    to ensure proper item listing, pricing, and duration management. The method returns
+    true if the auction was successfully created and added to the auction house database,
+    or false if any validation fails or the operation cannot be completed due to system
+    constraints.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot or player who owns
+      the item being auctioned. Must be a valid player instance with sufficient permissions
+      and resources.
+  - name: item
+    description: Pointer to the Item object that will be listed for auction. The item
+      must be owned by the bot and not currently in another auction or transaction
+      state.
+  - name: bidPrice
+    description: The minimum bid amount required to participate in the auction, specified
+      in copper (100 copper = 1 silver). Must be a valid positive value or zero if
+      no minimum bid is desired.
+  - name: buyoutPrice
+    description: The fixed price at which the item can be purchased immediately without
+      bidding. Must be equal to or greater than the bid price, and must be a valid
+      positive value.
+  - name: duration
+    description: The duration of the auction in seconds. Valid values are typically
+      1800 (30 minutes), 3600 (1 hour), 7200 (2 hours), 14400 (4 hours), or 28800
+      (8 hours).
+  - name: strategy
+    description: An AuctionStrategy enum value that determines how the auction behaves,
+      such as whether it should auto-relist, handle bids differently, or apply specific
+      rules. Must be a valid strategy from the AuctionStrategy enumeration.
+  returns: Returns true if the auction was successfully created and stored in the
+    auction house system; otherwise returns false if the creation failed due to invalid
+    parameters, insufficient resources, or database errors.
+  examples:
+  - title: Basic Auction Creation
+    code: 'Player* bot = ...;
+
+      Item* item = ...;
+
+      uint64 bidPrice = 10000; // 1 silver
+
+      uint64 buyoutPrice = 50000; // 5 silver
+
+      uint32 duration = 3600; // 1 hour
+
+      AuctionStrategy strategy = AUCTION_STRATEGY_NORMAL;
+
+      bool result = sAuctionMgr->CreateAuction(bot, item, bidPrice, buyoutPrice, duration,
+      strategy);'
+    language: cpp
+  - title: Advanced Auction with Custom Strategy
+    code: "Player* bot = ...;\nItem* item = ...;\nuint64 bidPrice = 0; // No minimum\
+      \ bid\nuint64 buyoutPrice = 100000; // 10 silver\nuint32 duration = 14400; //\
+      \ 4 hours\nAuctionStrategy strategy = AUCTION_STRATEGY_AUTO_RELIST;\nbool result\
+      \ = sAuctionMgr->CreateAuction(bot, item, bidPrice, buyoutPrice, duration, strategy);\n\
+      if (result)\n{\n    TC_LOG_INFO(\"auction\", \"Successfully created auction\
+      \ for %s.\", item->GetTemplate()->GetName().c_str());\n}"
+    language: cpp
+  notes: This method interacts directly with the database to store auction data. Ensure
+    that all input parameters are validated before calling this function to prevent
+    invalid auctions from being created. The method may perform internal checks for
+    item restrictions, player permissions, and auction house capacity limits.
+  warnings: Do not call this method on items that are already listed in an auction
+    or currently in a trade state. Failure to validate the item's status can lead
+    to inconsistent auction data. Also, ensure the bot has sufficient funds to cover
+    any potential bid amounts if the auction is won.
+  related:
+  - GetAuction
+  - RemoveAuction
+  - UpdateAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T02:38:51.883090'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

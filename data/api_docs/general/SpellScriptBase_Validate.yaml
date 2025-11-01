@@ -1,0 +1,59 @@
+api:
+  class: SpellScriptBase
+  method: Validate
+  signature: bool SpellScriptBase::Validate(const SpellInfo * spellInfo)
+documentation:
+  brief: Validates spell information against script requirements
+  description: The Validate method checks whether a given SpellInfo object meets the
+    necessary conditions for the spell script to be properly executed. It ensures
+    that the spell data is compatible with the script's expectations and constraints.
+    This validation typically occurs during spell loading or initialization phases,
+    preventing invalid or unsupported spells from being processed by the script. The
+    method performs various checks such as verifying spell effects, required targets,
+    and other contextual parameters that the script depends on.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell being validated. This includes spell effects, duration, range,
+      target requirements, and other spell properties that the script may depend on
+      for proper execution.
+  returns: Returns true if the spell information passes all validation checks and
+    is compatible with the script's requirements; returns false otherwise. A false
+    return typically indicates that the spell cannot be properly handled by this script
+    due to missing or incompatible data.
+  examples:
+  - title: Basic Validation Usage
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    bool Validate(const\
+      \ SpellInfo* spellInfo) override\n    {\n        // Ensure spell has at least\
+      \ one effect\n        if (!spellInfo || spellInfo->Effects[0].Effect == 0)\n\
+      \            return false;\n        \n        // Check that spell targets are\
+      \ valid\n        if (spellInfo->Targets & TARGET_FLAG_UNIT_ENEMY)\n        \
+      \    return true;\n        \n        return false;\n    }\n};"
+    language: cpp
+  - title: Advanced Validation with Multiple Checks
+    code: "class AdvancedSpellScript : public SpellScript\n{\npublic:\n    bool Validate(const\
+      \ SpellInfo* spellInfo) override\n    {\n        if (!spellInfo)\n         \
+      \   return false;\n        \n        // Validate that spell has at least one\
+      \ non-zero effect\n        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)\n \
+      \       {\n            if (spellInfo->Effects[i].Effect != 0)\n            \
+      \    return true;\n        }\n        \n        // Additional checks for specific\
+      \ spell properties\n        if (spellInfo->SpellVisual[0] == 0)\n          \
+      \  return false;\n        \n        return false;\n    }\n};"
+    language: cpp
+  notes: This method is typically called during spell script initialization or when
+    loading spells from database. Implementations should avoid heavy computations
+    in this method as it may be called frequently. The spellInfo parameter can be
+    null, so proper null checking is essential.
+  warnings: Do not modify the spellInfo structure within this method as it's read-only.
+    Incorrect validation logic can cause valid spells to be rejected or invalid spells
+    to pass validation, leading to runtime errors or unexpected behavior.
+  related:
+  - SpellScript::Load
+  - SpellScript::Execute
+  - SpellScript::IsScriptValid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:57:27.935596'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: Group
+  method: GetLeaderGUID
+  signature: int Group::GetLeaderGUID() const
+documentation:
+  brief: Returns the unique identifier (GUID) of the group leader player.
+  description: The GetLeaderGUID method retrieves the globally unique identifier of
+    the player who currently leads the group. In World of Warcraft's TrinityCore implementation,
+    groups (raids or parties) have a designated leader whose GUID is stored internally
+    and can be accessed through this method. The returned value represents the full
+    GUID of the leader, which typically includes both a low and high portion identifying
+    the specific object in the game world. This method is commonly used to determine
+    group leadership for permission checks, loot distribution, or role-based gameplay
+    mechanics.
+  parameters: []
+  returns: Returns an integer representing the unique identifier (GUID) of the group
+    leader player. If the group has no leader (which should not normally occur), it
+    may return 0 or a special invalid GUID value depending on implementation details.
+  examples:
+  - title: Check if current player is group leader
+    code: "if (player->GetGroup() && player->GetGroup()->GetLeaderGUID() == player->GetGUID())\
+      \ {\n    // Player is the group leader\n    SendSystemMessage(\"You are the\
+      \ group leader.\");\n}"
+    language: cpp
+  - title: Distribute loot based on group leadership
+    code: "Group* group = player->GetGroup();\nif (group) {\n    uint64 leaderGuid\
+      \ = group->GetLeaderGUID();\n    Player* leader = ObjectAccessor::FindPlayer(leaderGuid);\n\
+      \    if (leader) {\n        // Perform loot distribution logic\n        SendLootToPlayer(leader,\
+      \ item);\n    }\n}"
+    language: cpp
+  notes: This method assumes the group object is valid and has been properly initialized.
+    The GUID returned corresponds to a Player object in the game world, and should
+    be used with caution when dealing with asynchronous operations or objects that
+    may have been destroyed. Performance-wise, this is a fast O(1) operation since
+    it simply returns a stored value.
+  warnings: Do not assume that the returned GUID will always point to an active player
+    object. The group leader may have left the game or been disconnected, so additional
+    checks should be performed when using the GUID for operations that require an
+    active target. Also, in some edge cases involving group reorganization, the leader
+    GUID might temporarily be invalid.
+  related:
+  - GetLeaderName
+  - SetLeader
+  - IsLeader
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T16:48:48.170144'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

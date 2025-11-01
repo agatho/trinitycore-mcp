@@ -1,0 +1,58 @@
+api:
+  class: CombatManager
+  method: PurgeReference
+  signature: void CombatManager::PurgeReference(const int & guid, bool pvp)
+documentation:
+  brief: Removes a combat reference for the specified GUID, optionally handling PvP-specific
+    cleanup.
+  description: The PurgeReference method is responsible for removing a combat reference
+    associated with a given GUID from the CombatManager's internal tracking system.
+    This method ensures that stale or invalid combat references do not persist in
+    memory, which is crucial for maintaining accurate combat state and preventing
+    memory leaks. When pvp is set to true, additional cleanup operations specific
+    to player versus player encounters may be performed. The method typically gets
+    invoked when a unit leaves combat or when combat data needs to be explicitly cleared
+    from memory. It's an essential part of the combat management system that helps
+    maintain clean state tracking for both PvE and PvP scenarios.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the unit whose combat reference should
+      be purged. This is typically a GameObject, Creature, or Player GUID.
+  - name: pvp
+    description: Boolean flag indicating whether the purge operation should include
+      PvP-specific cleanup. If true, special handling for player versus player combat
+      references will be applied.
+  returns: null
+  examples:
+  - title: Basic PurgeReference Usage
+    code: 'CombatManager* cm = sObjectAccessor->GetCombatManager();
+
+      uint64 playerGuid = player->GetGUID();
+
+      cm->PurgeReference(playerGuid, false);'
+    language: cpp
+  - title: PvP Combat Reference Purge
+    code: 'CombatManager* cm = sObjectAccessor->GetCombatManager();
+
+      uint64 creatureGuid = creature->GetGUID();
+
+      cm->PurgeReference(creatureGuid, true); // Clean up PvP combat data'
+    language: cpp
+  notes: This method is typically called internally by the core combat system when
+    units leave combat or during cleanup operations. It's important to note that purging
+    references does not automatically notify other systems about the removal, so additional
+    synchronization may be required in multi-threaded contexts.
+  warnings: Calling this method with an invalid or non-existent GUID can lead to undefined
+    behavior. Always ensure that the GUID corresponds to a valid unit before calling
+    PurgeReference. Additionally, purging PvP references should only be done when
+    appropriate, as it may affect combat log tracking and scoring systems.
+  related:
+  - AddReference
+  - GetCombatState
+  - UpdateCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T16:05:22.497508'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

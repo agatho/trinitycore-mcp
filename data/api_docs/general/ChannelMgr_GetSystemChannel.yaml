@@ -1,0 +1,62 @@
+api:
+  class: ChannelMgr
+  method: GetSystemChannel
+  signature: Channel * ChannelMgr::GetSystemChannel(uint32 channelId, const AreaTableEntry
+    * zoneEntry)
+documentation:
+  brief: Retrieves the system channel instance for a specified channel ID and zone
+    entry.
+  description: The GetSystemChannel method is used to obtain a pointer to a Channel
+    object that represents a system channel within the TrinityCore framework. System
+    channels are special communication channels in World of Warcraft that are typically
+    used for global messages, faction-specific communications, or other server-wide
+    notifications. This method takes a channel ID and an area table entry (representing
+    the current zone) as parameters and returns a pointer to the corresponding Channel
+    object if it exists, or nullptr if no such system channel is found. The method
+    is essential for managing in-game communication systems and ensuring that players
+    receive appropriate messages based on their location and faction.
+  parameters:
+  - name: channelId
+    description: The unique identifier of the system channel to retrieve. This corresponds
+      to predefined channel types such as general, trade, or guild channels within
+      the game's internal channel system.
+  - name: zoneEntry
+    description: A pointer to an AreaTableEntry structure that defines the current
+      zone or area where the channel is being accessed. This is used to determine
+      zone-specific channel behavior or restrictions.
+  returns: Returns a pointer to a Channel object representing the requested system
+    channel. If no matching system channel exists for the given parameters, the method
+    returns nullptr.
+  examples:
+  - title: Retrieving a General System Channel
+    code: "Channel* generalChannel = channelMgr->GetSystemChannel(1, player->GetZoneEntry());\n\
+      if (generalChannel)\n{\n    generalChannel->SendToAll(\"Welcome to the server!\"\
+      );\n}"
+    language: cpp
+  - title: Checking for Valid Channel Before Use
+    code: "const AreaTableEntry* zone = player->GetZoneEntry();\nChannel* tradeChannel\
+      \ = channelMgr->GetSystemChannel(2, zone);\nif (tradeChannel != nullptr)\n{\n\
+      \    // Safe to use the trade channel\n    tradeChannel->SendToAll(\"New trade\
+      \ opportunity available!\");\n}\nelse\n{\n    // Handle case where channel is\
+      \ not available\n    sLog->outError(\"Trade channel not found for zone %u\"\
+      , zone->ID);\n}"
+    language: cpp
+  notes: This method is typically used internally by the TrinityCore server to manage
+    system-wide communication channels. It's important to note that system channels
+    are distinct from custom user-created channels and are usually pre-defined in
+    the game's configuration. The zoneEntry parameter allows for zone-specific channel
+    behavior, such as localized messages or restricted access based on player location.
+  warnings: Always check if the returned Channel pointer is not nullptr before using
+    it, as the method may return null if no matching system channel exists for the
+    given parameters. Improper handling of a null return value can lead to segmentation
+    faults or undefined behavior in the game server.
+  related:
+  - ChannelMgr::GetChannel
+  - ChannelMgr::CreateChannel
+  - Channel::SendToAll
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T16:26:29.119280'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

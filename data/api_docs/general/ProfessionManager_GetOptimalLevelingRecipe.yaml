@@ -1,0 +1,63 @@
+api:
+  class: ProfessionManager
+  method: GetOptimalLevelingRecipe
+  signature: const RecipeInfo * ProfessionManager::GetOptimalLevelingRecipe(int *
+    player, ProfessionType profession) const
+documentation:
+  brief: Returns the optimal recipe for leveling a player's profession based on their
+    current skill level and available recipes.
+  description: The GetOptimalLevelingRecipe method determines and returns the most
+    beneficial recipe for a player to craft in order to advance their profession skill
+    efficiently. This method evaluates the player's current skill level, the requirements
+    of available recipes, and the potential skill gain from each recipe to select
+    the optimal one for leveling purposes. It is primarily used during profession
+    training and skill advancement mechanics within the game. The returned RecipeInfo
+    pointer provides access to all relevant recipe data including required materials,
+    skill requirements, and crafting time.
+  parameters:
+  - name: player
+    description: Pointer to the player object whose profession skill level is being
+      evaluated for optimal recipe selection.
+  - name: profession
+    description: The type of profession (e.g., Blacksmithing, Alchemy) for which the
+      optimal leveling recipe is being determined.
+  returns: A pointer to a RecipeInfo structure representing the optimal recipe for
+    leveling the specified profession. Returns nullptr if no suitable recipe is found
+    or if the player object is invalid.
+  examples:
+  - title: Basic usage example
+    code: "Player* player = ...;\nProfessionType prof = PROFESSION_BLACKSMITHING;\n\
+      const RecipeInfo* optimalRecipe = sProfessionMgr->GetOptimalLevelingRecipe(player,\
+      \ prof);\nif (optimalRecipe)\n{\n    // Use the recipe for crafting\n    sLog->outString(\"\
+      Optimal recipe: %s\", optimalRecipe->Name.c_str());\n}"
+    language: cpp
+  - title: Advanced usage with error handling
+    code: "Player* player = ...;\nProfessionType prof = PROFESSION_ALCHEMY;\nconst\
+      \ RecipeInfo* recipe = sProfessionMgr->GetOptimalLevelingRecipe(player, prof);\n\
+      if (!recipe)\n{\n    sLog->outError(\"No optimal recipe found for %s\", GetProfessionName(prof).c_str());\n\
+      \    return;\n}\n\n// Validate that player can actually craft this recipe\n\
+      if (player->GetSkillValue(recipe->SkillLine) < recipe->RequiredSkillValue)\n\
+      {\n    sLog->outError(\"Player does not meet skill requirement for %s\", recipe->Name.c_str());\n\
+      \    return;\n}\n\n// Proceed with crafting logic\nsLog->outString(\"Selected\
+      \ optimal recipe: %s (Level %u)\", recipe->Name.c_str(), recipe->RequiredSkillValue);"
+    language: cpp
+  notes: This method is typically called during profession advancement or when a player
+    attempts to level up their skill. The selection algorithm considers both the current
+    skill level and potential gains from crafting different recipes. The method may
+    return nullptr if no valid recipes exist for the given profession or if the player
+    has already reached maximum skill level for that profession.
+  warnings: The returned RecipeInfo pointer is only valid while the underlying data
+    structures remain intact. Do not store the pointer beyond the scope of the current
+    function call unless you have ensured proper lifetime management. Be cautious
+    when using this method in multithreaded contexts where profession data might change
+    concurrently.
+  related:
+  - GetRecipeForSkill
+  - GetAvailableRecipes
+  - CanPlayerLearnRecipe
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T08:04:26.182527'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

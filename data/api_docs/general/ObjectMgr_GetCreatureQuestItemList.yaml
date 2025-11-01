@@ -1,0 +1,59 @@
+api:
+  class: ObjectMgr
+  method: GetCreatureQuestItemList
+  signature: const int * ObjectMgr::GetCreatureQuestItemList(uint32 creatureEntry,
+    int difficulty) const
+documentation:
+  brief: Retrieves the list of item IDs associated with a creature's quest requirements
+    for the specified difficulty level.
+  description: The GetCreatureQuestItemList method fetches an array of item identifiers
+    that are required to be collected from a specific creature in order to complete
+    a quest. This function is typically used during quest progression and item collection
+    validation within the World of Warcraft emulation environment. The returned pointer
+    points to a static array, so it should not be modified or freed by the caller.
+    The method takes into account the difficulty level of the quest to determine which
+    items are relevant for that specific challenge mode.
+  parameters:
+  - name: creatureEntry
+    description: The unique identifier (entry ID) of the creature whose quest item
+      list is being retrieved. This corresponds to the creature_template.entry field
+      in the database.
+  - name: difficulty
+    description: The difficulty level for which the quest items are required. Valid
+      values typically correspond to dungeon/raid difficulties (e.g., 0 = normal,
+      1 = heroic, 2 = mythic).
+  returns: A constant pointer to an integer array containing the item IDs required
+    by the creature's quest. The array is terminated with a zero value. Returns NULL
+    if no items are found or if the creature entry does not exist.
+  examples:
+  - title: Basic Usage Example
+    code: "const int* questItems = sObjectMgr->GetCreatureQuestItemList(12345, 0);\n\
+      if (questItems != nullptr) {\n    for (int i = 0; questItems[i] != 0; ++i) {\n\
+      \        printf(\"Required Item ID: %d\\n\", questItems[i]);\n    }\n}"
+    language: cpp
+  - title: Checking Quest Item Requirements
+    code: "uint32 creatureId = 12345;\nconst int* items = sObjectMgr->GetCreatureQuestItemList(creatureId,\
+      \ 1);\nif (items != nullptr) {\n    for (int i = 0; items[i] != 0; ++i) {\n\
+      \        if (!player->HasItemCount(items[i], 1)) {\n            // Player does\
+      \ not have required item\n            player->SendNotification(\"You need %d\"\
+      , items[i]);\n        }\n    }\n}"
+    language: cpp
+  notes: The returned array is a static internal buffer managed by ObjectMgr, and
+    must not be freed or modified. The method relies on database entries in tables
+    such as creature_template, quest_template, and gameobject_template to determine
+    the item requirements. Performance-wise, this function may involve database lookups
+    depending on how caching is implemented in the current version of TrinityCore.
+  warnings: Do not attempt to free or modify the returned pointer. The array is only
+    valid until the next call to GetCreatureQuestItemList or until the ObjectMgr instance
+    is destroyed. Incorrect difficulty values can lead to unexpected results or NULL
+    returns.
+  related:
+  - GetQuestItemDetails
+  - GetCreatureQuestRelation
+  - GetQuestForEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:56:15.168197'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: Aura
+  method: CallScriptEffectCalcSpellModHandlers
+  signature: void Aura::CallScriptEffectCalcSpellModHandlers(const AuraEffect * aurEff,
+    SpellModifier *& spellMod)
+documentation:
+  brief: Calls all script handlers for calculating spell modifiers on aura effects
+  description: This method invokes all registered script handlers that are responsible
+    for modifying spell properties based on aura effects. It is typically called during
+    spell application or modification phases to allow scripted behaviors to adjust
+    spell parameters such as damage, duration, or cost. The method operates on a specific
+    aura effect and modifies the provided spell modifier object in-place. This functionality
+    is crucial for implementing custom spell mechanics through scripts while maintaining
+    compatibility with core TrinityCore spell handling systems.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object that triggered this call. Represents
+      the specific aura effect being processed for spell modifier calculations.
+  - name: spellMod
+    description: Reference to a SpellModifier pointer that will be modified by script
+      handlers. This parameter is updated in-place with calculated modifiers from
+      scripts.
+  returns: null
+  examples:
+  - title: Basic usage in spell modifier calculation
+    code: "void MyAuraScript::HandleEffectCalcSpellMod(const AuraEffect* aurEff, SpellModifier*&\
+      \ spellMod)\n{\n    // Call the base implementation\n    Aura::CallScriptEffectCalcSpellModHandlers(aurEff,\
+      \ spellMod);\n    \n    // Apply additional custom logic\n    if (spellMod)\n\
+      \        spellMod->value += 10; // Add 10 to the modifier value\n}"
+    language: cpp
+  - title: Advanced usage with multiple script handlers
+    code: "void SpellScript::OnApply(AuraEffect const* aurEff, AuraApplication const*\
+      \ aurApp)\n{\n    SpellModifier* mod = new SpellModifier(SPELLMOD_FLAT, SPELLMOD_ALL_EFFECTS);\n\
+      \    mod->value = 0;\n    \n    // Call all script handlers for spell modifier\
+      \ calculation\n    CallScriptEffectCalcSpellModHandlers(aurEff, mod);\n    \n\
+      \    // Apply the calculated modifier to the spell\n    if (mod->value != 0)\n\
+      \        GetCaster()->ApplySpellMod(GetSpellInfo(), SPELLMOD_FLAT, mod->value);\n\
+      \    \n    delete mod;\n}"
+    language: cpp
+  notes: This method is part of the aura script system and is typically invoked internally
+    by the core spell system. The spellMod parameter should be properly initialized
+    before calling this method to avoid undefined behavior. Script handlers may modify
+    the spellMod object in various ways, including changing its type, value, or applying
+    multiple modifiers.
+  warnings: Do not call this method directly unless you understand the full aura and
+    spell modifier system. Improper handling of spellMod can lead to incorrect spell
+    calculations or memory leaks. Always ensure that spellMod is properly allocated
+    before passing it to this function.
+  related:
+  - Aura::CallScriptEffectApplyHandler
+  - Aura::CallScriptEffectRemoveHandler
+  - SpellMgr::GetSpellMod
+  - Unit::ApplySpellMod
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T14:04:24.375372'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

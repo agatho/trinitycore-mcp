@@ -1,0 +1,55 @@
+api:
+  class: SpellScript
+  method: GetExplTargetWorldObject
+  signature: WorldObject * SpellScript::GetExplTargetWorldObject() const
+documentation:
+  brief: Retrieves the target WorldObject for an explosion effect in a spell script.
+  description: The GetExplTargetWorldObject method returns a pointer to the WorldObject
+    that serves as the explosion target for the current spell effect. This is typically
+    used in spell scripts where the spell's impact point or target needs to be determined
+    dynamically during execution. The returned object can represent any type of world
+    entity such as a player, creature, game object, or item depending on how the spell
+    was cast and what it targets. This method is particularly useful for implementing
+    custom explosion behaviors or effects that depend on the actual target location.
+  parameters: []
+  returns: A pointer to the WorldObject representing the explosion target. Returns
+    nullptr if no valid target exists or if called outside of an appropriate spell
+    execution context.
+  examples:
+  - title: Basic usage in spell script
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleExplode()\n\
+      \    {\n        WorldObject* target = GetExplTargetWorldObject();\n        if\
+      \ (target)\n        {\n            // Perform custom explosion logic using the\
+      \ target\n            target->SendPlaySpellVisual(12345);\n        }\n    }\n\
+      };"
+    language: cpp
+  - title: Checking target type before processing
+    code: "class AdvancedSpellScript : public SpellScript\n{\npublic:\n    void HandleCustomExplosion()\n\
+      \    {\n        WorldObject* target = GetExplTargetWorldObject();\n        if\
+      \ (!target)\n            return;\n        \n        if (target->IsPlayer())\n\
+      \        {\n            // Handle player-specific explosion effects\n      \
+      \      Player* player = target->ToPlayer();\n            player->ModifyHealth(-100);\n\
+      \        }\n        else if (target->IsCreature())\n        {\n            //\
+      \ Handle creature-specific explosion effects\n            Creature* creature\
+      \ = target->ToCreature();\n            creature->DealDamage(creature, 200, NULL,\
+      \ DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This method should only be called during the execution of a spell script's
+    effect handlers. It is not safe to call this method outside of spell execution
+    context as it may return invalid or dangling pointers. The returned WorldObject
+    pointer remains valid only for the duration of the current spell effect execution.
+  warnings: Do not store the returned pointer beyond the scope of the current spell
+    effect handler, as the target object might be destroyed or become invalid. Always
+    check for null returns before using the pointer to avoid segmentation faults.
+  related:
+  - GetExplTargetUnit
+  - GetExplTargetGameObject
+  - GetExplTargetItem
+  - GetExplTargetCorpse
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T06:00:30.309381'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

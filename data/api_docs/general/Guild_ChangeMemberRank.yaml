@@ -1,0 +1,61 @@
+api:
+  class: Guild
+  method: ChangeMemberRank
+  signature: bool Guild::ChangeMemberRank(int trans, int guid, GuildRankId newRank)
+documentation:
+  brief: Changes the rank of a guild member identified by GUID to the specified new
+    rank.
+  description: The ChangeMemberRank method updates the rank of a specific guild member
+    within the TrinityCore framework. This function is typically used when promoting
+    or demoting players within a guild structure. The method requires a transaction
+    identifier for database consistency, a globally unique identifier (GUID) of the
+    target player, and the new rank ID to assign. It ensures that only valid rank
+    changes are applied and handles necessary validation checks internally. The operation
+    modifies the guild member's record in the database and updates in-memory structures
+    accordingly.
+  parameters:
+  - name: trans
+    description: Transaction identifier used for database operations. This parameter
+      ensures atomicity when modifying guild data across multiple tables.
+  - name: guid
+    description: The globally unique identifier (GUID) of the guild member whose rank
+      is to be changed. Must correspond to an existing member in the guild.
+  - name: newRank
+    description: The GuildRankId value representing the new rank to assign to the
+      member. Should be a valid rank within the guild's hierarchy.
+  returns: Returns true if the rank change was successfully applied and committed
+    to the database; otherwise returns false, indicating failure due to invalid parameters
+    or database errors.
+  examples:
+  - title: Promote Guild Member
+    code: "if (guild->ChangeMemberRank(transactionId, playerGuid, GR_OFFICER)) {\n\
+      \    // Rank successfully changed to Officer\n    sLog->outString(\"Player promoted\
+      \ to Officer.\");\n} else {\n    // Handle error case\n    sLog->outError(\"\
+      Failed to promote player to Officer.\");\n}"
+    language: cpp
+  - title: Demote Guild Member
+    code: "uint32 transactionId = sCharacterDatabase.BeginTransaction();\nif (guild->ChangeMemberRank(transactionId,\
+      \ targetPlayerGuid, GR_INITIATE)) {\n    sCharacterDatabase.CommitTransaction(transactionId);\n\
+      \    // Notify player of demotion\n} else {\n    sCharacterDatabase.RollbackTransaction(transactionId);\n\
+      \    // Handle rollback and error reporting\n}"
+    language: cpp
+  notes: This method assumes that the provided GUID corresponds to a valid guild member.
+    It performs internal validation to ensure that the new rank is within acceptable
+    bounds for the guild. The transaction parameter must be properly managed to avoid
+    database inconsistencies. This function does not send any in-game notifications
+    or updates to clients directly; it only modifies the underlying data.
+  warnings: Improper use of the transaction ID can lead to database corruption or
+    inconsistent state. Ensure that all parameters are validated before calling this
+    method. Passing an invalid GUID or rank ID may result in silent failures or undefined
+    behavior.
+  related:
+  - GetMemberRank
+  - AddMember
+  - RemoveMember
+  - GetGuildRank
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:41:24.711874'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: Item
+  method: DeleteFromInventoryDB
+  signature: void Item::DeleteFromInventoryDB(int trans)
+documentation:
+  brief: Removes an item from the database inventory system, including all associated
+    records.
+  description: The DeleteFromInventoryDB method is responsible for completely removing
+    an item from the database inventory system. This includes deleting the item's
+    record from the character inventory tables and any related database entries such
+    as auction house listings, mailbox items, or guild bank items. The method takes
+    a transaction parameter to ensure data consistency during deletion operations
+    and requires a valid item GUID to identify which item to remove. This operation
+    is typically invoked when an item is destroyed, sold, or otherwise permanently
+    removed from a player's possession.
+  parameters:
+  - name: trans
+    description: Database transaction handle used for ensuring atomicity of the deletion
+      operation. Must be a valid transaction object or -1 if no transaction is used.
+  - name: item_guid
+    description: The unique identifier (GUID) of the item to be deleted from the database.
+      This must correspond to an existing item in the inventory system.
+  returns: null
+  examples:
+  - title: Basic item deletion with transaction
+    code: 'Transaction trans = Database.GetTransaction();
+
+      item->DeleteFromInventoryDB(trans, item->GetGUID());
+
+      Database.CommitTransaction(trans);'
+    language: cpp
+  - title: Direct deletion without transaction
+    code: item->DeleteFromInventoryDB(-1, item->GetGUID());
+    language: cpp
+  notes: This method performs database operations and should be used carefully to
+    avoid data inconsistency. It's recommended to use a transaction when deleting
+    items that might have related entries in multiple tables. The method does not
+    perform any client-side updates or visual removal of the item from the player's
+    UI.
+  warnings: Calling this method on an item that doesn't exist in the database can
+    lead to undefined behavior or database errors. Always verify that the item exists
+    before calling this method. This operation is irreversible and permanently removes
+    the item from the game world.
+  related:
+  - Item::SaveToDB
+  - Item::LoadFromDB
+  - Item::DeleteFromDB
+  - Item::AddToUpdateQueue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:25:40.604761'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

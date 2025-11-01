@@ -1,0 +1,55 @@
+api:
+  class: LFGMgr
+  method: GetLfgStatus
+  signature: LfgUpdateData LFGMgr::GetLfgStatus(int guid)
+documentation:
+  brief: Retrieves the LFG (Looking for Group) status data for a player identified
+    by their GUID.
+  description: The GetLfgStatus method fetches the current Looking for Group status
+    information for a specific player within the TrinityCore framework. This includes
+    details about the player's current LFG dungeon eligibility, role preferences,
+    queued dungeons, and other relevant group-finding mechanics. The returned LfgUpdateData
+    structure contains all necessary information to update the client's LFG interface
+    with accurate status information. This method is typically invoked when a player's
+    LFG state changes or when the client requests an updated status view.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose LFG status is being
+      retrieved. Must be a valid player GUID within the current session.
+  returns: Returns an LfgUpdateData structure containing the complete LFG status information
+    for the specified player, including queued dungeons, roles, and eligibility flags.
+    Returns an empty or default-initialized structure if no LFG data exists for the
+    given GUID.
+  examples:
+  - title: Basic Usage Example
+    code: "uint64 playerGuid = 123456789;\nLfgUpdateData status = sLFGMgr->GetLfgStatus(playerGuid);\n\
+      if (!status.IsEmpty())\n{\n    // Process the LFG status data\n    sLog->outString(\"\
+      Player %u has LFG status: %s\", playerGuid, status.ToString().c_str());\n}"
+    language: cpp
+  - title: Integration with Player Session
+    code: "void HandleLfgStatusRequest(Player* player)\n{\n    uint64 guid = player->GetGUID();\n\
+      \    LfgUpdateData status = sLFGMgr->GetLfgStatus(guid);\n    if (status.IsEmpty())\n\
+      \    {\n        // No LFG data found, initialize default\n        status.SetState(LFG_STATE_NONE);\n\
+      \    }\n    // Send update to player client\n    player->SendLfgUpdateData(status);\n\
+      }"
+    language: cpp
+  notes: This method operates within the TrinityCore LFG system and relies on internal
+    data structures maintained by LFGMgr. It should only be called with valid player
+    GUIDs that are currently in session or have active LFG data. The returned LfgUpdateData
+    may contain multiple queued entries if a player has joined several LFG groups
+    simultaneously.
+  warnings: Calling this method with an invalid or non-existent GUID may result in
+    undefined behavior or return corrupted data. Ensure the GUID corresponds to an
+    actual logged-in player before calling this function. This method does not perform
+    any validation on the input GUID, so callers must ensure its validity.
+  related:
+  - LFGMgr::JoinLfg
+  - LFGMgr::LeaveLfg
+  - LFGMgr::UpdateLfgStatus
+  - LFGMgr::GetLfgQueueData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:50:10.662678'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

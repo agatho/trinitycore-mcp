@@ -1,0 +1,49 @@
+api:
+  class: BotAccountMgr
+  method: GetPoolSize
+  signature: uint32 BotAccountMgr::GetPoolSize() const
+documentation:
+  brief: Returns the total number of bot accounts available in the account pool
+  description: The GetPoolSize method retrieves the current size of the bot account
+    pool managed by the BotAccountMgr. This value represents the total number of bot
+    accounts that have been allocated or reserved for use within the TrinityCore instance.
+    The pool size may be dynamically adjusted based on server configuration settings
+    and runtime conditions. This method is typically used to monitor resource allocation
+    and ensure sufficient bot accounts are available for automated player behavior
+    simulation or testing purposes.
+  parameters: []
+  returns: A uint32 value representing the total number of bot accounts currently
+    in the pool. Returns 0 if no bot accounts have been initialized or if the pool
+    is empty.
+  examples:
+  - title: Basic Usage to Check Pool Size
+    code: "uint32 poolSize = BotAccountMgr::GetPoolSize();\nif (poolSize > 0)\n{\n\
+      \    printf(\"Bot account pool contains %u accounts\\n\", poolSize);\n}"
+    language: cpp
+  - title: Monitoring Pool Size for Resource Management
+    code: "void CheckBotAccountPool()\n{\n    uint32 currentSize = sBotAccountMgr->GetPoolSize();\n\
+      \    uint32 maxSize = sConfigMgr->GetOption<uint32>(\"Bot.MaxAccounts\", 100);\n\
+      \    \n    if (currentSize < maxSize * 0.2f) // Less than 20% of max\n    {\n\
+      \        sLog->outInfo(LOG_FILTER_BOTS, \"Warning: Bot account pool is running\
+      \ low (%u/%u)\", currentSize, maxSize);\n    }\n}"
+    language: cpp
+  notes: This method provides a read-only view of the current pool size and does not
+    modify any internal state. The returned value reflects the count of accounts that
+    are ready for use but may not represent active bot instances currently running
+    in the game world. The pool size is typically initialized during server startup
+    based on configuration options.
+  warnings: The method returns a cached value and may not reflect real-time changes
+    if the pool is being modified concurrently. In high-concurrency scenarios, consider
+    using appropriate locking mechanisms when accessing this value alongside other
+    pool management operations.
+  related:
+  - GetAccount
+  - CreateAccount
+  - ReleaseAccount
+  - InitializePool
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T17:32:31.759885'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,82 @@
+api:
+  class: ScriptMgr
+  method: OnGuildItemMove
+  signature: void ScriptMgr::OnGuildItemMove(Guild * guild, Player * player, Item
+    * pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, bool isDestBank,
+    uint8 destContainer, uint8 destSlotId)
+documentation:
+  brief: Invoked when a guild member moves an item between their inventory and the
+    guild bank.
+  description: The OnGuildItemMove method is a hook called by the TrinityCore server
+    whenever a player moves an item into or out of the guild bank. This event occurs
+    during item transactions within the guild's banking system, allowing scripts to
+    intercept and potentially modify the behavior of such operations. The method provides
+    detailed information about both source and destination containers, slot positions,
+    and whether the move involves the bank or the player's inventory. It is typically
+    used for custom logic like item restrictions, logging, or balancing changes to
+    guild banking mechanics.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object where the item movement occurs. Represents
+      the guild associated with the transaction.
+  - name: player
+    description: Pointer to the Player object who initiated the item move. The player
+      performing the action.
+  - name: pItem
+    description: Pointer to the Item object being moved. The actual item that is being
+      transferred between locations.
+  - name: isSrcBank
+    description: Boolean flag indicating if the source of the move is the guild bank
+      (true) or player's inventory (false).
+  - name: srcContainer
+    description: The container ID of the source location. For example, 0 for backpack,
+      1-18 for bag slots.
+  - name: srcSlotId
+    description: The slot index within the source container where the item is located.
+  - name: isDestBank
+    description: Boolean flag indicating if the destination of the move is the guild
+      bank (true) or player's inventory (false).
+  - name: destContainer
+    description: The container ID of the destination location. For example, 0 for
+      backpack, 1-18 for bag slots.
+  - name: destSlotId
+    description: The slot index within the destination container where the item will
+      be placed.
+  returns: null
+  examples:
+  - title: Basic logging of guild item movements
+    code: "void OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank,\
+      \ uint8 srcContainer, uint8 srcSlotId, bool isDestBank, uint8 destContainer,\
+      \ uint8 destSlotId)\n{\n    sLog->outString(\"Player %s moved item %u from %s\
+      \ to %s in guild %s.\",\n        player->GetName(), pItem->GetEntry(),\n   \
+      \     isSrcBank ? \"guild bank\" : \"inventory\",\n        isDestBank ? \"guild\
+      \ bank\" : \"inventory\",\n        guild->GetName().c_str());\n}"
+    language: cpp
+  - title: Preventing certain items from being moved to the guild bank
+    code: "void OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank,\
+      \ uint8 srcContainer, uint8 srcSlotId, bool isDestBank, uint8 destContainer,\
+      \ uint8 destSlotId)\n{\n    // Prevent moving soulbound items to the guild bank\n\
+      \    if (isDestBank && pItem->GetTemplate()->GetBonding() == ITEM_BIND_ON_PICKUP)\n\
+      \    {\n        ChatHandler(player->GetSession()).PSendSysMessage(\"You cannot\
+      \ move soulbound items to the guild bank.\");\n        // Cancel the move by\
+      \ not allowing it to proceed\n        return;\n    }\n}"
+    language: cpp
+  notes: This method is part of the global script manager and can be overridden in
+    custom scripts. It is called after the item movement has been validated but before
+    it is committed to the database. Be cautious when modifying item state inside
+    this hook, as improper handling may cause inconsistencies or crashes.
+  warnings: Modifying item properties directly within OnGuildItemMove might lead to
+    unexpected behavior if not handled carefully. Ensure that any modifications respect
+    game balance and do not introduce exploits. Also, note that this method is invoked
+    frequently during guild banking operations, so performance-sensitive logic should
+    be optimized.
+  related:
+  - OnGuildBankItemMove
+  - OnPlayerItemMove
+  - OnItemRemove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:39:27.844754'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: InterruptManager
+  method: IsInterruptExecutable
+  signature: bool InterruptManager::IsInterruptExecutable(const InterruptPlan & plan)
+documentation:
+  brief: Determines whether a given interrupt plan can be executed based on current
+    game state and conditions.
+  description: The IsInterruptExecutable method evaluates whether an interrupt plan
+    is currently valid for execution. It checks various game state conditions such
+    as player readiness, target validity, spell restrictions, and cooldowns to determine
+    if the specified interrupt action can proceed. This method is typically used within
+    the context of spell casting or ability usage systems where interrupts are a core
+    mechanic. The evaluation considers both immediate contextual factors and broader
+    system constraints that may prevent an interrupt from being performed at any given
+    moment.
+  parameters:
+  - name: plan
+    description: The InterruptPlan object containing the interrupt configuration,
+      including target information, spell data, and execution conditions to be validated.
+  returns: Returns true if the interrupt plan is executable under current game conditions;
+    otherwise returns false. A return value of false indicates that one or more preconditions
+    for executing the interrupt have not been met.
+  examples:
+  - title: Basic Usage Check
+    code: "InterruptPlan plan;\n// ... populate plan with interrupt data ...\nif (interruptManager.IsInterruptExecutable(plan))\
+      \ {\n    // Proceed with interrupt execution\n    interruptManager.ExecuteInterrupt(plan);\n\
+      } else {\n    // Interrupt cannot be executed at this time\n    LOG_DEBUG(\"\
+      world\", \"Interrupt not executable due to game state conditions.\");\n}"
+    language: cpp
+  - title: Integration with Spell Casting System
+    code: "class SpellCastHandler {\npublic:\n    bool CanInterrupt(Spell* spell,\
+      \ Unit* target) {\n        InterruptPlan plan;\n        plan.SetSpell(spell);\n\
+      \        plan.SetTarget(target);\n        return interruptManager.IsInterruptExecutable(plan);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method performs validation checks that may involve multiple subsystems
+    including combat state, target status, spell restrictions, and cooldown management.
+    The performance of this method can vary depending on the complexity of the interrupt
+    plan being evaluated. It is recommended to cache results when checking the same
+    plan repeatedly within short timeframes.
+  warnings: This method should not be called directly from high-frequency update loops
+    without proper caching or throttling mechanisms, as it may involve expensive state
+    checks. Incorrectly configured InterruptPlan objects can lead to unexpected false
+    returns even when an interrupt should logically be executable.
+  related:
+  - InterruptManager::ExecuteInterrupt
+  - InterruptManager::ValidateInterruptPlan
+  - InterruptManager::IsInterruptPossible
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T12:29:04.011412'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

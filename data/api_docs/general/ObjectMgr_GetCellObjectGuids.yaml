@@ -1,0 +1,65 @@
+api:
+  class: ObjectMgr
+  method: GetCellObjectGuids
+  signature: const CellObjectGuids * ObjectMgr::GetCellObjectGuids(uint32 mapid, int
+    spawnMode, uint32 cell_id)
+documentation:
+  brief: Retrieves the object GUIDs present in a specified cell of a given map and
+    spawn mode.
+  description: The GetCellObjectGuids method retrieves a collection of unique identifiers
+    (GUIDs) for all objects located within a specific cell on a map, under a particular
+    spawn mode. This is essential for managing and querying the spatial distribution
+    of game entities such as creatures, game objects, and players within the TrinityCore
+    world system. The returned CellObjectGuids structure provides access to lists
+    of GUIDs categorized by object type (e.g., creatures, game objects). This method
+    is commonly used during map loading, zone updates, and spatial queries for AI
+    behavior or object interaction logic.
+  parameters:
+  - name: mapid
+    description: The ID of the map to query. Valid values correspond to known map
+      identifiers in the game world.
+  - name: spawnMode
+    description: The spawn mode context, determining whether to retrieve active or
+      inactive objects. Common values include regular spawns (0), respawned creatures
+      (1), and other mode-specific states.
+  - name: cell_id
+    description: The unique identifier of the cell within the map. Cells are typically
+      organized in a grid system, with each cell representing a specific area of the
+      world.
+  returns: A pointer to a const CellObjectGuids structure containing lists of GUIDs
+    for objects in the specified cell. Returns nullptr if no data is available for
+    the given parameters.
+  examples:
+  - title: Retrieve Creature GUIDs from a Specific Cell
+    code: "const CellObjectGuids* guidList = sObjectMgr->GetCellObjectGuids(0, 0,\
+      \ 1234);\nif (guidList)\n{\n    for (auto& creatureGuid : guidList->creature)\
+      \ {\n        // Process each creature GUID\n        Creature* creature = ObjectAccessor::GetCreature(*player,\
+      \ creatureGuid);\n        if (creature)\n            // Perform actions on the\
+      \ creature\n    }\n}"
+    language: cpp
+  - title: Iterate Through All Object Types in a Cell
+    code: "const CellObjectGuids* guidList = sObjectMgr->GetCellObjectGuids(1, 1,\
+      \ 5678);\nif (guidList)\n{\n    // Process creatures\n    for (auto& guid :\
+      \ guidList->creature)\n        if (Creature* creature = ObjectAccessor::GetCreature(*player,\
+      \ guid))\n            // Handle creature logic\n    \n    // Process game objects\n\
+      \    for (auto& guid : guidList->gameobject)\n        if (GameObject* go = ObjectAccessor::GetGameObject(*player,\
+      \ guid))\n            // Handle game object logic\n}"
+    language: cpp
+  notes: This method is part of the internal object management system and should be
+    used carefully in performance-sensitive contexts. The returned pointer is valid
+    only during the lifetime of the ObjectMgr's internal data structures, so any referenced
+    data must not be accessed after the map or spawn mode changes.
+  warnings: Do not modify the returned CellObjectGuids structure directly; it is read-only
+    and managed internally by ObjectMgr. Accessing invalid map IDs or cell IDs may
+    lead to undefined behavior or crashes.
+  related:
+  - GetCreatureData
+  - GetGameObjectData
+  - LoadMap
+  - UpdateObjectVisibility
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T10:05:59.262184'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: Quest
+  method: BuildQuestRewards
+  signature: void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards & rewards,
+    Player * player) const
+documentation:
+  brief: Populates a quest rewards packet with data from the quest for the specified
+    player.
+  description: The BuildQuestRewards method constructs and fills a WorldPackets::Quest::QuestRewards
+    structure with all relevant reward information associated with the quest. This
+    includes experience, money, items, spell rewards, and other quest-specific benefits
+    that the player will receive upon completing the quest. The method takes into
+    account the player's current state, such as level, faction, and any applicable
+    modifiers, to ensure accurate reward distribution. It is typically called during
+    quest completion processing to prepare the reward data sent to the client.
+  parameters:
+  - name: rewards
+    description: Reference to a WorldPackets::Quest::QuestRewards structure that will
+      be populated with quest reward data.
+  - name: player
+    description: Pointer to the Player object for whom the quest rewards are being
+      built. Used to determine applicable rewards based on player state and conditions.
+  returns: null
+  examples:
+  - title: Basic Usage in Quest Completion Handler
+    code: "void OnQuestComplete(Player* player, Quest const* quest)\n{\n    WorldPackets::Quest::QuestRewards\
+      \ rewards;\n    quest->BuildQuestRewards(rewards, player);\n    player->SendDirectMessage(&rewards);\n\
+      }"
+    language: cpp
+  - title: Building Rewards for Multiple Players
+    code: "void SendQuestRewardsToGroup(Quest const* quest, Group* group)\n{\n   \
+      \ for (Group::MemberSlotList::const_iterator itr = group->GetMemberSlots().begin();\n\
+      \         itr != group->GetMemberSlots().end(); ++itr)\n    {\n        Player*\
+      \ player = ObjectAccessor::FindPlayer(itr->guid);\n        if (!player)\n  \
+      \          continue;\n\n        WorldPackets::Quest::QuestRewards rewards;\n\
+      \        quest->BuildQuestRewards(rewards, player);\n        player->SendDirectMessage(&rewards);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the core quest reward system in TrinityCore and directly
+    interacts with the WorldPackets framework. It should only be called after verifying
+    that the quest has been completed successfully by the player. The method modifies
+    the provided rewards packet in-place, so it must not be used concurrently with
+    other operations on the same packet object.
+  warnings: Do not call this method without ensuring the player has actually completed
+    the quest, as it may result in incorrect reward distribution or client-side errors.
+    Also, ensure that the player pointer is valid and not null before calling this
+    method to prevent undefined behavior.
+  related:
+  - Quest::GetRewards
+  - Player::RewardQuest
+  - WorldPackets::Quest::QuestRewards
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:07:47.766409'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

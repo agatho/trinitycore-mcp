@@ -1,0 +1,64 @@
+api:
+  class: UnitScript
+  method: ModifySpellDamageTaken
+  signature: void UnitScript::ModifySpellDamageTaken(Unit * target, Unit * attacker,
+    int32 & damage, const SpellInfo * spellInfo)
+documentation:
+  brief: Modifies the spell damage taken by a target unit from an attacker.
+  description: The ModifySpellDamageTaken method is a virtual hook in the UnitScript
+    class that allows custom scripts to modify the amount of spell damage a unit receives.
+    This method is invoked during spell damage calculation, providing an opportunity
+    for mods, addons, or custom game mechanics to adjust incoming spell damage values.
+    It operates on a reference to the damage value, allowing direct modification of
+    the damage amount before it's applied to the target. The method provides access
+    to both the attacker and defender units, as well as the spell information being
+    used, enabling complex conditional logic based on spell type, caster, or target
+    properties.
+  parameters:
+  - name: target
+    description: Pointer to the Unit that is receiving the spell damage. This represents
+      the unit that will be affected by the modified damage value.
+  - name: attacker
+    description: Pointer to the Unit that is casting the spell and causing the damage.
+      This represents the source of the spell damage being calculated.
+  - name: damage
+    description: Reference to the integer value representing the spell damage amount.
+      This value can be modified directly to increase or decrease the damage dealt
+      to the target.
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell being cast. This includes spell ID, school, effects, and other
+      relevant spell properties for conditional modifications.
+  returns: null
+  examples:
+  - title: Basic Damage Reduction Example
+    code: "void MyUnitScript::ModifySpellDamageTaken(Unit* target, Unit* attacker,\
+      \ int32& damage, const SpellInfo* spellInfo)\n{\n    // Reduce all fire damage\
+      \ by 25%\n    if (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FIRE)\n   \
+      \ {\n        damage = damage * 0.75;\n    }\n}"
+    language: cpp
+  - title: Conditional Damage Modification Based on Target
+    code: "void MyUnitScript::ModifySpellDamageTaken(Unit* target, Unit* attacker,\
+      \ int32& damage, const SpellInfo* spellInfo)\n{\n    // If target is a player\
+      \ and attacker is a mob, reduce damage by 10%\n    if (target->IsPlayer() &&\
+      \ attacker->IsCreature())\n    {\n        damage = damage * 0.9;\n    }\n}"
+    language: cpp
+  notes: This method is called during the spell damage calculation phase, so modifications
+    to damage should be made carefully to avoid breaking game balance or causing unexpected
+    behavior. The method is part of the UnitScript virtual interface, meaning it can
+    be overridden in custom script implementations. Be aware that multiple scripts
+    may override this method, and their effects are applied in order of registration.
+  warnings: Modifying damage values directly can cause game balance issues if not
+    handled carefully. Ensure that modifications don't create infinite loops or cause
+    negative damage values that could crash the server. Avoid making changes to damage
+    based on unreliable conditions such as memory addresses or volatile data.
+  related:
+  - ModifySpellDamageDone
+  - ModifyHealReceived
+  - ModifyHealingDone
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:03:12.375865'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

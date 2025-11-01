@@ -1,0 +1,61 @@
+api:
+  class: Aura
+  method: CallScriptCheckProcHandlers
+  signature: bool Aura::CallScriptCheckProcHandlers(const AuraApplication * aurApp,
+    ProcEventInfo & eventInfo)
+documentation:
+  brief: Calls all script handlers to check if an aura can proc during a proc event.
+  description: The CallScriptCheckProcHandlers method iterates through all registered
+    script handlers for the aura and invokes their CheckProc callback functions. This
+    method determines whether the aura's proc conditions are met based on the provided
+    event information. It is typically called during combat events when a proc chance
+    needs to be evaluated, such as when a spell or ability triggers. The method returns
+    true if any of the script handlers allow the proc to occur, and false otherwise.
+    This mechanism allows for custom logic in aura procs beyond basic chance calculations.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura application
+      context. This provides information about which unit has the aura applied and
+      the aura's state.
+  - name: eventInfo
+    description: Reference to a ProcEventInfo structure containing detailed information
+      about the proc event, including triggering spell, damage type, target, and other
+      relevant combat data.
+  returns: Returns true if at least one script handler allows the proc to occur, false
+    otherwise. A return value of true indicates that the aura should proceed with
+    its proc effect; false means the proc is blocked by script logic.
+  examples:
+  - title: Basic usage in a custom aura script
+    code: "bool MyAuraScript::CheckProc(ProcEventInfo& eventInfo)\n{\n    if (!eventInfo.GetSpell())\n\
+      \        return false;\n\n    // Call the base class implementation to check\
+      \ all script handlers\n    return Aura::CallScriptCheckProcHandlers(this, eventInfo);\n\
+      }"
+    language: cpp
+  - title: Using in a proc handler with conditional logic
+    code: "bool CustomAuraProcHandler(Aura* aura, ProcEventInfo& eventInfo)\n{\n \
+      \   // Pre-check conditions\n    if (eventInfo.GetDamage() < 100)\n        return\
+      \ false;\n\n    // Call script handlers to determine final proc eligibility\n\
+      \    bool canProc = aura->CallScriptCheckProcHandlers(nullptr, eventInfo);\n\
+      \    \n    // Additional custom logic after script check\n    if (canProc &&\
+      \ IsPlayerInCombat())\n        return true;\n    \n    return false;\n}"
+    language: cpp
+  notes: This method is part of the aura's scripting system and should only be called
+    during proc evaluation phases. The method does not modify the eventInfo or aurApp
+    parameters directly, but relies on their current state to make decisions. Script
+    handlers are expected to be registered with the aura before this method is invoked.
+  warnings: Calling this method without properly initialized aura application or event
+    information may lead to undefined behavior. Ensure that all required fields in
+    ProcEventInfo are populated before invoking this method. This method should not
+    be used outside of proc evaluation contexts as it may cause performance issues
+    or incorrect behavior.
+  related:
+  - Aura::CallScriptProcHandlers
+  - Aura::CallScriptEffectProc
+  - Aura::GetScript
+  - AuraApplication::GetAura
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T14:10:49.036392'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

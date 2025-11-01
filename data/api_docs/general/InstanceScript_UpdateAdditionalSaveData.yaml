@@ -1,0 +1,59 @@
+api:
+  class: InstanceScript
+  method: UpdateAdditionalSaveData
+  signature: std::string InstanceScript::UpdateAdditionalSaveData(const std::string
+    & oldData, const UpdateAdditionalSaveDataEvent & event)
+documentation:
+  brief: Updates and returns serialized instance data for saving to the database
+  description: The UpdateAdditionalSaveData method is responsible for serializing
+    additional instance-specific data that needs to be persisted in the database.
+    This method is typically called during instance cleanup or save operations to
+    ensure all relevant state information is properly stored. The method receives
+    existing saved data and an event object describing what changes occurred, then
+    returns updated serialized data that can be written back to the database. It's
+    part of TrinityCore's instance management system where each instance script can
+    maintain custom save/load logic for world state.
+  parameters:
+  - name: oldData
+    description: The existing serialized data string previously saved for this instance
+  - name: event
+    description: An UpdateAdditionalSaveDataEvent object describing the type of update
+      being performed and relevant context information
+  returns: A std::string containing the updated serialized data that should be saved
+    to the database, or an empty string if no additional data needs to be saved
+  examples:
+  - title: Basic usage in custom instance script
+    code: "std::string InstanceScript::UpdateAdditionalSaveData(const std::string&\
+      \ oldData, const UpdateAdditionalSaveDataEvent& event)\n{\n    // Parse existing\
+      \ data\n    std::istringstream iss(oldData);\n    std::string line;\n    std::map<std::string,\
+      \ std::string> savedData;\n    \n    while (std::getline(iss, line))\n    {\n\
+      \        size_t pos = line.find('=');\n        if (pos != std::string::npos)\n\
+      \        {\n            std::string key = line.substr(0, pos);\n           \
+      \ std::string value = line.substr(pos + 1);\n            savedData[key] = value;\n\
+      \        }\n    }\n    \n    // Update based on event\n    switch (event.GetType())\n\
+      \    {\n        case UPDATE_EVENT_ENCOUNTER_STATE:\n            savedData[\"\
+      encounter_state\"] = std::to_string(event.GetEncounterState());\n          \
+      \  break;\n        case UPDATE_EVENT_OBJECT_STATE:\n            savedData[\"\
+      object_state\"] = event.GetObjectState();\n            break;\n    }\n    \n\
+      \    // Serialize back to string\n    std::ostringstream oss;\n    for (const\
+      \ auto& pair : savedData)\n    {\n        oss << pair.first << \"=\" << pair.second\
+      \ << \"\\n\";\n    }\n    \n    return oss.str();\n}"
+    language: cpp
+  notes: This method is called during instance cleanup and database save operations.
+    Developers should ensure thread safety when accessing shared data structures.
+    The serialized format should be consistent with how the LoadAdditionalSaveData
+    method parses the data. Consider performance implications of complex serialization
+    logic as this method may be called frequently.
+  warnings: Do not modify the original oldData string directly - always create a copy
+    for modification. Ensure that all keys and values in the returned string are properly
+    escaped to prevent parsing errors. Avoid heavy computations or database access
+    within this method as it's part of the save operation and can block instance cleanup.
+  related:
+  - LoadAdditionalSaveData
+  - GetInstanceSaveData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T00:10:05.216922'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

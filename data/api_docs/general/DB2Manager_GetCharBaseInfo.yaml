@@ -1,0 +1,62 @@
+api:
+  class: DB2Manager
+  method: GetCharBaseInfo
+  signature: const CharBaseInfoEntry * DB2Manager::GetCharBaseInfo(int race, int class_)
+documentation:
+  brief: Retrieves character base information entry for a specified race and class
+    combination.
+  description: The GetCharBaseInfo method fetches a CharBaseInfoEntry from the DB2
+    database based on the provided race and class parameters. This entry contains
+    fundamental data about character classes and races, such as starting stats, health
+    and mana modifiers, and other base attributes that define how characters of specific
+    races and classes behave in the game. The method is typically used during character
+    creation or when initializing player data to ensure correct stat distribution
+    and gameplay mechanics. It performs a lookup in an internal cache or database
+    structure, returning a pointer to the requested entry or nullptr if no matching
+    entry exists.
+  parameters:
+  - name: race
+    description: The race identifier (ID) of the character for which to retrieve base
+      information. Valid values correspond to race IDs defined in the game's DB2 files,
+      such as 1 for Human, 2 for Orc, etc.
+  - name: class_
+    description: The class identifier (ID) of the character for which to retrieve
+      base information. Valid values correspond to class IDs defined in the game's
+      DB2 files, such as 1 for Warrior, 2 for Paladin, etc.
+  returns: A pointer to a CharBaseInfoEntry structure containing the base statistics
+    and properties for the specified race and class combination. Returns nullptr if
+    no matching entry is found for the given parameters.
+  examples:
+  - title: Retrieve Base Info for Human Warrior
+    code: "const CharBaseInfoEntry* baseInfo = sDB2Manager->GetCharBaseInfo(1, 1);\n\
+      if (baseInfo)\n{\n    // Use baseInfo to initialize player stats\n    printf(\"\
+      Human Warrior HP Modifier: %f\\n\", baseInfo->hpModifier);\n}"
+    language: cpp
+  - title: Check for Valid Base Info Before Usage
+    code: "const CharBaseInfoEntry* info = sDB2Manager->GetCharBaseInfo(playerRace,\
+      \ playerClass);\nif (!info)\n{\n    // Handle invalid race/class combination\n\
+      \    sLog->outError(LOG_FILTER_GENERAL, \"Invalid character base info for race\
+      \ %u and class %u\", playerRace, playerClass);\n    return false;\n}\n// Proceed\
+      \ with valid data usage\nplayer->SetBaseInfo(info);"
+    language: cpp
+  notes: This method is part of the DB2Manager singleton and relies on pre-loaded
+    DB2 files containing character base information. The returned pointer is valid
+    only as long as the DB2Manager instance remains active and should not be stored
+    or used after the manager has been destroyed. It's thread-safe for read operations
+    but may require synchronization if used in multi-threaded environments where DB2
+    data might be modified.
+  warnings: Calling this method with invalid race or class IDs may result in a nullptr
+    return, which must be checked before dereferencing. Improper handling of null
+    returns can lead to crashes. Additionally, modifying the underlying DB2 files
+    while the server is running could invalidate cached entries and cause unexpected
+    behavior.
+  related:
+  - GetCharClassInfo
+  - GetCharRaceInfo
+  - LoadDB2Files
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:17:23.280626'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

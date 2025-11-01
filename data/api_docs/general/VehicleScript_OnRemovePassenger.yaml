@@ -1,0 +1,68 @@
+api:
+  class: VehicleScript
+  method: OnRemovePassenger
+  signature: void VehicleScript::OnRemovePassenger(Vehicle * veh, Unit * passenger)
+documentation:
+  brief: Called when a unit is removed from a vehicle as a passenger
+  description: The OnRemovePassenger method is invoked by the TrinityCore framework
+    whenever a unit (such as a player or creature) is removed from a vehicle as a
+    passenger. This event occurs during vehicle boarding and dismounting operations,
+    allowing script developers to implement custom behavior when passengers leave
+    vehicles. The method provides access to both the vehicle object and the passenger
+    unit, enabling scripts to perform actions like resetting unit states, triggering
+    events, or modifying game mechanics based on the removal of passengers. This callback
+    is part of the VehicleScript system which allows for custom vehicle behavior implementation.
+  parameters:
+  - name: veh
+    description: Pointer to the Vehicle object from which the passenger is being removed.
+      This represents the vehicle instance that was hosting the passenger.
+  - name: passenger
+    description: Pointer to the Unit object that is being removed as a passenger.
+      This can be a Player, Creature, or any other unit type that can ride in vehicles.
+  returns: null
+  examples:
+  - title: Basic Vehicle Passenger Removal Handler
+    code: "class MyVehicleScript : public VehicleScript\n{\npublic:\n    MyVehicleScript()\
+      \ : VehicleScript(\"MyVehicleScript\") {}\n\n    void OnRemovePassenger(Vehicle*\
+      \ veh, Unit* passenger) override\n    {\n        if (passenger->IsPlayer())\n\
+      \        {\n            Player* player = passenger->ToPlayer();\n          \
+      \  // Reset player's movement flags or other state\n            player->SetCanFly(false);\n\
+      \            player->SetSpeed(MOVE_RUN, 1.0f);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Vehicle Passenger Removal with Event Triggering
+    code: "class AdvancedVehicleScript : public VehicleScript\n{\npublic:\n    AdvancedVehicleScript()\
+      \ : VehicleScript(\"AdvancedVehicleScript\") {}\n\n    void OnRemovePassenger(Vehicle*\
+      \ veh, Unit* passenger) override\n    {\n        // Check if passenger is a\
+      \ player\n        if (Player* player = passenger->ToPlayer())\n        {\n \
+      \           // Send custom message to player\n            player->SendNotification(\"\
+      You have left the vehicle.\");\n            \n            // Trigger quest event\
+      \ or achievement\n            if (veh->GetVehicleInfo()->HasFlag(VehicleFlags::VEHICLE_FLAG_NO_PVP))\n\
+      \            {\n                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEAVE_VEHICLE);\n\
+      \            }\n        }\n        \n        // Log passenger removal for debugging\n\
+      \        sLog->outDebug(LOG_FILTER_GENERAL, \"Player %s removed from vehicle\
+      \ %u\", \n                      passenger->GetName(), veh->GetVehicleInfo()->GetEntry());\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called after the passenger has been fully removed from the
+    vehicle's passenger list. The vehicle and passenger parameters are guaranteed
+    to be valid at the time of invocation. Scripts should avoid modifying the vehicle
+    or passenger state in a way that could cause recursion or infinite loops. The
+    method is part of the vehicle lifecycle management system, so it will be called
+    for all legitimate passenger removals including dismounting, vehicle destruction,
+    or forced removal.
+  warnings: Do not attempt to access or modify the vehicle or passenger objects after
+    they have been destroyed or invalidated by other systems. Avoid performing heavy
+    computations in this method as it may impact performance during frequent passenger
+    movements. Be cautious when calling methods that might trigger additional passenger
+    removal events, as this could lead to stack overflow or unexpected behavior.
+  related:
+  - OnAddPassenger
+  - OnInstall
+  - OnUninstall
+  - OnCheckSeat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:46:46.543830'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

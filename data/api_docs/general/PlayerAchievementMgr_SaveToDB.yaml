@@ -1,0 +1,49 @@
+api:
+  class: PlayerAchievementMgr
+  method: SaveToDB
+  signature: void PlayerAchievementMgr::SaveToDB(int trans)
+documentation:
+  brief: Saves player achievement data to the database with optional transaction support.
+  description: The SaveToDB method persists all accumulated player achievement data
+    into the database. It is typically invoked during player logout or at regular
+    intervals to ensure that progress toward achievements is not lost. The method
+    accepts an optional transaction parameter which allows for batch operations and
+    ensures data consistency when multiple related database changes are performed
+    together. This method handles the serialization of achievement states, completion
+    timestamps, and any associated tracking information into the appropriate database
+    tables.
+  parameters:
+  - name: trans
+    description: Optional database transaction handle. If provided, the save operation
+      will be executed within the context of this transaction, allowing for atomic
+      updates across multiple related data entries. A value of -1 indicates no transaction
+      is used.
+  returns: null
+  examples:
+  - title: Basic usage during player logout
+    code: "void Player::SavePlayerAchievements()\n{\n    if (m_achievementMgr)\n \
+      \       m_achievementMgr->SaveToDB();\n}"
+    language: cpp
+  - title: Usage with explicit transaction for batch updates
+    code: "void Player::SaveAchievementsWithTransaction(Transaction* trans)\n{\n \
+      \   if (m_achievementMgr)\n        m_achievementMgr->SaveToDB(trans);\n}"
+    language: cpp
+  notes: This method should be called regularly during gameplay to prevent loss of
+    achievement progress. The transaction parameter is useful for ensuring consistency
+    when saving multiple related player data components simultaneously, such as achievements
+    and quest progress. Performance-wise, this operation may block briefly while writing
+    to the database.
+  warnings: Calling this method without a proper database connection or transaction
+    context can lead to data loss or corruption. Ensure that all achievement data
+    has been properly updated before calling SaveToDB to avoid inconsistent states
+    in the database.
+  related:
+  - PlayerAchievementMgr::LoadFromDB
+  - PlayerAchievementMgr::UpdateAchievement
+  - PlayerAchievementMgr::CheckAchievementCriteria
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T21:00:34.145009'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: ScriptMgr
+  method: OnRelocate
+  signature: void ScriptMgr::OnRelocate(Transport * transport, uint32 mapId, float
+    x, float y, float z)
+documentation:
+  brief: Invoked when a transport object relocates to a new position in the world
+  description: The OnRelocate method is a callback function within the ScriptMgr class
+    that gets triggered whenever a Transport object changes its position in the game
+    world. This method is part of TrinityCore's scripting system and allows custom
+    scripts to respond to transport movement events. It provides information about
+    the transport's new location including map ID and coordinates (x, y, z). The method
+    serves as an event handler for transport relocation, enabling developers to implement
+    custom behaviors when transports move, such as updating passenger positions or
+    triggering zone-related events.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object that has relocated. This represents
+      the moving transport entity in the game world.
+  - name: mapId
+    description: Identifier of the map where the transport is now located. Used to
+      determine which game map the transport has moved to.
+  - name: x
+    description: New X coordinate of the transport's position in world space.
+  - name: y
+    description: New Y coordinate of the transport's position in world space.
+  - name: z
+    description: New Z coordinate of the transport's position in world space.
+  returns: null
+  examples:
+  - title: Basic Transport Relocation Handler
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z)\
+      \ override\n    {\n        // Log the new position of the transport\n      \
+      \  sLog->outString(\"Transport %u relocated to map %u at (%.2f, %.2f, %.2f)\"\
+      ,\n                       transport->GetGUIDLow(), mapId, x, y, z);\n    }\n\
+      };"
+    language: cpp
+  - title: Updating Passenger Positions on Relocation
+    code: "class ShipTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z)\
+      \ override\n    {\n        // Update all passengers' positions to match the\
+      \ new transport location\n        for (auto& passenger : transport->GetPassengers())\n\
+      \        {\n            if (passenger)\n            {\n                passenger->UpdatePosition(x,\
+      \ y, z);\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the transport's movement logic. Developers
+    should avoid performing heavy operations in this callback as it may impact performance
+    during frequent relocations. The transport pointer is guaranteed to be valid when
+    this method is invoked.
+  warnings: Do not modify the transport object directly within this callback unless
+    you are certain of the implications, as it may cause instability or unexpected
+    behavior. Avoid calling blocking operations that could delay the transport's movement.
+  related:
+  - OnAddPassenger
+  - OnRemovePassenger
+  - OnTransportUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:08:15.165984'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,65 @@
+api:
+  class: ObjectMgr
+  method: GetEquipmentInfo
+  signature: const int * ObjectMgr::GetEquipmentInfo(uint32 entry, int8 & id) const
+documentation:
+  brief: Retrieves equipment information for a creature entry, populating the provided
+    ID reference with the equipment template ID.
+  description: The GetEquipmentInfo method fetches equipment data associated with
+    a specific creature entry from the database. It returns a pointer to an array
+    of integers representing the equipment slots and item IDs for that creature's
+    default equipment setup. The method populates the id parameter with the equipment
+    template ID used for this lookup. This functionality is essential for determining
+    what items a creature should be equipped with during spawning or when its equipment
+    needs to be dynamically updated. The returned integer array typically contains
+    3-4 elements corresponding to main hand, off-hand, ranged, and possibly other
+    equipment slots depending on the creature's type.
+  parameters:
+  - name: entry
+    description: The creature entry ID (creature_template.entry) for which to retrieve
+      equipment information. This value must correspond to a valid creature in the
+      database.
+  - name: id
+    description: Reference parameter that will be populated with the equipment template
+      ID (equipment_id from creature_template). This ID identifies which equipment
+      set should be used for this creature.
+  returns: A const pointer to an array of integers representing the equipment configuration.
+    Each element in the array corresponds to a specific equipment slot (main hand,
+    off-hand, ranged, etc.) and contains the item ID for that slot. Returns nullptr
+    if no equipment information is found for the given entry.
+  examples:
+  - title: Basic Usage
+    code: "uint32 creatureEntry = 12345;\nint8 equipmentId = 0;\nconst int* equipment\
+      \ = sObjectMgr->GetEquipmentInfo(creatureEntry, equipmentId);\nif (equipment)\n\
+      {\n    // Use the equipment array\n    uint32 mainHandItem = equipment[0];\n\
+      \    uint32 offHandItem = equipment[1];\n    // etc.\n}"
+    language: cpp
+  - title: Checking Equipment Before Spawning
+    code: "Creature* creature = ...;\nuint32 entry = creature->GetEntry();\nint8 equipId\
+      \ = 0;\nconst int* equipment = sObjectMgr->GetEquipmentInfo(entry, equipId);\n\
+      if (equipment && equipId > 0)\n{\n    // Apply equipment to creature\n    for\
+      \ (int i = 0; i < 3; ++i)\n    {\n        if (equipment[i] > 0)\n        {\n\
+      \            creature->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_SLOT_ID + i, equipment[i]);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method accesses the database to retrieve equipment information. It is
+    typically called during creature creation or when equipment needs to be dynamically
+    applied. The returned array should not be modified as it's managed by the ObjectMgr
+    singleton. The id parameter is populated with the equipment template ID which
+    can be used to fetch additional equipment data from the creature_equip_template
+    table.
+  warnings: The method returns a pointer to internal data structures, so it should
+    not be stored or accessed after the ObjectMgr instance has been destroyed. If
+    no equipment information exists for the given entry, the returned pointer will
+    be nullptr, and the id parameter may contain an invalid value. Always check for
+    null before using the returned array.
+  related:
+  - GetCreatureTemplate
+  - GetEquipmentInfo
+  - LoadCreatureEquipment
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:49:04.155546'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

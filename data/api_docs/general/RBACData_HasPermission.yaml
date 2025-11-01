@@ -1,0 +1,50 @@
+api:
+  class: RBACData
+  method: HasPermission
+  signature: bool RBACData::HasPermission(uint32 permission) const
+documentation:
+  brief: Checks if the RBACData has a specific permission.
+  description: The HasPermission method determines whether the current RBAC (Role-Based
+    Access Control) data contains a specified permission. This is used in TrinityCore
+    to enforce access control for various game features, commands, and actions based
+    on user roles and permissions. The method performs a lookup within the internal
+    permission set associated with the RBACData instance and returns true if the permission
+    is found, false otherwise. It's commonly used in command handling and feature
+    gating throughout the core.
+  parameters: []
+  returns: Returns true if the specified permission is granted to this RBACData instance,
+    false otherwise.
+  examples:
+  - title: Basic Permission Check
+    code: "RBACData rbacData;\n// Assume rbacData has been populated with permissions\n\
+      if (rbacData.HasPermission(RBAC_PERM_COMMANDS)) {\n    // User can execute commands\n\
+      \    SendCommandResponse(\"You have command access.\");\n} else {\n    // User\
+      \ cannot execute commands\n    SendCommandResponse(\"You do not have command\
+      \ access.\");\n}"
+    language: cpp
+  - title: Using in Command Handler
+    code: "void HandleTestCommand(ChatHandler* handler, char const* args) {\n    Player*\
+      \ player = handler->GetPlayer();\n    if (!player) return;\n    \n    RBACData\
+      \ const* rbac = player->GetRBACData();\n    if (rbac && rbac->HasPermission(RBAC_PERM_TEST_COMMAND))\
+      \ {\n        handler->SendSysMessage(\"You can use the test command.\");\n \
+      \   } else {\n        handler->SendSysMessage(\"You do not have permission to\
+      \ use this command.\");\n    }\n}"
+    language: cpp
+  notes: This method performs a lookup in an internal permission set. The performance
+    is generally fast due to the use of optimized data structures, but repeated calls
+    should be considered for caching if used frequently in tight loops. The RBACData
+    instance must be properly initialized with permissions before calling this method.
+  warnings: Ensure that the RBACData instance is valid and populated with permissions
+    before calling this method. Calling HasPermission on an uninitialized or empty
+    RBACData will always return false, which may not be the intended behavior in all
+    cases.
+  related:
+  - GetPermissions
+  - AddPermission
+  - RemovePermission
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T07:39:52.829543'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

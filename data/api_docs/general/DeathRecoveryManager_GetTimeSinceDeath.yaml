@@ -1,0 +1,50 @@
+api:
+  class: DeathRecoveryManager
+  method: GetTimeSinceDeath
+  signature: uint64 DeathRecoveryManager::GetTimeSinceDeath() const
+documentation:
+  brief: Calculates and returns the time elapsed since the player's last death in
+    milliseconds.
+  description: The GetTimeSinceDeath method computes the duration, in milliseconds,
+    that has passed since the player died. This value is typically used to determine
+    whether a player is eligible for resurrection or to enforce cooldowns between
+    deaths. The method relies on internal tracking of the last death timestamp within
+    the DeathRecoveryManager instance. It does not perform any validation or reset
+    operations; instead, it simply returns the stored time difference. This function
+    is commonly invoked during player death handling and resurrection logic in TrinityCore's
+    game mechanics.
+  parameters: []
+  returns: A uint64 value representing the number of milliseconds elapsed since the
+    last death. Returns 0 if no death has occurred yet or if the internal timestamp
+    is invalid.
+  examples:
+  - title: Basic Usage in Death Handling
+    code: "void HandlePlayerDeath(Player* player)\n{\n    DeathRecoveryManager& recovery\
+      \ = player->GetDeathRecoveryManager();\n    uint64 timeSinceDeath = recovery.GetTimeSinceDeath();\n\
+      \    if (timeSinceDeath > 30000) // 30 seconds\n    {\n        // Allow resurrection\n\
+      \        player->ResurrectPlayer();\n    }\n}"
+    language: cpp
+  - title: Checking Resurrection Cooldown
+    code: "bool CanResurrect(Player* player)\n{\n    DeathRecoveryManager& recovery\
+      \ = player->GetDeathRecoveryManager();\n    uint64 timeSinceDeath = recovery.GetTimeSinceDeath();\n\
+      \    // Minimum 10 seconds between resurrections\n    return timeSinceDeath\
+      \ >= 10000;\n}"
+    language: cpp
+  notes: This method assumes that the DeathRecoveryManager instance has been properly
+    initialized with a valid death timestamp. The returned value is in milliseconds
+    and may overflow after approximately 585 years on 64-bit systems. It should be
+    used carefully in performance-critical code paths as it involves time calculations.
+  warnings: Be cautious when using this method immediately after a player's death,
+    as the internal state might not yet be updated if called from within the death
+    handling sequence. Also, ensure that the DeathRecoveryManager instance is valid
+    and not null before calling this method to avoid undefined behavior.
+  related:
+  - SetLastDeathTime
+  - ResetDeathTimer
+  - GetLastDeathTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T14:24:04.091127'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

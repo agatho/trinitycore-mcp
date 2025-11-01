@@ -1,0 +1,62 @@
+api:
+  class: Guild
+  method: BroadcastPacketToRank
+  signature: void Guild::BroadcastPacketToRank(const WorldPacket * packet, GuildRankId
+    rankId) const
+documentation:
+  brief: Sends a packet to all guild members who hold a specific rank or higher.
+  description: The BroadcastPacketToRank method broadcasts a specified WorldPacket
+    to all members of the guild who have a rank equal to or greater than the provided
+    rank ID. This functionality is commonly used for sending guild-wide messages,
+    updates, or notifications that should only be visible to officers and above, or
+    to specific rank tiers within the guild hierarchy. The method iterates through
+    all online guild members and filters them based on their rank level before sending
+    the packet. It does not send the packet to offline players or those who are not
+    in the same map instance as the broadcaster.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket that will be broadcasted to guild members.
+      This packet should contain properly formatted data intended for client-side
+      processing.
+  - name: rankId
+    description: The GuildRankId indicating the minimum rank level required to receive
+      the packet. Members with this rank or higher will receive the broadcast.
+  returns: null
+  examples:
+  - title: Broadcast a message to all officers and above
+    code: 'WorldPacket packet(SMSG_GUILD_EVENT, 10);
+
+      packet << uint8(GUILD_EVENT_MOTD);
+
+      packet << "Important guild update";
+
+      guild->BroadcastPacketToRank(&packet, GUILD_RANK_OFFICER);'
+    language: cpp
+  - title: Send a custom packet to all members with rank 3 or higher
+    code: 'WorldPacket packet(SMSG_CUSTOM_GUILD_UPDATE, 4);
+
+      packet << uint32(12345);
+
+      packet << "Custom update for rank 3+";
+
+      guild->BroadcastPacketToRank(&packet, GUILD_RANK_RANK3);'
+    language: cpp
+  notes: This method only sends packets to online players currently in the same map
+    instance as the guild. It does not perform any packet serialization or validation
+    beyond what is already present in the provided WorldPacket. The rank comparison
+    uses a direct numeric value check where higher numbers represent lower ranks (e.g.,
+    GUILD_RANK_GUILD_MASTER = 0, GUILD_RANK_OFFICER = 1).
+  warnings: Ensure that the packet being broadcasted is properly constructed and does
+    not contain sensitive information that should not be accessible to all members
+    of the specified rank. Sending large packets may impact performance on servers
+    with many online players.
+  related:
+  - Guild::BroadcastPacket
+  - Guild::SendPacketToRank
+  - Guild::GetMemberRank
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:42:26.371716'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

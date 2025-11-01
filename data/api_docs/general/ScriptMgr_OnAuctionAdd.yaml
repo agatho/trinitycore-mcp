@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnAuctionAdd
+  signature: void ScriptMgr::OnAuctionAdd(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Invoked when a new auction is added to the auction house, allowing scripts
+    to intercept and modify auction behavior.
+  description: The OnAuctionAdd method is a hook in the ScriptMgr class that gets
+    called whenever a new auction is successfully posted on the auction house. This
+    method provides an opportunity for custom scripts or modules to react to new auctions,
+    such as logging, modifying auction details, or preventing certain items from being
+    auctioned. It is part of TrinityCore's scripting system which allows developers
+    to extend game functionality without modifying core code. The method receives
+    a pointer to the AuctionHouseObject and the AuctionPosting that was added, enabling
+    access to all relevant auction data for processing.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      where the auction was posted. This object contains information about the auction
+      house itself and its current state.
+  - name: auction
+    description: Pointer to the AuctionPosting object that represents the newly added
+      auction. This contains all details about the item being auctioned, bid information,
+      and auction parameters.
+  returns: null
+  examples:
+  - title: Basic Auction Logging Script
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionAdd(AuctionHouseObject* ah, AuctionPosting* auction) override\n \
+      \   {\n        // Log new auction details\n        sLog->outString(\"New auction\
+      \ added: Item ID %u, Bid %u\", auction->itemTemplate->ItemId, auction->bid);\n\
+      \    }\n};"
+    language: cpp
+  - title: Preventing Certain Items from Auctioning
+    code: "class RestrictedAuctionScript : public AuctionHouseScript\n{\npublic:\n\
+      \    void OnAuctionAdd(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        // Prevent auctioning of soulbound items\n        if (auction->itemTemplate->Flags\
+      \ & ITEM_FLAG_SOULBOUND)\n        {\n            sLog->outString(\"Blocked soulbound\
+      \ item from auction: %u\", auction->itemTemplate->ItemId);\n            // Optionally\
+      \ delete the auction or notify player\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the auction posting process, after validation
+    but before the auction is fully committed to the auction house database. Script
+    developers should be aware that modifying auction data directly in this hook may
+    have unintended consequences. The method is part of TrinityCore's event-driven
+    scripting system and runs in the main game thread.
+  warnings: Modifying auction data within this hook can lead to inconsistencies or
+    crashes if not handled carefully. Avoid performing heavy operations or blocking
+    calls as this could impact server performance. Be cautious when deleting auctions
+    or modifying auction house state directly from this method.
+  related:
+  - OnAuctionRemove
+  - OnAuctionSuccessful
+  - OnAuctionExpired
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:57:53.629089'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: SpellScript
+  method: GetCorpseTargetCountForEffect
+  signature: int SpellScript::GetCorpseTargetCountForEffect(int effect) const
+documentation:
+  brief: Returns the number of corpse targets affected by a specific spell effect.
+  description: The GetCorpseTargetCountForEffect method retrieves the count of corpse
+    targets that are affected by a given spell effect within the current spell's execution
+    context. This method is typically used in spell scripts to determine how many
+    corpses were targeted by a particular effect, which can be useful for effects
+    like resurrection, soulstone creation, or other corpse-based mechanics. The method
+    operates on the active spell script instance and returns an integer representing
+    the number of valid corpse targets found for the specified effect index.
+  parameters:
+  - name: effect
+    description: The index of the spell effect to query for corpse targets. This corresponds
+      to the effect index in the spell's effect array, starting from 0.
+  returns: An integer representing the number of corpse targets affected by the specified
+    spell effect. Returns 0 if no corpse targets are found or if the effect index
+    is invalid.
+  examples:
+  - title: Basic Usage in Spell Script
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffect(SpellEffIndex\
+      \ effIndex) override\n    {\n        int corpseCount = GetCorpseTargetCountForEffect(effIndex);\n\
+      \        if (corpseCount > 0)\n        {\n            // Perform action based\
+      \ on number of corpses\n            SendSystemMessage(\"Affected \" + std::to_string(corpseCount)\
+      \ + \" corpses.\");\n        }\n    }\n};"
+    language: cpp
+  - title: Conditional Logic Based on Corpse Count
+    code: "class ResurrectionSpellScript : public SpellScript\n{\npublic:\n    void\
+      \ OnEffectExecute(SpellEffIndex effIndex) override\n    {\n        int corpseCount\
+      \ = GetCorpseTargetCountForEffect(effIndex);\n        if (corpseCount >= 1)\n\
+      \        {\n            // Apply resurrection logic only if at least one corpse\
+      \ exists\n            ApplyResurrectionEffects();\n        }\n        else\n\
+      \        {\n            // No corpses to resurrect, send error message\n   \
+      \         SendSystemMessage(\"No corpses found to resurrect.\");\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method should only be called within the context of a spell script's
+    execution. It relies on the internal state of the spell script and will return
+    incorrect results if invoked outside of an active spell effect handler. The method
+    does not perform any validation on the effect index, so calling it with an invalid
+    index may result in undefined behavior or zero return values.
+  warnings: Do not call this method outside of a spell effect handler context as it
+    may access invalid memory or return incorrect data. Ensure that the effect index
+    passed is valid for the current spell's effect array to avoid unexpected behavior.
+  related:
+  - GetEffectTargets
+  - GetTargetCountForEffect
+  - GetHitTargets
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:05:08.190200'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

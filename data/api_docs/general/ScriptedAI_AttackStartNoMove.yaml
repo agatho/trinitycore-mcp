@@ -1,0 +1,57 @@
+api:
+  class: ScriptedAI
+  method: AttackStartNoMove
+  signature: void ScriptedAI::AttackStartNoMove(int * target)
+documentation:
+  brief: Initiates attack on a target without moving from the current position.
+  description: The AttackStartNoMove method begins an attack sequence against the
+    specified target entity without triggering any movement behavior. This function
+    is typically used in scripted AI implementations where the creature should engage
+    enemies in place, such as when using ranged attacks or special abilities that
+    require maintaining position. The method sets up the combat state and initiates
+    the attack loop, but does not cause the AI to move toward or away from the target.
+    It's commonly used for stationary bosses or creatures with specific positioning
+    requirements during combat.
+  parameters:
+  - name: target
+    description: Pointer to the target entity that the AI should attack. This parameter
+      must point to a valid GameObject, Creature, or Player object. The target must
+      be within the AI's detection range and not in an invalid state (e.g., dead or
+      untargetable).
+  returns: null
+  examples:
+  - title: Basic Usage in Custom AI
+    code: "void MyBossAI::JustEngagedWith(Unit* target)\n{\n    AttackStartNoMove(target);\n\
+      }\n\nvoid MyBossAI::UpdateAI(const uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n    \n    // Perform ranged attack without moving\n    if\
+      \ (me->getVictim() && me->IsWithinMeleeRange(me->getVictim()))\n        AttackStartNoMove(me->getVictim());\n\
+      }"
+    language: cpp
+  - title: Using with Conditional Logic
+    code: "void MySpellCasterAI::UpdateAI(const uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n    \n    // Only attack if target is within specific range\n\
+      \    if (me->getVictim() && me->IsWithinDist(me->getVictim(), 30.0f))\n    {\n\
+      \        AttackStartNoMove(me->getVictim());\n    }\n    else\n    {\n     \
+      \   // Move toward target if too far\n        DoStartMovement(me->getVictim());\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the ScriptedAI base class and should only be called
+    when the AI has a valid combat target. The method does not perform any validation
+    on the target parameter, so it's the caller's responsibility to ensure the target
+    is valid. The attack will continue until either the target dies or becomes unattackable,
+    or until AttackStartNoMove is called again with a different target.
+  warnings: Calling this method without a valid target can lead to undefined behavior.
+    Always verify that the target exists and is in a valid state before calling AttackStartNoMove.
+    This function does not automatically handle target switching - if you need to
+    change targets, call this method again with the new target.
+  related:
+  - AttackStart
+  - UpdateVictim
+  - DoStartMovement
+  - SetReactState
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:54:37.272595'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

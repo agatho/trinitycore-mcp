@@ -1,0 +1,63 @@
+api:
+  class: ScriptMgr
+  method: OnItemUse
+  signature: bool ScriptMgr::OnItemUse(Player * player, Item * item, const SpellCastTargets
+    & targets, int castId)
+documentation:
+  brief: Executes scripts when a player uses an item, allowing custom behavior override.
+  description: The OnItemUse method is a hook in TrinityCore's ScriptMgr that gets
+    invoked whenever a player attempts to use an item. It allows script developers
+    to intercept and modify the default item usage behavior. The method receives information
+    about the player, the item being used, and the spell cast targets. Returning true
+    from this method typically indicates that the script has handled the item use
+    event and no further processing should occur. This hook is commonly used for implementing
+    custom quest items, consumables with special effects, or preventing default item
+    usage in certain conditions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is using the item. Must be a valid
+      player instance.
+  - name: item
+    description: Pointer to the Item object being used. Must be a valid item instance.
+  - name: targets
+    description: Reference to SpellCastTargets containing information about where
+      the spell is being cast (targeting information).
+  - name: castId
+    description: Integer identifier for the specific cast, used to distinguish between
+      different spell casts in the same context.
+  returns: Boolean value indicating whether the script handled the item use event.
+    Return true to prevent default behavior, false to allow normal processing.
+  examples:
+  - title: Basic Item Use Override
+    code: "bool OnItemUse(Player* player, Item* item, const SpellCastTargets& targets,\
+      \ int castId) override {\n    // Custom logic for item use\n    if (item->GetEntry()\
+      \ == 12345) {\n        // Handle special item behavior\n        player->AddItem(67890,\
+      \ 1); // Give another item\n        return true; // Prevent default usage\n\
+      \    }\n    return false; // Allow normal processing\n}"
+    language: cpp
+  - title: Conditional Item Use with Targeting
+    code: "bool OnItemUse(Player* player, Item* item, const SpellCastTargets& targets,\
+      \ int castId) override {\n    if (item->GetEntry() == 54321 && targets.GetUnitTarget())\
+      \ {\n        // Check if target is valid\n        if (targets.GetUnitTarget()->IsInCombat())\
+      \ {\n            player->SendSpellFailed(0, 0, 0, 0, 0); // Send failure message\n\
+      \            return true; // Prevent use\n        }\n    }\n    return false;\n\
+      }"
+    language: cpp
+  notes: This method is called during the item usage process before any default behavior
+    is applied. Script developers should be careful not to cause infinite loops or
+    modify player state in ways that could break gameplay mechanics. The castId parameter
+    can help distinguish between multiple uses of the same item within a single action.
+  warnings: Modifying item behavior through this hook can affect game balance and
+    quest progression. Ensure that custom implementations do not create exploits or
+    unintended consequences. Be cautious when accessing player or item data as invalid
+    pointers may lead to crashes.
+  related:
+  - OnItemUse
+  - OnPlayerUseItem
+  - OnItemGossipSelect
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:32:36.678789'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

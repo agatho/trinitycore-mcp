@@ -1,0 +1,70 @@
+api:
+  class: StaticMapTree
+  method: LoadMapTile
+  signature: LoadResult StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2
+    * vm)
+documentation:
+  brief: Loads a map tile into the static map tree for collision detection and navigation.
+  description: The LoadMapTile method initializes and loads a specific map tile into
+    the StaticMapTree data structure, enabling collision detection and pathfinding
+    for that tile region. This method is typically invoked during map loading or when
+    a player enters a new tile area. It integrates with the VMapManager2 system to
+    handle virtual map data and ensures that the tile's geometry is properly registered
+    for use in the game world's navigation system. The method returns a LoadResult
+    indicating success or failure of the operation, which helps in managing tile loading
+    states and error handling within the TrinityCore framework.
+  parameters:
+  - name: tileX
+    description: The X coordinate of the tile to load, representing the horizontal
+      position in the map grid system
+  - name: tileY
+    description: The Y coordinate of the tile to load, representing the vertical position
+      in the map grid system
+  - name: vm
+    description: Pointer to the VMapManager2 instance responsible for managing virtual
+      maps and their data
+  returns: LoadResult enum indicating whether the tile was successfully loaded (LOAD_RESULT_SUCCESS),
+    failed to load due to missing data (LOAD_RESULT_ERROR), or if loading is already
+    in progress (LOAD_RESULT_IN_PROGRESS).
+  examples:
+  - title: Basic Tile Loading Example
+    code: "StaticMapTree* mapTree = sVMapManager->GetMapTree(0);\nLoadResult result\
+      \ = mapTree->LoadMapTile(10, 15, sVMapManager);\nif (result == LOAD_RESULT_SUCCESS)\
+      \ {\n    // Tile loaded successfully\n    printf(\"Tile (10,15) loaded\\n\"\
+      );\n} else if (result == LOAD_RESULT_ERROR) {\n    // Handle loading error\n\
+      \    printf(\"Failed to load tile (10,15)\\n\");\n}"
+    language: cpp
+  - title: Tile Loading with Error Handling
+    code: "void LoadPlayerAreaTiles(uint32 mapId, uint32 playerX, uint32 playerY)\
+      \ {\n    StaticMapTree* mapTree = sVMapManager->GetMapTree(mapId);\n    if (!mapTree)\
+      \ return;\n    \n    // Load surrounding tiles\n    for (int dx = -1; dx <=\
+      \ 1; ++dx) {\n        for (int dy = -1; dy <= 1; ++dy) {\n            uint32\
+      \ tileX = (playerX >> 7) + dx;\n            uint32 tileY = (playerY >> 7) +\
+      \ dy;\n            \n            LoadResult result = mapTree->LoadMapTile(tileX,\
+      \ tileY, sVMapManager);\n            if (result == LOAD_RESULT_ERROR) {\n  \
+      \              // Log error but continue loading other tiles\n             \
+      \   sLog->outError(\"Failed to load tile %u,%u\", tileX, tileY);\n         \
+      \   }\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the virtual map system in TrinityCore and is crucial
+    for proper collision detection and pathfinding. The method may block if the tile
+    data needs to be loaded from disk, so it's recommended to call this during map
+    initialization or when loading new areas rather than in performance-critical code
+    paths. The tile coordinates are typically derived from world coordinates using
+    the map's tile size constants.
+  warnings: Calling LoadMapTile with invalid tile coordinates may result in undefined
+    behavior or errors. Ensure that the VMapManager2 pointer is valid and properly
+    initialized before calling this method. Repeatedly calling this method on already-loaded
+    tiles will return LOAD_RESULT_IN_PROGRESS, so implement proper state checking
+    to avoid unnecessary operations.
+  related:
+  - GetMapTree
+  - UnloadMapTile
+  - IsTileLoaded
+  - LoadMap
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T20:50:14.436929'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

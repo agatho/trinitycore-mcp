@@ -1,0 +1,65 @@
+api:
+  class: BattlegroundScript
+  method: OnUpdate
+  signature: void BattlegroundScript::OnUpdate(int diff)
+documentation:
+  brief: Updates battleground state and handles game logic every tick.
+  description: The OnUpdate method is a core callback function in the BattlegroundScript
+    class that is invoked periodically to update the state of a battleground. It processes
+    game mechanics such as scoring, player interactions, and objective handling. This
+    method is called by the TrinityCore server framework at regular intervals, typically
+    every second or less depending on the battleground's configuration. The 'diff'
+    parameter provides the time elapsed since the last update in milliseconds, allowing
+    for precise timing of events and animations. Developers can override this method
+    to implement custom battleground behaviors, such as capturing points, managing
+    respawn timers, or handling special events.
+  parameters:
+  - name: diff
+    description: The time elapsed in milliseconds since the last update call. This
+      value is used to determine how much time has passed for game logic calculations
+      and timing-based events.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyBattlegroundScript : public BattlegroundScript\n{\npublic:\n  \
+      \  void OnUpdate(int diff) override\n    {\n        // Handle custom battleground\
+      \ logic here\n        if (m_timer > 0)\n            m_timer -= diff;\n     \
+      \   \n        if (m_timer <= 0)\n        {\n            // Trigger event when\
+      \ timer expires\n            HandleSpecialEvent();\n            m_timer = 30000;\
+      \ // Reset timer to 30 seconds\n        }\n    }\n\nprivate:\n    int m_timer\
+      \ = 30000;\n};"
+    language: cpp
+  - title: Advanced Usage with Player Management
+    code: "class AdvancedBattlegroundScript : public BattlegroundScript\n{\npublic:\n\
+      \    void OnUpdate(int diff) override\n    {\n        // Update player scores\
+      \ based on time spent in battleground\n        for (auto& player : m_players)\n\
+      \        {\n            if (player && player->IsInWorld())\n            {\n\
+      \                player->ModifyHonorPoints(diff / 1000); // Award honor points\
+      \ over time\n            }\n        }\n        \n        // Check for win conditions\n\
+      \        if (CheckWinCondition())\n        {\n            EndBattleground();\n\
+      \        }\n    }\n\nprivate:\n    std::vector<Player*> m_players;\n    bool\
+      \ CheckWinCondition()\n    {\n        // Custom win condition logic\n      \
+      \  return false;\n    }\n    void EndBattleground()\n    {\n        // Handle\
+      \ end of battleground logic\n    }\n};"
+    language: cpp
+  notes: The OnUpdate method is called from the main game loop and should avoid heavy
+    computations or blocking operations to maintain server performance. It's important
+    to note that this method may be called multiple times per second, so all calculations
+    must be efficient. The 'diff' parameter represents actual elapsed time and can
+    vary between calls, making it essential for accurate timing of events.
+  warnings: Avoid performing expensive database operations or large memory allocations
+    within OnUpdate as it can cause server lag. Do not call methods that modify the
+    battleground state in a way that could cause race conditions or inconsistent game
+    state. Be careful with time-based logic since 'diff' may be zero or very small
+    during high server load.
+  related:
+  - BattlegroundScript::OnBattlegroundStart
+  - BattlegroundScript::OnBattlegroundEnd
+  - BattlegroundScript::HandlePlayerJoin
+  - BattlegroundScript::HandlePlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T02:03:32.745476'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

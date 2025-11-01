@@ -1,0 +1,73 @@
+api:
+  class: Aura
+  method: CallScriptEffectAfterManaShieldHandlers
+  signature: void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect * aurEff,
+    const AuraApplication * aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
+documentation:
+  brief: Calls script handlers after mana shield effect is applied to absorb damage.
+  description: This method invokes all registered script handlers that are triggered
+    after a mana shield aura effect has been applied to absorb incoming damage. It
+    processes the damage information and absorption amount, allowing custom logic
+    to be executed during the mana shield's post-application phase. The method is
+    typically called internally by the aura system when mana shield effects are processed,
+    enabling scripted behaviors such as additional damage calculations, visual effects,
+    or status updates. This function ensures that any custom implementations of mana
+    shield behavior are properly executed after the core absorption mechanics have
+    taken place.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object representing the mana shield effect
+      being processed. This parameter contains the specific aura effect data and properties
+      related to the mana shield.
+  - name: aurApp
+    description: Pointer to the AuraApplication object containing application context
+      for the aura. Provides information about how the aura is applied to the target,
+      including duration, stack count, and application state.
+  - name: dmgInfo
+    description: Reference to a DamageInfo structure that holds detailed information
+      about the incoming damage being absorbed by the mana shield. This includes damage
+      type, amount, and other relevant damage properties.
+  - name: absorbAmount
+    description: Reference to a uint32 variable that represents the current absorption
+      amount calculated by the mana shield effect. This value can be modified by script
+      handlers to adjust how much damage is actually absorbed.
+  returns: null
+  examples:
+  - title: Basic usage in custom aura effect handler
+    code: "void CustomManaShieldHandler(AuraEffect* aurEff, const AuraApplication*\
+      \ aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)\n{\n    // Call the base\
+      \ script effect handlers\n    GetAura()->CallScriptEffectAfterManaShieldHandlers(aurEff,\
+      \ aurApp, dmgInfo, absorbAmount);\n    \n    // Custom logic can be added here\
+      \ after base handlers are called\n    if (absorbAmount > 0)\n    {\n       \
+      \ // Additional processing when mana shield absorbs damage\n        SendCustomVisualEffect(aurApp->GetTarget());\n\
+      \    }\n}"
+    language: cpp
+  - title: Modifying absorption amount in script handler
+    code: "void ModifyManaShieldAbsorption(AuraEffect* aurEff, const AuraApplication*\
+      \ aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)\n{\n    // Call base handlers\
+      \ first\n    GetAura()->CallScriptEffectAfterManaShieldHandlers(aurEff, aurApp,\
+      \ dmgInfo, absorbAmount);\n    \n    // Modify absorption amount based on custom\
+      \ conditions\n    if (aurApp->GetTarget()->HasAura(12345)) // Check for specific\
+      \ buff\n    {\n        absorbAmount *= 1.5f; // Increase absorption by 50%\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the internal aura script handling system and should
+    typically be called from within aura effect implementations rather than directly.
+    The parameters are passed by reference, so modifications to dmgInfo or absorbAmount
+    will affect the actual damage processing flow. Script handlers registered for
+    this event will execute in the order they were added to the aura effect.
+  warnings: Direct modification of the DamageInfo structure should be done carefully
+    as it may affect other systems that rely on accurate damage reporting. Be cautious
+    when changing the absorbAmount value, as it can significantly impact how much
+    damage is actually prevented from reaching the target.
+  related:
+  - CallScriptEffectBeforeManaShieldHandlers
+  - CallScriptEffectApplyHandlers
+  - CallScriptEffectRemoveHandlers
+  - GetAura
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T14:07:17.808234'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

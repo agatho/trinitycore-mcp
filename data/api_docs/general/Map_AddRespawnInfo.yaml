@@ -1,0 +1,59 @@
+api:
+  class: Map
+  method: AddRespawnInfo
+  signature: bool Map::AddRespawnInfo(const RespawnInfo & info)
+documentation:
+  brief: Adds a respawn info entry to the map's respawn system
+  description: The AddRespawnInfo method is used to register a respawn information
+    structure with the map's internal respawn tracking system. This method is typically
+    invoked when game objects, creatures, or game events need to be scheduled for
+    automatic respawning at specific locations and times. The method ensures that
+    the provided respawn info is properly stored and managed by the map's respawn
+    manager, which handles the actual respawning logic during server updates. It plays
+    a crucial role in maintaining persistent game state across server restarts and
+    ensuring proper cleanup of temporary respawn entries.
+  parameters:
+  - name: info
+    description: A constant reference to a RespawnInfo structure containing the respawn
+      data including object GUID, respawn time, and location information. The structure
+      must be properly initialized with valid values before calling this method.
+  returns: Returns true if the respawn info was successfully added to the map's respawn
+    tracking system, false otherwise. The method may return false if the provided
+    info is invalid or if there are internal errors during the addition process.
+  examples:
+  - title: Basic Respawn Info Addition
+    code: "RespawnInfo info;\ninfo.guid = ObjectGuid::Create<HighGuid::GameObject>(12345);\n\
+      info.respawntime = time(nullptr) + 300; // 5 minutes from now\ninfo.mapid =\
+      \ 0;\ninfo.x = 100.0f;\ninfo.y = 200.0f;\ninfo.z = 300.0f;\nbool result = map->AddRespawnInfo(info);\n\
+      if (result)\n    TC_LOG_DEBUG(\"respawn\", \"Respawn info added successfully\"\
+      );"
+    language: cpp
+  - title: Adding Creature Respawn Info
+    code: "Creature* creature = ...; // existing creature instance\nRespawnInfo info;\n\
+      info.guid = creature->GetGUID();\ninfo.respawntime = time(nullptr) + 600; //\
+      \ 10 minutes from now\ninfo.mapid = creature->GetMapId();\ninfo.x = creature->GetPositionX();\n\
+      info.y = creature->GetPositionY();\ninfo.z = creature->GetPositionZ();\nbool\
+      \ result = map->AddRespawnInfo(info);\nif (!result)\n    TC_LOG_ERROR(\"respawn\"\
+      , \"Failed to add creature respawn info for GUID: {}\", info.guid.GetCounter());"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework when
+    objects are scheduled for respawning. Developers should ensure that RespawnInfo
+    structures are properly initialized with valid data before calling this method.
+    The method performs internal validation and may silently fail if invalid data
+    is provided. It's important to note that respawn information is managed separately
+    from regular object lifecycle management.
+  warnings: Calling this method with invalid or uninitialized RespawnInfo data can
+    lead to undefined behavior or silent failures. Always validate the input data
+    before calling AddRespawnInfo. Be cautious when adding respawn entries for objects
+    that may already be tracked by the system, as duplicate entries could cause unexpected
+    behavior.
+  related:
+  - RemoveRespawnInfo
+  - GetRespawnInfo
+  - SaveRespawnTimes
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:51:58.668466'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

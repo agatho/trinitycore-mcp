@@ -1,0 +1,62 @@
+api:
+  class: AuctionHouseMgr
+  method: GetCommodityAuctionDeposit
+  signature: uint64 AuctionHouseMgr::GetCommodityAuctionDeposit(const int * item,
+    int time, uint32 quantity)
+documentation:
+  brief: Calculates the auction deposit required for a commodity item listed on the
+    auction house.
+  description: The GetCommodityAuctionDeposit method computes the required bid deposit
+    amount for placing a commodity item (such as a currency or trade good) on the
+    auction house. This deposit is refundable upon successful sale or removal of the
+    auction. The calculation takes into account the item's base value, the auction
+    duration, and the quantity being auctioned. This method is typically invoked when
+    preparing to list an item for auction to determine how much gold the player must
+    pay upfront as a security deposit.
+  parameters:
+  - name: item
+    description: Pointer to an integer array representing the commodity item's properties,
+      including its ID and other relevant metadata. The exact structure is determined
+      by the internal auction house system.
+  - name: time
+    description: The auction duration in seconds. Valid values are typically 1 hour
+      (3600), 2 hours (7200), or 12 hours (43200).
+  - name: quantity
+    description: The number of items being auctioned. Must be a positive integer greater
+      than zero.
+  returns: Returns a uint64 value representing the total gold amount required as an
+    auction deposit for the specified commodity item, duration, and quantity.
+  examples:
+  - title: Calculate Deposit for 100 Gold Coins
+    code: 'int itemData[] = {51397, 0}; // Example commodity item ID
+
+      uint64 deposit = auctionHouseMgr->GetCommodityAuctionDeposit(itemData, 3600,
+      100);
+
+      // Returns the deposit amount for listing 100 gold coins on a 1-hour auction'
+    language: cpp
+  - title: Calculate Deposit for Rare Trade Goods
+    code: 'int itemData[] = {12345, 0}; // Example rare trade good ID
+
+      uint64 deposit = auctionHouseMgr->GetCommodityAuctionDeposit(itemData, 43200,
+      1);
+
+      // Returns the deposit amount for listing one rare trade good on a 12-hour auction'
+    language: cpp
+  notes: This method is part of the core auction house logic and interacts with internal
+    item and pricing systems. It may be called multiple times during an auction creation
+    process to validate deposit amounts before finalizing the listing.
+  warnings: Ensure that the item pointer points to valid data, as invalid or null
+    pointers can lead to undefined behavior. The time parameter must match one of
+    the supported auction durations; otherwise, the result may not reflect correct
+    pricing.
+  related:
+  - GetAuctionDeposit
+  - PlaceAuctionItem
+  - RemoveAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:32:00.991012'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

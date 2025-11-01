@@ -1,0 +1,60 @@
+api:
+  class: TransportScript
+  method: OnRemovePassenger
+  signature: void TransportScript::OnRemovePassenger(Transport * transport, Player
+    * player)
+documentation:
+  brief: Called when a player is removed from a transport, allowing scripts to execute
+    custom logic during passenger removal.
+  description: The OnRemovePassenger method is a virtual callback function in the
+    TransportScript class that is invoked whenever a Player is removed from a Transport
+    object. This method provides an opportunity for custom script behavior when passengers
+    disembark from transports such as boats, zeppelins, or other moving game objects.
+    The method is typically used to perform cleanup operations, trigger events, or
+    modify player state upon removal from the transport. It serves as part of TrinityCore's
+    scripting system that allows developers to extend or override default transport
+    behavior without modifying core game logic.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object from which the player is being removed.
+      This represents the moving game object that the player was riding on.
+  - name: player
+    description: Pointer to the Player object that is being removed from the transport.
+      This represents the specific player who has disembarked.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRemovePassenger(Transport* transport, Player* player) override\n    {\n\
+      \        // Log when a player leaves the transport\n        sLog->outString(\"\
+      Player %s has left transport %u\", player->GetName().c_str(), transport->GetGUIDLow());\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Implementation with State Management
+    code: "class CustomTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRemovePassenger(Transport* transport, Player* player) override\n    {\n\
+      \        // Reset player's movement flags\n        player->SetMovementFlag(MOVEFLAG_NONE);\n\
+      \        \n        // Send custom message to player\n        player->SendNotification(\"\
+      You have disembarked from the transport.\");\n        \n        // Trigger quest\
+      \ event if applicable\n        if (player->GetQuestStatus(12345) == QUEST_STATUS_INCOMPLETE)\n\
+      \            player->AreaExploredOrEventHappens(12345);\n    }\n};"
+    language: cpp
+  notes: This method is called after the player has been fully removed from the transport's
+    passenger list but before the player object is destroyed or reset. Developers
+    should be cautious about modifying the transport object itself within this callback,
+    as it may lead to unexpected behavior. The method is executed on the same thread
+    as the game world update loop.
+  warnings: Avoid performing heavy computations or blocking operations in this method
+    as it is called during the game's main update cycle and can impact performance.
+    Do not attempt to access or modify transport state that might cause race conditions,
+    especially if multiple players are being removed simultaneously.
+  related:
+  - OnAddPassenger
+  - OnTransportUpdate
+  - OnRelocate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:08:46.528959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,44 @@
+api:
+  class: PoolMgr
+  method: IsEmpty
+  signature: bool PoolMgr::IsEmpty(uint32 pool_id) const
+documentation:
+  brief: Checks whether a specified pool is empty
+  description: The IsEmpty method determines if a given pool identified by its pool_id
+    contains no active entries. This functionality is essential for managing dynamic
+    object spawning and cleanup in World of Warcraft's TrinityCore environment, particularly
+    when dealing with creature, gameobject, or loot pools that are managed through
+    the PoolMgr system. The method returns true if the pool has no active or pending
+    entries, and false otherwise. It does not modify any internal state but provides
+    a read-only check on the pool's current status.
+  parameters: []
+  returns: Returns true if the specified pool is empty (contains no active entries),
+    false if it contains at least one entry.
+  examples:
+  - title: Basic usage to check if a creature pool is empty
+    code: "if (sPoolMgr->IsEmpty(12345)) {\n    // Pool 12345 is empty, safe to perform\
+      \ cleanup or re-population\n    sPoolMgr->AddPoolEntry(12345, 67890, 1.0f);\n\
+      }"
+    language: cpp
+  - title: Using IsEmpty in a loop to manage multiple pools
+    code: "uint32 poolIds[] = {1001, 1002, 1003};\nfor (uint32 id : poolIds) {\n \
+      \   if (sPoolMgr->IsEmpty(id)) {\n        sPoolMgr->AddPoolEntry(id, 5000 +\
+      \ id, 1.0f);\n    }\n}"
+    language: cpp
+  notes: This method performs a simple lookup and does not involve any locking mechanisms
+    in most implementations, so it should be used carefully in multi-threaded contexts
+    where pool state might change concurrently. The pool_id parameter must refer to
+    an existing pool managed by the PoolMgr; otherwise, behavior is undefined.
+  warnings: Using IsEmpty on a non-existent pool_id may lead to undefined behavior
+    or assertion failures depending on implementation details. Always ensure that
+    the pool_id exists before calling this method.
+  related:
+  - PoolMgr::GetPoolPopulator
+  - PoolMgr::AddPoolEntry
+  - PoolMgr::RemovePoolEntry
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T08:19:22.431866'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

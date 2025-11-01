@@ -1,0 +1,61 @@
+api:
+  class: Map
+  method: DynamicObjectCellRelocation
+  signature: bool Map::DynamicObjectCellRelocation(int * go, int new_cell)
+documentation:
+  brief: Relocates a dynamic object to a new cell within the map.
+  description: The DynamicObjectCellRelocation method is responsible for updating
+    the cell position of a dynamic object within the TrinityCore world map system.
+    This method ensures that objects such as area triggers, spell effects, or other
+    dynamic entities are properly tracked and managed across different map cells.
+    It handles the internal bookkeeping required to maintain spatial awareness of
+    these objects, which is crucial for proper visibility, collision detection, and
+    event triggering. The method typically gets invoked when an object moves from
+    one cell to another during gameplay, ensuring that the server's spatial indexing
+    remains consistent with the object's actual position.
+  parameters:
+  - name: go
+    description: Pointer to the dynamic object identifier (GUID) that needs to be
+      relocated. This parameter represents the unique identifier of the object being
+      moved.
+  - name: new_cell
+    description: The new cell coordinate where the dynamic object should be relocated.
+      This value typically represents a cell index or coordinate within the map's
+      grid system.
+  returns: Returns true if the relocation was successful and the object's cell position
+    was updated correctly; otherwise, returns false if the operation failed due to
+    invalid parameters or internal errors.
+  examples:
+  - title: Basic Dynamic Object Relocation
+    code: "uint64 guid = 12345;\nint newCell = 50;\nbool success = map->DynamicObjectCellRelocation(&guid,\
+      \ newCell);\nif (success) {\n    // Object successfully relocated\n}"
+    language: cpp
+  - title: Handling Relocation with Error Checking
+    code: "uint64 guid = player->GetGUID();\nint newCell = CalculateNewCellPosition(player);\n\
+      if (newCell >= 0) {\n    bool result = map->DynamicObjectCellRelocation(&guid,\
+      \ newCell);\n    if (!result) {\n        // Log error or handle relocation failure\n\
+      \        sLog->outError(\"Failed to relocate dynamic object %u\", guid);\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is part of the internal map management system and should generally
+    not be called directly by external modules. The implementation likely involves
+    updating internal data structures such as spatial hash tables or grid-based indexing
+    systems to reflect the new object position. It's important to ensure that the
+    new cell coordinate is valid and within the bounds of the map's grid before calling
+    this method.
+  warnings: Calling this method with invalid parameters (such as a null pointer for
+    'go' or an out-of-bounds 'new_cell') can lead to undefined behavior or crashes.
+    The method assumes that the object exists and is already registered in the map's
+    dynamic object system. Improper usage may cause synchronization issues between
+    client and server views of object positions.
+  related:
+  - Map::AddDynamicObject
+  - Map::RemoveDynamicObject
+  - Map::GetDynamicObject
+  - Map::IsCellValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T10:48:04.978527'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

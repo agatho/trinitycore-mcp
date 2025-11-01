@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnGroupInviteMember
+  signature: void ScriptMgr::OnGroupInviteMember(Group * group, int guid)
+documentation:
+  brief: Invoked when a player is invited to join a group, allowing scripts to modify
+    or prevent the invitation.
+  description: The OnGroupInviteMember method is a hook in TrinityCore's scripting
+    system that gets called whenever a player is invited to join a group. This method
+    provides an opportunity for custom scripts or addons to intercept and potentially
+    alter the group invitation process. It is typically used to implement custom group
+    policies, restrict certain players from joining groups, or perform logging and
+    tracking of group invitations. The method does not prevent the invitation by default;
+    it simply notifies the script manager that an invitation has occurred. Scripts
+    can use this hook to enforce game rules, such as preventing players from joining
+    groups if they are in a PvP flag state, or to log all group invitations for administrative
+    purposes.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that the player is being invited to join.
+      This represents the target group and can be used to access group members, leader
+      information, and other group properties.
+  - name: guid
+    description: The unique identifier (GUID) of the player who is being invited to
+      the group. This value uniquely identifies the player within the game world and
+      can be used to retrieve player data or perform lookups.
+  returns: null
+  examples:
+  - title: Basic Group Invitation Logging
+    code: "void OnGroupInviteMember(Group* group, uint32 guid)\n{\n    if (group &&\
+      \ guid)\n    {\n        sLog->outString(\"Player with GUID %u was invited to\
+      \ group %u\", guid, group->GetId());\n    }\n}"
+    language: cpp
+  - title: Prevent Inviting Players in PvP Flag State
+    code: "void OnGroupInviteMember(Group* group, uint32 guid)\n{\n    if (group &&\
+      \ guid)\n    {\n        Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(guid,\
+      \ 0, HIGHGUID_PLAYER));\n        if (player && player->HasFlag(PLAYER_FLAGS,\
+      \ PLAYER_FLAGS_PVP_FLAG))\n        {\n            // Prevent the invitation\n\
+      \            sLog->outString(\"Prevented PvP flagged player %u from joining\
+      \ group %u\", guid, group->GetId());\n        }\n    }\n}"
+    language: cpp
+  notes: This method is called during the group invitation process and should be used
+    carefully to avoid performance issues or infinite loops. The group pointer may
+    be null in some edge cases, so always validate it before use. This hook is part
+    of TrinityCore's scripting system and requires proper script registration to function.
+  warnings: Do not modify the group structure directly within this method unless absolutely
+    necessary, as it might lead to undefined behavior or crashes. Avoid performing
+    heavy operations in this hook as it may affect game performance during frequent
+    group invitations.
+  related:
+  - OnGroupCreate
+  - OnGroupRemoveMember
+  - OnGroupDisband
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:45:04.536374'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: InventoryManager
+  method: GetConsumableCount
+  signature: uint32 InventoryManager::GetConsumableCount(uint32 itemId) const
+documentation:
+  brief: Counts the total quantity of a specified consumable item in the player's
+    inventory
+  description: The GetConsumableCount method retrieves the total stack count of a
+    specific consumable item currently present in the player's inventory. This includes
+    all stacks of the item across all bags and the backpack. The method is particularly
+    useful for checking if a player has sufficient resources before using items such
+    as potions, food, or other consumables. It performs a comprehensive search through
+    all available inventory slots to accumulate the total quantity of the specified
+    item. The method does not distinguish between different types of consumables beyond
+    their item ID, so it will count all stacks of the same item regardless of their
+    specific properties or effects.
+  parameters: []
+  returns: Returns a uint32 value representing the total number of items with the
+    specified item ID found in the player's inventory. If the item is not found, returns
+    0. If the item exists but has zero quantity (which should not normally occur),
+    also returns 0.
+  examples:
+  - title: Check for sufficient health potions
+    code: "uint32 healthPotions = player->GetSession()->GetPlayer()->GetInventory()->GetConsumableCount(1710);\
+      \ // Item ID for Health Potion\nif (healthPotions >= 5)\n{\n    // Player has\
+      \ at least 5 health potions\n    player->CastSpell(player, 2056, true); // Cast\
+      \ a healing spell\n}"
+    language: cpp
+  - title: Inventory management for consumables
+    code: "uint32 manaPotions = player->GetSession()->GetPlayer()->GetInventory()->GetConsumableCount(1711);\
+      \ // Item ID for Mana Potion\nif (manaPotions > 0)\n{\n    // Player has at\
+      \ least one mana potion\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You have %u mana potions.\", manaPotions);\n}\nelse\n{\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You have no mana potions.\");\n}"
+    language: cpp
+  notes: This method performs a full inventory scan to count items, which may have
+    performance implications in high-frequency usage scenarios. The method only counts
+    items that are actually present in the inventory and not equipped or in any temporary
+    storage. It does not account for items in the bank or guild banks unless those
+    are accessed through separate inventory systems.
+  warnings: This method should not be used in performance-critical code paths due
+    to its potential to iterate through all inventory slots. Avoid calling this method
+    repeatedly in tight loops. The method assumes that item IDs are valid and will
+    return 0 for invalid item IDs rather than throwing exceptions.
+  related:
+  - GetItemCount
+  - HasItemCount
+  - AddItem
+  - RemoveItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T12:16:18.156215'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

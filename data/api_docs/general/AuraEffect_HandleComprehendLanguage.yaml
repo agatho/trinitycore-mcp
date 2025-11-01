@@ -1,0 +1,68 @@
+api:
+  class: AuraEffect
+  method: HandleComprehendLanguage
+  signature: void AuraEffect::HandleComprehendLanguage(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes the Comprehend Language aura effect, enabling or disabling
+    language understanding for the affected unit.
+  description: The HandleComprehendLanguage method manages the application and removal
+    of the Comprehend Language aura effect. This effect allows a player or creature
+    to understand all languages spoken by others within their vicinity. The method
+    is invoked during aura application or removal through the AuraApplication system,
+    taking into account the mode (application/removal) and whether the effect should
+    be applied or removed. It modifies the unit's language understanding capabilities
+    based on the aura state and ensures proper synchronization with the client-side
+    UI elements related to language comprehension.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object that contains information about
+      the aura being applied or removed. This parameter provides context for which
+      unit is affected and the specific aura instance.
+  - name: mode
+    description: The mode of operation indicating how the aura is being handled. Typically
+      0 for application and 1 for removal, though exact values may vary based on internal
+      TrinityCore implementation.
+  - name: apply
+    description: Boolean flag indicating whether the aura effect should be applied
+      (true) or removed (false). This determines the direction of the operation being
+      performed.
+  returns: null
+  examples:
+  - title: Basic Usage in Aura Application
+    code: "void MyAuraHandler::HandleComprehendLanguage(const AuraApplication* aurApp,\
+      \ uint8 mode, bool apply) const {\n    if (apply) {\n        // Apply Comprehend\
+      \ Language effect\n        aurApp->GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CANNOT_SPEAK);\n\
+      \    } else {\n        // Remove Comprehend Language effect\n        aurApp->GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_CANNOT_SPEAK);\n    }\n}"
+    language: cpp
+  - title: Integration with Unit Language System
+    code: "void AuraEffect::HandleComprehendLanguage(const AuraApplication* aurApp,\
+      \ uint8 mode, bool apply) const {\n    Player* player = aurApp->GetTarget()->ToPlayer();\n\
+      \    if (!player)\n        return;\n\n    if (apply) {\n        // Enable language\
+      \ comprehension for all known languages\n        player->SetCanSpeak(true);\n\
+      \        player->SendUpdateWorldState(UPDATE_WORLD_STATE_LANGUAGE, 1);\n   \
+      \ } else {\n        // Disable language comprehension\n        player->SetCanSpeak(false);\n\
+      \        player->SendUpdateWorldState(UPDATE_WORLD_STATE_LANGUAGE, 0);\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method is part of the aura effect handling system in TrinityCore and
+    is typically called internally by the core engine when an aura is applied or removed.
+    The implementation may vary depending on the specific aura type and its associated
+    flags. Developers should ensure that any modifications to language comprehension
+    logic are consistent with the game's overall language system.
+  warnings: Improper handling of this method can lead to inconsistent language understanding
+    states for players, potentially causing communication issues in the game world.
+    Care must be taken when modifying unit flags or sending world state updates related
+    to language capabilities.
+  related:
+  - AuraEffect::HandleApply
+  - AuraEffect::HandleRemove
+  - Unit::SetCanSpeak
+  - Player::SendUpdateWorldState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T12:54:04.883277'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

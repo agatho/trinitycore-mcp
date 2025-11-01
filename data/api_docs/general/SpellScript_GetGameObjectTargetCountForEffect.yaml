@@ -1,0 +1,61 @@
+api:
+  class: SpellScript
+  method: GetGameObjectTargetCountForEffect
+  signature: int SpellScript::GetGameObjectTargetCountForEffect(int effect) const
+documentation:
+  brief: Returns the count of game object targets for a specified spell effect.
+  description: The GetGameObjectTargetCountForEffect method retrieves the number of
+    game object targets that were affected by a specific spell effect within the current
+    spell cast. This method is typically used in SpellScript implementations to determine
+    how many game objects (such as doors, traps, or environmental objects) were targeted
+    by a particular effect. The method operates on the currently executing spell and
+    its associated effects, making it useful for conditional logic or counting purposes
+    during spell processing. It's important to note that this count reflects only
+    those targets that were successfully processed by the spell effect, not necessarily
+    all possible targets in the spell's area of effect.
+  parameters:
+  - name: effect
+    description: The index of the spell effect for which to retrieve the game object
+      target count. This corresponds to the effect index as defined in the spell template
+      (0-based). Valid values are typically between 0 and the number of effects defined
+      for the spell minus one.
+  returns: An integer representing the number of game object targets affected by the
+    specified spell effect. Returns 0 if no game objects were targeted or if the effect
+    index is invalid.
+  examples:
+  - title: Basic usage in SpellScript
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffect(SpellEffIndex\
+      \ effIndex) override\n    {\n        int targetCount = GetGameObjectTargetCountForEffect(effIndex);\n\
+      \        if (targetCount > 0)\n        {\n            // Perform actions based\
+      \ on number of game object targets\n            SendScriptWarning(\"Spell affected\
+      \ %d game objects\", targetCount);\n        }\n    }\n};"
+    language: cpp
+  - title: Conditional logic based on target count
+    code: "class AdvancedSpellScript : public SpellScript\n{\npublic:\n    void OnEffectExecute(SpellEffIndex\
+      \ effIndex) override\n    {\n        int goCount = GetGameObjectTargetCountForEffect(effIndex);\n\
+      \        if (goCount >= 3)\n        {\n            // Apply special effect for\
+      \ large target counts\n            CastSpell(GetCaster(), 12345, true); // Example\
+      \ spell\n        }\n        else if (goCount == 0)\n        {\n            //\
+      \ No targets - maybe trigger alternative behavior\n            SendCustomMessage(\"\
+      No game objects targeted\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method should only be called during the execution of a spell script,
+    typically within effect handlers or other spell processing callbacks. The returned
+    count is determined after all target selection and filtering has been completed
+    for the specified effect. Performance-wise, this method performs a simple lookup
+    operation and should not cause significant overhead.
+  warnings: Calling this method outside of a spell script context (e.g., during spell
+    initialization) may result in undefined behavior or incorrect counts. The effect
+    index parameter must be valid for the current spell; invalid indices will return
+    0 rather than causing an error.
+  related:
+  - GetUnitTargetCountForEffect
+  - GetItemTargetCountForEffect
+  - GetSpellValue
+  - GetEffectIndex
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:59:05.847976'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

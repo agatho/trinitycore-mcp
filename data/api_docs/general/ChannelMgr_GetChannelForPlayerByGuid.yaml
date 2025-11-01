@@ -1,0 +1,58 @@
+api:
+  class: ChannelMgr
+  method: GetChannelForPlayerByGuid
+  signature: Channel * ChannelMgr::GetChannelForPlayerByGuid(int channelGuid, Player
+    * playerSearcher)
+documentation:
+  brief: Retrieves a channel instance for a specific player by its unique identifier.
+  description: The GetChannelForPlayerByGuid method searches through the internal
+    channel management system to locate and return a Channel object that matches the
+    provided channel GUID for the specified player. This method is typically used
+    in the context of World of Warcraft's communication systems, where players can
+    join various channels such as general chat, trade, or guild channels. The method
+    ensures that only channels accessible to the given player are returned, respecting
+    permissions and membership rules. It acts as a lookup utility within the ChannelMgr
+    class to facilitate channel-based messaging and communication.
+  parameters:
+  - name: channelGuid
+    description: The unique identifier (GUID) of the channel to search for. This value
+      corresponds to the internal representation of a channel in the TrinityCore database.
+  - name: playerSearcher
+    description: Pointer to the Player object representing the player who is requesting
+      access to the channel. Used to verify player permissions and membership.
+  returns: A pointer to the Channel object if a matching channel exists and the player
+    has permission to access it; otherwise, returns nullptr if no such channel is
+    found or if access is denied.
+  examples:
+  - title: Basic Usage
+    code: "Channel* channel = channelMgr->GetChannelForPlayerByGuid(12345, player);\n\
+      if (channel != nullptr) {\n    // Player can access the channel\n    channel->SendToPlayer(\"\
+      Hello world!\", player);\n} else {\n    // Channel not found or access denied\n\
+      \    player->SendNotification(\"You do not have access to this channel.\");\n\
+      }"
+    language: cpp
+  - title: Checking Channel Access Before Sending Message
+    code: "uint32 channelId = 54321;\nChannel* ch = channelMgr->GetChannelForPlayerByGuid(channelId,\
+      \ player);\nif (ch && ch->HasPlayer(player)) {\n    ch->SendToPlayer(\"Message\
+      \ sent via channel.\", player);\n} else {\n    // Handle invalid or unauthorized\
+      \ access\n    player->SendNotification(\"Cannot send message: Invalid channel\
+      \ or no permission.\");\n}"
+    language: cpp
+  notes: This method performs a lookup in the internal channel registry, which is
+    maintained by the ChannelMgr singleton. It's important to note that this method
+    does not create new channels; it only retrieves existing ones. The returned pointer
+    should be checked for null before use to avoid potential crashes.
+  warnings: Be cautious when using this method without checking for null returns,
+    as attempting to dereference a nullptr can cause segmentation faults. Also, ensure
+    the player object passed is valid and not destroyed before the channel access
+    check completes.
+  related:
+  - ChannelMgr::GetChannel
+  - ChannelMgr::GetChannelByName
+  - Channel::HasPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:28:09.456985'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: Group
+  method: GetMemberFlags
+  signature: int Group::GetMemberFlags(int guid) const
+documentation:
+  brief: Retrieves the member flags for a specified group member by their GUID.
+  description: The GetMemberFlags method returns an integer value representing the
+    current flags associated with a specific group member identified by their global
+    unique identifier (GUID). These flags typically indicate the member's role, status,
+    or permissions within the group. The method is commonly used to determine if a
+    player is the group leader, assistant, or has other special privileges. It operates
+    on the internal group data structure and provides read-only access to member-specific
+    metadata without modifying the group state. This functionality is essential for
+    implementing group-based game mechanics such as loot distribution, leadership
+    changes, and role management.
+  parameters: []
+  returns: An integer value representing the flags associated with the specified group
+    member. The exact meaning of these flags depends on the internal flag definitions
+    used by TrinityCore, but they generally indicate roles like leader (0x1), assistant
+    (0x2), or other group-specific statuses. Returns 0 if the GUID does not correspond
+    to a valid group member.
+  examples:
+  - title: Check if a player is the group leader
+    code: "uint32 playerGuid = 123456;\nint flags = group->GetMemberFlags(playerGuid);\n\
+      if (flags & 0x1) // Assuming 0x1 represents leader flag\n{\n    printf(\"Player\
+      \ is the group leader\\n\");\n}"
+    language: cpp
+  - title: Determine member role in a raid group
+    code: "uint32 targetGuid = player->GetGUID();\nint memberFlags = group->GetMemberFlags(targetGuid);\n\
+      \nif (memberFlags & 0x1)\n{\n    // Player is the group leader\n    SendSystemMessage(\"\
+      You are the group leader.\");\n}\nelse if (memberFlags & 0x2)\n{\n    // Player\
+      \ is an assistant\n    SendSystemMessage(\"You are a group assistant.\");\n\
+      }\nelse\n{\n    // Player is a regular member\n    SendSystemMessage(\"You are\
+      \ a regular group member.\");\n}"
+    language: cpp
+  notes: This method accesses internal group member data and should only be called
+    when the group object is valid. The returned flags are not guaranteed to be stable
+    across different TrinityCore versions, as flag definitions may change. Performance
+    impact is minimal since it's a simple lookup operation in an internal map structure.
+  warnings: Ensure that the GUID passed corresponds to an actual group member; passing
+    an invalid GUID may result in undefined behavior or incorrect return values. The
+    method does not validate whether the player is still online or in the same instance,
+    so additional checks might be necessary for game logic.
+  related:
+  - GetMembers
+  - IsLeader
+  - GetMemberGroup
+  - SetMemberFlags
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T16:45:40.846851'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

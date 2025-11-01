@@ -1,0 +1,51 @@
+api:
+  class: InstanceScript
+  method: GetBossBoundary
+  signature: const CreatureBoundary * InstanceScript::GetBossBoundary(uint32 id) const
+documentation:
+  brief: Retrieves the boundary definition for a specified boss within the instance.
+  description: The GetBossBoundary method returns a pointer to the CreatureBoundary
+    structure that defines the movement or engagement limits for a specific boss in
+    the instance. This boundary is typically used by the AI system to constrain boss
+    movement and determine when the boss should engage or disengage from players.
+    The method takes a boss identifier (id) as input and returns a const pointer to
+    the corresponding boundary definition. If no boundary is defined for the given
+    boss ID, the method may return nullptr. This functionality is crucial for maintaining
+    proper encounter mechanics and preventing bosses from leaving designated areas
+    during combat.
+  parameters: []
+  returns: A const pointer to a CreatureBoundary structure that defines the boss's
+    movement or engagement boundaries. Returns nullptr if no boundary is defined for
+    the specified boss ID.
+  examples:
+  - title: Basic Usage
+    code: "const CreatureBoundary* boundary = instanceScript->GetBossBoundary(12345);\n\
+      if (boundary)\n{\n    // Use boundary data to manage boss behavior\n    TC_LOG_INFO(\"\
+      sql.sql\", \"Boss boundary found for ID: %u\", 12345);\n}"
+    language: cpp
+  - title: Boundary Validation
+    code: "uint32 bossId = 54321;\nconst CreatureBoundary* boundary = instanceScript->GetBossBoundary(bossId);\n\
+      if (boundary && boundary->GetMinX() != 0)\n{\n    // Boss has a defined boundary,\
+      \ use it for AI logic\n    float minX = boundary->GetMinX();\n    float maxX\
+      \ = boundary->GetMaxX();\n    TC_LOG_DEBUG(\"scripts\", \"Boss %u boundary:\
+      \ X range [%f, %f]\", bossId, minX, maxX);\n}\nelse\n{\n    TC_LOG_WARNING(\"\
+      scripts\", \"No valid boundary found for boss ID: %u\", bossId);\n}"
+    language: cpp
+  notes: The returned CreatureBoundary pointer is read-only and should not be modified.
+    The method assumes that the instance script has already initialized all boss boundaries
+    during the instance setup phase. This method is typically called from AI scripts
+    or encounter management code during boss combat events.
+  warnings: Calling this method with an invalid boss ID may return nullptr, which
+    should always be checked before dereferencing. The returned pointer is only valid
+    for the lifetime of the instance script and should not be stored for later use
+    without proper validation.
+  related:
+  - GetBossState
+  - SetBossState
+  - GetBossGuid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T12:54:16.979206'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

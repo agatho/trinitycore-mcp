@@ -1,0 +1,58 @@
+api:
+  class: SpellScript
+  method: GetTriggeringSpell
+  signature: const SpellInfo * SpellScript::GetTriggeringSpell() const
+documentation:
+  brief: Retrieves the SpellInfo structure of the spell that triggered the current
+    spell script execution.
+  description: The GetTriggeringSpell method returns a pointer to the SpellInfo structure
+    representing the spell that initiated the current spell script execution. This
+    is commonly used in spell scripts where one spell triggers another, such as in
+    proc systems, aura effects, or spell linking scenarios. The returned SpellInfo
+    pointer provides access to all spell properties and data associated with the triggering
+    spell, including spell ID, effects, duration, and other relevant attributes. This
+    method should only be called from within a spell script context where a triggering
+    spell is known to exist. It's important to note that the returned pointer is const,
+    meaning it cannot be used to modify the spell information.
+  parameters: []
+  returns: A constant pointer to the SpellInfo structure of the spell that triggered
+    the current script execution. Returns nullptr if no triggering spell exists or
+    if called outside of a valid spell script context.
+  examples:
+  - title: Basic usage in a spell script
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffect(SpellEffIndex\
+      \ effIndex) override\n    {\n        const SpellInfo* triggeringSpell = GetTriggeringSpell();\n\
+      \        if (triggeringSpell)\n        {\n            // Access triggering spell\
+      \ data\n            uint32 spellId = triggeringSpell->Id;\n            // Process\
+      \ based on the triggering spell\n        }\n    }\n};"
+    language: cpp
+  - title: Using triggering spell to determine proc source
+    code: "class ProcSpellScript : public SpellScript\n{\npublic:\n    bool Validate(SpellInfo\
+      \ const* spellInfo) override\n    {\n        return GetTriggeringSpell() !=\
+      \ nullptr;\n    }\n    \n    void HandleProc()\n    {\n        const SpellInfo*\
+      \ trigger = GetTriggeringSpell();\n        if (trigger && trigger->Id == 12345)\n\
+      \        {\n            // Special handling for specific triggering spell\n\
+      \            PreventHit();\n        }\n    }\n};"
+    language: cpp
+  notes: This method is primarily intended for use in spell scripts where the execution
+    context involves a triggering spell. It's commonly used in aura effects, proc
+    systems, and spell linking mechanisms. The returned SpellInfo pointer remains
+    valid only during the scope of the script execution and should not be stored or
+    accessed after the script completes. This method does not perform any validation
+    checks on whether a triggering spell actually exists; it simply returns what was
+    set by the system.
+  warnings: Do not attempt to modify the SpellInfo structure returned by this method,
+    as it's const. Calling this method outside of a spell script context or when no
+    triggering spell is present will return nullptr, which should be checked before
+    usage. The pointer validity is limited to the current script execution scope and
+    should not be cached for later use.
+  related:
+  - GetSpellInfo
+  - GetCaster
+  - GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:50:18.892659'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

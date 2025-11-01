@@ -1,0 +1,59 @@
+api:
+  class: VMapManager2
+  method: acquireModelInstance
+  signature: std::shared_ptr<WorldModel> VMapManager2::acquireModelInstance(const
+    std::string & basepath, const std::string & filename)
+documentation:
+  brief: Retrieves or creates a shared pointer to a WorldModel instance based on the
+    provided file path and filename.
+  description: The acquireModelInstance method is responsible for managing the lifecycle
+    of WorldModel objects within the VMapManager2 system. It attempts to locate an
+    existing WorldModel instance in memory using the specified base path and filename.
+    If the model does not exist, it will create a new instance and store it for future
+    use. This ensures efficient memory usage by preventing duplicate loading of the
+    same model data. The method is typically used during map loading or when dynamic
+    model instantiation is required, such as for terrain or object rendering in the
+    game world. It leverages shared_ptr semantics to automatically manage the reference
+    count and cleanup of model resources.
+  parameters:
+  - name: basepath
+    description: The base directory path where the model files are located. This should
+      be a valid absolute or relative path string that points to the directory containing
+      the .vmo or .vmt files.
+  - name: filename
+    description: The name of the model file without extension, used to identify and
+      load the specific WorldModel instance. The filename must match an existing .vmo
+      or .vmt file in the basepath directory.
+  returns: A std::shared_ptr<WorldModel> pointing to the requested model instance.
+    If the model cannot be found or loaded, this may return a null shared_ptr, indicating
+    failure to acquire the model.
+  examples:
+  - title: Basic usage of acquireModelInstance
+    code: "std::string basePath = \"/opt/trinity/data/maps/\";\nstd::string modelName\
+      \ = \"Azeroth_01\";\nstd::shared_ptr<WorldModel> model = VMapManager2::getInstance()->acquireModelInstance(basePath,\
+      \ modelName);\nif (model) {\n    // Use the model\n} else {\n    // Handle error\
+      \ case\n}"
+    language: cpp
+  - title: Using acquired model for collision detection
+    code: "std::shared_ptr<WorldModel> model = VMapManager2::getInstance()->acquireModelInstance(\"\
+      /opt/trinity/data/maps/\", \"Kalimdor_01\");\nif (model) {\n    // Perform collision\
+      \ checks using the model\n    bool isColliding = model->intersectLine(...);\n\
+      }"
+    language: cpp
+  notes: This method uses internal caching to avoid loading duplicate models. It's
+    thread-safe for concurrent access, but modifications to the cache should be synchronized
+    if needed. The returned shared_ptr maintains a reference to the model, preventing
+    it from being unloaded until all references are destroyed.
+  warnings: Ensure that the basepath and filename parameters point to valid files;
+    otherwise, the method may return a null pointer. Avoid holding long-lived references
+    to models unless necessary, as this can prevent memory cleanup.
+  related:
+  - releaseModelInstance
+  - getModelInstance
+  - loadMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T20:00:41.910809'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

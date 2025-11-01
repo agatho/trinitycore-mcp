@@ -1,0 +1,60 @@
+api:
+  class: Map
+  method: _FindGameObject
+  signature: GameObject * Map::_FindGameObject(WorldObject * pWorldObject, int guid)
+    const
+documentation:
+  brief: Finds and returns a GameObject instance by its unique identifier within the
+    map.
+  description: The _FindGameObject method is an internal utility function used by
+    the Map class to locate a specific GameObject based on its unique identifier (GUID).
+    This method searches through the map's collection of active GameObjects and returns
+    a pointer to the matching object if found, or nullptr if no such object exists.
+    The method is typically used during gameplay operations where a GameObject needs
+    to be retrieved by its known GUID, such as when processing interactions, updates,
+    or references from other game entities. It operates within the context of the
+    map's object management system and ensures thread safety through appropriate locking
+    mechanisms.
+  parameters:
+  - name: pWorldObject
+    description: Pointer to the WorldObject that is requesting the GameObject lookup.
+      This parameter may be used for context or validation purposes, though its exact
+      usage depends on internal implementation details.
+  - name: guid
+    description: The unique identifier (GUID) of the GameObject to search for. This
+      value must correspond to a valid GameObject that has been registered with the
+      map's object manager.
+  returns: A pointer to the GameObject instance if found, or nullptr if no GameObject
+    with the specified GUID exists in the map's active objects collection.
+  examples:
+  - title: Basic GameObject Lookup
+    code: "GameObject* go = map->_FindGameObject(player, 12345);\nif (go != nullptr)\
+      \ {\n    // Process the found GameObject\n    go->SetGoState(GO_STATE_ACTIVE);\n\
+      }"
+    language: cpp
+  - title: Safe GameObject Access with Null Check
+    code: "WorldObject* requester = player;\nuint32 guid = 98765;\nGameObject* foundGo\
+      \ = map->_FindGameObject(requester, guid);\nif (foundGo && foundGo->IsInWorld())\
+      \ {\n    // Safe to use the GameObject\n    foundGo->SendUpdateToPlayer(player);\n\
+      } else {\n    // Handle case where GameObject was not found or is invalid\n}"
+    language: cpp
+  notes: This method is intended for internal use within the TrinityCore engine and
+    should not be called directly from external modules without proper understanding
+    of its behavior. The method performs a lookup in the map's object container, which
+    may involve locking operations depending on implementation details. Performance
+    can vary based on the number of active GameObjects on the map.
+  warnings: Calling this method with an invalid or non-existent GUID will result in
+    a nullptr return value. Always check for null before using the returned pointer
+    to avoid segmentation faults. This method should only be used when you are certain
+    that the GameObject exists and is registered with the map.
+  related:
+  - Map::GetGameObject
+  - Map::FindGameObject
+  - Map::AddGameObject
+  - Map::RemoveGameObject
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:43:02.434024'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

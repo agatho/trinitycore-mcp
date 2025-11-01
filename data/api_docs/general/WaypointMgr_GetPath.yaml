@@ -1,0 +1,51 @@
+api:
+  class: WaypointMgr
+  method: GetPath
+  signature: const WaypointPath * WaypointMgr::GetPath(uint32 pathId) const
+documentation:
+  brief: Retrieves a waypoint path by its unique identifier from the waypoint manager.
+  description: The GetPath method retrieves a const pointer to a WaypointPath object
+    associated with the specified pathId. This method is used to access predefined
+    movement paths for creatures or game objects within the TrinityCore framework.
+    The returned pointer remains valid as long as the waypoint path exists in the
+    manager and should not be modified directly. The method performs a lookup operation
+    using the provided pathId, which typically corresponds to an entry in the creature_waypoint_data
+    table or similar database structure.
+  parameters: []
+  returns: A const pointer to the WaypointPath object if found, or nullptr if no waypoint
+    path exists with the specified pathId. The returned pointer is valid only for
+    the lifetime of the WaypointMgr instance and its associated data.
+  examples:
+  - title: Basic Usage Example
+    code: "WaypointPath const* path = sWaypointMgr->GetPath(12345);\nif (path)\n{\n\
+      \    // Use the waypoint path\n    for (auto const& point : path->points)\n\
+      \    {\n        // Process each waypoint\n    }\n}"
+    language: cpp
+  - title: Creature Movement Path Retrieval
+    code: "class MyCreatureAI : public CreatureAI\n{\npublic:\n    void InitializeWaypointPath()\n\
+      \    {\n        uint32 pathId = me->GetCreatureTemplate()->WaypointPathId;\n\
+      \        WaypointPath const* path = sWaypointMgr->GetPath(pathId);\n       \
+      \ if (path)\n        {\n            // Set up movement using the retrieved path\n\
+      \            m_currentPath = path;\n            m_currentPoint = 0;\n      \
+      \  }\n    }\n};"
+    language: cpp
+  notes: This method performs a hash-based lookup which is generally O(1) in average
+    case. The WaypointMgr maintains internal data structures for fast path retrieval,
+    so repeated calls with the same pathId should be efficient. Be aware that the
+    returned pointer becomes invalid if the path is removed from the manager or if
+    the manager is destroyed.
+  warnings: Do not modify the returned WaypointPath object directly as it's const.
+    Accessing a pathId that doesn't exist will return nullptr, so always check for
+    null before dereferencing. This method assumes that the pathId parameter is valid
+    and corresponds to an existing path in the database.
+  related:
+  - GetPathSize
+  - AddPath
+  - RemovePath
+  - LoadPath
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:00:30.837023'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ServerScript
+  method: OnSocketOpen
+  signature: void ServerScript::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
+documentation:
+  brief: Called when a new socket connection is established with the server.
+  description: The OnSocketOpen method is invoked whenever a new client socket connection
+    is successfully established with the TrinityCore server. This method serves as
+    a hook for server-side scripts to perform initialization tasks or logging when
+    a player connects to the game world. It provides access to the WorldSocket object
+    representing the newly connected client, allowing scripts to inspect connection
+    details, set up session data, or enforce connection policies. The method is part
+    of the ServerScript framework and is typically used in custom server extensions
+    or scripting modules that need to react to new client connections.
+  parameters:
+  - name: socket
+    description: A shared pointer to the WorldSocket object representing the newly
+      established client connection. This object contains connection metadata and
+      provides methods for interacting with the connected client.
+  returns: null
+  examples:
+  - title: Basic socket handling implementation
+    code: "class MyServerScript : public ServerScript\n{\npublic:\n    void OnSocketOpen(std::shared_ptr<WorldSocket>\
+      \ socket) override\n    {\n        // Log new connection\n        sLog->outInfo(LOG_FILTER_SERVER,\
+      \ \"New client connected from %s\", socket->GetRemoteAddress().c_str());\n \
+      \       \n        // Perform basic initialization\n        socket->SetSessionData(new\
+      \ MySessionData());\n    }\n};"
+    language: cpp
+  - title: Connection validation with custom logic
+    code: "class SecureServerScript : public ServerScript\n{\npublic:\n    void OnSocketOpen(std::shared_ptr<WorldSocket>\
+      \ socket) override\n    {\n        // Check connection IP against allowed list\n\
+      \        std::string ip = socket->GetRemoteAddress();\n        if (!IsAllowedIP(ip))\n\
+      \        {\n            sLog->outInfo(LOG_FILTER_SERVER, \"Blocked connection\
+      \ from %s\", ip.c_str());\n            socket->Kick();\n            return;\n\
+      \        }\n        \n        // Set up session tracking\n        auto session\
+      \ = std::make_shared<PlayerSession>(socket);\n        socket->SetSessionData(session);\n\
+      \    }\nprivate:\n    bool IsAllowedIP(const std::string& ip) {\n        //\
+      \ Implementation for IP validation\n        return true;\n    }\n};"
+    language: cpp
+  notes: This method is called on the main server thread and should not perform heavy
+    computations or blocking operations. The socket object passed to this method is
+    valid only during the execution of this callback. If you need to store data associated
+    with the socket, consider using the SetSessionData() method on the socket object
+    itself.
+  warnings: Avoid performing time-consuming operations in this method as it blocks
+    the connection process and can delay other incoming connections. Do not attempt
+    to modify or delete the socket object directly from this callback - use the provided
+    methods instead. Be cautious when accessing session data that might not yet be
+    initialized.
+  related:
+  - OnSocketClose
+  - OnSocketUpdate
+  - SetSessionData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:40:40.549075'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

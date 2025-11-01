@@ -1,0 +1,50 @@
+api:
+  class: Spell
+  method: CallScriptCalcCastTimeHandlers
+  signature: int32 Spell::CallScriptCalcCastTimeHandlers(int32 originalCastTime)
+documentation:
+  brief: Calls all registered script handlers to calculate the cast time of a spell.
+  description: The CallScriptCalcCastTimeHandlers method invokes all registered script
+    handlers that modify or calculate the cast time of a spell. This method is typically
+    called during spell initialization or execution to allow custom scripts (such
+    as those defined in C++ modules or Lua) to adjust the base cast time. It takes
+    an original cast time value and applies any modifications from script handlers,
+    returning the final calculated cast time. The method ensures that all registered
+    handlers are executed in a consistent order, allowing for predictable behavior
+    across different spell implementations.
+  parameters: []
+  returns: Returns the final calculated cast time after all script handlers have been
+    applied to the original cast time. If no handlers modify the value, it returns
+    the original cast time unchanged.
+  examples:
+  - title: Basic usage in spell execution
+    code: 'int32 finalCastTime = spell->CallScriptCalcCastTimeHandlers(originalCastTime);
+
+      // Use finalCastTime for spell casting logic'
+    language: cpp
+  - title: Modifying cast time based on player state
+    code: "class MySpellScript : public SpellScript {\npublic:\n    void Register()\
+      \ override {\n        OnCalcCastTime += SpellScript::OnCalcCastTimeCallback(&MySpellScript::CalculateCustomCastTime);\n\
+      \    }\n\nprivate:\n    void CalculateCustomCastTime(Spell* spell, int32& castTime)\
+      \ {\n        if (spell->GetCaster()->HasAura(12345)) // Example aura\n     \
+      \       castTime *= 2; // Double the cast time\n    }\n};"
+    language: cpp
+  notes: This method is part of the spell scripting system in TrinityCore, allowing
+    modders to customize spell behavior without modifying core engine code. Script
+    handlers are executed in a defined order and may modify the cast time value passed
+    to them. The original cast time should be treated as read-only during handler
+    execution.
+  warnings: Do not modify the original cast time parameter directly within script
+    handlers; instead, use the reference parameter to adjust the value. Incorrectly
+    modifying the value can lead to unexpected behavior or infinite loops if not handled
+    carefully.
+  related:
+  - Spell::CallScriptEffectHandlers
+  - Spell::CallScriptTargetHandlers
+  - Spell::CallScriptHitHandlers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:59:17.498570'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

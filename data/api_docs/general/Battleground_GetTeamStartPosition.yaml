@@ -1,0 +1,52 @@
+api:
+  class: Battleground
+  method: GetTeamStartPosition
+  signature: const WorldSafeLocsEntry * Battleground::GetTeamStartPosition(int teamId)
+    const
+documentation:
+  brief: Retrieves the starting position for a specified team in a battleground.
+  description: The GetTeamStartPosition method returns the WorldSafeLocsEntry that
+    represents the starting location for a specific team within the battleground.
+    This method is used to determine where players of a given team should spawn when
+    the battleground begins. The teamId parameter specifies which team's spawn point
+    to retrieve, typically 0 for Alliance and 1 for Horde. The returned pointer points
+    to a static entry in the game's database that defines safe locations for player
+    respawns and initial spawns.
+  parameters: []
+  returns: A const pointer to a WorldSafeLocsEntry structure representing the starting
+    position for the specified team, or nullptr if no valid spawn point exists for
+    the given team ID.
+  examples:
+  - title: Retrieve Alliance Starting Position
+    code: "const WorldSafeLocsEntry* allianceStart = bg->GetTeamStartPosition(0);\n\
+      if (allianceStart)\n{\n    // Use allianceStart->Loc.x, allianceStart->Loc.y,\
+      \ etc.\n    sLog->outString(\"Alliance spawn point: %f, %f\", allianceStart->Loc.x,\
+      \ allianceStart->Loc.y);\n}"
+    language: cpp
+  - title: Check Both Team Spawn Points
+    code: "const WorldSafeLocsEntry* allianceStart = bg->GetTeamStartPosition(0);\n\
+      const WorldSafeLocsEntry* hordeStart = bg->GetTeamStartPosition(1);\n\nif (allianceStart\
+      \ && hordeStart)\n{\n    sLog->outString(\"Alliance: %f,%f  Horde: %f,%f\",\n\
+      \        allianceStart->Loc.x, allianceStart->Loc.y,\n        hordeStart->Loc.x,\
+      \ hordeStart->Loc.y);\n}\nelse\n{\n    sLog->outError(\"Missing spawn point\
+      \ data for one or both teams\");\n}"
+    language: cpp
+  notes: This method accesses static game data entries and is generally thread-safe.
+    The returned WorldSafeLocsEntry pointer should not be modified as it points to
+    shared database resources. The method may return nullptr if the battleground has
+    no defined spawn point for a given team, which could occur in custom or incomplete
+    battleground configurations.
+  warnings: Be sure to check for null returns before using the returned pointer, as
+    some battleground types might not have both teams properly configured with spawn
+    points. Using an invalid teamId (outside of expected range like 0-1) may result
+    in undefined behavior or nullptr return.
+  related:
+  - GetTeamScore
+  - GetBgTypeId
+  - GetStatus
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:06:26.076597'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

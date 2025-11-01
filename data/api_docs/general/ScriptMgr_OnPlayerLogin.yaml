@@ -1,0 +1,60 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerLogin
+  signature: void ScriptMgr::OnPlayerLogin(Player * player, bool firstLogin)
+documentation:
+  brief: Called when a player logs into the game, allowing scripts to execute custom
+    logic during login.
+  description: The OnPlayerLogin method is a hook in the ScriptMgr class that gets
+    invoked whenever a player successfully logs into the World of Warcraft server.
+    This method provides an opportunity for custom scripts or addons to execute specific
+    actions at the moment of login. The firstLogin parameter indicates whether this
+    is the player's first time logging in during their current session, which can
+    be useful for triggering one-time events such as welcome messages or initial quest
+    assignments. This hook is part of TrinityCore's scripting system and allows developers
+    to extend game behavior without modifying core server code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who logged in.
+      This parameter provides access to all player-related data and methods during
+      the login process.
+  - name: firstLogin
+    description: Boolean flag indicating if this is the first login for the player
+      in their current session. True if it's the first login, false otherwise.
+  returns: null
+  examples:
+  - title: Basic Login Event Handler
+    code: "#include \"ScriptMgr.h\"\n#include \"Player.h\"\n\nvoid OnPlayerLogin(Player*\
+      \ player, bool firstLogin) override\n{\n    if (firstLogin)\n    {\n       \
+      \ player->SendNotification(\"Welcome to our server!\");\n        // Additional\
+      \ first-time login logic here\n    }\n    else\n    {\n        player->SendNotification(\"\
+      Welcome back!\");\n        // Logic for returning players\n    }\n}"
+    language: cpp
+  - title: Custom Login Reward System
+    code: "#include \"ScriptMgr.h\"\n#include \"Player.h\"\n#include \"Chat.h\"\n\n\
+      void OnPlayerLogin(Player* player, bool firstLogin) override\n{\n    if (firstLogin)\n\
+      \    {\n        // Grant initial items or currency for new players\n       \
+      \ player->AddItem(ITEM_ID_WELCOME_GIFT, 1);\n        player->ModifyMoney(10000);\
+      \ // 1 gold\n        ChatHandler(player->GetSession()).SendSysMessage(\"Welcome!\
+      \ You've received your starter pack.\");\n    }\n}"
+    language: cpp
+  notes: This method is called during the login sequence, so it's important not to
+    perform heavy operations that might delay the player's entry into the game. The
+    Player object passed in should be treated as read-only for most purposes unless
+    you're modifying the player's state directly. This hook is executed on the main
+    server thread and should avoid blocking operations.
+  warnings: Avoid performing database operations or long-running tasks within this
+    method, as it can block other players from logging in. Do not modify the player's
+    session or connection state directly from this handler. Be cautious when using
+    player->GetSession() as it may not be fully initialized yet during early login
+    stages.
+  related:
+  - OnPlayerLogout
+  - OnPlayerEnterWorld
+  - OnBeforePlayerLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:16:13.540510'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: Aura
+  method: CallScriptCalcDamageAndHealingHandlers
+  signature: void Aura::CallScriptCalcDamageAndHealingHandlers(const AuraEffect *
+    aurEff, const AuraApplication * aurApp, Unit * victim, int32 & damageOrHealing,
+    int32 & flatMod, float & pctMod)
+documentation:
+  brief: Calls all registered script handlers to calculate damage or healing modifications
+    for an aura effect.
+  description: This method invokes all script-based calculation handlers associated
+    with a specific aura effect and application. It allows scripted mods (flat and
+    percentage) to be applied to the damage or healing value being processed. The
+    method modifies the input parameters 'damageOrHealing', 'flatMod', and 'pctMod'
+    in-place, enabling dynamic adjustments based on custom logic defined in scripts.
+    This is typically called during aura application or removal when damage/healing
+    calculations are performed.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object that triggered this calculation.
+      Represents the specific effect of the aura being processed.
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing how the aura is
+      applied to a unit. Contains application-specific data and context.
+  - name: victim
+    description: Pointer to the Unit object that is the target of the damage or healing
+      calculation. May be null in some cases.
+  - name: damageOrHealing
+    description: Reference to an integer representing the base damage or healing value
+      being calculated. Modified in-place by script handlers.
+  - name: flatMod
+    description: Reference to an integer representing flat modifications (additive
+      bonuses/penalties) to the damage/healing. Modified in-place by script handlers.
+  - name: pctMod
+    description: Reference to a float representing percentage modifications (multiplicative
+      bonuses/penalties) to the damage/healing. Modified in-place by script handlers.
+  returns: null
+  examples:
+  - title: Basic usage within aura processing
+    code: "void MyAuraScript::OnApply(AuraEffect const* aurEff, AuraApplication const*\
+      \ aurApp)\n{\n    Unit* target = aurApp->GetTarget();\n    int32 damage = 100;\n\
+      \    int32 flatMod = 0;\n    float pctMod = 1.0f;\n    \n    // Call script\
+      \ handlers to modify damage\n    GetAura()->CallScriptCalcDamageAndHealingHandlers(aurEff,\
+      \ aurApp, target, damage, flatMod, pctMod);\n    \n    // Apply modified values\n\
+      \    damage += flatMod;\n    damage = int32(damage * pctMod);\n}"
+    language: cpp
+  notes: This method is part of the aura script system and should only be called when
+    processing aura effects that involve damage or healing calculations. It's typically
+    invoked internally by TrinityCore's core aura handling logic, but can also be
+    manually triggered from custom scripts.
+  warnings: Ensure that all parameters are valid pointers before calling this method;
+    passing null pointers may result in crashes. The method modifies input parameters
+    in-place, so make sure to preserve original values if needed.
+  related:
+  - Aura::CallScriptEffectHandlers
+  - Aura::CallScriptOnApply
+  - Aura::CallScriptOnRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:12:33.315535'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

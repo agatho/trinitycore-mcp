@@ -1,0 +1,75 @@
+api:
+  class: DB2Manager
+  method: GetUiMapPosition
+  signature: bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId,
+    int32 areaId, int32 wmoDoodadPlacementId, int32 wmoGroupId, UiMapSystem system,
+    bool local, uint32 * uiMapId, DBCPosition2D * newPos)
+documentation:
+  brief: Converts world coordinates to UI map position based on specified system and
+    flags
+  description: The GetUiMapPosition method translates 3D world coordinates (x, y,
+    z) into a UI map coordinate system. It uses the provided map ID, area ID, and
+    WMO-related identifiers to determine the correct UI map and position within that
+    map. The method supports different coordinate systems (local vs global) and can
+    be used to map in-game positions to UI elements such as minimap or world map coordinates.
+    This is particularly useful for displaying player positions on various maps or
+    calculating relative positions for UI components.
+  parameters:
+  - name: x
+    description: The X coordinate in world space
+  - name: y
+    description: The Y coordinate in world space
+  - name: z
+    description: The Z coordinate in world space
+  - name: mapId
+    description: Identifier for the world map where the position is located
+  - name: areaId
+    description: Area identifier within the map, used for more precise positioning
+  - name: wmoDoodadPlacementId
+    description: WMO doodad placement ID for fine-tuning position within WMO groups
+  - name: wmoGroupId
+    description: WMO group identifier, used to determine correct WMO positioning
+  - name: system
+    description: UiMapSystem enum value indicating which coordinate system to use
+      (local or global)
+  - name: local
+    description: Boolean flag indicating whether to use local coordinates (true) or
+      global coordinates (false)
+  - name: uiMapId
+    description: Pointer to an integer that will receive the UI map identifier upon
+      successful conversion
+  - name: newPos
+    description: Pointer to a DBCPosition2D structure that will receive the converted
+      2D position coordinates
+  returns: Returns true if the coordinate transformation was successful and valid
+    data was written to uiMapId and newPos parameters. Returns false if the conversion
+    failed, typically due to invalid input parameters or missing map data.
+  examples:
+  - title: Basic UI Map Position Conversion
+    code: "float x = 100.0f, y = 200.0f, z = 50.0f;\nint32 mapId = 0;\nint32 areaId\
+      \ = 123;\nint32 wmoDoodadPlacementId = -1;\nint32 wmoGroupId = -1;\nuint32 uiMapId;\n\
+      DBCPosition2D newPos;\n\nif (sDB2Manager->GetUiMapPosition(x, y, z, mapId, areaId,\
+      \ wmoDoodadPlacementId, wmoGroupId, UiMapSystem::GLOBAL, false, &uiMapId, &newPos))\
+      \ {\n    // Successfully converted coordinates\n    printf(\"UI Map ID: %u,\
+      \ Position: (%.2f, %.2f)\\n\", uiMapId, newPos.x, newPos.y);\n} else {\n   \
+      \ // Conversion failed\n    printf(\"Failed to convert world position to UI\
+      \ map position\\n\");\n}"
+    language: cpp
+  notes: This method relies on DB2 database files containing map and coordinate data.
+    The implementation may perform internal lookups in the database to resolve map
+    relationships and coordinate transformations. It is recommended to validate input
+    parameters before calling this function, especially mapId and areaId values.
+  warnings: The method will return false if any of the input parameters are invalid
+    or if required DB2 data is missing. The uiMapId and newPos pointers must be valid
+    and allocated before calling this method. Using uninitialized pointers can lead
+    to undefined behavior.
+  related:
+  - GetUiMapInfo
+  - GetUiMapPositionByArea
+  - ConvertWorldToUiMap
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T14:33:36.586334'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

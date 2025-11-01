@@ -1,0 +1,71 @@
+api:
+  class: Aura
+  method: CallScriptEffectAbsorbHandlers
+  signature: void Aura::CallScriptEffectAbsorbHandlers(AuraEffect * aurEff, const
+    AuraApplication * aurApp, HealInfo & healInfo, uint32 & absorbAmount, bool & defaultPrevented)
+documentation:
+  brief: Calls all script handlers for absorb effects during healing application.
+  description: This method invokes registered script effect handlers that manage absorption
+    mechanics when a healing effect is applied. It allows custom scripts to modify
+    or prevent absorption amounts, and can alter the default behavior of how healing
+    absorbs are processed. The method operates on a specific aura effect and application
+    context, passing in relevant healing information and absorb parameters for modification.
+    This is typically used within the core healing and damage absorption system to
+    enable scripted behaviors that override or augment default mechanics.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object that defines the specific effect
+      being processed. This contains the script handler information and effect parameters.
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the application
+      context of the aura. Provides information about which unit is affected and how
+      the aura was applied.
+  - name: healInfo
+    description: Reference to a HealInfo structure containing detailed healing information,
+      including the amount being healed, type of heal, and other relevant healing
+      data.
+  - name: absorbAmount
+    description: Reference to a uint32 value representing the current absorb amount.
+      Script handlers can modify this value to change how much healing is absorbed.
+  - name: defaultPrevented
+    description: Reference to a boolean flag indicating whether default absorption
+      behavior should be prevented. Script handlers can set this to true to override
+      standard mechanics.
+  returns: null
+  examples:
+  - title: Basic usage in custom aura effect handler
+    code: "void MyAuraScript::HandleAbsorbEffect(AuraEffect const* aurEff, AuraApplication\
+      \ const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool& defaultPrevented)\n\
+      {\n    // Modify absorb amount based on custom logic\n    absorbAmount = healInfo.GetHeal()\
+      \ * 0.5f; // Absorb 50% of healing\n    \n    // Prevent default absorption\
+      \ behavior\n    defaultPrevented = true;\n}"
+    language: cpp
+  - title: Advanced usage with conditional logic
+    code: "void AdvancedAbsorbScript::HandleAbsorbEffect(AuraEffect const* aurEff,\
+      \ AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool&\
+      \ defaultPrevented)\n{\n    Unit* target = aurApp->GetTarget();\n    \n    //\
+      \ Only apply special absorption if target has specific buff\n    if (target->HasAura(12345))\
+      \ // Example aura ID\n    {\n        absorbAmount = std::min(absorbAmount, uint32(1000));\
+      \ // Cap at 1000\n        defaultPrevented = false; // Allow normal behavior\
+      \ but with cap\n    }\n    else\n    {\n        defaultPrevented = true; //\
+      \ Completely prevent absorption\n    }\n}"
+    language: cpp
+  notes: This method is part of the core aura script system and should only be called
+    from within appropriate aura effect handlers. The parameters are passed by reference,
+    allowing script handlers to modify values directly. Performance considerations
+    include avoiding expensive operations in this call path since it's executed frequently
+    during healing events.
+  warnings: Modifying the absorbAmount or defaultPrevented flags can significantly
+    alter game mechanics and healing behavior. Ensure that any modifications maintain
+    game balance and do not introduce exploits. Be cautious when setting defaultPrevented
+    to true as it may prevent standard absorption mechanics from functioning correctly.
+  related:
+  - Aura::CallScriptEffectHandlers
+  - Aura::GetEffect
+  - AuraApplication::GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:09:40.117021'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

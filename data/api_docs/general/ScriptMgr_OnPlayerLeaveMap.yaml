@@ -1,0 +1,56 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerLeaveMap
+  signature: void ScriptMgr::OnPlayerLeaveMap(Map * map, Player * player)
+documentation:
+  brief: Called when a player leaves a map, allowing scripts to perform cleanup or
+    notification operations.
+  description: The OnPlayerLeaveMap method is a callback function in the TrinityCore
+    ScriptMgr class that is invoked whenever a Player object exits a specific Map.
+    This event occurs during the player's transition out of a map, such as when they
+    teleport, log out, or are removed from the world. It provides an opportunity for
+    custom scripts to execute logic, such as saving player data, notifying other systems,
+    or cleaning up resources associated with that player on the map. The method is
+    part of the general scripting framework and allows modders and developers to extend
+    core game behavior without modifying the engine directly.
+  parameters:
+  - name: map
+    description: Pointer to the Map object from which the player is leaving. This
+      represents the current map instance where the player was located.
+  - name: player
+    description: Pointer to the Player object that is leaving the map. This is the
+      specific player instance triggering the event.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyScript : public PlayerScript\n{\npublic:\n    void OnPlayerLeaveMap(Map*\
+      \ map, Player* player) override\n    {\n        // Log when a player leaves\
+      \ the map\n        sLog->outString(\"Player %s left map %u\", player->GetName().c_str(),\
+      \ map->GetId());\n    }\n};"
+    language: cpp
+  - title: Advanced Example with Data Cleanup
+    code: "class MyScript : public PlayerScript\n{\npublic:\n    void OnPlayerLeaveMap(Map*\
+      \ map, Player* player) override\n    {\n        // Save player's current position\
+      \ before leaving\n        if (player->IsInWorld())\n        {\n            //\
+      \ Store last known coordinates\n            player->SavePositionToDB();\n  \
+      \      }\n        \n        // Notify other systems about player departure\n\
+      \        sScriptMgr->OnPlayerLeaveMap(map, player);\n    }\n};"
+    language: cpp
+  notes: This method is called during the map removal process, so it's important to
+    avoid performing operations that may depend on the player being fully in the world.
+    The map and player pointers are guaranteed to be valid at the time of invocation,
+    but the player might already be in a transitional state.
+  warnings: Avoid performing heavy or blocking operations within this method as it
+    can affect performance during player transitions. Also, be cautious not to modify
+    the player's state in ways that could cause instability if the player is about
+    to be destroyed or moved elsewhere.
+  related:
+  - OnPlayerEnterMap
+  - OnPlayerLogin
+  - OnPlayerLogout
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:17:17.297631'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

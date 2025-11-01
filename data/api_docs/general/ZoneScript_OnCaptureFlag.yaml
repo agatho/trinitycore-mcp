@@ -1,0 +1,64 @@
+api:
+  class: ZoneScript
+  method: OnCaptureFlag
+  signature: void ZoneScript::OnCaptureFlag(AreaTrigger * areaTrigger, Player * player)
+documentation:
+  brief: Handles the event when a player captures a flag in an area trigger zone.
+  description: The OnCaptureFlag method is invoked when a player interacts with an
+    area trigger that represents a capture point or flag in a World of Warcraft battleground
+    or arena. This method is part of the ZoneScript system, which allows custom game
+    logic to be implemented for specific zones. It provides developers with the ability
+    to define what happens when a player successfully captures a flag, such as awarding
+    points, updating objectives, or triggering visual effects. The method receives
+    both the area trigger that was activated and the player who triggered it, allowing
+    for detailed event handling based on player and zone context.
+  parameters:
+  - name: areaTrigger
+    description: Pointer to the AreaTrigger object that was activated by the player.
+      This represents the specific capture point or flag area that the player entered
+      or interacted with.
+  - name: player
+    description: Pointer to the Player object who triggered the area trigger. This
+      is the player who captured the flag and will be used for awarding rewards or
+      updating game state.
+  returns: null
+  examples:
+  - title: Basic Flag Capture Implementation
+    code: "void MyZoneScript::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)\n\
+      {\n    // Award points to the capturing player\n    player->ModifyArenaPoints(10);\n\
+      \    \n    // Send a message to the player\n    player->SendNotification(\"\
+      You have captured the flag!\");\n    \n    // Trigger visual effect\n    areaTrigger->GetMap()->PlayDirectSoundToMap(5000);\n\
+      }"
+    language: cpp
+  - title: Advanced Flag Capture with Team Logic
+    code: "void MyZoneScript::OnCaptureFlag(AreaTrigger* areaTrigger, Player* player)\n\
+      {\n    // Check if player is on the correct team\n    if (player->GetTeamId()\
+      \ == TEAM_ALLIANCE)\n    {\n        // Update alliance flag capture count\n\
+      \        sWorld->SetAllianceFlagCaptures(sWorld->GetAllianceFlagCaptures() +\
+      \ 1);\n        \n        // Send message to all players on the map\n       \
+      \ player->GetMap()->SendZoneScriptMessage(\"Alliance has captured a flag!\"\
+      );\n    }\n    else\n    {\n        sWorld->SetHordeFlagCaptures(sWorld->GetHordeFlagCaptures()\
+      \ + 1);\n        player->GetMap()->SendZoneScriptMessage(\"Horde has captured\
+      \ a flag!\");\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the core game loop when an area trigger
+    event occurs. Developers should be aware that this method may be invoked multiple
+    times for the same player if they repeatedly enter and exit the area trigger zone.
+    Ensure thread safety if modifying shared data structures within this function.
+    The ZoneScript system allows for custom battleground logic, but performance should
+    be considered as this method can be called frequently during active gameplay.
+  warnings: Do not perform heavy computations or blocking operations in this method
+    as it may affect game performance. Avoid calling methods that modify the player's
+    state in ways that could cause race conditions. Be careful when accessing shared
+    global variables without proper locking mechanisms.
+  related:
+  - OnAreaTriggerEnter
+  - OnAreaTriggerLeave
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:03:28.324436'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: LineOfSightManager
+  method: CanCastSpell
+  signature: bool LineOfSightManager::CanCastSpell(Unit * target, uint32 spellId)
+documentation:
+  brief: Determines whether a unit can cast a spell on a target based on line of sight
+    and spell restrictions.
+  description: The CanCastSpell method evaluates if a given unit is able to cast a
+    specific spell on a target unit, taking into account both the line of sight between
+    the caster and target, as well as any spell-specific restrictions or requirements.
+    This function is crucial for spell validation in World of Warcraft's TrinityCore
+    server implementation, ensuring that spells are only cast when appropriate according
+    to game mechanics. The method checks for visual obstruction, spell range limitations,
+    and other conditions that would prevent a successful spell cast.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit object on which the spell is intended
+      to be cast. Must not be null.
+  - name: spellId
+    description: The unique identifier of the spell to be cast, used to determine
+      spell-specific restrictions and properties.
+  returns: Returns true if the unit can successfully cast the specified spell on the
+    target, considering line of sight and spell restrictions. Returns false otherwise.
+  examples:
+  - title: Basic spell casting validation
+    code: "if (player->GetMap()->GetLineOfSightManager()->CanCastSpell(target, 12345))\
+      \ {\n    player->CastSpell(target, 12345, true);\n} else {\n    player->SendSpellFailed(12345,\
+      \ SPELL_FAILED_NO_LINE_OF_SIGHT);\n}"
+    language: cpp
+  - title: Checking multiple spell conditions
+    code: "Unit* caster = player;\nUnit* target = GetTarget();\nuint32 spellId = 98765;\n\
+      \nif (caster && target && caster->IsInMap(target)) {\n    LineOfSightManager*\
+      \ losMgr = caster->GetMap()->GetLineOfSightManager();\n    if (losMgr && losMgr->CanCastSpell(target,\
+      \ spellId)) {\n        // Proceed with spell casting\n        caster->CastSpell(target,\
+      \ spellId, true);\n    } else {\n        // Handle invalid cast condition\n\
+      \        SendSpellFailed(spellId, SPELL_FAILED_NO_LINE_OF_SIGHT);\n    }\n}"
+    language: cpp
+  notes: This method internally utilizes the Map's LineOfSightManager to perform line-of-sight
+    checks and may involve complex collision detection. It is typically called before
+    attempting to cast a spell to prevent invalid casts from being processed, improving
+    performance by avoiding unnecessary spell execution logic.
+  warnings: Ensure that both the caster and target units are valid and properly initialized
+    before calling this method. Passing null pointers will likely result in undefined
+    behavior or crashes. This function does not validate if the caster has sufficient
+    mana or other resource requirements beyond line of sight.
+  related:
+  - LineOfSightManager::IsInLineOfSight
+  - Unit::CanCastSpell
+  - WorldObject::GetMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:16:59.364345'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

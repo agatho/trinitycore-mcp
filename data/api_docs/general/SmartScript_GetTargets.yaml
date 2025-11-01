@@ -1,0 +1,64 @@
+api:
+  class: SmartScript
+  method: GetTargets
+  signature: void SmartScript::GetTargets(ObjectVector & targets, const SmartScriptHolder
+    & e, WorldObject * invoker) const
+documentation:
+  brief: Populates a vector with target objects based on SmartScript conditions and
+    triggers
+  description: The GetTargets method retrieves a collection of WorldObject targets
+    that match the specified SmartScript trigger conditions. It evaluates the script
+    holder's target criteria against the provided invoker object, populating the output
+    vector with valid targets. This method is typically used within AI scripts to
+    determine which objects should be affected by an action or event. The method considers
+    various targeting modes and filters defined in the SmartScriptHolder structure,
+    ensuring only appropriate targets are returned based on game mechanics such as
+    faction, health, distance, and other criteria.
+  parameters:
+  - name: targets
+    description: Reference to an ObjectVector that will be populated with target WorldObject
+      pointers matching the script conditions
+  - name: e
+    description: Const reference to a SmartScriptHolder containing the script execution
+      context and target configuration
+  - name: invoker
+    description: Pointer to the WorldObject that triggered this script execution,
+      used as reference for target evaluation
+  returns: null
+  examples:
+  - title: Basic usage in AI script
+    code: "void ExampleCreatureAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    ObjectVector targets;\n    SmartScriptHolder e;\n  \
+      \  // ... populate e with target conditions ...\n    GetTargets(targets, e,\
+      \ me);\n    \n    for (auto& target : targets)\n    {\n        if (target &&\
+      \ target->IsInWorld())\n        {\n            // Process each valid target\n\
+      \            DoSomethingWithTarget(target);\n        }\n    }\n}"
+    language: cpp
+  - title: Using GetTargets with specific targeting mode
+    code: "void SmartAI::OnCombatStart(Unit* /*who*/)\n{\n    ObjectVector targets;\n\
+      \    SmartScriptHolder e;\n    e.target_type = SMART_TARGET_TYPE_NEARBY; //\
+      \ Target nearby enemies\n    e.target_param1 = 50.0f; // Within 50 yards\n \
+      \   e.target_param2 = 0;\n    e.target_param3 = 0;\n    \n    GetTargets(targets,\
+      \ e, me);\n    \n    if (!targets.empty())\n    {\n        // Attack the closest\
+      \ valid target\n        me->Attack(targets.front(), true);\n    }\n}"
+    language: cpp
+  notes: This method is primarily used internally by SmartAI systems and should not
+    be called directly from outside AI context. The targets vector will be cleared
+    before population, so existing contents are overwritten. Performance considerations
+    include the number of potential targets and complexity of target filters, which
+    can impact frame rate during combat situations.
+  warnings: Ensure that the SmartScriptHolder 'e' parameter contains valid target
+    configuration data; otherwise, the method may return empty or incorrect results.
+    The invoker parameter must be a valid WorldObject pointer, as null pointers will
+    cause undefined behavior. Be cautious when using this method in high-frequency
+    update loops as it can impact performance with complex targeting logic.
+  related:
+  - SmartScript::GetTarget
+  - SmartScript::DoAction
+  - SmartScript::ProcessEvent
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T06:34:19.157135'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: ScriptMgr
+  method: CreateBattlefield
+  signature: Battlefield * ScriptMgr::CreateBattlefield(uint32 scriptId, Map * map)
+documentation:
+  brief: Creates and returns a Battlefield instance for the specified script ID and
+    map.
+  description: The CreateBattlefield method is responsible for instantiating a Battlefield
+    object based on a given script identifier and map context. This method serves
+    as a factory function within the TrinityCore scripting system, allowing dynamic
+    creation of battlefield instances that manage PvP zones with specific rules and
+    behaviors. The method retrieves the appropriate battlefield template from the
+    script registry and constructs a new instance bound to the provided map. It is
+    typically invoked during map loading or when a player enters a battlefield area,
+    ensuring that the correct battlefield logic is initialized for the given environment.
+  parameters:
+  - name: scriptId
+    description: Unique identifier for the battlefield script template to be instantiated.
+      This ID corresponds to registered battlefield scripts in the script registry.
+  - name: map
+    description: Pointer to the Map object where the battlefield will be created and
+      managed. The map context determines the battlefield's location and environment.
+  returns: Returns a pointer to the newly created Battlefield instance if successful,
+    or nullptr if the script ID is invalid or the creation fails.
+  examples:
+  - title: Basic Battlefield Creation
+    code: "Battlefield* bf = ScriptMgr::CreateBattlefield(1234, sMapMgr->FindMap(0,\
+      \ 0));\nif (bf)\n{\n    // Use the battlefield instance\n    bf->Initialize();\n\
+      }"
+    language: cpp
+  - title: Safe Battlefield Creation with Error Handling
+    code: "uint32 scriptId = 5678;\nMap* map = sMapMgr->FindMap(1, 0);\nBattlefield*\
+      \ bf = ScriptMgr::CreateBattlefield(scriptId, map);\nif (!bf)\n{\n    sLog->outError(LOG_FILTER_GENERAL,\
+      \ \"Failed to create battlefield with script ID %u on map %u\", scriptId, map\
+      \ ? map->GetId() : 0);\n    return;\n}\n// Proceed with battlefield initialization\n\
+      bf->Initialize();"
+    language: cpp
+  notes: This method relies on the script registry being properly populated with valid
+    battlefield templates. The returned Battlefield instance must be managed carefully
+    to prevent memory leaks. The method does not perform any automatic registration
+    of the created battlefield with the map's battlefield system.
+  warnings: Do not assume that a non-null return value guarantees a fully functional
+    battlefield instance. Additional initialization steps may be required after calling
+    this method. Passing an invalid scriptId or null map pointer will result in a
+    nullptr return, which should always be checked for before use.
+  related:
+  - GetBattlefield
+  - RegisterBattlefield
+  - UnregisterBattlefield
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T20:38:29.592439'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

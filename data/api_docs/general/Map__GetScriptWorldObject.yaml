@@ -1,0 +1,66 @@
+api:
+  class: Map
+  method: _GetScriptWorldObject
+  signature: WorldObject * Map::_GetScriptWorldObject(Object * obj, bool isSource,
+    const ScriptInfo * scriptInfo) const
+documentation:
+  brief: Retrieves the WorldObject associated with a given Object for script execution
+    purposes.
+  description: The _GetScriptWorldObject method is an internal utility function used
+    within the TrinityCore framework to resolve and return a valid WorldObject pointer
+    from a generic Object instance. This method is typically invoked during script
+    execution contexts where it's necessary to obtain a more specific WorldObject
+    representation of an Object, particularly when dealing with source or target objects
+    in scripted events, spells, or AI behaviors. It handles type checking and conversion
+    internally, ensuring that the returned object is suitable for use in script-based
+    game mechanics. The method respects the isSource flag to determine whether the
+    object should be treated as a source or target in the context of the script being
+    executed.
+  parameters:
+  - name: obj
+    description: A pointer to the generic Object instance that needs to be resolved
+      into a WorldObject. This can be any subclass of Object such as Unit, GameObject,
+      or Item.
+  - name: isSource
+    description: Boolean flag indicating whether the object should be treated as a
+      source (true) or target (false) in script execution context.
+  - name: scriptInfo
+    description: Pointer to ScriptInfo structure containing metadata about the script
+      being executed. Used for contextual resolution and validation purposes.
+  returns: Returns a pointer to the resolved WorldObject if successful, or nullptr
+    if the input object cannot be converted to a valid WorldObject or if the conversion
+    fails due to invalid state or type mismatch.
+  examples:
+  - title: Basic usage in script context
+    code: "WorldObject* target = map->_GetScriptWorldObject(sourceObject, false, scriptInfo);\n\
+      if (target)\n{\n    // Proceed with script logic using the resolved WorldObject\n\
+      \    target->CastSpell(target, 12345, true);\n}"
+    language: cpp
+  - title: Using in spell effect handler
+    code: "void SpellEffectHandler(Spell* spell)\n{\n    Object* obj = spell->GetUnitTarget();\n\
+      \    WorldObject* worldObj = map->_GetScriptWorldObject(obj, true, spell->GetSpellInfo());\n\
+      \    if (worldObj && worldObj->IsInWorld())\n    {\n        // Perform scripted\
+      \ action on the resolved object\n        worldObj->AddAura(67890, worldObj);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is primarily used internally by the TrinityCore scripting system
+    and should not typically be called directly from external modules. The method
+    performs internal type validation and may return nullptr if the input object does
+    not represent a valid WorldObject in the current context. It's designed to handle
+    various Object subtypes including Units, GameObjects, and Items that can be converted
+    to WorldObjects.
+  warnings: Calling this method with an invalid or null Object pointer will result
+    in undefined behavior. The returned WorldObject pointer must be validated for
+    null before use, as conversion failures may occur due to object state or type
+    mismatches. This method should only be used within script execution contexts where
+    the underlying object lifecycle is properly managed.
+  related:
+  - _GetScriptUnit
+  - _GetScriptGameObject
+  - _GetScriptItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:47:57.568594'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

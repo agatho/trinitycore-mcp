@@ -1,0 +1,53 @@
+api:
+  class: EquipmentManager
+  method: GetItemEquipmentSlot
+  signature: uint8 EquipmentManager::GetItemEquipmentSlot(const int * itemTemplate)
+documentation:
+  brief: Retrieves the equipment slot ID for a given item template.
+  description: The GetItemEquipmentSlot method determines and returns the specific
+    equipment slot where an item of a given template would be equipped. This is used
+    internally by the game engine to manage inventory and equipment systems, ensuring
+    items are placed in the correct slots based on their type and properties. The
+    method takes an item template reference and maps it to its corresponding equipment
+    slot ID, which is essential for character equipment validation and UI display.
+  parameters:
+  - name: itemTemplate
+    description: Pointer to an integer representing the item template ID. This ID
+      uniquely identifies the item type in the game database and determines its equipment
+      slot assignment.
+  returns: Returns a uint8 value representing the equipment slot index where the item
+    would be equipped. Valid values typically range from 0 to 19, corresponding to
+    different body slots such as head, shoulders, chest, hands, etc., with 255 indicating
+    an invalid or unequippable item.
+  examples:
+  - title: Basic Usage Example
+    code: "int templateId = 45678;\nuint8 slot = equipmentManager->GetItemEquipmentSlot(&templateId);\n\
+      if (slot != 255)\n{\n    printf(\"Item will be equipped in slot %u\\n\", slot);\n\
+      }"
+    language: cpp
+  - title: Checking Equipment Slot Before Equipping
+    code: "void TryEquipItem(Player* player, uint32 itemId)\n{\n    ItemTemplate const*\
+      \ proto = sObjectMgr->GetItemTemplate(itemId);\n    if (!proto) return;\n\n\
+      \    uint8 slot = player->GetEquipmentManager()->GetItemEquipmentSlot(&proto->ItemId);\n\
+      \    if (slot != 255)\n    {\n        // Proceed with equipping logic\n    \
+      \    player->EquipItem(slot, itemId);\n    }\n    else\n    {\n        // Item\
+      \ cannot be equipped\n        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on internal item template data and assumes the item template
+    ID is valid. The returned slot index corresponds to the standard WoW equipment
+    slot enumeration, where each value maps directly to a specific body part or inventory
+    location.
+  warnings: Ensure that the item template pointer passed is valid and points to an
+    existing item in the database; otherwise, the behavior may be undefined or return
+    invalid slot indices.
+  related:
+  - GetItemByEntry
+  - IsEquippedItem
+  - CanEquipItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T14:01:25.252266'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

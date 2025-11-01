@@ -1,0 +1,50 @@
+api:
+  class: QuestManager
+  method: GetCompletableQuests
+  signature: int QuestManager::GetCompletableQuests() const
+documentation:
+  brief: Retrieves the count of quests available for completion by the player
+  description: The GetCompletableQuests method returns the number of quests in the
+    player's quest log that are in a state where they can be completed. This includes
+    quests that have all required objectives fulfilled but have not yet been turned
+    in. The method does not distinguish between different quest types or their completion
+    status beyond whether they are ready for submission. It is commonly used by the
+    game client and server-side systems to determine how many quests are pending finalization,
+    which affects UI elements such as quest markers and reward notifications.
+  parameters: []
+  returns: An integer representing the total count of quests in the player's quest
+    log that are completable (i.e., all objectives are met but not yet turned in).
+    Returns zero if no quests are available for completion.
+  examples:
+  - title: Basic Usage to Check Quest Completion Readiness
+    code: "int completableQuests = player->GetQuestManager()->GetCompletableQuests();\n\
+      if (completableQuests > 0)\n{\n    // Notify player that there are quests ready\
+      \ for completion\n    player->SendNotification(\"You have %d quest(s) ready\
+      \ to turn in.\", completableQuests);\n}"
+    language: cpp
+  - title: Using Quest Count to Update UI Elements
+    code: "QuestManager* questMgr = player->GetQuestManager();\nint count = questMgr->GetCompletableQuests();\n\
+      player->SetQuestCount(count);\n// This might be used to update a quest log or\
+      \ notification panel\nif (count > 0)\n{\n    // Highlight the quest tab or show\
+      \ a notification icon\n    player->SendPacket(new WorldPackets::Quest::QuestUpdateAddOrRemoveQuest(count));\n\
+      }"
+    language: cpp
+  notes: This method only considers quests that are in a 'ready to turn in' state.
+    It does not include quests that are active but still in progress, or those that
+    have been completed but not turned in yet. The returned value is cached and may
+    not reflect real-time changes unless the quest log has been refreshed.
+  warnings: This method should be used carefully in performance-sensitive contexts
+    as it iterates through the player's quest log. Frequent calls without caching
+    may lead to unnecessary overhead. Also, ensure that the player object is valid
+    before calling this method to avoid potential crashes.
+  related:
+  - GetQuestStatus
+  - GetQuestReward
+  - CompleteQuest
+  - GetQuestsForPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T07:47:45.279907'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

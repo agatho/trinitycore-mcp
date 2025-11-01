@@ -1,0 +1,52 @@
+api:
+  class: PetitionMgr
+  method: GetPetition
+  signature: Petition * PetitionMgr::GetPetition(int petitionGuid)
+documentation:
+  brief: Retrieves a petition object by its unique identifier from the petition manager.
+  description: The GetPetition method fetches a Petition object from the PetitionMgr
+    system using the provided petition GUID. This method is typically used in World
+    of Warcraft's petition system to access specific guild charter or player signature
+    data. The returned petition object can be used to examine petition details such
+    as owner, signatures, and status. It is important to note that this method may
+    return a null pointer if no petition exists with the specified GUID, so callers
+    should always validate the result before using it.
+  parameters:
+  - name: petitionGuid
+    description: The unique identifier (GUID) of the petition to retrieve. This value
+      corresponds to the database entry for the petition and is typically generated
+      when a new petition is created.
+  returns: A pointer to the Petition object if found, or nullptr if no petition exists
+    with the specified GUID. The returned pointer should be checked for null before
+    dereferencing.
+  examples:
+  - title: Basic Usage
+    code: "Petition* petition = sPetitionMgr->GetPetition(12345);\nif (petition !=\
+      \ nullptr)\n{\n    // Use the petition object\n    uint32 ownerGuid = petition->GetOwnerGuid();\n\
+      }"
+    language: cpp
+  - title: Safe Access with Null Check
+    code: "uint32 petitionId = 54321;\nPetition* petition = sPetitionMgr->GetPetition(petitionId);\n\
+      if (petition == nullptr)\n{\n    // Handle case where petition does not exist\n\
+      \    sLog->outError(\"No petition found with ID %u\", petitionId);\n    return;\n\
+      }\n// Proceed with using the petition safely\nuint32 signatureCount = petition->GetSignatureCount();"
+    language: cpp
+  notes: This method performs a lookup in an internal container or map maintained
+    by PetitionMgr. Performance is generally O(1) for hash-based lookups, but depends
+    on the underlying implementation. The returned Petition object should not be deleted
+    by the caller as it's managed by the PetitionMgr system.
+  warnings: Always check the return value for null before using the petition object.
+    Accessing a null pointer will cause a crash. Additionally, the petition object
+    may become invalid if the petition is deleted or modified elsewhere in the system
+    during use.
+  related:
+  - GetPetitionByOwner
+  - GetPetitionBySignature
+  - AddPetition
+  - RemovePetition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T08:31:27.364233'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

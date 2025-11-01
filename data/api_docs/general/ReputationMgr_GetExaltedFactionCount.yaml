@@ -1,0 +1,52 @@
+api:
+  class: ReputationMgr
+  method: GetExaltedFactionCount
+  signature: uint8 ReputationMgr::GetExaltedFactionCount() const
+documentation:
+  brief: Returns the count of factions that have reached exalted reputation level
+    for the player
+  description: The GetExaltedFactionCount method retrieves the total number of factions
+    in a player's reputation list that have been elevated to the maximum exalted standing
+    (21000). This value is used internally by the game engine to determine various
+    rewards, quest completions, and achievements related to faction progression. The
+    method iterates through all known factions for the player and counts those with
+    a standing of at least exalted level. This count is particularly important for
+    determining if a player has achieved maximum reputation with enough factions to
+    unlock certain in-game benefits or bonuses.
+  parameters: []
+  returns: A uint8 value representing the number of factions that have reached exalted
+    reputation level (0-255). Returns 0 if no factions are at exalted standing, and
+    can return up to 255 if all factions are exalted.
+  examples:
+  - title: Basic usage to check exalted faction count
+    code: "uint8 exaltedCount = player->GetReputationMgr()->GetExaltedFactionCount();\n\
+      if (exaltedCount > 0)\n{\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You have %u exalted factions.\", exaltedCount);\n}"
+    language: cpp
+  - title: Using the count to unlock rewards
+    code: "ReputationMgr* repMgr = player->GetReputationMgr();\nuint8 exaltedCount\
+      \ = repMgr->GetExaltedFactionCount();\nif (exaltedCount >= 5)\n{\n    // Grant\
+      \ special reward for having 5+ exalted factions\n    player->AddItem(ITEM_ID_EXALTED_REWARD,\
+      \ 1);\n}"
+    language: cpp
+  notes: This method performs a linear scan of all faction entries in the reputation
+    manager. The maximum possible return value is limited by the number of factions
+    defined in the game's database, typically around 200-300 factions. The method
+    does not account for temporary reputation changes or faction-specific modifiers
+    that might affect standing during combat or quest completion.
+  warnings: The returned count may be misleading if faction data has been modified
+    through addons or server modifications. This method should not be used in performance-critical
+    code paths as it iterates through all factions. Be aware that some factions may
+    not be available to players depending on their expansion level or character class
+    restrictions.
+  related:
+  - GetReputation
+  - SetReputation
+  - GetFactionStanding
+  - IsExalted
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T07:37:03.326823'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

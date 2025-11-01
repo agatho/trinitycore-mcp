@@ -1,0 +1,51 @@
+api:
+  class: InventoryManager
+  method: ShouldLootItem
+  signature: bool InventoryManager::ShouldLootItem(uint32 itemId) const
+documentation:
+  brief: Determines whether a player should loot a specific item based on inventory
+    and loot rules.
+  description: The ShouldLootItem method evaluates if a given item ID should be added
+    to a player's inventory during a loot operation. It checks various conditions
+    such as item type, inventory space availability, and player-specific loot rules.
+    This method is typically called during the loot processing phase when deciding
+    whether an item from a creature or container should be added to the player's inventory.
+    The method considers factors like item quality, stack limits, and quest item restrictions
+    that may prevent looting.
+  parameters: []
+  returns: Returns true if the item should be looted and added to the player's inventory;
+    returns false if the item should not be looted due to inventory constraints or
+    other rules.
+  examples:
+  - title: Basic usage in loot processing
+    code: "if (inventoryManager->ShouldLootItem(12345)) {\n    // Add item to player's\
+      \ inventory\n    player->AddItem(12345, 1);\n} else {\n    // Item not eligible\
+      \ for looting\n    player->SendEquipError(EQUIP_ERR_INVENTORY_FULL);\n}"
+    language: cpp
+  - title: Checking multiple items in a loot roll
+    code: "for (uint32 itemId : lootItems) {\n    if (inventoryManager->ShouldLootItem(itemId))\
+      \ {\n        // Process item for looting\n        LootItem* lootItem = player->GetLoot()->GetItem(itemId);\n\
+      \        if (lootItem) {\n            player->AddItem(itemId, lootItem->count);\n\
+      \        }\n    } else {\n        // Item cannot be looted\n        player->SendEquipError(EQUIP_ERR_INVENTORY_FULL);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the core inventory management system and is called
+    frequently during loot processing. It performs checks against the player's current
+    inventory state, item restrictions, and server configuration settings. The method
+    does not modify any game state directly but rather evaluates conditions for potential
+    modification.
+  warnings: The method assumes that the inventory manager has been properly initialized
+    with the player context. Calling this method without valid player data may result
+    in undefined behavior or incorrect decisions. This method should only be called
+    during appropriate loot processing phases to ensure accurate evaluation.
+  related:
+  - AddItem
+  - HasSpaceForItem
+  - CanLootItem
+  - GetInventorySpace
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T12:09:45.460486'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

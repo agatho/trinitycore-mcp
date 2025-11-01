@@ -1,0 +1,49 @@
+api:
+  class: Vehicle
+  method: IsVehicleInUse
+  signature: bool Vehicle::IsVehicleInUse() const
+documentation:
+  brief: Determines whether the vehicle has any passengers currently aboard.
+  description: The IsVehicleInUse method checks if a vehicle object has any player
+    or creature passengers currently mounted on it. This method is essential for vehicle
+    management systems in TrinityCore, as it helps determine the operational state
+    of vehicles and influences various game mechanics such as vehicle movement, interaction
+    availability, and cleanup procedures. The method returns true when at least one
+    passenger is detected on the vehicle, and false when no passengers remain. This
+    functionality is particularly important for vehicles that should not be moved
+    or interacted with while occupied.
+  parameters: []
+  returns: Returns true if the vehicle has one or more passengers currently mounted
+    on it; returns false if no passengers are aboard.
+  examples:
+  - title: Check if Vehicle Has Passengers Before Movement
+    code: "if (!vehicle->IsVehicleInUse())\n{\n    // Safe to move or interact with\
+      \ vehicle\n    vehicle->MoveVehicle(0.0f, 10.0f, 0.0f);\n}\nelse\n{\n    //\
+      \ Vehicle is in use, prevent movement\n    player->SendSystemMessage(\"Vehicle\
+      \ is currently occupied.\");\n}"
+    language: cpp
+  - title: Vehicle Cleanup Based on Usage Status
+    code: "if (!vehicle->IsVehicleInUse())\n{\n    // No passengers, safe to remove\
+      \ or reset vehicle\n    vehicle->ResetVehicle();\n    vehicle->DespawnOrUnsummon();\n\
+      }\nelse\n{\n    // Vehicle still in use, delay cleanup\n    vehicle->SetRespawnDelay(30);\n\
+      }"
+    language: cpp
+  notes: This method relies on internal passenger tracking within the Vehicle class.
+    It should be called frequently during vehicle state updates to ensure accurate
+    status reporting. The implementation may involve checking multiple passenger lists
+    or reference counts depending on how the vehicle system is designed in TrinityCore.
+  warnings: Do not use this method as a sole indicator for vehicle safety checks,
+    as there might be race conditions if passengers are being added/removed rapidly.
+    Always consider using locks or synchronization mechanisms when accessing vehicle
+    state in multithreaded environments.
+  related:
+  - GetPassengerCount
+  - HasPassenger
+  - AddPassenger
+  - RemovePassenger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:29:26.101491'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

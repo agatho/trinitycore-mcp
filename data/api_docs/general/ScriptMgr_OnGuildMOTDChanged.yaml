@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnGuildMOTDChanged
+  signature: void ScriptMgr::OnGuildMOTDChanged(Guild * guild, const std::string &
+    newMotd)
+documentation:
+  brief: Notifies scripts when a guild's message of the day has been changed
+  description: This method is invoked by the TrinityCore server whenever a guild's
+    Message of the Day (MOTD) is updated. It allows script handlers to react to MOTD
+    changes, such as logging the event, sending notifications to players, or triggering
+    other game mechanics. The method provides access to both the guild object and
+    the new MOTD string, enabling scripts to perform custom logic based on the change.
+    This callback is part of the global scripting system and is typically used in
+    custom modules or addons that extend guild functionality.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object whose MOTD has been changed. Must not
+      be null.
+  - name: newMotd
+    description: The new Message of the Day string that was set for the guild. May
+      be empty but will not be null.
+  returns: null
+  examples:
+  - title: Basic MOTD Change Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    MyGuildScript()\
+      \ : GuildScript(\"MyGuildScript\") {}\n\n    void OnGuildMOTDChanged(Guild*\
+      \ guild, const std::string& newMotd) override\n    {\n        // Log the MOTD\
+      \ change to console\n        sLog->outString(\"Guild %s MOTD changed to: %s\"\
+      , guild->GetName().c_str(), newMotd.c_str());\n    }\n};"
+    language: cpp
+  - title: Advanced MOTD Change with Player Notification
+    code: "class GuildMOTDScript : public GuildScript\n{\npublic:\n    GuildMOTDScript()\
+      \ : GuildScript(\"GuildMOTDScript\") {}\n\n    void OnGuildMOTDChanged(Guild*\
+      \ guild, const std::string& newMotd) override\n    {\n        // Notify all\
+      \ online members of the MOTD change\n        for (auto const& member : guild->GetMembers())\n\
+      \        {\n            if (Player* player = ObjectAccessor::FindConnectedPlayer(member.GetGuid()))\n\
+      \            {\n                ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Guild MOTD updated to: %s\", newMotd.c_str());\n            }\n        }\n \
+      \   }\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should not perform long-running
+    operations. Script handlers should avoid blocking or heavy computations in this
+    callback to maintain server performance.
+  warnings: Ensure that the guild pointer passed is valid before using it, as it may
+    become invalid during server shutdown or if the guild is deleted. Avoid modifying
+    the guild object directly within this handler unless necessary.
+  related:
+  - OnGuildCreated
+  - OnGuildDisbanded
+  - OnGuildMemberAdded
+  - OnGuildMemberRemoved
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:38:35.376466'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

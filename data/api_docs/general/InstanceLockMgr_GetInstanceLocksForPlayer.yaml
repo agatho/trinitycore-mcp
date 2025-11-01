@@ -1,0 +1,59 @@
+api:
+  class: InstanceLockMgr
+  method: GetInstanceLocksForPlayer
+  signature: int InstanceLockMgr::GetInstanceLocksForPlayer(const int & playerGuid)
+    const
+documentation:
+  brief: Retrieves the number of instance locks associated with a specific player.
+  description: The GetInstanceLocksForPlayer method returns the count of active instance
+    locks for a given player identified by their GUID. This functionality is typically
+    used in World of Warcraft's TrinityCore to manage player access to locked instances,
+    ensuring that players cannot enter certain areas or dungeons without proper permissions
+    or keys. The method operates on internal data structures that track player-instance
+    lock relationships and provides an efficient way to query these associations.
+    It is commonly invoked during login sequences, instance entry checks, or when
+    determining a player's eligibility for specific dungeon content.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player whose instance locks are
+      being queried. This value must correspond to a valid player in the database
+      and is typically obtained from player objects or session data.
+  returns: An integer representing the total number of instance locks currently associated
+    with the specified player. Returns zero if no locks exist, or a negative value
+    indicating an error condition such as invalid GUID or internal failure.
+  examples:
+  - title: Basic Usage Example
+    code: "int lockCount = instanceLockMgr.GetInstanceLocksForPlayer(playerGuid);\n\
+      if (lockCount > 0)\n{\n    // Player has instance locks\n    std::cout << \"\
+      Player has \" << lockCount << \" instance locks.\" << std::endl;\n}\nelse if\
+      \ (lockCount == 0)\n{\n    // No instance locks for player\n    std::cout <<\
+      \ \"Player has no instance locks.\" << std::endl;\n}"
+    language: cpp
+  - title: Checking Lock Status Before Dungeon Entry
+    code: "void CheckDungeonAccess(Player* player)\n{\n    int lockCount = instanceLockMgr.GetInstanceLocksForPlayer(player->GetGUID().GetCounter());\n\
+      \    if (lockCount < 0)\n    {\n        // Handle error condition\n        sLog->outError(\"\
+      Failed to retrieve instance locks for player %u\", player->GetGUID().GetCounter());\n\
+      \        return;\n    }\n    \n    if (lockCount > 0)\n    {\n        // Allow\
+      \ access or show lock status\n        player->SendNotification(\"You have %d\
+      \ instance locks.\", lockCount);\n    }\n    else\n    {\n        // Proceed\
+      \ with normal dungeon entry logic\n        player->TeleportTo(1234, 100.0f,\
+      \ 200.0f, 300.0f, 0.0f); // Example teleport\n    }\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and should not block execution
+    for extended periods. It relies on internal caching mechanisms within InstanceLockMgr
+    to provide fast lookups. The returned count may include both active and expired
+    locks, depending on how the system manages lock lifecycles.
+  warnings: Ensure that playerGuid is validated before calling this method to avoid
+    unexpected behavior or crashes. Invalid GUID values might lead to undefined results
+    or assertion failures in debug builds.
+  related:
+  - GetInstanceLocksForPlayer
+  - AddInstanceLock
+  - RemoveInstanceLock
+  - HasInstanceLock
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T12:56:15.897207'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

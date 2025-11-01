@@ -1,0 +1,63 @@
+api:
+  class: PositionManager
+  method: GetOptimalCastingPosition
+  signature: int PositionManager::GetOptimalCastingPosition(int * target, float range)
+documentation:
+  brief: Calculates and returns the optimal casting position for a spell or ability
+    within the specified range of a target.
+  description: The GetOptimalCastingPosition method determines the best location from
+    which to cast a spell or ability based on the provided target and range parameters.
+    This method is typically used in AI logic to ensure that NPCs or players maintain
+    optimal positioning for spellcasting, considering factors such as line of sight,
+    movement restrictions, and combat mechanics. The returned value represents an
+    index or identifier that can be used to retrieve the calculated position from
+    internal position data structures. This method assumes valid input parameters
+    and may return error codes if preconditions are not met.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the target's unique identifier
+      (GUID) or position index. Must be a valid reference to a target entity within
+      the game world.
+  - name: range
+    description: Floating-point value specifying the maximum casting distance from
+      the target. This determines how far away from the target the optimal position
+      can be located, in game units.
+  returns: Returns an integer representing the index or identifier of the calculated
+    optimal casting position. A negative value may indicate an error condition such
+    as invalid parameters, unreachable targets, or insufficient data to determine
+    a valid position.
+  examples:
+  - title: Basic usage for determining optimal casting position
+    code: "int targetGuid = player->GetGUID();\nfloat castRange = 30.0f;\nint optimalPosIndex\
+      \ = positionManager->GetOptimalCastingPosition(&targetGuid, castRange);\nif\
+      \ (optimalPosIndex >= 0)\n{\n    // Use the optimal position for spell casting\n\
+      \    Position optimalPos = positionManager->GetPosition(optimalPosIndex);\n\
+      \    // Proceed with casting logic using optimalPos\n}"
+    language: cpp
+  - title: Advanced usage with error handling and dynamic range adjustment
+    code: "int targetGuid = npc->GetGUID();\nfloat baseRange = 25.0f;\nint result\
+      \ = positionManager->GetOptimalCastingPosition(&targetGuid, baseRange);\nif\
+      \ (result < 0)\n{\n    // Fallback to a shorter range if optimal position cannot\
+      \ be determined\n    float fallbackRange = 15.0f;\n    result = positionManager->GetOptimalCastingPosition(&targetGuid,\
+      \ fallbackRange);\n}\nif (result >= 0)\n{\n    Position pos = positionManager->GetPosition(result);\n\
+      \    // Execute spell casting at the determined optimal position\n}"
+    language: cpp
+  notes: This method relies on internal pathfinding and positioning algorithms to
+    compute the optimal casting location. It may perform expensive calculations involving
+    line-of-sight checks and terrain evaluation, especially in complex environments.
+    The method is designed for use in AI decision-making processes where precise positioning
+    is crucial for spell effectiveness.
+  warnings: Ensure that the target parameter points to a valid entity before calling
+    this method; otherwise, undefined behavior or crashes may occur. The range parameter
+    should be within reasonable bounds to avoid performance degradation due to excessive
+    pathfinding calculations.
+  related:
+  - GetPosition
+  - CalculatePath
+  - IsInRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T08:16:59.027694'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

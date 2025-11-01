@@ -1,0 +1,50 @@
+api:
+  class: ThreatManager
+  method: SendRemoveToClients
+  signature: void ThreatManager::SendRemoveToClients(const Unit * victim) const
+documentation:
+  brief: Sends a threat removal message to all clients for the specified unit.
+  description: The SendRemoveToClients method is responsible for notifying all connected
+    clients in the game world that a specific unit's threat information should be
+    removed from their threat lists. This typically occurs when a creature or player
+    is no longer considered a threat target, such as when they are defeated, despawned,
+    or when threat is explicitly cleared. The method iterates through all players
+    within the unit's associated map and sends an appropriate network packet to update
+    their local threat displays. It is an internal utility function used by the ThreatManager
+    to maintain synchronization between server-side threat data and client-side UI
+    elements.
+  parameters:
+  - name: victim
+    description: A pointer to the Unit object whose threat information should be removed
+      from clients' threat lists. This parameter must not be null, as attempting to
+      remove threat for a null victim would result in undefined behavior.
+  returns: null
+  examples:
+  - title: Removing threat for a defeated mob
+    code: "void OnCreatureKilled(Creature* creature)\n{\n    // Clear threat from\
+      \ all players\n    creature->GetThreatManager().SendRemoveToClients(creature);\n\
+      }"
+    language: cpp
+  - title: Removing threat for a player who has left combat
+    code: "void ProcessPlayerCombatExit(Player* player)\n{\n    // Remove all threat\
+      \ entries for this player\n    player->GetThreatManager().SendRemoveToClients(player);\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the ThreatManager when threat
+    data needs to be synchronized with clients. It does not modify the internal threat
+    data structure directly; instead, it sends a message to update client-side displays
+    only. The method assumes that the victim parameter is valid and properly initialized.
+  warnings: Do not call this method with a null victim pointer as it will likely cause
+    a crash or undefined behavior. Ensure that the unit passed in has a valid map
+    context before calling this method, otherwise the packet may not be sent correctly
+    to clients.
+  related:
+  - ThreatManager::AddThreat
+  - ThreatManager::UpdateThreat
+  - ThreatManager::SendUpdateToClients
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:22:40.085879'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnItemExpire
+  signature: bool ScriptMgr::OnItemExpire(Player * player, const ItemTemplate * proto)
+documentation:
+  brief: Checks if an item should expire for a player based on custom script logic.
+  description: The OnItemExpire method is invoked when an item in a player's inventory
+    is about to expire, allowing scripts to override or prevent the default expiration
+    behavior. This method provides a hook for custom game mechanics such as extending
+    item lifetimes, triggering events upon expiration, or modifying item properties
+    before removal. It is typically called during the item's update cycle when its
+    duration has reached zero. The return value determines whether the item should
+    proceed with standard expiration logic (true) or be prevented from expiring (false).
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory contains the item about
+      to expire. This parameter must not be null and represents the owner of the expired
+      item.
+  - name: proto
+    description: Pointer to the ItemTemplate structure defining the properties of
+      the item that is expiring. This provides access to item type, duration, and
+      other static attributes necessary for determining expiration behavior.
+  returns: Returns true if the item should proceed with normal expiration logic; returns
+    false if custom script logic has handled or prevented the expiration. A return
+    value of false allows scripts to override default behavior such as preventing
+    item removal or triggering alternative actions.
+  examples:
+  - title: Basic Item Expiration Override
+    code: "bool ScriptMgr::OnItemExpire(Player* player, const ItemTemplate* proto)\n\
+      {\n    // Prevent all quest items from expiring\n    if (proto->Flags & ITEM_FLAG_IS_QUEST_ITEM)\n\
+      \        return false; // Do not expire\n    \n    return true; // Allow normal\
+      \ expiration\n}"
+    language: cpp
+  - title: Conditional Item Expiration with Event Trigger
+    code: "bool ScriptMgr::OnItemExpire(Player* player, const ItemTemplate* proto)\n\
+      {\n    // Only prevent expiration for specific item IDs\n    if (proto->ItemId\
+      \ == 12345 || proto->ItemId == 67890)\n    {\n        // Trigger custom event\
+      \ instead of letting it expire\n        player->SendNotification(\"Your special\
+      \ item has expired but was saved by magic!\");\n        return false; // Prevent\
+      \ default expiration\n    }\n    \n    return true; // Allow normal expiration\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and should be implemented
+    in custom scripts or modules. It is called during item update cycles, so performance
+    considerations are important for frequently used items. The method may be invoked
+    multiple times per second depending on server configuration and player activity.
+  warnings: Modifying item expiration behavior can affect game balance and quest progression.
+    Ensure that preventing item expiration does not create exploits or unintended
+    consequences. Always validate input parameters to avoid null pointer dereferences.
+  related:
+  - OnItemUse
+  - OnPlayerLogin
+  - OnItemRemove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:33:47.243611'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

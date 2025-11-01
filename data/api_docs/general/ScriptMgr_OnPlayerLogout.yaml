@@ -1,0 +1,55 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerLogout
+  signature: void ScriptMgr::OnPlayerLogout(Player * player)
+documentation:
+  brief: Called when a player logs out of the game, allowing scripts to perform cleanup
+    or save operations.
+  description: The OnPlayerLogout method is a callback function invoked by the TrinityCore
+    script manager whenever a player character successfully logs out of the game world.
+    This method serves as a hook for custom scripts and modules to execute specific
+    actions during the logout process, such as saving player data, cleaning up resources,
+    or triggering events. It is typically called after the player's session has been
+    terminated but before the player object is fully destroyed. The method does not
+    accept any parameters beyond the player reference itself, which provides access
+    to all relevant player information and state at the time of logout.
+  parameters:
+  - name: player
+    description: A pointer to the Player object representing the character that is
+      logging out. This parameter provides full access to the player's data, including
+      inventory, stats, quest progress, and other game state information.
+  returns: null
+  examples:
+  - title: Basic Logout Handler
+    code: "void MyScript::OnPlayerLogout(Player* player)\n{\n    // Save custom player\
+      \ data\n    SavePlayerData(player);\n    \n    // Log the logout event\n   \
+      \ sLog->outString(\"Player %s has logged out.\", player->GetName().c_str());\n\
+      }"
+    language: cpp
+  - title: Logout with Quest Cleanup
+    code: "void MyScript::OnPlayerLogout(Player* player)\n{\n    // Cancel any active\
+      \ quests that shouldn't persist\n    for (uint32 i = 0; i < MAX_QUEST_LOG_SIZE;\
+      \ ++i)\n    {\n        if (player->GetQuestSlot(i) != 0)\n        {\n      \
+      \      player->SetQuestSlot(i, 0);\n        }\n    }\n    \n    // Save the\
+      \ player's current position\n    player->SavePosition();\n}"
+    language: cpp
+  notes: This method is called from the main game thread and should not perform heavy
+    operations that could block other players or cause performance issues. It is recommended
+    to avoid long-running processes or database queries within this handler. The player
+    object passed to this function remains valid during execution but may be destroyed
+    shortly after the method returns.
+  warnings: Avoid performing operations that modify the player's state in a way that
+    would conflict with the logout process, such as attempting to send packets or
+    modifying the player's session data. Also, do not assume that all player data
+    is fully synchronized at this point; some asynchronous operations may still be
+    pending.
+  related:
+  - OnPlayerLogin
+  - OnPlayerEnterWorld
+  - OnPlayerLeaveWorld
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:15:39.016379'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

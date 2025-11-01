@@ -1,0 +1,55 @@
+api:
+  class: Guild
+  method: SendEventAwayChanged
+  signature: void Guild::SendEventAwayChanged(const int & memberGuid, bool afk, bool
+    dnd)
+documentation:
+  brief: Sends a guild event notification when a member's away status changes.
+  description: The SendEventAwayChanged method is responsible for broadcasting a guild
+    event to all online guild members when a specific guild member's away status (AFK
+    or DND) is updated. This method ensures that guild members are notified of each
+    other's status changes in real-time, which is crucial for coordination during
+    group activities such as raids or dungeons. The method takes the GUID of the affected
+    member and two boolean flags indicating whether the member is now AFK or DND.
+    It internally handles the construction and sending of the appropriate packet to
+    all connected guild members.
+  parameters:
+  - name: memberGuid
+    description: The unique identifier (GUID) of the guild member whose away status
+      has changed. This value should be a valid player GUID from the database.
+  - name: afk
+    description: Boolean flag indicating whether the member is now away from keyboard
+      (AFK). True if the member is AFK, false otherwise.
+  - name: dnd
+    description: Boolean flag indicating whether the member is now in do-not-disturb
+      (DND) mode. True if the member is DND, false otherwise.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void SetPlayerAwayStatus(Guild* guild, uint32 playerGuid, bool isAfk, bool\
+      \ isDnd)\n{\n    guild->SendEventAwayChanged(playerGuid, isAfk, isDnd);\n}"
+    language: cpp
+  - title: Updating Player Status in Response to User Action
+    code: "void HandlePlayerAFKStatusChange(Player* player, bool newAfkStatus)\n{\n\
+      \    if (Guild* guild = player->GetGuild())\n    {\n        bool isDnd = player->GetSession()->GetPlayer()->IsInGroup()\
+      \ && player->GetSession()->GetPlayer()->GetGroup()->isRaidGroup();\n       \
+      \ guild->SendEventAwayChanged(player->GetGUID().GetCounter(), newAfkStatus,\
+      \ isDnd);\n    }\n}"
+    language: cpp
+  notes: This method likely uses internal packet structures to send updates to players.
+    It may be called from various game events such as player login/logout or manual
+    status changes via UI. The method does not validate the GUID or status flags,
+    so it's expected that callers ensure valid inputs.
+  warnings: Calling this method with an invalid GUID may cause undefined behavior
+    or packet corruption. Ensure that the memberGuid corresponds to a valid online
+    guild member before calling this function.
+  related:
+  - Guild::SendEvent
+  - Guild::SendPacketToGuild
+  - Guild::GetMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:30:01.945323'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

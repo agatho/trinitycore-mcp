@@ -1,0 +1,46 @@
+api:
+  class: Guild
+  method: HandleLeaveMember
+  signature: void Guild::HandleLeaveMember(WorldSession * session)
+documentation:
+  brief: Removes the calling player from their guild, handling all necessary cleanup
+    and notifications.
+  description: The HandleLeaveMember method processes a player's request to leave
+    their current guild. It performs validation checks to ensure the player is actually
+    a member of a guild, verifies that the player is not the guild leader (who cannot
+    leave without disbanding), and then removes the player from the guild roster.
+    The method also sends appropriate system messages to the player and other guild
+    members, updates internal guild data structures, and may trigger additional game
+    mechanics such as resetting guild permissions or updating guild reputation. This
+    function is typically called in response to a client command when a player selects
+    the 'Leave Guild' option.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Guild Command Handler
+    code: "void HandleGuildLeaveCommand(WorldSession* session)\n{\n    if (Player*\
+      \ player = session->GetPlayer())\n    {\n        if (Guild* guild = player->GetGuild())\n\
+      \        {\n            guild->HandleLeaveMember(session);\n        }\n    }\n\
+      }"
+    language: cpp
+  notes: This method assumes that the session's player is already validated as being
+    in a guild. The actual removal process includes sending packets to update client
+    UI and may involve database updates for persistent storage. It's important to
+    note that if the player is the guild master, this method should not be called
+    directly but rather through a disband operation.
+  warnings: Calling this method on a guild master without proper checks can lead to
+    inconsistent state in the guild system. The method does not validate whether the
+    session is still valid after processing, so callers should ensure proper session
+    management. Additionally, this function may indirectly affect other systems that
+    depend on guild membership, such as guild achievements or reputation tracking.
+  related:
+  - Guild::AddMember
+  - Guild::RemoveMember
+  - Guild::Disband
+  - Player::GetGuild
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:37:40.239191'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

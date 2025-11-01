@@ -1,0 +1,80 @@
+api:
+  class: VMapManager2
+  method: getObjectHitPos
+  signature: bool VMapManager2::getObjectHitPos(unsigned int mapId, float x1, float
+    y1, float z1, float x2, float y2, float z2, float & rx, float & ry, float & rz,
+    float modifyDist)
+documentation:
+  brief: Calculates the hit position of an object between two points in a specified
+    map.
+  description: The getObjectHitPos method determines the exact point where a line
+    segment intersects with an object in the virtual map system. It performs a raycast
+    from the starting point (x1, y1, z1) to the ending point (x2, y2, z2) within the
+    specified mapId and returns the coordinates of the first collision. The modifyDist
+    parameter allows for fine-tuning of the hit position by adjusting the distance
+    from the endpoint. This method is crucial for gameplay mechanics such as line-of-sight
+    checks, spell targeting, and object interaction detection in TrinityCore's virtual
+    world.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map where the raycast occurs. Must correspond
+      to a valid map in the game world.
+  - name: x1
+    description: X coordinate of the starting point of the raycast.
+  - name: y1
+    description: Y coordinate of the starting point of the raycast.
+  - name: z1
+    description: Z coordinate of the starting point of the raycast.
+  - name: x2
+    description: X coordinate of the ending point of the raycast.
+  - name: y2
+    description: Y coordinate of the ending point of the raycast.
+  - name: z2
+    description: Z coordinate of the ending point of the raycast.
+  - name: rx
+    description: Reference to store the X coordinate of the hit position.
+  - name: ry
+    description: Reference to store the Y coordinate of the hit position.
+  - name: rz
+    description: Reference to store the Z coordinate of the hit position.
+  - name: modifyDist
+    description: Adjustment distance applied to the hit position, typically used to
+      avoid clipping through objects or to adjust targeting precision.
+  returns: Returns true if a collision was detected and the hit position is calculated
+    successfully; otherwise returns false if no object was intersected or if an error
+    occurred during processing.
+  examples:
+  - title: Basic usage of getObjectHitPos for spell targeting
+    code: "float hitX, hitY, hitZ;\nif (VMapManager2::getInstance()->getObjectHitPos(0,\
+      \ 100.0f, 100.0f, 50.0f, 150.0f, 150.0f, 50.0f, hitX, hitY, hitZ, 0.5f)) {\n\
+      \    // Process the hit position\n    printf(\"Hit at X:%f Y:%f Z:%f\\n\", hitX,\
+      \ hitY, hitZ);\n} else {\n    // No collision occurred\n    printf(\"No object\
+      \ hit\\n\");\n}"
+    language: cpp
+  - title: Using modifyDist to avoid clipping through objects
+    code: "float startX = player->GetPositionX();\nfloat startY = player->GetPositionY();\n\
+      float startZ = player->GetPositionZ() + 2.0f; // Slightly above player\nfloat\
+      \ endX = target->GetPositionX();\nfloat endY = target->GetPositionY();\nfloat\
+      \ endZ = target->GetPositionZ() + 1.5f;\n\nfloat hitX, hitY, hitZ;\nif (VMapManager2::getInstance()->getObjectHitPos(player->GetMapId(),\
+      \ startX, startY, startZ,\n                                                endX,\
+      \ endY, endZ, hitX, hitY, hitZ, -0.1f)) {\n    // Adjusted hit position to prevent\
+      \ clipping\n    player->CastSpell(hitX, hitY, hitZ, spellId, true);\n}"
+    language: cpp
+  notes: This method relies on the VMap (Virtual Map) system which handles collision
+    detection for terrain and object geometry. The implementation uses spatial partitioning
+    and bounding volume hierarchies to efficiently find intersections. Performance
+    can be affected by complex map geometries or high-density object placement.
+  warnings: The method may return false even when a line is visible if the raycast
+    passes through gaps in the VMap data or if objects are not properly loaded into
+    memory. Ensure that the mapId and coordinates are valid before calling to avoid
+    undefined behavior.
+  related:
+  - getAreaInfo
+  - isInLineOfSight
+  - getHeight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:55:27.574007'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

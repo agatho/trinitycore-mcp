@@ -1,0 +1,60 @@
+api:
+  class: Creature
+  method: CheckNoGrayAggroConfig
+  signature: bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel)
+    const
+documentation:
+  brief: Checks if gray aggro is disabled based on player and creature level configuration.
+  description: The CheckNoGrayAggroConfig method determines whether gray aggro (aggro
+    from creatures that are significantly lower in level than the player) should be
+    prevented according to server configuration settings. This method evaluates the
+    relationship between a player's level and a creature's level to decide if the
+    creature should not aggro the player due to level differences. The check is typically
+    used during combat initialization or when determining if a creature should enter
+    combat with a player. It respects server-side configurations that may disable
+    gray aggro for balance reasons, particularly in instances or areas where level-appropriate
+    combat is desired.
+  parameters:
+  - name: playerLevel
+    description: The level of the player character involved in the potential aggro
+      check.
+  - name: creatureLevel
+    description: The level of the creature that may be attempting to aggro the player.
+  returns: Returns true if gray aggro is disabled for the given player and creature
+    level combination, indicating that the creature should not aggro the player due
+    to level difference. Returns false if gray aggro is allowed and the creature can
+    potentially aggro the player.
+  examples:
+  - title: Basic usage in combat check
+    code: "if (creature->CheckNoGrayAggroConfig(playerLevel, creatureLevel)) {\n \
+      \   // Creature will not aggro player due to level difference\n    return false;\n\
+      }\n// Proceed with normal aggro logic"
+    language: cpp
+  - title: Integration with aggro system
+    code: "bool Creature::CanAggroPlayer(Player* player) {\n    uint32 playerLevel\
+      \ = player->GetLevel();\n    uint32 creatureLevel = GetLevel();\n    \n    if\
+      \ (CheckNoGrayAggroConfig(playerLevel, creatureLevel)) {\n        // Prevent\
+      \ gray aggro\n        return false;\n    }\n    \n    // Continue with normal\
+      \ aggro logic\n    return true;\n}"
+    language: cpp
+  notes: This method likely relies on server configuration settings such as 'Player.LevelCap'
+    or similar level restriction values. The exact threshold for what constitutes
+    a 'gray aggro' difference may be configurable and could vary between different
+    TrinityCore builds or custom configurations. It's important to note that this
+    check might not be the only factor in determining whether a creature will aggro
+    a player, as other factors like faction, reputation, and proximity also play roles.
+  warnings: This method should not be used as the sole determinant for aggro behavior,
+    as it only handles level-based gray aggro prevention. Other aggro conditions such
+    as faction hostility, player reputation, or proximity must still be considered.
+    Additionally, if this method is called without proper level validation, it could
+    lead to incorrect aggro decisions.
+  related:
+  - GetLevel
+  - IsAggroEnabled
+  - CanCreatureAggroPlayer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T16:56:02.210007'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

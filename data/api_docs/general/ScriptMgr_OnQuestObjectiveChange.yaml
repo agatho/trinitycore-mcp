@@ -1,0 +1,68 @@
+api:
+  class: ScriptMgr
+  method: OnQuestObjectiveChange
+  signature: void ScriptMgr::OnQuestObjectiveChange(Player * player, const Quest *
+    quest, const QuestObjective & objective, int32 oldAmount, int32 newAmount)
+documentation:
+  brief: Invoked when a player's quest objective progress changes, allowing scripts
+    to react to objective updates.
+  description: The OnQuestObjectiveChange method is a callback function in the ScriptMgr
+    class that gets triggered whenever a player's progress on a specific quest objective
+    is modified. This method provides an opportunity for custom scripts or modules
+    to respond to changes in quest completion status, such as updating UI elements,
+    triggering events, or modifying game state based on the updated objective amount.
+    It is typically called during quest progression when objectives like killing monsters,
+    collecting items, or reaching certain milestones are updated. The method receives
+    detailed information about which player, quest, and objective changed, along with
+    the old and new amounts of progress.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose quest objective is being modified.
+      This represents the active player instance in the game world.
+  - name: quest
+    description: Pointer to the Quest object that contains the updated objective.
+      Represents the quest for which progress has changed.
+  - name: objective
+    description: Reference to the QuestObjective structure representing the specific
+      objective that was modified within the quest.
+  - name: oldAmount
+    description: The previous amount of progress made towards the objective before
+      the change occurred. Can be negative if the objective decreases.
+  - name: newAmount
+    description: The new amount of progress made towards the objective after the change
+      occurred. May exceed the required amount for completion.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void MyScript::OnQuestObjectiveChange(Player* player, const Quest* quest,\
+      \ const QuestObjective& objective, int32 oldAmount, int32 newAmount)\n{\n  \
+      \  if (newAmount >= objective.RequiredCount)\n    {\n        // Objective completed\n\
+      \        ChatHandler(player->GetSession()).SendSysMessage(\"Objective completed!\"\
+      );\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with Custom Logic
+    code: "void MyScript::OnQuestObjectiveChange(Player* player, const Quest* quest,\
+      \ const QuestObjective& objective, int32 oldAmount, int32 newAmount)\n{\n  \
+      \  if (objective.Type == QUEST_OBJECTIVE_KILL && newAmount > oldAmount)\n  \
+      \  {\n        // Player killed a mob\n        uint32 mobId = objective.RequiredEntry;\n\
+      \        // Trigger custom event or reward logic here\n        player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n    }\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's scripting system and is intended for
+    use in custom modules or scripts. It is called synchronously during quest progression
+    logic, so any heavy processing should be avoided to prevent performance issues.
+    The objective reference passed may not be valid beyond the scope of this function
+    unless copied.
+  warnings: Do not modify the player object or quest state directly within this callback
+    without proper safeguards; doing so might lead to unexpected behavior or crashes.
+    Be cautious when accessing pointers that could become invalid during execution.
+  related:
+  - OnQuestStart
+  - OnQuestComplete
+  - OnQuestFailed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:10:01.311943'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

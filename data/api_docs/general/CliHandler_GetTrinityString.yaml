@@ -1,0 +1,56 @@
+api:
+  class: CliHandler
+  method: GetTrinityString
+  signature: const char * CliHandler::GetTrinityString(int entry) const
+documentation:
+  brief: Retrieves a localized string message from the TrinityCore database based
+    on the provided entry ID
+  description: The GetTrinityString method fetches a localized string message from
+    the TrinityCore database using an integer entry identifier. This method is commonly
+    used in command-line interface (CLI) handlers to provide user-friendly messages,
+    error notifications, or informational text in the player's selected language.
+    The method accesses internal string tables that store localized messages for various
+    game systems and commands. It serves as a bridge between the core game logic and
+    user-facing text output, ensuring consistent localization across different client
+    languages.
+  parameters: []
+  returns: A pointer to a null-terminated character array containing the localized
+    string message associated with the given entry ID. Returns NULL if the entry ID
+    is not found in the database or if there's an internal error accessing the string
+    table.
+  examples:
+  - title: Basic usage in CLI command handler
+    code: "void HandleTestCommand(ChatHandler* handler)\n{\n    const char* message\
+      \ = handler->GetTrinityString(12345);\n    if (message)\n        handler->PSendSysMessage(\"\
+      Retrieved message: %s\", message);\n    else\n        handler->PSendSysMessage(\"\
+      Message not found for ID 12345\");\n}"
+    language: cpp
+  - title: Using with error handling in a custom command
+    code: "bool ChatHandler::HandleCustomCommand(const char* args)\n{\n    int entryId\
+      \ = 54321;\n    const char* localizedText = GetTrinityString(entryId);\n   \
+      \ \n    if (!localizedText)\n    {\n        PSendSysMessage(\"Error: Could not\
+      \ retrieve localized string for ID %d\", entryId);\n        return false;\n\
+      \    }\n    \n    PSendSysMessage(\"Localized message: %s\", localizedText);\n\
+      \    return true;\n}"
+    language: cpp
+  notes: This method relies on the TrinityCore's string localization system which
+    must be properly initialized. The entry IDs correspond to specific string entries
+    in the database tables such as 'trinity_string' or similar localization tables.
+    The returned pointer is valid only for the lifetime of the handler object and
+    should not be freed by the caller. Performance is generally good as it uses cached
+    lookups, but repeated calls with many different IDs may impact performance if
+    not properly optimized.
+  warnings: Do not assume that all entry IDs will return valid strings - always check
+    for NULL returns. The method may return NULL if the database entry does not exist
+    or if localization data is missing. Avoid calling this method in performance-critical
+    code paths without proper caching mechanisms.
+  related:
+  - GetTrinityString
+  - PSendSysMessage
+  - SendSysMessage
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:14:40.606836'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

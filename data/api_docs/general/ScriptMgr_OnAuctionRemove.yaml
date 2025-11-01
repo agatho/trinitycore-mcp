@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnAuctionRemove
+  signature: void ScriptMgr::OnAuctionRemove(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Called when an auction is removed from the auction house, allowing scripts
+    to execute custom logic.
+  description: The OnAuctionRemove method is a hook in the ScriptMgr class that is
+    invoked whenever an auction posting is removed from the auction house system.
+    This can occur due to various reasons such as the auction expiring without being
+    bought, the item being sold, or the seller canceling the auction. The method provides
+    access to both the auction house object and the specific auction posting that
+    was removed, enabling custom scripts to perform actions like logging, notifying
+    players, modifying game state, or triggering events based on the removal. This
+    hook is part of TrinityCore's scripting system which allows server administrators
+    and developers to extend core game functionality without modifying the base code.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      from which the auction was removed. This object contains information about the
+      auction house itself including its ID, location, and associated data.
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the specific auction
+      that was removed. This contains details about the item being auctioned, the
+      seller's GUID, bid amount, starting price, and other auction-specific properties.
+  returns: null
+  examples:
+  - title: Basic Auction Removal Logging
+    code: "void OnAuctionRemove(AuctionHouseObject* ah, AuctionPosting* auction)\n\
+      {\n    if (auction && ah)\n    {\n        sLog->outString(\"Auction removed:\
+      \ Item ID %u from AH %u\", auction->itemTemplate->ItemId, ah->GetId());\n  \
+      \  }\n}"
+    language: cpp
+  - title: Notify Player on Auction Removal
+    code: "void OnAuctionRemove(AuctionHouseObject* ah, AuctionPosting* auction)\n\
+      {\n    if (auction && ah)\n    {\n        uint64 sellerGuid = auction->owner;\n\
+      \        Player* player = ObjectAccessor::FindPlayer(sellerGuid);\n        if\
+      \ (player)\n        {\n            player->SendNotification(\"Your auction for\
+      \ %s has been removed.\", auction->itemTemplate->Name1);\n        }\n    }\n\
+      }"
+    language: cpp
+  notes: This method is called from within the auction house system's internal logic
+    when an auction is removed. It's important to note that this hook may be invoked
+    multiple times for a single auction depending on how the auction system handles
+    removals. The pointers passed to this function should always be validated before
+    use as they could potentially be null in edge cases.
+  warnings: Avoid performing heavy operations or blocking calls within this method
+    as it's executed synchronously during auction house processing. Be cautious when
+    modifying auction data directly from this hook, as it may cause inconsistencies
+    or crashes if not handled properly.
+  related:
+  - OnAuctionAdd
+  - OnAuctionBid
+  - OnAuctionExpire
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:56:50.176320'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: LineOfSightManager
+  method: IsSpellRangeBlocked
+  signature: bool LineOfSightManager::IsSpellRangeBlocked(Unit * target, uint32 spellId)
+documentation:
+  brief: Determines whether the spell range is blocked between the caster and target
+    units.
+  description: The IsSpellRangeBlocked method evaluates whether a spell's range is
+    obstructed by environmental obstacles or other game entities between the caster
+    unit and the target unit. This check is essential for determining if a spell can
+    be cast successfully based on line-of-sight and range constraints. The method
+    typically considers factors such as terrain, object placement, and unit positioning
+    to determine if an unobstructed path exists within the spell's specified range.
+    It returns true if the spell range is blocked, indicating that the spell cannot
+    be cast due to obstruction, and false otherwise.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit object that the spell is being cast towards.
+      Must not be null.
+  - name: spellId
+    description: The unique identifier of the spell being evaluated for range blocking.
+      Used to determine the spell's range and obstruction properties.
+  returns: Returns true if the spell range is blocked between the caster and target
+    units, indicating that the spell cannot be cast due to obstructions. Returns false
+    if no obstruction is detected and the spell can be cast normally.
+  examples:
+  - title: Basic usage in spell casting logic
+    code: "if (!lineOfSightManager.IsSpellRangeBlocked(targetUnit, spellId)) {\n \
+      \   // Proceed with spell casting\n    caster->CastSpell(targetUnit, spellId,\
+      \ true);\n} else {\n    // Notify player that spell cannot be cast due to range\
+      \ block\n    caster->SendSpellFailedToPlayer(spellId, SPELL_FAILED_LINE_OF_SIGHT);\n\
+      }"
+    language: cpp
+  - title: Checking spell range before applying effects
+    code: "void Player::CastSpellWithRangeCheck(Unit* target, uint32 spellId) {\n\
+      \    if (IsSpellRangeBlocked(target, spellId)) {\n        SendSpellFailedToPlayer(spellId,\
+      \ SPELL_FAILED_LINE_OF_SIGHT);\n        return;\n    }\n    // Apply spell effects\n\
+      \    DoSpellEffect(target, spellId);\n}"
+    language: cpp
+  notes: This method likely performs a ray-cast or line-of-sight check using the game's
+    collision detection system. It may consider both visual and physical obstructions
+    such as walls, terrain features, and other units that could block spell range.
+    The implementation might cache previous checks for performance optimization in
+    frequently called scenarios.
+  warnings: Ensure that the target unit pointer is valid before calling this method
+    to avoid null pointer exceptions. This method should only be called during active
+    spell casting or targeting operations when both caster and target are in valid
+    states.
+  related:
+  - IsInFront
+  - IsWithinLOS
+  - GetSpellRange
+  - CheckSpellRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:01:01.790901'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

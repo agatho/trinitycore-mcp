@@ -1,0 +1,56 @@
+api:
+  class: Aura
+  method: CallScriptDispel
+  signature: void Aura::CallScriptDispel(DispelInfo * dispelInfo)
+documentation:
+  brief: Invokes the script-based dispel handler for an aura, notifying any registered
+    scripts of a dispel event.
+  description: The CallScriptDispel method is responsible for triggering the script-dispel
+    callback mechanism within the TrinityCore Aura system. When an aura is about to
+    be removed through a dispel effect, this method ensures that any custom scripts
+    associated with the aura are notified and given the opportunity to respond or
+    modify the dispel behavior. This method typically gets called internally by the
+    core dispel logic, but can also be invoked directly when custom dispel conditions
+    need to be processed. The method accepts a DispelInfo object which contains details
+    about the dispel event such as the dispeller, dispel type, and other relevant
+    information.
+  parameters:
+  - name: dispelInfo
+    description: Pointer to a DispelInfo structure containing details about the dispel
+      event including the source of the dispel, the type of dispel, and any additional
+      metadata. This parameter is required and must not be null.
+  returns: null
+  examples:
+  - title: Basic usage in custom aura script
+    code: "void MyAuraScript::OnDispel(DispelInfo* dispelInfo)\n{\n    // Custom logic\
+      \ before or during dispel\n    if (dispelInfo->GetDispeller()->GetTypeId() ==\
+      \ TYPEID_PLAYER)\n    {\n        // Handle player dispel differently\n     \
+      \   SendCustomMessage(\"Aura dispelled by player!\");\n    }\n    // Call base\
+      \ method to ensure proper script execution\n    Aura::CallScriptDispel(dispelInfo);\n\
+      }"
+    language: cpp
+  - title: Triggering custom dispel logic
+    code: "void CustomAura::HandleDispel()\n{\n    DispelInfo dispelInfo(this, GetCaster(),\
+      \ DISPEL_MAGIC, 0);\n    // Perform custom checks\n    if (ShouldPreventDispel())\n\
+      \    {\n        // Prevent the dispel from proceeding\n        return;\n   \
+      \ }\n    // Proceed with standard dispel handling\n    CallScriptDispel(&dispelInfo);\n\
+      }"
+    language: cpp
+  notes: This method is part of the scriptable aura system in TrinityCore, allowing
+    custom scripts to hook into and modify dispel behavior. It's important to note
+    that this method should only be called when the aura is actually being dispelled;
+    calling it outside of a dispel context may lead to unexpected behavior or crashes.
+  warnings: Do not call this method with a null DispelInfo pointer as it will likely
+    cause a crash. Ensure that any custom logic executed before calling this method
+    properly handles edge cases where the aura might be invalid or already removed.
+  related:
+  - Aura::CallScriptApply
+  - Aura::CallScriptRemove
+  - Aura::CallScriptUpdate
+  - Aura::GetDispelMask
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:10:13.676153'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

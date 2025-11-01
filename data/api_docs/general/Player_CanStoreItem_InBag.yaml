@@ -1,0 +1,81 @@
+api:
+  class: Player
+  method: CanStoreItem_InBag
+  signature: int Player::CanStoreItem_InBag(uint8 bag, ItemPosCountVec & dest, const
+    ItemTemplate * pProto, uint32 & count, bool merge, bool non_specialized, Item
+    * pSrcItem, uint8 skip_bag, uint8 skip_slot) const
+documentation:
+  brief: Checks if an item can be stored in a specific bag and updates the destination
+    vector with the position where it can be placed.
+  description: The CanStoreItem_InBag method determines whether a given item prototype
+    can be stored within a specified bag, considering various constraints such as
+    item type, stack limits, and bag capacity. It populates the provided ItemPosCountVec
+    with valid positions for storing the item. This method is typically used during
+    inventory operations to validate item placement before actually moving items.
+    The method respects special item restrictions (like non-specialized items) and
+    can optionally merge existing stacks if possible. It returns a status code indicating
+    success or failure of the operation.
+  parameters:
+  - name: bag
+    description: The bag index to check for storing the item. Valid values are 0-11
+      for main bags, with 255 indicating the backpack.
+  - name: dest
+    description: Reference to an ItemPosCountVec that will be populated with valid
+      positions where the item can be stored.
+  - name: pProto
+    description: Pointer to the ItemTemplate of the item being checked for storage.
+      Must not be null.
+  - name: count
+    description: Reference to a uint32 that holds the number of items to store. Updated
+      on success with remaining count.
+  - name: merge
+    description: Boolean flag indicating whether existing stacks should be merged
+      if possible.
+  - name: non_specialized
+    description: Boolean flag indicating whether to allow non-specialized items (e.g.,
+      for crafted items).
+  - name: pSrcItem
+    description: Pointer to the source item being moved, or nullptr if not applicable.
+  - name: skip_bag
+    description: Bag index to skip during the search for valid storage positions (0xFF
+      to skip none).
+  - name: skip_slot
+    description: Slot index within the skipped bag to also skip during the search
+      (0xFF to skip none).
+  returns: 'Returns an integer status code indicating success or failure:
+
+    - 0: Success, item can be stored
+
+    - Non-zero: Failure, with specific error codes indicating why storage failed'
+  examples:
+  - title: Basic usage to check if an item can be placed in a bag
+    code: "ItemTemplate const* proto = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ count = 1;\nItemPosCountVec dest;\nint result = player->CanStoreItem_InBag(0,\
+      \ dest, proto, count, true, false, nullptr, 255, 255);\nif (result == 0) {\n\
+      \    // Item can be stored\n}"
+    language: cpp
+  - title: Advanced usage with item merging and skipping specific slots
+    code: "ItemTemplate const* proto = sObjectMgr->GetItemTemplate(67890);\nuint32\
+      \ count = 10;\nItemPosCountVec dest;\nItem* sourceItem = player->GetItemByGuid(itemGuid);\n\
+      int result = player->CanStoreItem_InBag(1, dest, proto, count, true, false,\
+      \ sourceItem, 0, 5);\nif (result == 0 && !dest.empty()) {\n    // Item can be\
+      \ stored in bag 1, skipping slot 5\n}"
+    language: cpp
+  notes: This method does not actually move or modify items in the inventory; it only
+    checks if storage is possible. The returned ItemPosCountVec must be used with
+    methods like StoreItem to perform actual placement. Performance may be impacted
+    when checking large numbers of items due to internal iteration over bag slots.
+  warnings: Ensure that pProto is not null before calling this method, as passing
+    a null pointer will likely cause undefined behavior. The count parameter gets
+    modified on return and should be checked for remaining quantity after the call.
+  related:
+  - CanStoreItem
+  - StoreItem
+  - AddItem
+  - GetItemByGuid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:15:28.794109'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

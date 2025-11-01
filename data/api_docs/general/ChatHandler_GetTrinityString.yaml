@@ -1,0 +1,50 @@
+api:
+  class: ChatHandler
+  method: GetTrinityString
+  signature: const char * ChatHandler::GetTrinityString(int entry) const
+documentation:
+  brief: Retrieves a localized string message from the TrinityCore database based
+    on the provided entry ID
+  description: The GetTrinityString method fetches a localized string message from
+    the TrinityCore database using an integer entry identifier. This method is commonly
+    used in game command implementations and user interface elements to provide translated
+    messages for players based on their selected language. The method accesses internal
+    string tables that store various game messages, error notifications, and command
+    responses. It returns a const char* pointer to the requested string, which should
+    not be modified or freed by the caller. The method performs no validation on the
+    input entry ID, so invalid IDs may result in undefined behavior or return NULL.
+  parameters: []
+  returns: A const char* pointer to the localized string message corresponding to
+    the provided entry ID. Returns NULL if the entry ID is not found in the database
+    or if an error occurs during retrieval.
+  examples:
+  - title: Basic usage in a command handler
+    code: "void HandleTestCommand(ChatHandler* handler)\n{\n    const char* message\
+      \ = handler->GetTrinityString(12345);\n    if (message)\n        handler->PSendSysMessage(\"\
+      Retrieved message: %s\", message);\n    else\n        handler->PSendSysMessage(\"\
+      Message not found for ID 12345\");\n}"
+    language: cpp
+  - title: Using with command response
+    code: "bool ChatHandler::HandleGmModeCommand(const char* args)\n{\n    const char*\
+      \ message = GetTrinityString(LANG_GM_MODE_ON);\n    if (message)\n        PSendSysMessage(message);\n\
+      \    return true;\n}"
+    language: cpp
+  notes: The method relies on TrinityCore's localization system and requires that
+    the string table has been properly initialized. The returned string pointer is
+    valid only until the next call to GetTrinityString or until the ChatHandler instance
+    is destroyed. This method should not be used for frequent lookups in performance-critical
+    code paths due to potential database access overhead.
+  warnings: Do not attempt to modify or free the returned string pointer as it points
+    to internal static memory. Using invalid entry IDs can cause crashes or undefined
+    behavior. The method may return NULL if the requested string is not present in
+    the database, so always check for null before using the result.
+  related:
+  - GetTrinityString
+  - PSendSysMessage
+  - SendSysMessage
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T16:19:53.967925'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

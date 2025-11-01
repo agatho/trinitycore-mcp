@@ -1,0 +1,65 @@
+api:
+  class: Group
+  method: AddRaidMarker
+  signature: void Group::AddRaidMarker(int markerId, int mapId, float positionX, float
+    positionY, float positionZ, int transportGuid)
+documentation:
+  brief: Adds a raid marker to the group's instance
+  description: The AddRaidMarker method places a visual marker on the minimap for
+    all group members within the same instance. This functionality is used primarily
+    for coordinating group activities such as marking locations of interest, objectives,
+    or points of interest during raid encounters. The marker is displayed as a colored
+    dot on the minimap and can be cleared by removing the marker or leaving the instance.
+    This method requires the group to be in a raid context and the player must have
+    sufficient permissions to place markers.
+  parameters:
+  - name: markerId
+    description: The identifier of the raid marker (0-7) representing different marker
+      types such as skull, cross, star, etc. Valid values are typically 0-7 for standard
+      World of Warcraft raid markers.
+  - name: mapId
+    description: The map identifier where the marker should be placed. This corresponds
+      to the Map.dbc entry ID and determines which map the marker appears on.
+  - name: positionX
+    description: The X coordinate of the marker's position in the world. Must be a
+      valid floating-point number representing the location within the specified map.
+  - name: positionY
+    description: The Y coordinate of the marker's position in the world. Must be a
+      valid floating-point number representing the location within the specified map.
+  - name: positionZ
+    description: The Z coordinate of the marker's position in the world. Must be a
+      valid floating-point number representing the vertical position within the specified
+      map.
+  - name: transportGuid
+    description: The GUID of the transport object (if applicable) that the marker
+      is associated with. Set to 0 if not using a transport, otherwise should be a
+      valid GameObject GUID.
+  returns: null
+  examples:
+  - title: Basic raid marker placement
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    group->AddRaidMarker(3,\
+      \ 1234, 100.0f, 200.0f, 50.0f, 0);\n}"
+    language: cpp
+  - title: Placing marker on transport
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    GameObject* transport\
+      \ = player->GetMap()->GetGameObject(transportGuid);\n    if (transport)\n  \
+      \  {\n        group->AddRaidMarker(5, 1234, transport->GetPositionX(), transport->GetPositionY(),\
+      \ transport->GetPositionZ(), transport->GetGUID().GetRawValue());\n    }\n}"
+    language: cpp
+  notes: 'This method only works for groups in a raid context (not party). The marker
+    will be visible to all group members in the same instance. The marker ID corresponds
+    to standard World of Warcraft raid marker types: 0=Skull, 1=Cross, 2=Circle, 3=Star,
+    4=Triangle, 5=Diamond, 6=Square, 7=Moon.'
+  warnings: This method does not validate the mapId or coordinates. Invalid coordinates
+    may cause undefined behavior or client-side issues. The marker will persist until
+    explicitly removed or the player leaves the instance.
+  related:
+  - RemoveRaidMarker
+  - ClearRaidMarkers
+  - SendRaidMarkerUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T01:01:24.579707'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

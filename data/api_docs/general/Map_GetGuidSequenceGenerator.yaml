@@ -1,0 +1,57 @@
+api:
+  class: Map
+  method: GetGuidSequenceGenerator
+  signature: int & Map::GetGuidSequenceGenerator(int high)
+documentation:
+  brief: Returns a reference to the GUID sequence generator for the specified high-bits
+    value.
+  description: The GetGuidSequenceGenerator method retrieves a reference to an internal
+    sequence generator used for generating unique identifiers (GUIDs) within a specific
+    high-bits range. In World of Warcraft's TrinityCore, GUIDs are used to uniquely
+    identify game objects such as players, creatures, items, and game objects. Each
+    map maintains its own set of GUID generators, indexed by the high-bits portion
+    of the GUID. This method allows access to the sequence generator for a given high-bits
+    value, which is essential for generating new unique identifiers within that scope.
+    The returned reference can be used to incrementally generate sequential GUIDs.
+  parameters:
+  - name: high
+    description: The high-bits value that determines which GUID sequence generator
+      to return. This value typically represents the type of object being generated
+      (e.g., player, creature, item).
+  returns: A reference to an integer representing the current sequence number for
+    the specified high-bits GUID range. This integer is used to generate unique identifiers
+    within that range.
+  examples:
+  - title: Generating a new GUID for a creature
+    code: 'Map* map = ...;
+
+      int& seq = map->GetGuidSequenceGenerator(HighGuid::HighGuidCreature);
+
+      uint64 guid = MAKE_NEW_GUID(++seq, 0, HighGuid::HighGuidCreature);'
+    language: cpp
+  - title: Accessing sequence generator for player GUIDs
+    code: 'Map* map = ...;
+
+      int& playerSeq = map->GetGuidSequenceGenerator(HighGuid::HighGuidPlayer);
+
+      uint64 newPlayerGuid = MAKE_NEW_GUID(++playerSeq, 0, HighGuid::HighGuidPlayer);'
+    language: cpp
+  notes: This method is typically used internally by the TrinityCore server to manage
+    unique identifiers for game entities. The sequence generators are maintained per
+    map and per high-bits value to ensure global uniqueness of GUIDs across different
+    maps and entity types. It's important to note that this returns a reference to
+    an internal counter, so modifying it directly may have unintended consequences.
+  warnings: Do not modify the returned reference directly unless you fully understand
+    the implications. The sequence generator is managed internally by the Map class,
+    and direct modification can lead to GUID collisions or other issues in the game
+    state. Always increment the value before using it for new GUID generation.
+  related:
+  - GetGuidGenerator
+  - GenerateLowGuid
+  - GenerateHighGuid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T23:53:43.772771'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

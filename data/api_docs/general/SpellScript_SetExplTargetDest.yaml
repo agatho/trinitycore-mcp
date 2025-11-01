@@ -1,0 +1,63 @@
+api:
+  class: SpellScript
+  method: SetExplTargetDest
+  signature: void SpellScript::SetExplTargetDest(const WorldLocation & loc)
+documentation:
+  brief: Sets the destination location for an explosion effect in a spell script.
+  description: The SetExplTargetDest method configures the target destination where
+    an explosion effect will occur within a spell script. This is typically used in
+    conjunction with area-of-effect spells that have explosive or detonation mechanics.
+    The method accepts a WorldLocation object which defines the coordinates and map
+    information for the explosion's impact point. This function modifies the spell's
+    behavior by determining exactly where the visual explosion and its effects will
+    be centered. It is commonly invoked during spell processing to dynamically set
+    explosion locations based on targeting, positioning, or other game logic conditions.
+  parameters:
+  - name: loc
+    description: A const reference to a WorldLocation object specifying the coordinates
+      and map information where the explosion effect should be centered. This location
+      defines the X, Y, Z coordinates along with the map ID and orientation for the
+      explosion destination.
+  returns: null
+  examples:
+  - title: Setting explosion target to player's position
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleDummyEffect()\
+      \ override\n    {\n        if (Unit* target = GetHitUnit())\n        {\n   \
+      \         WorldLocation explosionLoc;\n            explosionLoc.m_mapId = target->GetMapId();\n\
+      \            explosionLoc.m_positionX = target->GetPositionX();\n          \
+      \  explosionLoc.m_positionY = target->GetPositionY();\n            explosionLoc.m_positionZ\
+      \ = target->GetPositionZ();\n            SetExplTargetDest(explosionLoc);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Setting explosion target to random location within range
+    code: "class AreaEffectSpellScript : public SpellScript\n{\npublic:\n    void\
+      \ OnPrepare() override\n    {\n        if (Unit* caster = GetCaster())\n   \
+      \     {\n            float radius = 10.0f;\n            float angle = frand(0.0f,\
+      \ 2.0f * M_PI);\n            float distance = frand(0.0f, radius);\n       \
+      \     \n            WorldLocation explosionLoc;\n            explosionLoc.m_mapId\
+      \ = caster->GetMapId();\n            explosionLoc.m_positionX = caster->GetPositionX()\
+      \ + distance * cos(angle);\n            explosionLoc.m_positionY = caster->GetPositionY()\
+      \ + distance * sin(angle);\n            explosionLoc.m_positionZ = caster->GetPositionZ();\n\
+      \            \n            SetExplTargetDest(explosionLoc);\n        }\n   \
+      \ }\n};"
+    language: cpp
+  notes: This method should be called before the spell's explosion effect is processed.
+    The WorldLocation parameter must contain valid map coordinates, otherwise the
+    explosion may not render correctly or could cause undefined behavior. When using
+    this method in custom spell scripts, ensure that the target location is within
+    valid bounds of the current map to prevent client-side issues.
+  warnings: Incorrectly setting the WorldLocation parameters can result in visual
+    glitches or incorrect spell behavior. Never call this method with invalid map
+    IDs or coordinates outside of the world boundaries. The explosion destination
+    will be used immediately by the spell system, so ensure all necessary calculations
+    are complete before invoking this function.
+  related:
+  - GetExplTargetDest
+  - SetHitDest
+  - SetTargetDest
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T05:44:17.816146'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

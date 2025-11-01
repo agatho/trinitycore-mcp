@@ -1,0 +1,60 @@
+api:
+  class: SpellScript
+  method: GetItemTargetCountForEffect
+  signature: int SpellScript::GetItemTargetCountForEffect(int effect) const
+documentation:
+  brief: Returns the count of item targets for a specified spell effect.
+  description: The GetItemTargetCountForEffect method retrieves the number of item
+    targets associated with a specific spell effect within the current spell script
+    context. This method is typically used in spell scripts to determine how many
+    items were targeted by an effect, which can be useful for conditional logic or
+    calculating effects that scale based on target count. The method operates on the
+    currently executing spell and effect index provided as parameter. It's important
+    to note that this method should only be called during the execution of a spell
+    script, specifically when the spell effect is active.
+  parameters:
+  - name: effect
+    description: The index of the spell effect for which to retrieve the item target
+      count. This corresponds to the effect index within the spell's effect array.
+  returns: An integer representing the number of item targets associated with the
+    specified spell effect. Returns 0 if no targets are found or if the effect index
+    is invalid.
+  examples:
+  - title: Basic usage to check item target count
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnEffectHit += SpellEffectFn(MySpellScript::HandleEffect,\
+      \ EFFECT_0, SPELL_EFFECT_ENERGIZE);\n    }\n\n    void HandleEffect(SpellEffIndex\
+      \ effIndex)\n    {\n        int itemCount = GetItemTargetCountForEffect(effIndex);\n\
+      \        if (itemCount > 0)\n        {\n            // Perform logic based on\
+      \ number of item targets\n            SendSystemMessage(\"Spell affected \"\
+      \ + std::to_string(itemCount) + \" items.\");\n        }\n    }\n};"
+    language: cpp
+  - title: Using item target count for conditional spell behavior
+    code: "class AdvancedSpellScript : public SpellScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnEffectHit += SpellEffectFn(AdvancedSpellScript::HandleAdvancedEffect,\
+      \ EFFECT_1, SPELL_EFFECT_DAMAGE);\n    }\n\n    void HandleAdvancedEffect(SpellEffIndex\
+      \ effIndex)\n    {\n        int itemCount = GetItemTargetCountForEffect(effIndex);\n\
+      \        if (itemCount >= 3)\n        {\n            // Apply enhanced effect\
+      \ for multiple targets\n            SetHitDamage(GetHitDamage() * 2);\n    \
+      \    }\n        else if (itemCount == 1)\n        {\n            // Apply standard\
+      \ effect\n            SetHitDamage(GetHitDamage() * 0.5);\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This method is only valid during the execution of a spell script's effect
+    handler. Calling this method outside of an active spell effect context will result
+    in undefined behavior. The effect index parameter must correspond to a valid effect
+    within the spell being executed.
+  warnings: Do not use this method in spell aura applications or other contexts where
+    spell effects are not actively being processed. Incorrect usage may lead to crashes
+    or incorrect spell behavior. Always validate that the effect index is within bounds
+    before calling this method.
+  related:
+  - GetEffectIndex
+  - GetHitTargetItem
+  - GetTargetCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:53:09.605266'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

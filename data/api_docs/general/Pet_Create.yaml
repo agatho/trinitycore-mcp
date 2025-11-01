@@ -1,0 +1,66 @@
+api:
+  class: Pet
+  method: Create
+  signature: bool Pet::Create(int guidlow, int * map, uint32 Entry, uint32 pet_number)
+documentation:
+  brief: Initializes a new pet instance with specified parameters on the given map.
+  description: The Create method is responsible for initializing a new pet object
+    within the TrinityCore framework. It assigns a unique low GUID to the pet, sets
+    its entry ID (which corresponds to the creature template), and associates it with
+    a specific map and pet number. This method is typically invoked when a player
+    summons or creates a pet through game mechanics such as pet summoning spells or
+    pet creation quests. The method ensures that the pet is properly registered in
+    the world and linked to the owner's pet data structure. It performs necessary
+    setup operations including initializing the pet's properties, setting up its AI
+    behavior, and ensuring it is correctly placed within the game world's spatial
+    partitioning system.
+  parameters:
+  - name: guidlow
+    description: The low GUID value to assign to the pet instance. This should be
+      a unique identifier within the map's GUID space.
+  - name: map
+    description: Pointer to the map object where the pet will be created and initialized.
+      The map must be valid and active.
+  - name: Entry
+    description: The creature entry ID that defines the pet's type, appearance, and
+      basic properties. This corresponds to entries in the creature_template table.
+  - name: pet_number
+    description: A unique identifier for this specific pet instance within the owner's
+      pet collection. Used to distinguish multiple pets of the same type.
+  returns: Returns true if the pet was successfully created and initialized, false
+    otherwise. Failure may occur due to invalid parameters, map issues, or resource
+    allocation problems.
+  examples:
+  - title: Basic Pet Creation
+    code: "Pet* newPet = new Pet();\nMap* map = player->GetMap();\nuint32 petEntry\
+      \ = 416; // Wolf pet entry\nbool success = newPet->Create(12345, &map, petEntry,\
+      \ 1);\nif (success)\n{\n    // Pet successfully created\n}"
+    language: cpp
+  - title: Creating a Pet with Error Handling
+    code: "uint32 guidLow = sObjectMgr->GeneratePetGUID();\nMap* map = player->GetMap();\n\
+      uint32 petEntry = 416;\nPet* pet = new Pet();\n\nif (!pet->Create(guidLow, &map,\
+      \ petEntry, player->GetPetCount()))\n{\n    // Handle creation failure\n   \
+      \ delete pet;\n    return false;\n}\n\n// Successfully created pet\nplayer->SetPet(pet);\n\
+      return true;"
+    language: cpp
+  notes: This method should only be called during the initialization phase of a pet
+    object. It does not handle the actual spawning of the pet in the world - that
+    is typically done by calling other methods like 'Summon' or 'AddToWorld'. The
+    map parameter must point to an active map instance, otherwise the behavior is
+    undefined. This method assumes that all necessary memory allocation and initialization
+    steps have been completed before being called.
+  warnings: Calling this method without proper preconditions may lead to crashes or
+    inconsistent game state. Ensure that the GUID is unique within the map's scope
+    and that the Entry ID exists in the creature_template table. Do not call this
+    method on already initialized pets as it may cause memory leaks or undefined behavior.
+  related:
+  - Pet::Summon
+  - Pet::AddToWorld
+  - Pet::LoadFromDB
+  - Pet::SaveToDB
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T10:22:41.864987'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

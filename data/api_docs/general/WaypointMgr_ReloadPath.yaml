@@ -1,0 +1,48 @@
+api:
+  class: WaypointMgr
+  method: ReloadPath
+  signature: void WaypointMgr::ReloadPath(uint32 pathId)
+documentation:
+  brief: Reloads a specific waypoint path from the database, updating all active creatures
+    following that path.
+  description: The ReloadPath method refreshes the waypoint data for a specified path
+    ID by reloading it from the database. This is typically used during runtime when
+    waypoint data has been modified and needs to be applied without restarting the
+    server. The method updates all creatures currently following the specified path
+    with the new waypoint information, ensuring that their movement behavior reflects
+    the latest changes in the database. It's commonly invoked through in-game commands
+    or admin tools to dynamically adjust NPC movement patterns without downtime.
+  parameters:
+  - name: pathId
+    description: The unique identifier of the waypoint path to reload. This corresponds
+      to the PathId field in the creature_waypoint table and must reference a valid
+      existing path in the database.
+  returns: null
+  examples:
+  - title: Reload a specific waypoint path
+    code: WaypointMgr::instance()->ReloadPath(12345);
+    language: cpp
+  - title: Reload path based on command input
+    code: "if (args.length() > 0)\n{\n    uint32 pathId = atoi(args.c_str());\n  \
+      \  WaypointMgr::instance()->ReloadPath(pathId);\n    handler->PSendSysMessage(\"\
+      Waypoint path %u reloaded.\", pathId);\n}"
+    language: cpp
+  notes: This method operates on the singleton instance of WaypointMgr and is thread-safe
+    for concurrent access. It will not affect creatures that are not currently following
+    the specified path, but will update all active waypoints in memory with the latest
+    data from the database.
+  warnings: Calling this method while creatures are actively moving along the path
+    may cause temporary movement glitches or unexpected behavior until the reload
+    is complete. Ensure that path modifications are made carefully to avoid disrupting
+    ongoing gameplay.
+  related:
+  - LoadPath
+  - GetPath
+  - AddPath
+  - DeletePath
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:39:02.030005'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

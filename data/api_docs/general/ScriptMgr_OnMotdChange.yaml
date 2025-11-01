@@ -1,0 +1,55 @@
+api:
+  class: ScriptMgr
+  method: OnMotdChange
+  signature: void ScriptMgr::OnMotdChange(std::string & newMotd)
+documentation:
+  brief: Notifies scripts when the server's Message of the Day (MOTD) is changed
+  description: The OnMotdChange method is a hook in the ScriptMgr class that gets
+    invoked whenever the server's Message of the Day (MOTD) is modified. This allows
+    custom scripts and modules to react to MOTD changes, such as logging the update,
+    broadcasting notifications, or updating related game systems. The method receives
+    a reference to the new MOTD string, which can be read but should not be modified
+    directly within this hook. This is part of TrinityCore's scripting system that
+    enables dynamic behavior customization without modifying core server code.
+  parameters:
+  - name: newMotd
+    description: Reference to the new Message of the Day string that has been set
+      on the server. This parameter contains the complete updated MOTD text and can
+      be read by scripts but should not be modified within this hook.
+  returns: null
+  examples:
+  - title: Basic MOTD Change Handler
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnMotdChange(std::string& newMotd) override\n   \
+      \ {\n        sLog->outString(\"MOTD has been changed to: %s\", newMotd.c_str());\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced MOTD Change with Validation
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnMotdChange(std::string& newMotd) override\n   \
+      \ {\n        if (newMotd.length() > 500)\n        {\n            sLog->outError(\"\
+      MOTD too long, rejecting change\");\n            return;\n        }\n      \
+      \  \n        // Broadcast to all players\n        sWorld->SendServerMessage(SERVER_MSG_STRING,\
+      \ newMotd.c_str());\n        \n        // Log the change with timestamp\n  \
+      \      sLog->outString(\"[MOTD] Updated at %s\", GetTimeString().c_str());\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called from the core server logic when MOTD changes occur.
+    Scripts should avoid performing heavy operations or blocking calls within this
+    hook as it may affect server performance. The reference to newMotd should not
+    be modified directly; instead, scripts can use it for logging, validation, or
+    triggering other events.
+  warnings: Modifying the newMotd string parameter directly will not affect the actual
+    MOTD displayed on the server. This hook is meant for observation and reaction,
+    not modification of the MOTD itself. Be cautious with logging or network operations
+    in this method as it may be called frequently during server administration.
+  related:
+  - OnBeforeMotdChange
+  - OnAfterMotdChange
+  - GetMotd
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:31:56.494275'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

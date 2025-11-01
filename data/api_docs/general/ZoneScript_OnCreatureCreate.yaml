@@ -1,0 +1,58 @@
+api:
+  class: ZoneScript
+  method: OnCreatureCreate
+  signature: void ZoneScript::OnCreatureCreate(Creature * param0)
+documentation:
+  brief: Called when a creature is created within the zone, allowing scripts to perform
+    initialization or tracking actions.
+  description: The OnCreatureCreate method is invoked whenever a Creature object is
+    spawned or initialized within the zone associated with this ZoneScript. This callback
+    provides an opportunity for custom scripts to execute logic such as setting initial
+    states, registering creatures for event handling, or performing any necessary
+    setup before the creature becomes active in the game world. The method is part
+    of the ZoneScript system which allows developers to extend or modify zone-specific
+    behavior without modifying core TrinityCore code. It's important to note that
+    this method may be called multiple times during a zone's lifetime as creatures
+    are created and destroyed, and it should not perform operations that could block
+    or significantly delay the game loop.
+  parameters:
+  - name: param0
+    description: Pointer to the Creature object that has been created in the zone.
+      This parameter provides access to all creature properties and methods for manipulation
+      or inspection.
+  returns: null
+  examples:
+  - title: Basic creature tracking example
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnCreatureCreate(Creature*\
+      \ creature) override\n    {\n        // Track all creatures created in this\
+      \ zone\n        trackedCreatures.push_back(creature);\n        // Log creation\
+      \ event\n        sLog->outString(\"Creature %u created in zone.\", creature->GetEntry());\n\
+      \    }\n\nprivate:\n    std::vector<Creature*> trackedCreatures;\n};"
+    language: cpp
+  - title: Initialize creature AI behavior
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnCreatureCreate(Creature*\
+      \ creature) override\n    {\n        // Set up custom AI for specific creature\
+      \ entries\n        if (creature->GetEntry() == 12345)\n        {\n         \
+      \   creature->SetReactState(REACT_AGGRESSIVE);\n            creature->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NOT_SELECTABLE);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the creature's initialization phase and before
+    it's added to the world. Developers should avoid performing heavy computations
+    or blocking operations in this callback. The ZoneScript system is designed for
+    zone-wide logic, so ensure that any creature-specific behavior is handled appropriately
+    within this context.
+  warnings: Do not attempt to delete or modify the creature pointer directly from
+    this method unless you are certain of the consequences. Avoid calling methods
+    that might cause recursion or infinite loops. Be cautious when storing raw pointers
+    as they may become invalid if the creature is despawned or destroyed.
+  related:
+  - OnCreatureRemove
+  - OnGameObjectCreate
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:27:10.426112'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

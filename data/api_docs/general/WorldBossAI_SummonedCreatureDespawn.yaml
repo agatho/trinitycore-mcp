@@ -1,0 +1,53 @@
+api:
+  class: WorldBossAI
+  method: SummonedCreatureDespawn
+  signature: void WorldBossAI::SummonedCreatureDespawn(int * summon)
+documentation:
+  brief: Handles the cleanup and removal of summoned creatures when they are despawned
+    during World Boss AI execution.
+  description: The SummonedCreatureDespawn method is responsible for managing the
+    despawn event of summoned creatures within a World Boss encounter. This method
+    ensures that any summoned minions or allies associated with the boss are properly
+    removed from the game world, updating internal tracking structures and triggering
+    necessary cleanup routines. It typically gets invoked when a summoned creature's
+    timer expires, is killed, or when the overall boss encounter concludes. The method
+    plays a crucial role in maintaining proper AI state management and preventing
+    memory leaks or dangling references to summoned units.
+  parameters:
+  - name: summon
+    description: Pointer to an integer identifier representing the summoned creature
+      instance. This parameter is used to locate and remove the specific summoned
+      unit from active tracking lists within the WorldBossAI system.
+  returns: null
+  examples:
+  - title: Basic Usage in Boss AI
+    code: "void BossAI::UpdateAI(uint32 diff)\n{\n    if (summonedCreature)\n    {\n\
+      \        if (summonedCreature->IsDead())\n        {\n            SummonedCreatureDespawn(&summonedCreature);\n\
+      \            summonedCreature = nullptr;\n        }\n    }\n}"
+    language: cpp
+  - title: Handling Multiple Summons
+    code: "void WorldBossAI::HandleSummonDespawn()\n{\n    for (auto& summon : summonedCreatures)\n\
+      \    {\n        if (summon && summon->IsDead())\n        {\n            SummonedCreatureDespawn(&summon);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the provided summon pointer is valid and points
+    to an existing summoned creature. It's recommended to check for null pointers
+    before calling this function to avoid undefined behavior. The method may be called
+    multiple times for the same summon, so internal state checks should be implemented
+    to prevent double-free errors.
+  warnings: Calling this method with a null or invalid pointer can lead to segmentation
+    faults or memory corruption. Always verify that the summon exists and is still
+    valid before invoking this function. Additionally, ensure that no other systems
+    are actively referencing the summoned creature after calling this method, as it
+    may result in dangling pointers.
+  related:
+  - SummonedCreatureDespawn
+  - SummonCreature
+  - DespawnSummons
+  - IsSummonedCreatureAlive
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T19:29:03.092573'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: ScriptMgr
+  method: OnGuildDisband
+  signature: void ScriptMgr::OnGuildDisband(Guild * guild)
+documentation:
+  brief: Invoked when a guild is disbanded, allowing scripts to perform cleanup or
+    logging operations.
+  description: The OnGuildDisband method is a callback function in the ScriptMgr class
+    that gets triggered whenever a guild is disbanded in the game. This method provides
+    an opportunity for custom scripts or modules to execute specific actions such
+    as logging the event, cleaning up associated data, or notifying players. The method
+    receives a pointer to the Guild object that is being disbanded, allowing access
+    to all guild-related information at the time of disbanding. It is typically called
+    during the guild disband process after all members have been removed and before
+    the guild structure is destroyed.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object that is being disbanded. This parameter
+      provides access to all guild properties and members at the time of disbanding.
+  returns: null
+  examples:
+  - title: Basic Guild Disband Logging
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnGuildDisband(Guild*\
+      \ guild) override\n    {\n        sLog->outString(\"Guild %s has been disbanded.\"\
+      , guild->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Cleanup Associated Data on Guild Disband
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnGuildDisband(Guild*\
+      \ guild) override\n    {\n        // Remove any custom guild data from database\n\
+      \        CharacterDatabase.PExecute(\"DELETE FROM guild_custom_data WHERE guildid\
+      \ = %u\", guild->GetId());\n        \n        // Log disband event\n       \
+      \ sLog->outString(\"Guild %s (ID: %u) disbanded, cleanup completed.\", guild->GetName().c_str(),\
+      \ guild->GetId());\n    }\n};"
+    language: cpp
+  notes: This method is called during the guild disband process and should not be
+    used to modify the guild object itself as it may already be in a partially destroyed
+    state. Scripts should avoid performing heavy operations or database queries that
+    could block the main thread. The Guild pointer passed to this method remains valid
+    for the duration of the callback.
+  warnings: Do not attempt to re-add members to the guild within this callback, as
+    the guild object is being destroyed and may be in an inconsistent state. Avoid
+    calling methods on the guild object that might cause further modifications or
+    access violations during disbanding.
+  related:
+  - OnGuildCreate
+  - OnGuildMemberAdd
+  - OnGuildMemberRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:41:20.192893'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

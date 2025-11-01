@@ -1,0 +1,58 @@
+api:
+  class: AuctionManager
+  method: GetBotAuctions
+  signature: int AuctionManager::GetBotAuctions(Player * bot) const
+documentation:
+  brief: Retrieves the number of auctions currently listed by a specific bot player
+    in the auction house system.
+  description: The GetBotAuctions method is used to determine how many items a particular
+    bot player has currently listed for auction within the auction house. This function
+    is typically utilized by the auction house manager to track and manage bot activity,
+    ensuring that bots do not exceed configured limits on active auctions. The method
+    takes a pointer to a Player object representing the bot and returns an integer
+    count of the auctions associated with that bot. It does not modify any state in
+    the auction system but rather provides read-only information about existing auctions.
+    This functionality is crucial for maintaining fair play and preventing abuse through
+    automated auction posting by bots.
+  parameters:
+  - name: bot
+    description: Pointer to a Player object representing the bot player whose auctions
+      are being counted. Must be a valid player instance that has been initialized
+      as a bot, otherwise behavior is undefined.
+  returns: An integer value representing the total number of active auctions currently
+    listed by the specified bot player in the auction house system. Returns zero if
+    no auctions are found or if the provided bot pointer is invalid.
+  examples:
+  - title: Basic usage to check bot auction count
+    code: 'Player* myBot = sObjectAccessor->FindPlayer(ObjectGuid::Create<HighGuid::Player>(12345));
+
+      int auctionCount = sAuctionMgr->GetBotAuctions(myBot);
+
+      TC_LOG_INFO("auction", "Bot has %d active auctions.", auctionCount);'
+    language: cpp
+  - title: Using bot auction count to enforce limits
+    code: "Player* bot = sObjectAccessor->FindPlayer(ObjectGuid::Create<HighGuid::Player>(98765));\n\
+      int currentAuctions = sAuctionMgr->GetBotAuctions(bot);\nif (currentAuctions\
+      \ >= MAX_BOT_AUCTIONS) {\n    // Prevent additional auctions\n    bot->SendAuctionHello(nullptr,\
+      \ AuctionHouseEntry);\n}"
+    language: cpp
+  notes: This method performs a lookup in the internal auction database structure
+    and may involve iterating through active auctions. It is recommended to cache
+    this value if frequently accessed to avoid repeated database queries. The function
+    assumes that the provided Player object is valid and properly initialized as a
+    bot; otherwise, results are unpredictable.
+  warnings: Passing a null pointer or a non-bot player to this method can lead to
+    undefined behavior or crashes. Always validate the input before calling this function.
+    Additionally, this count does not include expired auctions that have been removed
+    from the auction house but may still be in temporary storage.
+  related:
+  - GetAuctionsByOwner
+  - GetAuctionList
+  - AddAuction
+  - RemoveAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:28:44.640941'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnGroupAddMember
+  signature: void ScriptMgr::OnGroupAddMember(Group * group, int guid)
+documentation:
+  brief: Called when a new member is added to a group in the game world.
+  description: The OnGroupAddMember method is a hook in TrinityCore's ScriptMgr that
+    triggers whenever a player is added to a group. This method allows custom scripts
+    to execute logic when group membership changes, such as updating player statistics,
+    sending notifications, or modifying group behavior. The method provides access
+    to both the group object and the GUID of the newly added member, enabling developers
+    to perform targeted actions based on the specific player and group involved. This
+    hook is typically used in custom modules or addons that need to respond to dynamic
+    group composition changes during gameplay.
+  parameters:
+  - name: group
+    description: Pointer to the Group object to which a member is being added. This
+      represents the group structure containing multiple players.
+  - name: guid
+    description: The unique identifier (GUID) of the player being added to the group.
+      This is used to identify the specific player in the game world.
+  returns: null
+  examples:
+  - title: Basic Group Member Addition Handler
+    code: "void ScriptMgr::OnGroupAddMember(Group* group, uint32 guid)\n{\n    if\
+      \ (!group)\n        return;\n\n    // Log the addition of a new member\n   \
+      \ sLog->outString(\"Player with GUID %u was added to group %u\", guid, group->GetId());\n\
+      }"
+    language: cpp
+  - title: Custom Group Behavior on Member Addition
+    code: "void ScriptMgr::OnGroupAddMember(Group* group, uint32 guid)\n{\n    if\
+      \ (!group)\n        return;\n\n    // Check if the group has reached maximum\
+      \ size\n    if (group->GetMembersCount() >= MAX_GROUP_SIZE)\n    {\n       \
+      \ // Send message to all members\n        for (Group::MemberSlotList::const_iterator\
+      \ i = group->GetMemberSlots().begin();\n             i != group->GetMemberSlots().end();\
+      \ ++i)\n        {\n            if (Player* player = ObjectAccessor::FindPlayer(i->guid))\n\
+      \                ChatHandler(player->GetSession()).SendSysMessage(\"Group is\
+      \ full, new member will be added to raid instead.\");\n        }\n    }\n}"
+    language: cpp
+  notes: This method is invoked from within the core group management system and should
+    not be called directly by external code. The group parameter may be null in rare
+    edge cases, so always validate it before use. This hook executes synchronously
+    during group modification operations, so avoid heavy computations that could block
+    game updates.
+  warnings: Do not modify the group structure or attempt to remove members within
+    this callback without proper synchronization, as it may lead to inconsistent group
+    state or crashes. Be cautious when accessing player objects through GUIDs in this
+    context, as players may disconnect before the callback completes.
+  related:
+  - OnGroupRemoveMember
+  - OnGroupDisband
+  - OnGroupCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:46:36.547978'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

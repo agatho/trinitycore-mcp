@@ -1,0 +1,58 @@
+api:
+  class: Guild
+  method: _CreateRank
+  signature: bool Guild::_CreateRank(int trans, std::string_view name, uint32 rights)
+documentation:
+  brief: Creates a new rank within the guild with specified rights and name.
+  description: The _CreateRank method is used internally by the Guild class to add
+    a new rank to the guild's hierarchy. It assigns a unique identifier to the rank,
+    sets its name, and configures the associated rights. This method typically operates
+    within a database transaction to ensure data consistency. The method requires
+    that the guild has sufficient capacity for additional ranks and that the provided
+    rank name is valid. It returns true upon successful creation of the rank, or false
+    if the operation fails due to constraints such as duplicate names or invalid rights.
+  parameters:
+  - name: trans
+    description: An integer representing the database transaction identifier used
+      for performing the rank creation operation in a consistent transactional context.
+  - name: name
+    description: A string view containing the name of the new rank to be created.
+      Must be unique within the guild and cannot be empty or null.
+  - name: rights
+    description: A 32-bit unsigned integer representing the set of rights granted
+      to this rank, typically defined by bitmask constants such as GUILD_RIGHT_BANK_TAB_1,
+      etc.
+  returns: Returns true if the rank was successfully created and stored in the database;
+    otherwise returns false if the operation failed due to validation errors or database
+    issues.
+  examples:
+  - title: Create a new guild rank with full administrative rights
+    code: "if (guild->_CreateRank(0, \"Officer\", GUILD_RIGHT_ALL)) {\n    // Rank\
+      \ successfully created\n} else {\n    // Handle failure case\n}"
+    language: cpp
+  - title: Create a rank with limited permissions
+    code: "uint32 rights = GUILD_RIGHT_INVITE | GUILD_RIGHT_DEMOTE;\nif (guild->_CreateRank(1,\
+      \ \"Initiate\", rights)) {\n    // Rank created with invite and demote privileges\n\
+      } else {\n    // Log error or notify user\n}"
+    language: cpp
+  notes: This method is intended for internal use within the TrinityCore framework
+    and should not be called directly from external modules unless under specific
+    circumstances. The 'trans' parameter is crucial for maintaining transactional
+    integrity when modifying guild data. Ranks are assigned sequential IDs starting
+    from zero, and the maximum number of ranks per guild is limited by the game's
+    configuration.
+  warnings: Calling this method without a valid database transaction context may result
+    in inconsistent state or data corruption. Ensure that the provided name does not
+    already exist for another rank within the same guild to avoid conflicts. Avoid
+    passing invalid rights values as they can lead to undefined behavior or permission-related
+    issues.
+  related:
+  - Guild::GetRank
+  - Guild::DeleteRank
+  - Guild::UpdateRank
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T13:11:50.027751'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

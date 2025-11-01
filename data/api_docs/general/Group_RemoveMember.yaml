@@ -1,0 +1,60 @@
+api:
+  class: Group
+  method: RemoveMember
+  signature: bool Group::RemoveMember(int guid, int method, int kicker, const char
+    * reason)
+documentation:
+  brief: Removes a member from the group with specified removal method, kicker, and
+    optional reason.
+  description: The RemoveMember method removes a player from a group (raid or party)
+    based on the provided GUID. It supports different removal methods such as kicking,
+    leaving, or being disbanded. The method takes into account the kicker's identity
+    and an optional reason for the removal. This function is typically used internally
+    by the TrinityCore server when handling group management operations like player
+    kicks or automatic group disbanding due to inactivity.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player to be removed from the
+      group. Must correspond to a valid player in the group.
+  - name: method
+    description: 'The method used for removal. Common values include: 0 = kicked,
+      1 = left, 2 = disband, 3 = die. Determines how the removal is processed and
+      communicated.'
+  - name: kicker
+    description: The GUID of the player who initiated the removal (e.g., the one who
+      issued the kick command). Set to 0 if not applicable or unknown.
+  - name: reason
+    description: Optional reason string explaining why the member was removed. Can
+      be NULL or empty for no specific reason.
+  returns: Returns true if the member was successfully removed from the group, false
+    otherwise. Failure may occur if the player is not found in the group or if invalid
+    parameters are provided.
+  examples:
+  - title: Remove a player by GUID with kick method
+    code: "Group* group = ...; // Assume valid group pointer\nbool success = group->RemoveMember(123456,\
+      \ 0, 789012, \"Player was kicked for violating rules\");\nif (success) {\n \
+      \   // Player removed successfully\n}"
+    language: cpp
+  - title: Remove a player with no reason provided
+    code: "Group* group = ...;\nbool success = group->RemoveMember(123456, 1, 0, NULL);\n\
+      if (success) {\n    // Player left the group\n}"
+    language: cpp
+  notes: This method modifies internal group state and sends appropriate packets to
+    all remaining members. It should only be called when the caller has proper permissions
+    to manage the group. The method does not validate that the GUID corresponds to
+    an actual online player; it assumes the caller ensures validity.
+  warnings: Calling this function without proper checks may lead to inconsistent group
+    state or crashes. Always verify that the target player exists in the group before
+    calling RemoveMember. Using invalid method values can cause unexpected behavior
+    during packet handling and communication with clients.
+  related:
+  - AddMember
+  - IsLeader
+  - GetMembers
+  - Disband
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:54:22.857534'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

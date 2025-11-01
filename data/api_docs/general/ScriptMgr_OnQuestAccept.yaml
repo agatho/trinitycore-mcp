@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnQuestAccept
+  signature: bool ScriptMgr::OnQuestAccept(Player * player, Item * item, const Quest
+    * quest)
+documentation:
+  brief: Invoked when a player accepts a quest, allowing scripts to modify or prevent
+    the quest acceptance.
+  description: The OnQuestAccept method is a hook in TrinityCore's script management
+    system that gets called whenever a player accepts a quest. This method provides
+    an opportunity for custom scripts to intercept and potentially alter the quest
+    acceptance process. It can be used to validate prerequisites, apply modifications
+    to the player or quest state, or prevent the quest from being accepted under certain
+    conditions. The method returns a boolean value indicating whether the quest acceptance
+    should proceed (true) or be cancelled (false). This hook is part of the broader
+    scripting framework that allows developers to extend core game mechanics without
+    modifying the base TrinityCore code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is accepting the quest. This represents
+      the player character performing the action.
+  - name: item
+    description: Pointer to the Item object that initiated the quest acceptance, if
+      applicable. May be nullptr if the quest was accepted directly from a quest giver
+      NPC.
+  - name: quest
+    description: Pointer to the Quest object being accepted. Contains all information
+      about the quest being taken by the player.
+  returns: Returns true to allow the quest acceptance to proceed, or false to cancel
+    the quest acceptance process. If any script returns false, the quest will not
+    be added to the player's quest log.
+  examples:
+  - title: Basic Quest Accept Prevention
+    code: "bool ScriptMgr::OnQuestAccept(Player* player, Item* item, const Quest*\
+      \ quest)\n{\n    // Prevent players from accepting quests if they are in a specific\
+      \ zone\n    if (player->GetZoneId() == 1234)\n        return false; // Cancel\
+      \ quest acceptance\n    \n    return true; // Allow quest acceptance\n}"
+    language: cpp
+  - title: Quest Accept with Custom Logic
+    code: "bool ScriptMgr::OnQuestAccept(Player* player, Item* item, const Quest*\
+      \ quest)\n{\n    // Check if player has required items before accepting quest\n\
+      \    if (!player->HasItemCount(54321, 1))\n    {\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You need a special item to accept this quest.\");\n        return false;\n \
+      \   }\n    \n    // Apply custom effect when quest is accepted\n    player->AddItem(98765,\
+      \ 1); // Give player a quest-specific item\n    \n    return true;\n}"
+    language: cpp
+  notes: This method is called during the quest acceptance flow, before any quest
+    data is written to the database. Scripts should be lightweight to avoid performance
+    issues. The method is part of TrinityCore's event-driven scripting system and
+    can be overridden by custom scripts in the ScriptLoader system.
+  warnings: Returning false from this method will completely cancel the quest acceptance
+    process, including any associated quest rewards or objectives. Be careful when
+    using this hook as it can break expected game flow for players. Ensure that all
+    checks are properly validated to avoid unintended behavior.
+  related:
+  - OnQuestReward
+  - OnQuestCancel
+  - OnQuestStatusChanged
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:10:57.554525'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: Item
+  method: DeleteFromDB
+  signature: void Item::DeleteFromDB(int trans)
+documentation:
+  brief: Removes the item from the database, including all associated records and
+    references.
+  description: The DeleteFromDB method permanently removes an item and its related
+    data from the database. This includes deleting the item's record from the item_instance
+    table, as well as any associated enchantments, gems, and ownership information.
+    The operation is typically performed when an item is destroyed, sold, or removed
+    from a player's inventory. The method accepts transaction and item ID parameters
+    to ensure proper database consistency and handle potential rollback scenarios
+    in case of errors during deletion.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided, the deletion
+      will be part of this transaction and can be rolled back if necessary. A value
+      of 0 or NULL indicates no transaction is used.
+  - name: item_guid
+    description: The unique database identifier (GUID) of the item to be deleted.
+      This parameter must correspond to a valid existing item in the database.
+  returns: null
+  examples:
+  - title: Basic Item Deletion
+    code: "Item* item = player->GetItemByGuid(item_guid);\nif (item)\n{\n    item->DeleteFromDB();\n\
+      \    // Item is now removed from database\n}"
+    language: cpp
+  - title: Item Deletion with Transaction
+    code: "TransactionPtr trans = new Transaction();\nItem* item = player->GetItemByGuid(item_guid);\n\
+      if (item)\n{\n    item->DeleteFromDB(trans);\n    // Item deletion will be part\
+      \ of the transaction\n}\ntrans->Execute();"
+    language: cpp
+  notes: This method performs immediate database operations and should be used carefully
+    to avoid data loss. It's recommended to verify that the item exists before calling
+    this method, as attempting to delete a non-existent item may result in undefined
+    behavior or database errors.
+  warnings: Calling DeleteFromDB on an item that is currently equipped or in use by
+    a player can lead to inconsistent game state and potential crashes. Always ensure
+    proper cleanup of item references before deletion. The method does not automatically
+    update the player's inventory UI or send notifications to clients.
+  related:
+  - Item::SaveToDB
+  - Item::LoadFromDB
+  - Player::RemoveItem
+  - ObjectGuid::GetCounter
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:26:38.821725'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

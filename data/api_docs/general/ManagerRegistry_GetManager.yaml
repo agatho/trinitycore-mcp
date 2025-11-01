@@ -1,0 +1,54 @@
+api:
+  class: ManagerRegistry
+  method: GetManager
+  signature: IManagerBase * ManagerRegistry::GetManager(const std::string & managerId)
+    const
+documentation:
+  brief: Retrieves a manager instance by its unique identifier from the registry.
+  description: The GetManager method retrieves a pointer to an IManagerBase instance
+    associated with the specified manager ID. This method is used within TrinityCore's
+    architecture to access various subsystem managers such as AI, movement, or combat
+    managers. The method performs a lookup in an internal registry map using the provided
+    identifier string. If no manager with the given ID exists, the method returns
+    a null pointer. This approach allows for dynamic access to different manager types
+    without requiring explicit type casting or knowledge of specific manager implementations
+    at compile time.
+  parameters:
+  - name: managerId
+    description: A unique string identifier that represents the specific manager to
+      retrieve. This identifier is typically defined at manager registration time
+      and must match exactly for a successful lookup.
+  returns: Returns a pointer to an IManagerBase instance if a manager with the specified
+    ID exists in the registry, otherwise returns nullptr. The returned pointer should
+    be used carefully as it may be null and should not be assumed to be valid without
+    checking.
+  examples:
+  - title: Basic Manager Retrieval
+    code: "IManagerBase* aiManager = managerRegistry->GetManager(\"AI_MANAGER\");\n\
+      if (aiManager != nullptr)\n{\n    // Use the AI manager\n    aiManager->Update();\n\
+      }"
+    language: cpp
+  - title: Safe Manager Access with Error Handling
+    code: "std::string managerId = \"MOVEMENT_MANAGER\";\nIManagerBase* movementManager\
+      \ = managerRegistry->GetManager(managerId);\nif (movementManager == nullptr)\n\
+      {\n    TC_LOG_ERROR(\"server\", \"Failed to retrieve manager: %s\", managerId.c_str());\n\
+      \    return false;\n}\n// Proceed with using the retrieved manager\nmovementManager->Initialize();"
+    language: cpp
+  notes: This method performs a hash map lookup which is generally O(1) in average
+    case, but can degrade to O(n) in worst-case scenarios due to hash collisions.
+    The registry should be populated with manager instances before calling this method.
+    Managers are typically registered during server initialization or when subsystems
+    are loaded.
+  warnings: Always check the returned pointer for null before using it. Dereferencing
+    a null pointer will cause a crash. Ensure that manager IDs are consistent between
+    registration and retrieval to avoid failed lookups.
+  related:
+  - RegisterManager
+  - UnregisterManager
+  - HasManager
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:57:28.820190'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,65 @@
+api:
+  class: TransportScript
+  method: OnRelocate
+  signature: void TransportScript::OnRelocate(Transport * transport, uint32 mapId,
+    float x, float y, float z)
+documentation:
+  brief: Invoked when a transport vehicle relocates to a new position in the world
+  description: The OnRelocate method is a callback function that gets triggered whenever
+    a transport vehicle (such as a boat, zeppelin, or other moving transport) changes
+    its position in the game world. This method provides the transport object, the
+    map ID it has moved to, and its new coordinates (x, y, z). It allows scripters
+    to implement custom behavior when transports move, such as updating passenger
+    positions, triggering events, or managing transport-specific logic. The method
+    is part of the TransportScript class which extends the base scripting interface
+    for transport-related functionality in TrinityCore.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object that has relocated. This represents
+      the moving vehicle instance whose position has changed.
+  - name: mapId
+    description: The unique identifier of the map where the transport is now located.
+      Used to determine which world area the transport has entered.
+  - name: x
+    description: The new X coordinate of the transport's position in the game world.
+  - name: y
+    description: The new Y coordinate of the transport's position in the game world.
+  - name: z
+    description: The new Z coordinate of the transport's position in the game world.
+  returns: null
+  examples:
+  - title: Basic Transport Relocation Handler
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z)\
+      \ override\n    {\n        // Log the new position of the transport\n      \
+      \  sLog->outString(\"Transport %u relocated to map %u at (%.2f, %.2f, %.2f)\"\
+      ,\n                        transport->GetGUIDLow(), mapId, x, y, z);\n    }\n\
+      };"
+    language: cpp
+  - title: Updating Passenger Positions on Relocation
+    code: "class MovingTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z)\
+      \ override\n    {\n        // Iterate through passengers and update their positions\
+      \ relative to the new transport location\n        for (auto& passenger : transport->GetPassengers())\n\
+      \        {\n            if (Player* player = ObjectAccessor::FindPlayer(passenger))\n\
+      \            {\n                player->UpdatePosition(x, y, z, 0.0f);\n   \
+      \         }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called frequently during transport movement, so performance-sensitive
+    code should be kept minimal. The coordinates provided are in the standard World
+    of Warcraft coordinate system with X and Y representing horizontal plane and Z
+    representing vertical elevation.
+  warnings: Be cautious when modifying transport state or passenger positions within
+    this callback as it may cause synchronization issues if not handled carefully.
+    Avoid performing heavy computations or blocking operations inside this method
+    to prevent lag.
+  related:
+  - OnAddPassenger
+  - OnRemovePassenger
+  - OnTransportUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:09:26.718006'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

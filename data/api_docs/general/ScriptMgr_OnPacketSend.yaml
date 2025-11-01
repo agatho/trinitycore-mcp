@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnPacketSend
+  signature: void ScriptMgr::OnPacketSend(WorldSession * session, const WorldPacket
+    & packet)
+documentation:
+  brief: Invoked when a packet is about to be sent to a client session, allowing scripts
+    to intercept and modify outgoing packets.
+  description: The OnPacketSend method is a hook point in TrinityCore's scripting
+    system that gets called whenever a WorldPacket is about to be transmitted from
+    the server to a connected client. This method allows custom scripts to inspect,
+    modify, or even prevent the sending of packets. It serves as a crucial mechanism
+    for implementing packet filtering, logging, or modifying game behavior without
+    directly altering core server code. The method is part of the ScriptMgr class
+    and is typically used in conjunction with other scripting hooks to create dynamic
+    gameplay modifications or security measures.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      that will receive the packet. This parameter provides access to session-specific
+      data such as player information, connection state, and network context.
+  - name: packet
+    description: Reference to the WorldPacket object containing the data that is about
+      to be sent. This packet can be inspected and modified by scripts, though modifications
+      should be done carefully to avoid breaking client-server communication protocols.
+  returns: null
+  examples:
+  - title: Basic Packet Logging
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnPacketSend(WorldSession* session, const WorldPacket&\
+      \ packet) override\n    {\n        // Log all outgoing packets for debugging\
+      \ purposes\n        sLog->outString(\"Sending packet %u to player %s\", packet.GetOpcode(),\
+      \ session->GetPlayer()->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Packet Filtering Example
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnPacketSend(WorldSession* session, const WorldPacket&\
+      \ packet) override\n    {\n        // Prevent sending certain packets to players\
+      \ with specific conditions\n        if (packet.GetOpcode() == SMSG_UPDATE_OBJECT\
+      \ && session->GetPlayer()->IsInCombat())\n        {\n            // Optionally\
+      \ drop or modify the packet here\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the network processing thread, so any heavy
+    operations should be avoided to prevent performance degradation. Modifications
+    to the packet data should be done with caution as incorrect changes may cause
+    client-side errors or disconnects. The method is part of TrinityCore's extensible
+    scripting framework and requires proper registration of script objects.
+  warnings: Modifying packet contents can lead to client desynchronization or unexpected
+    behavior if not handled correctly. Avoid performing blocking operations in this
+    hook, as it will delay the transmission of all subsequent packets for that session.
+    Be aware that some packet types are critical for game functionality and modifying
+    them may break core gameplay mechanics.
+  related:
+  - OnPacketReceive
+  - OnWorldUpdate
+  - OnPlayerLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:28:13.480176'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

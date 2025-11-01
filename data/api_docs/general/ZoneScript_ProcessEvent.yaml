@@ -1,0 +1,76 @@
+api:
+  class: ZoneScript
+  method: ProcessEvent
+  signature: void ZoneScript::ProcessEvent(WorldObject * obj, uint32 eventId, WorldObject
+    * invoker)
+documentation:
+  brief: Processes a scripted event within the zone, invoking associated event handlers
+    for specified objects.
+  description: The ProcessEvent method is a core function of the ZoneScript class
+    that handles the execution of scripted events within a specific zone. It allows
+    for dynamic interaction with game objects and triggers based on event IDs. When
+    called, this method routes the event to appropriate handlers defined in the zone
+    script, enabling complex scripted behaviors such as quest progression, NPC interactions,
+    or environmental changes. The method accepts a WorldObject that triggered the
+    event, an event ID to identify the specific event type, and an invoker object
+    which may be used to determine context or origin of the event. This function is
+    typically invoked by the game engine when certain conditions are met within the
+    zone, such as player proximity or object interaction.
+  parameters:
+  - name: obj
+    description: Pointer to the WorldObject that triggered the event. This can be
+      a player, NPC, GameObject, or any other world entity that initiates the event.
+  - name: eventId
+    description: Unique identifier for the specific event being processed. Used to
+      determine which scripted behavior should be executed within the zone script.
+  - name: invoker
+    description: Pointer to the WorldObject that invoked or caused the event. This
+      may be the same as 'obj' or a different object, such as when an NPC triggers
+      an event on behalf of a player.
+  returns: null
+  examples:
+  - title: Basic Event Processing
+    code: "void MyZoneScript::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*\
+      \ invoker)\n{\n    switch (eventId)\n    {\n        case 1001:\n           \
+      \ // Handle quest start event\n            if (Player* player = obj->ToPlayer())\n\
+      \            {\n                player->KilledMonsterCredit(12345);\n      \
+      \      }\n            break;\n        default:\n            break;\n    }\n}"
+    language: cpp
+  - title: Advanced Event Processing with Multiple Invokers
+    code: "void MyZoneScript::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*\
+      \ invoker)\n{\n    if (!obj || !invoker) return;\n    \n    switch (eventId)\n\
+      \    {\n        case 2001:\n            // Handle event triggered by a GameObject\
+      \ on behalf of a player\n            if (Player* player = invoker->ToPlayer())\n\
+      \            {\n                if (GameObject* go = obj->ToGameObject())\n\
+      \                {\n                    go->SetGoState(GO_STATE_ACTIVE);\n \
+      \                   player->SendUpdateWorldState(2001, 1);\n               \
+      \ }\n            }\n            break;\n        case 2002:\n            // Handle\
+      \ event triggered by a player interacting with an NPC\n            if (Player*\
+      \ player = obj->ToPlayer())\n            {\n                if (Creature* npc\
+      \ = invoker->ToCreature())\n                {\n                    npc->AI()->Talk(1);\n\
+      \                    player->CompleteQuest(54321);\n                }\n    \
+      \        }\n            break;\n    }\n}"
+    language: cpp
+  notes: The ProcessEvent method is typically called by the TrinityCore engine's event
+    system when zone-specific conditions are met. Zone scripts are often used for
+    custom quest logic, scripted encounters, or environmental changes that need to
+    respond dynamically to player actions. Developers should ensure proper null checking
+    of object pointers before using them in event handlers. The method does not perform
+    any automatic cleanup or state management; all such operations must be handled
+    within the implementation.
+  warnings: Improper handling of WorldObject pointers can lead to crashes or undefined
+    behavior. Always validate that obj and invoker are not null before casting them
+    to specific types. Be cautious when modifying game objects during event processing,
+    as this may cause unexpected side effects or race conditions in multi-threaded
+    environments.
+  related:
+  - ZoneScript::OnPlayerEnter
+  - ZoneScript::OnPlayerLeave
+  - ZoneScript::Update
+  - ZoneScript::OnGameObjectCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:58:15.060258'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

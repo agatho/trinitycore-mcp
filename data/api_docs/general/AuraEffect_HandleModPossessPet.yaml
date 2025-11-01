@@ -1,0 +1,60 @@
+api:
+  class: AuraEffect
+  method: HandleModPossessPet
+  signature: void AuraEffect::HandleModPossessPet(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes a possess pet aura effect on the target.
+  description: The HandleModPossessPet method manages the application and removal
+    of a possess pet aura effect, which allows a player to gain control over a creature
+    as if it were their pet. This method is typically invoked during aura application
+    or removal events and modifies the target's unit flags and ownership state. The
+    effect is commonly used by spells such as 'Possess' or similar mind control abilities
+    in World of Warcraft. It ensures proper synchronization between the caster, target,
+    and game state when controlling a creature through an aura.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. Contains information about the aura's context including
+      caster, target, and application state.
+  - name: mode
+    description: The mode of operation for the aura effect. Typically indicates whether
+      the effect is being applied (1) or removed (0). Used to determine appropriate
+      behavior during state transitions.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the aura effect. Controls the direction of the operation and affects internal
+      state management.
+  returns: null
+  examples:
+  - title: Basic usage in aura application
+    code: "void MySpell::HandlePossessPetAura(AuraEffect const* aurEff, AuraApplication\
+      \ const* aurApp, bool apply)\n{\n    aurEff->HandleModPossessPet(aurApp, 1,\
+      \ apply);\n}"
+    language: cpp
+  - title: Implementing possess pet logic with state checks
+    code: "void Player::HandlePossessPetEffect(Unit* target, bool apply)\n{\n    if\
+      \ (!target || !target->IsCreature())\n        return;\n\n    AuraApplication*\
+      \ app = new AuraApplication(this, target, nullptr);\n    app->SetEffectMask(1);\n\
+      \    \n    AuraEffect* eff = new AuraEffect(SPELL_AURA_MOD_POSSESS_PET, 1, 0,\
+      \ this);\n    eff->HandleModPossessPet(app, 1, apply);\n}"
+    language: cpp
+  notes: This method modifies the target's unit flags and ownership state directly.
+    It should only be called from within aura application/removal contexts to ensure
+    proper synchronization with the game state. The method assumes that the target
+    is a valid creature capable of being possessed.
+  warnings: Improper use of this method can lead to inconsistent game state or client-server
+    desynchronization. Ensure that all preconditions are met before calling, particularly
+    regarding target validity and aura context. Avoid calling outside of proper aura
+    application lifecycle events.
+  related:
+  - AuraEffect::HandleApply
+  - AuraEffect::HandleRemove
+  - Unit::SetCharmedBy
+  - Unit::SetOwner
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T12:29:20.056535'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

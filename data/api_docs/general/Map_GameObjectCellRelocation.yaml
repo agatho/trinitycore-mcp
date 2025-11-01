@@ -1,0 +1,57 @@
+api:
+  class: Map
+  method: GameObjectCellRelocation
+  signature: bool Map::GameObjectCellRelocation(GameObject * go, int new_cell)
+documentation:
+  brief: Relocates a game object to a new cell within the map.
+  description: The GameObjectCellRelocation method handles the process of moving a
+    GameObject from its current cell to a new cell on the map. This is typically invoked
+    when a game object's position changes significantly enough to cross cell boundaries.
+    The method updates internal tracking structures and ensures that the object is
+    properly registered in the new cell's data structures. It plays a crucial role
+    in maintaining the integrity of the spatial partitioning system used by the TrinityCore
+    server for efficient object management and visibility calculations.
+  parameters:
+  - name: go
+    description: Pointer to the GameObject instance that needs to be relocated. Must
+      not be null.
+  - name: new_cell
+    description: The identifier of the new cell where the game object should be moved.
+      This represents a grid cell coordinate within the map's spatial partitioning
+      system.
+  returns: Returns true if the relocation was successful and the object was properly
+    moved to the new cell; returns false if the operation failed, which may occur
+    due to invalid parameters or internal errors during the relocation process.
+  examples:
+  - title: Basic GameObject Relocation
+    code: "GameObject* go = ...; // Get a valid GameObject\nint newCellId = 12345;\
+      \ // New cell identifier\nbool success = map->GameObjectCellRelocation(go, newCellId);\n\
+      if (success) {\n    // Object successfully relocated\n} else {\n    // Handle\
+      \ relocation failure\n}"
+    language: cpp
+  - title: Relocation with Error Handling
+    code: "GameObject* go = player->GetGameObject();\nif (!go) return;\n\nint newCellId\
+      \ = CalculateNewCell(go->GetPosition());\nif (newCellId < 0) {\n    // Invalid\
+      \ cell ID\n    return;\n}\n\nbool result = map->GameObjectCellRelocation(go,\
+      \ newCellId);\nif (!result) {\n    sLog->outError(\"Failed to relocate GameObject\
+      \ %u\", go->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: This method is part of the internal map management system and should typically
+    be called automatically by the core engine when object positions change. Developers
+    should not generally need to call this directly unless implementing custom movement
+    or positioning logic. The method assumes that the GameObject's new position has
+    already been updated in its internal data structures.
+  warnings: Calling this method with an invalid GameObject pointer or an invalid cell
+    ID can lead to undefined behavior or crashes. Ensure that the GameObject is valid
+    and the new cell ID corresponds to a legitimate cell within the map's grid system
+    before invoking this method.
+  related:
+  - GameObject::UpdateObjectVisibility
+  - Map::AddGameObject
+  - Map::RemoveGameObject
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T10:47:25.778212'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

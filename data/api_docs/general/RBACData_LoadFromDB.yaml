@@ -1,0 +1,52 @@
+api:
+  class: RBACData
+  method: LoadFromDB
+  signature: void RBACData::LoadFromDB()
+documentation:
+  brief: Loads role-based access control data from the database into memory for the
+    RBACData instance.
+  description: The LoadFromDB method retrieves all relevant role-based access control
+    (RBAC) permissions and assignments associated with a specific account or player
+    from the TrinityCore database. This method is typically invoked during account
+    initialization or login to ensure that the in-memory RBAC data structure accurately
+    reflects the permissions granted in the database. It performs a database query
+    to fetch permission nodes, roles, and their hierarchical relationships, then populates
+    the internal data structures of the RBACData object. The method does not return
+    any value but updates the instance's state directly. This operation is crucial
+    for enforcing access control within the game server, particularly for administrative
+    commands, GM features, and restricted content access.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage during account login
+    code: 'RBACData rbacData;
+
+      rbacData.LoadFromDB();
+
+      // RBAC data is now loaded and ready for use in permission checks'
+    language: cpp
+  - title: Loading RBAC data for a specific account ID
+    code: "uint32 accountId = 12345;\nRBACData rbacData;\n// Assuming internal logic\
+      \ handles account context\nrbacData.LoadFromDB();\nif (rbacData.HasPermission(RBAC_PERM_ACCOUNT_GM))\
+      \ {\n    // Grant GM access\n}"
+    language: cpp
+  notes: This method is typically called once per session or login event. It assumes
+    that the database connection is already established and valid. The method may
+    block until database I/O completes, so it should not be called from performance-critical
+    threads without proper consideration. Internal caching mechanisms might be used
+    to avoid repeated database queries for the same account.
+  warnings: Calling this method multiple times on the same instance without clearing
+    previous data may result in duplicate entries or inconsistent state. Ensure that
+    the database connection is properly initialized before invoking this method, as
+    it will fail silently if no valid connection exists.
+  related:
+  - HasPermission
+  - AddPermission
+  - RemovePermission
+  - Clear
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T20:46:45.556445'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

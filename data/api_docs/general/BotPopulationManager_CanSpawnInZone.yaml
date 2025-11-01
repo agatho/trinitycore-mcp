@@ -1,0 +1,57 @@
+api:
+  class: BotPopulationManager
+  method: CanSpawnInZone
+  signature: bool BotPopulationManager::CanSpawnInZone(uint32 zoneId, uint32 maxBotsPerZone)
+    const
+documentation:
+  brief: Determines whether a bot can be spawned in the specified zone based on population
+    limits
+  description: The CanSpawnInZone method evaluates if it's permissible to spawn a
+    new bot within a given zone, considering the maximum allowed bots per zone. This
+    method checks against internal tracking of current bot counts in zones and compares
+    them against the provided limit. It is typically used during bot creation or spawning
+    logic to prevent exceeding configured population thresholds. The method does not
+    modify any state but returns a boolean indicating whether spawning is allowed.
+  parameters:
+  - name: zoneId
+    description: The unique identifier of the zone where bot spawning is being considered.
+      This ID corresponds to the ZoneDBC or similar internal zone database entry.
+  - name: maxBotsPerZone
+    description: The maximum number of bots allowed in the specified zone. This value
+      defines the upper limit for bot population control in that zone.
+  returns: Returns true if a new bot can be spawned in the specified zone without
+    exceeding the maximum allowed bots per zone; otherwise, returns false.
+  examples:
+  - title: Check if a bot can spawn in zone 1234 with max 50 bots
+    code: "if (botPopulationManager->CanSpawnInZone(1234, 50)) {\n    // Proceed with\
+      \ bot spawning logic\n    SpawnBot(1234);\n} else {\n    // Do not spawn bot\
+      \ due to population limit\n    LOG_DEBUG(\"world\", \"Cannot spawn bot in zone\
+      \ 1234 - population limit reached\");\n}"
+    language: cpp
+  - title: Dynamic zone-based spawning with configurable limits
+    code: "uint32 currentZoneId = player->GetZoneId();\nuint32 maxBots = sWorld->getConfig(CONFIG_UINT32_MAX_BOTS_PER_ZONE);\n\
+      if (botPopulationManager->CanSpawnInZone(currentZoneId, maxBots)) {\n    //\
+      \ Spawn bot with zone-specific configuration\n    Bot* newBot = CreateBotForZone(currentZoneId);\n\
+      \    botPopulationManager->RegisterBot(newBot);\n} else {\n    LOG_ERROR(\"\
+      world\", \"Zone %u has reached maximum bot capacity\", currentZoneId);\n}"
+    language: cpp
+  notes: This method likely uses internal tracking structures to maintain per-zone
+    bot counts. It may be called frequently during bot creation processes, so performance
+    is important. The implementation might involve locking mechanisms if concurrent
+    access from multiple threads is possible.
+  warnings: Ensure that the zoneId passed corresponds to a valid zone in the game
+    world; invalid IDs could lead to undefined behavior or incorrect results. Also,
+    note that this method only checks against the provided maxBotsPerZone limit and
+    does not account for other potential restrictions such as player presence or server
+    load.
+  related:
+  - RegisterBot
+  - UnregisterBot
+  - GetBotCountInZone
+  - SetMaxBotsPerZone
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T01:45:29.129182'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: DB2Manager
+  method: GetTaxiPath
+  signature: const TaxiPathEntry * DB2Manager::GetTaxiPath(uint32 from, uint32 to)
+    const
+documentation:
+  brief: Retrieves the taxi path entry between two given taxi nodes.
+  description: The GetTaxiPath method retrieves a const pointer to a TaxiPathEntry
+    structure that defines the path between two specific taxi nodes identified by
+    their 'from' and 'to' node IDs. This method is used internally by the TrinityCore
+    server to manage and access taxi route data, which is essential for player flight
+    path navigation in World of Warcraft. The method performs a lookup in an internal
+    database of taxi paths, returning null if no valid path exists between the specified
+    nodes. It's commonly used during player movement processing when determining available
+    flight routes.
+  parameters:
+  - name: from
+    description: The ID of the starting taxi node (source location). Must correspond
+      to a valid taxi node in the DB2 files.
+  - name: to
+    description: The ID of the destination taxi node (target location). Must correspond
+      to a valid taxi node in the DB2 files.
+  returns: A const pointer to the TaxiPathEntry structure representing the flight
+    path between the specified nodes, or nullptr if no such path exists.
+  examples:
+  - title: Basic Usage
+    code: "const TaxiPathEntry* path = sDB2Manager->GetTaxiPath(1234, 5678);\nif (path)\n\
+      {\n    // Process the taxi path\n    printf(\"Found taxi path from %u to %u\
+      \ with duration %u seconds\\n\", path->From, path->To, path->Duration);\n}"
+    language: cpp
+  - title: Checking for Valid Flight Path
+    code: "uint32 sourceNode = 1001;\nuint32 destNode = 1005;\nconst TaxiPathEntry*\
+      \ path = sDB2Manager->GetTaxiPath(sourceNode, destNode);\nif (path != nullptr)\n\
+      {\n    // Player can take this flight path\n    printf(\"Valid flight path found:\
+      \ %u -> %u\\n\", sourceNode, destNode);\n}\nelse\n{\n    // No direct flight\
+      \ path available\n    printf(\"No flight path exists between nodes %u and %u\\\
+      n\", sourceNode, destNode);\n}"
+    language: cpp
+  notes: This method accesses internal DB2 data structures which are loaded at server
+    startup. The taxi paths are defined in the 'TaxiPath.db2' file and indexed by
+    node IDs. This lookup is optimized for performance using hash tables or similar
+    structures, but repeated calls with different parameters may have a performance
+    impact if not cached.
+  warnings: The method returns a const pointer to internal data that should not be
+    modified. Accessing invalid node IDs can result in returning nullptr, which must
+    always be checked before dereferencing the returned pointer.
+  related:
+  - GetTaxiPathNode
+  - GetTaxiPathBySourceAndDestination
+  - GetTaxiPathNodeEntry
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T14:37:03.606707'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

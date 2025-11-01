@@ -1,0 +1,54 @@
+api:
+  class: ChannelMgr
+  method: GetChannelForPlayerByNamePart
+  signature: Channel * ChannelMgr::GetChannelForPlayerByNamePart(const std::string
+    & namePart, Player * playerSearcher)
+documentation:
+  brief: Retrieves a channel instance matching a partial name for a specific player.
+  description: The GetChannelForPlayerByNamePart method searches through all available
+    channels to find one whose name partially matches the provided string. It ensures
+    that only channels the specified player is currently joined to are considered.
+    This method is typically used when a player attempts to use a channel command
+    with a partial channel name, such as '/join tea' where 'tea' is the namePart.
+    The search is case-insensitive and returns the first matching channel found in
+    the player's active channel list. If no matching channel exists or if the player
+    is not part of any matching channel, the method returns nullptr.
+  parameters:
+  - name: namePart
+    description: A string representing the partial name of the channel to search for.
+      This can be a substring of the full channel name and is used in a case-insensitive
+      comparison.
+  - name: playerSearcher
+    description: Pointer to the Player object whose joined channels will be searched.
+      The method only considers channels that this player has joined.
+  returns: A pointer to the Channel object if a matching channel is found and the
+    player is part of it; otherwise, returns nullptr if no match is found or if the
+    player is not in any matching channel.
+  examples:
+  - title: Find a partial channel name for a player
+    code: "Channel* channel = channelMgr->GetChannelForPlayerByNamePart(\"guild\"\
+      , player);\nif (channel)\n{\n    // Player is in a channel whose name contains\
+      \ \"guild\"\n    sWorld->SendWorldText(LANG_CHANNEL_JOIN, channel->GetName().c_str());\n\
+      }\nelse\n{\n    // No matching channel found\n    player->GetSession()->SendNotification(LANG_CHANNEL_NOT_FOUND);\n\
+      }"
+    language: cpp
+  notes: This method performs a linear search through the channels the player is currently
+    in, so performance may degrade with a large number of active channels. It is primarily
+    intended for internal use during chat command processing and should not be used
+    for frequent or high-volume lookups.
+  warnings: The method assumes that the provided player pointer is valid and that
+    the player has joined at least one channel. Passing an invalid or unjoined player
+    may result in undefined behavior or incorrect results. Additionally, since this
+    function only returns the first match, it might not be suitable for scenarios
+    where multiple channels could match the same partial name.
+  related:
+  - GetChannel
+  - GetPlayerChannels
+  - JoinChannel
+  - LeaveChannel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:27:31.049540'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

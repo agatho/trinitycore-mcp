@@ -1,0 +1,64 @@
+api:
+  class: AuraEffect
+  method: HandleAuraAllowFlight
+  signature: void AuraEffect::HandleAuraAllowFlight(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Handles the application or removal of flight allowance aura effect on a unit.
+  description: The HandleAuraAllowFlight method manages the state of flight allowance
+    for a unit when an aura is applied or removed. This method is part of the aura
+    effect handling system in TrinityCore and is responsible for enabling or disabling
+    flight capabilities based on the aura's application status. It interacts with
+    the unit's movement and flight state to ensure proper behavior during flight-enabled
+    or disabled periods. The method takes into account the aura application context
+    and mode to correctly update the affected unit's flight capability.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura being
+      applied or removed. This contains information about which unit is affected and
+      the aura's properties.
+  - name: mode
+    description: The mode of operation for the aura effect, typically indicating how
+      the aura should be processed (e.g., application, removal, update). Values are
+      usually defined by the AuraStateType or similar enums in TrinityCore.
+  - name: apply
+    description: Boolean flag indicating whether the aura is being applied (true)
+      or removed (false). This determines the action taken to enable or disable flight
+      capability.
+  returns: null
+  examples:
+  - title: Basic usage in aura effect handler
+    code: "void AuraEffect::HandleAuraAllowFlight(const AuraApplication* aurApp, uint8\
+      \ mode, bool apply) const {\n    if (!aurApp || !aurApp->GetTarget())\n    \
+      \    return;\n\n    Unit* target = aurApp->GetTarget();\n    if (apply)\n  \
+      \      target->SetCanFly(true);\n    else\n        target->SetCanFly(false);\n\
+      }"
+    language: cpp
+  - title: Advanced usage with flight state validation
+    code: "void AuraEffect::HandleAuraAllowFlight(const AuraApplication* aurApp, uint8\
+      \ mode, bool apply) const {\n    if (!aurApp || !aurApp->GetTarget())\n    \
+      \    return;\n\n    Unit* target = aurApp->GetTarget();\n    if (apply && target->HasUnitState(UNIT_STATE_ROOT))\n\
+      \        return; // Don't allow flight while rooted\n\n    target->SetCanFly(apply);\n\
+      \    target->UpdateSpeed(MOVE_FLIGHT, apply);\n}"
+    language: cpp
+  notes: This method is typically called from the aura application system and should
+    not be invoked directly by other code. It's important to note that flight allowance
+    may be overridden by other auras or movement states, such as root effects or terrain
+    restrictions. The method assumes that the target unit supports flight capabilities
+    and handles state changes accordingly.
+  warnings: Improper handling of this aura effect can lead to unexpected movement
+    behavior or client/server desynchronization. Ensure that all related flight states
+    are properly synchronized between client and server. Be cautious when combining
+    with other movement-related auras, as conflicts may arise.
+  related:
+  - AuraEffect::HandleAuraModSpeed
+  - AuraEffect::HandleAuraModInvisibility
+  - AuraApplication::GetTarget
+  - Unit::SetCanFly
+  - Unit::UpdateSpeed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:37:11.707974'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

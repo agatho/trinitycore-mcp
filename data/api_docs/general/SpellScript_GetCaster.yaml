@@ -1,0 +1,54 @@
+api:
+  class: SpellScript
+  method: GetCaster
+  signature: Unit * SpellScript::GetCaster() const
+documentation:
+  brief: Returns the Unit that cast the spell associated with this SpellScript instance.
+  description: The GetCaster method retrieves the Unit object representing the entity
+    that initiated the spell execution. This is typically the player, NPC, or game
+    object that triggered the spell. The returned Unit pointer can be used to access
+    caster-specific properties such as health, mana, position, or faction. In the
+    context of TrinityCore's spell system, this method is essential for implementing
+    spell effects that depend on the caster's state or attributes. The method is safe
+    to call during spell execution and will return a valid Unit pointer unless the
+    spell was cast without a proper caster (which is rare in normal gameplay).
+  parameters: []
+  returns: A pointer to the Unit object representing the spell's caster. Returns nullptr
+    if the spell was not cast by a valid Unit, though this scenario is uncommon in
+    standard game operations.
+  examples:
+  - title: Basic usage to check caster's health
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffectExecute()\
+      \ override\n    {\n        Unit* caster = GetCaster();\n        if (caster &&\
+      \ caster->GetHealth() < 100)\n        {\n            // Apply effect only if\
+      \ caster has low health\n            caster->CastSpell(caster, 12345, true);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Using caster to determine faction-based behavior
+    code: "class FactionBasedSpellScript : public SpellScript\n{\npublic:\n    void\
+      \ HandleEffectExecute() override\n    {\n        Unit* caster = GetCaster();\n\
+      \        if (!caster)\n            return;\n        \n        if (caster->GetFaction()\
+      \ == 14)\n        {\n            // Apply friendly spell effect\n          \
+      \  caster->CastSpell(caster, 67890, true);\n        }\n        else\n      \
+      \  {\n            // Apply hostile spell effect\n            caster->CastSpell(caster,\
+      \ 54321, true);\n        }\n    }\n};"
+    language: cpp
+  notes: The returned Unit pointer is valid only during the execution of the spell
+    script. Do not store this pointer for later use as it may become invalid. The
+    method is optimized for performance and should be called sparingly in tight loops.
+    In custom spell implementations, ensure that the caster is not destroyed or removed
+    from the world before accessing its properties.
+  warnings: Avoid dereferencing the returned Unit pointer without checking for null.
+    Accessing properties of a destroyed or invalid Unit can lead to undefined behavior.
+    Be cautious when using GetCaster() in asynchronous contexts where the caster may
+    no longer exist.
+  related:
+  - GetSpell
+  - GetTargets
+  - GetHitTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T06:06:03.318182'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

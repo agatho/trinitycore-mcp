@@ -1,0 +1,52 @@
+api:
+  class: WorldSession
+  method: LoadPermissionsAsync
+  signature: int WorldSession::LoadPermissionsAsync()
+documentation:
+  brief: Asynchronously loads permission data for the session's associated player
+    account
+  description: The LoadPermissionsAsync method initiates an asynchronous operation
+    to retrieve and cache permission levels and privileges associated with the currently
+    logged-in player's account. This method is typically invoked during the login
+    process or when access to restricted game features is required. It performs database
+    queries to fetch role-based permissions, command access levels, and other privilege-related
+    data specific to the session's account. The asynchronous nature allows the game
+    server to continue processing other requests while the permission data is being
+    fetched from the database. This method ensures that player access control is properly
+    initialized before allowing gameplay interactions that require permission checks.
+  parameters: []
+  returns: Returns 0 on successful initiation of the asynchronous loading process,
+    or a non-zero error code if the operation fails to start. A return value of 0
+    indicates that the async operation was queued successfully, while non-zero values
+    typically indicate database connection issues or invalid session state.
+  examples:
+  - title: Basic usage in login flow
+    code: "WorldSession* session = player->GetSession();\nint result = session->LoadPermissionsAsync();\n\
+      if (result == 0) {\n    // Permission loading initiated successfully\n    //\
+      \ Proceed with further login steps\n} else {\n    // Handle error - permission\
+      \ loading failed\n    sLog->outError(\"Failed to load permissions for session\
+      \ %u\", session->GetAccountId());\n}"
+    language: cpp
+  notes: This method is designed to be non-blocking in its initiation phase, meaning
+    it returns quickly after queuing the async operation. The actual permission data
+    loading occurs in a background thread or through asynchronous I/O operations.
+    Developers should ensure that any code relying on permissions waits for the async
+    operation to complete before performing permission-sensitive actions. The method
+    may internally use TrinityCore's async database framework which handles connection
+    pooling and concurrent query execution.
+  warnings: Calling this method without a valid session or account context may result
+    in undefined behavior or errors. The method should only be called after a successful
+    player login and session establishment. Additionally, since this is an asynchronous
+    operation, immediate permission checks after calling this method might fail if
+    the data hasn't been fully loaded yet.
+  related:
+  - GetAccountId
+  - HasPermission
+  - LoadAccountDataAsync
+  - InitializeSession
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T19:11:53.884478'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

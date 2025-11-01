@@ -1,0 +1,60 @@
+api:
+  class: ServerScript
+  method: OnPacketReceive
+  signature: void ServerScript::OnPacketReceive(WorldSession * session, WorldPacket
+    & packet)
+documentation:
+  brief: Handles incoming packets from clients in the World of Warcraft server.
+  description: The OnPacketReceive method is a callback function invoked by the TrinityCore
+    server whenever a packet is received from a connected client session. This method
+    allows server-side scripts to intercept, inspect, or modify incoming packets before
+    they are processed by the core game logic. It serves as a crucial point for implementing
+    custom packet handling, logging, anti-cheat measures, or protocol extensions.
+    The method provides access to both the session that sent the packet and the packet
+    data itself, enabling developers to perform various operations such as packet
+    filtering, validation, or redirection.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      that sent the packet. This provides access to session-specific information like
+      player data, connection state, and session methods.
+  - name: packet
+    description: Reference to the WorldPacket object containing the raw packet data
+      received from the client. This allows inspection of packet contents, opcodes,
+      and payload for processing or modification.
+  returns: null
+  examples:
+  - title: Basic Packet Logging
+    code: "class MyServerScript : public ServerScript\n{\npublic:\n    void OnPacketReceive(WorldSession*\
+      \ session, WorldPacket& packet) override\n    {\n        // Log the opcode of\
+      \ every received packet\n        sLog->outString(\"Received packet from session\
+      \ %u with opcode %u\", session->GetAccountId(), packet.GetOpcode());\n    }\n\
+      };"
+    language: cpp
+  - title: Packet Filtering for Anti-Cheat
+    code: "class MyServerScript : public ServerScript\n{\npublic:\n    void OnPacketReceive(WorldSession*\
+      \ session, WorldPacket& packet) override\n    {\n        // Block specific opcodes\
+      \ that are not allowed\n        if (packet.GetOpcode() == CMSG_PLAYER_LOGIN)\n\
+      \        {\n            // Perform custom validation here\n            if (!ValidatePlayer(session))\n\
+      \            {\n                session->KickPlayer();\n                return;\n\
+      \            }\n        }\n    }\nprivate:\n    bool ValidatePlayer(WorldSession*\
+      \ session)\n    {\n        // Custom player validation logic\n        return\
+      \ true;\n    }\n};"
+    language: cpp
+  notes: This method is called on the main server thread and should avoid heavy processing
+    or blocking operations to maintain server performance. Be cautious when modifying
+    packet contents, as incorrect modifications may cause client-side errors or disconnects.
+    The session pointer is guaranteed to be valid during this call.
+  warnings: Modifying packet data directly can lead to unexpected behavior or client
+    disconnections. Always validate packet contents before making changes. Avoid performing
+    time-consuming operations in this method as it blocks the packet processing queue.
+  related:
+  - OnPacketSend
+  - OnWorldInitialized
+  - OnOpenStateChange
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:42:12.988336'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

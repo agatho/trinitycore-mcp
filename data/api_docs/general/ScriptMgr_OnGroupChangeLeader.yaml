@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnGroupChangeLeader
+  signature: void ScriptMgr::OnGroupChangeLeader(Group * group, int newLeaderGuid,
+    int oldLeaderGuid)
+documentation:
+  brief: Notifies scripts when a group leader changes in the game world
+  description: The OnGroupChangeLeader method is invoked by the TrinityCore server
+    whenever the leadership of a player group is transferred from one member to another.
+    This event occurs during group operations such as promoting a new leader or when
+    the current leader leaves the group. The method serves as a hook for custom scripts
+    and addons to react to leadership changes, allowing them to update UI elements,
+    synchronize permissions, or perform other logic based on the new group leader.
+    It is part of the global script manager system that enables modders and developers
+    to extend core game functionality without modifying the base server code.
+  parameters:
+  - name: group
+    description: Pointer to the Group object whose leadership is changing. This represents
+      the group instance containing the old and new leaders.
+  - name: newLeaderGuid
+    description: The unique identifier (GUID) of the player who is becoming the new
+      group leader. This value corresponds to the player's GUID in the database.
+  - name: oldLeaderGuid
+    description: The unique identifier (GUID) of the player who was previously the
+      group leader and is now being replaced. This value corresponds to the previous
+      leader's GUID in the database.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyGroupScript : public GroupScript\n{\npublic:\n    MyGroupScript()\
+      \ : GroupScript(\"MyGroupScript\") {}\n\n    void OnGroupChangeLeader(Group*\
+      \ group, uint32 newLeaderGuid, uint32 oldLeaderGuid) override\n    {\n     \
+      \   // Log the change in leadership\n        sLog->outString(\"Group leader\
+      \ changed from %u to %u\", oldLeaderGuid, newLeaderGuid);\n        \n      \
+      \  // Update UI or perform other actions based on new leader\n        // ...\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called after the group leadership has been officially updated
+    in the server state. It is important to note that this hook does not prevent the
+    change from occurring; it only notifies scripts about the event. The method may
+    be invoked multiple times during a single group operation, especially if several
+    leadership changes occur rapidly.
+  warnings: Developers should avoid modifying group membership or attempting to alter
+    the leadership structure within this callback, as doing so might cause undefined
+    behavior or infinite recursion. Also, ensure that any operations performed in
+    response to this event are thread-safe since it may be called from different threads
+    depending on server configuration.
+  related:
+  - OnGroupCreate
+  - OnGroupDestroy
+  - OnPlayerLeaveGroup
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:46:03.239730'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: DB2Manager
+  method: GetCustomiztionOptions
+  signature: const int * DB2Manager::GetCustomiztionOptions(uint8 race, uint8 gender)
+    const
+documentation:
+  brief: Retrieves customization options for a specified race and gender from the
+    DB2 database.
+  description: The GetCustomiztionOptions method fetches an array of integer values
+    representing available customization options for a given race and gender combination.
+    These options typically correspond to facial features, hair styles, skin tones,
+    or other character appearance attributes used in World of Warcraft's character
+    creation and customization system. The method accesses internal DB2 data structures
+    that store predefined customization data for each playable race and gender. It
+    is commonly used during character creation, appearance updates, or when validating
+    player-selected customization choices against allowed options.
+  parameters:
+  - name: race
+    description: The racial type of the character (0-10), where 0 represents Human,
+      1 represents Orc, etc. Valid values correspond to the Race enum in TrinityCore.
+  - name: gender
+    description: The gender of the character (0 = Male, 1 = Female). This parameter
+      determines which set of customization options is returned for the specified
+      race.
+  returns: A pointer to an array of integers representing available customization
+    options. The array may be NULL if no data exists for the given race and gender
+    combination. The caller must not free or modify the returned memory, as it points
+    to internal static data managed by DB2Manager.
+  examples:
+  - title: Retrieve customization options for a human male
+    code: "const int* options = db2Mgr->GetCustomiztionOptions(RACE_HUMAN, GENDER_MALE);\n\
+      if (options != nullptr) {\n    // Process the array of customization options\n\
+      \    for (int i = 0; i < MAX_CUSTOMIZATION_OPTIONS; ++i) {\n        if (options[i]\
+      \ == -1) break;\n        printf(\"Option %d: %d\\n\", i, options[i]);\n    }\n\
+      }"
+    language: cpp
+  - title: Validate a player's selected customization option
+    code: "uint8 race = player->getRace();\nuint8 gender = player->getGender();\n\
+      const int* availableOptions = db2Mgr->GetCustomiztionOptions(race, gender);\n\
+      \nif (availableOptions != nullptr) {\n    bool isValidOption = false;\n    for\
+      \ (int i = 0; i < MAX_CUSTOMIZATION_OPTIONS; ++i) {\n        if (availableOptions[i]\
+      \ == -1) break;\n        if (availableOptions[i] == selectedOption) {\n    \
+      \        isValidOption = true;\n            break;\n        }\n    }\n    if\
+      \ (!isValidOption) {\n        // Reject invalid customization choice\n     \
+      \   SendCustomizationError();\n    }\n}"
+    language: cpp
+  notes: This method returns a pointer to internal static data that should not be
+    modified or freed by the caller. The returned array is terminated with -1, indicating
+    the end of valid entries. The implementation relies on DB2 files (like ChrCustomization.db2)
+    which must be properly loaded and parsed for this method to return meaningful
+    results. Performance is generally good as it accesses pre-loaded data structures.
+  warnings: Do not attempt to modify or free the returned pointer, as it points to
+    internal static memory managed by DB2Manager. Be cautious when using this method
+    without verifying that DB2 files are loaded, as it may return NULL for invalid
+    race/gender combinations. The array size is not explicitly provided; callers must
+    rely on the -1 sentinel value to determine the end of valid entries.
+  related:
+  - GetCustomiztionOptionCount
+  - LoadDB2Files
+  - IsCustomizationValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T15:09:15.120873'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

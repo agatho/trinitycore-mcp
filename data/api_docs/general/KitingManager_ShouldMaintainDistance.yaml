@@ -1,0 +1,56 @@
+api:
+  class: KitingManager
+  method: ShouldMaintainDistance
+  signature: bool KitingManager::ShouldMaintainDistance(Unit * target)
+documentation:
+  brief: Determines whether the AI-controlled unit should maintain a specific distance
+    from its target during kiting behavior.
+  description: The ShouldMaintainDistance method evaluates if the current unit's positioning
+    relative to its target warrants maintaining a certain distance, typically used
+    in kiting AI logic. This decision is based on factors such as the unit's attack
+    range, the target's movement patterns, and the unit's current health or mana state.
+    The method is crucial for determining when a unit should retreat or reposition
+    itself during combat, especially in scenarios involving ranged attackers or casters.
+    It ensures that the AI behaves realistically by not getting too close to enemies
+    that can melee attack, while also avoiding unnecessary distance management when
+    it's safe to remain close.
+  parameters: []
+  returns: Returns true if the unit should maintain distance from its target based
+    on kiting logic and combat conditions; otherwise returns false. A return value
+    of true indicates that the AI should either move away from or avoid closing to
+    the target to optimize positioning for continued engagement.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void KitingAI::UpdateAI(const uint32 diff)\n{\n    if (me->GetVictim()\
+      \ && ShouldMaintainDistance(me->GetVictim()))\n    {\n        // Initiate kiting\
+      \ movement\n        DoKitingMovement();\n    }\n}"
+    language: cpp
+  - title: Integration with custom kiting behavior
+    code: "bool KitingManager::ShouldMaintainDistance(Unit* target)\n{\n    if (!target\
+      \ || !me->IsInCombat())\n        return false;\n\n    float distance = me->GetDistance(target);\n\
+      \    float attackRange = me->GetAttackDistance(target);\n\n    // If we're too\
+      \ close to melee range, maintain distance\n    if (distance < attackRange *\
+      \ 0.8f)\n        return true;\n\n    // If target is moving fast and we're in\
+      \ range, consider kiting\n    if (target->HasUnitMovementFlag(MOVEMENTFLAG_FORWARD)\
+      \ && distance < attackRange * 1.5f)\n        return true;\n\n    return false;\n\
+      }"
+    language: cpp
+  notes: This method is part of the kiting AI system and is typically called during
+    AI update cycles to make real-time positioning decisions. It's important to note
+    that this function may be overridden or extended by custom AI modules in order
+    to implement more complex kiting behaviors. The decision logic may vary depending
+    on the unit type (ranged vs melee), class abilities, and specific encounter mechanics.
+  warnings: Ensure that the target parameter is valid before calling this method,
+    as passing a null pointer could lead to undefined behavior. Also, be cautious
+    when modifying the return logic in custom implementations, as incorrect distance
+    calculations can cause units to either get stuck in combat or flee unnecessarily.
+  related:
+  - DoKitingMovement
+  - GetKitingDistance
+  - IsInKitingMode
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:56:43.028582'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

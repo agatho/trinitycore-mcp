@@ -1,0 +1,60 @@
+api:
+  class: Group
+  method: AddMember
+  signature: bool Group::AddMember(Player * player)
+documentation:
+  brief: Adds a player to the group, handling all necessary group management and synchronization.
+  description: The AddMember method is responsible for incorporating a Player object
+    into the Group's member list. It performs validation checks to ensure the player
+    can be added to the group, such as verifying the player is not already in a group,
+    the group has available slots, and the player meets any required conditions. The
+    method also handles the necessary network synchronization to notify all group
+    members of the new addition. This includes updating internal data structures,
+    sending relevant packets to clients, and potentially triggering group-related
+    events or callbacks. The operation is typically invoked when a player accepts
+    an invitation to join a group or when creating a new group with an initial member.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that should be added to the group.
+      Must not be null and must represent a valid player character in the game world.
+  returns: Returns true if the player was successfully added to the group, false otherwise.
+    Failure can occur due to reasons such as the player already being in another group,
+    the group being full, or invalid player state.
+  examples:
+  - title: Basic Group Member Addition
+    code: "Player* newMember = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(12345));\n\
+      if (newMember && group->AddMember(newMember))\n{\n    // Player successfully\
+      \ added to the group\n    sLog->outString(\"Player added to group successfully.\"\
+      );\n}\nelse\n{\n    // Failed to add player to group\n    sLog->outString(\"\
+      Failed to add player to group.\");\n}"
+    language: cpp
+  - title: Adding Member with Error Handling
+    code: "Player* player = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(67890));\n\
+      if (!player)\n{\n    sLog->outString(\"Player not found.\");\n    return;\n\
+      }\n\nGroup* group = player->GetGroup();\nif (!group)\n{\n    // Create a new\
+      \ group if needed\n    group = new Group();\n    group->Create(player);\n}\n\
+      \nif (group->AddMember(player))\n{\n    sLog->outString(\"Player successfully\
+      \ added to group.\");\n}\nelse\n{\n    sLog->outString(\"Failed to add player\
+      \ to group.\");\n}"
+    language: cpp
+  notes: This method internally calls several other group management functions including
+    validation checks, member list updates, and network synchronization. It assumes
+    the caller has already verified that the player is eligible for group membership.
+    The method may modify internal group state and should be used carefully in multi-threaded
+    contexts where group membership changes are frequent.
+  warnings: Do not call this method with a null player pointer as it will likely cause
+    a crash or undefined behavior. Ensure that the player is in a valid state (not
+    logging out, not in combat, etc.) before attempting to add them to a group. Calling
+    AddMember on a player who is already in another group may result in unexpected
+    behavior or silent failures.
+  related:
+  - RemoveMember
+  - IsLeader
+  - GetMembers
+  - Create
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T01:02:03.597481'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

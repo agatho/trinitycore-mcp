@@ -1,0 +1,54 @@
+api:
+  class: TransportMgr
+  method: GetTransportTemplate
+  signature: const TransportTemplate * TransportMgr::GetTransportTemplate(int entry)
+    const
+documentation:
+  brief: Retrieves the transport template data for a specified transport entry ID.
+  description: The GetTransportTemplate method retrieves a const pointer to a TransportTemplate
+    object associated with the given entry ID. This template contains static configuration
+    data for transports such as ships or zeppelins, including their movement paths,
+    spawn positions, and other fixed properties. The method performs a lookup in an
+    internal map of transport templates using the provided entry ID. It is commonly
+    used during world initialization and when spawning transport creatures to ensure
+    they are configured correctly according to predefined templates. The returned
+    pointer is guaranteed to be valid for the lifetime of the TransportMgr instance,
+    but the data should not be modified directly.
+  parameters:
+  - name: entry
+    description: The unique identifier (entry ID) of the transport template to retrieve.
+      This corresponds to the 'entry' field in the game's transport templates database
+      table.
+  returns: A const pointer to the TransportTemplate object if a valid template exists
+    for the given entry ID; otherwise, returns nullptr if no matching template is
+    found.
+  examples:
+  - title: Basic Usage
+    code: "const TransportTemplate* transportTemplate = sTransportMgr->GetTransportTemplate(12345);\n\
+      if (transportTemplate)\n{\n    // Use the transport template data\n    printf(\"\
+      Transport name: %s\\n\", transportTemplate->name.c_str());\n}"
+    language: cpp
+  - title: Checking Transport Validity
+    code: "uint32 transportEntry = 67890;\nconst TransportTemplate* template = sTransportMgr->GetTransportTemplate(transportEntry);\n\
+      if (!template)\n{\n    sLog->outError(\"Transport with entry %u not found in\
+      \ templates.\", transportEntry);\n    return false;\n}\n// Proceed with using\
+      \ the valid template\nreturn true;"
+    language: cpp
+  notes: This method is thread-safe as it only performs read operations on internal
+    data structures. The TransportTemplate objects are loaded once at startup and
+    remain constant throughout runtime, making this lookup operation efficient. Developers
+    should not assume ownership of the returned pointer; it must not be deleted or
+    modified.
+  warnings: Do not modify the returned TransportTemplate object as it is shared across
+    multiple systems. Accessing a non-existent entry ID will return nullptr, so always
+    check for null before dereferencing the pointer.
+  related:
+  - GetTransport
+  - LoadTransportTemplates
+  - AddTransportTemplate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:03:21.806890'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

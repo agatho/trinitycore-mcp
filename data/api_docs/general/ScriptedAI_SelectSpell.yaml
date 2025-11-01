@@ -1,0 +1,70 @@
+api:
+  class: ScriptedAI
+  method: SelectSpell
+  signature: const int * ScriptedAI::SelectSpell(int * target, int school, int mechanic,
+    SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect)
+documentation:
+  brief: Selects a spell from the AI's spell list based on specified targeting and
+    casting conditions.
+  description: The SelectSpell method is used by ScriptedAI implementations to choose
+    an appropriate spell to cast based on various criteria such as target type, spell
+    school, mechanic, range, and effect. It evaluates available spells against these
+    parameters and returns a pointer to the selected spell's ID. This method is typically
+    called during AI decision-making processes to determine which spell to use next
+    in combat. The method considers multiple factors including target selection, spell
+    properties, and combat context to make an intelligent choice.
+  parameters:
+  - name: target
+    description: Pointer to the target entity for spell selection. Can be NULL if
+      targeting is not required or handled separately.
+  - name: school
+    description: Spell school to filter available spells. Use -1 to ignore school
+      filtering, or specify a valid SpellSchool value.
+  - name: mechanic
+    description: Spell mechanic to filter available spells. Use -1 to ignore mechanic
+      filtering, or specify a valid SpellMechanic value.
+  - name: targets
+    description: Target type specification for spell targeting. Defines how the AI
+      should select targets for the spell.
+  - name: rangeMin
+    description: Minimum range for spell targeting in yards. Use 0.0f to ignore minimum
+      range.
+  - name: rangeMax
+    description: Maximum range for spell targeting in yards. Use 0.0f to ignore maximum
+      range.
+  - name: effect
+    description: Spell effect type to filter available spells. Defines what kind of
+      effect the selected spell should have.
+  returns: Returns a pointer to an integer representing the selected spell ID, or
+    NULL if no suitable spell is found. The returned value points to a static array
+    element within the AI's spell list.
+  examples:
+  - title: Basic Spell Selection
+    code: "const int* spell = SelectSpell(NULL, -1, -1, SELECT_TARGET_RANDOM, 0.0f,\
+      \ 30.0f, SELECT_EFFECT_DAMAGE);\nif (spell)\n{\n    // Cast the selected spell\n\
+      \    DoCast(*spell);\n}"
+    language: cpp
+  - title: Targeted Spell Selection with School Filter
+    code: "Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO);\nconst int* spell\
+      \ = SelectSpell(&target, SPELL_SCHOOL_FIRE, -1, SELECT_TARGET_SINGLE, 0.0f,\
+      \ 25.0f, SELECT_EFFECT_HEAL);\nif (spell)\n{\n    // Cast the selected fire-based\
+      \ healing spell\n    DoCast(*spell);\n}"
+    language: cpp
+  notes: This method is designed to work with the AI's internal spell list and assumes
+    that spells have been properly configured in the creature's AI setup. The returned
+    spell ID pointer points to a static location, so it should not be modified or
+    freed. Performance is optimized for frequent calls during combat decision making.
+  warnings: Do not modify the returned spell ID directly as it points to internal
+    data structures. Ensure that the target parameter is valid when using targeted
+    selection methods. The method may return NULL if no suitable spells match all
+    specified criteria, so always check for null before casting.
+  related:
+  - DoCast
+  - SelectTarget
+  - GetAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:43:44.379632'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: Spell
+  method: CallScriptBeforeHitHandlers
+  signature: void Spell::CallScriptBeforeHitHandlers(int missInfo)
+documentation:
+  brief: Invokes script handlers before a spell hits its target, allowing custom logic
+    to be executed during the spell's hit phase.
+  description: The CallScriptBeforeHitHandlers method is responsible for executing
+    any registered script handlers that are designed to run prior to a spell completing
+    its hit calculation. This function typically serves as part of the spell's execution
+    pipeline in TrinityCore, enabling custom game mechanics or modifications to be
+    applied before the final outcome of the spell's impact is determined. It is commonly
+    used in conjunction with scripted spells or custom spell effects where additional
+    logic needs to be injected into the spell lifecycle. The method does not directly
+    influence the spell's outcome but allows for pre-hit processing that can modify
+    behavior, trigger events, or alter parameters.
+  parameters:
+  - name: missInfo
+    description: An integer value indicating the result of the spell's hit calculation,
+      such as whether it missed, was dodged, parried, blocked, or landed successfully.
+      This parameter is used by script handlers to determine how to process the spell
+      hit event.
+  returns: null
+  examples:
+  - title: Basic usage in a custom spell handler
+    code: "void MyCustomSpell::HandleBeforeHit(Spell* spell, int missInfo)\n{\n  \
+      \  spell->CallScriptBeforeHitHandlers(missInfo);\n    // Additional logic here\n\
+      }"
+    language: cpp
+  - title: Usage with conditional logic based on hit result
+    code: "void Spell::HandleSpellHit()\n{\n    int missInfo = this->GetMissInfo();\n\
+      \    if (missInfo == SPELL_MISS_NONE)\n    {\n        // Spell landed\n    \
+      \    CallScriptBeforeHitHandlers(missInfo);\n    }\n    else\n    {\n      \
+      \  // Spell missed or was blocked\n        CallScriptBeforeHitHandlers(missInfo);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the core spell system during
+    spell execution. Developers should ensure that script handlers registered for
+    this event do not perform heavy operations or cause recursion, as they are invoked
+    synchronously during critical spell processing phases.
+  warnings: Improper handling of script handlers in this method may lead to unexpected
+    behavior or crashes. Ensure all registered scripts properly validate input parameters
+    and handle edge cases such as invalid missInfo values.
+  related:
+  - Spell::CallScriptAfterHitHandlers
+  - Spell::CallScriptOnHitHandlers
+  - Spell::GetMissInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:59:43.987434'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

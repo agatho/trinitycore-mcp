@@ -1,0 +1,52 @@
+api:
+  class: BotSessionManager
+  method: GetBotSession
+  signature: BotSession * BotSessionManager::GetBotSession(WorldSession * session)
+documentation:
+  brief: Retrieves the bot session associated with a given world session.
+  description: The GetBotSession method is used to retrieve a BotSession object that
+    corresponds to a specific WorldSession. This method acts as a lookup mechanism
+    within the TrinityCore bot system, allowing access to bot-specific data and functionality
+    tied to a particular player session. It is typically called when operations need
+    to be performed on a bot controlled by the session, such as managing commands
+    or retrieving bot state information. The method assumes that the provided WorldSession
+    has an associated bot session, and will return NULL if no such association exists.
+    This lookup is essential for maintaining the separation between player and bot
+    logic in the TrinityCore framework.
+  parameters: []
+  returns: A pointer to the BotSession object associated with the given WorldSession,
+    or NULL if no bot session exists for that session.
+  examples:
+  - title: Basic Usage
+    code: "BotSession* botSession = botSessionManager->GetBotSession(playerSession);\n\
+      if (botSession != nullptr) {\n    // Perform operations on the bot session\n\
+      \    botSession->ExecuteCommand(\"follow\");\n}"
+    language: cpp
+  - title: Safe Access with Null Check
+    code: "WorldSession* session = ...; // Get player session\nBotSession* botSession\
+      \ = botSessionManager->GetBotSession(session);\nif (botSession != nullptr &&\
+      \ botSession->IsBotActive()) {\n    // Bot is active, proceed with bot-specific\
+      \ logic\n    botSession->SendBotMessage(\"Hello from the bot!\");\n} else {\n\
+      \    // No active bot session for this player\n    sLog->outString(\"No bot\
+      \ associated with this session.\");\n}"
+    language: cpp
+  notes: This method performs a lookup in an internal map or container that associates
+    WorldSession pointers with BotSession objects. The performance is typically O(1)
+    due to hash-based lookup, but depends on the underlying implementation of the
+    session-to-bot mapping. Developers should be aware that calling this method without
+    verifying the existence of a bot session may lead to null pointer dereferences.
+  warnings: Calling GetBotSession with a WorldSession that does not have an associated
+    bot session will return NULL. Always check for NULL before using the returned
+    BotSession pointer to avoid runtime crashes. This method should only be called
+    on sessions that are known to be associated with bots, otherwise it may return
+    NULL and cause unexpected behavior.
+  related:
+  - BotSessionManager::AddBotSession
+  - BotSessionManager::RemoveBotSession
+  - BotSessionManager::HasBotSession
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:52:23.510260'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleDestroyItemOpcode
+  signature: void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem
+    & destroyItem)
+documentation:
+  brief: Handles the client request to destroy or delete an item from the player's
+    inventory
+  description: The HandleDestroyItemOpcode method processes a packet sent by the client
+    when a player attempts to destroy an item, typically through right-clicking and
+    selecting 'Destroy' or similar action. This method validates the destruction request,
+    checks if the item can be destroyed (considering item flags, durability, and ownership),
+    and removes the item from the player's inventory. It also sends appropriate feedback
+    to the client, such as updating the inventory display and potentially playing
+    destruction animations or sounds. The method ensures that only valid items can
+    be destroyed and respects game rules such as preventing destruction of soulbound
+    items or items currently equipped.
+  parameters:
+  - name: destroyItem
+    description: A reference to a WorldPackets::Item::DestroyItem packet containing
+      the item GUID and other destruction-related data sent by the client
+  returns: null
+  examples:
+  - title: Basic usage in packet handling
+    code: "void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem\
+      \ & destroyItem)\n{\n    if (!GetPlayer())\n        return;\n\n    Item* item\
+      \ = GetPlayer()->GetItemByGuid(destroyItem.ItemGUID);\n    if (!item)\n    \
+      \    return;\n\n    // Process destruction logic here\n    GetPlayer()->DestroyItem(item->GetBagSlot(),\
+      \ item->GetSlot(), true);\n}"
+    language: cpp
+  notes: This method is part of the core item management system and integrates with
+    the player's inventory subsystem. It should be called only when handling valid
+    client packets, as it assumes proper packet validation has already occurred. The
+    destruction process may trigger additional events such as quest updates or achievement
+    checks depending on item type.
+  warnings: Improper handling of this method can lead to inventory inconsistencies
+    or exploit opportunities. Always validate that the item exists and belongs to
+    the player before attempting destruction. Be cautious with items that have special
+    properties like soulbound status or quest requirements.
+  related:
+  - GetPlayer
+  - GetItemByGuid
+  - DestroyItem
+  - SendInventoryChangeFailure
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:23:27.599444'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

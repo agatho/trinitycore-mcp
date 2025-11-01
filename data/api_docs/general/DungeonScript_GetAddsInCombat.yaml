@@ -1,0 +1,58 @@
+api:
+  class: DungeonScript
+  method: GetAddsInCombat
+  signature: int DungeonScript::GetAddsInCombat(int * player, int * boss) const
+documentation:
+  brief: Retrieves the number of adds currently in combat within the dungeon instance
+  description: The GetAddsInCombat method is used to determine how many additional
+    creatures (adds) are currently engaged in combat within a dungeon script context.
+    This method is typically employed in scripted dungeon encounters to track the
+    status of enemy forces and manage encounter progression or difficulty adjustments.
+    The method returns a count of all NPC adds that are currently in combat state,
+    which can be useful for triggering events, checking win conditions, or modifying
+    behavior based on active combatants. It's important to note that this method operates
+    within the scope of a specific dungeon instance and may not reflect global combat
+    states across the entire server.
+  parameters:
+  - name: player
+    description: Pointer to an integer that will store the number of players currently
+      in combat with adds. This parameter is optional and can be NULL if only the
+      boss combat status is needed.
+  - name: boss
+    description: Pointer to an integer that will store the number of bosses currently
+      in combat. This parameter is optional and can be NULL if only the player combat
+      status is needed.
+  returns: Returns the total count of adds (non-player creatures) currently in combat
+    within the dungeon instance. If both player and boss pointers are provided, it
+    returns the sum of all combatants including players and bosses.
+  examples:
+  - title: Basic Usage to Check Add Combat Status
+    code: "int totalAddsInCombat = dungeonScript->GetAddsInCombat(nullptr, nullptr);\n\
+      if (totalAddsInCombat > 0)\n{\n    // Proceed with combat logic\n}"
+    language: cpp
+  - title: Tracking Player and Boss Combat Status Separately
+    code: "int playerCount = 0;\nint bossCount = 0;\nint totalAddsInCombat = dungeonScript->GetAddsInCombat(&playerCount,\
+      \ &bossCount);\nif (totalAddsInCombat > 0)\n{\n    // Handle combat with specific\
+      \ tracking of players and bosses\n    sLog->outString(\"Players in combat: %d,\
+      \ Bosses in combat: %d\", playerCount, bossCount);\n}"
+    language: cpp
+  notes: This method should only be called from within a valid dungeon script context
+    where the instance data is properly initialized. The method may return inaccurate
+    counts if called during transition phases or before all combatants have been properly
+    registered in the encounter system. Performance-wise, this method performs a simple
+    iteration through the active combatants and should not cause significant overhead.
+  warnings: Be cautious when using this method in rapid succession as it might return
+    stale data if combat state changes between calls. The pointers passed to this
+    method are optional but must be valid if provided; otherwise, passing NULL is
+    safe but will prevent retrieval of specific combatant counts.
+  related:
+  - GetPlayersInCombat
+  - GetBossesInCombat
+  - IsEncounterInProgress
+  - SetAddInCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T14:13:14.485854'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

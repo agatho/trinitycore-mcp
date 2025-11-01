@@ -1,0 +1,54 @@
+api:
+  class: ZoneScript
+  method: OnGameObjectCreate
+  signature: void ZoneScript::OnGameObjectCreate(GameObject * param0)
+documentation:
+  brief: Called when a game object is created within the zone script's area of influence
+  description: The OnGameObjectCreate method is a virtual callback function that gets
+    invoked whenever a GameObject is successfully created and added to the world within
+    the scope of a ZoneScript. This method allows developers to execute custom logic
+    or perform initialization tasks when specific game objects appear in their designated
+    zone. It serves as an event handler for object creation, enabling dynamic behavior
+    based on the presence of certain objects. The method is typically used for setting
+    up initial states, registering objects with other systems, or triggering quest-related
+    events when objects are spawned.
+  parameters:
+  - name: param0
+    description: Pointer to the GameObject that was created. This parameter provides
+      access to all properties and methods of the newly created game object, allowing
+      for manipulation or inspection of its state.
+  returns: null
+  examples:
+  - title: Basic Object Creation Handler
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnGameObjectCreate(GameObject*\
+      \ go) override\n    {\n        if (go->GetEntry() == 12345)\n        {\n   \
+      \         // Perform custom logic when this specific object is created\n   \
+      \         go->SetFlag(GO_FLAG_NOT_SELECTABLE);\n        }\n    }\n};"
+    language: cpp
+  - title: Quest Trigger on Object Spawn
+    code: "class QuestZoneScript : public ZoneScript\n{\npublic:\n    void OnGameObjectCreate(GameObject*\
+      \ go) override\n    {\n        if (go->GetEntry() == 30001)\n        {\n   \
+      \         // Trigger quest event when this object is created\n            for\
+      \ (auto& player : GetPlayersInZone())\n            {\n                if (player\
+      \ && player->GetQuestStatus(5001) == QUEST_STATUS_INCOMPLETE)\n            \
+      \    {\n                    player->AreaExploredOrEventHappens(5001);\n    \
+      \            }\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the GameObject's initialization process, so
+    it's important to ensure that any operations performed do not interfere with the
+    object's creation sequence. The ZoneScript instance must be properly registered
+    with the zone for this callback to be invoked.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it may impact performance during world loading and object creation.
+    Also, be cautious when modifying the GameObject's state, as changes might affect
+    other systems that depend on the object's initial configuration.
+  related:
+  - OnGameObjectRemove
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:26:25.363826'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

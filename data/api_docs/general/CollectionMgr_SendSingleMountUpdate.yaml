@@ -1,0 +1,60 @@
+api:
+  class: CollectionMgr
+  method: SendSingleMountUpdate
+  signature: void CollectionMgr::SendSingleMountUpdate(std::pair<uint32, MountStatusFlags>
+    mount)
+documentation:
+  brief: Sends an update packet to the player's client containing information about
+    a single mount's status.
+  description: The SendSingleMountUpdate method is responsible for transmitting a
+    mount status update to the player's client. This method takes a std::pair containing
+    a mount ID and its associated status flags, and serializes this data into a network
+    packet that is sent to the player. The update typically includes information such
+    as whether the mount is learned, available, or if it has any special conditions
+    applied. This method is part of the CollectionMgr class which manages various
+    collection-related data for players in TrinityCore. It's commonly used when a
+    mount's status changes, such as when a player learns a new mount or when a mount
+    becomes unavailable due to game conditions.
+  parameters:
+  - name: mount
+    description: A std::pair containing the mount ID (uint32) and its status flags
+      (MountStatusFlags). The first element is the unique identifier for the mount,
+      while the second element represents the current status of that mount including
+      learned, available, or other conditional states.
+  returns: null
+  examples:
+  - title: Sending a mount update for a newly learned mount
+    code: 'MountStatusFlags flags = MOUNT_STATUS_LEARNED | MOUNT_STATUS_AVAILABLE;
+
+      std::pair<uint32, MountStatusFlags> mountData(12345, flags);
+
+      CollectionMgr->SendSingleMountUpdate(mountData);'
+    language: cpp
+  - title: Updating a mount's status to unavailable
+    code: 'MountStatusFlags flags = MOUNT_STATUS_LEARNED;
+
+      std::pair<uint32, MountStatusFlags> mountData(67890, flags);
+
+      CollectionMgr->SendSingleMountUpdate(mountData);'
+    language: cpp
+  notes: This method is typically called internally by the CollectionMgr when mount
+    status changes occur. It's important to note that this method only sends a single
+    mount update and does not handle bulk updates. The method assumes that the player's
+    client is properly connected and ready to receive the packet. Performance-wise,
+    this method should be used judiciously as it generates network traffic for each
+    individual mount update.
+  warnings: Calling this method without proper initialization of the CollectionMgr
+    or with invalid mount IDs may result in undefined behavior or client-side errors.
+    Ensure that the mount ID exists in the game's mount database before calling this
+    method. Also, be aware that sending frequent updates may impact server performance
+    under high load conditions.
+  related:
+  - SendAllMountsUpdate
+  - UpdateMountStatus
+  - GetMountStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T01:19:15.249559'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

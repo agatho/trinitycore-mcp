@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerLevelChanged
+  signature: void ScriptMgr::OnPlayerLevelChanged(Player * player, uint8 oldLevel)
+documentation:
+  brief: Invoked when a player's level changes in the game world
+  description: The OnPlayerLevelChanged method is a callback function within the ScriptMgr
+    class that gets triggered whenever a player's level is updated. This event occurs
+    during gameplay when players gain experience and level up, or when their level
+    is modified through other means such as GM commands or quest completion. The method
+    provides access to both the player object and their previous level, allowing scripts
+    to execute custom logic based on level changes. This is commonly used for triggering
+    rewards, updating player statistics, or modifying behavior based on character
+    progression.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose level has changed. This parameter
+      provides access to all player-related data and methods for manipulation or inspection.
+  - name: oldLevel
+    description: The previous level of the player before the change occurred. This
+      value is used to determine what level the player was at prior to the update,
+      enabling conditional logic based on level transitions.
+  returns: null
+  examples:
+  - title: Basic Level Change Handler
+    code: "void OnPlayerLevelChanged(Player* player, uint8 oldLevel) override\n{\n\
+      \    if (player->GetLevel() > oldLevel)\n    {\n        // Player leveled up\n\
+      \        ChatHandler(player->GetSession()).SendSysMessage(\"Congratulations\
+      \ on leveling up!\");\n    }\n}"
+    language: cpp
+  - title: Reward Assignment Based on Level
+    code: "void OnPlayerLevelChanged(Player* player, uint8 oldLevel) override\n{\n\
+      \    if (player->GetLevel() == 10)\n    {\n        // Give special item at level\
+      \ 10\n        Item* item = player->StoreNewItemInInventorySlot(0, 12345, 1);\n\
+      \        player->SendItemPushResult(item, false, true, false, true);\n    }\n\
+      \    else if (player->GetLevel() == 20)\n    {\n        // Grant additional\
+      \ skill points\n        player->UpdateSkillsToMaxSkillsForLevel();\n    }\n}"
+    language: cpp
+  notes: This method is called from the core game loop and should avoid heavy computations
+    or blocking operations to prevent performance degradation. The player object passed
+    in is guaranteed to be valid, but modifications to its state during this callback
+    may affect subsequent processing. It's recommended to use this event for non-critical
+    gameplay logic that doesn't interfere with the core level-up process.
+  warnings: Avoid modifying player data that could cause recursion or infinite loops
+    during level changes. Do not perform operations that might alter the player's
+    level again within this callback, as it can lead to unexpected behavior. Be cautious
+    when accessing session data or sending packets, as improper handling may cause
+    client-side issues or disconnects.
+  related:
+  - OnPlayerEnterWorld
+  - OnPlayerLogout
+  - OnPlayerLogin
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:16:46.371773'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

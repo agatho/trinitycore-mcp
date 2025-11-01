@@ -1,0 +1,63 @@
+api:
+  class: ScriptedAI
+  method: DoSelectBelowHpPctFriendlyWithEntry
+  signature: int * ScriptedAI::DoSelectBelowHpPctFriendlyWithEntry(int entry, float
+    range, int hpPct, bool excludeSelf)
+documentation:
+  brief: Selects a friendly unit with health percentage below specified threshold
+    within range, excluding self if requested.
+  description: The DoSelectBelowHpPctFriendlyWithEntry method searches for a friendly
+    unit (NPC or player) within a given range that has health percentage below the
+    specified threshold. It filters units by a specific entry ID and optionally excludes
+    the AI's own unit from consideration. The method returns a pointer to the selected
+    unit, or nullptr if no suitable target is found. This functionality is commonly
+    used in scripted AI behaviors where NPCs need to focus on injured allies for healing
+    or support actions.
+  parameters:
+  - name: entry
+    description: The creature entry ID to filter friendly units by. Only units with
+      this specific entry will be considered. Use 0 to consider all friendly units
+      regardless of entry.
+  - name: range
+    description: Maximum distance in yards within which to search for friendly units.
+      Must be a positive value.
+  - name: hpPct
+    description: Health percentage threshold below which units are considered. Value
+      should be between 0 and 100, where 0 means any unit with less than 1% health
+      is selected.
+  - name: excludeSelf
+    description: Boolean flag indicating whether to exclude the AI's own unit from
+      consideration. If true, the AI will not select itself even if it meets the criteria.
+  returns: Pointer to a Creature or Player object representing the selected friendly
+    unit with health below the specified percentage, or nullptr if no suitable target
+    is found within range.
+  examples:
+  - title: Basic usage to find injured ally
+    code: "if (Creature* target = me->GetAI()->DoSelectBelowHpPctFriendlyWithEntry(12345,\
+      \ 30.0f, 50.0f, true))\n{\n    // Target found with entry 12345, below 50% HP\
+      \ within 30 yards\n    DoCast(target, SPELL_HEAL);\n}"
+    language: cpp
+  - title: Find any injured friendly unit regardless of entry
+    code: "if (Player* target = me->GetAI()->DoSelectBelowHpPctFriendlyWithEntry(0,\
+      \ 25.0f, 30.0f, false))\n{\n    // Any friendly unit below 30% HP within 25\
+      \ yards\n    me->GetAI()->AttackStart(target);\n}"
+    language: cpp
+  notes: This method internally uses the TrinityCore's target selection system and
+    may perform multiple checks including unit validity, faction, visibility, and
+    distance. The returned pointer is valid only until the next AI update cycle or
+    until the target becomes invalid (e.g., dies). Performance can be impacted by
+    large ranges or many nearby units.
+  warnings: Ensure that the entry parameter is correctly set to avoid selecting unintended
+    units. Using very large range values may cause performance degradation. The returned
+    pointer should not be stored for extended periods as it might become invalid during
+    AI updates.
+  related:
+  - DoSelectLowestHpFriendly
+  - DoSelectNearbyTarget
+  - DoSelectHostileTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:52:22.503352'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

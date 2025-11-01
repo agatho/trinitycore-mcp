@@ -1,0 +1,67 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetingTrainerSpellConditions
+  signature: bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId,
+    uint32 spellId, Player * player) const
+documentation:
+  brief: Checks if a player meets all conditions required to learn a spell from a
+    trainer.
+  description: The IsObjectMeetingTrainerSpellConditions method evaluates whether
+    a given player satisfies all the conditional requirements associated with learning
+    a specific spell from a trainer. This includes checking faction, quest completion,
+    item possession, and other in-game conditions that may restrict spell availability.
+    The method is typically invoked when a player attempts to learn a spell from a
+    trainer to ensure they meet the necessary prerequisites before the spell is made
+    available. It integrates with TrinityCore's condition system to validate complex
+    logical combinations of requirements.
+  parameters:
+  - name: trainerId
+    description: The unique identifier (GUID) of the trainer object that offers the
+      spell. This ID corresponds to an entry in the creature_template or creature
+      table.
+  - name: spellId
+    description: The unique identifier of the spell that the player is attempting
+      to learn. This ID must match an entry in the spell_template or spell table.
+  - name: player
+    description: Pointer to the Player object representing the character attempting
+      to learn the spell. The method uses this player's state to evaluate conditions
+      such as faction, quest status, and inventory items.
+  returns: Returns true if all conditions for learning the spell from the specified
+    trainer are met by the player; otherwise returns false. If false is returned,
+    the player cannot learn the spell due to unmet requirements.
+  examples:
+  - title: Basic usage to check spell learning eligibility
+    code: "if (sConditionMgr->IsObjectMeetingTrainerSpellConditions(12345, 67890,\
+      \ player)) {\n    // Player can learn the spell\n    player->LearnSpell(67890);\n\
+      } else {\n    // Player cannot learn the spell due to unmet conditions\n   \
+      \ player->SendSystemMessage(\"You do not meet the requirements to learn this\
+      \ spell.\");\n}"
+    language: cpp
+  - title: Integration with trainer greeting logic
+    code: "void NPCScript::OnGossipHello(Player* player, Creature* creature) {\n \
+      \   uint32 trainerId = creature->GetEntry();\n    uint32 spellId = 54321;\n\
+      \    if (sConditionMgr->IsObjectMeetingTrainerSpellConditions(trainerId, spellId,\
+      \ player)) {\n        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, \"Learn\
+      \ Spell\", GOSSIP_SENDER_MAIN, 1);\n    } else {\n        AddGossipItemFor(player,\
+      \ GOSSIP_ICON_TRAINER, \"Spell Locked\", GOSSIP_SENDER_MAIN, 2);\n    }\n  \
+      \  SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());\n\
+      }"
+    language: cpp
+  notes: This method relies heavily on TrinityCore's condition system which supports
+    complex logical expressions involving multiple conditions. The method does not
+    perform any direct spell learning or teaching; it only validates prerequisites.
+    Ensure that the trainerId and spellId parameters correctly reference valid entries
+    in the database.
+  warnings: Be cautious when using this method with dynamic trainers or spells, as
+    incorrect IDs may lead to unexpected behavior. Also note that this method will
+    return false if any condition fails, even if only one is not met.
+  related:
+  - ConditionMgr::IsObjectMeetingConditionList
+  - Player::LearnSpell
+  - Player::HasSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:53:59.020341'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: LfgGroupData
+  method: GetPlayerCount
+  signature: uint8 LfgGroupData::GetPlayerCount() const
+documentation:
+  brief: Returns the number of players currently in the LFG group
+  description: The GetPlayerCount method retrieves the total number of players that
+    are part of the Looking For Group (LFG) group associated with this LfgGroupData
+    instance. This count includes all players regardless of their role or status within
+    the group, such as whether they are queued, in a dungeon, or waiting for a leader.
+    The method is typically used by the LFG system to determine group composition
+    and manage queue operations. It provides a quick way to assess how many players
+    are currently participating in a specific LFG group without needing to iterate
+    through player lists manually.
+  parameters: []
+  returns: A uint8 value representing the total number of players in the LFG group.
+    The value will be between 0 and the maximum allowed players for the group type
+    (typically 1-5 for most LFG scenarios). Returns 0 if the group is empty or has
+    been cleared.
+  examples:
+  - title: Basic usage to check group size
+    code: "LfgGroupData* groupData = sLFGMgr->GetGroupData(playerGuid);\nuint8 playerCount\
+      \ = groupData->GetPlayerCount();\nif (playerCount > 0) {\n    // Process group\
+      \ members\n    sLog->outString(\"Group has %u players\", playerCount);\n}"
+    language: cpp
+  - title: Using player count to validate group readiness
+    code: "LfgGroupData* groupData = sLFGMgr->GetGroupData(groupId);\nuint8 playerCount\
+      \ = groupData->GetPlayerCount();\nif (playerCount >= 1 && playerCount <= 5)\
+      \ {\n    // Proceed with dungeon matching logic\n    sLFGMgr->UpdateLfgGroup(groupId);\n\
+      } else {\n    // Handle invalid group size\n    sLog->outError(\"Invalid LFG\
+      \ group size: %u\", playerCount);\n}"
+    language: cpp
+  notes: This method is a read-only accessor that does not modify any internal state.
+    It's designed to be called frequently during LFG operations, so performance should
+    be optimal. The returned value directly reflects the current state of the group's
+    player membership and may change dynamically as players join or leave.
+  warnings: Be aware that this method returns an unsigned 8-bit integer, which means
+    it can only represent values from 0 to 255. While LFG groups typically contain
+    fewer than 10 players, using this value in contexts where overflow might occur
+    should be considered carefully.
+  related:
+  - GetPlayers
+  - AddPlayer
+  - RemovePlayer
+  - IsFull
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T11:29:41.963881'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

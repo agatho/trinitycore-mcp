@@ -1,0 +1,55 @@
+api:
+  class: GroupMgr
+  method: GetGroupByGUID
+  signature: Group * GroupMgr::GetGroupByGUID(const int & guid) const
+documentation:
+  brief: Retrieves a group object by its unique identifier (GUID) from the group manager.
+  description: The GetGroupByGUID method is used to fetch a Group object from the
+    GroupMgr system using a specified GUID. This method allows for quick lookup of
+    player groups within the game world, which is essential for managing player interactions,
+    loot distribution, and raid coordination. The method performs a lookup in an internal
+    data structure that maps group GUIDs to their corresponding Group objects. It's
+    commonly used during gameplay events such as when a player joins or leaves a group,
+    or when checking group membership status.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the group to retrieve. This value
+      should correspond to a valid group GUID that has been previously registered
+      with the GroupMgr system.
+  returns: A pointer to the Group object if a group with the specified GUID exists,
+    or nullptr if no such group is found. The returned pointer should be checked for
+    null before use to avoid dereferencing a null pointer.
+  examples:
+  - title: Basic usage of GetGroupByGUID
+    code: "Group* group = sGroupMgr->GetGroupByGUID(12345);\nif (group != nullptr)\n\
+      {\n    // Group exists, perform operations\n    sWorld->SendWorldText(\"Found\
+      \ group with %u members\", group->GetMembersCount());\n}\nelse\n{\n    // No\
+      \ group found with this GUID\n    sWorld->SendWorldText(\"No group found with\
+      \ specified GUID\");\n}"
+    language: cpp
+  - title: Using GetGroupByGUID in a player join scenario
+    code: "void HandlePlayerJoinGroup(Player* player, uint32 groupId)\n{\n    Group*\
+      \ group = sGroupMgr->GetGroupByGUID(groupId);\n    if (group == nullptr)\n \
+      \   {\n        // Create new group if none exists\n        group = new Group();\n\
+      \        group->Create(player);\n        sGroupMgr->AddGroup(group);\n    }\n\
+      \    else\n    {\n        // Add player to existing group\n        group->AddMember(player);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method performs a lookup operation that is generally fast due to internal
+    hash map implementation. The GUID parameter must be a valid group identifier;
+    invalid or non-existent GUIDs will result in a null return value. This method
+    is thread-safe as long as the GroupMgr system itself is properly synchronized.
+  warnings: Always check for null return values before using the returned Group pointer
+    to prevent segmentation faults. Be cautious when modifying groups returned by
+    this method, as changes may affect other systems that rely on group state consistency.
+  related:
+  - AddGroup
+  - RemoveGroup
+  - GetGroupById
+  - GetGroups
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T13:15:16.282990'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

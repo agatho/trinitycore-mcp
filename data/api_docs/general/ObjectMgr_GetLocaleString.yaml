@@ -1,0 +1,76 @@
+api:
+  class: ObjectMgr
+  method: GetLocaleString
+  signature: void ObjectMgr::GetLocaleString(const int & data, LocaleConstant localeConstant,
+    std::string_view & value)
+documentation:
+  brief: Retrieves a localized string value based on the provided data identifier
+    and locale constant.
+  description: The GetLocaleString method fetches a localized string from the object
+    manager's internal locale data storage. It takes an integer data identifier and
+    a locale constant, then populates the provided string view reference with the
+    appropriate localized string. This method is commonly used in TrinityCore to retrieve
+    localized text such as item names, quest descriptions, or NPC dialogues that vary
+    based on the player's selected language. The method does not return a value directly
+    but instead modifies the input string view reference. It assumes that the data
+    identifier corresponds to valid locale entries within the game's database and
+    that the locale constant is a recognized value from the LocaleConstant enumeration.
+  parameters:
+  - name: data
+    description: An integer identifier representing the data entry for which to retrieve
+      the localized string. This typically corresponds to a database row ID or similar
+      unique identifier used in locale tables.
+  - name: localeConstant
+    description: A LocaleConstant enum value specifying the target language for the
+      localized string. Valid values include LOCALE_enUS, LOCALE_koKR, LOCALE_frFR,
+      etc., representing different supported languages in the game.
+  - name: value
+    description: A non-const std::string_view reference that will be populated with
+      the retrieved localized string. The reference must be valid and the string_view
+      will be updated to point to the appropriate locale data.
+  returns: null
+  examples:
+  - title: Retrieving a localized item name
+    code: 'int itemId = 12345;
+
+      LocaleConstant locale = LOCALE_enUS;
+
+      std::string_view result;
+
+      ObjectMgr::Instance()->GetLocaleString(itemId, locale, result);
+
+      // result now contains the English localized name for item ID 12345'
+    language: cpp
+  - title: Using with dynamic locale selection
+    code: 'int questId = 9876;
+
+      Player* player = ...; // assumed to be valid
+
+      LocaleConstant playerLocale = player->GetSession()->GetSessionDbLocaleIndex();
+
+      std::string_view questTitle;
+
+      ObjectMgr::Instance()->GetLocaleString(questId, playerLocale, questTitle);
+
+      // questTitle contains the localized quest title based on player''s locale'
+    language: cpp
+  notes: This method is typically used internally by TrinityCore's localization system.
+    It requires that the data identifier exists in the appropriate locale tables within
+    the database. The method performs no validation on the input parameters and assumes
+    valid inputs. Performance-wise, this method may involve database lookups or cached
+    data access depending on implementation details.
+  warnings: Ensure that the data identifier passed is valid and corresponds to existing
+    locale entries; otherwise behavior is undefined. The string_view reference must
+    be properly initialized before calling this method to avoid potential issues with
+    invalid references.
+  related:
+  - GetLocaleString
+  - GetItemLocaleString
+  - GetQuestLocaleString
+  - GetNpcLocaleString
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:31:45.180626'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

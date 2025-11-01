@@ -1,0 +1,56 @@
+api:
+  class: WorldSession
+  method: LoadAccountData
+  signature: void WorldSession::LoadAccountData(int result, uint32 mask)
+documentation:
+  brief: Loads account data for the session based on the provided result and mask
+    values.
+  description: The LoadAccountData method is responsible for retrieving and initializing
+    account-specific data for a WorldSession. This method is typically invoked during
+    the login process or when account data needs to be refreshed. It uses the provided
+    result parameter to determine the success or failure of the data loading operation,
+    and the mask parameter to specify which types of account data should be loaded.
+    The method interacts with the database to fetch relevant account information such
+    as character preferences, mailbox settings, and other persistent player data that
+    is stored per-account rather than per-character. This ensures that players maintain
+    their settings and data across different characters they may control within the
+    same account.
+  parameters:
+  - name: result
+    description: Indicates the outcome of the database query operation. Typically
+      represents a success or failure status code that determines how the account
+      data loading process proceeds.
+  - name: mask
+    description: A bitmask specifying which categories of account data should be loaded.
+      Each bit corresponds to a specific type of account data, allowing selective
+      loading based on what is needed for the session.
+  returns: null
+  examples:
+  - title: Basic usage in login flow
+    code: "void WorldSession::HandleLogin(void)\n{\n    // ... authentication logic\
+      \ ...\n    LoadAccountData(1, 0xFFFFFFFF); // Load all account data\n}"
+    language: cpp
+  - title: Selective account data loading
+    code: "void WorldSession::HandleCharacterLogin(Player* player)\n{\n    uint32\
+      \ loadMask = ACCOUNT_DATA_UNK1 | ACCOUNT_DATA_MAIL;\n    LoadAccountData(0,\
+      \ loadMask); // Load only specific account data types\n}"
+    language: cpp
+  notes: This method is typically called during the session initialization phase.
+    The mask parameter uses predefined constants like ACCOUNT_DATA_UNK1, ACCOUNT_DATA_MAIL,
+    etc., which are defined in the TrinityCore codebase. The method may perform database
+    queries and should be considered as part of the session setup process that can
+    impact login timing.
+  warnings: Improper handling of the result parameter may lead to incomplete account
+    data loading, potentially causing issues with player preferences or mailbox functionality.
+    The mask values must match predefined constants otherwise unexpected behavior
+    may occur.
+  related:
+  - SaveAccountData
+  - GetAccountData
+  - SetAccountData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:13:06.705218'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

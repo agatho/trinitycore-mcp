@@ -1,0 +1,53 @@
+api:
+  class: ObjectMgr
+  method: GetPhaseInfo
+  signature: const PhaseInfoStruct * ObjectMgr::GetPhaseInfo(uint32 phaseId) const
+documentation:
+  brief: Retrieves phase information data for a specified phase ID from the object
+    manager's internal phase registry.
+  description: The GetPhaseInfo method retrieves a const pointer to a PhaseInfoStruct
+    that contains metadata and configuration details for a specific phase ID. This
+    method is typically used in TrinityCore's phase system, which allows game objects,
+    creatures, and players to exist in different phases that can be activated or deactivated
+    based on various conditions such as quests, events, or player progression. The
+    returned PhaseInfoStruct may contain information like phase name, flags, parent
+    phases, and other relevant properties. This method does not modify any internal
+    state and is safe for concurrent access under normal operation. It returns a null
+    pointer if the specified phase ID does not exist in the registry.
+  parameters: []
+  returns: A const pointer to a PhaseInfoStruct containing the phase information for
+    the requested phase ID, or nullptr if no such phase exists.
+  examples:
+  - title: Basic usage to retrieve phase info
+    code: "const PhaseInfoStruct* phaseInfo = sObjectMgr->GetPhaseInfo(1234);\nif\
+      \ (phaseInfo != nullptr)\n{\n    // Use phaseInfo->name or other fields\n  \
+      \  printf(\"Phase name: %s\\n\", phaseInfo->name.c_str());\n}\nelse\n{\n   \
+      \ printf(\"Phase ID 1234 not found.\\n\");\n}"
+    language: cpp
+  - title: Checking if a player is in a specific phase
+    code: "uint32 playerPhase = player->GetPhaseMask();\nconst PhaseInfoStruct* phaseInfo\
+      \ = sObjectMgr->GetPhaseInfo(playerPhase);\nif (phaseInfo && phaseInfo->name\
+      \ == \"QuestPhase\")\n{\n    // Player is in the QuestPhase\n    // Perform\
+      \ quest-related logic here\n}"
+    language: cpp
+  notes: This method accesses a global registry of phases maintained by ObjectMgr.
+    The PhaseInfoStruct returned should not be modified directly as it's part of the
+    internal data structure. Ensure that phase IDs passed to this method are valid
+    and registered in the system, otherwise a null pointer will be returned. Performance
+    is generally good for lookups since it's likely implemented using a hash map or
+    similar fast lookup structure.
+  warnings: Do not modify the returned PhaseInfoStruct as it may cause unexpected
+    behavior or data corruption. The returned pointer is only valid while the ObjectMgr
+    instance exists and its internal phase registry remains unchanged. If you're working
+    with dynamic phases, be aware that the phase information might change during runtime.
+  related:
+  - GetPhaseMask
+  - AddPhaseInfo
+  - RemovePhaseInfo
+  - IsPhaseActive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:25:12.641073'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

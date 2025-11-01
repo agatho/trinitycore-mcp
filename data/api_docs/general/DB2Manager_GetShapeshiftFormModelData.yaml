@@ -1,0 +1,60 @@
+api:
+  class: DB2Manager
+  method: GetShapeshiftFormModelData
+  signature: const ShapeshiftFormModelData * DB2Manager::GetShapeshiftFormModelData(uint8
+    race, uint8 gender, uint8 form) const
+documentation:
+  brief: Retrieves shapeshift form model data for a specified race, gender, and form.
+  description: The GetShapeshiftFormModelData method retrieves model-related data
+    for a specific shapeshift form based on the provided race, gender, and form ID.
+    This data is used by the game engine to determine which models should be displayed
+    when a player shifts into a particular form, such as a bear or cat form. The method
+    accesses internal DB2 database tables that store information about how different
+    races and genders appear in various shapeshift forms. It is primarily used during
+    gameplay to ensure correct visual representation of players in different forms.
+  parameters:
+  - name: race
+    description: The race ID of the player (e.g., 1 for Human, 2 for Orc, etc.). Valid
+      values are defined by the game's race constants.
+  - name: gender
+    description: The gender of the player (0 for male, 1 for female). Must be either
+      0 or 1.
+  - name: form
+    description: The shapeshift form ID (e.g., 1 for Cat Form, 2 for Bear Form). Valid
+      values correspond to the game's shapeshift form constants.
+  returns: A pointer to a ShapeshiftFormModelData structure containing model information
+    for the specified race, gender, and form. Returns nullptr if no data is found
+    for the given parameters.
+  examples:
+  - title: Retrieve model data for a player in Cat Form
+    code: "const ShapeshiftFormModelData* data = sDB2Manager->GetShapeshiftFormModelData(RACE_HUMAN,\
+      \ GENDER_FEMALE, FORM_CAT);\nif (data)\n{\n    // Use the data to set up model\
+      \ display\n    printf(\"Model ID: %u\\n\", data->ModelID);\n}"
+    language: cpp
+  - title: Check for valid shapeshift form data before use
+    code: "uint8 race = player->getRace();\nuint8 gender = player->getGender();\n\
+      uint8 form = player->GetShapeshiftForm();\n\nconst ShapeshiftFormModelData*\
+      \ modelData = sDB2Manager->GetShapeshiftFormModelData(race, gender, form);\n\
+      if (modelData != nullptr)\n{\n    // Proceed with applying the model data to\
+      \ the player's display\n    player->SetDisplayId(modelData->ModelID);\n}\nelse\n\
+      {\n    // Fallback behavior if no shapeshift data is available\n    sLog->outError(\"\
+      No shapeshift model data found for race %u, gender %u, form %u\", race, gender,\
+      \ form);\n}"
+    language: cpp
+  notes: This method accesses internal DB2 database files which are pre-loaded at
+    server startup. The returned pointer is valid only during the lifetime of the
+    DB2Manager instance and should not be stored or used after the manager is destroyed.
+    Performance is generally good as it uses optimized lookup tables internally.
+  warnings: Ensure that all input parameters (race, gender, form) are within valid
+    ranges to avoid undefined behavior. The method may return nullptr if no matching
+    data exists for a specific combination of race, gender, and form, so always check
+    the return value before using it.
+  related:
+  - GetShapeshiftFormModelDataByForm
+  - GetShapeshiftFormInfo
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T14:42:45.160374'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

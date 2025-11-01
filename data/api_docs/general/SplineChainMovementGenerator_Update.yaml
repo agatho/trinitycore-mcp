@@ -1,0 +1,60 @@
+api:
+  class: SplineChainMovementGenerator
+  method: Update
+  signature: bool SplineChainMovementGenerator::Update(Unit * param0, int param1)
+documentation:
+  brief: Updates the spline chain movement generator with the provided unit and time
+    delta.
+  description: The Update method is responsible for advancing the state of a spline
+    chain movement generator, typically used in AI pathfinding and movement logic
+    for creatures or units in World of Warcraft. It processes the current movement
+    state, updates positions based on spline interpolation, and determines whether
+    the movement has completed. The method takes a Unit pointer to update and an integer
+    time delta representing milliseconds since last update. This function is critical
+    for smooth and accurate NPC movement along predefined paths.
+  parameters:
+  - name: param0
+    description: Pointer to the Unit object whose movement state needs to be updated.
+      This represents the entity (creature, player, etc.) that is following the spline
+      chain path.
+  - name: param1
+    description: Integer value representing the time delta in milliseconds since the
+      last update call. Used to calculate proper movement progression along the spline
+      path.
+  returns: Returns true if the movement is still in progress or has completed successfully,
+    false if there was an error during the update process or if the movement should
+    be stopped.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (m_movementGenerator\
+      \ && m_movementGenerator->GetMovementType() == MOVEMENT_TYPE_SPLINE_CHAIN)\n\
+      \    {\n        if (!m_movementGenerator->Update(me, diff))\n        {\n   \
+      \         // Movement completed or failed\n            m_movementGenerator =\
+      \ nullptr;\n        }\n    }\n}"
+    language: cpp
+  - title: Advanced usage with custom movement logic
+    code: "bool SplineChainMovementGenerator::Update(Unit* unit, int32 diff)\n{\n\
+      \    if (!unit || !unit->IsInWorld())\n        return false;\n\n    // Update\
+      \ spline progress\n    if (m_spline->Finalized())\n    {\n        // Handle\
+      \ movement completion\n        return false; // Movement finished\n    }\n\n\
+      \    // Process time-based movement update\n    m_elapsed += diff;\n    if (m_elapsed\
+      \ >= m_updateInterval)\n    {\n        m_elapsed = 0;\n        unit->UpdatePosition();\n\
+      \    }\n\n    return true; // Continue moving\n}"
+    language: cpp
+  notes: This method is typically called from the AI update loop or movement system.
+    The time delta parameter should be carefully managed to ensure consistent movement
+    speed regardless of frame rate. The spline chain movement generator assumes that
+    it has been properly initialized with a valid spline path before calling Update.
+  warnings: Do not call Update on a movement generator that hasn't been initialized
+    with a valid spline path, as this may lead to undefined behavior or crashes. Ensure
+    the Unit pointer passed is valid and in world before calling this method.
+  related:
+  - Initialize
+  - GetMovementType
+  - IsFinished
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T20:53:16.564065'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

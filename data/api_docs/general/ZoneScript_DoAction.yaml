@@ -1,0 +1,67 @@
+api:
+  class: ZoneScript
+  method: DoAction
+  signature: void ZoneScript::DoAction(uint32 actionId, WorldObject * source, WorldObject
+    * target)
+documentation:
+  brief: Executes a specified action within the zone script context, potentially triggering
+    events or modifying game state based on provided parameters.
+  description: The DoAction method is a core function in TrinityCore's ZoneScript
+    system that allows zone scripts to respond to and execute specific actions identified
+    by an action ID. This method serves as an interface for triggering custom behaviors,
+    event handling, or state changes within a zone's script logic. The method accepts
+    optional source and target WorldObject parameters which can provide context about
+    the origin and intended recipient of the action. It is typically invoked by other
+    game systems or scripts to communicate events that should be processed by the
+    zone script. ZoneScript implementations override this method to define custom
+    behavior for different action IDs, enabling dynamic and interactive world elements
+    such as quest triggers, environmental changes, or NPC interactions.
+  parameters:
+  - name: actionId
+    description: A unique identifier that specifies which action to execute within
+      the zone script. This ID is used by the zone script's implementation to determine
+      what behavior should be triggered.
+  - name: source
+    description: Optional pointer to the WorldObject that initiated or is associated
+      with this action. Can be null if no specific source object exists.
+  - name: target
+    description: Optional pointer to the WorldObject that is the target of this action.
+      Can be null if no specific target object exists.
+  returns: void
+  examples:
+  - title: Basic usage in a custom zone script
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void DoAction(uint32\
+      \ actionId, WorldObject* source, WorldObject* target) override\n    {\n    \
+      \    switch (actionId)\n        {\n            case 1:\n                // Trigger\
+      \ an event when action ID 1 is received\n                if (source && source->GetTypeId()\
+      \ == TYPEID_UNIT)\n                    source->ToCreature()->AI()->Talk(0);\n\
+      \                break;\n            case 2:\n                // Handle another\
+      \ action\n                if (target)\n                    target->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NON_ATTACKABLE);\n                break;\n        }\n    }\n};"
+    language: cpp
+  - title: Triggering an action from a quest event
+    code: "void Quest::OnQuestAccept(Player* player, Quest const* quest)\n{\n    //\
+      \ Trigger zone script action when quest is accepted\n    if (player->GetZoneScript())\n\
+      \        player->GetZoneScript()->DoAction(1001, player, nullptr);\n}"
+    language: cpp
+  notes: The ZoneScript::DoAction method is designed to be overridden by custom zone
+    script implementations. It should be implemented carefully to avoid performance
+    bottlenecks or infinite recursion. The source and target parameters may be null,
+    so implementers must check for validity before dereferencing. This method is called
+    from the game's main thread context, so long-running operations should be avoided.
+  warnings: Do not assume that source or target will always be valid pointers; always
+    perform null checks. Avoid performing heavy computations or blocking operations
+    within this method as it may impact server performance and responsiveness. Be
+    cautious when calling DoAction recursively from within itself to prevent stack
+    overflow.
+  related:
+  - ZoneScript::OnGameObjectCreate
+  - ZoneScript::OnCreatureCreate
+  - ZoneScript::Update
+  - ZoneScript::GetZoneId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:04:48.873706'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

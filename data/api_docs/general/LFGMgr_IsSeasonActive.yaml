@@ -1,0 +1,54 @@
+api:
+  class: LFGMgr
+  method: IsSeasonActive
+  signature: bool LFGMgr::IsSeasonActive(uint32 dungeonId)
+documentation:
+  brief: Checks whether a specified dungeon is currently active during a seasonal
+    event.
+  description: The IsSeasonActive method determines if a given dungeon ID corresponds
+    to a seasonal dungeon that is currently active in the game world. This functionality
+    is used primarily for LFG (Looking For Group) systems to filter which dungeons
+    can be queued for based on current seasonal events such as Holidays or special
+    promotions. The method evaluates the dungeon's seasonal status against the current
+    game time and event calendar to return an accurate boolean result.
+  parameters:
+  - name: dungeonId
+    description: The unique identifier of the dungeon to check for seasonal activity.
+      This ID typically corresponds to entries in the dbc files or database tables
+      that define dungeon properties including seasonal flags.
+  returns: Returns true if the specified dungeon is currently active during a seasonal
+    event, false otherwise. A dungeon may be marked as seasonal even if no active
+    season is currently running, so this check ensures the dungeon is both seasonal
+    and currently in its active period.
+  examples:
+  - title: Check if a specific dungeon is currently seasonal
+    code: "if (sLFGMgr->IsSeasonActive(1234)) {\n    // Dungeon is currently active\
+      \ during a seasonal event\n    sLog->outString(\"Dungeon 1234 is currently seasonal.\"\
+      );\n} else {\n    // Dungeon is not currently seasonal\n    sLog->outString(\"\
+      Dungeon 1234 is not currently seasonal.\");\n}"
+    language: cpp
+  - title: Use within LFG queue filtering logic
+    code: "uint32 dungeonId = GetDungeonIdFromLfgEntry(entry);\nif (!sLFGMgr->IsSeasonActive(dungeonId))\
+      \ {\n    // Skip seasonal dungeons that are not currently active\n    continue;\n\
+      }\n// Proceed with normal LFG queue processing for this dungeon"
+    language: cpp
+  notes: This method likely relies on internal event tracking and calendar systems
+    within TrinityCore. It may cache results or use a lookup table to efficiently
+    determine seasonal status without recalculating each time. The implementation
+    might also consider timezone settings if the game world has time-based events
+    that vary by region.
+  warnings: Be aware that this function only checks the current seasonal activity
+    status and does not validate other LFG requirements such as player level, group
+    composition, or instance locks. Also, some dungeons may be marked as seasonal
+    but have no active season in progress, so always verify both conditions when implementing
+    queue logic.
+  related:
+  - GetDungeonSeasonalStatus
+  - IsDungeonActive
+  - GetLfgDungeonEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:40:28.032318'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: SmartScript
+  method: StoreTargetList
+  signature: void SmartScript::StoreTargetList(const ObjectVector & targets, uint32
+    id)
+documentation:
+  brief: Stores a list of target objects with a specified identifier for later retrieval
+    within SmartScript AI contexts.
+  description: The StoreTargetList method in the SmartScript class allows storing
+    a collection of GameObject, Creature, or Player objects (referred to as targets)
+    under a unique identifier. This stored list can be retrieved later using the corresponding
+    ID, enabling complex AI behaviors that require referencing multiple entities simultaneously.
+    The method is typically used within SmartAI scripts to cache target selections
+    for use in conditional checks or actions. It supports storing any number of valid
+    WorldObject instances and associates them with an integer ID for quick access.
+    This functionality is essential for implementing dynamic targeting logic where
+    the same set of targets may be needed across multiple script events.
+  parameters:
+  - name: targets
+    description: A constant reference to an ObjectVector containing the list of WorldObject
+      instances (Creature, GameObject, Player) to be stored. Each object in the vector
+      must be valid and not null.
+  - name: id
+    description: An unsigned 32-bit integer identifier used to store and later retrieve
+      the target list. This ID should be unique within the scope of the SmartScript
+      instance to avoid conflicts when retrieving stored targets.
+  returns: null
+  examples:
+  - title: Storing a List of Nearby Players
+    code: "std::vector<WorldObject*> players;\nfor (auto& obj : unit->GetObjectsInRange(10.0f,\
+      \ TYPEMASK_PLAYER))\n{\n    if (obj->ToPlayer())\n        players.push_back(obj);\n\
+      }\nObjectVector targetList(players.begin(), players.end());\nsmartScript->StoreTargetList(targetList,\
+      \ 1001);"
+    language: cpp
+  - title: Storing Creature Targets for Later Use
+    code: "ObjectVector targets;\nfor (auto& creature : unit->GetCreatureListWithEntryInRange(12345,\
+      \ 20.0f))\n{\n    targets.push_back(creature);\n}\nsmartScript->StoreTargetList(targets,\
+      \ 2002);"
+    language: cpp
+  notes: The stored target list is maintained in memory until explicitly cleared or
+    replaced by another call to StoreTargetList with the same ID. The method does
+    not perform any validation on the input objects beyond ensuring they are valid
+    WorldObjects. Stored targets are not automatically updated if their positions
+    or states change during script execution.
+  warnings: Using duplicate IDs for storing different target lists will overwrite
+    previously stored data, potentially causing unexpected behavior in AI logic. Ensure
+    that the ID parameter is unique within the context of a single SmartScript instance
+    to prevent unintended overwrites.
+  related:
+  - GetTargetList
+  - ClearTargetList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:19:52.666507'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,69 @@
+api:
+  class: AuctionManager
+  method: CreateCommodityAuction
+  signature: bool AuctionManager::CreateCommodityAuction(Player * bot, Item * item,
+    uint32 quantity, uint64 unitPrice, uint32 duration)
+documentation:
+  brief: Creates a commodity auction for a specified item and quantity.
+  description: The CreateCommodityAuction method is used to list an item as a commodity
+    auction on the Auction House. This function takes a player bot, an item, its quantity,
+    unit price, and duration to create the auction. It handles the creation of the
+    auction entry in the database and updates the item's auction status. The method
+    returns true if the auction was successfully created, or false if there was an
+    error during the process. This functionality is typically used by automated systems
+    or bots to manage auctions programmatically.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot creating the auction.
+      Must be a valid player instance with sufficient permissions and resources.
+  - name: item
+    description: Pointer to the Item object that is being auctioned. The item must
+      be in the bot's inventory and not already listed as an auction.
+  - name: quantity
+    description: The number of items to auction. Must be a positive integer greater
+      than zero, representing how many of the item are being offered for sale.
+  - name: unitPrice
+    description: The price per unit of the item in copper. This value determines the
+      bid amount required to purchase one item from the auction.
+  - name: duration
+    description: The duration of the auction in seconds. Valid values are typically
+      1800 (30 minutes), 3600 (1 hour), 7200 (2 hours), 14400 (4 hours), or 28800
+      (8 hours).
+  returns: Returns true if the auction was successfully created and added to the auction
+    house system. Returns false if the auction creation failed due to invalid parameters,
+    insufficient resources, or database errors.
+  examples:
+  - title: Basic commodity auction creation
+    code: "Player* bot = ...; // Get a valid player instance\nItem* item = ...; //\
+      \ Get a valid item from inventory\nuint32 quantity = 5;\nuint64 unitPrice =\
+      \ 100000; // 10 gold per item\nuint32 duration = 3600; // 1 hour\nbool result\
+      \ = sAuctionMgr->CreateCommodityAuction(bot, item, quantity, unitPrice, duration);\n\
+      if (result)\n    TC_LOG_INFO(\"auction\", \"Successfully created commodity auction\"\
+      );"
+    language: cpp
+  - title: Creating multiple commodity auctions
+    code: "for (int i = 0; i < 3; ++i)\n{\n    Item* item = bot->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ i);\n    if (item && item->GetTemplate()->GetMaxStackSize() > 1)\n    {\n\
+      \        uint32 quantity = item->GetCount();\n        uint64 unitPrice = item->GetTemplate()->GetSellPrice()\
+      \ * 1000;\n        uint32 duration = 7200; // 2 hours\n        sAuctionMgr->CreateCommodityAuction(bot,\
+      \ item, quantity, unitPrice, duration);\n    }\n}"
+    language: cpp
+  notes: This method internally handles the auction creation process including updating
+    the item's auction status and storing the auction data in the database. It does
+    not perform any validation on whether the player has sufficient funds to cover
+    potential bids, as this is handled during the bid placement process.
+  warnings: Ensure that the item being auctioned is valid and belongs to the bot before
+    calling this method. Passing a null pointer for 'bot' or 'item' will likely result
+    in a crash or undefined behavior. Also, make sure the quantity does not exceed
+    the item's stack size or available inventory count.
+  related:
+  - GetAuction
+  - RemoveAuction
+  - UpdateAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T02:37:55.028520'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetingVendorItemConditions
+  signature: bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId,
+    uint32 itemId, const Player * player, const Creature * vendor) const
+documentation:
+  brief: Checks if a player meets all conditions required to purchase a specific item
+    from a vendor.
+  description: The IsObjectMeetingVendorItemConditions method evaluates whether a
+    given player satisfies all the conditional requirements associated with a specific
+    item offered by a vendor creature. This includes checking quest requirements,
+    faction standings, item ownership, and other game-specific conditions defined
+    in the database. The method is typically used during vendor interactions to determine
+    if an item should be available for purchase or if certain restrictions apply.
+    It ensures that players cannot access items they do not meet the prerequisites
+    for, maintaining game balance and progression logic.
+  parameters:
+  - name: creatureId
+    description: The unique identifier (GUID) of the vendor creature offering the
+      item.
+  - name: itemId
+    description: The unique identifier of the item being checked for purchase conditions.
+  - name: player
+    description: Pointer to the Player object whose conditions are being evaluated.
+      Must not be null.
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor. Must not
+      be null.
+  returns: Returns true if all conditions for purchasing the item from the vendor
+    are met by the player; otherwise returns false.
+  examples:
+  - title: Basic usage in vendor interaction
+    code: "if (sConditionMgr->IsObjectMeetingVendorItemConditions(vendorGuid, itemEntry,\
+      \ player, vendor)) {\n    // Allow player to buy the item\n    player->BuyItemFromVendor(vendorGuid,\
+      \ itemEntry);\n} else {\n    // Item not available due to condition failure\n\
+      \    player->SendBuyError(BUY_ERR_CONDITION_NOT_MET, vendor, itemEntry, 0);\n\
+      }"
+    language: cpp
+  - title: Checking multiple items for availability
+    code: "for (uint32 itemId : itemArray) {\n    if (!sConditionMgr->IsObjectMeetingVendorItemConditions(vendorGuid,\
+      \ itemId, player, vendor)) {\n        // Skip this item or mark it as unavailable\n\
+      \        continue;\n    }\n    // Proceed with item handling logic\n}"
+    language: cpp
+  notes: This method relies on the ConditionMgr's internal database lookup for condition
+    definitions. The method performs checks against player data such as quest status,
+    faction standing, and inventory state. It is recommended to cache results when
+    checking multiple items from the same vendor to improve performance.
+  warnings: Ensure that both 'player' and 'vendor' pointers are valid before calling
+    this method; passing null pointers may lead to undefined behavior or crashes.
+    This function should only be called during active vendor interactions, as it depends
+    on real-time player state.
+  related:
+  - GetConditionsFor
+  - CheckCondition
+  - IsObjectMeetingCondition
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:52:11.676125'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

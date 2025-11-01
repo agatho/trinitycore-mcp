@@ -1,0 +1,58 @@
+api:
+  class: Guild
+  method: DeleteMember
+  signature: bool Guild::DeleteMember(int trans, int guid, bool isDisbanding, bool
+    isKicked)
+documentation:
+  brief: Removes a member from the guild, handling cleanup and notifications.
+  description: The DeleteMember method removes a specified guild member from the guild.
+    It performs necessary cleanup operations such as updating the guild's member list,
+    removing the member's guild-related data, and sending appropriate notifications
+    to other guild members. The method supports different deletion scenarios including
+    normal removal, disbanding, or kicking. It requires a transaction parameter for
+    database consistency and returns true if the operation was successful.
+  parameters:
+  - name: trans
+    description: Database transaction identifier used for ensuring atomicity of the
+      operation. Must be a valid transaction handle.
+  - name: guid
+    description: Global Unique Identifier of the player to be removed from the guild.
+      Must correspond to an existing guild member.
+  - name: isDisbanding
+    description: Flag indicating whether the guild is being disbanded. If true, additional
+      cleanup operations are performed.
+  - name: isKicked
+    description: Flag indicating whether the player was kicked from the guild. Affects
+      notification messages and logging.
+  returns: Returns true if the member was successfully removed from the guild, false
+    otherwise. Failure may occur due to invalid GUID, transaction issues, or database
+    errors.
+  examples:
+  - title: Remove a guild member normally
+    code: "if (guild->DeleteMember(transaction, playerGuid, false, false)) {\n   \
+      \ // Member removed successfully\n    sWorld->SendGlobalGMSysMessage(\"Player\
+      \ removed from guild.\");\n}"
+    language: cpp
+  - title: Remove a member during guild disbanding
+    code: "for (auto& member : guild->GetMembers()) {\n    guild->DeleteMember(transaction,\
+      \ member.GetGuid(), true, false);\n}\nguild->Disband();"
+    language: cpp
+  notes: This method should only be called within a valid database transaction context
+    to ensure data consistency. The method internally handles sending appropriate
+    messages to the removed player and other guild members. It does not perform any
+    checks for permissions or role validation - these should be handled by the calling
+    code.
+  warnings: Calling this method with an invalid GUID will result in undefined behavior.
+    Always verify that the member exists before calling this method. The transaction
+    parameter must be properly initialized and committed to avoid database inconsistencies.
+  related:
+  - AddMember
+  - GetMembers
+  - Disband
+  - SendGuildEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:40:49.066314'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

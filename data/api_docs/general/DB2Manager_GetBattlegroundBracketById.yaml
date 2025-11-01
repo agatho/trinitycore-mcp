@@ -1,0 +1,55 @@
+api:
+  class: DB2Manager
+  method: GetBattlegroundBracketById
+  signature: const PVPDifficultyEntry * DB2Manager::GetBattlegroundBracketById(uint32
+    mapid, BattlegroundBracketId id)
+documentation:
+  brief: Retrieves the PvP difficulty entry for a battleground bracket by its ID and
+    map identifier.
+  description: The GetBattlegroundBracketById method fetches a PVPDifficultyEntry
+    from the DB2 database based on the provided map ID and battleground bracket ID.
+    This entry contains information about the rating range, team size, and other PvP-related
+    settings for specific battleground brackets. It is commonly used during battleground
+    matchmaking and reward calculations to ensure players are matched appropriately
+    based on their arena or rated battleground ratings. The method performs a lookup
+    in the internal DB2 cache and returns a pointer to the corresponding PVPDifficultyEntry
+    structure if found, otherwise it returns nullptr.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the battleground map for which the bracket
+      is being retrieved.
+  - name: id
+    description: The BattlegroundBracketId that specifies which bracket within the
+      map's PvP difficulty settings to retrieve.
+  returns: A pointer to a const PVPDifficultyEntry structure containing the PvP difficulty
+    data for the specified bracket, or nullptr if no matching entry is found.
+  examples:
+  - title: Retrieve PvP Difficulty Entry for Rated Battleground
+    code: "const PVPDifficultyEntry* bracket = sDB2Manager->GetBattlegroundBracketById(1234,\
+      \ BG_BRACKET_ID_15); // Get bracket data for map 1234 with ID 15\nif (bracket)\n\
+      {\n    printf(\"Rating Range: %u - %u\\n\", bracket->minRating, bracket->maxRating);\n\
+      }"
+    language: cpp
+  - title: Validate Bracket Existence Before Use
+    code: "const PVPDifficultyEntry* entry = sDB2Manager->GetBattlegroundBracketById(5678,\
+      \ BG_BRACKET_ID_10);\nif (!entry)\n{\n    // Handle invalid bracket case\n \
+      \   sLog->outError(\"Failed to retrieve PvP bracket for map 5678\");\n    return;\n\
+      }\n// Proceed with using entry->minRating and entry->maxRating"
+    language: cpp
+  notes: This method accesses cached DB2 data, so performance is generally fast. The
+    BattlegroundBracketId enum values are typically defined in the game's constants
+    or header files. Ensure that the mapid and bracket ID combination corresponds
+    to an actual valid battleground configuration in the database.
+  warnings: Do not assume that all combinations of mapid and bracket ID will return
+    a valid entry; always check for nullptr before dereferencing the returned pointer.
+    Incorrect usage may lead to crashes or undefined behavior if the bracket data
+    is missing from the DB2 files.
+  related:
+  - GetBattlegroundBracketByLevel
+  - GetBattlegroundTemplateById
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:19:41.583592'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

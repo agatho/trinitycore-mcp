@@ -1,0 +1,69 @@
+api:
+  class: WorldScript
+  method: OnUpdate
+  signature: void WorldScript::OnUpdate(uint32 diff)
+documentation:
+  brief: Executes periodic world updates with delta time information
+  description: The OnUpdate method is a core callback function in the WorldScript
+    class that gets invoked regularly by the TrinityCore server loop to perform periodic
+    world-related tasks. This method receives a delta time parameter (diff) indicating
+    the time elapsed since the last update call, which is essential for maintaining
+    consistent game mechanics and timing across different server loads. The method
+    serves as the primary hook for implementing time-based logic, such as updating
+    world states, processing timed events, or managing periodic system checks. It's
+    called from the main game loop at regular intervals, typically every 100 milliseconds,
+    making it suitable for lightweight update operations that require precise timing.
+  parameters:
+  - name: diff
+    description: The time elapsed in milliseconds since the last OnUpdate call. This
+      value represents the delta time used for consistent timing of game mechanics
+      and should be used to determine how much time has passed for any time-based
+      calculations.
+  returns: null
+  examples:
+  - title: Basic World Update Implementation
+    code: "class MyWorldScript : public WorldScript\n{\npublic:\n    void OnUpdate(uint32\
+      \ diff) override\n    {\n        // Example: Process a timer-based event every\
+      \ 5 seconds\n        static uint32 timer = 0;\n        timer += diff;\n    \
+      \    if (timer >= 5000)\n        {\n            // Perform periodic task\n \
+      \           sWorld->SendServerMessage(SERVER_MSG_STRING, \"Periodic world update\
+      \ executed\");\n            timer = 0;\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Time-Based World Script
+    code: "class AdvancedWorldScript : public WorldScript\n{\nprivate:\n    uint32\
+      \ m_worldTickTimer;\n    uint32 m_npcSpawnTimer;\n    uint32 m_questUpdateTimer;\n\
+      \npublic:\n    AdvancedWorldScript() : m_worldTickTimer(0), m_npcSpawnTimer(0),\
+      \ m_questUpdateTimer(0) {}\n\n    void OnUpdate(uint32 diff) override\n    {\n\
+      \        // Update timers with delta time\n        m_worldTickTimer += diff;\n\
+      \        m_npcSpawnTimer += diff;\n        m_questUpdateTimer += diff;\n\n \
+      \       // World tick every 10 seconds\n        if (m_worldTickTimer >= 10000)\n\
+      \        {\n            HandleWorldTick();\n            m_worldTickTimer = 0;\n\
+      \        }\n\n        // NPC spawn check every 30 seconds\n        if (m_npcSpawnTimer\
+      \ >= 30000)\n        {\n            ProcessNpcSpawns();\n            m_npcSpawnTimer\
+      \ = 0;\n        }\n\n        // Quest updates every 60 seconds\n        if (m_questUpdateTimer\
+      \ >= 60000)\n        {\n            UpdateQuests();\n            m_questUpdateTimer\
+      \ = 0;\n        }\n    }\n\nprivate:\n    void HandleWorldTick() { /* Implementation\
+      \ */ }\n    void ProcessNpcSpawns() { /* Implementation */ }\n    void UpdateQuests()\
+      \ { /* Implementation */ }\n};"
+    language: cpp
+  notes: The OnUpdate method is called from the main game thread, so it should avoid
+    heavy computations or blocking operations that could affect server performance.
+    The diff parameter represents actual elapsed time and should be used for all time-based
+    calculations to ensure consistent behavior across different server loads. Implementations
+    should be efficient as this method is called very frequently (typically every
+    100ms). Avoid using sleep() or similar blocking calls within this function.
+  warnings: Never perform heavy database operations or blocking I/O in OnUpdate as
+    it will block the main game thread and cause server lag. Do not assume that diff
+    will always be consistent across different systems - use it for relative timing
+    calculations only. Be careful with timer overflows when accumulating large values
+    without proper reset mechanisms.
+  related:
+  - WorldScript::OnStartup
+  - WorldScript::OnShutdown
+  - WorldScript::OnConfigLoad
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:28:27.372147'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

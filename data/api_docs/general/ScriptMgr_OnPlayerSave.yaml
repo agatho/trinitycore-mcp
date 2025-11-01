@@ -1,0 +1,52 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerSave
+  signature: void ScriptMgr::OnPlayerSave(Player * player)
+documentation:
+  brief: Invoked when a player is saved to the database, allowing scripts to perform
+    custom actions during the save process.
+  description: The OnPlayerSave method is a hook in the ScriptMgr class that gets
+    called whenever a player character is about to be saved to the database. This
+    method serves as an extension point for custom scripts or modules to execute additional
+    logic during the player's save cycle, such as updating custom fields, logging
+    player data, or triggering events. It is typically used within the context of
+    TrinityCore's scripting system where developers can implement custom behaviors
+    without modifying core game logic. The method does not return any value and operates
+    directly on the provided Player object instance.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that is being saved to the database.
+      This parameter represents the specific player character whose data will be persisted.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "void MyScript::OnPlayerSave(Player* player)\n{\n    // Log when a player\
+      \ is saved\n    sLog->outString(\"Saving player: %s\", player->GetName().c_str());\n\
+      }"
+    language: cpp
+  - title: Advanced Example with Custom Data Update
+    code: "void MyScript::OnPlayerSave(Player* player)\n{\n    // Save custom player\
+      \ data before saving to DB\n    if (player->GetSession())\n    {\n        //\
+      \ Update a custom field in the database\n        CharacterDatabase.PExecute(\"\
+      UPDATE player_custom_data SET last_save_time = UNIX_TIMESTAMP() WHERE guid =\
+      \ %u\", player->GetGUID().GetCounter());\n    }\n}"
+    language: cpp
+  notes: This method is called during the player save process, so it should avoid
+    heavy computations or blocking operations to prevent performance degradation.
+    It's recommended to keep this hook lightweight and focused on essential tasks.
+    The Player object passed in is valid and fully populated with current data at
+    the time of the call.
+  warnings: Avoid performing database operations directly within this method unless
+    absolutely necessary, as it may cause deadlocks or performance issues. Also, be
+    cautious about modifying player data in a way that could interfere with the normal
+    save process or lead to inconsistent state.
+  related:
+  - OnPlayerLoad
+  - OnPlayerLogout
+  - OnPlayerLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:09:52.896873'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

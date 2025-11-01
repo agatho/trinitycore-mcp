@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnGroupRateCalculation
+  signature: void ScriptMgr::OnGroupRateCalculation(float & rate, uint32 count, bool
+    isRaid)
+documentation:
+  brief: Modifies the experience rate for group or raid encounters based on player
+    count
+  description: The OnGroupRateCalculation method is a hook called during experience
+    reward calculations for group or raid encounters. It allows scripts to modify
+    the base experience rate dynamically based on the number of players in the group
+    and whether the encounter is classified as a raid. This method is typically used
+    to implement custom scaling factors for group content, such as reducing experience
+    gains for large groups or applying special bonuses for small groups. The rate
+    parameter is passed by reference, allowing modifications to be applied directly
+    to the calculation.
+  parameters:
+  - name: rate
+    description: Reference to the experience rate that will be modified. This value
+      represents the base multiplier applied to experience rewards and can be adjusted
+      to increase or decrease rewards based on group composition.
+  - name: count
+    description: The number of players in the group or raid. This parameter determines
+      how many participants are affecting the experience calculation, with different
+      behaviors possible for small vs large groups.
+  - name: isRaid
+    description: Boolean flag indicating whether the encounter is classified as a
+      raid. When true, this typically signifies a larger, more challenging encounter
+      with potentially different scaling rules than normal group content.
+  returns: null
+  examples:
+  - title: Reduce experience rate for large raids
+    code: "void MyScript::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)\n\
+      {\n    if (isRaid && count > 10)\n    {\n        rate *= 0.8f; // Reduce experience\
+      \ by 20% for raids with more than 10 players\n    }\n}"
+    language: cpp
+  - title: Apply scaling based on group size
+    code: "void MyScript::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)\n\
+      {\n    if (!isRaid)\n    {\n        if (count >= 5)\n            rate *= 0.9f;\
+      \ // Slight penalty for large groups\n        else if (count <= 2)\n       \
+      \     rate *= 1.1f; // Bonus for small groups\n    }\n}"
+    language: cpp
+  notes: This method is invoked during the experience reward calculation phase, so
+    any modifications to the rate parameter will directly affect how much experience
+    players receive. The method may be called multiple times per encounter depending
+    on group composition and encounter type. Performance considerations are minimal
+    as this hook is typically called infrequently.
+  warnings: Modifying the rate parameter too drastically can unbalance game progression.
+    Be cautious when applying large multipliers or negative values that could result
+    in players receiving no experience or excessive rewards. Ensure that any scaling
+    logic accounts for edge cases such as count = 0 or very large group sizes.
+  related:
+  - OnGroupRateCalculation
+  - OnPlayerExperienceGain
+  - OnCreatureKill
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:44:31.202293'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: BotThreatManager
+  method: GetThreatPercent
+  signature: float BotThreatManager::GetThreatPercent(Unit * target) const
+documentation:
+  brief: Calculates and returns the threat percentage of a bot towards a specified
+    target unit.
+  description: The GetThreatPercent method computes the relative threat level that
+    a bot has against a given target unit. This value represents how much threat the
+    bot has accumulated compared to other units in the target's threat list, expressed
+    as a percentage. The method is typically used by AI systems to determine engagement
+    priorities or to decide when to switch targets. It relies on internal threat calculations
+    performed by the bot's threat manager and considers factors such as damage dealt,
+    healing done, and aggro mechanics specific to the bot's behavior. The result is
+    a floating-point value between 0.0 and 100.0, where 0.0 indicates no threat and
+    100.0 represents maximum threat level.
+  parameters: []
+  returns: A float value representing the threat percentage of the bot towards the
+    specified target unit. The value ranges from 0.0 (no threat) to 100.0 (maximum
+    threat). Returns 0.0 if the target is invalid or if no threat data exists for
+    the bot.
+  examples:
+  - title: Basic Usage
+    code: "float threatPercent = botThreatManager->GetThreatPercent(targetUnit);\n\
+      if (threatPercent > 50.0f)\n{\n    // Bot has significant threat on target\n\
+      \    // Perform actions accordingly\n}"
+    language: cpp
+  - title: Target Switching Logic
+    code: "Unit* currentTarget = bot->GetVictim();\nUnit* newTarget = nullptr;\nfloat\
+      \ highestThreat = 0.0f;\n\n// Iterate through nearby units to find the one with\
+      \ highest threat\nfor (auto& unit : bot->GetMap()->GetCreatureStorage())\n{\n\
+      \    if (unit && unit != currentTarget)\n    {\n        float threat = botThreatManager->GetThreatPercent(unit);\n\
+      \        if (threat > highestThreat)\n        {\n            highestThreat =\
+      \ threat;\n            newTarget = unit;\n        }\n    }\n}\n\nif (newTarget\
+      \ && highestThreat > 30.0f)\n{\n    bot->AttackStart(newTarget);\n}"
+    language: cpp
+  notes: This method internally uses the bot's threat manager to calculate relative
+    threat levels. It may return cached values depending on the implementation, so
+    frequent calls might not reflect real-time changes in threat. The method assumes
+    that the bot has been initialized with a valid threat manager and target unit.
+  warnings: The method does not validate whether the target unit is within the bot's
+    aggro range or if it's a valid combatant. It's recommended to check the target's
+    validity before calling this method. Additionally, in high-frequency scenarios,
+    repeated calls may impact performance due to internal threat calculations.
+  related:
+  - GetThreat
+  - AddThreat
+  - ClearThreat
+  - IsTargetThreatening
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:42:18.066442'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

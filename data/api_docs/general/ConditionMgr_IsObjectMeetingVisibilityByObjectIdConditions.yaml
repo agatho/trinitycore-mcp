@@ -1,0 +1,61 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetingVisibilityByObjectIdConditions
+  signature: bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(const
+    WorldObject * obj, const WorldObject * seer) const
+documentation:
+  brief: Evaluates whether a WorldObject meets all visibility conditions for another
+    WorldObject's observer.
+  description: The IsObjectMeetingVisibilityByObjectIdConditions method determines
+    if a given WorldObject (obj) satisfies all visibility-related conditions required
+    to be seen by a specific observer WorldObject (seer). This functionality is crucial
+    in TrinityCore's implementation of object visibility systems, particularly when
+    handling dynamic visibility changes such as those caused by stealth, invisibility,
+    or environmental effects. The method internally checks various condition types
+    including but not limited to player faction, creature type, aura states, and custom
+    conditions defined in the database. It ensures that objects are only visible to
+    observers when all applicable visibility criteria are met, contributing to realistic
+    gameplay mechanics and proper network packet filtering.
+  parameters:
+  - name: obj
+    description: Pointer to the WorldObject that is being evaluated for visibility.
+      This object must be valid and cannot be null.
+  - name: seer
+    description: Pointer to the WorldObject acting as the observer or viewer. This
+      represents the entity attempting to see the 'obj' and must also be a valid WorldObject.
+  returns: Returns true if the object meets all visibility conditions for the seer,
+    false otherwise. A return value of false indicates that one or more visibility
+    conditions failed, preventing the seer from seeing the obj.
+  examples:
+  - title: Basic Visibility Check
+    code: "if (sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(player,\
+      \ npc)) {\n    // Player can see NPC\n    player->SendPacket(npc->GetPackagedUpdate());\n\
+      } else {\n    // Player cannot see NPC\n    player->SendPacket(npc->GetDestroyPacket());\n\
+      }"
+    language: cpp
+  - title: Visibility Check in Combat
+    code: "if (sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(enemy,\
+      \ attacker)) {\n    // Attacker can see enemy and proceed with attack\n    attacker->Attack(enemy,\
+      \ true);\n} else {\n    // Enemy is not visible to attacker\n    attacker->SendSystemMessage(\"\
+      Target is out of sight.\");\n}"
+    language: cpp
+  notes: This method relies heavily on the ConditionMgr's internal database lookup
+    system and condition definitions. Performance can be affected if numerous conditions
+    are defined for visibility checks, especially in high-traffic areas with many
+    players and NPCs. The method is typically called during visibility update routines
+    and should not be used in performance-critical sections without proper caching
+    or optimization.
+  warnings: Ensure both obj and seer pointers are valid before calling this function
+    to avoid crashes. The method assumes that the objects passed have been properly
+    initialized and registered with the game world. Incorrect usage may lead to inconsistent
+    visibility states, potentially causing players to see or not see objects inappropriately.
+  related:
+  - GetConditionList
+  - CheckConditionGroup
+  - IsObjectMeetingConditions
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:51:38.944622'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

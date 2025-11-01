@@ -1,0 +1,66 @@
+api:
+  class: ZoneScript
+  method: OnCreatureRemove
+  signature: void ZoneScript::OnCreatureRemove(Creature * param0)
+documentation:
+  brief: Called when a creature is removed from the zone, allowing custom behavior
+    to be executed.
+  description: The OnCreatureRemove method is a virtual callback function in the ZoneScript
+    class that is invoked whenever a Creature object is removed from the zone. This
+    typically occurs when the creature is despawned, killed, or otherwise no longer
+    present in the game world. Developers can override this method to implement custom
+    logic such as triggering events, updating quest progress, managing NPC-related
+    state, or performing cleanup operations. The method provides access to the Creature
+    pointer that was removed, allowing for detailed inspection and interaction with
+    the specific creature instance. This function is part of the zone scripting system
+    in TrinityCore, enabling dynamic world behavior and quest mechanics.
+  parameters:
+  - name: param0
+    description: Pointer to the Creature object that has been removed from the zone.
+      This parameter provides access to all creature properties and methods for further
+      processing.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnCreatureRemove(Creature*\
+      \ creature) override\n    {\n        // Log when a creature is removed\n   \
+      \     sLog->outString(\"Creature %u removed from zone.\", creature->GetEntry());\n\
+      \        \n        // Perform custom logic here\n        if (creature->GetEntry()\
+      \ == 12345)\n        {\n            // Trigger quest completion or other event\n\
+      \            sWorld->SendWorldText(L\"Boss defeated!\");\n        }\n    }\n\
+      };"
+    language: cpp
+  - title: Advanced Implementation with State Management
+    code: "class BossZoneScript : public ZoneScript\n{\nprivate:\n    std::set<uint32>\
+      \ killedBosses;\n    uint32 totalBosses = 5;\n    \npublic:\n    void OnCreatureRemove(Creature*\
+      \ creature) override\n    {\n        // Track boss deaths\n        if (creature->IsDungeonBoss())\n\
+      \        {\n            killedBosses.insert(creature->GetEntry());\n       \
+      \     \n            // Check if all bosses are defeated\n            if (killedBosses.size()\
+      \ >= totalBosses)\n            {\n                // Trigger final event\n \
+      \               sWorld->SendWorldText(L\"All bosses defeated! Opening the way\
+      \ forward.\");\n                \n                // Activate door or other\
+      \ mechanism\n                OpenFinalDoor();\n            }\n        }\n  \
+      \  }\n    \nprivate:\n    void OpenFinalDoor()\n    {\n        // Implementation\
+      \ to open final door\n    }\n};"
+    language: cpp
+  notes: This method is called during the creature's removal process, so any operations
+    performed should be lightweight and not block the main thread. The Creature pointer
+    passed in may have its internal state altered or partially destroyed by the time
+    this function completes, so avoid storing long-term references to it. ZoneScript
+    instances are typically managed by the core system, and developers should ensure
+    proper cleanup of any custom data structures they maintain.
+  warnings: Do not attempt to modify or re-add the creature within this callback,
+    as it may cause undefined behavior. Be cautious when accessing creature properties
+    that might have been invalidated during removal. Avoid performing heavy computations
+    or blocking operations in this method to prevent performance degradation.
+  related:
+  - OnCreatureCreate
+  - OnCreatureUpdate
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:01:50.965151'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

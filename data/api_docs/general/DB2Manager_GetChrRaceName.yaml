@@ -1,0 +1,59 @@
+api:
+  class: DB2Manager
+  method: GetChrRaceName
+  signature: const char * DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale)
+documentation:
+  brief: Retrieves the localized name of a character race from the DB2 database based
+    on the provided race ID and locale.
+  description: The GetChrRaceName method fetches the display name of a character race
+    from the DB2 database files, using the specified race ID and locale. This function
+    is commonly used in World of Warcraft client-server communication to provide localized
+    race names for player characters, NPCs, or UI elements. The method accesses internal
+    DB2 data structures that contain race-related information such as names, descriptions,
+    and visual properties. It requires a valid race ID (typically between 1-10 for
+    Alliance races and 11-15 for Horde races) and a valid LocaleConstant to return
+    the appropriate localized string. The returned pointer points to an internal static
+    buffer which may be overwritten on subsequent calls.
+  parameters:
+  - name: race
+    description: The numeric ID representing the character race (e.g., 1 for Human,
+      2 for Dwarf, etc.). Valid values typically range from 1-15, with specific IDs
+      mapping to different racial types in the game.
+  - name: locale
+    description: The LocaleConstant specifying which language version of the name
+      to return (e.g., LOCALE_en, LOCALE_fr, etc.). Must be a valid locale identifier
+      supported by the server configuration.
+  returns: A const char* pointer to the localized race name string. Returns NULL if
+    the race ID is invalid or no data exists for the specified locale. The returned
+    string is stored in an internal static buffer and should not be freed by the caller.
+  examples:
+  - title: Basic Usage
+    code: "const char* raceName = sDB2Manager->GetChrRaceName(1, LOCALE_en);\nif (raceName)\n\
+      {\n    printf(\"Race Name: %s\\n\", raceName);\n}"
+    language: cpp
+  - title: Using with Player Character
+    code: "Player* player = ...; // Assume valid player pointer\nuint8 raceId = player->getRace();\n\
+      const char* raceName = sDB2Manager->GetChrRaceName(raceId, LOCALE_en);\nif (raceName)\n\
+      {\n    ChatHandler(player->GetSession()).PSendSysMessage(\"Your race is: %s\"\
+      , raceName);\n}"
+    language: cpp
+  notes: This method accesses DB2 data files which are loaded at server startup. The
+    returned string is cached in a static buffer, so multiple calls with different
+    parameters will overwrite previous results. For thread safety, ensure this function
+    is called from within a thread-safe context or use appropriate synchronization
+    mechanisms if accessed concurrently.
+  warnings: Do not attempt to free the returned pointer as it points to internal static
+    memory. Be cautious when using this method in high-frequency loops due to potential
+    performance impact from accessing DB2 data structures. Invalid race IDs or locales
+    may return NULL without error reporting.
+  related:
+  - GetChrClassName
+  - GetChrSpecName
+  - GetItemName
+  - GetSpellName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:15:39.731696'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

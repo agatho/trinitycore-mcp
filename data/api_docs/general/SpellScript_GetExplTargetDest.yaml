@@ -1,0 +1,54 @@
+api:
+  class: SpellScript
+  method: GetExplTargetDest
+  signature: const WorldLocation * SpellScript::GetExplTargetDest() const
+documentation:
+  brief: Returns the destination WorldLocation where a spell's explosion effect will
+    occur.
+  description: The GetExplTargetDest method retrieves the target location for a spell's
+    explosion effect, which is typically used in area-of-effect spells or projectiles
+    that detonate upon reaching their target. This location represents the final point
+    of impact for effects like fireballs, explosions, or other damaging AoE abilities.
+    The returned WorldLocation contains coordinates and map information relevant to
+    where the spell's visual and physical effects will be centered. This method is
+    commonly used within SpellScript implementations to customize explosion behavior
+    or determine where damage should be applied.
+  parameters: []
+  returns: A pointer to a const WorldLocation object representing the explosion target
+    destination, or nullptr if no valid explosion target exists.
+  examples:
+  - title: Basic Usage in SpellScript
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleAfterCast()\
+      \ override\n    {\n        const WorldLocation* dest = GetExplTargetDest();\n\
+      \        if (dest)\n        {\n            // Use the explosion destination\
+      \ for custom effects\n            SendCustomEffectAtLocation(dest->GetPosition());\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Checking Explosion Location Before Applying Damage
+    code: "class FireballSpellScript : public SpellScript\n{\npublic:\n    void HandleDamage()\
+      \ override\n    {\n        const WorldLocation* explosionDest = GetExplTargetDest();\n\
+      \        if (explosionDest)\n        {\n            // Apply damage at the explosion\
+      \ location\n            std::vector<Unit*> targets = GetTargetsInRadius(explosionDest->GetPosition(),\
+      \ 5.0f);\n            for (Unit* target : targets)\n            {\n        \
+      \        if (target && target->IsAlive())\n                {\n             \
+      \       DealDamage(target, CalculateSpellDamage());\n                }\n   \
+      \         }\n        }\n    }\n};"
+    language: cpp
+  notes: The returned WorldLocation pointer is valid only during the spell's execution
+    context and should not be stored for later use. This method is typically called
+    during spell effect application phases, particularly after target selection but
+    before damage calculation.
+  warnings: Do not modify the returned WorldLocation object as it is const. Accessing
+    this location outside of the appropriate spell execution phase may result in undefined
+    behavior or invalid memory access.
+  related:
+  - GetExplTargetUnit
+  - GetExplTargetItem
+  - GetSpellInfo
+  - GetCaster
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T06:02:28.849760'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

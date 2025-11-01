@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnAuctionSuccessful
+  signature: void ScriptMgr::OnAuctionSuccessful(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Invoked when an auction is successfully completed in the Auction House system
+  description: The OnAuctionSuccessful method is a callback function within the ScriptMgr
+    class that gets triggered whenever an auction listing in the Auction House system
+    concludes successfully. This event occurs after a bidder has placed a bid and
+    the auction timer expires, or when the item is purchased directly by a player.
+    The method provides access to both the AuctionHouseObject representing the auction
+    house instance and the AuctionPosting object containing details about the specific
+    auction that was successful. Developers can use this hook to implement custom
+    logic such as sending notifications, modifying player statistics, or triggering
+    in-game events based on successful auctions.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      instance where the auction took place. This object contains information about
+      the auction house's configuration and state.
+  - name: auction
+    description: Pointer to the AuctionPosting object containing details about the
+      specific auction that completed successfully, including bidder information,
+      bid amount, and item details.
+  returns: null
+  examples:
+  - title: Basic Auction Success Handler
+    code: "class MyScript : public ScriptObject\n{\npublic:\n    MyScript() : ScriptObject(\"\
+      MyScript\") {}\n\n    void OnAuctionSuccessful(AuctionHouseObject* ah, AuctionPosting*\
+      \ auction) override\n    {\n        // Log successful auction\n        sLog->outString(\"\
+      Auction successful: %s sold for %u copper\", auction->GetItem()->GetName().c_str(),\
+      \ auction->GetBid());\n    }\n};"
+    language: cpp
+  - title: Advanced Auction Success with Player Rewards
+    code: "class AuctionRewardScript : public ScriptObject\n{\npublic:\n    AuctionRewardScript()\
+      \ : ScriptObject(\"AuctionRewardScript\") {}\n\n    void OnAuctionSuccessful(AuctionHouseObject*\
+      \ ah, AuctionPosting* auction) override\n    {\n        if (Player* bidder =\
+      \ ObjectAccessor::FindPlayer(auction->GetBidderGuid()))\n        {\n       \
+      \     // Give the bidder a small reward\n            bidder->AddItem(ItemTemplate::GetItemTemplate(12345),\
+      \ 1);\n            bidder->SendNotification(\"Congratulations! You've won an\
+      \ auction.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core Auction House system during the auction
+    completion process. It's important to note that this callback occurs after all
+    auction processing is complete, meaning any modifications to the auction data
+    should be handled carefully as the auction may already be finalized in the database.
+    The method runs in the main game thread and should avoid long-running operations
+    to prevent performance degradation.
+  warnings: Modifications made to the auction object within this callback might not
+    affect the final outcome since the auction is already processed. Avoid performing
+    database writes or complex operations that could block the main thread. Be cautious
+    when accessing player objects through the bidder GUID, as the player may have
+    logged out by the time this function executes.
+  related:
+  - OnAuctionExpired
+  - OnAuctionBid
+  - OnAuctionCancelled
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:56:15.372709'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

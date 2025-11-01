@@ -1,0 +1,60 @@
+api:
+  class: PlayerbotDatabaseManager
+  method: Initialize
+  signature: bool PlayerbotDatabaseManager::Initialize(const std::string & connectionInfo)
+documentation:
+  brief: Initializes the playerbot database connection using the provided connection
+    information.
+  description: The Initialize method sets up the database connection for the Playerbot
+    system by establishing a link to the specified database using the provided connection
+    string. This method is typically called during server startup or when the playerbot
+    system needs to access persistent data such as bot configurations, behavior patterns,
+    or saved player preferences. It ensures that all subsequent database operations
+    within the PlayerbotDatabaseManager can successfully communicate with the underlying
+    database engine. The method performs validation on the connection information
+    and handles any necessary initialization routines required for the database interface
+    to function properly.
+  parameters:
+  - name: connectionInfo
+    description: A string containing the database connection parameters including
+      host, port, username, password, and database name. Format typically follows
+      standard database connection strings such as 'host=localhost;port=3306;user=root;password=mypassword;dbname=trinitycore_playerbots'
+  returns: Returns true if the database connection was successfully established and
+    initialized, false otherwise. A return value of false indicates that the connection
+    failed due to invalid parameters, network issues, or database server unavailability.
+  examples:
+  - title: Basic Database Initialization
+    code: "PlayerbotDatabaseManager dbManager;\nstd::string connInfo = \"host=localhost;port=3306;user=trinity;password=trinity;dbname=trinitycore_playerbots\"\
+      ;\nbool success = dbManager.Initialize(connInfo);\nif (success) {\n    // Database\
+      \ is ready for use\n    LOG_INFO(\"playerbot\", \"Playerbot database initialized\
+      \ successfully\");\n} else {\n    // Handle initialization failure\n    LOG_ERROR(\"\
+      playerbot\", \"Failed to initialize playerbot database\");\n}"
+    language: cpp
+  - title: Initialization with Error Handling
+    code: "PlayerbotDatabaseManager dbManager;\nstd::string connInfo = \"host=127.0.0.1;port=3306;user=root;password=secret;dbname=playerbots_db\"\
+      ;\n\ntry {\n    if (!dbManager.Initialize(connInfo)) {\n        throw std::runtime_error(\"\
+      Database initialization failed\");\n    }\n    // Proceed with bot operations\n\
+      \    LOG_INFO(\"playerbot\", \"Playerbot system ready for operation\");\n} catch\
+      \ (const std::exception& e) {\n    LOG_ERROR(\"playerbot\", \"Playerbot database\
+      \ error: {}\", e.what());\n    // Handle critical failure\n}"
+    language: cpp
+  notes: This method should only be called once during the lifetime of a PlayerbotDatabaseManager
+    instance. Subsequent calls to Initialize will likely fail or have undefined behavior.
+    The connection string format is crucial for successful initialization, and malformed
+    strings will result in connection failures. This method may block during network
+    connection establishment and database authentication.
+  warnings: Do not call this method from multiple threads simultaneously as it may
+    cause race conditions in the database connection setup. Ensure that the connection
+    information provided is secure and does not expose sensitive credentials. If initialization
+    fails, the PlayerbotDatabaseManager instance should not be used for database operations
+    until a successful re-initialization occurs.
+  related:
+  - GetConnection
+  - IsInitialized
+  - Shutdown
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T20:58:02.814178'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

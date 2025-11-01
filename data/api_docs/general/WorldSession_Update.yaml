@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: Update
+  signature: bool WorldSession::Update(uint32 diff, PacketFilter & updater)
+documentation:
+  brief: Updates the session state and processes incoming packets.
+  description: The Update method is responsible for maintaining the session's state
+    by processing incoming network packets, handling game events, and managing the
+    session's lifecycle. It is typically called once per game tick to ensure that
+    all pending operations are executed in a timely manner. This method performs packet
+    filtering and dispatching, updates player data, and manages connection health
+    checks. The method returns true if the session remains valid after the update,
+    or false if the session has been terminated.
+  parameters:
+  - name: diff
+    description: Time elapsed since last update in milliseconds. Used to determine
+      how much time has passed for various time-based operations within the session.
+  - name: updater
+    description: Reference to a PacketFilter object that handles filtering and processing
+      of incoming packets. This parameter controls how packets are interpreted and
+      dispatched to appropriate handlers.
+  returns: Returns true if the session is still valid and operational after the update,
+    false otherwise. A return value of false typically indicates that the session
+    has been closed or disconnected.
+  examples:
+  - title: Basic Session Update Usage
+    code: "void GameLoop()\n{\n    uint32 diff = getMSTime();\n    PacketFilter filter;\n\
+      \    if (!session->Update(diff, filter))\n    {\n        // Handle session termination\n\
+      \        return;\n    }\n}"
+    language: cpp
+  - title: Advanced Session Update with Timing
+    code: "void ProcessSession()\n{\n    uint32 currentTime = getMSTime();\n    static\
+      \ uint32 lastUpdate = 0;\n    uint32 diff = currentTime - lastUpdate;\n    lastUpdate\
+      \ = currentTime;\n    \n    PacketFilter filter;\n    if (session->Update(diff,\
+      \ filter))\n    {\n        // Session is still active\n        session->HandlePendingEvents();\n\
+      \    }\n    else\n    {\n        // Session terminated\n        CleanupSession();\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is called frequently during the game loop and should be optimized
+    for performance. It's important to note that this method may cause the session
+    to be deleted if it becomes invalid, so any references to the session object should
+    be checked after calling Update. The PacketFilter parameter allows for custom
+    packet handling logic.
+  warnings: Calling Update on a destroyed or invalid session can lead to undefined
+    behavior. Always check the return value before continuing operations on the session.
+    If the method returns false, do not attempt to use the session object further
+    as it may have been deleted.
+  related:
+  - WorldSession::SendPacket
+  - WorldSession::HandlePacket
+  - WorldSession::IsConnected
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:05:53.249208'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

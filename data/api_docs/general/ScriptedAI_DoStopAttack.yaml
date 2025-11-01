@@ -1,0 +1,50 @@
+api:
+  class: ScriptedAI
+  method: DoStopAttack
+  signature: void ScriptedAI::DoStopAttack()
+documentation:
+  brief: Stops the AI from attacking the current target and clears the attack state.
+  description: The DoStopAttack method halts any ongoing attack behavior for the AI-controlled
+    creature. It stops the creature from targeting or attacking its current enemy,
+    resets the attack timer, and ensures that the AI will no longer pursue or engage
+    in combat with the target. This method is typically used during scripted events,
+    when transitioning between different AI states, or when an attack sequence needs
+    to be interrupted. The method does not change the creature's overall AI state
+    but specifically interrupts active attack behavior.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Scripted Event
+    code: "class MyCreatureAI : public ScriptedAI\n{\npublic:\n    void OnSpellClick(Unit*\
+      \ clicker) override\n    {\n        // Stop attacking before initiating a special\
+      \ behavior\n        DoStopAttack();\n        // Perform custom logic here\n\
+      \    }\n};"
+    language: cpp
+  - title: Interrupting Attack During Phase Transition
+    code: "void MyCreatureAI::UpdateAI(uint32 diff) override\n{\n    if (m_phase ==\
+      \ PHASE_SPECIAL)\n    {\n        DoStopAttack();\n        // Perform special\
+      \ behavior without attack\n        DoCast(SPELL_SPECIAL_ABILITY);\n    }\n \
+      \   else\n    {\n        // Normal AI behavior including attacking\n       \
+      \ if (!UpdateVictim())\n            return;\n        \n        if (me->IsWithinMeleeRange(me->GetVictim()))\n\
+      \            DoMeleeAttackIfReady();\n    }\n}"
+    language: cpp
+  notes: This method does not reset the creature's target or remove it from combat.
+    It only stops the active attack behavior. The AI will continue to be in combat
+    state unless explicitly removed using other methods like ClearInCombat(). If the
+    creature is currently casting a spell that requires targeting, this method may
+    not interrupt the spell cast immediately but will prevent further attacks.
+  warnings: Calling DoStopAttack() while the creature is in the middle of a spell
+    cast that requires targeting may cause unexpected behavior. It's recommended to
+    check if the creature is casting before calling this method. Also, ensure that
+    stopping the attack doesn't leave the AI in an inconsistent state if other systems
+    depend on the creature being in combat.
+  related:
+  - DoStartAttack
+  - UpdateVictim
+  - ClearInCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:50:13.835630'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

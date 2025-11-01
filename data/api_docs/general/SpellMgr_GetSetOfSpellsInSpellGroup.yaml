@@ -1,0 +1,59 @@
+api:
+  class: SpellMgr
+  method: GetSetOfSpellsInSpellGroup
+  signature: void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, int &
+    foundSpells, int & usedGroups) const
+documentation:
+  brief: Populates counters for spells and groups found within a specified spell group.
+  description: The GetSetOfSpellsInSpellGroup method retrieves information about the
+    number of individual spells and nested spell groups contained within a given SpellGroup.
+    This method is typically used during spell system initialization or validation
+    to understand the composition of spell groups, which are collections of related
+    spells often used for effects like set bonuses, talent interactions, or spell
+    synergy mechanics. The method does not return the actual spell IDs or group IDs
+    but instead updates the provided reference parameters with counts of found spells
+    and used groups. It's important to note that this method operates on pre-defined
+    spell group definitions within the TrinityCore database and should be called after
+    spell data has been loaded.
+  parameters:
+  - name: group_id
+    description: The SpellGroup identifier specifying which spell group to analyze.
+      This value must correspond to a valid spell group defined in the database.
+  - name: foundSpells
+    description: Reference to an integer that will be updated with the count of individual
+      spells found within the specified spell group.
+  - name: usedGroups
+    description: Reference to an integer that will be updated with the count of nested
+      spell groups found within the specified spell group.
+  returns: null
+  examples:
+  - title: Count Spells and Groups in a Spell Group
+    code: 'SpellGroup myGroup = SPELL_GROUP_SET_BONUS_1;
+
+      int spellCount = 0;
+
+      int groupCount = 0;
+
+      spellMgr->GetSetOfSpellsInSpellGroup(myGroup, spellCount, groupCount);
+
+      TC_LOG_INFO(LOG_FILTER_SPELLS, "Spell Group %u contains %d spells and %d subgroups.",
+      myGroup, spellCount, groupCount);'
+    language: cpp
+  notes: This method is primarily used for internal spell system validation and debugging
+    purposes. The implementation relies on pre-loaded spell group data from the database,
+    so calling this method before spell loading may result in incorrect counts. Performance
+    impact is minimal as it only updates counters without retrieving full spell lists.
+  warnings: Ensure that the SpellGroup identifier passed to this method is valid and
+    corresponds to an existing group in the database; otherwise, results may be unpredictable
+    or lead to incorrect counts. This method modifies its parameters by reference,
+    so ensure variables are initialized before calling.
+  related:
+  - GetSpellGroupStackRules
+  - IsSpellInSpellGroup
+  - GetSpellGroupBySpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:23:07.942908'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

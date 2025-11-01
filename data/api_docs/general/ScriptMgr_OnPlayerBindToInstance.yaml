@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerBindToInstance
+  signature: void ScriptMgr::OnPlayerBindToInstance(Player * player, Difficulty difficulty,
+    uint32 mapid, bool permanent, uint8 extendState)
+documentation:
+  brief: Called when a player is bound to an instance, either permanently or temporarily.
+  description: This method is invoked by the TrinityCore server whenever a player
+    is bound to a specific dungeon or raid instance. It provides an opportunity for
+    scripts or modules to execute custom logic when such binding occurs. The binding
+    can be permanent (e.g., for heroic or mythic difficulties) or temporary (e.g.,
+    for normal difficulty). This event allows developers to modify behavior, send
+    messages, track player progress, or enforce restrictions based on the instance
+    binding.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that is being bound to an instance.
+  - name: difficulty
+    description: The difficulty level of the instance (e.g., DUNGEON_DIFFICULTY_NORMAL,
+      DUNGEON_DIFFICULTY_HEROIC).
+  - name: mapid
+    description: The unique identifier of the map (instance) to which the player is
+      bound.
+  - name: permanent
+    description: A boolean flag indicating whether the binding is permanent (true)
+      or temporary (false).
+  - name: extendState
+    description: An unsigned 8-bit integer representing the extension state of the
+      instance binding, typically used for tracking extended or shared instances.
+  returns: null
+  examples:
+  - title: 'Basic Example: Logging Instance Binding'
+    code: "void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32\
+      \ mapid, bool permanent, uint8 extendState) override {\n    sLog->outString(\"\
+      Player %s bound to instance %u (Difficulty: %u, Permanent: %s)\",\n        \
+      \            player->GetName().c_str(), mapid, difficulty,\n               \
+      \     permanent ? \"true\" : \"false\");\n}"
+    language: cpp
+  - title: 'Advanced Example: Granting Buff on Permanent Binding'
+    code: "void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32\
+      \ mapid, bool permanent, uint8 extendState) override {\n    if (permanent &&\
+      \ difficulty == DUNGEON_DIFFICULTY_HEROIC) {\n        // Apply a special buff\
+      \ for heroic instances\n        player->CastSpell(player, 123456, true); //\
+      \ Example spell ID\n    }\n}"
+    language: cpp
+  notes: This method is part of the global script manager and is executed in the context
+    of the server's core logic. It should not be used to block or delay execution
+    as it may affect performance. The extendState parameter is often used in custom
+    instance extensions or shared content.
+  warnings: Avoid performing heavy operations or blocking calls within this method,
+    as it can impact server responsiveness. Be cautious when modifying player state
+    during binding, as it may interfere with game mechanics or cause unexpected behavior.
+  related:
+  - OnPlayerEnterInstance
+  - OnPlayerLeaveInstance
+  - OnPlayerUnbindFromInstance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:27:07.023138'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

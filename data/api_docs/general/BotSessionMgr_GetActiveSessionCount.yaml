@@ -1,0 +1,47 @@
+api:
+  class: BotSessionMgr
+  method: GetActiveSessionCount
+  signature: uint32 BotSessionMgr::GetActiveSessionCount() const
+documentation:
+  brief: Returns the total count of active bot sessions managed by the BotSessionMgr
+    instance.
+  description: The GetActiveSessionCount method retrieves the number of currently
+    active bot sessions within the BotSessionMgr. This count represents all bot sessions
+    that are in an active state, meaning they are currently connected and processing
+    commands or actions. The method is typically used for monitoring, debugging, or
+    administrative purposes to understand the current load or usage of bot sessions
+    in the system. It provides a snapshot of active sessions at the time of the call
+    and does not account for any transient states during session transitions.
+  parameters: []
+  returns: A uint32 value representing the total number of active bot sessions managed
+    by this BotSessionMgr instance. Returns zero if no active sessions exist.
+  examples:
+  - title: Basic Usage to Monitor Active Sessions
+    code: 'uint32 activeCount = sBotSessionMgr->GetActiveSessionCount();
+
+      TC_LOG_INFO("bot", "Currently active bot sessions: %u", activeCount);'
+    language: cpp
+  - title: Using Count for Load Balancing Logic
+    code: "uint32 currentSessions = sBotSessionMgr->GetActiveSessionCount();\nif (currentSessions\
+      \ < MAX_BOT_SESSIONS)\n{\n    // Allow new bot session creation\n    CreateNewBotSession();\n\
+      }\nelse\n{\n    // Handle overload or queue new requests\n    TC_LOG_WARN(\"\
+      bot\", \"Maximum bot sessions reached: %u\", currentSessions);\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread. The returned
+    count reflects the state at the time of invocation, so it may change immediately
+    after the call if session states are modified concurrently. This method does not
+    include inactive or pending sessions in its count.
+  warnings: Be cautious when using this value for critical logic decisions as it is
+    a snapshot and may become outdated quickly. If used in performance-critical code
+    paths, consider caching the result to avoid frequent calls that could cause unnecessary
+    overhead.
+  related:
+  - GetSessionByGuid
+  - GetAllSessions
+  - IsSessionActive
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T16:51:51.217162'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

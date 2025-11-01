@@ -1,0 +1,53 @@
+api:
+  class: SmartScript
+  method: OnUpdate
+  signature: void SmartScript::OnUpdate(const uint32 diff)
+documentation:
+  brief: Updates the smart script AI behavior based on elapsed time since last update
+  description: The OnUpdate method is a core component of the SmartScript AI system
+    in TrinityCore, responsible for processing and executing AI behaviors at regular
+    intervals. This method is called by the game engine's main update loop with a
+    time delta parameter representing milliseconds since the last execution. It evaluates
+    all active smart script events, processes conditions, and triggers appropriate
+    actions based on the current state of the creature or game object. The method
+    ensures that AI behaviors are executed in a timely manner while respecting cooldowns
+    and event timing constraints.
+  parameters:
+  - name: diff
+    description: The time delta in milliseconds since the last OnUpdate execution.
+      This value represents how much time has passed since the previous update cycle,
+      allowing for precise timing of AI behaviors and events.
+  returns: null
+  examples:
+  - title: Basic AI Update Implementation
+    code: "void CreatureAI::UpdateAI(const uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    // Process smart script events\n    m_sSmartScript->OnUpdate(diff);\n\
+      \n    DoMeleeAttackIfReady();\n}"
+    language: cpp
+  - title: Advanced Smart Script Update with Event Handling
+    code: "void SmartScript::OnUpdate(const uint32 diff)\n{\n    // Process all active\
+      \ events\n    for (auto& event : m_events)\n    {\n        if (event.IsActive()\
+      \ && event.GetTimeUntilNextExecution() <= diff)\n        {\n            event.Execute();\n\
+      \            event.ResetTimer();\n        }\n    }\n\n    // Handle cooldowns\
+      \ and timing\n    UpdateCooldowns(diff);\n    ProcessConditions();\n}"
+    language: cpp
+  notes: This method is typically called from the creature or game object AI update
+    loop. The 'diff' parameter should be treated as a reliable time delta for timing-sensitive
+    operations. SmartScript events are processed in priority order, with higher-priority
+    events being executed first. Performance considerations include limiting the number
+    of active events and ensuring efficient condition checking.
+  warnings: Do not call this method directly from custom AI implementations unless
+    you understand the internal state management. The method assumes that all necessary
+    preconditions for event execution have been met. Improper handling of the diff
+    parameter can cause timing issues in AI behaviors.
+  related:
+  - SmartScript::OnCombatStart
+  - SmartScript::OnCombatEnd
+  - SmartScript::OnSpellCasted
+  - SmartScript::OnGossipHello
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:02:47.911000'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: SmartScript
+  method: AddToStoredTargetList
+  signature: void SmartScript::AddToStoredTargetList(const ObjectVector & targets,
+    uint32 id)
+documentation:
+  brief: Stores a list of target objects under a specified identifier for later use
+    in SmartScript AI behaviors.
+  description: The AddToStoredTargetList method allows SmartScript to store a collection
+    of GameObject or Unit objects under a unique identifier. This stored list can
+    then be referenced by other AI actions within the same script, enabling complex
+    targeting logic where multiple targets are gathered and reused across different
+    events or actions. The method does not perform any immediate action on the targets
+    themselves but simply registers them for future reference. It's commonly used
+    in scenarios where a group of objects needs to be selected once and then acted
+    upon repeatedly, such as in area-of-effect spells or multi-target attacks.
+  parameters:
+  - name: targets
+    description: A constant reference to an ObjectVector containing the list of GameObject
+      or Unit objects to be stored. These objects are typically gathered through prior
+      selection logic or direct targeting.
+  - name: id
+    description: A unique 32-bit unsigned integer identifier used to store and later
+      retrieve the target list. This ID must be distinct from other stored lists within
+      the same SmartScript instance to avoid overwriting existing entries.
+  returns: null
+  examples:
+  - title: Store nearby players for later use
+    code: "ObjectVector targets;\nfor (auto& unit : ai->GetUnitsInArea(10.0f))\n{\n\
+      \    if (unit->IsPlayer())\n        targets.push_back(unit);\n}\nai->AddToStoredTargetList(targets,\
+      \ 1);"
+    language: cpp
+  - title: Store multiple target types under different IDs
+    code: "ObjectVector players;\nObjectVector npcs;\nfor (auto& unit : ai->GetUnitsInArea(20.0f))\n\
+      {\n    if (unit->IsPlayer())\n        players.push_back(unit);\n    else if\
+      \ (unit->IsCreature())\n        npcs.push_back(unit);\n}\nai->AddToStoredTargetList(players,\
+      \ 100);\nai->AddToStoredTargetList(npcs, 200);"
+    language: cpp
+  notes: This method is part of the SmartScript AI system in TrinityCore and works
+    within the context of creature or gameobject AI scripts. The stored targets are
+    not automatically cleared after use; they persist until explicitly overwritten
+    or removed by another AddToStoredTargetList call with the same ID. The ObjectVector
+    parameter should contain valid pointers to objects that remain alive during the
+    script's execution.
+  warnings: Ensure that the target objects in the ObjectVector remain valid and accessible
+    throughout the script's lifetime, as referencing destroyed objects can cause crashes
+    or undefined behavior. Also, avoid using duplicate IDs for different target lists
+    as this will result in overwriting previously stored data.
+  related:
+  - GetStoredTargetList
+  - ClearStoredTargetList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:30:54.765357'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

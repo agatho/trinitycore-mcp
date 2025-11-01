@@ -1,0 +1,44 @@
+api:
+  class: TradeManager
+  method: GetNextFreeTradeSlot
+  signature: uint8 TradeManager::GetNextFreeTradeSlot() const
+documentation:
+  brief: Returns the next available trade slot index for a player's trade window.
+  description: The GetNextFreeTradeSlot method determines and returns the first unused
+    trade slot index within a player's trade window. In World of Warcraft's trading
+    system, each player can offer up to 7 items in a trade (6 items plus one additional
+    slot for the player's own item). This method is used internally by the TradeManager
+    to find an available slot when adding items to a trade. The returned value represents
+    a zero-based index (0-6) that corresponds to a specific trade slot. If no free
+    slots are available, the method may return a value indicating an error or invalid
+    state, though typically this case should be handled by checking if the trade is
+    full before calling this method.
+  parameters: []
+  returns: A uint8 value representing the index of the next available trade slot (0-6).
+    Returns 7 or higher if no slots are available, which may indicate an error condition
+    or full trade window.
+  examples:
+  - title: Check for Available Trade Slot
+    code: "uint8 freeSlot = tradeManager->GetNextFreeTradeSlot();\nif (freeSlot <\
+      \ 7)\n{\n    // Proceed with adding item to trade at slot 'freeSlot'\n    player->GetSession()->SendTradeUpdate(tradeManager,\
+      \ freeSlot);\n}\nelse\n{\n    // No free slots available\n    player->SendTradeStatus(TRADE_STATUS_TRADE_FULL);\n\
+      }"
+    language: cpp
+  notes: This method is typically called during trade operations to determine where
+    the next item should be placed. It's important to note that in TrinityCore, trade
+    slots are managed using a fixed-size array or bitfield, and this method likely
+    performs a linear scan or bit manipulation to find the first available slot.
+  warnings: Do not assume all return values from this method are valid indices. If
+    the trade window is full (i.e., all 7 slots are occupied), the returned value
+    may be out of bounds. Always validate that the returned index is within acceptable
+    range before using it to access trade data structures.
+  related:
+  - TradeManager::AddItemToTrade
+  - TradeManager::RemoveItemFromTrade
+  - TradeManager::GetTradeSlot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:12:34.716321'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

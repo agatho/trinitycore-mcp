@@ -1,0 +1,58 @@
+api:
+  class: ObjectMgr
+  method: GetAccessRequirement
+  signature: const AccessRequirement * ObjectMgr::GetAccessRequirement(uint32 mapid,
+    int difficulty) const
+documentation:
+  brief: Retrieves the access requirement for a specified map and difficulty level.
+  description: The GetAccessRequirement method fetches the AccessRequirement structure
+    associated with a given map ID and difficulty setting. This structure typically
+    contains information about prerequisites such as required items, quest completion,
+    or player level needed to enter a specific dungeon or raid instance. The method
+    is commonly used during zone entry checks to validate whether a player meets the
+    necessary conditions for accessing a particular content area. It returns a null
+    pointer if no access requirements are defined for the specified map and difficulty
+    combination.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the map or instance for which to retrieve
+      access requirements.
+  - name: difficulty
+    description: The difficulty level (normal, heroic, mythic, etc.) for which to
+      fetch access requirements. Valid values are typically 0-3 representing different
+      difficulty modes.
+  returns: A pointer to the AccessRequirement structure if requirements exist for
+    the specified map and difficulty; otherwise, returns nullptr.
+  examples:
+  - title: Basic usage to check dungeon access
+    code: "const AccessRequirement* req = sObjectMgr->GetAccessRequirement(1234, 0);\n\
+      if (req != nullptr)\n{\n    // Process access requirements\n    printf(\"Required\
+      \ item: %u\\n\", req->item);\n}"
+    language: cpp
+  - title: Checking if player can enter a raid instance
+    code: "uint32 mapId = 1001;\nint difficulty = 1; // Heroic\nconst AccessRequirement*\
+      \ accessReq = sObjectMgr->GetAccessRequirement(mapId, difficulty);\nif (accessReq\
+      \ == nullptr)\n{\n    // No special requirements for this instance\n    player->SendAreaTriggerMessage(\"\
+      Entering raid without restrictions.\");\n}\nelse\n{\n    // Check if player\
+      \ meets requirements\n    if (player->HasItemCount(accessReq->item, 1))\n  \
+      \  {\n        // Player can enter\n    }\n    else\n    {\n        // Send error\
+      \ message\n    }\n}"
+    language: cpp
+  notes: This method performs a lookup in an internal cache or database of access
+    requirements. It's typically called during player login or zone transition events.
+    The returned pointer is valid only for the lifetime of the ObjectMgr instance
+    and should not be stored or freed by callers.
+  warnings: The returned AccessRequirement pointer may be null, so always check for
+    nullptr before dereferencing. Also, note that difficulty levels are not standardized
+    across all instances and may vary depending on server configuration.
+  related:
+  - GetAccessRequirement
+  - LoadAccessRequirements
+  - IsDungeon
+  - IsRaid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T10:10:47.813250'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

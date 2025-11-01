@@ -1,0 +1,63 @@
+api:
+  class: AuraEffect
+  method: ChangeAmount
+  signature: void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply,
+    const AuraEffect * triggeredBy)
+documentation:
+  brief: Modifies the amount of an aura effect, optionally marking it for update and
+    handling stack/reapply logic.
+  description: The ChangeAmount method updates the numerical value (amount) associated
+    with an AuraEffect. This is commonly used to adjust the strength or duration of
+    buffs, debuffs, or other aura-based effects in World of Warcraft. The method supports
+    optional parameters to control how the change is applied, including marking the
+    aura for recalculation, handling stacking behavior, and tracking the triggering
+    effect. It's typically invoked when an aura's intensity needs to be modified dynamically
+    during gameplay, such as when a spell procs or a buff is refreshed.
+  parameters:
+  - name: newAmount
+    description: The new numerical value that will replace the current amount of the
+      aura effect. This can be positive or negative depending on whether the effect
+      is being increased or decreased.
+  - name: mark
+    description: If true, marks the aura for recalculation and update in the game
+      state. This ensures that dependent systems (like stat calculations) are notified
+      of the change.
+  - name: onStackOrReapply
+    description: Controls behavior when the aura is being stacked or re-applied. If
+      true, the method may handle stacking logic such as increasing stack count or
+      resetting duration.
+  - name: triggeredBy
+    description: A pointer to another AuraEffect that triggered this change. This
+      allows for tracking the origin of the modification, which is useful in complex
+      aura interactions and chaining effects.
+  returns: null
+  examples:
+  - title: Basic Amount Change
+    code: "AuraEffect* effect = unit->GetAuraEffect(SPELL_ID, EFFECT_INDEX);\nif (effect)\n\
+      {\n    effect->ChangeAmount(50, true, false, nullptr);\n}"
+    language: cpp
+  - title: Change Amount with Stack Handling
+    code: "AuraEffect* effect = unit->GetAuraEffect(SPELL_ID, EFFECT_INDEX);\nif (effect)\n\
+      {\n    AuraEffect* triggeredBy = unit->GetAuraEffect(TRIGGERING_SPELL, 0);\n\
+      \    effect->ChangeAmount(-20, true, true, triggeredBy);\n}"
+    language: cpp
+  notes: This method directly manipulates the aura's internal amount value and should
+    be used carefully to avoid unexpected behavior in aura stacking or application
+    logic. It is recommended to call this only when necessary, as frequent changes
+    may impact performance. The 'mark' parameter ensures proper updates across dependent
+    systems.
+  warnings: Incorrectly setting the 'newAmount' can lead to visual inconsistencies
+    or game mechanics breaking if not aligned with expected effect behavior. Avoid
+    calling ChangeAmount on aura effects that are currently being removed or destroyed,
+    as this could cause undefined behavior or crashes.
+  related:
+  - GetAmount
+  - SetAmount
+  - GetAura
+  - IsPositive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T13:39:50.251401'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

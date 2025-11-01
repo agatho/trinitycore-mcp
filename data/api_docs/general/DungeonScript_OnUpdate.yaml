@@ -1,0 +1,59 @@
+api:
+  class: DungeonScript
+  method: OnUpdate
+  signature: void DungeonScript::OnUpdate(int * player, uint32 diff)
+documentation:
+  brief: Updates the dungeon script state based on elapsed time since last update
+  description: The OnUpdate method is a core callback function in TrinityCore's DungeonScript
+    class that handles periodic updates for dungeon instances. This method is invoked
+    by the game engine at regular intervals to process game logic, manage timers,
+    check conditions, and update the state of dungeon-specific elements. It receives
+    a pointer to a player object and a time difference value representing milliseconds
+    since the last update call. The method allows dungeon scripts to implement dynamic
+    behaviors such as boss AI, quest progression, timer management, and event triggering
+    based on real-time game progression.
+  parameters:
+  - name: player
+    description: Pointer to the player object associated with this dungeon script
+      instance. May be nullptr if no player is currently in the dungeon or if the
+      script is being updated independently of a specific player.
+  - name: diff
+    description: Time difference in milliseconds since the last OnUpdate call. Used
+      to calculate time-based events, cooldowns, and timed actions within the dungeon
+      environment.
+  returns: null
+  examples:
+  - title: Basic timer-based logic implementation
+    code: "void DungeonScript::OnUpdate(int* player, uint32 diff)\n{\n    static uint32\
+      \ timer = 0;\n    timer += diff;\n    \n    if (timer >= 5000) // Update every\
+      \ 5 seconds\n    {\n        // Perform dungeon-specific logic here\n       \
+      \ timer = 0;\n    }\n}"
+    language: cpp
+  - title: Boss health and combat state management
+    code: "void DungeonScript::OnUpdate(int* player, uint32 diff)\n{\n    if (!boss\
+      \ || boss->IsDead())\n        return;\n    \n    // Handle boss AI behavior\n\
+      \    if (boss->GetHealthPct() < 30 && !hasWarned)\n    {\n        // Trigger\
+      \ special event\n        hasWarned = true;\n    }\n    \n    // Update combat\
+      \ timers\n    combatTimer += diff;\n}"
+    language: cpp
+  notes: The OnUpdate method is called from the game's main update loop, so performance
+    is critical. Avoid heavy computations or blocking operations within this function.
+    The 'player' parameter may be null during certain update cycles when the script
+    isn't directly tied to a specific player instance. Implementers should consider
+    using static variables for persistent state across calls.
+  warnings: Do not perform network operations or database queries directly in OnUpdate
+    as it can cause performance bottlenecks and potential deadlocks. Avoid modifying
+    game objects that might be accessed by other threads simultaneously. The diff
+    parameter represents actual elapsed time, so logic should account for potential
+    large jumps if the game is paused or suspended.
+  related:
+  - DungeonScript::OnInitialize
+  - DungeonScript::OnPlayerEnter
+  - DungeonScript::OnPlayerLeave
+  - DungeonScript::OnCreatureDeath
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T01:09:27.446980'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

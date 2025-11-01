@@ -1,0 +1,67 @@
+api:
+  class: InstanceLockMgr
+  method: CanJoinInstanceLock
+  signature: TransferAbortReason InstanceLockMgr::CanJoinInstanceLock(const int &
+    playerGuid, const MapDb2Entries & entries, const InstanceLock * instanceLock)
+    const
+documentation:
+  brief: Determines whether a player can join a specific instance lock based on their
+    permissions and the lock's restrictions.
+  description: The CanJoinInstanceLock method evaluates if a player, identified by
+    their GUID, is permitted to enter a particular instance lock. It checks various
+    conditions such as group membership, raid status, and permission levels against
+    the provided instance lock data. This method is crucial for enforcing instance
+    access rules in World of Warcraft's TrinityCore server implementation, ensuring
+    that players cannot bypass restrictions or enter instances they are not authorized
+    to access. The method returns a TransferAbortReason enum value indicating whether
+    the join attempt should be allowed or aborted with a specific reason.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player attempting to join the
+      instance lock. Must be a valid player GUID within the game world.
+  - name: entries
+    description: A reference to MapDb2Entries containing database entries for the
+      map or instance being accessed. These entries define the map's properties and
+      restrictions.
+  - name: instanceLock
+    description: Pointer to an InstanceLock object that defines the access restrictions
+      and permissions for the target instance. Can be null, in which case the method
+      may return a default abort reason.
+  returns: Returns a TransferAbortReason enum value indicating whether the player
+    can join the instance lock or not. Possible values include reasons such as TRANSFER_ABORT_NONE
+    (allow), TRANSFER_ABORT_INSUFFICIENT_LEVEL, TRANSFER_ABORT_DIFFICULTY, TRANSFER_ABORT_ZONE_IN_COMBAT,
+    etc.
+  examples:
+  - title: Basic usage to check if a player can join an instance
+    code: "InstanceLockMgr* lockMgr = sObjectAccessor->GetInstanceLockMgr();\nMapDb2Entries\
+      \ entries;\nInstanceLock* lock = nullptr;\nTransferAbortReason reason = lockMgr->CanJoinInstanceLock(playerGuid,\
+      \ entries, lock);\nif (reason == TRANSFER_ABORT_NONE) {\n    // Player can join\
+      \ the instance\n} else {\n    // Handle transfer abort based on reason\n}"
+    language: cpp
+  - title: Checking instance access with valid lock data
+    code: "InstanceLockMgr* mgr = sObjectAccessor->GetInstanceLockMgr();\nMapDb2Entries\
+      \ entries;\nInstanceLock* lock = sInstanceLockMgr->GetLockForMap(mapId);\nTransferAbortReason\
+      \ reason = mgr->CanJoinInstanceLock(playerGuid, entries, lock);\nswitch (reason)\
+      \ {\n    case TRANSFER_ABORT_NONE:\n        // Proceed with instance entry\n\
+      \        break;\n    case TRANSFER_ABORT_INSUFFICIENT_LEVEL:\n        // Notify\
+      \ player they are too low level\n        break;\n    default:\n        // Handle\
+      \ other abort reasons\n        break;\n}"
+    language: cpp
+  notes: This method is typically called during the instance entry process before
+    allowing a player to transfer. It's important to note that this function may perform
+    database lookups or cache checks depending on implementation details. The method
+    should be thread-safe as it's likely used in concurrent access scenarios.
+  warnings: Do not assume all parameters are valid; always check for null pointers
+    before calling this method. Improper handling of the returned TransferAbortReason
+    can lead to incorrect instance access control, potentially allowing unauthorized
+    players to enter restricted content.
+  related:
+  - GetInstanceLockMgr
+  - GetLockForMap
+  - CanEnterInstance
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T12:56:59.072096'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

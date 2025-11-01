@@ -1,0 +1,69 @@
+api:
+  class: Map
+  method: _GetScriptGameObjectSourceOrTarget
+  signature: GameObject * Map::_GetScriptGameObjectSourceOrTarget(Object * source,
+    Object * target, const ScriptInfo * scriptInfo, bool bReverse) const
+documentation:
+  brief: Retrieves the GameObject associated with a script source or target object
+    for use in game event handling.
+  description: The _GetScriptGameObjectSourceOrTarget method is an internal utility
+    function used within TrinityCore's scripting system to resolve GameObject references
+    from either a source or target Object in a ScriptInfo context. It evaluates the
+    provided source and target objects, along with script information, to determine
+    which GameObject should be used for further processing. This method plays a critical
+    role in event-driven gameplay mechanics where actions are triggered by interactions
+    involving GameObjects such as doors, chests, or quest-related objects. The bReverse
+    parameter controls whether the resolution logic should prioritize the target over
+    the source or vice versa. This function is typically invoked during script execution
+    when a game event requires access to a specific GameObject that is not directly
+    provided in the initial call.
+  parameters:
+  - name: source
+    description: The Object that serves as the starting point for resolving the GameObject
+      reference. Can be any type of Object such as Player, Creature, or GameObject
+      itself.
+  - name: target
+    description: The Object that may contain a reference to the GameObject being resolved.
+      Used in conjunction with source to determine which GameObject should be returned
+      based on script context.
+  - name: scriptInfo
+    description: A pointer to the ScriptInfo structure containing metadata about the
+      script execution context, including how the source and target objects should
+      be interpreted for GameObject resolution.
+  - name: bReverse
+    description: Boolean flag that determines the order of object evaluation. When
+      true, prioritizes the target object; when false, prioritizes the source object
+      during resolution.
+  returns: Returns a pointer to the resolved GameObject if one is found based on the
+    input parameters and script context. Returns nullptr if no valid GameObject can
+    be determined from the provided objects or if the script context does not support
+    GameObject resolution.
+  examples:
+  - title: Basic usage in script context
+    code: "GameObject* go = map->_GetScriptGameObjectSourceOrTarget(sourceObject,\
+      \ targetObject, &scriptInfo, false);\nif (go)\n{\n    // Process the resolved\
+      \ GameObject\n    go->Use(player);\n}"
+    language: cpp
+  - title: Using reverse flag for target priority
+    code: "GameObject* go = map->_GetScriptGameObjectSourceOrTarget(sourceObject,\
+      \ targetObject, &scriptInfo, true);\nif (go)\n{\n    // Target has priority\
+      \ in resolution\n    go->SetGoState(GO_STATE_ACTIVE);\n}"
+    language: cpp
+  notes: This is an internal method and should not be called directly by external
+    code. It is part of the core scripting engine and used primarily during event
+    handling or quest progression logic. The function relies heavily on the ScriptInfo
+    structure to make decisions about object resolution, so incorrect or incomplete
+    script data may lead to unexpected behavior.
+  warnings: Do not call this method outside of a proper script execution context as
+    it depends on internal state that may not be initialized correctly. Improper use
+    of bReverse flag can cause incorrect GameObject selection in complex event chains.
+  related:
+  - GetGameObject
+  - GetObjectByType
+  - GetScriptedObject
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T23:50:20.522864'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

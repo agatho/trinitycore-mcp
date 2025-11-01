@@ -1,0 +1,45 @@
+api:
+  class: Item
+  method: ClearBonuses
+  signature: void Item::ClearBonuses()
+documentation:
+  brief: Removes all active enchantment and bonus effects from the item.
+  description: The ClearBonuses method strips all temporary enchantments, stat bonuses,
+    and applied modifiers from an Item instance. This operation is typically used
+    when an item's state needs to be reset, such as during item destruction, transfer
+    between players, or when applying new enchantments. The method ensures that no
+    residual bonus effects remain on the item after execution. It operates on the
+    item's internal bonus tracking system and does not affect the base item properties
+    or its database representation.
+  parameters: []
+  returns: null
+  examples:
+  - title: Clear bonuses from a player's equipped weapon
+    code: "Player* player = ...;\nItem* weapon = player->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ EQUIPMENT_SLOT_MAINHAND);\nif (weapon)\n{\n    weapon->ClearBonuses();\n \
+      \   player->SendEquipError(EQUIP_ERR_NONE, weapon, NULL);\n}"
+    language: cpp
+  - title: Reset item bonuses before applying new enchantments
+    code: "void ApplyNewEnchantment(Player* player, Item* item, uint32 enchantId)\n\
+      {\n    item->ClearBonuses();\n    player->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT,\
+      \ false);\n    // ... additional logic for applying enchantment\n}"
+    language: cpp
+  notes: This method does not remove permanent enchantments or item upgrades; it only
+    clears temporary bonuses. The operation is atomic and safe to call from any thread
+    context where the item object is accessible. It may trigger client-side updates
+    if the item is currently equipped or displayed.
+  warnings: Calling ClearBonuses on an item that is currently equipped will cause
+    visual inconsistencies until the client receives updated information about the
+    item's state. Ensure proper synchronization with the player's UI and inventory
+    systems after calling this method.
+  related:
+  - Item::ApplyEnchantment
+  - Item::AddEnchantment
+  - Item::RemoveEnchantment
+  - Item::GetEnchantmentId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T11:29:04.361615'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

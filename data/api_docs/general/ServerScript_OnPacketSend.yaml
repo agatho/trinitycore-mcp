@@ -1,0 +1,61 @@
+api:
+  class: ServerScript
+  method: OnPacketSend
+  signature: void ServerScript::OnPacketSend(WorldSession * session, WorldPacket &
+    packet)
+documentation:
+  brief: Intercepts and processes outgoing packets before they are sent to a client
+    session.
+  description: The OnPacketSend method is a callback function in the ServerScript
+    class that allows custom scripts to intercept and modify outgoing WorldPackets
+    before they are transmitted to a specific client session. This method provides
+    a powerful mechanism for implementing game logic, packet filtering, or data manipulation
+    at the network level. It is invoked for every packet that is about to be sent
+    from the server to a player's client, enabling developers to inspect, alter, or
+    block packets based on custom conditions. The method operates within the context
+    of a WorldSession, which represents the connection between a specific client and
+    the server.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      that will receive the packet. This parameter provides access to session-specific
+      data such as player information, account details, and connection state.
+  - name: packet
+    description: Reference to the WorldPacket object containing the data that is about
+      to be sent to the client. This packet can be inspected and modified within the
+      method before it is transmitted.
+  returns: null
+  examples:
+  - title: Basic Packet Logging
+    code: "void MyServerScript::OnPacketSend(WorldSession* session, WorldPacket& packet)\n\
+      {\n    if (packet.GetOpcode() == SMSG_UPDATE_OBJECT)\n    {\n        sLog->outString(\"\
+      Sending UPDATE_OBJECT to player: %s\", session->GetPlayer()->GetName().c_str());\n\
+      \    }\n}"
+    language: cpp
+  - title: Packet Filtering
+    code: "void MyServerScript::OnPacketSend(WorldSession* session, WorldPacket& packet)\n\
+      {\n    // Block all SMSG_AUTH_CHALLENGE packets\n    if (packet.GetOpcode()\
+      \ == SMSG_AUTH_CHALLENGE)\n    {\n        packet.clear(); // Clear the packet\
+      \ to prevent sending\n    }\n}"
+    language: cpp
+  notes: This method is called synchronously during the packet transmission process,
+    so any heavy processing within this function may impact server performance. The
+    packet reference passed in can be modified directly, but care must be taken not
+    to corrupt packet structure or cause client-side errors. This callback is part
+    of TrinityCore's scripting system and requires proper registration with the script
+    manager.
+  warnings: Modifying packet contents can lead to client disconnections or unexpected
+    behavior if not handled correctly. Avoid changing packet opcodes unless absolutely
+    necessary, as this may break client-server protocol compatibility. Be cautious
+    when clearing packets entirely, as it could prevent important game state updates
+    from reaching players.
+  related:
+  - OnPacketReceive
+  - OnLogin
+  - OnLogout
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:41:41.068631'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

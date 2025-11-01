@@ -1,0 +1,61 @@
+api:
+  class: MotionMaster
+  method: MoveCloserAndStop
+  signature: void MotionMaster::MoveCloserAndStop(uint32 id, Unit * target, float
+    distance)
+documentation:
+  brief: Initiates a movement action to move closer to a target unit and stop at a
+    specified distance.
+  description: The MoveCloserAndStop method instructs the motion master to begin moving
+    the associated unit toward a specified target unit until it reaches a defined
+    distance from that target. This is commonly used in AI behavior for creatures
+    or NPCs to approach players or other units while maintaining a specific proximity.
+    The movement is typically executed as a pathfinding operation, and the unit will
+    stop once it gets within the given distance of the target. This method does not
+    block execution; instead, it schedules the movement action which will be processed
+    asynchronously by the motion system.
+  parameters:
+  - name: id
+    description: A unique identifier for this movement request, used to track or cancel
+      the motion later if needed.
+  - name: target
+    description: Pointer to the target Unit that the motion master will move toward.
+      Must not be null.
+  - name: distance
+    description: The minimum distance to maintain from the target unit upon completion
+      of movement. Must be non-negative.
+  returns: null
+  examples:
+  - title: Basic usage in AI behavior
+    code: "void ExampleCreatureAI::UpdateAI(uint32 diff)\n{\n    if (Player* player\
+      \ = GetHostileTarget())\n    {\n        // Move closer to the player but stop\
+      \ at 5 yards\n        me->GetMotionMaster()->MoveCloserAndStop(1, player, 5.0f);\n\
+      \    }\n}"
+    language: cpp
+  - title: Using with conditional movement
+    code: "void ExampleCreatureAI::DoCombatMovement()\n{\n    if (Unit* target = me->GetVictim())\n\
+      \    {\n        float currentDistance = me->GetDistance(target);\n        if\
+      \ (currentDistance > 10.0f)\n        {\n            // Move closer to the target\
+      \ unit\n            me->GetMotionMaster()->MoveCloserAndStop(2, target, 8.0f);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method utilizes the underlying pathfinding system of TrinityCore and
+    may not immediately execute the movement due to asynchronous processing. The motion
+    master will queue this action and process it according to its internal priority
+    and state management. It's important to ensure that the target unit remains valid
+    during the movement, as invalid pointers could lead to undefined behavior.
+  warnings: Passing a null pointer for 'target' can cause crashes or undefined behavior.
+    Ensure all parameters are validated before calling this method. Also, be cautious
+    when using this in rapid succession without checking previous motion states, as
+    overlapping movements may conflict or cancel each other.
+  related:
+  - MoveChase
+  - MoveFollow
+  - MoveTo
+  - Clear
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:38:40.865969'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: ObjectMgr
+  method: GetMailLevelReward
+  signature: const MailLevelReward * ObjectMgr::GetMailLevelReward(uint8 level, uint8
+    race) const
+documentation:
+  brief: Retrieves the mail reward structure for a given level and race combination.
+  description: The GetMailLevelReward method fetches the MailLevelReward object that
+    defines the mail rewards associated with a specific player level and race. This
+    is used internally by the TrinityCore server to determine what items or currency
+    a player should receive when they are eligible for level-based mail rewards. The
+    method performs a lookup in an internal data structure containing pre-defined
+    reward entries, indexed by level and race. It's typically invoked during player
+    login or level-up events to ensure proper reward distribution. The returned pointer
+    is valid only as long as the ObjectMgr instance remains active and should not
+    be stored for later use.
+  parameters:
+  - name: level
+    description: The character level for which to retrieve the mail reward. Valid
+      range depends on server configuration but typically spans from 1 to maximum
+      player level (e.g., 80 or 100).
+  - name: race
+    description: The race ID of the player for whom to retrieve the mail reward. Must
+      correspond to a valid race defined in the game's database (e.g., Human = 1,
+      Orc = 2, etc.).
+  returns: A pointer to a const MailLevelReward structure if a matching entry is found;
+    otherwise, returns nullptr if no mail reward exists for the specified level and
+    race combination.
+  examples:
+  - title: Basic Usage Example
+    code: "const MailLevelReward* reward = sObjectMgr->GetMailLevelReward(10, RACE_HUMAN);\n\
+      if (reward)\n{\n    // Process the mail reward\n    sLog->outString(\"Found\
+      \ mail reward for level 10 Human: %u gold\", reward->gold);\n}"
+    language: cpp
+  - title: Level-Up Reward Check
+    code: "void Player::OnLevelUp()\n{\n    const MailLevelReward* reward = sObjectMgr->GetMailLevelReward(getLevel(),\
+      \ getRace());\n    if (reward && reward->mailTemplateId)\n    {\n        //\
+      \ Send the level-up mail\n        MailSender sender(MAIL_NORMAL, 0, MAIL_CHECK_MASK_IN_MAIL);\n\
+      \        sMailSystem->SendMail(&sender, GetSession()->GetPlayer(), reward->mailTemplateId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that MailLevelReward data has been loaded into memory
+    via the ObjectMgr's initialization process. The internal lookup mechanism uses
+    a map structure optimized for fast retrieval by level and race combination. Be
+    aware that this method does not perform any validation on input parameters beyond
+    basic type checks, so invalid inputs might return nullptr without error.
+  warnings: Do not store the returned pointer beyond the scope of the current function
+    call as it may become invalid if the ObjectMgr's internal data structures are
+    modified or reloaded. Also, be cautious when using this method in high-frequency
+    code paths due to potential map lookups that could impact performance under heavy
+    load.
+  related:
+  - LoadMailLevelRewards
+  - GetMailTemplate
+  - GetPlayerLevelReward
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T09:29:49.247794'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

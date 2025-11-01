@@ -1,0 +1,50 @@
+api:
+  class: ReputationMgr
+  method: SaveToDB
+  signature: void ReputationMgr::SaveToDB(int trans)
+documentation:
+  brief: Saves the player's reputation data to the database with optional transaction
+    support.
+  description: The SaveToDB method persists all current reputation values for a player
+    character into the database. This method is typically invoked during player logout
+    or at regular intervals to ensure that reputation changes are not lost. It supports
+    an optional transaction parameter which allows the operation to be part of a larger
+    database transaction, ensuring data consistency across multiple related operations.
+    The method handles the serialization and storage of all faction reputations associated
+    with the player's character.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided, the reputation
+      data will be saved within the context of this transaction. A value of -1 indicates
+      no transaction is used, and the operation will use a direct database write.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: player->GetReputationMgr()->SaveToDB();
+    language: cpp
+  - title: Usage with Transaction
+    code: 'Transaction* trans = new Transaction();
+
+      player->GetReputationMgr()->SaveToDB(trans);
+
+      // Perform other database operations using the same transaction
+
+      trans->Execute();'
+    language: cpp
+  notes: This method should be called before a player logs out to ensure reputation
+    data is not lost. It's typically invoked automatically by the core during logout
+    procedures, but can also be manually triggered for periodic saves or in special
+    circumstances. The method may block briefly while writing to the database.
+  warnings: Calling this method without proper transaction handling in multi-operation
+    scenarios might lead to inconsistent data states. Ensure that any active transaction
+    is properly committed or rolled back after calling this method.
+  related:
+  - GetReputationMgr
+  - LoadFromDB
+  - SetReputation
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T20:45:10.719180'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

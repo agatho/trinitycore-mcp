@@ -1,0 +1,65 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetToConditions
+  signature: bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo & sourceInfo,
+    const ConditionContainer & conditions) const
+documentation:
+  brief: Evaluates whether an object meets the specified condition requirements.
+  description: The IsObjectMeetToConditions method checks if a given object, represented
+    by ConditionSourceInfo, satisfies all conditions defined in a ConditionContainer.
+    This method is used extensively in TrinityCore for validating game events, quest
+    progress, NPC interactions, and other conditional logic. It performs a comprehensive
+    evaluation of each condition within the container against the provided source
+    information, returning true only if all conditions are met. The method supports
+    complex nested conditions and various condition types including player status,
+    item possession, quest completion, and more.
+  parameters:
+  - name: sourceInfo
+    description: Reference to ConditionSourceInfo containing the object context and
+      data needed for condition evaluation. This includes information about the player,
+      creature, game object, or other entity being evaluated.
+  - name: conditions
+    description: Const reference to ConditionContainer holding the collection of conditions
+      that must be satisfied. Each condition in the container defines a specific requirement
+      that the source object must meet.
+  returns: Boolean value indicating whether all conditions in the container are satisfied
+    by the provided source information. Returns true if all conditions are met, false
+    otherwise.
+  examples:
+  - title: Basic Condition Check
+    code: "ConditionSourceInfo sourceInfo;\nsourceInfo.SetSourceEntry(12345);\nsourceInfo.SetSourceType(CONDITION_SOURCE_TYPE_CREATURE);\n\
+      \nConditionContainer conditions;\nconditions.push_back(Condition(CONDITION_AURA,\
+      \ 1001, 0, 0));\n\nbool result = sConditionMgr->IsObjectMeetToConditions(sourceInfo,\
+      \ conditions);\nif (result)\n{\n    // All conditions met\n    sLog->outString(\"\
+      Creature meets all conditions\");\n}"
+    language: cpp
+  - title: Quest Completion Check
+    code: "ConditionSourceInfo sourceInfo;\nsourceInfo.SetSourceType(CONDITION_SOURCE_TYPE_PLAYER);\n\
+      sourceInfo.SetSourceEntry(12345);\nsourceInfo.SetSourceGUID(ObjectGuid::Create<HighGuid::Player>(12345));\n\
+      \nConditionContainer conditions;\nconditions.push_back(Condition(CONDITION_QUEST_REWARDED,\
+      \ 1001, 0, 0));\nconditions.push_back(Condition(CONDITION_QUEST_AVAILABLE, 1002,\
+      \ 0, 0));\n\nbool result = sConditionMgr->IsObjectMeetToConditions(sourceInfo,\
+      \ conditions);\nif (result)\n{\n    // Player has completed quest 1001 and has\
+      \ quest 1002 available\n    sLog->outString(\"Player meets quest requirements\"\
+      );\n}"
+    language: cpp
+  notes: This method performs deep evaluation of all conditions in the container,
+    which may impact performance if used excessively. The ConditionSourceInfo should
+    be properly initialized with correct source type and entry values for accurate
+    results. The method handles nested conditions recursively and supports multiple
+    condition types defined by the TrinityCore condition system.
+  warnings: Ensure that ConditionSourceInfo is correctly populated with valid source
+    data before calling this method, as invalid or missing information will lead to
+    incorrect evaluation results. Be cautious when using this method in performance-critical
+    code paths due to potential recursive condition evaluation overhead.
+  related:
+  - GetCondition
+  - AddCondition
+  - RemoveCondition
+  - CheckConditionContainer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T15:58:43.372587'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

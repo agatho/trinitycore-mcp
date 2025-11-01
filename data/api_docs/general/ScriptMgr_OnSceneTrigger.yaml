@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnSceneTrigger
+  signature: void ScriptMgr::OnSceneTrigger(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate, const std::string & triggerName)
+documentation:
+  brief: Invoked when a player triggers a scene event in the game world.
+  description: The OnSceneTrigger method is a callback function within the ScriptMgr
+    class that gets executed whenever a player interacts with or activates a scene
+    trigger. Scenes in TrinityCore are used to create cinematic sequences, quest events,
+    or other interactive narrative elements. This method provides scripters with an
+    opportunity to execute custom logic when such triggers occur, allowing for dynamic
+    event handling and integration of custom behaviors into the game's scene system.
+    The method is called during the scene activation process, providing access to
+    both the player who triggered it and metadata about the scene itself.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who triggered the scene. This represents
+      the specific player instance that caused the event.
+  - name: sceneInstanceID
+    description: Unique identifier for the specific instance of the scene being triggered.
+      Used to distinguish between multiple instances of the same scene template.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object that defines the structure and
+      properties of the scene being activated.
+  - name: triggerName
+    description: String identifier for the specific trigger point within the scene.
+      This allows scripts to differentiate between multiple triggers in a single scene.
+  returns: null
+  examples:
+  - title: Basic Scene Trigger Handler
+    code: "void MyScript::OnSceneTrigger(Player* player, uint32 sceneInstanceID, const\
+      \ SceneTemplate* sceneTemplate, const std::string& triggerName)\n{\n    if (triggerName\
+      \ == \"QuestStart\")\n    {\n        player->SendMovieStart(12345);\n      \
+      \  player->CompleteQuest(1234);\n    }\n}"
+    language: cpp
+  - title: Advanced Scene Trigger with Conditional Logic
+    code: "void MyScript::OnSceneTrigger(Player* player, uint32 sceneInstanceID, const\
+      \ SceneTemplate* sceneTemplate, const std::string& triggerName)\n{\n    if (sceneTemplate->GetSceneType()\
+      \ == SCENE_TYPE_QUEST && triggerName == \"CutsceneEnd\")\n    {\n        //\
+      \ Award quest rewards\n        player->AddItem(ITEM_ID_REWARD, 1);\n       \
+      \ player->SendAreaTriggerMessage(\"Quest completed!\");\n        \n        //\
+      \ Log the completion\n        sLog->outString(\"Player %s completed scene %u\"\
+      , player->GetName().c_str(), sceneInstanceID);\n    }\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's scripting system and is typically implemented
+    by custom scripts or modules. The sceneInstanceID uniquely identifies each scene
+    instance, which is important for tracking multiple concurrent scenes. Scripters
+    should be aware that this function may be called from different threads depending
+    on how the scene system is configured.
+  warnings: Ensure proper validation of player state before modifying their inventory
+    or quest data. Avoid performing heavy computations in this method as it can impact
+    performance during scene execution. Be careful not to cause infinite loops by
+    triggering scenes recursively through this callback.
+  related:
+  - OnSceneStart
+  - OnSceneComplete
+  - OnSceneCancel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:05:05.769711'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

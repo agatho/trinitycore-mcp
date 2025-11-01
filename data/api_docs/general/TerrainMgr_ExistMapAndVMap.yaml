@@ -1,0 +1,63 @@
+api:
+  class: TerrainMgr
+  method: ExistMapAndVMap
+  signature: bool TerrainMgr::ExistMapAndVMap(uint32 mapid, float x, float y)
+documentation:
+  brief: Checks whether a map and its corresponding virtual map (VMap) exist for the
+    given coordinates.
+  description: The ExistMapAndVMap method determines if both a map and its associated
+    virtual map (VMap) are available for the specified location. This is crucial for
+    determining if terrain data and collision detection information is accessible
+    for a particular coordinate within the game world. The method typically checks
+    internal lookup tables or data structures that maintain which maps have been loaded
+    and initialized in memory. It's commonly used before performing operations that
+    require map-specific data, such as pathfinding, line-of-sight calculations, or
+    object placement validation.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the map to check for existence. This corresponds
+      to the Map ID used internally by TrinityCore's world management system.
+  - name: x
+    description: The X coordinate in global world space to validate against the map's
+      boundaries and VMap availability.
+  - name: y
+    description: The Y coordinate in global world space to validate against the map's
+      boundaries and VMap availability.
+  returns: Returns true if both the map and its associated virtual map (VMap) exist
+    and are loaded for the given coordinates; otherwise, returns false. A return value
+    of false may indicate that the specified map ID is invalid, or that the coordinates
+    fall outside of any loaded map area.
+  examples:
+  - title: Basic Usage to Validate Map Coordinates
+    code: "if (sTerrainMgr->ExistMapAndVMap(0, 100.0f, 200.0f)) {\n    // Proceed\
+      \ with operations requiring map data\n    printf(\"Valid map and VMap found\
+      \ at coordinates\\n\");\n} else {\n    // Handle invalid map or missing VMap\
+      \ case\n    printf(\"No valid map/VMap for specified coordinates\\n\");\n}"
+    language: cpp
+  - title: Preventing Invalid Map Operations
+    code: "void Player::HandleTeleportRequest(uint32 targetMapId, float x, float y)\
+      \ {\n    if (!sTerrainMgr->ExistMapAndVMap(targetMapId, x, y)) {\n        SendErrorMessage(\"\
+      Invalid destination: map or VMap not available\");\n        return;\n    }\n\
+      \    // Safe to proceed with teleportation logic\n}"
+    language: cpp
+  notes: This method relies on internal state tracking of loaded maps and VMaps. It
+    does not load missing data but merely checks what is already present in memory.
+    Performance-wise, it should be fast as it typically involves hash table lookups
+    or simple boundary checks. The method assumes that map IDs are valid and that
+    the coordinate system follows TrinityCore's standard world coordinates.
+  warnings: This method only validates existence of loaded maps and VMaps; it does
+    not guarantee that the specified coordinates are within a walkable area or that
+    the map is fully initialized for gameplay operations. Using this method without
+    proper error handling can lead to crashes or undefined behavior if downstream
+    code assumes valid data after calling this function.
+  related:
+  - TerrainMgr::LoadMap
+  - TerrainMgr::LoadVMap
+  - TerrainMgr::GetMap
+  - TerrainMgr::HasMap
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:34:54.835643'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: BotThreatManager
+  method: GetMetrics
+  signature: const ThreatMetrics & BotThreatManager::GetMetrics() const
+documentation:
+  brief: Returns the threat metrics associated with the bot's current combat state
+  description: The GetMetrics method retrieves a constant reference to the ThreatMetrics
+    structure that contains detailed information about the bot's current threat level,
+    aggro status, and combat-related metrics. This data is essential for AI decision-making
+    in combat scenarios, helping the bot determine when to switch targets, use abilities,
+    or reposition. The returned metrics typically include values such as threat percentage,
+    target aggro level, and time-based threat decay information. The method does not
+    modify any internal state and provides a snapshot of the current threat situation
+    at the moment of invocation.
+  parameters: []
+  returns: A constant reference to a ThreatMetrics object containing current combat
+    threat data including threat percentages, target aggro levels, and related timing
+    metrics
+  examples:
+  - title: Basic Usage Example
+    code: "void BotAI::UpdateThreatStatus()\n{\n    const ThreatMetrics& metrics =\
+      \ bot->GetThreatManager()->GetMetrics();\n    if (metrics.threatPercentage >\
+      \ 90.0f)\n    {\n        // Bot is at high threat level\n        bot->CastSpell(target,\
+      \ SPELL_FLEE, true);\n    }\n}"
+    language: cpp
+  - title: Advanced Threat Analysis
+    code: "bool BotAI::ShouldSwitchTarget()\n{\n    const ThreatMetrics& metrics =\
+      \ bot->GetThreatManager()->GetMetrics();\n    \n    // Check if current target\
+      \ is too dangerous\n    if (metrics.threatPercentage > 85.0f && metrics.timeToKill\
+      \ < 3.0f)\n    {\n        return true; // Switch to a safer target\n    }\n\
+      \    \n    // Check for threat decay\n    if (metrics.aggressionLevel == AGGRO_LEVEL_HIGH\
+      \ && metrics.threatDecayRate > 0.5f)\n    {\n        return true; // Threat\
+      \ is decaying quickly, safe to switch\n    }\n    \n    return false;\n}"
+    language: cpp
+  notes: The returned ThreatMetrics reference is valid only until the next call to
+    GetMetrics or until the threat manager's state changes. This method should not
+    be called from multiple threads simultaneously without proper synchronization.
+    The metrics are updated during combat updates and may not reflect real-time changes
+    between combat ticks.
+  warnings: Do not modify the returned ThreatMetrics object as it is const. Modifying
+    it could lead to undefined behavior. Be aware that the threat metrics might become
+    stale if accessed outside of combat update cycles.
+  related:
+  - GetThreatLevel
+  - IsCurrentTargetThreatening
+  - UpdateThreat
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T16:45:58.642991'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: Group
+  method: SetTargetIcon
+  signature: void Group::SetTargetIcon(int symbol, int target, int changedBy)
+documentation:
+  brief: Sets the target icon for a group member.
+  description: The SetTargetIcon method assigns a specific icon symbol to a target
+    player within the group. This functionality is used in World of Warcraft to visually
+    indicate targets such as raid markers or loot assignments. The method updates
+    the group's target icon data and broadcasts the change to all group members. It
+    requires proper permissions and valid symbol/target values to function correctly.
+  parameters:
+  - name: symbol
+    description: 'The icon symbol to assign (0-7). Valid values correspond to standard
+      raid marker icons: 0=none, 1=skull, 2=cross, 3=star, 4=circle, 5=diamond, 6=triangle,
+      7=moon.'
+  - name: target
+    description: The GUID of the target player whose icon will be set. Must be a valid
+      player GUID within the group.
+  - name: changedBy
+    description: The GUID of the player who initiated the icon change. Used for tracking
+      and validation purposes.
+  returns: null
+  examples:
+  - title: Set a Skull Icon on Target Player
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    ObjectGuid targetGuid\
+      \ = player->GetTarget();\n    ObjectGuid changerGuid = player->GetGUID();\n\
+      \    group->SetTargetIcon(1, targetGuid, changerGuid);\n}"
+    language: cpp
+  - title: Assign Star Marker to Raid Member
+    code: "Group* group = player->GetGroup();\nif (group && player->IsInRaid())\n\
+      {\n    Player* targetPlayer = ObjectAccessor::FindPlayer(targetGuid);\n    if\
+      \ (targetPlayer && targetPlayer->GetGroup() == group)\n    {\n        group->SetTargetIcon(3,\
+      \ targetGuid, player->GetGUID());\n    }\n}"
+    language: cpp
+  notes: This method only works for players within the same group. The icon symbol
+    values are limited to 0-7 as defined by the game's raid marker system. Changes
+    are automatically synchronized to all group members through the TrinityCore packet
+    system.
+  warnings: Ensure that the target player is actually part of the group before calling
+    this method, otherwise it may cause undefined behavior or client-side errors.
+    The changedBy parameter should always be set to the actual player performing the
+    action for proper tracking.
+  related:
+  - GetTargetIcon
+  - RemoveTargetIcon
+  - SendTargetIconUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T16:29:01.581737'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

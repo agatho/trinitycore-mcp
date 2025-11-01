@@ -1,0 +1,70 @@
+api:
+  class: ScriptMgr
+  method: OnDynamicObjectUpdate
+  signature: void ScriptMgr::OnDynamicObjectUpdate(DynamicObject * dynobj, uint32
+    diff)
+documentation:
+  brief: Updates dynamic object state with the specified time delta.
+  description: The OnDynamicObjectUpdate method is a callback function invoked by
+    the TrinityCore server framework to update the state of a dynamic object at regular
+    intervals. This method is part of the script manager's event handling system and
+    allows custom scripts to modify or react to changes in dynamic objects such as
+    area triggers, spell effects, or environmental elements. The method receives a
+    pointer to the dynamic object being updated and the time delta (in milliseconds)
+    since the last update, enabling precise timing-based logic for object behavior.
+    This callback is typically used for implementing timed effects, periodic actions,
+    or state transitions within dynamic game objects.
+  parameters:
+  - name: dynobj
+    description: Pointer to the DynamicObject instance that needs updating. This represents
+      a temporary game object created by spells or other game mechanics, such as area
+      aura effects, trap triggers, or environmental effects.
+  - name: diff
+    description: Time delta in milliseconds since the last update call for this dynamic
+      object. This value is used to calculate time-based behaviors and ensure consistent
+      timing regardless of frame rate or server load.
+  returns: null
+  examples:
+  - title: Basic Dynamic Object Update Handler
+    code: "void MyScript::OnDynamicObjectUpdate(DynamicObject* dynobj, uint32 diff)\n\
+      {\n    if (!dynobj)\n        return;\n\n    // Apply a periodic effect every\
+      \ 1000ms\n    static uint32 timer = 0;\n    timer += diff;\n    \n    if (timer\
+      \ >= 1000)\n    {\n        // Apply damage to nearby players\n        std::list<Player*>\
+      \ players;\n        dynobj->GetPlayerListInGrid(players, 5.0f);\n        for\
+      \ (auto& player : players)\n        {\n            if (player && player->IsAlive())\n\
+      \                player->CastSpell(player, 12345, true); // Example spell\n\
+      \        }\n        timer = 0;\n    }\n}"
+    language: cpp
+  - title: Advanced Dynamic Object State Management
+    code: "void MyScript::OnDynamicObjectUpdate(DynamicObject* dynobj, uint32 diff)\n\
+      {\n    if (!dynobj || !dynobj->GetCaster())\n        return;\n\n    // Handle\
+      \ fading effect over time\n    uint32 duration = dynobj->GetDuration();\n  \
+      \  if (duration > 0)\n    {\n        uint32 newDuration = duration - diff;\n\
+      \        if (newDuration <= 0)\n        {\n            // Object should be removed\n\
+      \            dynobj->Remove();\n            return;\n        }\n        \n \
+      \       // Update visual effects or particle systems\n        dynobj->SetDuration(newDuration);\n\
+      \    }\n    \n    // Handle periodic aura application\n    static uint32 auraTimer\
+      \ = 0;\n    auraTimer += diff;\n    \n    if (auraTimer >= 500)\n    {\n   \
+      \     // Apply periodic aura effect to nearby units\n        dynobj->ApplyAuraToNearbyUnits(12345,\
+      \ 3.0f); // Example aura application\n        auraTimer = 0;\n    }\n}"
+    language: cpp
+  notes: This method is called from the main game loop and should avoid heavy computations
+    or blocking operations to prevent server lag. The diff parameter provides accurate
+    timing information that can be used for smooth animations, timed effects, or gradual
+    state changes. Dynamic objects are automatically cleaned up when their duration
+    expires, but scripts can manually remove them using the Remove() method.
+  warnings: Do not modify the dynamic object's duration directly without considering
+    its intended behavior; this may cause unexpected visual or gameplay effects. Avoid
+    performing expensive operations within this callback as it is invoked frequently
+    for all active dynamic objects. Be cautious when accessing player lists or applying
+    effects to ensure proper null checks and validity checks.
+  related:
+  - OnDynamicObjectCreate
+  - OnDynamicObjectRemove
+  - OnGameObjectUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:12:05.954896'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

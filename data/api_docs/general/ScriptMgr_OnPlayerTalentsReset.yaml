@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerTalentsReset
+  signature: void ScriptMgr::OnPlayerTalentsReset(Player * player, bool noCost)
+documentation:
+  brief: Invoked when a player's talents are reset, allowing scripts to execute custom
+    logic during the reset process.
+  description: The OnPlayerTalentsReset method is a hook in the ScriptMgr class that
+    gets called whenever a player's talent points are reset. This typically occurs
+    when a player uses a talent reset spell or item, such as the Mage's Arcane Brilliance
+    or a custom talent reset NPC. The method provides an opportunity for script developers
+    to implement custom behavior, such as adjusting player stats, sending messages,
+    or modifying quest progress. It is part of TrinityCore's extensible scripting
+    system that allows server administrators and developers to customize gameplay
+    mechanics without modifying core server code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose talents are being reset. This
+      parameter provides access to all player-related data and methods during the
+      reset event.
+  - name: noCost
+    description: Boolean flag indicating whether the talent reset was performed without
+      cost (e.g., using a free reset item). If true, the reset occurred at no charge;
+      if false, it may have consumed resources like gold or quest items.
+  returns: null
+  examples:
+  - title: Basic Talent Reset Handler
+    code: "void OnPlayerTalentsReset(Player* player, bool noCost) override\n{\n  \
+      \  if (noCost)\n        ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Your talents have been reset for free!\");\n    else\n        ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Your talents have been reset.\");\n}"
+    language: cpp
+  - title: Custom Stat Adjustment on Talent Reset
+    code: "void OnPlayerTalentsReset(Player* player, bool noCost) override\n{\n  \
+      \  if (player->getClass() == CLASS_WARRIOR)\n    {\n        // Increase attack\
+      \ power temporarily after reset\n        player->SetModifierValue(PLAYER_MOD_ATTACK_POWER,\
+      \ 100);\n        player->UpdateAttackPower();\n    }\n}"
+    language: cpp
+  notes: This method is called during the talent reset process and should not block
+    execution for extended periods. It's recommended to avoid heavy computations or
+    database operations within this handler to maintain server performance. The 'noCost'
+    parameter allows scripts to differentiate between free and paid resets, which
+    can be useful for implementing premium features or balancing game economy.
+  warnings: Do not modify player data in ways that could cause inconsistencies with
+    the client's UI or cause crashes. Ensure all modifications are consistent with
+    the expected behavior of a talent reset. Avoid calling methods that might recursively
+    trigger this event to prevent stack overflow.
+  related:
+  - OnPlayerLevelChanged
+  - OnPlayerLearnTalent
+  - OnPlayerTalentReset
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:12:24.531126'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

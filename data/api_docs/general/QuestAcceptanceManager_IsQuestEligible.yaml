@@ -1,0 +1,55 @@
+api:
+  class: QuestAcceptanceManager
+  method: IsQuestEligible
+  signature: bool QuestAcceptanceManager::IsQuestEligible(const int * quest) const
+documentation:
+  brief: Determines whether a player is eligible to accept a specified quest based
+    on quest requirements and player state.
+  description: The IsQuestEligible method evaluates if a player can accept a given
+    quest by checking various conditions such as level requirements, previous quest
+    completion, class restrictions, race limitations, and other in-game prerequisites.
+    This method is typically invoked when a player attempts to accept a quest from
+    an NPC or quest giver. It ensures that the player meets all necessary criteria
+    before allowing the quest to be added to their quest log. The method returns true
+    if all conditions are satisfied, otherwise false. This functionality is integral
+    to maintaining game balance and ensuring players progress through quests in the
+    intended order.
+  parameters:
+  - name: quest
+    description: Pointer to an integer representing the quest ID to evaluate for eligibility.
+      Must point to a valid quest entry in the database.
+  returns: Returns true if the player meets all requirements to accept the specified
+    quest, false otherwise. A return value of false may indicate missing prerequisites,
+    incorrect level, unmet previous quest completion, or other restriction violations.
+  examples:
+  - title: Basic Quest Eligibility Check
+    code: "if (questManager.IsQuestEligible(&questId)) {\n    // Player can accept\
+      \ the quest\n    player->AddQuest(questId);\n} else {\n    // Player cannot\
+      \ accept the quest\n    player->SendQuestFailed(questId);\n}"
+    language: cpp
+  - title: Integration with Quest Giver Interaction
+    code: "void Player::OnQuestGiverHello(ObjectGuid questGiverGuid, uint32 questId)\
+      \ {\n    if (questManager.IsQuestEligible(&questId)) {\n        // Proceed with\
+      \ quest acceptance logic\n        SendQuestDetails(questId);\n    } else {\n\
+      \        // Handle ineligible quest case\n        SendQuestFailed(questId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely performs database lookups and checks against player state
+    including level, completed quests, and class/race restrictions. It should be called
+    before attempting to add a quest to the player's log to prevent invalid quest
+    acceptance. The method may cache results for performance in frequent checks.
+  warnings: Ensure that the quest ID passed is valid and exists in the database; passing
+    an invalid pointer or non-existent quest ID could lead to undefined behavior.
+    This method does not perform any side effects like modifying player state, it
+    only evaluates eligibility.
+  related:
+  - QuestAcceptanceManager::CanPlayerAcceptQuest
+  - QuestAcceptanceManager::IsQuestComplete
+  - Player::AddQuest
+  - Player::HasQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T07:50:55.406482'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

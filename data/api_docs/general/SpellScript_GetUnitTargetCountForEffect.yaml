@@ -1,0 +1,62 @@
+api:
+  class: SpellScript
+  method: GetUnitTargetCountForEffect
+  signature: int SpellScript::GetUnitTargetCountForEffect(int effect) const
+documentation:
+  brief: Returns the number of unit targets affected by a specific spell effect.
+  description: The GetUnitTargetCountForEffect method retrieves the count of unit
+    targets that are affected by a given spell effect within the current spell's context.
+    This method is typically used in SpellScript implementations to determine how
+    many units a spell has targeted for a particular effect index. The effect index
+    corresponds to the order of effects defined in the spell's database entry, and
+    this count can be crucial for conditional logic or dynamic behavior based on target
+    numbers. It should only be called during the execution of a spell script where
+    the spell context is active.
+  parameters:
+  - name: effect
+    description: The index of the spell effect for which to retrieve the unit target
+      count. This corresponds to the order of effects in the spell's database definition
+      (0-based indexing). Valid values are typically between 0 and the total number
+      of effects defined for the spell.
+  returns: An integer representing the number of unit targets affected by the specified
+    spell effect. Returns 0 if no units are targeted or if the effect index is invalid.
+    Negative values should not be expected, but may indicate an error in script logic
+    or spell data.
+  examples:
+  - title: Basic usage to check target count for first effect
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleAfterHit()\
+      \ override\n    {\n        int targetCount = GetUnitTargetCountForEffect(0);\n\
+      \        if (targetCount > 0)\n        {\n            // Apply additional logic\
+      \ based on number of targets\n            SendSystemMessage(\"Spell affected\
+      \ \" + std::to_string(targetCount) + \" units.\");\n        }\n    }\n};"
+    language: cpp
+  - title: Using target count for conditional damage scaling
+    code: "class DamageScalingSpellScript : public SpellScript\n{\npublic:\n    void\
+      \ HandleDamageCalc() override\n    {\n        int effect1Targets = GetUnitTargetCountForEffect(0);\n\
+      \        int effect2Targets = GetUnitTargetCountForEffect(1);\n        \n  \
+      \      if (effect1Targets > 0)\n        {\n            // Scale damage based\
+      \ on number of targets for first effect\n            float scale = 1.0f + (effect1Targets\
+      \ * 0.1f);\n            SetHitDamage(GetHitDamage() * scale);\n        }\n \
+      \   }\n};"
+    language: cpp
+  notes: This method is only valid to call within the context of a spell script execution,
+    such as during HandleHit(), HandleAfterHit(), or similar event handlers. Calling
+    this method outside of a spell script context may result in undefined behavior
+    or incorrect results. The target count reflects all unit targets for that effect,
+    including those that might have been filtered out by immunity or other conditions.
+  warnings: Do not assume that the returned count represents only valid targets; some
+    targets might be filtered out due to immunity, invulnerability, or other game
+    mechanics. Ensure that the effect index is within bounds (0 to number of effects
+    - 1) to avoid unexpected behavior. This method does not account for targets that
+    may have been removed from combat during spell execution.
+  related:
+  - GetUnitTarget
+  - GetUnitTargetCount
+  - GetEffectIndex
+  - GetHitDamage
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:49:41.052734'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: Spell
+  method: AddItemTarget
+  signature: void Spell::AddItemTarget(Item * item, uint32 effectMask)
+documentation:
+  brief: Adds an item target to the spell's effect list for processing during spell
+    execution.
+  description: The AddItemTarget method registers an item as a target for a specific
+    spell effect. This is used internally by the TrinityCore spell system to track
+    which items are affected by a spell's effects. The method takes an Item pointer
+    and an effect mask that determines which effects of the spell should target this
+    item. This functionality is essential for spells that modify or interact with
+    items, such as enchantments, consumables, or item-based abilities. The item must
+    be valid and accessible within the spell's context for the target to be properly
+    registered.
+  parameters:
+  - name: item
+    description: Pointer to the Item object that will be targeted by the spell effect.
+      Must not be null and should represent a valid item in the player's inventory
+      or world.
+  - name: effectMask
+    description: Bitmask indicating which spell effects should target this item. Each
+      bit corresponds to a specific spell effect index, allowing selective targeting
+      of individual effects within a multi-effect spell.
+  returns: null
+  examples:
+  - title: Basic Item Target Addition
+    code: "Item* targetItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);\n\
+      if (targetItem)\n{\n    spell->AddItemTarget(targetItem, 1 << EFFECT_0);\n}"
+    language: cpp
+  - title: Adding Multiple Item Targets
+    code: "for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)\n{\n    if (spellInfo->Effects[i].TargetA\
+      \ == TARGET_ITEM || spellInfo->Effects[i].TargetB == TARGET_ITEM)\n    {\n \
+      \       Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);\n      \
+      \  if (item)\n        {\n            spell->AddItemTarget(item, 1 << i);\n \
+      \       }\n    }\n}"
+    language: cpp
+  notes: This method is typically called during spell initialization or effect application.
+    It does not validate whether the item is actually usable by the spell; that validation
+    occurs later in the spell execution pipeline. The effectMask parameter allows
+    for granular control over which effects target the item, making it possible to
+    apply different effects to the same item within a single spell.
+  warnings: Passing a null item pointer will likely cause undefined behavior or crashes.
+    Ensure that the item is valid and accessible before calling this method. The effectMask
+    should be carefully constructed to avoid targeting effects that don't actually
+    affect items, which could lead to unexpected behavior or performance issues.
+  related:
+  - Spell::AddUnitTarget
+  - Spell::AddDestTarget
+  - Spell::AddTargetInfo
+metadata:
+  confidence: 0.92
+  generated_at: '2025-10-31T10:02:26.564576'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

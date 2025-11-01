@@ -1,0 +1,62 @@
+api:
+  class: AuraEffect
+  method: HandleAuraModResistance
+  signature: void AuraEffect::HandleAuraModResistance(const AuraApplication * aurApp,
+    uint8 mode, bool apply) const
+documentation:
+  brief: Applies or removes a resistance modification aura effect on the target.
+  description: The HandleAuraModResistance method is responsible for applying or removing
+    a resistance buff or debuff aura effect to a target. This method is typically
+    invoked during aura application or removal events, and it modifies the target's
+    resistance values based on the aura's properties. It handles both positive and
+    negative resistance modifications, affecting various types of damage resistances
+    such as fire, frost, nature, shadow, arcane, and holy resistance. The method interacts
+    with the AuraApplication object to determine the specific target and effect parameters.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object that contains information about
+      the aura being applied or removed. This includes details such as the target
+      unit, aura properties, and application state.
+  - name: mode
+    description: The mode of operation for the aura effect, typically indicating whether
+      it's an application (1) or removal (0) event. This parameter controls how the
+      resistance modification is processed.
+  - name: apply
+    description: Boolean flag indicating whether to apply (true) or remove (false)
+      the aura effect. When true, the resistance values are modified according to
+      the aura's properties; when false, the original resistance values are restored.
+  returns: null
+  examples:
+  - title: Basic Aura Resistance Modification
+    code: "void ApplyFireResistanceAura(Unit* target, int32 amount)\n{\n    AuraApplication*\
+      \ aurApp = new AuraApplication(target, target, SpellInfo::GetSpellInfo(12345),\
+      \ 0, nullptr);\n    AuraEffect* auraEffect = new AuraEffect(SPELL_AURA_MOD_RESISTANCE,\
+      \ amount, nullptr, nullptr);\n    auraEffect->HandleAuraModResistance(aurApp,\
+      \ 1, true);\n}"
+    language: cpp
+  - title: Removing Resistance Aura Effect
+    code: "void RemoveResistanceAura(Unit* target)\n{\n    AuraApplication* aurApp\
+      \ = target->GetAuraApplication(12345);\n    if (aurApp)\n    {\n        AuraEffect*\
+      \ auraEffect = aurApp->GetBase()->GetEffect(0);\n        if (auraEffect)\n \
+      \           auraEffect->HandleAuraModResistance(aurApp, 0, false);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core aura handling system in TrinityCore and is
+    automatically called by the aura application framework. The actual resistance
+    modification logic is implemented through internal calls to unit's resistance
+    calculation methods. Developers should ensure that the AuraApplication object
+    passed is valid and properly initialized before calling this method.
+  warnings: Improper use of this method can lead to incorrect resistance calculations
+    or memory leaks if the AuraApplication object is not managed correctly. The apply
+    parameter must be set accurately to avoid applying effects when they should be
+    removed, or vice versa.
+  related:
+  - AuraEffect::HandleAuraApply
+  - AuraEffect::HandleAuraRemove
+  - Unit::ModifyResistance
+  - AuraApplication::GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T13:10:12.161268'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerDuelRequest
+  signature: void ScriptMgr::OnPlayerDuelRequest(Player * target, Player * challenger)
+documentation:
+  brief: Invoked when a player sends a duel request to another player
+  description: The OnPlayerDuelRequest method is a scriptable hook that gets called
+    whenever a player initiates a duel challenge against another player. This method
+    allows custom scripts to intercept and modify the duel request process, such as
+    preventing duels under certain conditions, modifying duel parameters, or triggering
+    custom events. The method is part of TrinityCore's scripting system and provides
+    developers with the ability to extend or alter default duel behavior without modifying
+    core game logic. It serves as a notification mechanism for duel initiation and
+    does not directly control the outcome of the duel request.
+  parameters:
+  - name: target
+    description: The Player object representing the player who is being challenged
+      to a duel
+  - name: challenger
+    description: The Player object representing the player who is initiating the duel
+      request
+  returns: null
+  examples:
+  - title: Basic Duel Request Interception
+    code: "void OnPlayerDuelRequest(Player* target, Player* challenger)\n{\n    //\
+      \ Prevent duels in sanctified zones\n    if (target->GetAreaId() == 1234 ||\
+      \ challenger->GetAreaId() == 1234)\n    {\n        target->SendNotification(\"\
+      Dueling is not allowed in this area!\");\n        challenger->SendNotification(\"\
+      Dueling is not allowed in this area!\");\n        return;\n    }\n    \n   \
+      \ // Log the duel request\n    sLog->outString(\"Duel requested: %s vs %s\"\
+      , challenger->GetName().c_str(), target->GetName().c_str());\n}"
+    language: cpp
+  - title: Custom Duel Request Handling
+    code: "void OnPlayerDuelRequest(Player* target, Player* challenger)\n{\n    //\
+      \ Check if either player is in combat\n    if (challenger->IsInCombat() || target->IsInCombat())\n\
+      \    {\n        challenger->SendNotification(\"You cannot request a duel while\
+      \ in combat!\");\n        target->SendNotification(\"The challenger is in combat\
+      \ and cannot duel!\");\n        return;\n    }\n    \n    // Check if players\
+      \ are too far apart\n    float distance = challenger->GetDistance(target);\n\
+      \    if (distance > 30.0f)\n    {\n        challenger->SendNotification(\"You\
+      \ are too far away to duel!\");\n        return;\n    }\n    \n    // Allow\
+      \ the duel to proceed\n    sLog->outString(\"Duel request accepted between %s\
+      \ and %s\", challenger->GetName().c_str(), target->GetName().c_str());\n}"
+    language: cpp
+  notes: This method is called before the actual duel process begins, allowing scripts
+    to prevent or modify duel requests. It's important to note that this hook does
+    not control whether the duel proceeds - it only provides notification and opportunity
+    for interception. Scripts should avoid performing heavy operations in this method
+    as it may affect performance during player interactions.
+  warnings: Avoid modifying player state directly within this method unless necessary,
+    as it could lead to unexpected behavior. Also, be cautious about calling methods
+    that might cause recursion or infinite loops when handling duel requests.
+  related:
+  - OnPlayerDuelStart
+  - OnPlayerDuelEnd
+  - OnPlayerDuelRequestCancelled
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:20:52.609676'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

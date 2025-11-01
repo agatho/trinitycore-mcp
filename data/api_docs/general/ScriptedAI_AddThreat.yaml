@@ -1,0 +1,56 @@
+api:
+  class: ScriptedAI
+  method: AddThreat
+  signature: void ScriptedAI::AddThreat(int * victim, float amount, int * who)
+documentation:
+  brief: Adds threat to a target unit, increasing its aggro level in the AI system.
+  description: The AddThreat method is used within the ScriptedAI class to modify
+    the threat level of a specific target unit. This function directly influences
+    how the AI prioritizes targets for attack, with higher threat values making the
+    target more likely to be attacked. The method accepts a pointer to the victim
+    unit and a threat amount to add, along with an optional pointer to the attacker
+    who is adding the threat. Threat management is fundamental to NPC combat behavior
+    in TrinityCore, as it controls which units will be targeted by enemies based on
+    their current threat levels.
+  parameters:
+  - name: victim
+    description: Pointer to the target unit (Creature or Player) that will receive
+      the added threat. Must not be null.
+  - name: amount
+    description: The amount of threat to add to the victim's current threat level.
+      Can be positive or negative, with positive values increasing threat and negative
+      values decreasing it.
+  - name: who
+    description: Optional pointer to the unit that is adding the threat (the attacker).
+      If null, the AI will use its own unit as the source of the threat.
+  returns: None. This method does not return any value.
+  examples:
+  - title: Basic Threat Addition
+    code: "void ExampleAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))\n\
+      \    {\n        // Add 100 threat to the selected target\n        AddThreat(&target,\
+      \ 100.0f, nullptr);\n    }\n}"
+    language: cpp
+  - title: Conditional Threat Modification
+    code: "void ExampleAI::SpellHit(Unit* caster, const SpellInfo* spell)\n{\n   \
+      \ if (spell->Id == 12345)\n    {\n        // Add threat from a specific attacker\n\
+      \        AddThreat(&m_creature->GetVictim(), -50.0f, &caster);\n    }\n}"
+    language: cpp
+  notes: This method directly modifies the threat table managed by the AI system.
+    It should be used carefully to avoid unintended combat behavior or exploits. The
+    threat values are typically managed internally by the core and may interact with
+    other threat-related functions such as ModifyThreatPercent or ResetThreat.
+  warnings: Passing a null pointer for 'victim' will likely cause undefined behavior
+    or crash the server. Ensure that the target unit is valid before calling this
+    method. Also, be cautious when using negative threat values as they may result
+    in unexpected targeting behavior if not handled properly.
+  related:
+  - ModifyThreatPercent
+  - ResetThreat
+  - GetThreatList
+  - SelectTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T21:55:29.377133'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

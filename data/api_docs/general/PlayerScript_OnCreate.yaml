@@ -1,0 +1,62 @@
+api:
+  class: PlayerScript
+  method: OnCreate
+  signature: void PlayerScript::OnCreate(Player * player)
+documentation:
+  brief: Called when a player character is created in the world
+  description: The OnCreate method is a callback function invoked by the TrinityCore
+    server when a new player character is successfully created and added to the game
+    world. This method allows script developers to execute custom logic, initialize
+    player data, or modify player properties immediately after character creation.
+    The method is part of the PlayerScript system which provides hooks into various
+    player lifecycle events. It's important to note that this method is called only
+    once per player character during their initial creation and not on subsequent
+    logins.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the newly created character.
+      This parameter provides access to all player properties and methods for manipulation
+      or inspection.
+  returns: null
+  examples:
+  - title: Basic Player Creation Hook
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    MyPlayerScript()\
+      \ : PlayerScript(\"MyPlayerScript\") {}\n\n    void OnCreate(Player* player)\
+      \ override\n    {\n        // Set initial player level to 5\n        player->SetLevel(5);\n\
+      \        \n        // Add a custom title\n        player->SetCustomTitle(\"\
+      Newbie\");\n        \n        // Send welcome message\n        player->GetSession()->SendNotification(\"\
+      Welcome to the server!\");\n    }\n};"
+    language: cpp
+  - title: Advanced Player Initialization with Data
+    code: "class AdvancedPlayerScript : public PlayerScript\n{\npublic:\n    AdvancedPlayerScript()\
+      \ : PlayerScript(\"AdvancedPlayerScript\") {}\n\n    void OnCreate(Player* player)\
+      \ override\n    {\n        // Initialize player with starting equipment\n  \
+      \      ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(12345);\n\
+      \        if (itemTemplate)\n        {\n            Item* item = Item::CreateItem(12345,\
+      \ 1, player);\n            if (item)\n            {\n                player->AddItem(item);\n\
+      \            }\n        }\n        \n        // Set initial stats\n        player->SetCreateStat(STAT_STRENGTH,\
+      \ 10);\n        player->SetCreateStat(STAT_AGILITY, 10);\n        \n       \
+      \ // Add starting spell\n        player->learnSpell(818); // Stealth\n     \
+      \   \n        // Log creation event\n        sLog->outString(\"Player %s created\
+      \ at %s\", player->GetName().c_str(), player->GetMap()->GetAreaName(player->GetPositionX(),\
+      \ player->GetPositionY()).c_str());\n    }\n};"
+    language: cpp
+  notes: This method is executed on the main server thread and should not perform
+    heavy computations that could block other players. The Player object passed to
+    this method is fully initialized but may not yet have all session data loaded.
+    It's recommended to avoid calling methods that require network communication or
+    database access directly from this hook without proper synchronization.
+  warnings: Avoid modifying player data in a way that could cause inconsistencies
+    with the game state. Do not attempt to delete or modify the Player object itself,
+    as it will be managed by the server. Be cautious when using this hook with asynchronous
+    operations that might outlive the player's session.
+  related:
+  - OnLogin
+  - OnLogout
+  - OnDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T21:00:09.231977'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

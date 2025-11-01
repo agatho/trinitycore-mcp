@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnGuildMemberWitdrawMoney
+  signature: void ScriptMgr::OnGuildMemberWitdrawMoney(Guild * guild, Player * player,
+    uint64 & amount, bool isRepair)
+documentation:
+  brief: Invoked when a guild member withdraws money from the guild bank, allowing
+    scripts to modify or react to the transaction.
+  description: The OnGuildMemberWitdrawMoney method is a hook in TrinityCore's ScriptMgr
+    that gets called whenever a player attempts to withdraw gold from the guild bank.
+    This method allows custom scripts to intercept and modify the withdrawal amount,
+    or perform additional logic such as logging, validation, or applying penalties.
+    The 'amount' parameter is passed by reference, enabling scripts to adjust the
+    actual amount withdrawn. The 'isRepair' flag indicates whether the withdrawal
+    is for repairing items, which may affect how the script processes the transaction.
+    This hook is part of TrinityCore's extensible scripting system that enables server
+    customization without modifying core code.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object representing the guild from which money
+      is being withdrawn.
+  - name: player
+    description: Pointer to the Player object representing the player who initiated
+      the withdrawal.
+  - name: amount
+    description: Reference to a uint64 value representing the amount of gold the player
+      intends to withdraw. Scripts can modify this value to change the actual amount
+      withdrawn.
+  - name: isRepair
+    description: Boolean flag indicating whether the withdrawal is for repairing items
+      (true) or general guild fund usage (false).
+  returns: null
+  examples:
+  - title: Basic Example - Reduce Withdrawal Amount
+    code: "void OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint64& amount,\
+      \ bool isRepair)\n{\n    // Reduce withdrawal by 10% if it's not for repairs\n\
+      \    if (!isRepair)\n        amount = static_cast<uint64>(amount * 0.9);\n}"
+    language: cpp
+  - title: Advanced Example - Prevent Withdrawals Over Threshold
+    code: "void OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint64& amount,\
+      \ bool isRepair)\n{\n    // Prevent withdrawals over 100000 gold\n    if (amount\
+      \ > 100000)\n        amount = 100000;\n    \n    // Log the transaction\n  \
+      \  LOG_INFO(\"scripts\", \"Player {} withdrew {} gold from guild {}\", \n  \
+      \           player->GetName(), amount, guild->GetName());\n}"
+    language: cpp
+  notes: This method is called during the guild bank withdrawal process and modifies
+    the reference parameter 'amount', which affects the final transaction. Scripts
+    should be cautious about modifying the amount to prevent unexpected behavior or
+    exploits. The hook executes in the context of the game world thread, so performance-sensitive
+    operations should be minimized.
+  warnings: Modifying the 'amount' parameter can lead to inconsistent guild bank balances
+    if not handled carefully. Ensure that scripts do not cause negative amounts or
+    overflow conditions. Also, avoid performing blocking operations within this method
+    as it may impact game performance.
+  related:
+  - OnGuildMemberDepositMoney
+  - OnGuildBankEvent
+  - OnGuildCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:37:32.075467'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

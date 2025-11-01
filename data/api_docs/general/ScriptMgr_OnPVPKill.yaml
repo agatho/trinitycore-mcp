@@ -1,0 +1,55 @@
+api:
+  class: ScriptMgr
+  method: OnPVPKill
+  signature: void ScriptMgr::OnPVPKill(Player * killer, Player * killed)
+documentation:
+  brief: Executes scripts when a player kills another player in PvP combat
+  description: The OnPVPKill method is invoked by the TrinityCore script manager whenever
+    a player successfully kills another player during a PvP encounter. This method
+    serves as a hook for custom scripting logic, allowing developers to implement
+    game mechanics such as reward distribution, achievement progression, or event
+    triggering upon successful PvP kills. The method is called after the kill has
+    been processed and the victim's death has been confirmed, making it suitable for
+    post-kill actions. It does not affect the outcome of the kill itself but provides
+    an opportunity to extend or modify behavior.
+  parameters:
+  - name: killer
+    description: Pointer to the Player object representing the player who performed
+      the killing blow
+  - name: killed
+    description: Pointer to the Player object representing the player who was killed
+  returns: null
+  examples:
+  - title: Basic PvP Kill Logging Script
+    code: "class PVPKillScript : public PlayerScript\n{\npublic:\n    PVPKillScript()\
+      \ : PlayerScript(\"PVPKillScript\") {}\n\n    void OnPVPKill(Player* killer,\
+      \ Player* killed) override\n    {\n        LOG_INFO(\"scripts\", \"Player {}\
+      \ has killed player {} in PvP.\", killer->GetName(), killed->GetName());\n \
+      \   }\n};"
+    language: cpp
+  - title: PvP Kill Reward Distribution Script
+    code: "class PVPKillRewardScript : public PlayerScript\n{\npublic:\n    PVPKillRewardScript()\
+      \ : PlayerScript(\"PVPKillRewardScript\") {}\n\n    void OnPVPKill(Player* killer,\
+      \ Player* killed) override\n    {\n        // Grant honor points to the killer\n\
+      \        killer->RewardHonor(killed, 1);\n        \n        // Apply a temporary\
+      \ buff to the killer\n        killer->AddAura(12345, killer);\n    }\n};"
+    language: cpp
+  notes: This method is part of the global script manager and is called for all PvP
+    kills regardless of zone type or faction. It's important to note that both player
+    pointers are guaranteed to be valid at the time of execution, but modifications
+    to either player's state should be handled carefully to avoid unintended side
+    effects. The method does not block the normal flow of PvP kill processing.
+  warnings: Avoid performing operations that might alter the game state in a way that
+    could cause race conditions or infinite loops. Be cautious when modifying player
+    stats or inventory within this callback as it may affect other systems relying
+    on consistent player data during combat processing.
+  related:
+  - OnPlayerKilledByCreature
+  - OnPVPKill
+  - OnPlayerDeath
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:29:20.017595'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: GroupMgr
+  method: SetGroupDbStoreSize
+  signature: void GroupMgr::SetGroupDbStoreSize(int newSize)
+documentation:
+  brief: Sets the database storage size for group data in the GroupMgr system.
+  description: The SetGroupDbStoreSize method configures the internal database storage
+    capacity for group-related information within the GroupMgr class. This method
+    is typically used during server initialization or configuration to ensure sufficient
+    memory allocation for storing group data such as member lists, loot settings,
+    and group leadership information. The newSize parameter determines how many groups
+    can be stored in the internal database cache before requiring additional allocation
+    or eviction policies. This setting directly impacts performance and memory usage
+    of group-related operations in TrinityCore's world server.
+  parameters:
+  - name: newSize
+    description: The new size for the group database storage buffer. Must be a positive
+      integer representing the maximum number of groups that can be cached in memory
+      at once.
+  returns: null
+  examples:
+  - title: Setting Group Database Store Size During Server Initialization
+    code: "void InitializeGroupManager()\n{\n    // Set group database store size\
+      \ to accommodate up to 10000 groups\n    sGroupMgr->SetGroupDbStoreSize(10000);\n\
+      }"
+    language: cpp
+  - title: Dynamic Adjustment of Group Storage Size Based on Server Load
+    code: "void AdjustGroupStorageSize(int currentPlayers)\n{\n    int newSize = 0;\n\
+      \    if (currentPlayers < 5000)\n        newSize = 5000;\n    else if (currentPlayers\
+      \ < 15000)\n        newSize = 10000;\n    else\n        newSize = 20000;\n \
+      \   \n    sGroupMgr->SetGroupDbStoreSize(newSize);\n}"
+    language: cpp
+  notes: This method should be called before any groups are created or loaded to avoid
+    potential data loss or performance degradation. The internal implementation likely
+    uses a hash table or similar structure for fast group lookups, and resizing may
+    trigger reallocation of memory resources. Changes to this setting take effect
+    immediately but do not affect already existing groups in memory.
+  warnings: Calling this method after groups have been initialized may result in loss
+    of cached group data if the new size is smaller than the current number of active
+    groups. It's recommended to set this value during server startup or maintenance
+    windows when no active groups exist.
+  related:
+  - GetGroupDbStoreSize
+  - LoadGroups
+  - SaveGroups
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T13:14:39.541267'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,45 @@
+api:
+  class: DB2Manager
+  method: GetGlyphRequiredSpecs
+  signature: const int * DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId)
+    const
+documentation:
+  brief: Retrieves the required specializations for a given glyph properties ID.
+  description: The GetGlyphRequiredSpecs method fetches an array of specialization
+    IDs that are required to use a specific glyph. This is used in the context of
+    World of Warcraft's talent and glyph system, where certain glyphs can only be
+    applied if the player meets specific specialization requirements. The returned
+    pointer points to an internal data structure containing up to 3 specialization
+    IDs. If no specializations are required, the array will contain zero entries.
+    The method does not perform any validation on the input ID, so callers should
+    ensure the glyphPropertiesId is valid before calling.
+  parameters: []
+  returns: A const pointer to an array of integers representing the required specialization
+    IDs for the specified glyph properties. The array contains up to 3 elements, or
+    may be empty if no specializations are required. Returns nullptr if the glyph
+    properties ID is invalid or not found in the database.
+  examples:
+  - title: Retrieve Required Specializations for a Glyph
+    code: "const int* specs = sDB2Manager->GetGlyphRequiredSpecs(12345);\nif (specs\
+      \ != nullptr)\n{\n    for (int i = 0; i < 3; ++i)\n    {\n        if (specs[i]\
+      \ == 0) break;\n        printf(\"Required Spec ID: %d\\n\", specs[i]);\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method accesses cached DB2 data structures and is optimized for frequent
+    calls. The returned array is managed internally by the DB2Manager and should not
+    be modified or freed by callers. The method assumes that glyph properties IDs
+    are valid and exist in the loaded DB2 files.
+  warnings: The returned pointer points to internal memory that may become invalid
+    if the DB2 data is reloaded or if the manager is destroyed. Callers must not store
+    or use the returned pointer beyond the lifetime of the DB2Manager instance. Also,
+    be aware that the array size is fixed at 3 elements, but only the first N elements
+    (where N <= 3) may contain valid specialization IDs.
+  related:
+  - GetGlyphProperties
+  - GetGlyphRequiredSpecsCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T15:03:48.049473'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

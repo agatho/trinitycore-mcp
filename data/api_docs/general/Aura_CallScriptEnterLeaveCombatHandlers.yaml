@@ -1,0 +1,62 @@
+api:
+  class: Aura
+  method: CallScriptEnterLeaveCombatHandlers
+  signature: void Aura::CallScriptEnterLeaveCombatHandlers(const AuraApplication *
+    aurApp, bool isNowInCombat)
+documentation:
+  brief: Calls script handlers when an aura enters or leaves combat state
+  description: This method invokes registered script handlers for aura application
+    events when the aura's combat state changes. It is typically called internally
+    by the TrinityCore framework when a player or creature enters or exits combat
+    while affected by an aura. The method ensures that any custom aura scripts that
+    implement enter/leave combat behavior are properly notified of the transition.
+    This mechanism allows for dynamic adjustments to aura effects based on combat
+    status, such as modifying damage output, healing amounts, or other combat-related
+    properties.
+  parameters:
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the aura application
+      that is entering or leaving combat state. This parameter cannot be null and
+      must represent a valid aura application.
+  - name: isNowInCombat
+    description: Boolean flag indicating whether the target is now in combat (true)
+      or has left combat (false). This determines which script handlers are invoked
+      - EnterCombat or LeaveCombat handlers.
+  returns: null
+  examples:
+  - title: Basic usage within aura system
+    code: "void MyAuraScript::OnApply(Aura const* aura, AuraApplication const* aurApp,\
+      \ bool isNowInCombat)\n{\n    // Call the base implementation to trigger script\
+      \ handlers\n    aura->CallScriptEnterLeaveCombatHandlers(aurApp, isNowInCombat);\n\
+      }"
+    language: cpp
+  - title: Custom combat state handling
+    code: "class CombatAuraScript : public AuraScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnApply += AuraApplyFn(CombatAuraScript::OnApply);\n\
+      \    }\n\n    void OnApply(Aura const* aura, AuraApplication const* aurApp,\
+      \ bool isNowInCombat)\n    {\n        // Handle combat state change\n      \
+      \  if (isNowInCombat)\n            HandleEnterCombat(aurApp);\n        else\n\
+      \            HandleLeaveCombat(aurApp);\n        \n        // Trigger script\
+      \ handlers\n        aura->CallScriptEnterLeaveCombatHandlers(aurApp, isNowInCombat);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is designed to be called internally by the aura system and should
+    not typically be invoked directly from user scripts. The method relies on the
+    AuraScript framework's event handling mechanism and will only execute handlers
+    that have been properly registered for EnterCombat or LeaveCombat events. Performance
+    considerations are minimal as this method primarily dispatches existing script
+    callbacks.
+  warnings: Do not call this method with a null aurApp parameter, as it will likely
+    cause a crash. Ensure that the aura application is valid and properly initialized
+    before calling this method. This method should only be used in contexts where
+    combat state transitions are being processed by the core framework.
+  related:
+  - Aura::CallScriptApplyHandlers
+  - Aura::CallScriptRemoveHandlers
+  - Aura::CallScriptUpdateHandlers
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:00:59.675285'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

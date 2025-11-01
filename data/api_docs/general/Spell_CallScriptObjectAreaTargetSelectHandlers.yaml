@@ -1,0 +1,65 @@
+api:
+  class: Spell
+  method: CallScriptObjectAreaTargetSelectHandlers
+  signature: void Spell::CallScriptObjectAreaTargetSelectHandlers(int & targets, int
+    effIndex, const SpellImplicitTargetInfo & targetType)
+documentation:
+  brief: Calls area target select handlers for a spell script object.
+  description: This method invokes the area target selection handlers associated with
+    a spell's script object. It is typically called during spell execution to determine
+    which targets within an area should be affected by the spell. The method modifies
+    the target list based on custom logic defined in the spell's script, allowing
+    for dynamic target selection that can vary depending on spell effects and target
+    types. This functionality is crucial for implementing complex spell behaviors
+    such as AoE targeting with specific filtering criteria.
+  parameters:
+  - name: targets
+    description: Reference to an integer representing the current list of targets.
+      This value will be modified by the script handlers to reflect the final target
+      selection.
+  - name: effIndex
+    description: The index of the spell effect being processed. Used to identify which
+      specific effect's target selection logic should be applied.
+  - name: targetType
+    description: Reference to SpellImplicitTargetInfo containing information about
+      the implicit target type for this spell effect. Provides context for how targets
+      should be selected.
+  returns: null
+  examples:
+  - title: Basic usage in spell script
+    code: "void MySpellScript::OnTargetSelect(std::list<WorldObject*>& targets, int\
+      \ effIndex, const SpellImplicitTargetInfo& targetType)\n{\n    // Call the base\
+      \ class handler\n    m_spell->CallScriptObjectAreaTargetSelectHandlers(targets,\
+      \ effIndex, targetType);\n    \n    // Custom logic can be added here if needed\n\
+      }"
+    language: cpp
+  - title: Custom target filtering example
+    code: "class MyAreaSpellScript : public SpellScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(MyAreaSpellScript::FilterTargets);\n\
+      \    }\n    \nprivate:\n    void FilterTargets(std::list<WorldObject*>& targets,\
+      \ int effIndex, const SpellImplicitTargetInfo& targetType)\n    {\n        //\
+      \ Modify the target list based on custom criteria\n        targets.remove_if([](WorldObject*\
+      \ target) {\n            return target->GetTypeId() != TYPEID_PLAYER;\n    \
+      \    });\n        \n        // Then call the base handler to allow further processing\n\
+      \        m_spell->CallScriptObjectAreaTargetSelectHandlers(targets, effIndex,\
+      \ targetType);\n    }\n};"
+    language: cpp
+  notes: This method is part of the spell script system and should only be called
+    from within spell script contexts. The targets parameter is passed by reference
+    and will be modified in-place. This method may be invoked multiple times during
+    a single spell cast depending on the number of effects and target types involved.
+  warnings: Modifying the targets list directly before calling this method can lead
+    to unexpected behavior if not handled carefully. Ensure that any modifications
+    are compatible with the script's intended target selection logic. The SpellImplicitTargetInfo
+    parameter should not be modified by this method as it contains immutable target
+    type information.
+  related:
+  - Spell::CallScriptObjectHitHandlers
+  - Spell::CallScriptObjectLaunchHandlers
+  - Spell::CallScriptObjectEffectHandlers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T09:56:55.404003'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

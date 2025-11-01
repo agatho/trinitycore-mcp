@@ -1,0 +1,60 @@
+api:
+  class: LFGMgr
+  method: IsLfgGroup
+  signature: bool LFGMgr::IsLfgGroup(int guid)
+documentation:
+  brief: Checks whether a given group GUID corresponds to a valid LFG group in the
+    system.
+  description: The IsLfgGroup method determines if a specified group identifier (GUID)
+    represents an active Looking For Group (LFG) group within the TrinityCore framework.
+    This utility function is commonly used during group operations, such as verifying
+    group eligibility for LFG activities or ensuring that a group has not been disbanded.
+    The method performs internal validation to confirm that the provided GUID exists
+    in the LFG manager's registered groups and is currently active. It does not validate
+    player membership or group composition beyond checking if the group ID itself
+    is recognized by the LFG system.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the group to check. This should be
+      a valid group GUID obtained from the game's object manager, typically representing
+      a player group or raid instance.
+  returns: Returns true if the specified group GUID corresponds to an active LFG group
+    in the system; otherwise returns false. A return value of false may indicate that
+    the group does not exist, has been disbanded, or is not registered with the LFG
+    manager.
+  examples:
+  - title: Basic Usage
+    code: "if (sLFGMgr->IsLfgGroup(groupGuid)) {\n    // The group is a valid LFG\
+      \ group\n    sLog->outString(\"Group %u is an LFG group.\", groupGuid);\n} else\
+      \ {\n    // The group is not recognized as an LFG group\n    sLog->outString(\"\
+      Group %u is not an LFG group.\", groupGuid);\n}"
+    language: cpp
+  - title: Integration with Group Management
+    code: "void HandleLfgGroupCheck(Player* player, uint64 groupGuid) {\n    if (sLFGMgr->IsLfgGroup(groupGuid))\
+      \ {\n        // Proceed with LFG-related operations\n        sLFGMgr->AddPlayerToLfgQueue(player);\n\
+      \    } else {\n        // Inform the player that the group is not valid for\
+      \ LFG\n        player->SendSystemMessage(\"Invalid group for LFG.\");\n    }\n\
+      }"
+    language: cpp
+  notes: This method relies on internal data structures maintained by the LFG manager
+    and should only be called with valid GUIDs. It is recommended to validate that
+    the GUID refers to a group before calling this method, as invalid GUIDs may lead
+    to undefined behavior or performance degradation. The method performs a lookup
+    in an internal registry of active LFG groups, so it may have performance implications
+    when used frequently in tight loops.
+  warnings: Do not assume that a group identified as an LFG group is necessarily eligible
+    for joining or participating in LFG activities. Additional checks such as player
+    eligibility, queue status, and group leader permissions should be performed separately.
+    This method does not verify whether the group has been disbanded or if its members
+    are still valid.
+  related:
+  - LFGMgr::GetLfgGroup
+  - LFGMgr::IsPlayerInLfgQueue
+  - LFGMgr::AddPlayerToLfgQueue
+  - LFGMgr::RemovePlayerFromLfgQueue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:41:07.450220'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

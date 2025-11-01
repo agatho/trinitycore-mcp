@@ -1,0 +1,84 @@
+api:
+  class: Player
+  method: CanStoreItem_InSpecificSlot
+  signature: int Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec
+    & dest, const ItemTemplate * pProto, uint32 & count, bool swap, Item * pSrcItem)
+    const
+documentation:
+  brief: Checks if an item can be stored in a specific bag and slot, considering existing
+    items and inventory constraints.
+  description: The CanStoreItem_InSpecificSlot method evaluates whether a given item
+    can be placed into a specified bag and slot position within the player's inventory.
+    It takes into account various factors such as item type compatibility, stack limits,
+    bag restrictions, and whether an item already exists in that location. The method
+    performs a validation check without actually modifying the inventory state. If
+    swap is enabled, it also considers swapping items in the target slot with the
+    source item if needed. This function is commonly used before attempting to move
+    or add items to ensure the operation will succeed.
+  parameters:
+  - name: bag
+    description: The bag index where the item should be placed (0-11 for normal bags,
+      12 for backpack, etc.). Must be a valid bag slot.
+  - name: slot
+    description: The specific slot within the bag where the item should be placed
+      (0-63). Must be a valid slot index for the given bag.
+  - name: dest
+    description: Reference to a vector of ItemPosCountVec structures that will store
+      the resulting item positions if the operation is successful. This output parameter
+      is populated with valid item placements.
+  - name: pProto
+    description: Pointer to the ItemTemplate structure defining the properties and
+      characteristics of the item being checked. Cannot be null.
+  - name: count
+    description: Reference to a uint32 value representing the number of items to place.
+      This value may be modified during the check if stacking occurs or if fewer items
+      can be placed due to constraints.
+  - name: swap
+    description: Boolean flag indicating whether swapping with existing items in the
+      target slot is allowed. If true, the method will attempt to swap items if necessary
+      to make room.
+  - name: pSrcItem
+    description: Pointer to an existing Item object that may be swapped out of the
+      target slot if swap is enabled. Can be null if no source item is involved in
+      the operation.
+  returns: 'Returns an integer indicating the success or failure of the check:
+
+    - 0: No error, item can be stored
+
+    - Non-zero: Error code indicating why storage failed (e.g., invalid bag/slot,
+    incompatible item type, etc.)'
+  examples:
+  - title: Check if an item can be placed in a specific slot
+    code: "ItemTemplate* itemProto = sObjectMgr->GetItemTemplate(12345);\nuint32 itemCount\
+      \ = 1;\nItemPosCountVec dest;\nint result = player->CanStoreItem_InSpecificSlot(0,\
+      \ 5, dest, itemProto, itemCount, false, nullptr);\nif (result == 0) {\n    //\
+      \ Item can be stored\n} else {\n    // Storage failed\n}"
+    language: cpp
+  - title: Attempt to store an item with swapping enabled
+    code: "ItemTemplate* itemProto = sObjectMgr->GetItemTemplate(67890);\nuint32 itemCount\
+      \ = 2;\nItemPosCountVec dest;\nItem* sourceItem = player->GetItemByGuid(itemGuid);\n\
+      int result = player->CanStoreItem_InSpecificSlot(1, 3, dest, itemProto, itemCount,\
+      \ true, sourceItem);\nif (result == 0) {\n    // Item can be stored, possibly\
+      \ swapping existing items\n}"
+    language: cpp
+  notes: This method does not modify the player's inventory state; it only performs
+    a validation check. The dest vector is populated with valid item positions upon
+    successful checks. This function respects all standard inventory rules including
+    bag types, slot limits, and stacking behavior. It is typically used in conjunction
+    with StoreItem or similar methods to ensure safe inventory operations.
+  warnings: The method assumes that the provided parameters are valid (e.g., pProto
+    is not null). Passing invalid bag/slot combinations can lead to undefined behavior.
+    When swap=true, be cautious about unintended item swaps which may affect gameplay
+    logic. The count parameter may be modified by this function if stacking occurs
+    or constraints prevent full placement.
+  related:
+  - CanStoreItem
+  - StoreItem
+  - AddItem
+  - GetItemByGuid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T10:13:46.531424'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

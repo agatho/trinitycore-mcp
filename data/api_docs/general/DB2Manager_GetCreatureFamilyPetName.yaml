@@ -1,0 +1,58 @@
+api:
+  class: DB2Manager
+  method: GetCreatureFamilyPetName
+  signature: const char * DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant
+    locale)
+documentation:
+  brief: Retrieves the localized pet name for a given creature family ID and locale.
+  description: The GetCreatureFamilyPetName method fetches the localized name of a
+    pet associated with a specific creature family ID. This is commonly used in World
+    of Warcraft to display proper names for companion pets such as cats, dogs, birds,
+    or other summoned creatures. The method utilizes the DB2 database files which
+    contain localized string data and requires a valid locale constant to return the
+    appropriate translation. It's typically called when displaying pet names in UI
+    elements like pet journals or during pet summoning events.
+  parameters:
+  - name: petfamily
+    description: The creature family ID that identifies the type of pet (e.g., 1 for
+      cats, 2 for dogs, etc.). This value corresponds to entries in the CreatureFamily.db2
+      file.
+  - name: locale
+    description: The LocaleConstant enum value indicating which language version of
+      the name to retrieve. Valid values include LOCALE_enUS, LOCALE_koKR, LOCALE_frFR,
+      etc., depending on the client's localization settings.
+  returns: A pointer to a null-terminated character string containing the localized
+    pet name for the specified creature family and locale. Returns NULL if no entry
+    exists for the given petfamily/locale combination or if the input parameters are
+    invalid.
+  examples:
+  - title: Retrieve Pet Name for Cat Family
+    code: "const char* catName = sDB2Manager->GetCreatureFamilyPetName(1, LOCALE_enUS);\n\
+      if (catName)\n{\n    printf(\"Pet name: %s\\n\", catName);\n}\nelse\n{\n   \
+      \ printf(\"No pet name found for family 1.\\n\");\n}"
+    language: cpp
+  - title: Use with Dynamic Locale Selection
+    code: "LocaleConstant currentLocale = GetSession()->GetSessionDbcLocale();\nconst\
+      \ char* petName = sDB2Manager->GetCreatureFamilyPetName(5, currentLocale);\n\
+      if (petName)\n{\n    // Display localized pet name in UI\n    SendPetNameUpdate(petName);\n\
+      }"
+    language: cpp
+  notes: This method relies on the DB2Manager's internal data structures that are
+    populated at server startup from the DB2 files. The returned string is managed
+    by the DB2Manager and should not be freed by the caller. Performance is optimized
+    through internal caching mechanisms, but repeated calls with different locales
+    may cause additional lookups.
+  warnings: Ensure that the petfamily parameter corresponds to valid entries in CreatureFamily.db2;
+    invalid IDs will return NULL. Also note that some creature families might not
+    have localized names defined for all locales, resulting in NULL returns even when
+    the ID is valid.
+  related:
+  - GetCreatureFamilyName
+  - GetCreatureName
+  - GetLocaleString
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T15:12:47.444568'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

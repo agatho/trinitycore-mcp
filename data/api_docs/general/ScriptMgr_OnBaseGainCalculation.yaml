@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnBaseGainCalculation
+  signature: void ScriptMgr::OnBaseGainCalculation(uint32 & gain, uint8 playerLevel,
+    uint8 mobLevel)
+documentation:
+  brief: Modifies the base experience gain calculation for player-mob encounters
+  description: The OnBaseGainCalculation method is a hook in TrinityCore's ScriptMgr
+    that allows custom scripts to modify the base experience points (XP) a player
+    gains when defeating a mob. This method is invoked during the XP calculation process,
+    providing an opportunity for script developers to adjust gain values based on
+    player level, mob level, or other game mechanics. The method takes references
+    to the gain value and level parameters, allowing modification of these values
+    in-place. It serves as part of TrinityCore's flexible scripting system that enables
+    customization of core gameplay elements without modifying the core server code.
+  parameters:
+  - name: gain
+    description: Reference to the base experience gain value that will be calculated
+      and potentially modified by scripts
+  - name: playerLevel
+    description: The level of the player who defeated the mob, used to determine appropriate
+      XP scaling
+  - name: mobLevel
+    description: The level of the mob that was defeated, used in conjunction with
+      player level for XP calculation
+  returns: null
+  examples:
+  - title: Basic XP Modifier Script
+    code: "void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel)\n\
+      {\n    // Increase XP gain by 20% for mobs up to 5 levels above player\n   \
+      \ if (mobLevel <= playerLevel + 5)\n        gain = gain * 1.2f;\n}"
+    language: cpp
+  - title: Level-Based XP Reduction
+    code: "void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel)\n\
+      {\n    // Reduce XP for very high-level mobs\n    if (mobLevel > playerLevel\
+      \ + 10)\n        gain = gain * 0.5f;\n}"
+    language: cpp
+  notes: This method is called during the standard XP calculation flow in TrinityCore,
+    and modifications to the 'gain' parameter directly affect how much experience
+    a player receives. Script developers should be cautious when modifying values,
+    as incorrect adjustments may lead to unbalanced gameplay or unintended consequences.
+    The method operates within the context of the global script manager, so all registered
+    scripts will be executed in order.
+  warnings: Modifying the gain value too drastically can cause game balance issues.
+    Always test XP modifications thoroughly in a development environment before deploying
+    to live servers. Be aware that this hook may be called frequently during gameplay,
+    so performance implications should be considered when implementing complex logic.
+  related:
+  - OnGainCalculation
+  - OnPlayerLevelUp
+  - OnMobDeath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:55:38.325702'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

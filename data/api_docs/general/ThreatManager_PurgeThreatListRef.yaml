@@ -1,0 +1,51 @@
+api:
+  class: ThreatManager
+  method: PurgeThreatListRef
+  signature: void ThreatManager::PurgeThreatListRef(const int & guid)
+documentation:
+  brief: Removes all threat entries associated with a specified GUID from the threat
+    list.
+  description: The PurgeThreatListRef method is used to clear all threat references
+    linked to a specific GameObject or Unit identifier (GUID) within the ThreatManager's
+    internal threat list. This function ensures that any lingering threat data related
+    to the given entity is removed, which can be crucial for maintaining accurate
+    threat mechanics in combat scenarios. It typically gets invoked when an object
+    is destroyed, despawned, or otherwise no longer relevant to ongoing threat calculations.
+    The method does not return any value and operates directly on the internal threat
+    management structure of the associated creature or NPC.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the GameObject or Unit whose threat
+      entries should be purged from the list. This parameter is passed by reference
+      to avoid unnecessary copying and ensure consistency.
+  returns: null
+  examples:
+  - title: Purging Threat for a Destroyed Creature
+    code: "void OnCreatureDeath(Creature* creature)\n{\n    // Remove all threat entries\
+      \ for the dead creature\n    creature->GetThreatManager().PurgeThreatListRef(creature->GetGUID());\n\
+      }"
+    language: cpp
+  - title: Using in Custom AI Logic
+    code: "void CustomAI::OnReset()\n{\n    // Clear threat list for all nearby units\n\
+      \    for (auto& pair : m_threatList)\n    {\n        m_threatManager.PurgeThreatListRef(pair.first);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method directly manipulates the internal threat list structure and should
+    only be called when it's safe to remove entries. It is commonly used during object
+    destruction or reset events in AI logic. The method assumes that the provided
+    GUID corresponds to a valid entry in the threat manager's tracking system.
+  warnings: Improper use of this method can lead to inconsistent threat states, potentially
+    causing NPCs to ignore valid targets or incorrectly assign aggro. Ensure that
+    the GUID passed is valid and represents an actual tracked entity before calling
+    this function.
+  related:
+  - AddThreat
+  - GetThreatList
+  - UpdateThreat
+  - ClearAllThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:25:37.022822'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

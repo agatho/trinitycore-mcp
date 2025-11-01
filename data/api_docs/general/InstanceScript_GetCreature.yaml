@@ -1,0 +1,54 @@
+api:
+  class: InstanceScript
+  method: GetCreature
+  signature: Creature * InstanceScript::GetCreature(uint32 type)
+documentation:
+  brief: Retrieves a pointer to a Creature object based on the specified creature
+    type within the instance.
+  description: The GetCreature method is used in TrinityCore's InstanceScript framework
+    to retrieve a pointer to a specific Creature object that has been spawned within
+    the instance. This method allows scripts to access and interact with creatures
+    that are part of the instance's dynamic content, such as bosses or NPCs. The method
+    searches through all active creatures in the instance and returns the first one
+    matching the provided type ID. It is commonly used in scripted encounters where
+    specific creatures need to be targeted for events, health checks, or other gameplay
+    mechanics. The returned pointer can be null if no creature of the specified type
+    exists in the instance.
+  parameters: []
+  returns: A pointer to a Creature object matching the specified type ID, or nullptr
+    if no such creature is found in the instance.
+  examples:
+  - title: Basic Usage for Boss Encounter
+    code: "class BossInstanceScript : public InstanceScript\n{\npublic:\n    BossInstanceScript(Map*\
+      \ map) : InstanceScript(map) {}\n    \n    void Initialize() override\n    {\n\
+      \        // Get the boss creature by type ID\n        Creature* boss = GetCreature(BOSS_TYPE_ID);\n\
+      \        if (boss)\n        {\n            // Perform actions on the boss\n\
+      \            boss->SetReactState(REACT_AGGRESSIVE);\n        }\n    }\n};"
+    language: cpp
+  - title: Checking Creature Status in Encounter
+    code: "void BossEncounter::Update(uint32 diff) override\n{\n    if (m_bossDead)\n\
+      \        return;\n        \n    Creature* boss = GetCreature(BOSS_TYPE_ID);\n\
+      \    if (!boss || boss->IsDead())\n    {\n        m_bossDead = true;\n     \
+      \   // Handle boss death event\n        HandleBossDeath();\n    }\n}"
+    language: cpp
+  notes: This method only returns creatures that are currently active in the instance.
+    Creatures that have been despawned or are not part of the current instance's spawn
+    list will not be returned. The method performs a linear search through all creatures
+    in the instance, so performance may degrade with many creatures present. It is
+    recommended to cache the returned pointer if it will be used frequently during
+    an encounter.
+  warnings: The returned Creature pointer should always be checked for null before
+    use to prevent crashes. If multiple creatures of the same type exist in an instance,
+    only the first one found will be returned, which may not be the intended creature
+    in complex encounters.
+  related:
+  - GetGameObject
+  - GetPlayer
+  - GetCreatureGUID
+  - GetInstanceData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T12:50:44.589113'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

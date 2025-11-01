@@ -1,0 +1,61 @@
+api:
+  class: PetitionMgr
+  method: GetPetitionByOwner
+  signature: Petition * PetitionMgr::GetPetitionByOwner(int ownerGuid)
+documentation:
+  brief: Retrieves a petition object associated with a specified player GUID.
+  description: The GetPetitionByOwner method searches for and returns a Petition object
+    that is owned by the player identified by the provided GUID. This function is
+    typically used in the context of World of Warcraft's guild petition system, where
+    players can create and sign guild petitions. The method performs a lookup within
+    the internal petition manager's data structures to locate the petition associated
+    with the given owner GUID. If no petition exists for the specified owner, the
+    method returns a null pointer. This function is essential for checking if a player
+    has an active petition or retrieving petition details for processing signature
+    validation and guild creation.
+  parameters:
+  - name: ownerGuid
+    description: The globally unique identifier (GUID) of the player who owns the
+      petition. This value must be a valid player GUID within the game's database,
+      typically representing a character in the World of Warcraft world.
+  returns: A pointer to the Petition object if one exists for the specified owner
+    GUID; otherwise, returns nullptr if no petition is found or if the GUID is invalid.
+  examples:
+  - title: Check if a player has an active petition
+    code: "uint32 playerGuid = 12345;\nPetition* petition = sPetitionMgr->GetPetitionByOwner(playerGuid);\n\
+      if (petition != nullptr)\n{\n    // Player has an active petition\n    sLog->outString(\"\
+      Player %u has a petition.\", playerGuid);\n}\nelse\n{\n    // No petition found\
+      \ for the player\n    sLog->outString(\"Player %u does not have a petition.\"\
+      , playerGuid);\n}"
+    language: cpp
+  - title: Process petition signing logic
+    code: "uint32 ownerGuid = 67890;\nPetition* petition = sPetitionMgr->GetPetitionByOwner(ownerGuid);\n\
+      if (petition != nullptr && petition->IsSignedByPlayer(playerGuid))\n{\n    //\
+      \ Player has already signed this petition\n    sLog->outString(\"Player %u has\
+      \ already signed the petition.\", playerGuid);\n}\nelse if (petition != nullptr)\n\
+      {\n    // Add signature to existing petition\n    petition->AddSignature(playerGuid);\n\
+      \    sLog->outString(\"Added signature from player %u to petition.\", playerGuid);\n\
+      }"
+    language: cpp
+  notes: This method performs a lookup operation in the petition manager's internal
+    storage, which may involve database queries or in-memory lookups depending on
+    how the system is implemented. It is recommended to cache results when repeatedly
+    checking for the same player's petition status to improve performance. The method
+    assumes that the provided GUID is valid and corresponds to an existing player
+    character.
+  warnings: Ensure that the ownerGuid parameter is validated before calling this method,
+    as passing invalid or non-existent GUIDs may lead to unexpected behavior or database
+    errors. Also, be aware that multiple petitions can exist for a single player in
+    some game mechanics, but this specific function returns only one petition based
+    on ownership.
+  related:
+  - GetPetitionByGuid
+  - AddPetition
+  - RemovePetition
+  - IsPetitionSigned
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T08:30:34.962434'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: Guild
+  method: SendBankList
+  signature: void Guild::SendBankList(WorldSession * session, uint8 tabId, bool fullUpdate)
+    const
+documentation:
+  brief: Sends the bank list for a specified guild tab to the player's client.
+  description: The SendBankList method is responsible for transmitting the contents
+    of a specific guild bank tab to a connected player's client. This method is typically
+    invoked when a player opens their guild bank interface or requests a refresh of
+    a particular tab's contents. It ensures that the client displays the correct items,
+    their quantities, and positions within the specified tab. The method supports
+    both full updates and partial updates depending on the 'fullUpdate' parameter.
+    This functionality is integral to the World of Warcraft guild banking system,
+    allowing players to manage shared resources effectively.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the connected player's
+      session. Used to identify which client should receive the bank list data.
+  - name: tabId
+    description: The identifier of the guild bank tab to send. Valid values range
+      from 0 to the maximum number of tabs configured for the guild, typically up
+      to 9 (0-8). Tab ID 0 usually represents the main bank tab.
+  - name: fullUpdate
+    description: Boolean flag indicating whether to send a full update (true) or a
+      partial update (false). A full update sends all items in the tab, while a partial
+      update may only send changes since the last update.
+  returns: null
+  examples:
+  - title: Sending Full Bank List for Tab 0
+    code: "Guild* guild = player->GetGuild();\nif (guild)\n{\n    guild->SendBankList(player->GetSession(),\
+      \ 0, true);\n}"
+    language: cpp
+  - title: Sending Partial Update for Tab 2
+    code: "Guild* guild = player->GetGuild();\nif (guild)\n{\n    guild->SendBankList(player->GetSession(),\
+      \ 2, false);\n}"
+    language: cpp
+  notes: This method internally handles serialization of item data and packet construction
+    for transmission. It is designed to be called from within the game's main thread
+    context. The tabId parameter should always be validated against the guild's actual
+    number of tabs to prevent out-of-bounds access.
+  warnings: Calling this method with an invalid tabId can lead to undefined behavior
+    or client-side crashes. Ensure that tabId is within valid range (0 to max_tabs
+    - 1). Also, note that sending a full update for large bank tabs may cause performance
+    degradation if not handled carefully.
+  related:
+  - GetBankTab
+  - SetBankTab
+  - SendGuildBankUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:32:23.360092'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

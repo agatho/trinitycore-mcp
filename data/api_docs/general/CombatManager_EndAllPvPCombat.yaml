@@ -1,0 +1,51 @@
+api:
+  class: CombatManager
+  method: EndAllPvPCombat
+  signature: void CombatManager::EndAllPvPCombat(UnitFilter * unitFilter)
+documentation:
+  brief: Ends all PvP combat sessions for units matching the specified filter.
+  description: The EndAllPvPCombat method terminates all active Player versus Player
+    (PvP) combat states for units that satisfy the provided UnitFilter criteria. This
+    function is typically used to forcefully resolve PvP encounters, clear combat
+    flags, and reset player engagement states in preparation for other game events
+    or zone transitions. The method operates on a per-unit basis, iterating through
+    eligible units and invoking appropriate combat termination logic. It ensures that
+    no unit remains in an active PvP state when the method completes, which is essential
+    for maintaining game integrity during dynamic world events or server operations.
+  parameters:
+  - name: unitFilter
+    description: A pointer to a UnitFilter object that defines which units should
+      have their PvP combat ended. The filter determines eligibility based on criteria
+      such as faction, zone, or custom conditions. If null, the method may apply to
+      all eligible units in the current context.
+  returns: void
+  examples:
+  - title: End PvP combat for all players in a specific zone
+    code: "class ZoneFilter : public UnitFilter {\npublic:\n    bool IsMatch(Unit*\
+      \ unit) override {\n        return unit->GetMap()->GetId() == 1234; // Example\
+      \ zone ID\n    }\n};\n\nZoneFilter filter;\ncombatManager->EndAllPvPCombat(&filter);"
+    language: cpp
+  - title: End PvP combat for all players with a specific faction
+    code: "class FactionFilter : public UnitFilter {\npublic:\n    bool IsMatch(Unit*\
+      \ unit) override {\n        return unit->GetFaction() == 14; // Example faction\
+      \ ID\n    }\n};\n\nFactionFilter filter;\ncombatManager->EndAllPvPCombat(&filter);"
+    language: cpp
+  notes: This method may trigger combat state updates and associated callbacks in
+    the game engine. It's important to ensure that unit filters are properly implemented
+    to avoid unintended side effects. The operation is generally non-blocking but
+    may involve multiple iterations over active combatants depending on the filter
+    criteria.
+  warnings: Calling this method with an improperly configured UnitFilter could result
+    in unexpected behavior or performance degradation. Ensure that the filter logic
+    does not inadvertently match units that should remain in combat, such as those
+    involved in ongoing PvP encounters or quest-related engagements.
+  related:
+  - CombatManager::StartPvPCombat
+  - CombatManager::IsInPvPCombat
+  - CombatManager::EndPvPCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:48:31.865067'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

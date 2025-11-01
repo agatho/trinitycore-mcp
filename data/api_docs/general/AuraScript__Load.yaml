@@ -1,0 +1,62 @@
+api:
+  class: AuraScript
+  method: _Load
+  signature: bool AuraScript::_Load(Aura * aura)
+documentation:
+  brief: Initializes and loads aura script data for a given aura instance
+  description: The _Load method is a virtual function in the AuraScript class that
+    serves as the initialization hook for aura scripts. It is called during the aura
+    application process to allow custom aura script logic to set up internal state,
+    register events, or perform any necessary pre-processing before the aura becomes
+    active. This method provides an opportunity for developers to configure their
+    aura script behavior based on the specific aura instance being loaded. The method
+    should return true if initialization is successful, or false if the aura script
+    should not be applied. It's important to note that this method is typically invoked
+    by the TrinityCore framework during aura application and should not be called
+    directly by user code.
+  parameters:
+  - name: aura
+    description: Pointer to the Aura object being loaded. This represents the specific
+      aura instance for which the script is initializing. The aura pointer must be
+      valid and cannot be null.
+  returns: Returns true if the aura script was successfully initialized and should
+    be applied, false otherwise. A return value of false will prevent the aura from
+    being applied to the target.
+  examples:
+  - title: Basic AuraScript _Load Implementation
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    bool _Load(Aura*\
+      \ aura) override\n    {\n        // Initialize script state\n        if (!aura)\n\
+      \            return false;\n        \n        // Set up custom data or register\
+      \ events\n        SetScriptState(AURA_SCRIPT_STATE_LOADED);\n        return\
+      \ true;\n    }\n};"
+    language: cpp
+  - title: Advanced AuraScript _Load with Validation
+    code: "class HealingAuraScript : public AuraScript\n{\npublic:\n    bool _Load(Aura*\
+      \ aura) override\n    {\n        if (!aura)\n            return false;\n   \
+      \     \n        // Validate aura type and spell\n        if (aura->GetSpellInfo()->Id\
+      \ != 12345)\n            return false;\n        \n        // Initialize custom\
+      \ variables\n        _healAmount = aura->GetSpellInfo()->Effects[0].BasePoints;\n\
+      \        \n        // Register event handlers\n        RegisterAuraEffectApplyHandler(&HealingAuraScript::HandleApply,\
+      \ EFFECT_0, SPELL_AURA_DUMMY);\n        \n        return true;\n    }\nprivate:\n\
+      \    int32 _healAmount = 0;\n};"
+    language: cpp
+  notes: The _Load method is called before any aura effects are applied, making it
+    an ideal place to set up event handlers and validate aura parameters. It's important
+    to note that this method should not perform heavy computations or database operations
+    as it may be called frequently during aura application. The method is part of
+    the AuraScript lifecycle and is automatically invoked by the TrinityCore framework.
+  warnings: Never call _Load directly from user code - it's meant to be invoked by
+    the framework only. Returning false from this method will prevent the aura from
+    being applied, which might cause unexpected behavior if not handled properly.
+    Ensure that all required aura data is valid before proceeding with initialization
+    logic.
+  related:
+  - AuraScript::OnApply
+  - AuraScript::OnRemove
+  - AuraScript::OnUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T02:33:51.272243'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

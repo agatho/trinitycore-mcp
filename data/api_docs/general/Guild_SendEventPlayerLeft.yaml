@@ -1,0 +1,65 @@
+api:
+  class: Guild
+  method: SendEventPlayerLeft
+  signature: void Guild::SendEventPlayerLeft(Member * leaver, Member * remover, bool
+    isRemoved) const
+documentation:
+  brief: Sends a guild event notification when a player leaves the guild, including
+    details about the leaver and remover.
+  description: The SendEventPlayerLeft method is responsible for broadcasting a guild
+    event message to all online guild members when a player exits the guild. This
+    method handles the communication of player departure information, distinguishing
+    between voluntary exits and forced removals by guild leaders or officers. It ensures
+    that all guild members are notified of the change in membership, maintaining transparency
+    and synchronization within the guild's communication system. The method takes
+    into account whether the player was removed (as opposed to leaving voluntarily)
+    and who performed the action, allowing for appropriate messaging and logging.
+  parameters:
+  - name: leaver
+    description: Pointer to the Member object representing the player who left or
+      was removed from the guild. This parameter cannot be null.
+  - name: remover
+    description: Pointer to the Member object representing the player who initiated
+      the removal action (can be null if player left voluntarily).
+  - name: isRemoved
+    description: Boolean flag indicating whether the player was removed from the guild
+      (true) or left voluntarily (false).
+  returns: void
+  examples:
+  - title: Notify guild members when a player is removed
+    code: 'Guild* guild = ...;
+
+      Member* leaver = guild->GetMember("PlayerName");
+
+      Member* remover = guild->GetMember("OfficerName");
+
+      guild->SendEventPlayerLeft(leaver, remover, true);'
+    language: cpp
+  - title: Notify guild members when a player leaves voluntarily
+    code: 'Guild* guild = ...;
+
+      Member* leaver = guild->GetMember("PlayerName");
+
+      guild->SendEventPlayerLeft(leaver, nullptr, false);'
+    language: cpp
+  notes: This method is typically called internally by the Guild class when handling
+    player leave/remove operations. It sends a packet to all online guild members
+    using the SMSG_GUILD_EVENT_PLAYER_LEFT opcode. The method does not perform any
+    validation on the input parameters beyond ensuring they are not null (for leaver).
+    Thread safety should be considered as this method may be called from different
+    threads during guild operations.
+  warnings: Ensure that the Member pointers passed to this method are valid and represent
+    actual guild members, otherwise undefined behavior may occur. Do not call this
+    method with a null leaver parameter as it will likely cause crashes or incorrect
+    messaging. This method assumes all members are online and properly initialized
+    for message delivery.
+  related:
+  - Guild::SendEventPlayerJoined
+  - Guild::SendEventPlayerRemoved
+  - Guild::SendEventMemberStatusChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T00:27:50.630704'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,48 @@
+api:
+  class: Map
+  method: ToInstanceMap
+  signature: const InstanceMap * Map::ToInstanceMap() const
+documentation:
+  brief: Converts a Map instance to an InstanceMap pointer, returning null if the
+    map is not an instance map.
+  description: The ToInstanceMap method performs a safe type conversion from a base
+    Map object to an InstanceMap object. This method is typically used in TrinityCore's
+    map management system to determine whether a given map represents an instance
+    (such as a dungeon or raid) rather than a regular world map. The method returns
+    a const pointer to the InstanceMap if the current Map object is indeed an instance
+    map, otherwise it returns nullptr. This allows code to conditionally execute instance-specific
+    logic only when dealing with actual instance maps, avoiding potential runtime
+    errors from casting non-instance maps to instance types.
+  parameters: []
+  returns: A const pointer to the InstanceMap if the current Map object represents
+    an instance map; otherwise, returns nullptr.
+  examples:
+  - title: Checking if a Map is an InstanceMap
+    code: "Map* map = ...;\nInstanceMap* instanceMap = map->ToInstanceMap();\nif (instanceMap\
+      \ != nullptr)\n{\n    // This is an instance map, safe to use instance-specific\
+      \ methods\n    uint32 instanceId = instanceMap->GetInstanceId();\n}"
+    language: cpp
+  - title: Using ToInstanceMap in a Function
+    code: "void HandleMapEvent(Map* map)\n{\n    if (const InstanceMap* instanceMap\
+      \ = map->ToInstanceMap())\n    {\n        // Process instance-specific events\n\
+      \        instanceMap->GetPlayerCount();\n    }\n    else\n    {\n        //\
+      \ Handle regular world map event\n        map->GetAreaId();\n    }\n}"
+    language: cpp
+  notes: This method is a type-safe casting helper that relies on the internal type
+    hierarchy of TrinityCore's map system. It should be used instead of direct static_cast
+    to avoid undefined behavior when dealing with non-instance maps. The returned
+    pointer is const, meaning it cannot be used to modify the InstanceMap object directly.
+  warnings: Do not assume that a non-null return value means the instance map is active
+    or has valid data. Always validate that the instance map is properly initialized
+    before using its methods. Additionally, since this method returns a const pointer,
+    any modifications to the instance map must be done through other mechanisms.
+  related:
+  - Map::ToMap
+  - Map::IsInstanceMap
+  - Map::GetInstanceId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:51:20.317023'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

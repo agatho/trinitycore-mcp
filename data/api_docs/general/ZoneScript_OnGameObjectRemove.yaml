@@ -1,0 +1,54 @@
+api:
+  class: ZoneScript
+  method: OnGameObjectRemove
+  signature: void ZoneScript::OnGameObjectRemove(GameObject * param0)
+documentation:
+  brief: Called when a game object is removed from the zone, allowing custom logic
+    to be executed.
+  description: The OnGameObjectRemove method is a virtual callback function in the
+    ZoneScript class that gets invoked whenever a GameObject is removed from the zone.
+    This method provides an opportunity for custom scripts to execute specific logic
+    when objects are destroyed, despawned, or otherwise removed from the game world.
+    It is commonly used in zone-specific scripts to manage quest objectives, trigger
+    events, or clean up state when certain objects are no longer present. The method
+    is part of the TrinityCore's scripting system and allows developers to extend
+    or modify the behavior of zones without modifying core game mechanics.
+  parameters:
+  - name: param0
+    description: Pointer to the GameObject that has been removed from the zone. This
+      parameter provides access to the object's properties and methods for further
+      processing.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnGameObjectRemove(GameObject*\
+      \ go) override\n    {\n        // Log when a specific type of object is removed\n\
+      \        if (go->GetEntry() == 12345)\n        {\n            sLog->outString(\"\
+      Custom GameObject removed: %u\", go->GetGUID().GetCounter());\n        }\n \
+      \   }\n};"
+    language: cpp
+  - title: Quest Objective Cleanup Example
+    code: "class QuestZoneScript : public ZoneScript\n{\npublic:\n    void OnGameObjectRemove(GameObject*\
+      \ go) override\n    {\n        // Check if the removed object was a quest objective\n\
+      \        if (go->GetGOInfo()->questItem)\n        {\n            // Trigger\
+      \ quest update or cleanup logic\n            Player* player = GetPlayerAtDistance(go,\
+      \ 50.0f);\n            if (player)\n            {\n                player->CompleteQuest(12345);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the GameObject's removal process, so it's important
+    to avoid performing operations that might cause further object destruction or
+    modification. The GameObject pointer passed in may become invalid immediately
+    after this call if the object is fully destroyed.
+  warnings: Do not attempt to modify or destroy the GameObject within this callback
+    as it may lead to undefined behavior or crashes. Be cautious about accessing the
+    GameObject's data after this method completes, as it might have been deallocated.
+  related:
+  - OnGameObjectCreate
+  - OnGameObjectUpdate
+  - OnGameObjectRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T18:59:27.132585'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

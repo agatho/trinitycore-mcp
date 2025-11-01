@@ -1,0 +1,61 @@
+api:
+  class: SpellMgr
+  method: GetSpellLinked
+  signature: const int * SpellMgr::GetSpellLinked(SpellLinkedType type, uint32 spell_id)
+    const
+documentation:
+  brief: Retrieves the linked spell IDs for a specified spell and link type from the
+    SpellMgr database.
+  description: The GetSpellLinked method fetches an array of spell IDs that are linked
+    to a given spell based on a specified link type. This is commonly used in World
+    of Warcraft mechanics such as spell linking for effects like proc chances, aura
+    interactions, or spell combinations. The returned pointer points to an array of
+    integers, where each integer represents a linked spell ID. The method does not
+    validate the input parameters, so it's important to ensure that the spell_id exists
+    and the type is valid before calling this function. The data structure returned
+    by this method is typically used internally by the core for managing spell relationships.
+  parameters:
+  - name: type
+    description: The SpellLinkedType enum value indicating the type of link to retrieve.
+      This defines how the linked spells are related to the base spell.
+  - name: spell_id
+    description: The unique identifier (ID) of the base spell for which linked spells
+      are being retrieved.
+  returns: A pointer to an array of integers representing the IDs of spells linked
+    to the specified spell by the given type. Returns NULL if no links exist or if
+    invalid parameters are provided.
+  examples:
+  - title: Retrieve Proc Spell Links
+    code: "const int* procSpells = sSpellMgr->GetSpellLinked(SPELL_LINK_PROC, 12345);\n\
+      if (procSpells != nullptr)\n{\n    for (int i = 0; i < MAX_SPELL_LINKED_COUNT\
+      \ && procSpells[i] != 0; ++i)\n    {\n        // Process each linked spell\n\
+      \        printf(\"Linked Spell ID: %d\\n\", procSpells[i]);\n    }\n}"
+    language: cpp
+  - title: Check for Aura Link Types
+    code: "const int* auraLinks = sSpellMgr->GetSpellLinked(SPELL_LINK_AURA, 98765);\n\
+      if (auraLinks != nullptr)\n{\n    // Iterate through all linked auras\n    for\
+      \ (int i = 0; i < MAX_SPELL_LINKED_COUNT && auraLinks[i] != 0; ++i)\n    {\n\
+      \        if (auraLinks[i] > 0)\n        {\n            // Apply the linked aura\
+      \ logic\n            SpellInfo const* auraSpell = sSpellMgr->GetSpellInfo(auraLinks[i]);\n\
+      \            if (auraSpell)\n                // Handle aura application\n  \
+      \      }\n    }\n}"
+    language: cpp
+  notes: This method accesses internal spell linking data structures that are populated
+    during server startup from the database. The returned array is not a copy but
+    a direct reference to internal memory, so it should be treated as read-only and
+    not modified. Be cautious about using this method outside of core systems unless
+    you're certain about the spell link types and their expected behavior.
+  warnings: Do not assume that all linked spells are valid or exist in the database.
+    Always check for NULL returns and validate spell IDs before use. Also, be aware
+    that the maximum number of linked spells per type is limited by MAX_SPELL_LINKED_COUNT,
+    which may affect how many results are returned.
+  related:
+  - GetSpellInfo
+  - IsSpellLinked
+  - LoadSpellLinked
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:15:22.511070'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

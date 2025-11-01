@@ -1,0 +1,67 @@
+api:
+  class: Group
+  method: LoadMemberFromDB
+  signature: void Group::LoadMemberFromDB(int guidLow, int memberFlags, int subgroup,
+    int roles)
+documentation:
+  brief: Loads a group member from the database using the provided member data.
+  description: The LoadMemberFromDB method is responsible for initializing and loading
+    group member data into a Group object from the database. This method takes low
+    GUID, member flags, subgroup index, and role information to properly set up the
+    internal state of the group member. It is typically called during group initialization
+    or when adding members to an existing group. The method does not return any value
+    but modifies the internal state of the Group object directly. This functionality
+    is crucial for maintaining accurate group membership data in World of Warcraft's
+    TrinityCore server implementation.
+  parameters:
+  - name: guidLow
+    description: The low GUID of the player member to load from the database. This
+      represents the unique identifier for the player within the group context.
+  - name: memberFlags
+    description: Bitfield containing various flags that define the member's status
+      and properties within the group, such as online status, loot settings, etc.
+  - name: subgroup
+    description: The subgroup index (0-8) where this member belongs within the group.
+      Subgroups are used for organizing players in raid groups.
+  - name: roles
+    description: Role flags indicating the member's role within the group, such as
+      tank, healer, or damage dealer, which affects loot distribution and other mechanics.
+  returns: null
+  examples:
+  - title: Basic usage in group initialization
+    code: 'Group* group = new Group();
+
+      // Load a member with GUID 12345, online status, subgroup 0, no special roles
+
+      group->LoadMemberFromDB(12345, GROUP_MEMBER_FLAG_DEFAULT, 0, 0);'
+    language: cpp
+  - title: Loading multiple group members
+    code: 'Group* raid = new Group();
+
+      raid->LoadMemberFromDB(1001, GROUP_MEMBER_FLAG_ONLINE | GROUP_MEMBER_FLAG_MAIN_TANK,
+      0, PLAYER_ROLE_TANK);
+
+      raid->LoadMemberFromDB(1002, GROUP_MEMBER_FLAG_ONLINE | GROUP_MEMBER_FLAG_MAIN_HEALER,
+      1, PLAYER_ROLE_HEALER);
+
+      raid->LoadMemberFromDB(1003, GROUP_MEMBER_FLAG_ONLINE, 2, PLAYER_ROLE_DPS);'
+    language: cpp
+  notes: This method is typically invoked during group creation or when restoring
+    group state from database storage. It assumes that the Group object has already
+    been initialized and that the database connection is active. The method directly
+    modifies internal member data structures without requiring additional synchronization
+    mechanisms.
+  warnings: Calling this method with invalid GUID values may lead to undefined behavior
+    or crashes. Ensure that all parameters are validated before calling this method,
+    especially when loading data from external sources. Incorrect subgroup indices
+    or role flags can cause unexpected group behavior during gameplay.
+  related:
+  - Group::AddMember
+  - Group::RemoveMember
+  - Group::LoadFromDB
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:43:00.045821'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

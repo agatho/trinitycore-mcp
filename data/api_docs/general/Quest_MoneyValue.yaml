@@ -1,0 +1,47 @@
+api:
+  class: Quest
+  method: MoneyValue
+  signature: uint32 Quest::MoneyValue(const Player * player) const
+documentation:
+  brief: Calculates and returns the monetary reward value for completing the quest.
+  description: The MoneyValue method computes the gold amount that a player will receive
+    as part of the quest's reward. This value is determined based on the quest's configuration
+    in the database, including any modifiers or scaling factors that may apply. The
+    method takes into account the player's level and other potential factors that
+    influence quest rewards. It is typically used when processing quest completion
+    rewards to determine how much gold should be awarded to the player.
+  parameters: []
+  returns: Returns a uint32 value representing the amount of gold (in copper units)
+    that will be awarded to the player upon completing this quest. A return value
+    of 0 indicates no monetary reward is configured for the quest.
+  examples:
+  - title: Basic Usage
+    code: 'Quest* quest = sObjectMgr->GetQuestTemplate(12345);
+
+      uint32 moneyReward = quest->MoneyValue(player);
+
+      player->AddItem(ITEM_ID_GOLD_COINS, moneyReward);'
+    language: cpp
+  - title: Check Reward Before Awarding
+    code: "Quest* quest = sObjectMgr->GetQuestTemplate(12345);\nuint32 reward = quest->MoneyValue(player);\n\
+      if (reward > 0)\n{\n    player->ModifyMoney(reward);\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You have been rewarded %u gold.\", reward / 10000);\n}"
+    language: cpp
+  notes: This method does not directly modify the player's money; it only calculates
+    the value. The actual awarding of money should be handled separately using methods
+    like Player::ModifyMoney() or similar reward distribution functions. The calculation
+    may vary depending on server settings, quest scaling, and expansion-specific configurations.
+  warnings: Ensure that the player parameter is valid and not null before calling
+    this method to avoid undefined behavior. Also, note that this value represents
+    only the base monetary reward and does not include any additional bonuses from
+    achievements or other sources.
+  related:
+  - Player::ModifyMoney
+  - Quest::GetRewMoney
+  - Quest::GetRewMoneyMaxLevel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:06:28.478443'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

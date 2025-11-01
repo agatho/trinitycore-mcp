@@ -1,0 +1,53 @@
+api:
+  class: TradeManager
+  method: IsBlacklisted
+  signature: bool TradeManager::IsBlacklisted(int guid) const
+documentation:
+  brief: Checks if a player GUID is blacklisted from trading in the TradeManager.
+  description: The IsBlacklisted method determines whether a specific player, identified
+    by their global unique identifier (GUID), is currently prohibited from participating
+    in trades within the TrinityCore server. This functionality is typically used
+    to enforce game rules or administrative restrictions on players who have been
+    banned or flagged for trading violations. The method performs a lookup in an internal
+    blacklist data structure and returns a boolean result indicating the player's
+    trading status. It is commonly invoked during trade initiation or validation processes
+    to prevent blacklisted players from engaging in transactions.
+  parameters:
+  - name: guid
+    description: The global unique identifier of the player to check. This value uniquely
+      identifies a player character within the TrinityCore database and is typically
+      obtained from player objects or database queries.
+  returns: Returns true if the specified player GUID is found in the blacklist, indicating
+    that the player cannot trade. Returns false if the player GUID is not blacklisted,
+    allowing them to participate in trading activities.
+  examples:
+  - title: Basic Usage
+    code: "if (tradeManager.IsBlacklisted(playerGuid)) {\n    // Handle blacklisted\
+      \ player\n    SendTradeError(TRADE_ERROR_CANNOT_TRADE);\n} else {\n    // Allow\
+      \ normal trade processing\n    StartTrade();\n}"
+    language: cpp
+  - title: Integration with Trade Validation
+    code: "bool CanPlayerTrade(int playerGuid) {\n    if (tradeManager.IsBlacklisted(playerGuid))\
+      \ {\n        return false;\n    }\n    // Additional validation logic here\n\
+      \    return true;\n}\n\n// Usage\nif (!CanPlayerTrade(playerGuid)) {\n    //\
+      \ Prevent trade initiation\n    SendSystemMessage(\"You are currently banned\
+      \ from trading.\");\n}"
+    language: cpp
+  notes: This method likely performs a fast lookup operation using an internal data
+    structure such as a hash set or map for efficient O(1) or O(log n) access. The
+    blacklist may be populated from database entries, administrative commands, or
+    automated systems that flag players based on rule violations.
+  warnings: Ensure that the GUID parameter is valid and corresponds to an actual player
+    character; passing invalid or uninitialized GUIDs could lead to unexpected behavior
+    or crashes. This method should not be used as a substitute for comprehensive permission
+    checks in complex trading scenarios.
+  related:
+  - AddToBlacklist
+  - RemoveFromBlacklist
+  - IsTradingAllowed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:09:42.010410'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

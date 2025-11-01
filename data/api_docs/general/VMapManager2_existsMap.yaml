@@ -1,0 +1,78 @@
+api:
+  class: VMapManager2
+  method: existsMap
+  signature: LoadResult VMapManager2::existsMap(const char * basePath, unsigned int
+    mapId, int x, int y)
+documentation:
+  brief: Checks if a VMap file exists for the specified map and coordinates
+  description: The existsMap method determines whether a navigation mesh (VMap) file
+    is available for a given map ID and grid coordinates. This is essential for pathfinding
+    and collision detection in World of Warcraft's virtual world. The method constructs
+    the expected file path using the base path, map ID, and grid coordinates, then
+    verifies if the corresponding VMap file exists on disk. It returns a LoadResult
+    enum indicating success, failure, or other status conditions. This functionality
+    is crucial for determining whether AI characters can navigate properly within
+    a specific area of the game world.
+  parameters:
+  - name: basePath
+    description: The base directory path where VMap files are stored. This typically
+      points to the 'vmaps' directory in the World of Warcraft installation folder.
+  - name: mapId
+    description: Unique identifier for the map (e.g., 0 for Eastern Kingdoms, 1 for
+      Kalimdor). Must be a valid map ID recognized by the game engine.
+  - name: x
+    description: X grid coordinate (typically -64 to 63) representing the horizontal
+      position within the map. Used to determine which VMap file to check.
+  - name: y
+    description: Y grid coordinate (typically -64 to 63) representing the vertical
+      position within the map. Used to determine which VMap file to check.
+  returns: 'Returns a LoadResult enum value indicating the outcome of the existence
+    check:
+
+    - LOAD_RESULT_SUCCESS: The VMap file exists and is accessible
+
+    - LOAD_RESULT_ERROR: An error occurred during the check (file system issue, invalid
+    parameters)
+
+    - LOAD_RESULT_NOT_FOUND: No VMap file exists for the specified map and coordinates
+
+    - LOAD_RESULT_PENDING: The file check is still in progress (if async operations
+    are involved)'
+  examples:
+  - title: Basic usage to check if a VMap exists
+    code: "VMapManager2* vmapMgr = VMapManager2::instance();\nLoadResult result =\
+      \ vmapMgr->existsMap(\"./vmaps\", 0, 10, 15);\nif (result == LOAD_RESULT_SUCCESS)\
+      \ {\n    printf(\"VMap exists for map 0 at coordinates (10, 15)\\n\");\n} else\
+      \ if (result == LOAD_RESULT_NOT_FOUND) {\n    printf(\"No VMap found for map\
+      \ 0 at coordinates (10, 15)\\n\");\n}"
+    language: cpp
+  - title: Using existsMap to validate navigation before AI movement
+    code: "bool CanNavigateToPosition(uint32 mapId, int x, int y) {\n    VMapManager2*\
+      \ vmapMgr = VMapManager2::instance();\n    LoadResult result = vmapMgr->existsMap(\"\
+      ./vmaps\", mapId, x, y);\n    return (result == LOAD_RESULT_SUCCESS || result\
+      \ == LOAD_RESULT_PENDING);\n}\n\n// Usage example\nif (CanNavigateToPosition(0,\
+      \ 50, -20)) {\n    // Proceed with AI pathfinding\n    printf(\"Navigation available\\\
+      n\");\n} else {\n    // Handle navigation failure\n    printf(\"Cannot navigate\
+      \ to target position\\n\");\n}"
+    language: cpp
+  notes: This method is primarily used by the VMapManager2 system for caching and
+    validation purposes. It performs file system operations which may impact performance
+    if called frequently in tight loops. The method assumes that VMap files are organized
+    in a specific directory structure under the base path, typically following the
+    pattern 'basePath/mapId/x/y/VMapName.vmap'. Thread safety should be considered
+    when calling this method from multiple threads simultaneously.
+  warnings: Calling this method with invalid map IDs or coordinates may result in
+    unexpected behavior or errors. Ensure that the basePath parameter points to a
+    valid directory containing VMap files. The method does not perform any automatic
+    file generation or download operations - it only checks for existing files.
+  related:
+  - getVMap
+  - loadMap
+  - unloadMap
+  - existsMapFile
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:59:33.351538'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

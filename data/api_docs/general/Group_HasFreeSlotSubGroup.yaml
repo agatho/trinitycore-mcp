@@ -1,0 +1,59 @@
+api:
+  class: Group
+  method: HasFreeSlotSubGroup
+  signature: bool Group::HasFreeSlotSubGroup(int subgroup) const
+documentation:
+  brief: Checks if a specified subgroup within the group has an available free slot
+    for a new member.
+  description: The HasFreeSlotSubGroup method determines whether a given subgroup
+    in the player group has room for another member. In World of Warcraft's grouping
+    system, players are organized into subgroups (also known as raid subgroups) which
+    can contain up to 5 members each. This method evaluates if any of those slots
+    are currently unoccupied. It is commonly used during group creation or member
+    addition to ensure proper distribution of players across subgroups and maintain
+    balanced group composition. The method performs a simple check without modifying
+    the group state.
+  parameters:
+  - name: subgroup
+    description: The index of the subgroup to check (0-8 for normal groups, 0-7 for
+      raid groups). Valid values range from 0 up to the maximum number of subgroups
+      allowed in the current group type. Values outside this range may result in undefined
+      behavior or return false.
+  returns: Returns true if the specified subgroup has at least one free slot available
+    for a new member, false otherwise. If the subgroup index is invalid or exceeds
+    the maximum allowed subgroups, the method will typically return false.
+  examples:
+  - title: Check if subgroup 0 has a free slot
+    code: "if (group->HasFreeSlotSubGroup(0)) {\n    // Add player to subgroup 0\n\
+      \    group->AddMember(player);\n} else {\n    // Find another subgroup with\
+      \ space\n    for (int i = 0; i < MAX_SUBGROUPS; ++i) {\n        if (group->HasFreeSlotSubGroup(i))\
+      \ {\n            group->AddMember(player, i);\n            break;\n        }\n\
+      \    }\n}"
+    language: cpp
+  - title: Dynamically assign players to subgroups with free slots
+    code: "void AssignPlayerToFreeSubgroup(Group* group, Player* player) {\n    for\
+      \ (int i = 0; i < MAX_SUBGROUPS; ++i) {\n        if (group->HasFreeSlotSubGroup(i))\
+      \ {\n            group->AddMember(player, i);\n            return;\n       \
+      \ }\n    }\n    // No free slots found\n    SendErrorToPlayer(player, \"No free\
+      \ subgroup slots available\");\n}"
+    language: cpp
+  notes: This method does not perform any locking or thread safety checks. It should
+    be called from a context where group modifications are safe. The maximum number
+    of subgroups depends on the group type (party vs raid) and is typically 8 for
+    raids and 5 for parties. The method assumes that all subgroups are properly initialized
+    and valid.
+  warnings: Calling this method with an invalid subgroup index may lead to undefined
+    behavior or incorrect results. Always validate the subgroup parameter before calling
+    this method. In a multi-threaded environment, ensure proper synchronization when
+    checking group state.
+  related:
+  - Group::AddMember
+  - Group::RemoveMember
+  - Group::GetMembers
+  - Group::GetSubGroup
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T16:40:24.793596'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: ObjectMgr
+  method: GetClosestGraveyard
+  signature: const WorldSafeLocsEntry * ObjectMgr::GetClosestGraveyard(const int &
+    location, uint32 team, int * conditionObject) const
+documentation:
+  brief: Finds and returns the closest graveyard location for a given player based
+    on their current zone and team.
+  description: The GetClosestGraveyard method is used to determine the nearest available
+    graveyard for a player's team within a specific zone. It takes into account the
+    player's current location (represented by a zone ID) and their team affiliation
+    (Alliance or Horde). The method searches through the database of world safe locations
+    (graveyards) to find the one that is geographically closest to the provided location.
+    If a condition object pointer is provided, it may be used to further filter or
+    refine the selection process based on additional criteria such as player level
+    or quest requirements. This functionality is crucial for proper corpse placement
+    and resurrection mechanics in World of Warcraft.
+  parameters:
+  - name: location
+    description: The zone ID or location identifier where the player currently resides.
+      Used to determine which graveyard is geographically closest.
+  - name: team
+    description: The team identifier (0 for Alliance, 1 for Horde) to determine which
+      team's graveyard should be returned.
+  - name: conditionObject
+    description: Optional pointer to a condition object that may influence the selection
+      of the graveyard. Can be NULL if no additional filtering is required.
+  returns: Returns a pointer to a WorldSafeLocsEntry structure representing the closest
+    available graveyard for the specified team and location. Returns NULL if no suitable
+    graveyard could be found.
+  examples:
+  - title: Basic Usage
+    code: "const WorldSafeLocsEntry* graveyard = sObjectMgr->GetClosestGraveyard(1234,\
+      \ TEAM_ALLIANCE, nullptr);\nif (graveyard)\n{\n    printf(\"Closest Alliance\
+      \ graveyard is at: %f, %f\\n\", graveyard->x, graveyard->y);\n}"
+    language: cpp
+  - title: Usage with Condition Object
+    code: "Condition* condition = new Condition(CONDITION_SOURCE_TYPE_CREATURE, 12345,\
+      \ 0, 0);\nconst WorldSafeLocsEntry* graveyard = sObjectMgr->GetClosestGraveyard(5678,\
+      \ TEAM_HORDE, condition);\nif (graveyard)\n{\n    printf(\"Closest Horde graveyard\
+      \ is at: %f, %f\\n\", graveyard->x, graveyard->y);\n}\ndelete condition;"
+    language: cpp
+  notes: This method relies on the WorldSafeLocs database table which contains all
+    known safe locations including graveyards. The implementation uses spatial calculations
+    to determine proximity and may cache results for performance. The method is thread-safe
+    as it only reads from immutable data structures.
+  warnings: Ensure that the location parameter corresponds to a valid zone ID, otherwise
+    the method may return incorrect or NULL results. When using condition objects,
+    make sure they are properly initialized and cleaned up to prevent memory leaks.
+  related:
+  - GetGraveyardByInstanceId
+  - GetClosestGraveyardForPlayer
+  - GetWorldSafeLocsEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T10:03:07.680925'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

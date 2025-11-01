@@ -1,0 +1,57 @@
+api:
+  class: ScriptMgr
+  method: OnGivePlayerXP
+  signature: void ScriptMgr::OnGivePlayerXP(Player * player, uint32 & amount, Unit
+    * victim)
+documentation:
+  brief: Modifies the experience points awarded to a player when they kill a unit.
+  description: The OnGivePlayerXP method is a hook in the ScriptMgr class that allows
+    custom scripts to modify the amount of experience points a player receives upon
+    killing a unit. This method is invoked during the experience awarding process,
+    providing an opportunity for addons or scripts to adjust the XP amount dynamically
+    based on various conditions such as player level, difficulty, or game events.
+    The method takes a reference to the XP amount, allowing modifications to be made
+    directly to the value that will be awarded.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who earned the experience points. This
+      parameter represents the player entity that killed the victim unit.
+  - name: amount
+    description: Reference to a uint32 value representing the base amount of experience
+      points to be awarded. Scripts can modify this value directly to increase or
+      decrease the XP reward.
+  - name: victim
+    description: Pointer to the Unit object that was killed by the player. This represents
+      the entity that provided the XP reward and can be used to determine conditions
+      for XP modification.
+  returns: null
+  examples:
+  - title: Basic XP Modification Example
+    code: "void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)\n{\n\
+      \    // Double the XP for low-level players\n    if (player->GetLevel() < 10)\n\
+      \        amount *= 2;\n}"
+    language: cpp
+  - title: Conditional XP Reduction Based on Victim Type
+    code: "void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)\n{\n\
+      \    // Reduce XP if the victim is a quest mob\n    if (victim->HasFlag(UNIT_NPC_FLAGS,\
+      \ UNIT_NPC_FLAG_QUESTGIVER))\n        amount = uint32(amount * 0.5f);\n}"
+    language: cpp
+  notes: This method is called during the standard XP awarding process in TrinityCore.
+    Modifications to the 'amount' parameter are applied directly to the XP calculation,
+    so care should be taken to ensure values remain within reasonable bounds. The
+    method may be invoked multiple times per kill depending on the game's internal
+    logic and scripting system.
+  warnings: Modifying the XP amount can significantly affect gameplay balance. Ensure
+    that any modifications do not create unfair advantages or disadvantages for players.
+    Be cautious when using this hook in conjunction with other XP-related scripts
+    to avoid unexpected interactions.
+  related:
+  - OnPlayerLevelUp
+  - OnGiveXP
+  - OnCreatureKilled
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:47:37.862078'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

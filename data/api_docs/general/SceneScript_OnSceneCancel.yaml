@@ -1,0 +1,70 @@
+api:
+  class: SceneScript
+  method: OnSceneCancel
+  signature: void SceneScript::OnSceneCancel(Player * player, uint32 sceneInstanceID,
+    const SceneTemplate * sceneTemplate)
+documentation:
+  brief: Called when a scene is canceled for a player, allowing custom handling of
+    scene interruption.
+  description: The OnSceneCancel method is invoked when a scene instance is interrupted
+    or canceled for a specific player. This can occur due to various reasons such
+    as the player leaving the zone, the scene being forcibly stopped by the server,
+    or the scene completing prematurely. The method provides an opportunity for script
+    authors to perform cleanup operations, notify other systems, or modify player
+    state upon scene cancellation. It is part of the SceneScript class which handles
+    custom behavior for in-game scenes and cinematic events.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the scene was canceled. This
+      parameter represents the affected player and can be used to access player-specific
+      data, send messages, or modify their state.
+  - name: sceneInstanceID
+    description: Unique identifier for the specific scene instance that was canceled.
+      This ID can be used to track which particular scene was interrupted and may
+      be useful for logging or debugging purposes.
+  - name: sceneTemplate
+    description: Pointer to the SceneTemplate object that defines the structure and
+      properties of the canceled scene. This provides access to scene configuration
+      data, such as associated quests, objectives, or event triggers.
+  returns: null
+  examples:
+  - title: Basic Scene Cancel Handler
+    code: "class MySceneScript : public SceneScript\n{\npublic:\n    void OnSceneCancel(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        // Log the cancellation event\n        sLog->outString(\"Scene\
+      \ %u was canceled for player %s\", sceneInstanceID, player->GetName().c_str());\n\
+      \        \n        // Optionally reset player state or send a message\n    \
+      \    player->SendNotification(\"The scene has been interrupted.\");\n    }\n\
+      };"
+    language: cpp
+  - title: Advanced Scene Cancel with Quest Handling
+    code: "class QuestSceneScript : public SceneScript\n{\npublic:\n    void OnSceneCancel(Player*\
+      \ player, uint32 sceneInstanceID, const SceneTemplate* sceneTemplate) override\n\
+      \    {\n        // Check if the scene was related to a quest\n        if (sceneTemplate\
+      \ && sceneTemplate->HasQuest())\n        {\n            uint32 questId = sceneTemplate->GetQuestId();\n\
+      \            \n            // Cancel the associated quest if active\n      \
+      \      if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)\n   \
+      \         {\n                player->CompleteQuest(questId);\n             \
+      \   player->SendNotification(\"Quest %u was canceled due to scene interruption.\"\
+      , questId);\n            }\n        }\n        \n        // Reset any custom\
+      \ player state\n        player->SetPhaseMask(0, true);\n    }\n};"
+    language: cpp
+  notes: This method is typically called from within the core scene management system
+    when a scene is interrupted. It's important to note that this method may be invoked
+    multiple times during a single scene lifecycle if the scene is restarted or resumed.
+    The SceneTemplate parameter may contain null values in some edge cases, so it's
+    recommended to validate before accessing its members.
+  warnings: Do not perform operations that might block or delay execution within this
+    method as it's called from the game loop. Avoid modifying player state in ways
+    that could cause instability or conflicts with other systems. Be cautious when
+    using sceneInstanceID for tracking since it may be reused after a scene completes.
+  related:
+  - OnSceneStart
+  - OnSceneComplete
+  - OnSceneUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T06:52:31.690908'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

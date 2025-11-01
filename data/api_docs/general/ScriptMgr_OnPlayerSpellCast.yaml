@@ -1,0 +1,63 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerSpellCast
+  signature: void ScriptMgr::OnPlayerSpellCast(Player * player, Spell * spell, bool
+    skipCheck)
+documentation:
+  brief: Invoked when a player casts a spell, allowing scripts to modify or react
+    to the spell casting process.
+  description: The OnPlayerSpellCast method is a hook in the TrinityCore scripting
+    system that gets called whenever a player initiates the casting of a spell. This
+    method provides an opportunity for custom scripts to intercept and modify the
+    spell casting behavior before it proceeds. The method is part of the general scripting
+    framework and allows developers to implement custom logic such as spell restrictions,
+    modifications, or additional effects. It is typically used in conjunction with
+    other script hooks to create comprehensive spell handling systems within the game
+    world.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is casting the spell. This parameter
+      represents the caster and provides access to player-specific data and methods.
+  - name: spell
+    description: Pointer to the Spell object representing the spell being cast. This
+      allows access to spell properties, effects, and casting mechanics.
+  - name: skipCheck
+    description: Boolean flag indicating whether to skip certain validation checks
+      during spell casting. When true, some pre-casting validations may be bypassed.
+  returns: null
+  examples:
+  - title: Basic Spell Cast Hook Implementation
+    code: "void MyScript::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)\n\
+      {\n    // Log the spell being cast\n    sLog->outString(\"Player %s casting\
+      \ spell %u\", player->GetName().c_str(), spell->m_spellInfo->Id);\n    \n  \
+      \  // Example: Prevent casting of a specific spell\n    if (spell->m_spellInfo->Id\
+      \ == 12345)\n    {\n        player->SendSpellFailed(12345, SPELL_FAILED_BAD_TARGETS);\n\
+      \        return;\n    }\n}"
+    language: cpp
+  - title: Advanced Spell Modification Example
+    code: "void MyScript::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)\n\
+      {\n    // Modify spell damage based on player's level\n    if (spell->m_spellInfo->Effect[0]\
+      \ == SPELL_EFFECT_SCHOOL_DAMAGE)\n    {\n        float damageMultiplier = 1.0f\
+      \ + (player->getLevel() / 100.0f);\n        spell->m_damage *= damageMultiplier;\n\
+      \    }\n    \n    // Apply custom aura effects\n    if (player->HasAura(12345))\n\
+      \    {\n        player->AddAura(67890, player); // Add a buff\n    }\n}"
+    language: cpp
+  notes: This method is called during the spell casting process, so modifications
+    to the spell object can affect how it executes. Be cautious when modifying spell
+    properties directly as this might cause unexpected behavior. The skipCheck parameter
+    should be used carefully as it may bypass important validation logic that ensures
+    game balance and prevents exploits.
+  warnings: Modifying spell objects directly in this hook can lead to unpredictable
+    results or game-breaking exploits if not handled properly. Avoid changing fundamental
+    spell mechanics without thorough testing. Be aware that some spell validations
+    might be skipped when skipCheck is true, which could lead to invalid spell states.
+  related:
+  - OnPlayerSpellCastStart
+  - OnPlayerSpellCastFinish
+  - OnSpellCast
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:13:02.869181'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

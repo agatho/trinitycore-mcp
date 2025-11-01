@@ -1,0 +1,56 @@
+api:
+  class: LineOfSightManager
+  method: HasSpellLineOfSight
+  signature: bool LineOfSightManager::HasSpellLineOfSight(Unit * target, uint32 spellId)
+documentation:
+  brief: Checks if a unit has line of sight to target for a specific spell.
+  description: The HasSpellLineOfSight method determines whether a given unit can
+    cast a spell on a target without any obstacles blocking the path. This is crucial
+    for spell casting mechanics in World of Warcraft, ensuring that spells like arcane
+    missiles or healing abilities can only be cast when there's a clear line of sight
+    between the caster and the target. The method takes into account both the physical
+    positioning of units and the spell-specific requirements such as whether the spell
+    requires direct line of sight or can be cast through obstacles.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit that the spell is being cast on. Must
+      not be null.
+  - name: spellId
+    description: The unique identifier of the spell being checked for line of sight.
+      Used to determine if the spell requires direct line of sight or can be cast
+      through obstacles.
+  returns: Returns true if there is a clear line of sight between the unit and target
+    for the specified spell, false otherwise.
+  examples:
+  - title: Basic usage to check spell line of sight
+    code: "if (unit->GetMap()->GetLineOfSightManager()->HasSpellLineOfSight(target,\
+      \ 12345)) {\n    // Cast spell\n    unit->CastSpell(target, 12345, true);\n\
+      } else {\n    // Cannot cast spell due to obstruction\n    unit->SendSpellFailed(12345,\
+      \ SPELL_FAILED_NO_LINE_OF_SIGHT);\n}"
+    language: cpp
+  - title: Using in AI behavior to determine spell casting
+    code: "class MyAI : public ScriptedAI {\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override {\n        if (!UpdateVictim())\n            return;\n\n        if\
+      \ (me->HasSpellLineOfSight(me->GetVictim(), 15407)) {\n            DoCast(me->GetVictim(),\
+      \ 15407);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is typically used in spell casting logic to validate whether
+    a spell can be cast on a target. It's important to note that this check may involve
+    complex collision detection and pathfinding calculations, so performance should
+    be considered when using it frequently. The implementation likely uses raycasting
+    or similar techniques to determine if any game objects (walls, terrain, etc.)
+    block the line of sight between the caster and target.
+  warnings: Do not use this method in performance-critical sections without proper
+    optimization. It may perform expensive calculations involving collision detection.
+    Also, be aware that some spells might have special line of sight requirements
+    that are not handled by this generic method but rather by spell-specific logic.
+  related:
+  - HasLineOfSight
+  - IsWithinLOS
+  - GetSpellRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T11:04:40.815761'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

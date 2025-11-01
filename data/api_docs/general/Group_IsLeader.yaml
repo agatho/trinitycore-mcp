@@ -1,0 +1,56 @@
+api:
+  class: Group
+  method: IsLeader
+  signature: bool Group::IsLeader(int guid) const
+documentation:
+  brief: Checks if the specified player GUID is the leader of the group.
+  description: The IsLeader method determines whether a given player, identified by
+    their GUID, holds the leadership position within the group. In World of Warcraft's
+    TrinityCore framework, groups (also known as raids or parties) have a designated
+    leader who has special privileges such as managing loot distribution, kicking
+    members, and assigning roles. This method performs a lookup to verify if the provided
+    GUID corresponds to the current group leader. The method is const, meaning it
+    does not modify any internal state of the Group object. It returns true if the
+    specified GUID matches the group's leader, and false otherwise.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player to check for leadership
+      status. This should be a valid player GUID within the context of the current
+      world session.
+  returns: Returns true if the specified player GUID is the leader of the group; otherwise,
+    returns false.
+  examples:
+  - title: Basic usage to check if a player is the group leader
+    code: "if (group->IsLeader(playerGuid)) {\n    // Player is the group leader\n\
+      \    SendGroupLeaderMessage(\"You are the leader of this group.\");\n} else\
+      \ {\n    // Player is not the group leader\n    SendGroupLeaderMessage(\"You\
+      \ are not the group leader.\");\n}"
+    language: cpp
+  - title: Using IsLeader in a command handler to validate permissions
+    code: "void HandleGroupLeaderCommand(ChatHandler* handler) {\n    Player* player\
+      \ = handler->GetSession()->GetPlayer();\n    Group* group = player->GetGroup();\n\
+      \    if (!group) {\n        handler->SendSysMessage(\"You are not in a group.\"\
+      );\n        return;\n    }\n    if (group->IsLeader(player->GetGUID().GetCounter()))\
+      \ {\n        handler->SendSysMessage(\"You are the group leader.\");\n    }\
+      \ else {\n        handler->SendSysMessage(\"You are not the group leader.\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method relies on internal tracking of the group leader's GUID. It assumes
+    that the Group object has been properly initialized and that the provided GUID
+    is valid within the current game context. The method does not perform any network
+    synchronization or database lookups, making it efficient for frequent checks.
+  warnings: Ensure that the GUID passed to this method is a valid player GUID, as
+    passing an invalid or non-player GUID may lead to incorrect results. Also note
+    that group leadership can change dynamically during gameplay (e.g., when the leader
+    leaves the group or is kicked), so cached results from this method should not
+    be relied upon across multiple game ticks without re-evaluation.
+  related:
+  - GetLeaderGuid
+  - SetLeader
+  - IsMember
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T16:39:11.226250'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

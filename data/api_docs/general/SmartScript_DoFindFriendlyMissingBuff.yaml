@@ -1,0 +1,62 @@
+api:
+  class: SmartScript
+  method: DoFindFriendlyMissingBuff
+  signature: void SmartScript::DoFindFriendlyMissingBuff(int & creatures, float range,
+    uint32 spellid) const
+documentation:
+  brief: Finds friendly units missing a specified buff within a given range and updates
+    the creature count.
+  description: The DoFindFriendlyMissingBuff method searches for friendly units (such
+    as NPCs or players) within a specified range that do not currently have a particular
+    spell buff applied. It modifies the provided integer reference to reflect the
+    number of such units found. This functionality is commonly used in SmartAI scripts
+    to trigger actions based on the presence or absence of buffs on nearby allies.
+    The method operates within the context of TrinityCore's AI system and is typically
+    invoked during event processing or conditional checks. It does not directly affect
+    the spell casting or buff application itself, but rather identifies targets for
+    subsequent AI logic.
+  parameters:
+  - name: creatures
+    description: A reference to an integer that will be updated with the count of
+      friendly units missing the specified buff within the given range.
+  - name: range
+    description: The maximum distance (in yards) from the script's source unit to
+      search for friendly targets. Must be a positive value.
+  - name: spellid
+    description: The ID of the spell buff to check for. Units without this buff will
+      be counted in the creatures parameter.
+  returns: null
+  examples:
+  - title: Basic usage in SmartAI script
+    code: "void OnCombatEnter(Unit* /*who*/) override\n{\n    int count = 0;\n   \
+      \ DoFindFriendlyMissingBuff(count, 30.0f, 12345);\n    if (count > 0)\n    {\n\
+      \        // Trigger action when friendly units are missing buff\n        DoCast(SPELL_HEALING_BUFF);\n\
+      \    }\n}"
+    language: cpp
+  - title: Using with conditional logic
+    code: "void UpdateAI(uint32 diff) override\n{\n    if (me->IsInCombat())\n   \
+      \ {\n        int missingBuffCount = 0;\n        DoFindFriendlyMissingBuff(missingBuffCount,\
+      \ 25.0f, 98765);\n        if (missingBuffCount >= 3)\n        {\n          \
+      \  // Cast area-of-effect buff if at least 3 allies are missing it\n       \
+      \     DoCast(SPELL_GROUP_BUFF);\n        }\n    }\n}"
+    language: cpp
+  notes: This method performs a search within the specified range using TrinityCore's
+    internal target selection logic. It is optimized for performance but should not
+    be called excessively in tight loops. The method only considers units that are
+    alive and friendly to the script's source object. Buff checks are performed against
+    the unit's current aura state, including temporary and permanent buffs.
+  warnings: Ensure the spell ID provided is valid and corresponds to an actual buff
+    in the game database; invalid spell IDs may lead to unexpected behavior or errors.
+    The range parameter should be carefully chosen to avoid performance issues with
+    large search areas. This method does not account for unit visibility or line-of-sight
+    restrictions, so results might include units that are visually obstructed.
+  related:
+  - DoFindFriendly
+  - DoCast
+  - DoHeal
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T21:28:28.091087'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: ObjectMgr
+  method: GetGameObjectTemplates
+  signature: const GameObjectTemplateContainer & ObjectMgr::GetGameObjectTemplates()
+    const
+documentation:
+  brief: Returns a constant reference to the container holding all game object templates
+    in the world.
+  description: The GetGameObjectTemplates method provides access to the complete collection
+    of GameObjectTemplate objects that define the properties and behaviors of all
+    game objects in the TrinityCore instance. This container is populated during server
+    startup from database entries and remains static throughout runtime. The returned
+    reference allows other systems to query specific game object templates by their
+    entry ID, which is essential for spawning game objects, validating object creation
+    requests, and implementing game mechanics that depend on predefined object attributes.
+    This method serves as a central registry for all game object definitions used
+    by the server.
+  parameters: []
+  returns: A constant reference to the GameObjectTemplateContainer which holds all
+    registered game object templates. The container allows iteration and lookup operations
+    by entry ID, providing access to detailed template information such as display
+    ID, type, data fields, and spawn parameters for each game object type.
+  examples:
+  - title: Accessing a specific game object template
+    code: "const GameObjectTemplateContainer& goTemplates = ObjectMgr::Instance()->GetGameObjectTemplates();\n\
+      if (auto goTemplate = goTemplates.find(12345))\n{\n    // Use goTemplate->entry,\
+      \ goTemplate->displayId, etc.\n    sLog->outString(\"Found game object template\
+      \ with display ID: %u\", goTemplate->displayId);\n}"
+    language: cpp
+  - title: Iterating through all game object templates
+    code: "const GameObjectTemplateContainer& goTemplates = ObjectMgr::Instance()->GetGameObjectTemplates();\n\
+      for (const auto& pair : goTemplates)\n{\n    const GameObjectTemplate* goTemplate\
+      \ = pair.second;\n    sLog->outString(\"Game Object Entry: %u, Display ID: %u\"\
+      , goTemplate->entry, goTemplate->displayId);\n}"
+    language: cpp
+  notes: This method returns a constant reference to an internal container that is
+    initialized once during server startup and remains unchanged during runtime. The
+    GameObjectTemplateContainer is thread-safe for read operations, but modifications
+    should only occur during server initialization or database loading phases. Accessing
+    this container is generally fast as it's implemented as an optimized hash map
+    structure.
+  warnings: Do not modify the returned container directly as it's const. Any changes
+    to game object templates must be made through appropriate database updates and
+    server reload procedures. Avoid frequent repeated calls to this method in performance-critical
+    code paths without caching the reference locally.
+  related:
+  - GetGameObjectTemplate
+  - LoadGameObjectTemplates
+  - GetObjectTemplate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:40:40.872719'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

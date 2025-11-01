@@ -1,0 +1,61 @@
+api:
+  class: ZoneScript
+  method: OnFlagDropped
+  signature: void ZoneScript::OnFlagDropped(const int & flagGuid, Player * player)
+documentation:
+  brief: Handles the event when a flag is dropped in a zone, typically during battlegrounds
+    or arena matches.
+  description: The OnFlagDropped method is invoked when a player drops a flag in a
+    zone, such as during battlegrounds like Arathi Basin or Warsong Gulch. This method
+    allows custom scripts to react to the event, potentially triggering game mechanics,
+    updating scores, or modifying player states. It provides information about which
+    flag was dropped and by which player, enabling developers to implement custom
+    behaviors for flag-related events. The method is part of the ZoneScript class,
+    which serves as a base for implementing zone-specific logic in TrinityCore.
+  parameters:
+  - name: flagGuid
+    description: The unique identifier (GUID) of the dropped flag object. This value
+      uniquely identifies the specific flag instance within the game world.
+  - name: player
+    description: Pointer to the Player object who dropped the flag. This represents
+      the player character that caused the flag to be dropped.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnFlagDropped(const\
+      \ int & flagGuid, Player * player) override\n    {\n        // Log that a flag\
+      \ was dropped\n        sLog->outString(\"Player %s dropped flag with GUID %d\"\
+      , player->GetName(), flagGuid);\n        \n        // Example: Reset flag capture\
+      \ timer or update game state\n        // Custom logic here\n    }\n};"
+    language: cpp
+  - title: Advanced Example with Flag State Handling
+    code: "class ABZoneScript : public ZoneScript\n{\npublic:\n    void OnFlagDropped(const\
+      \ int & flagGuid, Player * player) override\n    {\n        // Validate player\
+      \ and flag\n        if (!player || !flagGuid)\n            return;\n       \
+      \ \n        // Determine which team's flag was dropped\n        uint32 teamId\
+      \ = player->GetTeam();\n        \n        // Update game state or send message\
+      \ to players\n        if (teamId == TEAM_ALLIANCE)\n        {\n            sWorld->SendWorldText(LANG_AB_FLAG_DROPPED,\
+      \ \"Alliance\", player->GetName());\n        }\n        else\n        {\n  \
+      \          sWorld->SendWorldText(LANG_AB_FLAG_DROPPED, \"Horde\", player->GetName());\n\
+      \        }\n        \n        // Trigger additional logic like flag respawn\
+      \ timer\n        // Custom logic here\n    }\n};"
+    language: cpp
+  notes: This method is typically called from within the core battleground or arena
+    systems when a player releases a flag. Developers should ensure that any modifications
+    to game state are thread-safe and do not interfere with the core game loop. The
+    flagGuid parameter uniquely identifies the flag object, which can be used to retrieve
+    additional information about the flag if needed.
+  warnings: Improper handling of this method may lead to inconsistent game state or
+    unexpected behavior during battlegrounds. Avoid performing heavy operations in
+    this method as it may block other game events. Ensure that player pointers are
+    validated before use to prevent null pointer dereferences.
+  related:
+  - OnFlagTaken
+  - OnFlagReturn
+  - OnFlagCaptured
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T19:01:10.445429'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

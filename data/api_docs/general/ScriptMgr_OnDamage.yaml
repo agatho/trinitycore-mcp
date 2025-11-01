@@ -1,0 +1,59 @@
+api:
+  class: ScriptMgr
+  method: OnDamage
+  signature: void ScriptMgr::OnDamage(Unit * attacker, Unit * victim, uint32 & damage)
+documentation:
+  brief: Invoked when a unit deals damage to another unit, allowing scripts to modify
+    or react to the damage event.
+  description: The OnDamage method is a hook in the ScriptMgr class that gets called
+    whenever a Unit (such as a player or creature) deals damage to another Unit. This
+    method provides an opportunity for custom scripts to intercept and modify the
+    damage calculation or perform additional actions before the damage is applied.
+    It serves as part of TrinityCore's scripting system, enabling developers to implement
+    custom game mechanics, buffs, debuffs, or other effects that respond to combat
+    events. The method takes references to both the attacker and victim units along
+    with a reference to the damage value, allowing modifications to be made directly
+    to the damage amount.
+  parameters:
+  - name: attacker
+    description: Pointer to the Unit that is dealing the damage. Can be a player,
+      creature, or any other unit type capable of attacking.
+  - name: victim
+    description: Pointer to the Unit that is receiving the damage. This can also be
+      a player, creature, or any unit that can take damage.
+  - name: damage
+    description: Reference to the damage value being dealt. This value can be modified
+      by scripts to increase or decrease the amount of damage applied.
+  returns: null
+  examples:
+  - title: Basic Damage Modification Script
+    code: "void MyScript::OnDamage(Unit* attacker, Unit* victim, uint32& damage)\n\
+      {\n    // Reduce damage by 10% if the attacker is a rogue\n    if (attacker->GetTypeId()\
+      \ == TYPEID_PLAYER && \n        attacker->ToPlayer()->getClass() == CLASS_ROGUE)\n\
+      \    {\n        damage = damage * 0.9f;\n    }\n}"
+    language: cpp
+  - title: Damage Event Logging
+    code: "void MyScript::OnDamage(Unit* attacker, Unit* victim, uint32& damage)\n\
+      {\n    // Log damage events to database or console\n    sLog->outString(\"%s\
+      \ dealt %u damage to %s\", \n        attacker->GetName().c_str(), damage, victim->GetName().c_str());\n\
+      }"
+    language: cpp
+  notes: This method is called during the combat processing phase, and modifications
+    to the damage value will affect how much actual damage is applied. Be cautious
+    when modifying damage values as it can significantly impact gameplay balance.
+    The method may be invoked multiple times per attack depending on the combat system's
+    implementation.
+  warnings: Modifying the damage value directly can lead to unexpected behavior or
+    game balance issues if not handled carefully. Ensure that any changes made to
+    the damage are within reasonable bounds and consistent with the intended game
+    mechanics. Avoid infinite loops or recursive calls that could crash the server.
+  related:
+  - OnTakeDamage
+  - OnCombatEnter
+  - OnCombatExit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:51:44.605242'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

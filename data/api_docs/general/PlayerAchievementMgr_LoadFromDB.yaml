@@ -1,0 +1,50 @@
+api:
+  class: PlayerAchievementMgr
+  method: LoadFromDB
+  signature: void PlayerAchievementMgr::LoadFromDB(int achievementResult, int criteriaResult)
+documentation:
+  brief: Loads player achievement data from the database
+  description: 'The LoadFromDB method retrieves and initializes all achievement-related
+    data for a player from the database. This includes completed achievements, progress
+    toward criteria, and any achievement-related statistics. The method is typically
+    called during player login or when the achievement system needs to be refreshed.
+    It processes two result sets: one for achievements and one for criteria progress,
+    ensuring that the player''s achievement state is accurately reflected in memory.'
+  parameters:
+  - name: achievementResult
+    description: Database result set containing player achievement data including
+      completed achievements and their timestamps
+  - name: criteriaResult
+    description: Database result set containing player criteria progress data for
+      active achievements
+  returns: null
+  examples:
+  - title: Basic usage during player login
+    code: "void Player::LoadAchievements()\n{\n    QueryResult achievementResult =\
+      \ CharacterDatabase.Query(\"SELECT achievement, date FROM character_achievement\
+      \ WHERE guid = {}\", GetGUID().GetCounter());\n    QueryResult criteriaResult\
+      \ = CharacterDatabase.Query(\"SELECT criteria, counter, date FROM character_achievement_progress\
+      \ WHERE guid = {}\", GetGUID().GetCounter());\n    \n    if (achievementResult\
+      \ || criteriaResult)\n    {\n        m_achievementMgr->LoadFromDB(achievementResult\
+      \ ? 1 : 0, criteriaResult ? 1 : 0);\n    }\n}"
+    language: cpp
+  notes: This method should only be called after database connection is established
+    and valid result sets are available. The method assumes that the database queries
+    have already been executed and the results are properly formatted. It's recommended
+    to call this method during player login sequence or when achievement data needs
+    to be refreshed.
+  warnings: Calling this method without proper database results can lead to undefined
+    behavior. Ensure that both achievementResult and criteriaResult parameters contain
+    valid data before invoking this method. This method modifies internal achievement
+    state, so it should not be called concurrently with other methods modifying the
+    same data.
+  related:
+  - SaveToDB
+  - UpdateAchievement
+  - CheckCriteriaProgress
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T21:00:59.684009'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

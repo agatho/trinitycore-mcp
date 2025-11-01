@@ -1,0 +1,66 @@
+api:
+  class: ScriptMgr
+  method: CreateSpellScripts
+  signature: void ScriptMgr::CreateSpellScripts(uint32 spellId, int & scriptVector,
+    Spell * invoker) const
+documentation:
+  brief: Creates and initializes spell scripts for a given spell ID, associating them
+    with an invoker spell.
+  description: The CreateSpellScripts method is responsible for instantiating and
+    setting up all script objects associated with a specific spell ID. It takes a
+    spell identifier and an invoker spell object, then populates a vector of script
+    instances that will be executed when the spell is cast. This method plays a crucial
+    role in the TrinityCore scripting system by bridging the gap between spell definitions
+    and their scripted behaviors. The method ensures that all relevant scripts are
+    created and properly linked to the spell's execution context, allowing for custom
+    logic to be injected into standard spell mechanics. It is typically invoked during
+    spell initialization or activation phases within the game engine.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell for which scripts need to be created.
+      This ID corresponds to entries in the spell database and determines which scripts
+      are loaded.
+  - name: scriptVector
+    description: An integer reference that represents the index or position within
+      a script vector where new spell scripts will be stored. The value is modified
+      by this method to indicate the updated vector position after script creation.
+  - name: invoker
+    description: A pointer to the Spell object that invoked this script creation.
+      This provides context about which spell is triggering the script execution and
+      allows access to spell properties and state during script initialization.
+  returns: null
+  examples:
+  - title: Basic usage of CreateSpellScripts
+    code: "void MySpellHandler::OnSpellCast(Spell* spell)\n{\n    int scriptIndex\
+      \ = 0;\n    ScriptMgr::Instance()->CreateSpellScripts(spell->m_spellInfo->Id,\
+      \ scriptIndex, spell);\n    // Scripts are now created and ready for execution\n\
+      }"
+    language: cpp
+  - title: Using CreateSpellScripts in a custom spell handler
+    code: "class CustomSpellScriptHandler\n{\npublic:\n    void HandleCustomSpell(uint32\
+      \ spellId, Spell* invoker)\n    {\n        int scriptVectorIndex = 0;\n    \
+      \    ScriptMgr::Instance()->CreateSpellScripts(spellId, scriptVectorIndex, invoker);\n\
+      \        // Process created scripts here\n        for (int i = 0; i < scriptVectorIndex;\
+      \ ++i)\n        {\n            // Execute each script in the vector\n      \
+      \  }\n    }\n};"
+    language: cpp
+  notes: This method is part of TrinityCore's internal spell scripting infrastructure
+    and should not be called directly from custom scripts. The scriptVector parameter
+    acts as an output index that tracks how many scripts were created. The invoker
+    parameter provides access to the full spell context, including caster, targets,
+    and spell effects. This method may be invoked multiple times for the same spell
+    ID if different contexts require separate script instances.
+  warnings: Do not modify the scriptVector reference directly after calling this method
+    unless you understand the internal indexing mechanism. Passing an invalid or null
+    invoker pointer can lead to undefined behavior. The method assumes that all necessary
+    script definitions exist in the database and will fail silently if they are missing.
+  related:
+  - GetSpellScript
+  - CreateItemScripts
+  - CreateQuestScripts
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T20:36:30.317598'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

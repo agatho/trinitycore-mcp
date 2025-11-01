@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnAreaTrigger
+  signature: bool ScriptMgr::OnAreaTrigger(Player * player, const AreaTriggerEntry
+    * trigger, bool entered)
+documentation:
+  brief: Invoked when a player enters or exits an area trigger, allowing scripts to
+    handle custom logic.
+  description: The OnAreaTrigger method is a hook in the ScriptMgr class that gets
+    called whenever a player interacts with an area trigger. This method provides
+    a way for script developers to implement custom behavior when a player enters
+    or leaves a specific area, such as triggering events, applying effects, or modifying
+    player state. The method receives information about the player, the area trigger
+    involved, and whether the player is entering or exiting. It returns a boolean
+    value indicating whether the default handling should be skipped or allowed to
+    proceed.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that triggered the area trigger. This
+      represents the player character who entered or exited the area.
+  - name: trigger
+    description: Pointer to the AreaTriggerEntry structure describing the area trigger
+      that was activated. Contains data about the trigger's properties and behavior.
+  - name: entered
+    description: Boolean flag indicating whether the player is entering (true) or
+      exiting (false) the area trigger.
+  returns: Returns true if the default handling of the area trigger should be skipped,
+    false otherwise. Returning true prevents further default processing of the trigger.
+  examples:
+  - title: Basic Area Trigger Handler
+    code: "bool ScriptMgr::OnAreaTrigger(Player* player, const AreaTriggerEntry* trigger,\
+      \ bool entered)\n{\n    if (trigger->Id == 1234 && entered)\n    {\n       \
+      \ player->AddItem(ITEM_ID_GOLDEN_COIN, 1);\n        return true; // Skip default\
+      \ behavior\n    }\n    return false; // Allow default behavior\n}"
+    language: cpp
+  - title: Advanced Area Trigger with Conditional Logic
+    code: "bool ScriptMgr::OnAreaTrigger(Player* player, const AreaTriggerEntry* trigger,\
+      \ bool entered)\n{\n    if (trigger->Id == 5678 && entered)\n    {\n       \
+      \ if (player->GetQuestStatus(QUEST_ID_REWARD) == QUEST_STATUS_INCOMPLETE)\n\
+      \        {\n            player->KilledMonsterCredit(NPC_ID_TRIGGER_NPC);\n \
+      \           return true;\n        }\n    }\n    return false;\n}"
+    language: cpp
+  notes: This method is called from the core game loop during area trigger processing.
+    It's important to avoid performing heavy operations or blocking calls within this
+    function as it can affect performance. The method is part of the scripting system
+    and allows for custom event handling without modifying core TrinityCore code.
+  warnings: Do not modify the player object in ways that could cause instability if
+    returning true. Ensure all script logic is safe and does not introduce race conditions
+    or memory leaks. Be cautious when using this hook with high-frequency triggers
+    as it may be called rapidly.
+  related:
+  - OnAreaTriggerEnter
+  - OnAreaTriggerExit
+  - OnPlayerEnterWorld
+  - OnPlayerLeaveWorld
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:58:35.723870'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

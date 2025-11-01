@@ -1,0 +1,56 @@
+api:
+  class: Map
+  method: EnsureGridLoadedForActiveObject
+  signature: void Map::EnsureGridLoadedForActiveObject(const int & param0, const WorldObject
+    * object)
+documentation:
+  brief: Ensures that the grid containing the specified WorldObject is loaded and
+    active.
+  description: This method guarantees that the grid in which the provided WorldObject
+    resides is loaded into memory and marked as active. It is typically used to prevent
+    issues where objects might be referenced before their containing grid has been
+    initialized or loaded. The method checks if the grid is already loaded, and if
+    not, it triggers the loading process for that specific grid. This ensures that
+    all object-related operations within that grid can proceed without encountering
+    missing grid data errors.
+  parameters:
+  - name: param0
+    description: An integer parameter representing a grid identifier or coordinate
+      value used to determine which grid should be loaded.
+  - name: object
+    description: A pointer to the WorldObject whose containing grid must be ensured
+      loaded. This object's position determines the target grid.
+  returns: null
+  examples:
+  - title: Ensure Grid Loaded for Player Object
+    code: 'Map* map = player->GetMap();
+
+      WorldObject* obj = player;
+
+      map->EnsureGridLoadedForActiveObject(gridX, obj);'
+    language: cpp
+  - title: Usage in Object Movement Context
+    code: "void HandlePlayerMove(Player* player) {\n    Map* map = player->GetMap();\n\
+      \    if (map && player->IsInWorld()) {\n        int gridX = player->GetGridX();\n\
+      \        map->EnsureGridLoadedForActiveObject(gridX, player);\n    }\n}"
+    language: cpp
+  notes: This method is critical for maintaining consistency in the game world's spatial
+    data structure. It should be called before performing operations that require
+    access to grid-specific data or when moving objects between grids. The implementation
+    may involve locking mechanisms to ensure thread safety during grid loading.
+  warnings: Calling this method with an invalid WorldObject pointer can lead to undefined
+    behavior. Ensure that the object is valid and in the world before invoking this
+    function. Also, excessive calls to this method might impact performance due to
+    repeated grid checks or loading operations.
+  related:
+  - Map::LoadGrid
+  - Map::IsGridLoaded
+  - Map::GetGrid
+  - WorldObject::GetGridX
+  - WorldObject::GetGridY
+metadata:
+  confidence: 0.85
+  generated_at: '2025-10-31T14:58:03.518305'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: ScriptMgr
+  method: OnSocketClose
+  signature: void ScriptMgr::OnSocketClose(const std::shared_ptr<WorldSocket> & socket)
+documentation:
+  brief: Notifies scripts when a WorldSocket connection is closed
+  description: The OnSocketClose method is invoked by the ScriptMgr when a client
+    socket connection to the server is terminated. This method serves as a callback
+    mechanism for script extensions to perform cleanup operations or logging when
+    a player disconnects from the game server. It provides an opportunity for custom
+    scripts to react to socket disconnections, such as saving player data, updating
+    session information, or triggering events related to player logout. The method
+    receives a shared pointer to the WorldSocket object representing the closed connection.
+  parameters:
+  - name: socket
+    description: A shared pointer to the WorldSocket object that represents the closed
+      client connection. This parameter provides access to socket-related information
+      and allows scripts to query connection details, player information, or perform
+      cleanup operations.
+  returns: null
+  examples:
+  - title: Basic Socket Close Handler
+    code: "class MyScript : public Script\n{\npublic:\n    void OnSocketClose(const\
+      \ std::shared_ptr<WorldSocket>& socket) override\n    {\n        // Log the\
+      \ disconnection\n        if (socket->GetPlayer())\n        {\n            sLog->outInfo(LOG_FILTER_SERVER,\
+      \ \"Player %s disconnected\", socket->GetPlayer()->GetName().c_str());\n   \
+      \     }\n    }\n};"
+    language: cpp
+  - title: Advanced Socket Close with Cleanup
+    code: "class MyScript : public Script\n{\npublic:\n    void OnSocketClose(const\
+      \ std::shared_ptr<WorldSocket>& socket) override\n    {\n        if (Player*\
+      \ player = socket->GetPlayer())\n        {\n            // Save player data\n\
+      \            player->SaveToDB();\n            \n            // Remove from active\
+      \ sessions\n            sWorld->RemoveActiveSession(player->GetSession());\n\
+      \            \n            // Log disconnection\n            sLog->outInfo(LOG_FILTER_SERVER,\
+      \ \"Player %s disconnected at %u\", player->GetName().c_str(), time(nullptr));\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the network thread context. Scripts should avoid
+    performing heavy operations or blocking calls that could impact server performance.
+    The socket object may be in a partially destructed state when this callback executes,
+    so access to certain socket properties should be handled carefully.
+  warnings: Do not attempt to modify or delete the socket object within this method
+    as it may lead to undefined behavior. Be cautious with thread safety when accessing
+    shared resources from this callback. Avoid long-running operations that could
+    block the network processing thread.
+  related:
+  - OnSocketOpen
+  - OnPacketReceived
+  - OnPacketSent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:03:50.068052'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: InstanceScript
+  method: Update
+  signature: void InstanceScript::Update(uint32 param0)
+documentation:
+  brief: Updates the instance script with the specified time delta for game logic
+    processing
+  description: The Update method is a core component of TrinityCore's InstanceScript
+    system, called every frame to process instance-specific game logic. It receives
+    a time delta parameter representing the milliseconds elapsed since the last update
+    call, enabling accurate timing-based mechanics such as spell cooldowns, NPC behavior,
+    and event scheduling. This method is typically overridden by custom instance scripts
+    to implement unique dungeon or raid behaviors. The method is automatically invoked
+    by the core game loop and should not be called manually unless specifically required
+    for custom implementations.
+  parameters:
+  - name: param0
+    description: Time delta in milliseconds since last update call, used for frame-rate
+      independent timing calculations
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class BossInstanceScript : public InstanceScript\n{\npublic:\n    void\
+      \ Update(uint32 diff) override\n    {\n        // Process boss AI logic with\
+      \ time delta\n        if (bossHealth < 50 && !hasSaidWarning)\n        {\n \
+      \           Talk(SAY_WARNING);\n            hasSaidWarning = true;\n       \
+      \ }\n        \n        // Update timers using the diff parameter\n        if\
+      \ (summonTimer > 0)\n            summonTimer -= diff;\n    }\n};"
+    language: cpp
+  - title: Advanced Timing-Based Logic
+    code: "class RaidInstanceScript : public InstanceScript\n{\nprivate:\n    uint32\
+      \ phaseTimer = 0;\n    uint32 eventTimer = 0;\n    bool isPhaseTwo = false;\n\
+      \    \npublic:\n    void Update(uint32 diff) override\n    {\n        if (phaseTimer\
+      \ > 0)\n        {\n            phaseTimer -= diff;\n            if (phaseTimer\
+      \ <= 0)\n            {\n                // Transition to phase two\n       \
+      \         isPhaseTwo = true;\n                DoCast(SPELL_PHASE_TWO_AURA);\n\
+      \                phaseTimer = 30000; // 30 second cooldown\n            }\n\
+      \        }\n        \n        if (eventTimer > 0)\n        {\n            eventTimer\
+      \ -= diff;\n            if (eventTimer <= 0)\n            {\n              \
+      \  // Trigger periodic event\n                TriggerEvent();\n            \
+      \    eventTimer = 60000; // 60 second interval\n            }\n        }\n \
+      \   }\n};"
+    language: cpp
+  notes: The Update method is called from the main game loop at regular intervals,
+    typically matching the server's frame rate. Developers should ensure that all
+    time-based calculations use the provided delta parameter for consistent behavior
+    across different server configurations. The method runs on the main thread and
+    should not block for extended periods to avoid performance degradation.
+  warnings: Avoid performing heavy computations or blocking operations within Update
+    methods as they can cause significant lag in the game loop. Never call this method
+    directly from other code unless absolutely necessary, as it's designed to be invoked
+    by the core system only.
+  related:
+  - InstanceScript::Initialize
+  - InstanceScript::OnPlayerEnter
+  - InstanceScript::OnCreatureCreate
+  - InstanceScript::OnGameObjectCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T00:10:43.021079'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

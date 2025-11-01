@@ -1,0 +1,58 @@
+api:
+  class: DB2Manager
+  method: GetTalentsByPosition
+  signature: const int & DB2Manager::GetTalentsByPosition(uint32 class_, uint32 tier,
+    uint32 column) const
+documentation:
+  brief: Retrieves the talent ID located at the specified class, tier, and column
+    position in the talents database.
+  description: 'The GetTalentsByPosition method fetches the talent identifier (ID)
+    from the talents DB2 file based on the provided class, tier, and column indices.
+    This method is typically used to determine which talent is assigned to a specific
+    slot in a player''s talent tree. The parameters define the position within the
+    talent grid: class_ specifies the player class, tier represents the row (0-based),
+    and column denotes the column index (0-based). The returned value corresponds
+    to the talent ID that should be displayed or applied at that specific location.
+    This method assumes valid input values and relies on internal DB2 data structures
+    that are pre-loaded during server startup.'
+  parameters:
+  - name: class_
+    description: The player class identifier (e.g., 1 for Warrior, 2 for Paladin).
+      Must be a valid class ID present in the talents DB2 structure.
+  - name: tier
+    description: The talent tier (row) index, starting from 0. Represents the vertical
+      position in the talent tree grid.
+  - name: column
+    description: The talent column index, starting from 0. Represents the horizontal
+      position in the talent tree grid.
+  returns: Returns a constant reference to an integer representing the talent ID at
+    the specified class, tier, and column position. If no talent exists at that location,
+    it may return 0 or a default value depending on DB2 data structure.
+  examples:
+  - title: Retrieve Talent ID for Warrior at Tier 2, Column 1
+    code: uint32 warriorTalentId = DB2Manager::GetTalentsByPosition(1, 2, 1); // Class
+      1 = Warrior, Tier 2, Column 1
+    language: cpp
+  - title: Iterate Through All Talent Positions for a Class
+    code: "for (uint32 tier = 0; tier < MAX_TALENT_TIERS; ++tier)\n{\n    for (uint32\
+      \ col = 0; col < MAX_TALENT_COLUMNS; ++col)\n    {\n        int talentId = DB2Manager::GetTalentsByPosition(3,\
+      \ tier, col); // Class 3 = Mage\n        if (talentId > 0)\n        {\n    \
+      \        // Process valid talent ID\n        }\n    }\n}"
+    language: cpp
+  notes: This method accesses pre-loaded DB2 data structures and is optimized for
+    performance. It should not be called during high-frequency operations without
+    caching results. The internal implementation likely uses a lookup table or hash
+    map for fast access to talent data.
+  warnings: Ensure that class_, tier, and column parameters are within valid ranges
+    to avoid accessing invalid memory locations. Invalid indices may lead to undefined
+    behavior or incorrect talent assignments.
+  related:
+  - GetTalentInfo
+  - GetTalentTree
+  - LoadTalents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T14:37:41.021756'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

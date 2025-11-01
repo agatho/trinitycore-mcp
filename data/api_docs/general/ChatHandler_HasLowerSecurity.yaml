@@ -1,0 +1,53 @@
+api:
+  class: ChatHandler
+  method: HasLowerSecurity
+  signature: bool ChatHandler::HasLowerSecurity(Player * target, int guid, bool strong)
+documentation:
+  brief: Checks if the player has lower security than the target player or GUID
+  description: The HasLowerSecurity method determines whether the current player (or
+    a specified target) holds lower security status than another player in the game.
+    This is typically used for administrative commands to ensure that players cannot
+    perform actions on others with higher privileges. The method can operate using
+    either a Player object reference or a GUID directly, and supports a 'strong' mode
+    that enforces stricter checks. Security levels are usually based on GM ranks or
+    account permissions within TrinityCore's permission system.
+  parameters:
+  - name: target
+    description: Pointer to the target Player object whose security level is being
+      compared against the current player's level
+  - name: guid
+    description: Global Unique Identifier of the target player, used as an alternative
+      to passing a Player pointer when the player object may not be available
+  - name: strong
+    description: Boolean flag that enables strict security checking; when true, additional
+      validation is performed beyond basic level comparison
+  returns: Returns true if the current player has a lower security level than the
+    target player or GUID, false otherwise. In cases where the target cannot be resolved
+    or security levels are equal, it returns false.
+  examples:
+  - title: Basic usage with Player pointer
+    code: "if (handler->HasLowerSecurity(targetPlayer, 0, false)) {\n    handler->SendSysMessage(\"\
+      You cannot perform this action on that player.\");\n    return false;\n}"
+    language: cpp
+  - title: Usage with GUID for offline player check
+    code: "if (handler->HasLowerSecurity(nullptr, targetGuid, true)) {\n    handler->PSendSysMessage(\"\
+      Target player has higher security level.\");\n    return false;\n}"
+    language: cpp
+  notes: This method relies on TrinityCore's permission system and GM level checks.
+    The 'strong' parameter may trigger additional database queries or validation steps
+    depending on implementation details. It is recommended to use this check before
+    executing any privileged actions that could affect other players.
+  warnings: Be cautious when using the GUID-based approach as it requires resolving
+    the player from the database, which might introduce performance overhead if used
+    frequently. Also, ensure that the target player exists and is accessible before
+    calling this method to avoid potential crashes or undefined behavior.
+  related:
+  - HasLowerSecurityLevel
+  - GetSession
+  - GetPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T16:19:24.133371'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

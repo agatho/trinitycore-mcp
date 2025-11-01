@@ -1,0 +1,50 @@
+api:
+  class: BlackMarketMgr
+  method: GetLastUpdate
+  signature: time_t BlackMarketMgr::GetLastUpdate() const
+documentation:
+  brief: Retrieves the timestamp of the last update for the black market auction house.
+  description: The GetLastUpdate method returns the Unix timestamp representing when
+    the black market auction house was last refreshed or updated. This value is typically
+    used to determine how long ago the auction list was regenerated, which affects
+    the availability and pricing of items in the black market. The method provides
+    a read-only view of the internal update time and does not modify any state. It's
+    commonly used by the game client and server logic to synchronize black market
+    data and ensure proper item rotation.
+  parameters: []
+  returns: A time_t value representing the Unix timestamp of the last black market
+    update. This is typically a positive integer indicating seconds since epoch (January
+    1, 1970).
+  examples:
+  - title: Basic Usage to Check Black Market Freshness
+    code: "time_t lastUpdate = blackMarketMgr->GetLastUpdate();\nuint32 currentTime\
+      \ = time(nullptr);\nuint32 timeSinceUpdate = currentTime - lastUpdate;\nif (timeSinceUpdate\
+      \ > 3600) // More than an hour since last update\n{\n    // Trigger a refresh\
+      \ or notify players\n}"
+    language: cpp
+  - title: Using Last Update Time for Debug Logging
+    code: 'time_t lastUpdate = blackMarketMgr->GetLastUpdate();
+
+      char buffer[100];
+
+      strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&lastUpdate));
+
+      TC_LOG_DEBUG("blackmarket", "Black market last updated at: {}", buffer);'
+    language: cpp
+  notes: This method is thread-safe as it only reads a cached timestamp value. The
+    returned time_t value represents the server's local time and should be treated
+    as such when performing time-based calculations.
+  warnings: Be aware that this timestamp may not reflect actual item availability
+    changes, but rather the last time the auction house data was refreshed from the
+    database or internal state. It's recommended to use this value in conjunction
+    with other black market state checks for complete synchronization.
+  related:
+  - GetBlackMarketAuctions
+  - UpdateBlackMarket
+  - IsBlackMarketOpen
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T01:59:08.395406'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

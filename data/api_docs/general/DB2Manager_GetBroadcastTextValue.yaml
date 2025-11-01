@@ -1,0 +1,60 @@
+api:
+  class: DB2Manager
+  method: GetBroadcastTextValue
+  signature: const char * DB2Manager::GetBroadcastTextValue(const BroadcastTextEntry
+    * broadcastText, LocaleConstant locale, uint8 gender, bool forceGender)
+documentation:
+  brief: Retrieves the localized text content of a broadcast text entry for a specific
+    locale and gender.
+  description: The GetBroadcastTextValue method fetches the appropriate localized
+    string from a BroadcastTextEntry based on the specified locale and gender. It
+    considers the gender-specific variations of the broadcast text, which is commonly
+    used for in-game announcements or NPC dialogue that changes depending on the player's
+    gender. The method ensures correct localization by selecting the variant that
+    matches both the requested locale and gender, falling back to default values if
+    necessary. This functionality supports TrinityCore's internationalization system
+    where broadcast texts can have multiple localized versions and gender-specific
+    strings.
+  parameters:
+  - name: broadcastText
+    description: Pointer to the BroadcastTextEntry structure containing the text data
+      and localization information.
+  - name: locale
+    description: LocaleConstant value indicating the desired language and region for
+      localization (e.g., LOCALE_en, LOCALE_fr).
+  - name: gender
+    description: Gender constant (0=none, 1=male, 2=female) used to select gender-specific
+      text variants.
+  - name: forceGender
+    description: Boolean flag that forces the use of a specific gender variant even
+      when it may not be appropriate for the context.
+  returns: Pointer to a null-terminated character string containing the localized
+    broadcast text. Returns NULL if no suitable text is found for the given parameters.
+  examples:
+  - title: Basic Usage
+    code: const char* text = sDB2Manager->GetBroadcastTextValue(broadcastEntry, LOCALE_en,
+      GENDER_MALE, false);
+    language: cpp
+  - title: Gender-Specific Text Retrieval
+    code: 'uint8 playerGender = player->getGender();
+
+      const char* localizedText = sDB2Manager->GetBroadcastTextValue(broadcastEntry,
+      player->GetSession()->GetSessionDbcLocale(), playerGender, false);'
+    language: cpp
+  notes: This method accesses internal DB2 data structures and assumes valid input
+    parameters. The returned string is managed by the DB2 manager and should not be
+    freed by the caller. Performance is optimized through caching mechanisms within
+    the DB2 manager, but repeated calls with different locales or genders may cause
+    additional lookups.
+  warnings: Ensure that the broadcastText parameter is valid and not null to avoid
+    undefined behavior. The forceGender flag should be used carefully as it can override
+    natural gender-appropriate text selection in some cases.
+  related:
+  - GetBroadcastTextEntry
+  - GetBroadcastTextValueByIndex
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:17:57.542313'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

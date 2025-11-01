@@ -1,0 +1,61 @@
+api:
+  class: DB2Manager
+  method: GetArtifactPowerRank
+  signature: const ArtifactPowerRankEntry * DB2Manager::GetArtifactPowerRank(uint32
+    artifactPowerId, uint8 rank) const
+documentation:
+  brief: Retrieves the artifact power rank entry for a given artifact power ID and
+    rank.
+  description: The GetArtifactPowerRank method fetches the ArtifactPowerRankEntry
+    data structure that corresponds to a specific artifact power ID and rank combination.
+    This is used in World of Warcraft's artifact system to determine the properties,
+    costs, and effects associated with a particular rank of an artifact power. The
+    method accesses internal DB2 database tables that store artifact power rank information,
+    ensuring accurate representation of game mechanics such as power upgrades and
+    cost calculations. It is typically called during artifact power progression or
+    display logic within the game client or server.
+  parameters:
+  - name: artifactPowerId
+    description: The unique identifier for the artifact power. This ID maps to a specific
+      power in the artifact system, such as 'Mastery' or 'Haste'. Valid values are
+      defined in the DB2 artifact power tables.
+  - name: rank
+    description: The rank level of the artifact power. Ranks typically start from
+      1 and increase up to the maximum allowed rank for that power. Valid range is
+      usually 1-10 or higher depending on the specific artifact power.
+  returns: A pointer to a const ArtifactPowerRankEntry structure containing the data
+    for the specified artifact power rank, or nullptr if no matching entry exists
+    for the given parameters.
+  examples:
+  - title: Retrieve an artifact power rank
+    code: "const ArtifactPowerRankEntry* rankEntry = sDB2Manager->GetArtifactPowerRank(1234,\
+      \ 5);\nif (rankEntry)\n{\n    // Use the rank entry data\n    printf(\"Power\
+      \ cost: %u\\n\", rankEntry->Cost);\n}"
+    language: cpp
+  - title: Validate artifact power rank before use
+    code: "uint32 powerId = 5678;\nuint8 rank = 3;\nconst ArtifactPowerRankEntry*\
+      \ entry = sDB2Manager->GetArtifactPowerRank(powerId, rank);\nif (entry != nullptr)\n\
+      {\n    // Proceed with using the artifact power rank data\n    uint32 requiredResources\
+      \ = entry->Cost;\n    // Apply logic based on the rank entry\n}\nelse\n{\n \
+      \   // Handle invalid rank or power ID\n    sLog->outError(\"Invalid artifact\
+      \ power rank requested: %u at rank %u\", powerId, rank);\n}"
+    language: cpp
+  notes: This method relies on the internal DB2Manager's loaded database files for
+    artifact power rank data. It is expected that all required DB2 files are properly
+    loaded before calling this function. The returned pointer is valid only as long
+    as the DB2Manager instance remains alive and the data has not been reloaded or
+    modified.
+  warnings: Calling this method with invalid artifactPowerId or rank values may return
+    nullptr, which should be checked before dereferencing. Ensure that the DB2 files
+    are fully loaded before invoking this method to avoid potential null returns due
+    to unloaded data.
+  related:
+  - GetArtifactPower
+  - GetArtifactTier
+  - GetArtifactPowerLink
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T15:23:15.748733'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

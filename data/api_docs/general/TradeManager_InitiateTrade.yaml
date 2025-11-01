@@ -1,0 +1,62 @@
+api:
+  class: TradeManager
+  method: InitiateTrade
+  signature: bool TradeManager::InitiateTrade(int targetGuid, const std::string &
+    reason)
+documentation:
+  brief: Initiates a trade session with the specified target player.
+  description: The InitiateTrade method starts a trading interaction between the calling
+    player and another player identified by their GUID. It validates that both players
+    are within trading range, not in combat, and that neither is already engaged in
+    another trade. The method also checks if the target player has trade enabled and
+    is not ignoring the initiating player. If all conditions are met, it sends a trade
+    request to the target player and sets up the initial trade state. This method
+    is typically called when a player right-clicks on another player with the 'Trade'
+    option selected.
+  parameters:
+  - name: targetGuid
+    description: The unique identifier (GUID) of the target player to initiate trading
+      with. Must be a valid player GUID in the current world.
+  - name: reason
+    description: A string describing the reason or context for initiating the trade,
+      used for logging and debugging purposes. Can be empty but should not be null.
+  returns: Returns true if the trade initiation was successful and a trade request
+    was sent to the target player. Returns false if any validation failed, such as
+    invalid GUID, players out of range, or already in another trade.
+  examples:
+  - title: Basic Trade Initiation
+    code: "if (TradeManager::InitiateTrade(123456, \"Player requested trade\")) {\n\
+      \    // Trade request sent successfully\n    sLog->outString(\"Trade initiated\
+      \ with player 123456\");\n} else {\n    // Failed to initiate trade\n    sLog->outError(\"\
+      Failed to initiate trade with player 123456\");\n}"
+    language: cpp
+  - title: Trade Initiation with Error Handling
+    code: "uint32 targetPlayerGuid = player->GetSelectedUnit()->GetGUID();\nstd::string\
+      \ reason = \"Trading item: \" + item->GetName();\n\nif (!player->IsInWorld())\
+      \ {\n    sLog->outError(\"Player not in world, cannot initiate trade\");\n \
+      \   return false;\n}\n\nif (TradeManager::InitiateTrade(targetPlayerGuid, reason))\
+      \ {\n    player->SendTradeStatus(TRADE_STATUS_START); // Notify client\n} else\
+      \ {\n    player->SendTradeStatus(TRADE_STATUS_CANCELLED); // Notify client of\
+      \ failure\n}"
+    language: cpp
+  notes: This method assumes that the calling player is already in a valid state to
+    initiate trades (e.g., not in combat, not dead). It does not perform any checks
+    on item availability or inventory status; those are handled during the actual
+    trade process. The method may be called from multiple threads depending on how
+    it's invoked within the core logic.
+  warnings: Do not call this method without ensuring that the target player exists
+    and is online. Passing an invalid GUID will result in a failed trade initiation,
+    but may also cause unexpected behavior or log errors. This function should not
+    be used to force trade between players who are not willing to trade (e.g., ignoring
+    each other).
+  related:
+  - AcceptTrade
+  - CancelTrade
+  - UpdateTrade
+  - SendTradeStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T20:21:09.398638'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

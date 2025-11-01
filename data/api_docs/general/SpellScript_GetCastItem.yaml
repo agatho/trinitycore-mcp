@@ -1,0 +1,50 @@
+api:
+  class: SpellScript
+  method: GetCastItem
+  signature: Item * SpellScript::GetCastItem() const
+documentation:
+  brief: Returns the item used to cast the spell, if any.
+  description: The GetCastItem method retrieves the Item object that was used to initiate
+    the spell casting. This is typically used in spell scripts where the caster used
+    an item (such as a wand, staff, or potion) to trigger the spell effect. The returned
+    pointer may be null if the spell was not cast using an item, for example, when
+    cast directly by a player or creature without item involvement. This method is
+    particularly useful in custom spell implementations that need to access properties
+    of the casting item, such as charges, durability, or enchantments.
+  parameters: []
+  returns: A pointer to the Item object used to cast the spell, or nullptr if no item
+    was used for casting.
+  examples:
+  - title: Basic Usage in Spell Script
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffect()\
+      \ override\n    {\n        Item* castItem = GetCastItem();\n        if (castItem)\n\
+      \        {\n            // Access item properties\n            uint32 charges\
+      \ = castItem->GetEnchantmentId(ENCHANTMENT_SLOT_0);\n            // Perform\
+      \ actions based on item properties\n        }\n    }\n};"
+    language: cpp
+  - title: Checking for Item Charges Before Casting
+    code: "class ChargeCheckSpellScript : public SpellScript\n{\npublic:\n    void\
+      \ OnPrepare() override\n    {\n        Item* castItem = GetCastItem();\n   \
+      \     if (castItem && castItem->GetEnchantmentId(ENCHANTMENT_SLOT_0) == 0)\n\
+      \        {\n            // Prevent casting if item has no charges\n        \
+      \    PreventCast();\n        }\n    }\n};"
+    language: cpp
+  notes: This method should only be called during the spell's execution phase, typically
+    within a SpellScript handler. The returned Item pointer is valid only for the
+    duration of the current spell execution and must not be stored or used after the
+    spell completes. If the spell was cast through a non-item source (like a player's
+    spellbook or creature ability), this method will return nullptr.
+  warnings: Do not assume that a non-null return value means the item is usable or
+    valid for casting. Always validate the item's state before using it. Also, be
+    aware that accessing certain item properties might trigger additional checks or
+    side effects in TrinityCore's codebase.
+  related:
+  - GetCaster
+  - GetSpellInfo
+  - GetTriggeringSpell
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T06:06:35.201802'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

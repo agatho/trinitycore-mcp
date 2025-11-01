@@ -1,0 +1,46 @@
+api:
+  class: ThreatManager
+  method: ReselectVictim
+  signature: const ThreatReference * ThreatManager::ReselectVictim()
+documentation:
+  brief: Reassesses and returns the current threat target for the creature's AI behavior.
+  description: The ReselectVictim method evaluates the current threat list managed
+    by the ThreatManager to determine and return the most suitable target based on
+    threat levels, aggro rules, and creature AI logic. This method is typically invoked
+    when a creature's current target becomes invalid or when recalculating the optimal
+    target for attack. It ensures that the creature focuses its attacks on the most
+    threatening unit within its threat list, adhering to World of Warcraft's combat
+    mechanics where mobs prioritize targets with higher threat values. The method
+    does not modify the underlying threat list directly but returns a reference to
+    the selected victim, which may be nullptr if no valid target exists.
+  parameters: []
+  returns: A pointer to the ThreatReference representing the newly selected victim.
+    Returns nullptr if no valid victim is found or if the creature has no targets
+    in its threat list.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n \
+      \   {\n        const ThreatReference* newVictim = me->GetThreatManager().ReselectVictim();\n\
+      \        if (newVictim)\n            AttackStart(newVictim->GetUnit());\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method is part of the core AI threat management system in TrinityCore.
+    It's commonly called during AI update cycles or when a creature loses its current
+    target. The method respects faction and visibility rules, ensuring that only valid
+    targets are considered for reselection. Performance-wise, it typically operates
+    in O(n) time where n is the number of entries in the threat list.
+  warnings: Do not assume that the returned ThreatReference will always be a valid
+    unit pointer; always check for nullptr before using the result. Calling this method
+    without proper context may lead to inconsistent AI behavior or crashes if the
+    returned victim is not properly validated.
+  related:
+  - GetThreatList
+  - AddThreat
+  - ModifyThreat
+  - ClearThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T05:23:29.212243'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

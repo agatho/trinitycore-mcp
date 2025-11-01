@@ -1,0 +1,61 @@
+api:
+  class: ScriptMgr
+  method: OnCriteriaCheck
+  signature: bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player * source, Unit
+    * target)
+documentation:
+  brief: Checks if a criteria condition is met for a player's quest or achievement
+    progress
+  description: The OnCriteriaCheck method is invoked during quest and achievement
+    evaluation to determine whether specific criteria requirements are satisfied by
+    the player. This method allows custom scripts to override default behavior, enabling
+    dynamic conditions based on player state, environment, or other game mechanics.
+    It serves as a hook point for scriptable logic that can modify how criteria are
+    evaluated without altering core game systems.
+  parameters:
+  - name: scriptId
+    description: Unique identifier of the script associated with the criteria being
+      checked. Used to route execution to specific custom implementations.
+  - name: source
+    description: Pointer to the Player object that is triggering or involved in the
+      criteria check. Represents the player who may be earning progress toward an
+      achievement or quest.
+  - name: target
+    description: Pointer to the Unit object that is relevant to the criteria being
+      evaluated. May be nullptr if no specific target is required for the condition.
+  returns: Returns true if the criteria check passes and the player's progress should
+    advance, or false if the check fails and progress remains unchanged. A return
+    value of false typically prevents further progression in a quest or achievement.
+  examples:
+  - title: Basic Criteria Check Implementation
+    code: "bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit*\
+      \ target)\n{\n    if (scriptId == 12345)\n    {\n        // Custom check: player\
+      \ must have at least 1000 gold\n        return source->GetMoney() >= 1000;\n\
+      \    }\n    return true; // Default behavior for other scripts\n}"
+    language: cpp
+  - title: Advanced Criteria Check with Target Validation
+    code: "bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit*\
+      \ target)\n{\n    if (scriptId == 67890 && target)\n    {\n        // Custom\
+      \ check: player must kill a specific mob type\n        if (target->GetEntry()\
+      \ == 12345)\n            return true;\n    }\n    return false; // Fail condition\
+      \ for all other cases\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and is typically
+    called from within core quest/achievement logic. Developers should ensure that
+    their implementations are efficient since this function may be invoked frequently
+    during gameplay. The target parameter can be null, so all implementations must
+    handle this case gracefully.
+  warnings: Improper handling of the target pointer can lead to crashes or undefined
+    behavior. Always validate pointers before dereferencing them. Additionally, returning
+    false from this method will halt progress for the associated criteria, which may
+    break quest progression or achievement completion if not used carefully.
+  related:
+  - OnQuestAccept
+  - OnQuestComplete
+  - OnAchievementCriteriaCheck
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:52:19.607910'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

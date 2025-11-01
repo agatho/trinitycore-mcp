@@ -1,0 +1,56 @@
+api:
+  class: TempSummon
+  method: Update
+  signature: void TempSummon::Update(uint32 diff)
+documentation:
+  brief: Updates the temporary summon's state and behavior based on elapsed time.
+  description: The TempSummon::Update method is responsible for managing the lifecycle
+    and behavior of temporary summons within the TrinityCore framework. This method
+    is called periodically by the game loop to process updates such as expiration
+    timers, AI behavior, and state transitions. It handles the core logic that determines
+    when a temporary summon should be removed from the world, executes any necessary
+    cleanup operations, and ensures proper integration with the creature's AI system.
+    The update mechanism is crucial for maintaining game balance and preventing lingering
+    summoned creatures from causing performance issues or gameplay disruptions.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last update call. This
+      value is used to determine how much time has passed and whether any time-based
+      events should be processed, such as summon expiration or behavior updates.
+  returns: null
+  examples:
+  - title: Basic Update Call
+    code: "void GameWorld::UpdateSummons(uint32 diff)\n{\n    for (auto& summon :\
+      \ m_summons)\n    {\n        if (summon)\n            summon->Update(diff);\n\
+      \    }\n}"
+    language: cpp
+  - title: Custom Summon Update Logic
+    code: "class CustomTempSummon : public TempSummon\n{\npublic:\n    void Update(uint32\
+      \ diff) override\n    {\n        // Call base class update first\n        TempSummon::Update(diff);\n\
+      \        \n        // Add custom behavior\n        if (m_customTimer > 0)\n\
+      \        {\n            m_customTimer -= diff;\n            if (m_customTimer\
+      \ <= 0)\n            {\n                DoCustomAction();\n                m_customTimer\
+      \ = 5000; // Reset timer\n            }\n        }\n    }\nprivate:\n    uint32\
+      \ m_customTimer = 0;\n};"
+    language: cpp
+  notes: This method is typically called from the main game loop and should not be
+    invoked directly by other systems unless specifically required. The diff parameter
+    represents actual game time, so updates will be consistent across different performance
+    environments. Developers should ensure that any overridden Update methods call
+    the base class implementation to maintain proper summon lifecycle management.
+  warnings: Improper handling of the diff parameter can cause timing-related bugs
+    in summon behavior. Never override this method without calling the parent implementation
+    first, as it contains critical cleanup and expiration logic. Be cautious when
+    modifying summon states within this method, as it may be called frequently during
+    active gameplay.
+  related:
+  - TempSummon::Despawn
+  - TempSummon::SetDuration
+  - TempSummon::GetDuration
+  - Creature::Update
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T20:36:55.502165'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: BotChatCommandHandler
+  method: GetRemainingCooldown
+  signature: uint32 BotChatCommandHandler::GetRemainingCooldown(const CommandContext
+    & context, const ChatCommand & command)
+documentation:
+  brief: Calculates and returns the remaining cooldown time in milliseconds for a
+    bot's chat command.
+  description: The GetRemainingCooldown method determines how much time remains before
+    a bot can execute a specific chat command again, based on the command's cooldown
+    settings. It evaluates the current state of the bot and the command context to
+    compute the cooldown duration. This method is typically used in conjunction with
+    bot command handling logic to prevent spamming or excessive use of commands within
+    a short timeframe. The returned value represents the milliseconds until the command
+    will be available for use again.
+  parameters:
+  - name: context
+    description: The CommandContext object containing information about the current
+      command execution environment, including the bot's state and command details.
+  - name: command
+    description: The ChatCommand object representing the specific command being evaluated
+      for cooldown calculation.
+  returns: A uint32 value representing the remaining cooldown time in milliseconds.
+    Returns 0 if no cooldown is active or if the command has no cooldown restrictions.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 cooldown = botHandler.GetRemainingCooldown(context, command);\n\
+      if (cooldown == 0)\n{\n    // Command is available for use\n    botHandler.ExecuteCommand(context,\
+      \ command);\n}\nelse\n{\n    // Command is on cooldown\n    ChatHandler::SendSysMessage(context.GetSession(),\
+      \ \"Command is on cooldown.\");\n}"
+    language: cpp
+  - title: Advanced Usage with Logging
+    code: "uint32 remaining = botHandler.GetRemainingCooldown(context, command);\n\
+      if (remaining > 0)\n{\n    // Log cooldown information\n    sLog->outString(\"\
+      Bot %u has %u ms remaining on cooldown for command %s\", \n                \
+      \    context.GetBot()->GetGUID().GetCounter(), \n                    remaining,\
+      \ \n                    command.Command.c_str());\n    // Prevent execution\n\
+      \    return false;\n}\nelse\n{\n    // Proceed with command execution\n    return\
+      \ botHandler.ExecuteCommand(context, command);\n}"
+    language: cpp
+  notes: This method relies on the internal cooldown tracking system of bots in TrinityCore.
+    The actual cooldown values are defined within the command configuration and may
+    vary per bot type or command. Ensure that the CommandContext and ChatCommand objects
+    passed to this method are valid and properly initialized.
+  warnings: Do not assume that a return value of zero always means the command is
+    executable; verify the command's availability through other means if necessary.
+    This method does not modify any internal state, so it can be safely called multiple
+    times without side effects.
+  related:
+  - BotChatCommandHandler::ExecuteCommand
+  - BotChatCommandHandler::IsCommandOnCooldown
+  - BotChatCommandHandler::SetCommandCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T17:25:21.675909'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

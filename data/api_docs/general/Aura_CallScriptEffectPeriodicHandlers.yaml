@@ -1,0 +1,64 @@
+api:
+  class: Aura
+  method: CallScriptEffectPeriodicHandlers
+  signature: bool Aura::CallScriptEffectPeriodicHandlers(const AuraEffect * aurEff,
+    const AuraApplication * aurApp)
+documentation:
+  brief: Calls all periodic effect script handlers for the specified aura effect and
+    application.
+  description: The CallScriptEffectPeriodicHandlers method is responsible for invoking
+    all registered periodic effect scripts associated with a given aura effect and
+    its application. This method is typically called during the periodic tick of an
+    aura, allowing scripted behavior to be executed at regular intervals as defined
+    by the aura's periodicity. It ensures that any custom logic implemented in script
+    handlers for periodic effects is properly executed. The method returns true if
+    all handlers were successfully called, or false if any handler failed or was not
+    found. This functionality is crucial for implementing complex aura behaviors such
+    as damage over time, healing over time, or other recurring effects with custom
+    scripting.
+  parameters:
+  - name: aurEff
+    description: Pointer to the AuraEffect object that defines the periodic effect
+      being processed. This parameter specifies which specific effect within the aura
+      is triggering the periodic handler.
+  - name: aurApp
+    description: Pointer to the AuraApplication object representing the application
+      context of the aura. This parameter provides information about how the aura
+      is applied to a target, including the target unit and application state.
+  returns: Returns true if all periodic effect script handlers were successfully executed,
+    or false if one or more handlers failed or could not be found. A return value
+    of false may indicate an error in script execution or missing handler registration.
+  examples:
+  - title: Basic Usage in Aura Periodic Tick
+    code: "bool result = aura->CallScriptEffectPeriodicHandlers(aurEff, aurApp);\n\
+      if (!result)\n{\n    // Handle failure case\n    sLog->outError(\"Failed to\
+      \ execute periodic effect handlers for aura %u\", aura->GetId());\n}"
+    language: cpp
+  - title: Integration with Custom Aura Script
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnEffectPeriodic += AuraEffectPeriodicFn(MyAuraScript::HandlePeriodicEffect);\n\
+      \    }\n\nprivate:\n    void HandlePeriodicEffect(AuraEffect const* aurEff)\n\
+      \    {\n        // Custom logic here\n        if (!GetAura()->CallScriptEffectPeriodicHandlers(aurEff,\
+      \ GetAuraApplication()))\n        {\n            // Log error or handle failure\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is typically invoked internally by the TrinityCore framework
+    during aura periodic tick processing. Developers should not normally call this
+    method directly unless implementing custom aura behavior. The method relies on
+    proper script handler registration and may have performance implications if many
+    handlers are registered for a single aura effect.
+  warnings: Direct usage of this method outside of core framework code is discouraged
+    as it bypasses normal aura execution flow. Improper handling of return values
+    can lead to inconsistent aura behavior or missed effects. Ensure that all script
+    handlers are properly registered before calling this method.
+  related:
+  - Aura::CallScriptEffectApplyHandlers
+  - Aura::CallScriptEffectRemoveHandlers
+  - Aura::GetEffect
+  - Aura::GetAuraApplication
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T14:03:14.014798'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

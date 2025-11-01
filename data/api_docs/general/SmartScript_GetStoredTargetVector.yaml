@@ -1,0 +1,62 @@
+api:
+  class: SmartScript
+  method: GetStoredTargetVector
+  signature: const ObjectVector * SmartScript::GetStoredTargetVector(uint32 id, const
+    WorldObject & ref) const
+documentation:
+  brief: Retrieves a stored vector of objects based on a given ID and reference object.
+  description: The GetStoredTargetVector method retrieves a previously stored collection
+    of WorldObject pointers associated with a specific identifier. This functionality
+    is typically used within SmartAI scripts to maintain and access dynamic target
+    lists for AI behaviors. The method takes an identifier and a reference object
+    to determine which stored vector should be returned. It's commonly employed in
+    scenarios where the AI needs to track multiple targets or objects over time, such
+    as during area-of-effect attacks or group targeting mechanics. The returned pointer
+    points to an internal ObjectVector that may be modified by other parts of the
+    system, so caution should be exercised when using the data directly.
+  parameters:
+  - name: id
+    description: The unique identifier used to retrieve the stored target vector.
+      This ID is typically set by a prior call to a storage method and must correspond
+      to an existing stored collection.
+  - name: ref
+    description: A reference WorldObject used to determine context or scope for retrieving
+      the stored target vector. The actual implementation may use this reference to
+      filter or adjust the returned vector based on spatial relationships or other
+      contextual factors.
+  returns: A pointer to a const ObjectVector containing the stored targets associated
+    with the given ID and reference object. Returns nullptr if no matching vector
+    is found for the specified ID.
+  examples:
+  - title: Basic usage in SmartAI script
+    code: "if (Unit* target = GetStoredTargetVector(12345, *me))\n{\n    // Process\
+      \ stored targets\n    for (auto& obj : *target)\n    {\n        if (obj && obj->IsInWorld())\n\
+      \        {\n            // Perform actions on each stored target\n        }\n\
+      \    }\n}"
+    language: cpp
+  - title: Using stored targets for area targeting
+    code: "const ObjectVector* targets = GetStoredTargetVector(67890, *me);\nif (targets\
+      \ && !targets->empty())\n{\n    // Cast spell on all stored targets\n    for\
+      \ (auto& target : *targets)\n    {\n        if (target && target->IsInWorld()\
+      \ && target->GetTypeId() == TYPEID_PLAYER)\n        {\n            DoCast(target,\
+      \ SPELL_AREA_DAMAGE);\n        }\n    }\n}"
+    language: cpp
+  notes: This method accesses internal storage managed by SmartScript. The returned
+    ObjectVector should not be modified directly as it may be shared or used elsewhere
+    in the system. Consider making a copy of the vector if modification is required.
+    Performance is generally good for small to medium-sized target lists, but large
+    collections may impact AI execution time.
+  warnings: The returned pointer might be null if no vector exists for the given ID.
+    Always check for nullptr before dereferencing. Since this method returns a const
+    pointer to an internal structure, modifying the contents directly can lead to
+    unexpected behavior or corruption of the stored data.
+  related:
+  - StoreTargetVector
+  - GetStoredTarget
+  - SetStoredTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T06:34:58.119805'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

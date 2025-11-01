@@ -1,0 +1,56 @@
+api:
+  class: SpellScript
+  method: GetOriginalCaster
+  signature: Unit * SpellScript::GetOriginalCaster() const
+documentation:
+  brief: Returns the original caster unit that initiated the spell, preserving the
+    caster's identity through potential modifications or redirections.
+  description: The GetOriginalCaster method retrieves the Unit object that originally
+    cast the spell, regardless of any modifications or redirections that may have
+    occurred during spell execution. This is particularly useful in scenarios where
+    a spell might be redirected, reflected, or modified by effects such as Spell Reflection,
+    Divine Shield, or other defensive mechanisms. The returned Unit pointer can be
+    used to access properties and methods of the original caster, including their
+    GUID, faction, health status, and more. It's important to note that this method
+    returns the caster at the time the spell was initially cast, not necessarily the
+    current caster if the spell has been redirected or modified by game mechanics.
+  parameters: []
+  returns: A pointer to the Unit object representing the original caster of the spell.
+    Returns nullptr if no original caster is available or if the spell was not initiated
+    by a Unit (e.g., environment-based spells).
+  examples:
+  - title: Basic usage to check original caster's faction
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleEffectExecute()\
+      \ override\n    {\n        Unit* originalCaster = GetOriginalCaster();\n   \
+      \     if (originalCaster && originalCaster->IsPlayer())\n        {\n       \
+      \     Player* player = originalCaster->ToPlayer();\n            if (player->GetFaction()\
+      \ == FACTION_HORDE)\n            {\n                // Apply special effect\
+      \ for Horde players\n            }\n        }\n    }\n};"
+    language: cpp
+  - title: Using original caster to determine if spell was cast by a pet
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleAfterHit()\
+      \ override\n    {\n        Unit* originalCaster = GetOriginalCaster();\n   \
+      \     if (originalCaster && originalCaster->IsPet())\n        {\n          \
+      \  // Apply pet-specific logic\n            Pet* pet = originalCaster->ToPet();\n\
+      \            if (pet->GetOwner() && pet->GetOwner()->IsPlayer())\n         \
+      \   {\n                // Handle pet owner's player logic\n            }\n \
+      \       }\n    }\n};"
+    language: cpp
+  notes: This method is primarily used in spell scripts to maintain the integrity
+    of the original casting context. It's essential for implementing mechanics that
+    depend on the true caster identity, such as aura applications, damage calculations,
+    or conditional effects that should not be affected by spell redirections.
+  warnings: Be cautious when using this method in combination with spell redirection
+    effects like Spell Reflection or Mirror Image, as it will always return the original
+    caster and not the current one. Ensure proper null checks since the original caster
+    might not always be available depending on how the spell was triggered.
+  related:
+  - GetCaster
+  - GetSpell
+  - GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T05:52:29.165554'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

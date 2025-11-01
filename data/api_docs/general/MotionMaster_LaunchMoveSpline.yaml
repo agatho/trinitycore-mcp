@@ -1,0 +1,65 @@
+api:
+  class: MotionMaster
+  method: LaunchMoveSpline
+  signature: void MotionMaster::LaunchMoveSpline(std::function<void (Movement::MoveSplineInit
+    &)> && initializer, uint32 id, MovementGeneratorPriority priority, MovementGeneratorType
+    type)
+documentation:
+  brief: Launches a movement spline with custom initialization for the motion master.
+  description: The LaunchMoveSpline method initializes and starts a movement spline
+    for an object's motion, using a provided initializer function to configure the
+    spline parameters. This method is typically used by movement generators to define
+    complex movement paths such as waypoints, flights, or custom animations. It accepts
+    a lambda function that configures the Movement::MoveSplineInit object, which defines
+    how the spline should behave, including path points, speed, and other movement
+    properties. The method also assigns a unique identifier, priority, and type to
+    the movement generator to manage concurrent movements.
+  parameters:
+  - name: initializer
+    description: A std::function that takes a Movement::MoveSplineInit reference and
+      configures it with movement parameters such as waypoints, speed, and spline
+      flags. This function is called during initialization to set up the movement
+      path.
+  - name: id
+    description: A unique identifier for this movement generator instance, used to
+      track and manage multiple concurrent movements on the same object.
+  - name: priority
+    description: The priority level of this movement generator, determining how it
+      interacts with other active movements (e.g., whether it can override or be overridden
+      by others).
+  - name: type
+    description: The type of movement generator being launched, used to categorize
+      and identify the kind of motion being performed (e.g., idle, waypoint, flight).
+  returns: null
+  examples:
+  - title: Basic usage with a simple spline
+    code: "MotionMaster* mm = unit->GetMotionMaster();\nmm->LaunchMoveSpline([](Movement::MoveSplineInit&\
+      \ init)\n{\n    init.SetVelocity(5.0f);\n    init.MoveTo(100.0f, 200.0f, 300.0f);\n\
+      }, 1, MOTION_PRIORITY_NORMAL, MOVEMENTGENERATOR_TYPE_WAYPOINT);"
+    language: cpp
+  - title: Advanced usage with multiple waypoints and custom flags
+    code: "MotionMaster* mm = unit->GetMotionMaster();\nmm->LaunchMoveSpline([](Movement::MoveSplineInit&\
+      \ init)\n{\n    init.SetWalk(false);\n    init.SetVelocity(10.0f);\n    init.MoveTo({{100.0f,\
+      \ 200.0f, 300.0f}, {150.0f, 250.0f, 350.0f}, {200.0f, 300.0f, 400.0f}});\n \
+      \   init.SetFacing(4.7f); // radians\n}, 2, MOTION_PRIORITY_HIGHEST, MOVEMENTGENERATOR_TYPE_FLIGHT);"
+    language: cpp
+  notes: This method is part of the motion system in TrinityCore and integrates with
+    the Movement::MoveSpline framework. It should be called from within a thread-safe
+    context where movement updates are allowed. The initializer function must not
+    perform operations that could block or cause deadlocks, as it's executed during
+    the movement initialization phase.
+  warnings: Incorrectly setting spline parameters in the initializer may result in
+    unexpected movement behavior or client-side desynchronization. Avoid calling this
+    method from within a movement update loop to prevent potential recursion or race
+    conditions.
+  related:
+  - MoveSpline
+  - UpdateMotion
+  - Clear
+  - AddMotionGenerator
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T10:42:41.449350'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

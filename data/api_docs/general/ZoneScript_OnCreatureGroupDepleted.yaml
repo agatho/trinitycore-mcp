@@ -1,0 +1,59 @@
+api:
+  class: ZoneScript
+  method: OnCreatureGroupDepleted
+  signature: void ZoneScript::OnCreatureGroupDepleted(const CreatureGroup * creatureGroup)
+documentation:
+  brief: Called when a creature group in the zone is completely depleted
+  description: This method is invoked by the TrinityCore framework when a CreatureGroup
+    within the zone has been fully cleared of all its members. The event occurs after
+    the last creature in the group has been killed, despawned, or otherwise removed
+    from the world. This allows ZoneScript implementations to react to the completion
+    of specific creature group activities such as boss encounters, quest-related mob
+    waves, or scripted events. The method provides a way for custom zone logic to
+    execute when predetermined groups of creatures are no longer active in the zone.
+  parameters:
+  - name: creatureGroup
+    description: Pointer to the CreatureGroup object that has been depleted. This
+      represents the group of creatures that has been completely cleared from the
+      world. The pointer is guaranteed to be valid during the method call, but should
+      not be stored or used after the method returns.
+  returns: null
+  examples:
+  - title: Basic implementation for logging group depletion
+    code: "class MyZoneScript : public ZoneScript\n{\npublic:\n    void OnCreatureGroupDepleted(const\
+      \ CreatureGroup * creatureGroup) override\n    {\n        if (creatureGroup)\n\
+      \        {\n            sLog->outInfo(LOG_FILTER_GENERAL, \"Creature group %u\
+      \ depleted in zone %u\", creatureGroup->GetId(), GetZoneId());\n        }\n\
+      \    }\n};"
+    language: cpp
+  - title: Triggering quest completion when a group is depleted
+    code: "class QuestZoneScript : public ZoneScript\n{\npublic:\n    void OnCreatureGroupDepleted(const\
+      \ CreatureGroup * creatureGroup) override\n    {\n        if (creatureGroup\
+      \ && creatureGroup->GetId() == 12345)\n        {\n            // Find players\
+      \ in the zone and complete quest\n            Map* map = creatureGroup->GetMap();\n\
+      \            if (map)\n            {\n                Map::PlayerList const&\
+      \ players = map->GetPlayers();\n                for (Map::PlayerList::const_iterator\
+      \ itr = players.begin(); itr != players.end(); ++itr)\n                {\n \
+      \                   Player* player = itr->GetSource();\n                   \
+      \ if (player && player->GetQuestStatus(54321) == QUEST_STATUS_INCOMPLETE)\n\
+      \                        player->CompleteQuest(54321);\n                }\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: The method is called only once per group depletion, and the CreatureGroup
+    pointer passed in will be valid for the duration of this call. ZoneScripts should
+    not attempt to modify or delete the creature group directly from this callback
+    as it may lead to undefined behavior.
+  warnings: Do not store references to the creatureGroup parameter beyond the scope
+    of this method call. Accessing the group after the method returns may result in
+    accessing freed memory or invalid data structures.
+  related:
+  - OnCreatureGroupEnter
+  - OnCreatureGroupLeave
+  - OnCreatureGroupAdd
+  - OnCreatureGroupRemove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T19:02:27.581212'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

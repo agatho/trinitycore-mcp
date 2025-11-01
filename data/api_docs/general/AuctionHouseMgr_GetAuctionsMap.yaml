@@ -1,0 +1,56 @@
+api:
+  class: AuctionHouseMgr
+  method: GetAuctionsMap
+  signature: AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
+documentation:
+  brief: Retrieves the auction house object map for the specified faction template
+    ID.
+  description: The GetAuctionsMap method retrieves a pointer to the AuctionHouseObject
+    associated with the given faction template ID. This method is used internally
+    by the auction house system to manage and access auction data specific to different
+    factions in World of Warcraft. The returned pointer allows access to all auctions
+    listed under that faction's auction house, including item listings, bid information,
+    and auction durations. This method typically serves as a lookup mechanism within
+    the auction house manager's internal data structures.
+  parameters:
+  - name: factionTemplateId
+    description: The faction template identifier used to determine which auction house
+      map to retrieve. Valid values correspond to faction template IDs defined in
+      the game's database, typically ranging from 1 to several thousand depending
+      on the expansion and content.
+  returns: A pointer to an AuctionHouseObject that contains all auctions for the specified
+    faction template ID. Returns nullptr if no auction house data exists for the given
+    faction template ID or if the faction is invalid.
+  examples:
+  - title: Basic Usage
+    code: "AuctionHouseObject* auctionMap = sAuctionHouseMgr->GetAuctionsMap(1234);\n\
+      if (auctionMap != nullptr)\n{\n    // Process auctions in the map\n}"
+    language: cpp
+  - title: Checking Faction Auctions
+    code: "uint32 playerFactionId = player->getFaction();\nAuctionHouseObject* factionAuctions\
+      \ = sAuctionHouseMgr->GetAuctionsMap(playerFactionId);\nif (factionAuctions)\n\
+      {\n    // Iterate through auctions for this faction\n    for (auto& auction\
+      \ : factionAuctions->GetAuctions())\n    {\n        // Process each auction\
+      \ entry\n    }\n}"
+    language: cpp
+  notes: This method accesses internal data structures of the AuctionHouseMgr and
+    should only be called from within the auction house system or related subsystems.
+    The returned pointer is valid only during the lifetime of the AuctionHouseObject
+    associated with that faction template ID. Be cautious when modifying auction data
+    through this map as it may affect other systems relying on auction house consistency.
+  warnings: Do not assume the returned pointer will remain valid across different
+    game states or thread contexts. Calling this method with an invalid faction template
+    ID may result in a nullptr return, which should be handled gracefully to prevent
+    crashes. Avoid modifying auction data directly through this map without proper
+    locking mechanisms to prevent race conditions.
+  related:
+  - GetAuctionHouse
+  - AddAuction
+  - RemoveAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T18:32:31.819081'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

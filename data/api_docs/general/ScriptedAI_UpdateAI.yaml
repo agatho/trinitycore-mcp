@@ -1,0 +1,47 @@
+api:
+  class: ScriptedAI
+  method: UpdateAI
+  signature: void ScriptedAI::UpdateAI(int diff)
+documentation:
+  brief: Updates the AI behavior of a creature based on the elapsed time since last
+    update.
+  description: The UpdateAI method is a core component of the ScriptedAI class in
+    TrinityCore, responsible for executing the artificial intelligence logic of a
+    creature at regular intervals. It is called by the game engine every tick with
+    a time delta (diff) parameter indicating how much time has passed since the last
+    execution. This method typically handles enemy detection, pathfinding, spell casting,
+    and other AI-driven behaviors. The implementation usually involves checking for
+    valid targets, managing cooldowns, and performing actions based on the creature's
+    current state and conditions.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last call to UpdateAI.
+      This value is used to determine when to perform timed actions like spell cooldowns
+      or movement updates.
+  returns: null
+  examples:
+  - title: Basic AI Update Implementation
+    code: "void ScriptedAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n \
+      \       return;\n\n    // Example: Cast a spell every 5 seconds\n    if (me->HasUnitState(UNIT_STATE_CASTING))\n\
+      \        return;\n\n    if (SpellTimer <= diff)\n    {\n        DoCastVictim(SPELL_SHOCK);\n\
+      \        SpellTimer = 5000;\n    }\n    else\n        SpellTimer -= diff;\n\n\
+      \    DoMeleeAttackIfReady();\n}"
+    language: cpp
+  notes: This method is invoked frequently by the game loop, so performance is critical.
+    Avoid heavy computations or blocking operations within this function. The 'diff'
+    parameter should be used to manage timing-sensitive actions like spell cooldowns
+    and movement delays.
+  warnings: Do not call creature->AI()->UpdateAI() directly from your own code as
+    it's managed by the game engine. Ensure that all AI logic respects the creature's
+    current state and does not cause infinite loops or race conditions.
+  related:
+  - EnterCombat
+  - JustDied
+  - DamageTaken
+  - MoveInLineOfSight
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T18:05:28.697711'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

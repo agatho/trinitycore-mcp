@@ -1,0 +1,50 @@
+api:
+  class: Guild
+  method: LoadBankItemFromDB
+  signature: bool Guild::LoadBankItemFromDB(int * fields)
+documentation:
+  brief: Loads a guild bank item from the database into the guild's internal data
+    structures.
+  description: The LoadBankItemFromDB method is responsible for retrieving and initializing
+    a single guild bank item entry from the database. This method is typically called
+    during the guild initialization process or when loading guild data from the database.
+    It processes the database fields to construct a guild bank item object, which
+    is then stored in the guild's internal collection of bank items. The method ensures
+    that all relevant item properties such as item GUID, slot position, and stack
+    count are correctly loaded and validated before being added to the guild's bank
+    inventory.
+  parameters:
+  - name: fields
+    description: Pointer to an array of database field values representing a single
+      guild bank item record. The fields typically include item GUID, slot position,
+      stack count, and other relevant metadata required to reconstruct the bank item.
+  returns: Returns true if the bank item was successfully loaded and processed from
+    the database; returns false if there was an error during loading or validation
+    of the database record.
+  examples:
+  - title: Basic Usage in Guild Initialization
+    code: "void Guild::LoadBankItems()\n{\n    QueryResult result = CharacterDatabase.Query(\"\
+      SELECT itemguid, slot, item_entry, stackcount FROM guild_bank_item WHERE guildid\
+      \ = {}\", GetId());\n    if (!result)\n        return;\n\n    do\n    {\n  \
+      \      int fields[4];\n        for (int i = 0; i < 4; ++i)\n            fields[i]\
+      \ = result->Fetch()[i].Get<int>();\n\n        LoadBankItemFromDB(fields);\n\
+      \    } while (result->NextRow());\n}"
+    language: cpp
+  notes: This method is part of the internal guild data loading mechanism and should
+    not be called directly by external code. It assumes that the database fields are
+    properly formatted and that the guild object has been initialized with valid data
+    before calling.
+  warnings: Improper handling of the fields array can lead to memory corruption or
+    invalid data being loaded into the guild's bank inventory. Ensure that the fields
+    parameter points to a properly initialized array with sufficient elements for
+    all expected database columns.
+  related:
+  - Guild::LoadFromDB
+  - Guild::AddBankItem
+  - Guild::RemoveBankItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T11:37:52.614449'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: StaticMapTree
+  method: CanLoadMap
+  signature: LoadResult StaticMapTree::CanLoadMap(const int & basePath, uint32 mapID,
+    uint32 tileX, uint32 tileY, VMapManager2 * vm)
+documentation:
+  brief: Determines whether a specific map tile can be loaded for navigation and collision
+    detection.
+  description: The CanLoadMap method checks if a given map tile (identified by map
+    ID and coordinates) is eligible for loading within the VMapManager2 system. This
+    function evaluates preconditions such as file existence, valid map data, and proper
+    tile boundaries to determine if the tile can be successfully loaded into memory
+    for use in pathfinding and collision detection systems. It returns a LoadResult
+    enum indicating success or failure reasons, which helps prevent unnecessary resource
+    allocation when attempting to load invalid or unsupported map tiles.
+  parameters:
+  - name: basePath
+    description: The base file system path where map data files are stored. This parameter
+      is typically used to locate the root directory of VMap data files.
+  - name: mapID
+    description: Unique identifier for the game map (e.g., 0 for Eastern Kingdoms,
+      1 for Kalimdor). Used to identify which map's data should be loaded.
+  - name: tileX
+    description: The X coordinate of the tile within the map grid. Tile coordinates
+      are typically in a fixed-size grid system where each tile represents a portion
+      of the map.
+  - name: tileY
+    description: The Y coordinate of the tile within the map grid. Together with tileX,
+      this identifies a specific tile for loading and processing.
+  - name: vm
+    description: Pointer to the VMapManager2 instance managing virtual map data. This
+      is required to perform checks against existing loaded maps or access configuration
+      settings.
+  returns: Returns a LoadResult enum indicating whether the tile can be loaded. Possible
+    values include LOAD_RESULT_SUCCESS if loading is allowed, or various error codes
+    such as LOAD_RESULT_ERROR_FILE_NOT_FOUND, LOAD_RESULT_ERROR_INVALID_MAP_ID, or
+    LOAD_RESULT_ERROR_TILE_NOT_SUPPORTED depending on why loading would fail.
+  examples:
+  - title: Check if a map tile can be loaded before attempting to load it
+    code: "#include \"VMapManager2.h\"\n\nint main() {\n    VMapManager2* vm = VMapManager2::getInstance();\n\
+      \    int basePath = 0; // Assuming default base path\n    uint32 mapId = 0;\n\
+      \    uint32 tileX = 64;\n    uint32 tileY = 64;\n    \n    LoadResult result\
+      \ = StaticMapTree::CanLoadMap(basePath, mapId, tileX, tileY, vm);\n    if (result\
+      \ == LOAD_RESULT_SUCCESS) {\n        // Proceed with loading the map tile\n\
+      \        printf(\"Tile can be loaded\\n\");\n    } else {\n        printf(\"\
+      Cannot load tile: %d\\n\", result);\n    }\n    return 0;\n}"
+    language: cpp
+  notes: This method is primarily used internally by the VMapManager2 to validate
+    map tiles before attempting to load them. It performs lightweight checks without
+    actually loading data into memory, making it efficient for batch validation of
+    multiple tiles. The method assumes that the provided map ID and tile coordinates
+    are within valid ranges for the game world.
+  warnings: Do not call this function with invalid map IDs or out-of-bounds tile coordinates
+    as it may lead to undefined behavior or incorrect results. Ensure that the VMapManager2
+    instance is properly initialized before calling this method, otherwise the checks
+    may fail unexpectedly.
+  related:
+  - StaticMapTree::LoadMap
+  - VMapManager2::GetVMap
+  - StaticMapTree::UnloadMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T20:50:54.211508'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

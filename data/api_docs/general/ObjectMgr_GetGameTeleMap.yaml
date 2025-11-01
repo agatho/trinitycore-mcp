@@ -1,0 +1,51 @@
+api:
+  class: ObjectMgr
+  method: GetGameTeleMap
+  signature: const GameTeleContainer & ObjectMgr::GetGameTeleMap() const
+documentation:
+  brief: Returns a constant reference to the internal container of game teleport locations.
+  description: The GetGameTeleMap method provides access to the complete collection
+    of game teleport coordinates stored within the ObjectMgr singleton. This container
+    maps teleport location names to their corresponding WorldLocation structures,
+    enabling efficient lookup of predefined teleport destinations such as cities,
+    battlegrounds, or instance entrances. The returned reference is const, ensuring
+    that callers cannot modify the internal teleport map directly through this interface.
+    This method is typically used during player login, teleportation requests, or
+    when building UI elements that display available teleport locations.
+  parameters: []
+  returns: A constant reference to a GameTeleContainer which holds all registered
+    game teleport locations. The container type is typically a std::map<std::string,
+    WorldLocation> where keys are location names and values are the corresponding
+    world coordinates.
+  examples:
+  - title: Accessing Teleport Locations
+    code: "const GameTeleContainer& teleports = sObjectMgr->GetGameTeleMap();\nfor\
+      \ (const auto& teleport : teleports)\n{\n    std::cout << \"Teleport: \" <<\
+      \ teleport.first << \" at \" \n              << teleport.second.coord_x << \"\
+      , \" \n              << teleport.second.coord_y << std::endl;\n}"
+    language: cpp
+  - title: Finding Specific Teleport Location
+    code: "const GameTeleContainer& teleports = sObjectMgr->GetGameTeleMap();\nauto\
+      \ it = teleports.find(\"Stormwind City\");\nif (it != teleports.end())\n{\n\
+      \    WorldLocation location = it->second;\n    // Use location for player teleportation\n\
+      }"
+    language: cpp
+  notes: This method returns a reference to an internal data structure that is populated
+    during server startup from the game_tele table in the database. The returned container
+    should not be modified directly as it's managed by the ObjectMgr singleton. Accessing
+    this map is thread-safe as long as no modifications are made concurrently.
+  warnings: Do not modify the returned GameTeleContainer reference directly, as it
+    may cause undefined behavior or data corruption. If you need to add/remove teleport
+    locations during runtime, use the appropriate ObjectMgr methods like AddGameTele
+    or RemoveGameTele instead of modifying this container directly.
+  related:
+  - AddGameTele
+  - RemoveGameTele
+  - GetGameTele
+  - LoadGameTele
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T09:38:39.107847'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

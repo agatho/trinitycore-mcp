@@ -1,0 +1,64 @@
+api:
+  class: ScriptMgr
+  method: OnCreatureKill
+  signature: void ScriptMgr::OnCreatureKill(Player * killer, Creature * killed)
+documentation:
+  brief: Executes script hooks when a player kills a creature in World of Warcraft.
+  description: The OnCreatureKill method is a callback function within the TrinityCore
+    ScriptMgr class that triggers when a Player successfully kills a Creature. This
+    method allows custom scripts to execute logic, such as awarding rewards, updating
+    quest progress, or modifying game state, whenever a player eliminates an NPC.
+    It serves as part of the core scripting system that enables server administrators
+    and developers to extend gameplay behavior without modifying the base game code.
+    The method is invoked during the creature death processing sequence, ensuring
+    that all relevant data about the killer and killed entities are available for
+    script evaluation.
+  parameters:
+  - name: killer
+    description: Pointer to the Player object who performed the kill action. This
+      parameter represents the active player character responsible for defeating the
+      creature.
+  - name: killed
+    description: Pointer to the Creature object that was killed by the player. This
+      parameter provides access to the defeated NPC's properties and state at the
+      time of death.
+  returns: null
+  examples:
+  - title: Basic Script Hook Implementation
+    code: "class MyScript : public PlayerScript\n{\npublic:\n    MyScript() : PlayerScript(\"\
+      MyScript\") {}\n\n    void OnCreatureKill(Player* killer, Creature* killed)\
+      \ override\n    {\n        // Award experience points for killing a specific\
+      \ creature type\n        if (killed->GetEntry() == 12345)\n        {\n     \
+      \       killer->ModifyCurrency(61, 100); // Example currency reward\n      \
+      \  }\n    }\n};"
+    language: cpp
+  - title: Advanced Quest Progression Trigger
+    code: "class QuestKillScript : public PlayerScript\n{\npublic:\n    QuestKillScript()\
+      \ : PlayerScript(\"QuestKillScript\") {}\n\n    void OnCreatureKill(Player*\
+      \ killer, Creature* killed) override\n    {\n        // Check if the player\
+      \ has a specific quest active\n        if (killer->GetQuestStatus(54321) ==\
+      \ QUEST_STATUS_INCOMPLETE)\n        {\n            // Update quest objective\
+      \ count\n            if (killed->GetEntry() == 98765)\n            {\n     \
+      \           killer->KilledMonsterCredit(98765);\n            }\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called from within the core game loop during creature death
+    processing. Scripts registered with this hook execute synchronously and may affect
+    performance if they perform heavy computations or database operations. Ensure
+    that any modifications to player or creature state are thread-safe, as these callbacks
+    can be invoked from different threads depending on server configuration.
+  warnings: Avoid performing blocking operations or long-running tasks in this callback,
+    as it can cause server lag or timeouts. Do not modify the killer or killed pointers
+    directly unless necessary; prefer using provided APIs to change game state. Be
+    cautious with recursive calls that might occur if scripts themselves trigger creature
+    kills.
+  related:
+  - OnPlayerKill
+  - OnCreatureLoot
+  - OnCreatureEnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T22:52:56.627799'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

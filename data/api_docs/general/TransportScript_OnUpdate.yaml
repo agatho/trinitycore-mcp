@@ -1,0 +1,62 @@
+api:
+  class: TransportScript
+  method: OnUpdate
+  signature: void TransportScript::OnUpdate(Transport * transport, uint32 diff)
+documentation:
+  brief: Updates the transport object with the specified time difference.
+  description: The OnUpdate method is a callback function invoked by the TrinityCore
+    framework to update the state of a transport object. It is called periodically
+    during the game loop and receives the time elapsed since the last update (in milliseconds)
+    as a parameter. This method allows script developers to implement custom behavior
+    for transports, such as moving them along predefined paths, handling passenger
+    interactions, or triggering events based on time progression. The method is part
+    of the TransportScript class which provides hooks for customizing transport functionality.
+  parameters:
+  - name: transport
+    description: Pointer to the Transport object that needs to be updated. This represents
+      the actual transport entity in the game world, such as a boat or elevator.
+  - name: diff
+    description: The time difference in milliseconds since the last update call. This
+      value is used to calculate movement and timing-based events for the transport.
+  returns: null
+  examples:
+  - title: Basic Transport Update Implementation
+    code: "class MyTransportScript : public TransportScript\n{\npublic:\n    void\
+      \ OnUpdate(Transport* transport, uint32 diff) override\n    {\n        // Move\
+      \ the transport forward by a fixed distance each tick\n        transport->SetPosition(transport->GetPositionX()\
+      \ + 0.1f * (diff / 1000.0f),\n                              transport->GetPositionY(),\n\
+      \                              transport->GetPositionZ(),\n                \
+      \              transport->GetOrientation());\n    }\n};"
+    language: cpp
+  - title: Advanced Transport Script with Passenger Handling
+    code: "class AdvancedTransportScript : public TransportScript\n{\npublic:\n  \
+      \  void OnUpdate(Transport* transport, uint32 diff) override\n    {\n      \
+      \  // Handle passenger boarding and alighting\n        if (transport->GetPassengers().empty())\n\
+      \        {\n            // Transport is empty, move to next station\n      \
+      \      transport->MoveToNextWaypoint();\n        }\n        else\n        {\n\
+      \            // Update passenger positions relative to transport\n         \
+      \   for (auto& passenger : transport->GetPassengers())\n            {\n    \
+      \            if (passenger)\n                {\n                    passenger->UpdatePosition(transport->GetPositionX(),\n\
+      \                                             transport->GetPositionY(),\n \
+      \                                            transport->GetPositionZ(),\n  \
+      \                                           diff);\n                }\n    \
+      \        }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game loop and should not block or perform
+    heavy computations. The 'diff' parameter represents actual elapsed time, so calculations
+    should be time-based for consistent behavior across different server performance
+    conditions.
+  warnings: Do not modify the transport's position directly without considering the
+    transport's movement path. Always ensure that any modifications to the transport's
+    state are consistent with its intended behavior and don't cause desynchronization
+    between the client and server.
+  related:
+  - OnAddPassenger
+  - OnRemovePassenger
+  - OnTransportUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-10-31T17:38:09.625225'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

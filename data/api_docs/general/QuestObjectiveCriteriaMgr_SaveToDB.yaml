@@ -1,0 +1,51 @@
+api:
+  class: QuestObjectiveCriteriaMgr
+  method: SaveToDB
+  signature: void QuestObjectiveCriteriaMgr::SaveToDB(int trans)
+documentation:
+  brief: Saves quest objective criteria data to the database with optional transaction
+    support.
+  description: The SaveToDB method persists all current quest objective criteria data
+    managed by the QuestObjectiveCriteriaMgr instance into the game's database. This
+    method is typically invoked during player logout or at regular intervals to ensure
+    that progress toward quest objectives is not lost. It supports transaction handling
+    through an optional transaction parameter, allowing for atomic updates when multiple
+    related database operations are performed together. The method ensures that all
+    criteria progress, completion states, and associated metadata are accurately stored
+    in the database for persistence across server restarts and player sessions.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided, the save operation
+      will be executed within the context of this transaction. A value of -1 indicates
+      no transaction is used, and the method will manage its own transaction scope.
+  returns: null
+  examples:
+  - title: Basic Save Operation
+    code: 'QuestObjectiveCriteriaMgr* mgr = sObjectMgr->GetQuestObjectiveCriteriaMgr();
+
+      mgr->SaveToDB(); // Saves using default transaction handling'
+    language: cpp
+  - title: Save with Explicit Transaction
+    code: 'TransactionPtr trans = new Transaction();
+
+      QuestObjectiveCriteriaMgr* mgr = sObjectMgr->GetQuestObjectiveCriteriaMgr();
+
+      mgr->SaveToDB(trans); // Saves within provided transaction context'
+    language: cpp
+  notes: This method should only be called when the manager contains valid data that
+    needs persistence. It is recommended to call this method before player logout
+    or during periodic server maintenance routines. The implementation may batch multiple
+    database writes for performance optimization.
+  warnings: Calling this method without proper transaction management can lead to
+    inconsistent data states if other operations fail mid-process. Ensure that any
+    provided transaction is properly committed or rolled back by the caller.
+  related:
+  - LoadFromDB
+  - UpdateCriteria
+  - ResetCriteria
+metadata:
+  confidence: 0.9
+  generated_at: '2025-10-31T20:47:09.735367'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

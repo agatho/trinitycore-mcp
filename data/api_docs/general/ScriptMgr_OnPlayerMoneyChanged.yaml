@@ -1,0 +1,58 @@
+api:
+  class: ScriptMgr
+  method: OnPlayerMoneyChanged
+  signature: void ScriptMgr::OnPlayerMoneyChanged(Player * player, int64 & amount)
+documentation:
+  brief: Invoked when a player's money amount is changed, allowing scripts to react
+    to monetary modifications.
+  description: The OnPlayerMoneyChanged method is a hook in the ScriptMgr class that
+    gets called whenever a player's money balance is modified within the game. This
+    method serves as an event handler for monetary changes and can be used by custom
+    scripts or modules to perform actions such as logging, triggering quests, or modifying
+    behavior based on the new money amount. The method receives a pointer to the affected
+    Player object and a reference to the amount that was changed, which allows for
+    potential modification of the change itself if needed. It is typically invoked
+    during transactions like purchasing items, receiving rewards, or looting gold
+    from mobs.
+  parameters:
+  - name: player
+    description: A pointer to the Player object whose money has been changed. This
+      parameter must not be null and represents the specific player instance involved
+      in the monetary transaction.
+  - name: amount
+    description: A reference to the int64 value representing the change in money.
+      This can be positive (money gained) or negative (money lost). Modifying this
+      value will affect the actual amount of money changed for the player.
+  returns: null
+  examples:
+  - title: Basic Logging of Money Changes
+    code: "void OnPlayerMoneyChanged(Player* player, int64& amount)\n{\n    if (amount\
+      \ > 0)\n        sLog->outString(\"Player %s gained %\" PRIu64 \" gold.\", player->GetName().c_str(),\
+      \ amount);\n    else\n        sLog->outString(\"Player %s lost %\" PRIu64 \"\
+      \ gold.\", player->GetName().c_str(), -amount);\n}"
+    language: cpp
+  - title: Preventing Money Loss Below Zero
+    code: "void OnPlayerMoneyChanged(Player* player, int64& amount)\n{\n    if (amount\
+      \ < 0 && player->GetMoney() + amount < 0)\n        amount = -player->GetMoney();\
+      \ // Prevent going below zero\n}"
+    language: cpp
+  notes: This method is part of the global script manager and is called from core
+    game logic when money changes occur. It should be used carefully as it may be
+    invoked frequently during gameplay, especially in high-traffic areas or during
+    active trading. The amount parameter is passed by reference, so modifications
+    to it will directly influence how much money is actually changed for the player.
+  warnings: Modifying the 'amount' parameter can lead to unexpected behavior if not
+    handled properly. For example, setting a very large negative value could cause
+    overflow issues or unintended consequences in game economy systems. Always validate
+    changes to ensure they remain within reasonable bounds and do not break core gameplay
+    mechanics.
+  related:
+  - OnPlayerMoneyChanged
+  - OnPlayerEnterWorld
+  - OnPlayerLogout
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T22:15:06.909024'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

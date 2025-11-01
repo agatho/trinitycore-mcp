@@ -1,0 +1,68 @@
+api:
+  class: ChannelMgr
+  method: GetChannel
+  signature: Channel * ChannelMgr::GetChannel(uint32 channelId, const std::string
+    & name, Player * player, bool notify, const AreaTableEntry * zoneEntry) const
+documentation:
+  brief: Retrieves or creates a channel instance by ID and name, optionally notifying
+    the player of its creation.
+  description: The GetChannel method is responsible for retrieving an existing Channel
+    object from the internal channel manager based on the provided channel ID and
+    name. If no such channel exists, it will create a new one if the 'notify' parameter
+    is true and the player has permission to join or create the channel. This method
+    plays a crucial role in managing in-game chat channels, ensuring that players
+    can access or establish communication groups. The zoneEntry parameter allows for
+    zone-specific behavior, which may affect channel visibility or restrictions. It's
+    commonly used when a player attempts to join a specific channel or when the system
+    needs to ensure a channel exists before sending messages.
+  parameters:
+  - name: channelId
+    description: Unique identifier for the channel. Used to distinguish between different
+      channels in the system.
+  - name: name
+    description: The name of the channel being requested or created. Must be a valid
+      string representing the channel's identity.
+  - name: player
+    description: Pointer to the Player object requesting access to the channel. Used
+      for permission checks and notifications.
+  - name: notify
+    description: Boolean flag indicating whether to notify the player about channel
+      creation or access. If true, the player will receive appropriate messages if
+      a new channel is created.
+  - name: zoneEntry
+    description: Pointer to the AreaTableEntry for the current zone. Used to determine
+      zone-specific restrictions or behavior for the channel.
+  returns: Returns a pointer to the Channel object if successful, or nullptr if the
+    channel could not be retrieved or created due to invalid parameters, permissions,
+    or other errors.
+  examples:
+  - title: Joining a Public Channel
+    code: "Channel* channel = channelMgr->GetChannel(12345, \"General\", player, true,\
+      \ nullptr);\nif (channel)\n{\n    // Player successfully joined or was notified\
+      \ of existing channel\n    channel->Join(player);\n}"
+    language: cpp
+  - title: Creating a Zone-Specific Channel
+    code: "AreaTableEntry* zone = sAreaTableStore.LookupEntry(1234); // Example zone\
+      \ ID\nChannel* channel = channelMgr->GetChannel(54321, \"DungeonGroup\", player,\
+      \ false, zone);\nif (channel && player->GetZoneId() == 1234)\n{\n    // Player\
+      \ is in the correct zone and channel exists\n    channel->Join(player);\n}"
+    language: cpp
+  notes: This method is thread-safe as it operates on a per-player basis through the
+    ChannelMgr instance. It relies heavily on internal player permissions and zone
+    restrictions, so calling code should ensure that player state is valid before
+    invoking this function.
+  warnings: Do not assume that a non-null return value guarantees successful channel
+    access; always verify the channel's state or call Join() explicitly after retrieving
+    it. Also, be cautious when using notify = true with untrusted input as it may
+    lead to spamming players with messages.
+  related:
+  - ChannelMgr::GetChannelByName
+  - ChannelMgr::CreateChannel
+  - Channel::Join
+  - Channel::Leave
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T16:29:17.369791'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
