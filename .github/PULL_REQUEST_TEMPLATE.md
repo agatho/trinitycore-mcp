@@ -1,124 +1,79 @@
-## 📝 Description
-Brief description of the changes in this PR.
+## Description
 
-## 🔗 Related Issues
-- Closes #X
-- Fixes #Y
-- Implements #Z
-- Related to #A
+<!-- Provide a brief description of the changes in this PR -->
 
-## 🏷️ Type of Change
-- [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
-- [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] 💥 Breaking change (fix or feature that breaks existing functionality)
-- [ ] 📝 Documentation update
-- [ ] ♻️ Code refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] ✅ Test addition/update
-- [ ] 🔧 Configuration change
+## Type of Change
 
-## 🔄 Changes Made
-**Summary of key changes:**
-- Change 1: Description
-- Change 2: Description
-- Change 3: Description
+<!-- Mark the relevant option with an "x" -->
 
-**Files modified:**
-- `src/tools/example.ts` - What changed and why
-- `DEVELOPMENT_TODOS.md` - Updated section X
-- `README.md` - Added documentation for Y
+- [ ] Bug fix (non-breaking change that fixes an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Code refactoring
+- [ ] CI/CD enhancement
 
-## 🧪 Testing
-**How has this been tested?**
+## Related Issues
+
+<!-- Link any related issues using #issue_number -->
+
+Fixes #
+Closes #
+Related to #
+
+## Changes Made
+
+<!-- List the specific changes made in this PR -->
+
+-
+-
+-
+
+## Testing
+
+<!-- Describe the testing you've done -->
+
+- [ ] All existing tests pass
+- [ ] New tests added for new functionality
 - [ ] Manual testing performed
-- [ ] All build checks pass
-- [ ] No new TypeScript errors
-- [ ] No new warnings
-- [ ] Tested on: Windows / Linux / macOS
+- [ ] Performance testing completed (if applicable)
 
-**Test scenarios covered:**
-1. Scenario 1: Expected result
-2. Scenario 2: Expected result
-3. Edge case: How it's handled
+### Test Results
 
-## ✅ Checklist
-**Before submitting:**
-- [ ] Code follows project style guidelines
-- [ ] Self-reviewed my own code
-- [ ] Commented complex/non-obvious code
-- [ ] Updated relevant documentation
-- [ ] No new TODOs without issue references
-- [ ] Removed completed TODO comments
-- [ ] No hardcoded paths or credentials
-- [ ] TypeScript strict mode compliance
-- [ ] All builds pass
-- [ ] Commit messages follow conventions
+```
+# Paste test output here
+```
 
-**Documentation:**
-- [ ] Updated README.md (if applicable)
-- [ ] Updated DEVELOPMENT_TODOS.md (if TODO resolved)
-- [ ] Updated relevant Phase docs (if feature added)
-- [ ] Added JSDoc comments to new functions
+## Checklist
 
-## 🖼️ Screenshots (if applicable)
-Add screenshots for:
-- UI changes
-- CLI output changes
-- Configuration examples
+- [ ] Code follows the project's coding standards
+- [ ] TypeScript strict mode passes (`npx tsc --noEmit --strict`)
+- [ ] No new ESLint warnings
+- [ ] Documentation updated (if applicable)
+- [ ] README.md updated (if applicable)
+- [ ] CHANGELOG.md updated (if applicable)
+- [ ] All tests passing (12/12)
+- [ ] Build successful with zero errors
 
-## ⚠️ Breaking Changes
-**Does this PR introduce breaking changes?**
-- [ ] No
-- [ ] Yes (explain below)
+## Performance Impact
 
-**If yes, describe the breaking changes and migration path:**
-- What breaks
-- How to migrate
-- Version bump required
+<!-- Describe any performance implications of this change -->
 
-## 📊 Performance Impact
-**Does this change affect performance?**
-- [ ] No impact
-- [ ] Improves performance
-- [ ] May impact performance (benchmarks below)
+- [ ] No performance impact
+- [ ] Performance improvement
+- [ ] Performance regression (justified)
 
-**If performance impact, provide details:**
-- Before: X ms/operation
-- After: Y ms/operation
-- Test methodology
+## Breaking Changes
 
-## 🔐 Security Considerations
-**Does this change have security implications?**
-- [ ] No security impact
-- [ ] Improves security
-- [ ] Requires security review
+<!-- If this is a breaking change, describe the impact and migration path -->
 
-**If security implications, describe:**
-- What changed
-- Why it's safe
-- Security testing performed
+N/A
 
-## 📚 Additional Notes
-Any other context, concerns, or information reviewers should know:
-- Implementation decisions and trade-offs
-- Alternative approaches considered
-- Known limitations
-- Future work planned
+## Screenshots (if applicable)
 
-## 🎯 Reviewer Focus Areas
-**Please pay special attention to:**
-- [ ] Error handling in `function X`
-- [ ] Performance of `query Y`
-- [ ] Security of `feature Z`
-- [ ] Documentation clarity
+<!-- Add screenshots for UI changes -->
 
----
+## Additional Notes
 
-**Checklist for Reviewers:**
-- [ ] Code quality and style
-- [ ] Functionality correctness
-- [ ] Test coverage adequate
-- [ ] Documentation complete
-- [ ] No security issues
-- [ ] Performance acceptable
-- [ ] Breaking changes justified
+<!-- Any additional information that reviewers should know -->

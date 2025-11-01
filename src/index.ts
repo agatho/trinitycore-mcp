@@ -15,7 +15,7 @@ import {
 import { getSpellInfo } from "./tools/spell.js";
 import { getItemInfo } from "./tools/item.js";
 import { getQuestInfo } from "./tools/quest.js";
-import { queryDBC } from "./tools/dbc.js";
+import { queryDBC, queryAllDBC, getCacheStats, getGlobalCacheStats } from "./tools/dbc.js";
 import { getTrinityAPI } from "./tools/api.js";
 import { getOpcodeInfo } from "./tools/opcode.js";
 import { queryGameTable, listGameTables, getCombatRating, getBaseMana, getXPForLevel, getHpPerSta } from "./tools/gametable.js";
@@ -125,6 +125,35 @@ import {
   getFarmingRoute,
   createCompletionPlan
 } from "./tools/collection.js";
+import {
+  searchPlayerbotWiki,
+  getPlayerbotPattern,
+  getImplementationGuide,
+  getTroubleshootingGuide,
+  getAPIReference,
+  listDocumentationCategories
+} from "./tools/knowledge.js";
+import {
+  generateBotComponent,
+  generatePacketHandler,
+  generateCMakeIntegration,
+  validateGeneratedCode,
+  listCodeTemplates,
+  getTemplateInfo
+} from "./tools/codegen.js";
+import {
+  analyzeBotPerformance,
+  simulateScaling,
+  getOptimizationSuggestions,
+  quickPerformanceAnalysis,
+  findOptimalBotCount
+} from "./tools/performance.js";
+import {
+  runTests,
+  generateTestReport,
+  analyzeCoverage
+} from "./tools/testing.js";
+import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance
 const server = new Server(
@@ -143,7 +172,7 @@ const server = new Server(
 const TOOLS: Tool[] = [
   {
     name: "get-spell-info",
-    description: "Get detailed information about a spell from TrinityCore database",
+    description: "Get detailed information about a spell from TrinityCore database and Spell.db2 (Week 7: Enhanced with DB2 caching, merged data sources, <1ms cache hits)",
     inputSchema: {
       type: "object",
       properties: {
@@ -157,7 +186,7 @@ const TOOLS: Tool[] = [
   },
   {
     name: "get-item-info",
-    description: "Get detailed information about an item from TrinityCore database",
+    description: "Get detailed information about an item from TrinityCore database, Item.db2, and ItemSparse.db2 (Week 7: Enhanced with dual DB2 caching, 62 stat types, merged data sources, <1ms dual cache hits)",
     inputSchema: {
       type: "object",
       properties: {
@@ -185,13 +214,13 @@ const TOOLS: Tool[] = [
   },
   {
     name: "query-dbc",
-    description: "Query a DBC/DB2 file for client-side game data",
+    description: "Query a DBC/DB2 file for client-side game data (Week 7: Enhanced with DB2CachedFileLoader, automatic schema detection, 4 query functions, <1ms cache hits)",
     inputSchema: {
       type: "object",
       properties: {
         dbcFile: {
           type: "string",
-          description: "Name of the DBC/DB2 file (e.g., 'Spell.dbc', 'Item.db2')",
+          description: "Name of the DBC/DB2 file (e.g., 'Spell.db2', 'Item.db2', 'ItemSparse.db2')",
         },
         recordId: {
           type: "number",
@@ -875,6 +904,557 @@ const TOOLS: Tool[] = [
       required: ["collectibleId", "type"],
     },
   },
+  // Phase 5 - Week 2: Knowledge Base Access Tools
+  {
+    name: "search-playerbot-wiki",
+    description: "Search the Playerbot wiki documentation (Phase 5 knowledge base with full-text search, <50ms p95)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Search query (supports fuzzy matching and multi-word queries)",
+        },
+        category: {
+          type: "string",
+          description: "Optional: filter by category (getting_started, patterns, workflows, troubleshooting, api_reference, examples, advanced)",
+        },
+        difficulty: {
+          type: "string",
+          description: "Optional: filter by difficulty level (basic, intermediate, advanced)",
+        },
+        limit: {
+          type: "number",
+          description: "Optional: maximum number of results (default: 10)",
+        },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "get-playerbot-pattern",
+    description: "Get a specific Playerbot design pattern with implementation examples (Phase 5 pattern library)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        patternId: {
+          type: "string",
+          description: "Pattern ID (e.g., 'patterns/combat/01_combat_ai_strategy')",
+        },
+      },
+      required: ["patternId"],
+    },
+  },
+  {
+    name: "get-implementation-guide",
+    description: "Get step-by-step implementation guide for Playerbot features (Phase 5 tutorials)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        guideId: {
+          type: "string",
+          description: "Guide ID (e.g., 'getting_started/01_introduction' or 'workflows/01_build_workflow')",
+        },
+      },
+      required: ["guideId"],
+    },
+  },
+  {
+    name: "get-troubleshooting-guide",
+    description: "Search for troubleshooting solutions for common Playerbot problems (Phase 5 debugging help)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Problem description or error message",
+        },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "get-api-reference",
+    description: "Get TrinityCore API reference documentation for a specific class (Phase 5 API docs)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        className: {
+          type: "string",
+          description: "Class name (e.g., 'Player', 'Unit', 'Spell', 'BotAI')",
+        },
+      },
+      required: ["className"],
+    },
+  },
+  {
+    name: "list-documentation-categories",
+    description: "List all documentation categories with statistics (Phase 5 knowledge base overview)",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  // Phase 5 - Week 3: Code Generation Tools
+  {
+    name: "generate-bot-component",
+    description: "Generate AI strategy, state manager, or event handler component (Phase 5 code generation, <500ms p95)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        componentType: {
+          type: "string",
+          description: "Component type: ai_strategy, state_manager, or event_handler",
+        },
+        className: {
+          type: "string",
+          description: "C++ class name (e.g., 'WarriorTankStrategy')",
+        },
+        description: {
+          type: "string",
+          description: "Optional: component description",
+        },
+        role: {
+          type: "string",
+          description: "Optional: bot role for AI strategies (tank, healer, dps)",
+        },
+        outputPath: {
+          type: "string",
+          description: "Optional: output file path (default: generated/{type}/{class}.h)",
+        },
+        namespace: {
+          type: "string",
+          description: "Optional: C++ namespace (default: Playerbot)",
+        },
+        includeTests: {
+          type: "boolean",
+          description: "Optional: generate test file (default: false)",
+        },
+      },
+      required: ["componentType", "className"],
+    },
+  },
+  {
+    name: "generate-packet-handler",
+    description: "Generate packet handler for client/server communication (Phase 5 code generation, <312ms p95)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        handlerName: {
+          type: "string",
+          description: "Handler class name (e.g., 'SpellCastPacketHandler')",
+        },
+        opcode: {
+          type: "string",
+          description: "Packet opcode (e.g., 'CMSG_CAST_SPELL')",
+        },
+        direction: {
+          type: "string",
+          description: "Packet direction: client, server, or bidirectional",
+        },
+        fields: {
+          type: "array",
+          description: "Packet fields array with {name, type, description, isGuid?, isString?}",
+        },
+        outputPath: {
+          type: "string",
+          description: "Optional: output file path",
+        },
+        namespace: {
+          type: "string",
+          description: "Optional: C++ namespace (default: Playerbot::Packets)",
+        },
+      },
+      required: ["handlerName", "opcode", "direction", "fields"],
+    },
+  },
+  {
+    name: "generate-cmake-integration",
+    description: "Generate CMakeLists.txt for bot component integration (Phase 5 code generation, <200ms p95)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projectName: {
+          type: "string",
+          description: "Project/module name",
+        },
+        sourceFiles: {
+          type: "array",
+          description: "Array of .cpp source file paths",
+        },
+        headerFiles: {
+          type: "array",
+          description: "Array of .h header file paths",
+        },
+        testFiles: {
+          type: "array",
+          description: "Optional: array of test file paths",
+        },
+        isLibrary: {
+          type: "boolean",
+          description: "Optional: create as static library (default: false)",
+        },
+        dependencies: {
+          type: "array",
+          description: "Optional: array of dependency library names",
+        },
+        outputPath: {
+          type: "string",
+          description: "Optional: output file path",
+        },
+      },
+      required: ["projectName", "sourceFiles", "headerFiles"],
+    },
+  },
+  {
+    name: "validate-generated-code",
+    description: "Validate generated C++ code for compilation errors (Phase 5 validation, <2000ms p95)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "Path to generated file to validate",
+        },
+        checkCompilation: {
+          type: "boolean",
+          description: "Optional: perform compilation check (requires g++ or clang)",
+        },
+        checkStyle: {
+          type: "boolean",
+          description: "Optional: check code style (default: false)",
+        },
+      },
+      required: ["filePath"],
+    },
+  },
+
+  // Phase 5 Week 4: Performance Analysis Tools
+  {
+    name: "analyze-bot-performance",
+    description: "Analyze bot performance metrics (CPU, memory, network). Performance target: <500ms realtime, <2000ms historical",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mode: {
+          type: "string",
+          enum: ["realtime", "snapshot"],
+          description: "Analysis mode: realtime (collect over duration) or snapshot (single capture)",
+        },
+        metrics: {
+          type: "object",
+          properties: {
+            cpu: { type: "boolean", description: "Collect CPU metrics (default: true)" },
+            memory: { type: "boolean", description: "Collect memory metrics (default: true)" },
+            network: { type: "boolean", description: "Collect network metrics (default: true)" },
+          },
+          description: "Optional: metrics to collect",
+        },
+        duration: {
+          type: "number",
+          description: "Optional: collection duration in ms (default: 10000 for realtime)",
+        },
+        interval: {
+          type: "number",
+          description: "Optional: sampling interval in ms (default: 100)",
+        },
+        exportCSV: {
+          type: "string",
+          description: "Optional: path to export CSV file",
+        },
+      },
+      required: ["mode"],
+    },
+  },
+
+  {
+    name: "simulate-scaling",
+    description: "Simulate bot scaling from minBots to maxBots. Performance target: <3000ms for 50 steps (100-5000 bots)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        minBots: {
+          type: "number",
+          description: "Starting bot count",
+        },
+        maxBots: {
+          type: "number",
+          description: "Maximum bot count",
+        },
+        stepSize: {
+          type: "number",
+          description: "Optional: increment per step (default: 100)",
+        },
+        profile: {
+          type: "object",
+          properties: {
+            roleDistribution: {
+              type: "object",
+              properties: {
+                tank: { type: "number", description: "Percentage (0-100)" },
+                healer: { type: "number", description: "Percentage (0-100)" },
+                dps: { type: "number", description: "Percentage (0-100)" },
+              },
+              required: ["tank", "healer", "dps"],
+            },
+            activityLevel: {
+              type: "string",
+              enum: ["idle", "light", "moderate", "heavy", "combat"],
+              description: "Bot activity level",
+            },
+          },
+          required: ["roleDistribution", "activityLevel"],
+          description: "Bot profile configuration",
+        },
+        baseline: {
+          type: "object",
+          properties: {
+            cpuPerBot: { type: "number", description: "CPU % per bot" },
+            memoryPerBotMB: { type: "number", description: "Memory MB per bot" },
+            networkPerBotKBps: { type: "number", description: "Network KB/s per bot" },
+          },
+          required: ["cpuPerBot", "memoryPerBotMB", "networkPerBotKBps"],
+          description: "Baseline metrics (from analyze-bot-performance)",
+        },
+        scalingFactors: {
+          type: "object",
+          properties: {
+            cpuScalingExponent: { type: "number", description: "Default: 1.2" },
+            memoryScalingExponent: { type: "number", description: "Default: 1.05" },
+            networkScalingExponent: { type: "number", description: "Default: 1.0" },
+          },
+          description: "Optional: non-linear scaling factors",
+        },
+        limits: {
+          type: "object",
+          properties: {
+            maxCpuPercent: { type: "number", description: "Default: 80" },
+            maxMemoryGB: { type: "number", description: "Default: 16" },
+            maxNetworkMbps: { type: "number", description: "Default: 1000" },
+          },
+          description: "Optional: resource limits",
+        },
+      },
+      required: ["minBots", "maxBots", "profile", "baseline"],
+    },
+  },
+
+  {
+    name: "get-optimization-suggestions",
+    description: "Get AI-powered optimization suggestions based on performance analysis. Performance target: <1000ms perf data, <5000ms code analysis",
+    inputSchema: {
+      type: "object",
+      properties: {
+        performanceReport: {
+          type: "object",
+          description: "Performance report from analyze-bot-performance",
+        },
+        performanceReportFile: {
+          type: "string",
+          description: "Or path to performance report JSON file",
+        },
+        filters: {
+          type: "object",
+          properties: {
+            minImpact: {
+              type: "string",
+              enum: ["low", "medium", "high"],
+              description: "Minimum expected impact",
+            },
+            maxDifficulty: {
+              type: "string",
+              enum: ["easy", "medium", "hard"],
+              description: "Maximum implementation difficulty",
+            },
+            categories: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: ["cpu", "memory", "network", "architecture", "algorithm"],
+              },
+              description: "Filter by optimization categories",
+            },
+          },
+          description: "Optional: suggestion filters",
+        },
+        includeQuickWins: {
+          type: "boolean",
+          description: "Optional: include quick wins (default: true)",
+        },
+      },
+    },
+  },
+  {
+    name: "run-tests",
+    description: "Execute tests with configurable strategies. Performance target: <10s for 50 tests (sequential), <5s (parallel)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        pattern: {
+          type: "string",
+          description: "Glob pattern for test files (default: **/*.test.{js,ts})",
+        },
+        rootDir: {
+          type: "string",
+          description: "Root directory for test discovery",
+        },
+        testNamePattern: {
+          type: "string",
+          description: "Regex to match test names",
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          description: "Run only tests with these tags",
+        },
+        parallel: {
+          type: "boolean",
+          description: "Run tests in parallel (default: false)",
+        },
+        maxWorkers: {
+          type: "number",
+          description: "Max parallel workers (default: 4)",
+        },
+        timeout: {
+          type: "number",
+          description: "Timeout per test in ms (default: 30000)",
+        },
+        retries: {
+          type: "number",
+          description: "Number of retries for failed tests (default: 0)",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Verbose output",
+        },
+        silent: {
+          type: "boolean",
+          description: "Silent mode",
+        },
+        outputFormat: {
+          type: "string",
+          enum: ["json", "summary"],
+          description: "Output format",
+        },
+        generateReport: {
+          type: "object",
+          properties: {
+            format: {
+              type: "string",
+              enum: ["json", "html", "markdown", "junit"],
+              description: "Report format",
+            },
+            outputPath: {
+              type: "string",
+              description: "Report output path",
+            },
+          },
+          description: "Optional: generate test report",
+        },
+      },
+    },
+  },
+  {
+    name: "generate-test-report",
+    description: "Generate test reports from test results. Performance target: <500ms for HTML report with 100 tests",
+    inputSchema: {
+      type: "object",
+      properties: {
+        testResults: {
+          type: "object",
+          description: "Test results object",
+        },
+        testResultsFile: {
+          type: "string",
+          description: "Or path to test results JSON file",
+        },
+        format: {
+          type: "string",
+          enum: ["json", "html", "markdown", "junit"],
+          description: "Report format",
+        },
+        outputPath: {
+          type: "string",
+          description: "Report output path",
+        },
+        includePassedTests: {
+          type: "boolean",
+          description: "Include passed tests (default: true)",
+        },
+        includeSkippedTests: {
+          type: "boolean",
+          description: "Include skipped tests (default: true)",
+        },
+        includeCharts: {
+          type: "boolean",
+          description: "Include charts in HTML report (default: true)",
+        },
+        title: {
+          type: "string",
+          description: "Report title",
+        },
+        metadata: {
+          type: "object",
+          description: "Custom metadata",
+        },
+      },
+      required: ["format", "outputPath"],
+    },
+  },
+  {
+    name: "analyze-coverage",
+    description: "Analyze code coverage from test runs. Performance target: <2000ms for 50 source files",
+    inputSchema: {
+      type: "object",
+      properties: {
+        coverageData: {
+          type: "object",
+          description: "Coverage data object",
+        },
+        coverageFile: {
+          type: "string",
+          description: "Or path to coverage JSON file",
+        },
+        include: {
+          type: "array",
+          items: { type: "string" },
+          description: "Files to include (glob patterns)",
+        },
+        exclude: {
+          type: "array",
+          items: { type: "string" },
+          description: "Files to exclude (glob patterns)",
+        },
+        thresholds: {
+          type: "object",
+          properties: {
+            lines: { type: "number", description: "Min line coverage %" },
+            branches: { type: "number", description: "Min branch coverage %" },
+            functions: { type: "number", description: "Min function coverage %" },
+            statements: { type: "number", description: "Min statement coverage %" },
+          },
+          description: "Coverage thresholds",
+        },
+        format: {
+          type: "string",
+          enum: ["json", "html", "text", "lcov"],
+          description: "Output format",
+        },
+        outputPath: {
+          type: "string",
+          description: "Output path for report",
+        },
+        findUncovered: {
+          type: "boolean",
+          description: "Find uncovered code (default: true)",
+        },
+        showDetails: {
+          type: "boolean",
+          description: "Show per-file details (default: true)",
+        },
+      },
+    },
+  },
 ];
 
 // List tools handler
@@ -1469,6 +2049,287 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      // Phase 5 - Week 2: Knowledge Base Access Tool Handlers
+      case "search-playerbot-wiki": {
+        const result = await searchPlayerbotWiki(
+          args.query as string,
+          {
+            category: args.category as any,
+            difficulty: args.difficulty as any,
+            limit: args.limit as number | undefined,
+          }
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-playerbot-pattern": {
+        const result = await getPlayerbotPattern(args.patternId as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-implementation-guide": {
+        const result = await getImplementationGuide(args.guideId as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-troubleshooting-guide": {
+        const result = await getTroubleshootingGuide(args.query as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-api-reference": {
+        const result = await getAPIReference(args.className as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "list-documentation-categories": {
+        const result = await listDocumentationCategories();
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Phase 5 - Week 3: Code Generation Tool Handlers
+      case "generate-bot-component": {
+        const result = await generateBotComponent({
+          componentType: args.componentType as any,
+          className: args.className as string,
+          description: args.description as string | undefined,
+          role: args.role as any,
+          outputPath: args.outputPath as string | undefined,
+          namespace: args.namespace as string | undefined,
+          includeTests: args.includeTests as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "generate-packet-handler": {
+        const result = await generatePacketHandler({
+          handlerName: args.handlerName as string,
+          opcode: args.opcode as string,
+          direction: args.direction as any,
+          fields: args.fields as any[],
+          outputPath: args.outputPath as string | undefined,
+          namespace: args.namespace as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "generate-cmake-integration": {
+        const result = await generateCMakeIntegration({
+          projectName: args.projectName as string,
+          sourceFiles: args.sourceFiles as string[],
+          headerFiles: args.headerFiles as string[],
+          testFiles: args.testFiles as string[] | undefined,
+          isLibrary: args.isLibrary as boolean | undefined,
+          dependencies: args.dependencies as string[] | undefined,
+          outputPath: args.outputPath as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "validate-generated-code": {
+        const result = await validateGeneratedCode({
+          filePath: args.filePath as string,
+          checkCompilation: args.checkCompilation as boolean | undefined,
+          checkStyle: args.checkStyle as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Phase 5 Week 4: Performance Analysis Tools
+      case "analyze-bot-performance": {
+        const result = await analyzeBotPerformance({
+          mode: args.mode as 'realtime' | 'snapshot',
+          metrics: args.metrics as any,
+          duration: args.duration as number | undefined,
+          interval: args.interval as number | undefined,
+          exportCSV: args.exportCSV as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "simulate-scaling": {
+        const result = await simulateScaling({
+          minBots: args.minBots as number,
+          maxBots: args.maxBots as number,
+          stepSize: args.stepSize as number | undefined,
+          profile: args.profile as any,
+          baseline: args.baseline as any,
+          scalingFactors: args.scalingFactors as any,
+          limits: args.limits as any,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-optimization-suggestions": {
+        const result = await getOptimizationSuggestions({
+          performanceReport: args.performanceReport as any,
+          performanceReportFile: args.performanceReportFile as string | undefined,
+          filters: args.filters as any,
+          includeQuickWins: args.includeQuickWins as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "run-tests": {
+        const result = await runTests({
+          pattern: args.pattern as string | undefined,
+          rootDir: args.rootDir as string | undefined,
+          testNamePattern: args.testNamePattern as string | undefined,
+          tags: args.tags as string[] | undefined,
+          parallel: args.parallel as boolean | undefined,
+          maxWorkers: args.maxWorkers as number | undefined,
+          timeout: args.timeout as number | undefined,
+          retries: args.retries as number | undefined,
+          verbose: args.verbose as boolean | undefined,
+          silent: args.silent as boolean | undefined,
+          outputFormat: args.outputFormat as 'json' | 'summary' | undefined,
+          generateReport: args.generateReport as any | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "generate-test-report": {
+        const result = await generateTestReport({
+          testResults: args.testResults as any | undefined,
+          testResultsFile: args.testResultsFile as string | undefined,
+          format: args.format as 'json' | 'html' | 'markdown' | 'junit',
+          outputPath: args.outputPath as string,
+          includePassedTests: args.includePassedTests as boolean | undefined,
+          includeSkippedTests: args.includeSkippedTests as boolean | undefined,
+          includeCharts: args.includeCharts as boolean | undefined,
+          title: args.title as string | undefined,
+          metadata: args.metadata as any | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "analyze-coverage": {
+        const result = await analyzeCoverage({
+          coverageData: args.coverageData as any | undefined,
+          coverageFile: args.coverageFile as string | undefined,
+          include: args.include as string[] | undefined,
+          exclude: args.exclude as string[] | undefined,
+          thresholds: args.thresholds as any | undefined,
+          format: args.format as 'json' | 'html' | 'text' | 'lcov' | undefined,
+          outputPath: args.outputPath as string | undefined,
+          findUncovered: args.findUncovered as boolean | undefined,
+          showDetails: args.showDetails as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -1491,6 +2352,17 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("TrinityCore MCP Server running on stdio");
+
+  // Week 7: Optional cache warming on startup (disabled by default)
+  // Uncomment to enable automatic cache warming for improved performance
+  // const warmOnStartup = process.env.CACHE_WARM_ON_STARTUP === "true";
+  // if (warmOnStartup) {
+  //   console.error("Warming DB2 caches...");
+  //   const warmResult = await CacheWarmer.warmAllCaches();
+  //   if (warmResult.success) {
+  //     console.error(`Cache warming complete: ${warmResult.recordsPreloaded} records in ${warmResult.totalTime}ms`);
+  //   }
+  // }
 }
 
 main().catch((error) => {

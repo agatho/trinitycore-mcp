@@ -298,29 +298,29 @@ export function calculateReputationGain(
  * @returns Array of applicable multipliers
  */
 export function getAvailableReputationMultipliers(
-  playerRaceId: number,
+  playerRaceId: number = 0,
   guildLevel: number = 0
-): ReputationMultiplier[] {
-  const available: ReputationMultiplier[] = [];
-
+): { racial: ReputationMultiplier[]; guild: ReputationMultiplier[]; event: ReputationMultiplier[] } {
   // Racial bonuses
-  const racialBonus = RACIAL_REPUTATION_BONUSES.find(
-    (bonus) => bonus.raceId === playerRaceId
-  );
-  if (racialBonus) {
-    available.push(racialBonus);
+  const racial: ReputationMultiplier[] = [];
+  if (playerRaceId > 0) {
+    const racialBonus = RACIAL_REPUTATION_BONUSES.find(
+      (bonus) => bonus.raceId === playerRaceId
+    );
+    if (racialBonus) {
+      racial.push(racialBonus);
+    }
   }
 
   // Guild perks (all unlocked at current level)
-  const guildPerks = GUILD_REPUTATION_BONUSES.filter(
+  const guild = GUILD_REPUTATION_BONUSES.filter(
     (perk) => (perk.guildLevel || 0) <= guildLevel
   );
-  available.push(...guildPerks);
 
-  // All possible event bonuses (for informational purposes)
-  available.push(...EVENT_REPUTATION_BONUSES);
+  // All possible event bonuses
+  const event = [...EVENT_REPUTATION_BONUSES];
 
-  return available;
+  return { racial, guild, event };
 }
 
 // ============================================================================

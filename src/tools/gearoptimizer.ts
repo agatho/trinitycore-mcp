@@ -8,6 +8,13 @@
  */
 
 import { queryWorld } from "../database/connection";
+import {
+  getStatPriority,
+  getDefaultStatWeights as getDefaultStatPrioritiesFromDB,
+  ContentType as StatPriorityContentType,
+  StatType,
+  type StatPriority
+} from "../data/stat-priorities";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -349,11 +356,16 @@ export enum ContentType {
 /**
  * Calculate default stat weights for a class/spec based on WoW 11.2 theorycrafting
  *
- * Stat weights are based on:
- * - SimulationCraft results for The War Within (11.2)
- * - Raidbots theorycrafting data
+ * NOW USING COMPREHENSIVE STAT PRIORITIES DATABASE (39 specs × 6 content types)
+ *
+ * Stat priorities are based on:
+ * - Icy Veins guides for The War Within (11.2.5)
  * - Class Discord community consensus
- * - Icy Veins / Wowhead guides
+ * - WoW 11.2 theorycrafting standards
+ *
+ * IMPORTANT: These are GUIDELINES, not absolute values. Real stat weights vary
+ * based on current gear, tier sets, talents, and fight mechanics. For accurate
+ * optimization, players should sim their character using SimulationCraft.
  *
  * @param classId - Class ID (1-13)
  * @param specId - Spec ID varies by class
@@ -365,9 +377,79 @@ export function getDefaultStatWeights(
   specId: number,
   contentType: ContentType = ContentType.RAID_DPS
 ): StatWeights {
-  // Comprehensive stat weight database for WoW 11.2 (The War Within)
-  // Format: "classId_specId_contentType"
-  const weights: { [key: string]: StatWeights } = {
+  // Map our ContentType enum to StatPriorityContentType
+  const contentTypeMap: { [key in ContentType]: StatPriorityContentType } = {
+    [ContentType.RAID_DPS]: StatPriorityContentType.RAID_DPS,
+    [ContentType.MYTHIC_PLUS]: StatPriorityContentType.MYTHIC_PLUS,
+    [ContentType.PVP]: StatPriorityContentType.PVP,
+    [ContentType.TANK]: StatPriorityContentType.TANK,
+    [ContentType.HEALER]: StatPriorityContentType.HEALER,
+    [ContentType.LEVELING]: StatPriorityContentType.LEVELING,
+  };
+
+  const mappedContentType = contentTypeMap[contentType];
+
+  // Get stat priority from comprehensive database
+  let statPriority = getStatPriority(classId, specId, mappedContentType);
+
+  // Fallback: if specific content type not found, try default from database
+  if (!statPriority) {
+    statPriority = getDefaultStatPrioritiesFromDB(classId, specId);
+  }
+
+  // Convert StatPriority to StatWeights format
+  if (statPriority) {
+    const weights: StatWeights = {
+      stamina: 0.5, // Default stamina weight
+      strength: 0,
+      agility: 0,
+      intellect: 0,
+      critRating: statPriority.weights.criticalStrike || 0,
+      hasteRating: statPriority.weights.haste || 0,
+      masteryRating: statPriority.weights.mastery || 0,
+      versatility: statPriority.weights.versatility || 0,
+      armor: statPriority.weights.armor || 0.01,
+      weaponDPS: 0, // Default, adjusted below
+    };
+
+    // Set primary stat based on spec's primary attribute
+    const primaryStat = statPriority.weights.primaryStat || 1.0;
+
+    // Determine primary stat type from priority order
+    const firstStat = statPriority.priorityOrder[0];
+    if (firstStat === StatType.STRENGTH) {
+      weights.strength = primaryStat;
+      weights.stamina = 0.6; // Plate wearers typically value stamina slightly more
+      weights.weaponDPS = 3.0; // Melee DPS
+    } else if (firstStat === StatType.AGILITY) {
+      weights.agility = primaryStat;
+      weights.stamina = 0.5; // Leather/mail wearers
+      weights.weaponDPS = 3.0; // Melee/ranged DPS
+    } else if (firstStat === StatType.INTELLECT) {
+      weights.intellect = primaryStat;
+      weights.stamina = 0.4; // Cloth wearers
+      weights.weaponDPS = 0; // Casters use spell power, not weapon DPS
+    }
+
+    // Adjust for tanks (higher stamina, armor, lower weapon DPS)
+    if (mappedContentType === StatPriorityContentType.TANK) {
+      weights.stamina = 1.0;
+      weights.weaponDPS = 1.5;
+      weights.armor = statPriority.weights.armor || 0.15;
+    }
+
+    // Adjust for healers (higher stamina, no weapon DPS)
+    if (mappedContentType === StatPriorityContentType.HEALER) {
+      weights.stamina = 0.7;
+      weights.weaponDPS = 0;
+    }
+
+    return weights;
+  }
+
+  // Fallback: Old hardcoded database (kept for backward compatibility)
+  // Note: This should rarely be used now that we have the comprehensive database
+  const legacyWeights: { [key: string]: StatWeights } = {
     // ========================================================================
     // WARRIOR (Class ID: 1)
     // ========================================================================
@@ -556,12 +638,12 @@ export function getDefaultStatWeights(
     "default": { stamina: 0.5, strength: 0.5, agility: 0.5, intellect: 0.5, critRating: 0.75, hasteRating: 0.75, masteryRating: 0.75, versatility: 0.70, armor: 0.01, weaponDPS: 2.0 }
   };
 
-  // Build lookup key
+  // Build lookup key for legacy database
   const key = `${classId}_${specId}_${contentType}`;
 
-  // Try exact match first
-  if (weights[key]) {
-    return weights[key];
+  // Try exact match first in legacy database
+  if (legacyWeights[key]) {
+    return legacyWeights[key];
   }
 
   // Try without content type (defaults to raid_dps for DPS specs, appropriate role for others)
@@ -574,13 +656,13 @@ export function getDefaultStatWeights(
   ];
 
   for (const fallbackKey of fallbackKeys) {
-    if (weights[fallbackKey]) {
-      return weights[fallbackKey];
+    if (legacyWeights[fallbackKey]) {
+      return legacyWeights[fallbackKey];
     }
   }
 
   // Final fallback to default
-  return weights["default"];
+  return legacyWeights["default"];
 }
 
 // ============================================================================

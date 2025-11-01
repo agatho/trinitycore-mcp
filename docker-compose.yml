@@ -1,0 +1,100 @@
+version: '3.8'
+
+# TrinityCore MCP Server - Development Environment
+# This docker-compose file sets up a complete development environment
+
+services:
+  # MCP Server (Development)
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: trinitycore-mcp-dev
+    ports:
+      - "3000:3000"      # MCP server port
+      - "9229:9229"      # Node.js debugger port
+    environment:
+      - NODE_ENV=development
+      - MCP_PORT=3000
+      - MCP_HOST=0.0.0.0
+      - TRINITY_DB_HOST=mysql
+      - TRINITY_DB_PORT=3306
+      - TRINITY_DB_USER=trinity
+      - TRINITY_DB_PASSWORD=trinity
+      - TRINITY_DB_NAME=world
+    volumes:
+      # Mount source code for hot-reloading
+      - ./src:/app/src:cached
+      - ./package.json:/app/package.json:cached
+      - ./tsconfig.json:/app/tsconfig.json:cached
+      # Mount data directory
+      - ./data:/app/data:cached
+      # Mount logs directory
+      - ./logs:/app/logs:delegated
+      # Exclude node_modules (use container's version)
+      - /app/node_modules
+    depends_on:
+      - mysql
+    networks:
+      - trinitycore-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # MySQL Database (for TrinityCore)
+  mysql:
+    image: mysql:8.0
+    container_name: trinitycore-mysql-dev
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=world
+      - MYSQL_USER=trinity
+      - MYSQL_PASSWORD=trinity
+    volumes:
+      # Persist MySQL data
+      - mysql-data:/var/lib/mysql
+      # Custom MySQL configuration
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    networks:
+      - trinitycore-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for caching - optional)
+  redis:
+    image: redis:7-alpine
+    container_name: trinitycore-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - trinitycore-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes
+
+networks:
+  trinitycore-network:
+    driver: bridge
+    name: trinitycore-dev-network
+
+volumes:
+  mysql-data:
+    name: trinitycore-mysql-data-dev
+  redis-data:
+    name: trinitycore-redis-data-dev

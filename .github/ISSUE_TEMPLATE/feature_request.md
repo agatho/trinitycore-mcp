@@ -1,63 +1,50 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement
+about: Suggest an idea for this project
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---
 
-## ✨ Feature Description
+## Feature Description
+
 A clear and concise description of the feature you'd like to see.
 
-## 🎯 Use Case
-**Who will benefit from this feature?**
-- [ ] Bot developers
-- [ ] Server administrators
-- [ ] End users
-- [ ] Contributors
+## Problem Statement
 
-**What problem does this solve?**
-Describe the problem or pain point this feature addresses.
+Is your feature request related to a problem? Please describe.
+Example: I'm always frustrated when [...]
 
-## 💡 Proposed Solution
-How should this feature work? Describe the ideal implementation.
+## Proposed Solution
 
-**Example usage:**
-```typescript
-// How would you use this feature?
-const result = await newFeature();
-```
+A clear and concise description of what you want to happen.
 
-## 🔄 Alternatives Considered
-What other approaches have you thought about? Why is your proposal better?
+## Alternatives Considered
 
-## 📊 Implementation Notes
-<details>
-<summary>Technical details (if applicable)</summary>
+A clear and concise description of any alternative solutions or features you've considered.
 
-- **Affected files:**
-- **Database changes needed:** Yes/No
-- **Breaking changes:** Yes/No
-- **Estimated complexity:** Low/Medium/High
-- **Related TODOs:** Link to DEVELOPMENT_TODOS.md section if applicable
-</details>
+## Use Case
 
-## 🎨 Additional Context
-- Screenshots or mockups
-- Links to similar features in other projects
-- References to discussions or documentation
+Describe how this feature would be used:
+- Who would use it?
+- When would it be used?
+- Why is it important?
 
-## ✅ Acceptance Criteria
-What must be true for this feature to be considered complete?
-- [ ] Feature implemented
-- [ ] Tests added
-- [ ] Documentation updated
-- [ ] Performance acceptable
-- [ ] No breaking changes (or documented)
+## Implementation Suggestions
 
-## 📈 Priority
-**How important is this to you?**
-- [ ] Critical - Blocks my work
-- [ ] High - Significantly improves workflow
-- [ ] Medium - Nice to have
-- [ ] Low - Future enhancement
+If you have ideas about how to implement this, share them here.
+
+## Additional Context
+
+Add any other context, screenshots, or examples about the feature request here.
+
+## Priority
+
+- [ ] Critical (blocks work)
+- [ ] High (important for workflow)
+- [ ] Medium (nice to have)
+- [ ] Low (future enhancement)
+
+## Related Issues
+
+Link any related issues or PRs.

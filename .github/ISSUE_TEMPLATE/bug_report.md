@@ -1,60 +1,58 @@
 ---
 name: Bug Report
-about: Report a bug in TrinityCore MCP Server
+about: Create a report to help us improve
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-## 🐛 Bug Description
+## Bug Description
+
 A clear and concise description of what the bug is.
 
-## 📋 Steps to Reproduce
-1. Install MCP server (npm install)
-2. Configure .env with...
-3. Run `node dist/index.js`
-4. Execute tool '...'
-5. See error
+## To Reproduce
 
-## ✅ Expected Behavior
-What should happen?
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-## ❌ Actual Behavior
-What actually happens? Include error messages.
+## Expected Behavior
 
-## 🖥️ Environment
-- **OS:** [Windows 11 / Ubuntu 22.04 / macOS 13]
-- **Node.js version:** [e.g., 20.10.0]
-- **npm version:** [e.g., 10.2.0]
-- **MCP Client:** [Claude Code / Claude Desktop / Other]
-- **MCP Server version:** [e.g., v1.0.0-alpha]
+A clear and concise description of what you expected to happen.
 
-## 📝 Error Messages
+## Actual Behavior
+
+What actually happened.
+
+## Environment
+
+- **Version**: [e.g., v1.4.0]
+- **Node.js Version**: [e.g., 18.17.0]
+- **OS**: [e.g., Windows 11, Ubuntu 22.04]
+- **Deployment**: [Docker, Kubernetes, Bare Metal]
+
+## Error Messages
+
 ```
-Paste complete error messages here, including stack traces
+Paste any error messages here
 ```
 
-## 🔧 Configuration
-<details>
-<summary>Click to expand .env configuration (remove passwords!)</summary>
+## Logs
 
-```env
-TRINITY_DB_HOST=localhost
-TRINITY_DB_PORT=3306
-TRINITY_DB_USER=trinity
-# Password removed
-GT_PATH=...
 ```
-</details>
+Paste relevant logs here
+```
 
-## 📸 Screenshots
+## Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
-## 🔍 Additional Context
-- Are you using remote or local database?
-- Have GameTable files been configured?
-- Any custom modifications to the code?
-- Does this happen consistently or intermittently?
+## Additional Context
 
-## ✨ Possible Solution
-If you have ideas on how to fix this, please share!
+Add any other context about the problem here.
+
+## Possible Solution
+
+If you have a suggestion for how to fix the bug, describe it here.

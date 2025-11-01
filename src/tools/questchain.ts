@@ -9,6 +9,13 @@
 
 import { queryWorld } from "../database/connection";
 import { getQuestInfo, QuestInfo } from "./quest";
+import {
+  getStatPriority,
+  getDefaultStatWeights as getDefaultStatPrioritiesFromDB,
+  ContentType as StatPriorityContentType,
+  StatType,
+  type StatPriority
+} from "../data/stat-priorities.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -656,18 +663,41 @@ async function getItemStatsForReward(itemId: number): Promise<any> {
 }
 
 /**
- * Determine the best quest reward choice for a given class
- * Based on stat weights and item quality
+ * Determine the best quest reward choice for a given class and specialization
+ * Enhancement #1 (Phase 7): Now uses comprehensive stat priorities database
+ *
+ * @param choiceRewards - Array of quest reward items
+ * @param classId - Player class ID (1-13)
+ * @param specId - Player specialization ID (optional, uses default if not provided)
+ * @returns Best reward recommendation with reasoning
  */
 async function determineBestQuestReward(
   choiceRewards: any[],
-  classId: number
+  classId: number,
+  specId?: number
 ): Promise<{ classId: number; itemId: number; reason: string }> {
-  const statPriorities = CLASS_STAT_PRIORITIES[classId] || CLASS_STAT_PRIORITIES[1]; // Default to Warrior
+  // Get stat priority from comprehensive database (leveling content assumed for quest rewards)
+  let statPriority: StatPriority | undefined;
+
+  if (specId) {
+    // Try to get spec-specific priorities (leveling content)
+    statPriority = getStatPriority(classId, specId, StatPriorityContentType.RAID_DPS);
+  }
+
+  // Fallback to default priorities for class
+  if (!statPriority) {
+    statPriority = getDefaultStatPrioritiesFromDB(classId, specId || 0);
+  }
+
+  // Fallback to legacy priorities if still no match
+  const statPriorities = statPriority
+    ? convertStatPriorityToWeights(statPriority)
+    : (CLASS_STAT_PRIORITIES[classId] || CLASS_STAT_PRIORITIES[1]);
 
   let bestItemId = 0;
   let bestScore = 0;
   let bestReason = "";
+  const itemScores: Array<{ itemId: number; score: number; reason: string }> = [];
 
   for (const reward of choiceRewards) {
     const itemDetails = await getItemStatsForReward(reward.itemId);
@@ -678,7 +708,7 @@ async function determineBestQuestReward(
     const statContributions: string[] = [];
 
     for (const [statName, statValue] of Object.entries(stats)) {
-      const statWeight = statPriorities[statName] || 0;
+      const statWeight = statPriorities[statName as string] || 0;
       const contribution = (statValue as number) * statWeight;
       itemScore += contribution;
 
@@ -687,8 +717,9 @@ async function determineBestQuestReward(
       }
     }
 
-    // Bonus for higher item level
-    itemScore += (itemDetails.itemLevel || 0) * 0.5;
+    // Bonus for higher item level (each ilvl = 0.5 score)
+    const ilvlBonus = (itemDetails.itemLevel || 0) * 0.5;
+    itemScore += ilvlBonus;
 
     // Bonus for higher quality
     const qualityBonus = {
@@ -698,27 +729,150 @@ async function determineBestQuestReward(
       3: 5, // Rare (blue)
       4: 10, // Epic (purple)
       5: 20, // Legendary (orange)
+      6: 30, // Artifact (artifact)
+      7: 40, // Heirloom (heirloom)
     };
-    itemScore += qualityBonus[itemDetails.quality as keyof typeof qualityBonus] || 0;
+    const qualityScore = qualityBonus[itemDetails.quality as keyof typeof qualityBonus] || 0;
+    itemScore += qualityScore;
+
+    // Bonus for socket slots (each socket = 5 score)
+    const socketBonus = (itemDetails.socketCount || 0) * 5;
+    itemScore += socketBonus;
+
+    // Armor type filtering (penalize wrong armor type)
+    const armorPenalty = calculateArmorTypePenalty(classId, itemDetails.itemClass, itemDetails.itemSubClass);
+    itemScore *= (1 - armorPenalty);
+
+    // Weapon type filtering (penalize wrong weapon type)
+    const weaponPenalty = calculateWeaponTypePenalty(classId, itemDetails.itemClass, itemDetails.itemSubClass);
+    itemScore *= (1 - weaponPenalty);
+
+    // Build reason string
+    const qualityNames = ["Poor", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Artifact", "Heirloom"];
+    const qualityName = qualityNames[itemDetails.quality] || "Unknown";
+
+    const topStats = statContributions.slice(0, 3).join(", ");
+    const socketInfo = itemDetails.socketCount > 0 ? ` +${itemDetails.socketCount} socket(s)` : "";
+    const reason = `${qualityName} item (iLvl ${itemDetails.itemLevel || 0})${socketInfo} with best stats: ${topStats || "no stats"}`;
+
+    itemScores.push({ itemId: reward.itemId, score: itemScore, reason });
 
     if (itemScore > bestScore) {
       bestScore = itemScore;
       bestItemId = reward.itemId;
-
-      // Build reason string
-      const qualityNames = ["Poor", "Common", "Uncommon", "Rare", "Epic", "Legendary"];
-      const qualityName = qualityNames[itemDetails.quality] || "Unknown";
-
-      const topStats = statContributions.slice(0, 3).join(", ");
-      bestReason = `${qualityName} item (iLvl ${itemDetails.itemLevel || 0}) with best stats for class: ${topStats || "no stats"}`;
+      bestReason = reason;
     }
+  }
+
+  // If no item scored above 0, default to first reward
+  if (bestScore === 0 && choiceRewards.length > 0) {
+    bestItemId = choiceRewards[0].itemId;
+    bestReason = "No stat-weighted items found, selecting first reward (likely currency or consumable)";
   }
 
   return {
     classId,
-    itemId: bestItemId || (choiceRewards[0]?.itemId || 0),
-    reason: bestReason || "No suitable item stats found, selecting first reward",
+    itemId: bestItemId || 0,
+    reason: bestReason || "No suitable rewards available",
   };
+}
+
+/**
+ * Convert StatPriority from stat-priorities database to legacy weight format
+ */
+function convertStatPriorityToWeights(statPriority: StatPriority): { [stat: string]: number } {
+  const weights: { [stat: string]: number } = {};
+
+  // Map StatPriority weights to legacy stat names
+  weights.strength = statPriority.priorityOrder.includes(StatType.STRENGTH) ? 1.0 : 0.0;
+  weights.agility = statPriority.priorityOrder.includes(StatType.AGILITY) ? 1.0 : 0.0;
+  weights.intellect = statPriority.priorityOrder.includes(StatType.INTELLECT) ? 1.0 : 0.0;
+  weights.stamina = 0.6; // Always somewhat valuable
+
+  weights.criticalStrike = statPriority.weights.criticalStrike || 0.0;
+  weights.haste = statPriority.weights.haste || 0.0;
+  weights.mastery = statPriority.weights.mastery || 0.0;
+  weights.versatility = statPriority.weights.versatility || 0.0;
+  weights.armor = statPriority.weights.armor || 0.0;
+
+  return weights;
+}
+
+/**
+ * Calculate armor type penalty for wrong armor class
+ * Returns 0.0 (no penalty) to 1.0 (fully penalized)
+ */
+function calculateArmorTypePenalty(classId: number, itemClass: number, itemSubClass: number): number {
+  // Item class 4 = Armor
+  if (itemClass !== 4) {
+    return 0.0; // Not armor, no penalty
+  }
+
+  // Armor subclass: 0=Misc, 1=Cloth, 2=Leather, 3=Mail, 4=Plate
+  const classArmorTypes: { [classId: number]: number[] } = {
+    1: [4], // Warrior - Plate
+    2: [4], // Paladin - Plate
+    3: [3], // Hunter - Mail
+    4: [2], // Rogue - Leather
+    5: [1], // Priest - Cloth
+    6: [4], // Death Knight - Plate
+    7: [3], // Shaman - Mail
+    8: [1], // Mage - Cloth
+    9: [1], // Warlock - Cloth
+    10: [2], // Monk - Leather
+    11: [2], // Druid - Leather
+    12: [2], // Demon Hunter - Leather
+    13: [3], // Evoker - Mail
+  };
+
+  const allowedArmorTypes = classArmorTypes[classId] || [1]; // Default to cloth
+
+  // If armor type matches, no penalty
+  if (allowedArmorTypes.includes(itemSubClass)) {
+    return 0.0;
+  }
+
+  // Wrong armor type: 50% penalty
+  return 0.5;
+}
+
+/**
+ * Calculate weapon type penalty for wrong weapon class
+ * Returns 0.0 (no penalty) to 1.0 (fully penalized)
+ */
+function calculateWeaponTypePenalty(classId: number, itemClass: number, itemSubClass: number): number {
+  // Item class 2 = Weapon
+  if (itemClass !== 2) {
+    return 0.0; // Not a weapon, no penalty
+  }
+
+  // Weapon subclass proficiency by class
+  // This is simplified - in reality, need to check class_spell for weapon skills
+  const classWeaponTypes: { [classId: number]: number[] } = {
+    1: [0, 1, 2, 4, 5, 6, 7, 8, 10, 13, 15, 19], // Warrior - All weapons
+    2: [0, 1, 2, 4, 5, 6, 7, 8, 10], // Paladin - Most weapons
+    3: [0, 1, 2, 3, 13, 15, 18], // Hunter - Ranged + melee
+    4: [0, 1, 4, 7, 13, 15], // Rogue - One-handed + daggers
+    5: [7, 10, 15, 19], // Priest - Staves, wands, maces
+    6: [0, 1, 4, 5, 6, 7, 8], // Death Knight - Most melee
+    7: [0, 1, 4, 5, 10, 13], // Shaman - Maces, axes, fist weapons
+    8: [7, 10, 15, 19], // Mage - Staves, swords, wands
+    9: [7, 10, 15, 19], // Warlock - Staves, swords, wands
+    10: [0, 4, 7, 13], // Monk - Fist weapons, staves, polearms
+    11: [0, 4, 7, 10, 13], // Druid - Fist weapons, staves, polearms, maces
+    12: [0, 1, 4, 13], // Demon Hunter - Warglaives, one-handed
+    13: [0, 1, 4, 7, 10], // Evoker - Staves, daggers, swords, maces
+  };
+
+  const allowedWeaponTypes = classWeaponTypes[classId] || [];
+
+  // If weapon type matches, no penalty
+  if (allowedWeaponTypes.includes(itemSubClass)) {
+    return 0.0;
+  }
+
+  // Wrong weapon type: 90% penalty (very high - can't use wrong weapon type)
+  return 0.9;
 }
 
 /**

@@ -9,6 +9,18 @@
 
 import { queryWorld } from "../database/connection";
 import { getItemPricing } from "./economy";
+import {
+  getXPForLevel,
+  getXPToNextLevel,
+  calculateTotalXPNeeded as calculateTotalXPFromDB,
+  calculateLevelsFromXP as calculateLevelsFromXPDB,
+  getExpansionForLevel,
+  hasXPDivisor,
+  getXPDivisor,
+  calculateQuestXP,
+  getLevelRangeStats,
+  type XPLevelEntry
+} from "../data/xp-per-level.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -685,81 +697,45 @@ async function buildQuestChain(startQuestId: number): Promise<number[]> {
 }
 
 /**
- * WoW 11.2 Experience Required Per Level (The War Within)
- * Based on official Blizzard XP tables for levels 1-80
+ * XP calculation functions - now using accurate GameTable data
+ * Week 1 Enhancement: Replaced hardcoded estimates with xp.txt GameTable data
  *
- * Formula breakdown:
- * - Levels 1-10: Tutorial/starter zone (low XP)
- * - Levels 10-60: Base game leveling (moderate scaling)
- * - Levels 60-70: Dragonflight expansion (steep curve)
- * - Levels 70-80: The War Within (very steep curve)
+ * The old XP_PER_LEVEL table has been removed and replaced with:
+ * - src/data/xp-per-level.ts - Complete 80-level database from GameTable
+ * - Accurate XP requirements from TrinityCore xp.txt
+ * - Support for XP divisors (levels 71-80 use divisor 9)
+ * - Expansion tracking for each level
+ *
+ * Key improvements over old hardcoded values:
+ * - Accurate "level squish" behavior (levels 31-50 have reduced/negative XP deltas)
+ * - Proper divisor handling for The War Within levels (71-80 use divisor 9)
+ * - Per-kill XP values for mob grinding calculations
+ * - Expansion-specific XP curves (Classic, Shadowlands, Dragonflight, War Within)
+ * - Helper functions for quest XP calculations with divisor support
  */
-const XP_PER_LEVEL: { [level: number]: number } = {
-  1: 400, 2: 900, 3: 1400, 4: 2100, 5: 2800,
-  6: 3600, 7: 4500, 8: 5400, 9: 6500, 10: 7600,
-  11: 8800, 12: 10100, 13: 11400, 14: 12900, 15: 14400,
-  16: 16000, 17: 17700, 18: 19400, 19: 21300, 20: 23200,
-  21: 25200, 22: 27300, 23: 29400, 24: 31700, 25: 34000,
-  26: 36500, 27: 39100, 28: 41800, 29: 44600, 30: 47600,
-  31: 50700, 32: 53900, 33: 57200, 34: 60700, 35: 64300,
-  36: 68000, 37: 71900, 38: 75900, 39: 80100, 40: 84500,
-  41: 89000, 42: 93700, 43: 98500, 44: 103500, 45: 108700,
-  46: 114100, 47: 119700, 48: 125500, 49: 131500, 50: 137700,
-  51: 144100, 52: 150700, 53: 157500, 54: 164500, 55: 171700,
-  56: 179100, 57: 186700, 58: 194500, 59: 202500, 60: 210700,
-  // Dragonflight levels (60-70) - Steeper curve
-  61: 275000, 62: 285000, 63: 295000, 64: 305000, 65: 315000,
-  66: 330000, 67: 345000, 68: 360000, 69: 375000, 70: 390000,
-  // The War Within levels (70-80) - Very steep curve
-  71: 450000, 72: 470000, 73: 490000, 74: 510000, 75: 530000,
-  76: 555000, 77: 580000, 78: 605000, 79: 630000, 80: 0, // Max level
-};
 
 /**
  * Calculate XP required to reach target level from current level
+ * Week 1 Enhancement: Now uses accurate GameTable data from xp-per-level module
  *
  * @param currentLevel - Player's current level
  * @param targetLevel - Desired level
  * @returns Total XP needed
  */
 function calculateXPNeeded(currentLevel: number, targetLevel: number): number {
-  let totalXP = 0;
-
-  for (let level = currentLevel; level < targetLevel; level++) {
-    totalXP += XP_PER_LEVEL[level] || 0;
-  }
-
-  return totalXP;
+  return calculateTotalXPFromDB(currentLevel, targetLevel);
 }
 
 /**
  * Calculate how many levels can be gained from XP amount
+ * Week 1 Enhancement: Now uses accurate GameTable data with level squish support
  *
  * @param xpAmount - Amount of XP to calculate
  * @param currentLevel - Starting level
  * @returns Number of levels that can be gained (fractional)
  */
 function calculateLevelsFromXP(xpAmount: number, currentLevel: number): number {
-  let remainingXP = xpAmount;
-  let levelsGained = 0;
-  let checkLevel = currentLevel;
-
-  while (remainingXP > 0 && checkLevel < 80) {
-    const xpForLevel = XP_PER_LEVEL[checkLevel] || 0;
-
-    if (remainingXP >= xpForLevel) {
-      // Complete level
-      remainingXP -= xpForLevel;
-      levelsGained += 1;
-      checkLevel++;
-    } else {
-      // Partial level
-      levelsGained += remainingXP / xpForLevel;
-      break;
-    }
-  }
-
-  return levelsGained;
+  return calculateLevelsFromXPDB(xpAmount, currentLevel);
 }
 
 /**

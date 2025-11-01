@@ -1,0 +1,46 @@
+# TrinityCore MCP Server - Development Dockerfile
+# Includes development tools and hot-reloading
+
+FROM node:20-alpine
+
+# Set metadata
+LABEL maintainer="TrinityCore MCP Team"
+LABEL description="TrinityCore MCP Server - Development Environment"
+
+# Install development dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git \
+    bash \
+    vim
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose MCP server port
+EXPOSE 3000
+
+# Expose debug port for Node.js debugger
+EXPOSE 9229
+
+# Set environment for development
+ENV NODE_ENV=development \
+    MCP_PORT=3000 \
+    MCP_HOST=0.0.0.0
+
+# Install TypeScript globally for easier CLI access
+RUN npm install -g typescript ts-node nodemon
+
+# Development command with watch mode
+CMD ["npm", "run", "dev"]
