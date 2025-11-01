@@ -1,0 +1,56 @@
+api:
+  class: ResourceMonitor
+  method: Initialize
+  signature: bool ResourceMonitor::Initialize()
+documentation:
+  brief: Initializes the resource monitoring system to track and manage server resource
+    usage.
+  description: The Initialize method sets up the ResourceMonitor class to begin tracking
+    various system resources such as memory, CPU usage, and network activity. It performs
+    necessary setup operations including allocating internal data structures, registering
+    monitoring callbacks, and starting background threads for continuous resource
+    sampling. This method must be called before any other resource monitoring functionality
+    can be used. The initialization process is designed to be idempotent, meaning
+    it can safely be called multiple times without adverse effects, though subsequent
+    calls after successful initialization will typically return false. Proper initialization
+    ensures that the server's performance metrics are accurately captured for administrative
+    and debugging purposes.
+  parameters: []
+  returns: Returns true if the resource monitor was successfully initialized or if
+    it was already initialized previously. Returns false if the initialization failed
+    due to system constraints, insufficient permissions, or other critical errors
+    during setup.
+  examples:
+  - title: Basic Initialization
+    code: "ResourceMonitor* monitor = new ResourceMonitor();\nif (monitor->Initialize())\
+      \ {\n    // Monitoring is now active\n    printf(\"Resource monitoring initialized\
+      \ successfully\\n\");\n} else {\n    // Handle initialization failure\n    printf(\"\
+      Failed to initialize resource monitoring\\n\");\n}"
+    language: cpp
+  - title: Initialization with Error Handling
+    code: "ResourceMonitor monitor;\nbool success = monitor.Initialize();\nif (!success)\
+      \ {\n    // Log error and potentially shut down server\n    sLog->outError(\"\
+      Failed to initialize ResourceMonitor\");\n    // Optionally exit or continue\
+      \ with reduced functionality\n} else {\n    sLog->outInfo(\"ResourceMonitor\
+      \ initialized successfully\");\n    // Proceed with normal operation\n}"
+    language: cpp
+  notes: The Initialize method may perform system calls that require elevated privileges
+    on some platforms. It is recommended to call this method early in the server startup
+    process, ideally before any major resource-intensive operations begin. The monitoring
+    system typically starts collecting data asynchronously and may take a few moments
+    to stabilize after initialization.
+  warnings: Calling Initialize() after the monitor has already been initialized will
+    not cause errors but will return false. Avoid calling this method from multiple
+    threads simultaneously as it might lead to race conditions during setup. If initialization
+    fails, some monitoring features may be unavailable until a successful re-initialization
+    occurs.
+  related:
+  - ResourceMonitor::Update
+  - ResourceMonitor::GetMemoryUsage
+  - ResourceMonitor::GetCPUUsage
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T23:33:31.925364'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

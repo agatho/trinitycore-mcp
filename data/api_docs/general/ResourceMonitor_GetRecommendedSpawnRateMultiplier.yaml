@@ -1,0 +1,56 @@
+api:
+  class: ResourceMonitor
+  method: GetRecommendedSpawnRateMultiplier
+  signature: float ResourceMonitor::GetRecommendedSpawnRateMultiplier() const
+documentation:
+  brief: Calculates and returns the recommended spawn rate multiplier for game resources
+    based on current system performance.
+  description: The GetRecommendedSpawnRateMultiplier method determines an optimal
+    spawn rate adjustment factor that helps maintain server performance by dynamically
+    scaling creature, game object, and resource spawn rates. This value is typically
+    used in conjunction with TrinityCore's resource management systems to prevent
+    server overload during high-traffic periods or when system resources are constrained.
+    The multiplier is calculated based on various internal metrics such as CPU usage,
+    memory consumption, active connections, and overall server load. The returned
+    float value represents a scaling factor where values less than 1.0 reduce spawn
+    rates (conservative mode), values greater than 1.0 increase spawn rates (aggressive
+    mode), and a value of exactly 1.0 indicates no adjustment is needed.
+  parameters: []
+  returns: A floating-point value representing the recommended spawn rate multiplier.
+    Values less than 1.0 indicate reduced spawn rates, values greater than 1.0 indicate
+    increased spawn rates, and a value of 1.0 means no adjustment is recommended.
+  examples:
+  - title: Basic Usage Example
+    code: "float multiplier = sResourceMonitor->GetRecommendedSpawnRateMultiplier();\n\
+      if (multiplier < 1.0f)\n{\n    // Reduce spawn rates\n    sLog->outString(\"\
+      Server is under heavy load, reducing spawn rates by %.2f%%\", (1.0f - multiplier)\
+      \ * 100);\n}\nelse if (multiplier > 1.0f)\n{\n    // Increase spawn rates\n\
+      \    sLog->outString(\"Server has spare capacity, increasing spawn rates by\
+      \ %.2f%%\", (multiplier - 1.0f) * 100);\n}"
+    language: cpp
+  - title: Integration with Spawn Rate Adjustment
+    code: "void AdjustSpawnRates()\n{\n    float multiplier = sResourceMonitor->GetRecommendedSpawnRateMultiplier();\n\
+      \    \n    // Apply to creature spawn rates\n    for (auto& creatureTemplate\
+      \ : sObjectMgr->GetCreatureTemplates())\n    {\n        creatureTemplate->spawnRate\
+      \ *= multiplier;\n    }\n    \n    // Apply to game object spawn rates\n   \
+      \ for (auto& gameObjectTemplate : sObjectMgr->GetGameObjectTemplates())\n  \
+      \  {\n        gameObjectTemplate->spawnRate *= multiplier;\n    }\n}"
+    language: cpp
+  notes: This method performs internal calculations based on real-time system metrics
+    and should not be called excessively in performance-critical code paths. The returned
+    value is cached for a short period to avoid frequent recalculations, but may change
+    dynamically as server conditions evolve.
+  warnings: Do not use the returned multiplier directly for critical game logic without
+    considering its impact on gameplay balance. The multiplier may fluctuate rapidly
+    during system stress, potentially causing noticeable changes in spawn behavior
+    that could affect player experience.
+  related:
+  - ResourceMonitor::Update
+  - ResourceMonitor::GetCPUUsage
+  - ResourceMonitor::GetMemoryUsage
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-01T23:34:11.474796'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
