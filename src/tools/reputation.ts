@@ -113,6 +113,217 @@ export interface ParagonReputationInfo {
 }
 
 // ============================================================================
+// PHASE 7 ENHANCEMENT #7: Reputation Multipliers
+// ============================================================================
+
+/**
+ * Reputation multiplier sources
+ */
+export enum ReputationMultiplierType {
+  RACIAL = "racial",           // Race-specific bonuses (e.g., Human Diplomacy)
+  GUILD = "guild",             // Guild perk bonuses
+  EVENT = "event",             // World event bonuses (Darkmoon Faire, etc.)
+  CONSUMABLE = "consumable",   // Buff consumables
+  HOLIDAY = "holiday"          // Holiday event bonuses
+}
+
+/**
+ * Reputation multiplier configuration
+ */
+export interface ReputationMultiplier {
+  type: ReputationMultiplierType;
+  name: string;
+  multiplier: number;  // 1.0 = 100%, 1.10 = +10%, 2.0 = +100%
+  description: string;
+  raceId?: number;     // For racial bonuses (optional)
+  guildLevel?: number; // For guild perks (optional)
+}
+
+/**
+ * Reputation calculation result with all modifiers
+ */
+export interface ReputationGainResult {
+  baseReputation: number;
+  multipliers: ReputationMultiplier[];
+  totalMultiplier: number;
+  finalReputation: number;
+  breakdown: string[];
+}
+
+/**
+ * Racial reputation bonuses for WoW 11.2
+ * Based on race-specific passive abilities
+ */
+export const RACIAL_REPUTATION_BONUSES: ReputationMultiplier[] = [
+  {
+    type: ReputationMultiplierType.RACIAL,
+    name: "Diplomacy",
+    multiplier: 1.10,  // +10%
+    description: "Human racial: +10% reputation gains",
+    raceId: 1  // Human
+  }
+  // Note: As of WoW 11.2, Human Diplomacy is the only remaining racial reputation bonus
+  // Previous bonuses for other races were removed in various expansions
+];
+
+/**
+ * Guild perk reputation bonuses
+ * Based on guild level and perks unlocked
+ */
+export const GUILD_REPUTATION_BONUSES: ReputationMultiplier[] = [
+  {
+    type: ReputationMultiplierType.GUILD,
+    name: "Mr. Popularity (Rank 1)",
+    multiplier: 1.05,  // +5%
+    description: "Guild perk: +5% reputation gains",
+    guildLevel: 3
+  },
+  {
+    type: ReputationMultiplierType.GUILD,
+    name: "Mr. Popularity (Rank 2)",
+    multiplier: 1.10,  // +10%
+    description: "Guild perk: +10% reputation gains",
+    guildLevel: 6
+  }
+];
+
+/**
+ * World event reputation bonuses
+ */
+export const EVENT_REPUTATION_BONUSES: ReputationMultiplier[] = [
+  {
+    type: ReputationMultiplierType.EVENT,
+    name: "Darkmoon Faire - WHEE!",
+    multiplier: 1.10,  // +10%
+    description: "Darkmoon Carousel buff: +10% reputation for 1 hour"
+  },
+  {
+    type: ReputationMultiplierType.HOLIDAY,
+    name: "WoW Anniversary",
+    multiplier: 2.00,  // +100%
+    description: "WoW Anniversary event: +100% reputation gains"
+  },
+  {
+    type: ReputationMultiplierType.HOLIDAY,
+    name: "Timewalking Bonus Event",
+    multiplier: 1.50,  // +50%
+    description: "Timewalking event: +50% reputation from dungeons"
+  }
+];
+
+/**
+ * Calculate total reputation gain with all applicable multipliers
+ * Enhancement #7 (Phase 7): Comprehensive reputation calculation system
+ *
+ * @param baseReputation - Base reputation amount (from quest/token/kill)
+ * @param playerRaceId - Player's race ID (1-13)
+ * @param hasGuildPerk - Whether player has guild reputation perk
+ * @param guildLevel - Guild level (if in guild)
+ * @param activeEvents - Array of active event/buff names
+ * @returns Detailed reputation gain breakdown
+ */
+export function calculateReputationGain(
+  baseReputation: number,
+  playerRaceId: number = 0,
+  hasGuildPerk: boolean = false,
+  guildLevel: number = 0,
+  activeEvents: string[] = []
+): ReputationGainResult {
+  const appliedMultipliers: ReputationMultiplier[] = [];
+  let totalMultiplier = 1.0;
+
+  // Apply racial bonuses
+  const racialBonus = RACIAL_REPUTATION_BONUSES.find(
+    (bonus) => bonus.raceId === playerRaceId
+  );
+  if (racialBonus) {
+    appliedMultipliers.push(racialBonus);
+    totalMultiplier *= racialBonus.multiplier;
+  }
+
+  // Apply guild perks (highest applicable tier)
+  if (hasGuildPerk && guildLevel > 0) {
+    const applicableGuildPerks = GUILD_REPUTATION_BONUSES.filter(
+      (perk) => (perk.guildLevel || 0) <= guildLevel
+    ).sort((a, b) => (b.guildLevel || 0) - (a.guildLevel || 0));
+
+    if (applicableGuildPerks.length > 0) {
+      const guildPerk = applicableGuildPerks[0]; // Highest tier
+      appliedMultipliers.push(guildPerk);
+      totalMultiplier *= guildPerk.multiplier;
+    }
+  }
+
+  // Apply event bonuses
+  for (const eventName of activeEvents) {
+    const eventBonus = EVENT_REPUTATION_BONUSES.find(
+      (bonus) => bonus.name.toLowerCase().includes(eventName.toLowerCase())
+    );
+    if (eventBonus) {
+      appliedMultipliers.push(eventBonus);
+      totalMultiplier *= eventBonus.multiplier;
+    }
+  }
+
+  // Calculate final reputation
+  const finalReputation = Math.floor(baseReputation * totalMultiplier);
+
+  // Create breakdown
+  const breakdown: string[] = [
+    `Base reputation: ${baseReputation}`
+  ];
+
+  for (const mult of appliedMultipliers) {
+    const bonusPercent = Math.round((mult.multiplier - 1.0) * 100);
+    breakdown.push(`${mult.name}: +${bonusPercent}% (${mult.description})`);
+  }
+
+  breakdown.push(`Total multiplier: ${totalMultiplier.toFixed(2)}x`);
+  breakdown.push(`Final reputation: ${finalReputation}`);
+
+  return {
+    baseReputation,
+    multipliers: appliedMultipliers,
+    totalMultiplier,
+    finalReputation,
+    breakdown
+  };
+}
+
+/**
+ * Get available reputation multipliers for a player
+ *
+ * @param playerRaceId - Player's race ID
+ * @param guildLevel - Player's guild level (0 if not in guild)
+ * @returns Array of applicable multipliers
+ */
+export function getAvailableReputationMultipliers(
+  playerRaceId: number,
+  guildLevel: number = 0
+): ReputationMultiplier[] {
+  const available: ReputationMultiplier[] = [];
+
+  // Racial bonuses
+  const racialBonus = RACIAL_REPUTATION_BONUSES.find(
+    (bonus) => bonus.raceId === playerRaceId
+  );
+  if (racialBonus) {
+    available.push(racialBonus);
+  }
+
+  // Guild perks (all unlocked at current level)
+  const guildPerks = GUILD_REPUTATION_BONUSES.filter(
+    (perk) => (perk.guildLevel || 0) <= guildLevel
+  );
+  available.push(...guildPerks);
+
+  // All possible event bonuses (for informational purposes)
+  available.push(...EVENT_REPUTATION_BONUSES);
+
+  return available;
+}
+
+// ============================================================================
 // CORE FUNCTIONS
 // ============================================================================
 
@@ -650,7 +861,7 @@ async function parseReputationGainFromItem(itemId: number, expectedFactionId: nu
     for (const spellId of spellIds) {
       try {
         // In TrinityCore, reputation spell effects are typically stored in spell_template
-        // Effect type 103 (SPELL_EFFECT_REPUTATION) grants reputation
+        // Enhancement #7 (Phase 7): Updated to use SPELL_EFFECT_REPUTATION_REWARD (193)
         const spellQuery = `
           SELECT Effect_1, Effect_2, Effect_3, EffectBasePoints_1, EffectBasePoints_2, EffectBasePoints_3,
                  EffectMiscValue_1, EffectMiscValue_2, EffectMiscValue_3
@@ -662,14 +873,15 @@ async function parseReputationGainFromItem(itemId: number, expectedFactionId: nu
         if (spellResults && spellResults.length > 0) {
           const spell = spellResults[0];
 
-          // Check each effect for reputation gain (Effect type 103)
+          // Check each effect for reputation gain (Effect type 193)
           for (let i = 1; i <= 3; i++) {
             const effect = spell[`Effect_${i}`];
             const basePoints = spell[`EffectBasePoints_${i}`];
             const miscValue = spell[`EffectMiscValue_${i}`];
 
-            // Effect 103 = SPELL_EFFECT_REPUTATION
-            if (effect === 103 && miscValue === expectedFactionId) {
+            // Effect 193 = SPELL_EFFECT_REPUTATION_REWARD (WoW 11.2)
+            // Effect 103 = SPELL_EFFECT_REPUTATION (legacy, also check for backward compatibility)
+            if ((effect === 193 || effect === 103) && miscValue === expectedFactionId) {
               // BasePoints is the reputation amount (usually needs +1)
               return (basePoints || 0) + 1;
             }
