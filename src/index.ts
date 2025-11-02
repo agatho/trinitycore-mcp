@@ -153,6 +153,70 @@ import {
   generateTestReport,
   analyzeCoverage
 } from "./tools/testing.js";
+import {
+  listTables,
+  getTableSchema,
+  searchTables,
+  findTablesWithColumn,
+  getTableRelationships,
+  compareSchemas,
+  getDatabaseStats,
+  getCreateTableStatement,
+  findTablesWithoutPrimaryKey,
+  analyzeTable
+} from "./tools/schema.js";
+import {
+  findAPIUsageExamples,
+  findClassDefinition,
+  findMethodDefinition,
+  findSimilarAPIs,
+  getInheritanceHierarchy,
+  findClassMethods,
+  analyzeAPIComplexity,
+  validateTrinityCorePathExport
+} from "./tools/apiexamples.js";
+import {
+  parseErrorOutput,
+  parseBuildLog,
+  analyzeBuildErrors,
+  getErrorContext,
+  findRootCause,
+  groupRelatedErrors,
+  detectCompiler
+} from "./tools/builderrors.js";
+import {
+  executeNaturalLanguageQuery,
+  parseNaturalLanguageQuery,
+  intentToSQL,
+  generateRelatedQueries,
+  validateQuerySafety,
+  getPopularQueries,
+  exportQueryResults,
+  getQueryHistory,
+  clearQueryHistory
+} from "./tools/dataexplorer.js";
+import {
+  getQuestInfo as getQuestMapperInfo,
+  findQuestChain,
+  generateMermaidDiagram,
+  findQuestChainsByZone,
+  findQuestChainsByLevel,
+  analyzeQuestChainComplexity,
+  findCircularDependencies,
+  getQuestRewards as getQuestMapperRewards,
+  exportQuestChain
+} from "./tools/questmapper.js";
+import {
+  getZoneInfo,
+  analyzeMobStats,
+  analyzeQuestStats,
+  calculateDifficultyRating,
+  analyzeZoneDifficulty,
+  findSimilarZones,
+  findZonesByLevel,
+  getLevelingPath as getZoneLevelingPath,
+  exportZoneAnalysisMarkdown
+} from "./tools/zonedifficulty.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance

@@ -1,8 +1,10 @@
 /**
  * MySQL Database Connection Manager for TrinityCore
+ * Enhanced with LRU caching, query timeout protection, and connection retry logic
  */
 
 import mysql from "mysql2/promise";
+import { LRUCache } from "lru-cache";
 
 // Environment variables
 const DB_CONFIG = {
@@ -19,10 +21,120 @@ const DB_NAMES = {
   characters: process.env.TRINITY_DB_CHARACTERS || "characters",
 };
 
+// Query configuration
+const QUERY_TIMEOUT = 5000; // 5 seconds
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// LRU Cache configuration (max 1000 queries, 10 minute TTL)
+const queryCache = new LRUCache<string, any>({
+  max: 1000,
+  ttl: 1000 * 60 * 10, // 10 minutes
+});
+
+// Statistics tracking
+interface QueryStats {
+  totalQueries: number;
+  cacheHits: number;
+  cacheMisses: number;
+  errors: number;
+  avgQueryTime: number;
+  slowQueries: number; // queries > 1 second
+}
+
+const stats: Record<string, QueryStats> = {
+  world: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
+  auth: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
+  characters: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
+};
+
 // Connection pool
 let worldPool: mysql.Pool | null = null;
 let authPool: mysql.Pool | null = null;
 let charactersPool: mysql.Pool | null = null;
+
+/**
+ * Create cache key from SQL and params
+ */
+function createCacheKey(sql: string, params?: any[]): string {
+  return `${sql}|${JSON.stringify(params || [])}`;
+}
+
+/**
+ * Execute query with timeout protection
+ */
+async function executeWithTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Query timeout after ${timeoutMs}ms`)), timeoutMs)
+    ),
+  ]);
+}
+
+/**
+ * Execute query with retry logic
+ */
+async function executeWithRetry<T>(
+  fn: () => Promise<T>,
+  attempts: number = MAX_RETRY_ATTEMPTS
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (attempts <= 1) throw error;
+
+    // Only retry on connection errors
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("ETIMEDOUT") ||
+      errorMessage.includes("Connection lost")
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+      return executeWithRetry(fn, attempts - 1);
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Update query statistics
+ */
+function updateStats(
+  database: keyof typeof stats,
+  queryTime: number,
+  cacheHit: boolean,
+  error: boolean = false
+): void {
+  const dbStats = stats[database];
+  dbStats.totalQueries++;
+
+  if (cacheHit) {
+    dbStats.cacheHits++;
+  } else {
+    dbStats.cacheMisses++;
+  }
+
+  if (error) {
+    dbStats.errors++;
+  }
+
+  if (!cacheHit) {
+    // Update average query time (exponential moving average)
+    dbStats.avgQueryTime = dbStats.avgQueryTime === 0
+      ? queryTime
+      : dbStats.avgQueryTime * 0.9 + queryTime * 0.1;
+
+    if (queryTime > 1000) {
+      dbStats.slowQueries++;
+    }
+  }
+}
 
 /**
  * Get connection pool for world database
@@ -73,30 +185,111 @@ export function getCharactersPool(): mysql.Pool {
 }
 
 /**
+ * Execute cached query with timeout and retry protection
+ */
+async function executeCachedQuery(
+  database: "world" | "auth" | "characters",
+  pool: mysql.Pool,
+  sql: string,
+  params?: any[],
+  useCache: boolean = true
+): Promise<any> {
+  const startTime = Date.now();
+  const cacheKey = createCacheKey(sql, params);
+
+  try {
+    // Check cache first
+    if (useCache) {
+      const cached = queryCache.get(cacheKey);
+      if (cached !== undefined) {
+        updateStats(database, Date.now() - startTime, true);
+        return cached;
+      }
+    }
+
+    // Execute query with timeout and retry
+    const result = await executeWithRetry(async () => {
+      return executeWithTimeout(
+        pool.execute(sql, params),
+        QUERY_TIMEOUT
+      );
+    });
+
+    const [rows] = result;
+    const queryTime = Date.now() - startTime;
+
+    // Cache result
+    if (useCache) {
+      queryCache.set(cacheKey, rows);
+    }
+
+    updateStats(database, queryTime, false);
+    return rows;
+  } catch (error) {
+    const queryTime = Date.now() - startTime;
+    updateStats(database, queryTime, false, true);
+    throw error;
+  }
+}
+
+/**
  * Query world database
  */
-export async function queryWorld(sql: string, params?: any[]): Promise<any> {
+export async function queryWorld(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
   const pool = getWorldPool();
-  const [rows] = await pool.execute(sql, params);
-  return rows;
+  return executeCachedQuery("world", pool, sql, params, useCache);
 }
 
 /**
  * Query auth database
  */
-export async function queryAuth(sql: string, params?: any[]): Promise<any> {
+export async function queryAuth(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
   const pool = getAuthPool();
-  const [rows] = await pool.execute(sql, params);
-  return rows;
+  return executeCachedQuery("auth", pool, sql, params, useCache);
 }
 
 /**
  * Query characters database
  */
-export async function queryCharacters(sql: string, params?: any[]): Promise<any> {
+export async function queryCharacters(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
   const pool = getCharactersPool();
-  const [rows] = await pool.execute(sql, params);
-  return rows;
+  return executeCachedQuery("characters", pool, sql, params, useCache);
+}
+
+/**
+ * Get query statistics for a database
+ */
+export function getStats(database: "world" | "auth" | "characters"): QueryStats {
+  return { ...stats[database] };
+}
+
+/**
+ * Get all query statistics
+ */
+export function getAllStats(): Record<string, QueryStats> {
+  return {
+    world: { ...stats.world },
+    auth: { ...stats.auth },
+    characters: { ...stats.characters },
+  };
+}
+
+/**
+ * Clear query cache
+ */
+export function clearCache(): void {
+  queryCache.clear();
+}
+
+/**
+ * Get cache statistics
+ */
+export function getCacheStats() {
+  return {
+    size: queryCache.size,
+    max: queryCache.max,
+    calculatedSize: queryCache.calculatedSize,
+  };
 }
 
 /**
