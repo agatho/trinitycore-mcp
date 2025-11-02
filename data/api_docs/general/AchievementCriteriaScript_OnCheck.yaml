@@ -1,0 +1,61 @@
+api:
+  class: AchievementCriteriaScript
+  method: OnCheck
+  signature: bool AchievementCriteriaScript::OnCheck(Player * source, Unit * target)
+documentation:
+  brief: Evaluates whether a player meets the criteria for earning an achievement.
+  description: The OnCheck method is a virtual function in the AchievementCriteriaScript
+    class that determines if a specific achievement criterion has been met by a player.
+    This method is invoked during gameplay events such as killing enemies, collecting
+    items, or completing quests, and it allows custom logic to be implemented for
+    achievement validation. The method receives references to the player who triggered
+    the check and an optional target unit (such as a killed mob), enabling developers
+    to create complex criteria that depend on both player actions and contextual game
+    state. It returns true if the criteria are satisfied, allowing the achievement
+    to progress or be completed, and false otherwise.
+  parameters:
+  - name: source
+    description: Pointer to the Player object who triggered the achievement check.
+      This represents the player whose progress is being evaluated against the achievement
+      criteria.
+  - name: target
+    description: Pointer to the Unit object that is the target of the action, such
+      as a killed mob or interacted NPC. May be nullptr if the criteria does not require
+      a specific target.
+  returns: Returns true if the achievement criteria are met by the player's actions;
+    returns false otherwise. A return value of true typically allows progression toward
+    completing the achievement.
+  examples:
+  - title: Basic Achievement Check Implementation
+    code: "class MyAchievementScript : public AchievementCriteriaScript\n{\npublic:\n\
+      \    MyAchievementScript() : AchievementCriteriaScript(\"MyCustomAchievement\"\
+      ) {}\n\n    bool OnCheck(Player* source, Unit* target) override\n    {\n   \
+      \     // Example: Require player to kill a specific mob type\n        if (target\
+      \ && target->GetEntry() == 12345)\n            return true;\n        return\
+      \ false;\n    }\n};"
+    language: cpp
+  - title: Advanced Check with Multiple Conditions
+    code: "class AdvancedAchievementScript : public AchievementCriteriaScript\n{\n\
+      public:\n    AdvancedAchievementScript() : AchievementCriteriaScript(\"AdvancedCriteria\"\
+      ) {}\n\n    bool OnCheck(Player* source, Unit* target) override\n    {\n   \
+      \     // Example: Kill 5 mobs of a certain type within 30 seconds\n        if\
+      \ (target && target->GetEntry() == 67890)\n        {\n            // Check if\
+      \ player has killed enough mobs in time window\n            return source->GetAchievementMgr()->GetCompletedCriteriaCount(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE)\
+      \ >= 5;\n        }\n        return false;\n    }\n};"
+    language: cpp
+  notes: The OnCheck method is called frequently during gameplay, so performance should
+    be optimized. Avoid heavy computations or database queries within this function.
+    The method may be invoked multiple times per second depending on the achievement
+    type and game events.
+  warnings: Ensure that all pointers are validated before use to prevent crashes.
+    Be cautious when using target data as it may be null or invalid in certain scenarios.
+    Improper handling of return values can lead to incorrect achievement progression.
+  related:
+  - OnUpdate
+  - OnComplete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:30:54.575669'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

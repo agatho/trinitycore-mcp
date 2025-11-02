@@ -1,0 +1,56 @@
+api:
+  class: ScopedProfiler
+  method: ScopedProfiler
+  signature: void ScopedProfiler::ScopedProfiler(ScopedProfiler && param0)
+documentation:
+  brief: Moves a ScopedProfiler instance to another ScopedProfiler instance, transferring
+    ownership of its profiling data.
+  description: The ScopedProfiler move constructor transfers all profiling data and
+    state from the source ScopedProfiler object to the destination object. This operation
+    is typically used when moving ScopedProfiler objects between scopes or containers,
+    allowing efficient transfer without copying expensive profiling information. The
+    moved-from object becomes invalid and should not be used after this operation.
+    This method is part of the RAII (Resource Acquisition Is Initialization) pattern
+    for performance profiling in TrinityCore, where profiling data is automatically
+    collected and reported upon object destruction.
+  parameters: []
+  returns: void
+  examples:
+  - title: Basic Move Constructor Usage
+    code: 'ScopedProfiler profiler1("FunctionA");
+
+      // ... some code ...
+
+      ScopedProfiler profiler2 = std::move(profiler1); // Move profiler1 to profiler2
+
+      // profiler1 is now invalid and should not be used'
+    language: cpp
+  - title: Move in Container Context
+    code: 'std::vector<ScopedProfiler> profilers;
+
+      profilers.emplace_back("FunctionA");
+
+      profilers.emplace_back(std::move(profilers.front())); // Move first profiler
+      to second
+
+      // First profiler is now invalid, second contains the moved data'
+    language: cpp
+  notes: The move constructor ensures no profiling data is duplicated or lost during
+    transfer. It's important to understand that after moving, the source ScopedProfiler
+    object should not be accessed or destroyed as it may contain undefined state.
+    This implementation typically involves swapping internal pointers or handles rather
+    than copying large amounts of profiling data.
+  warnings: Using a moved-from ScopedProfiler object results in undefined behavior.
+    Always ensure that objects are not used after being moved. Be cautious when moving
+    ScopedProfiler objects within containers, as reallocation may invalidate moved
+    references.
+  related:
+  - ScopedProfiler::ScopedProfiler(const ScopedProfiler&)
+  - ScopedProfiler::~ScopedProfiler
+  - ScopedProfiler::operator=
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T15:36:00.606888'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,42 +1,46 @@
 api:
   class: ChannelMgr
   method: ChannelMgr
-  signature: void ChannelMgr::ChannelMgr(ChannelMgr && right)
+  signature: void ChannelMgr::ChannelMgr(int team)
 documentation:
-  brief: Moves a ChannelMgr object to another ChannelMgr object using move semantics.
-  description: The ChannelMgr move constructor transfers ownership of resources from
-    one ChannelMgr instance to another. This constructor is typically used when creating
-    a new ChannelMgr object by moving an existing one, allowing for efficient resource
-    transfer without deep copying. The source ChannelMgr object is left in a valid
-    but unspecified state after the move operation. This behavior aligns with standard
-    C++ move semantics and is commonly used in container classes and smart pointer
-    implementations within TrinityCore's channel management system.
-  parameters: []
+  brief: Initializes a new channel manager instance for the specified team
+  description: The ChannelMgr constructor initializes a new channel manager object
+    that handles communication channels for players on a specific team. This method
+    sets up internal data structures and state necessary for managing chat channels,
+    guild channels, and other team-based communication features within the TrinityCore
+    framework. The team parameter determines which faction's channels this manager
+    will handle, typically 0 for Alliance or 1 for Horde. This constructor is usually
+    called internally by the core system when a new channel manager is needed for
+    player communications.
+  parameters:
+  - name: team
+    description: The team identifier (0 for Alliance, 1 for Horde) that this channel
+      manager will handle. This parameter determines which faction's channels and
+      communication rules apply to the manager instance.
   returns: null
   examples:
-  - title: Move ChannelMgr to New Instance
-    code: 'ChannelMgr sourceChannelMgr;
-
-      // ... populate sourceChannelMgr ...
-
-      ChannelMgr newChannelMgr = std::move(sourceChannelMgr); // Move constructor
-      invoked'
+  - title: Creating a Channel Manager for Alliance
+    code: ChannelMgr* allianceChannelMgr = new ChannelMgr(0); // Initialize for Alliance
+      team
     language: cpp
-  notes: This move constructor is part of the C++ standard library's move semantics
-    implementation. After a successful move, the original ChannelMgr object should
-    not be used for operations that require valid state, as it will be left in a moved-from
-    state. This constructor is typically invoked implicitly during assignments or
-    when passing ChannelMgr objects by value.
-  warnings: Using the moved-from ChannelMgr object after a move operation results
-    in undefined behavior. Developers must ensure no further operations are performed
-    on the source object after moving it to another instance.
+  - title: Creating a Channel Manager for Horde
+    code: ChannelMgr* hordeChannelMgr = new ChannelMgr(1); // Initialize for Horde
+      team
+    language: cpp
+  notes: This constructor is typically not called directly by modders or developers.
+    It's usually invoked internally by the TrinityCore core system when managing player
+    communication channels. The channel manager maintains internal lists of active
+    channels and handles channel creation, destruction, and user management.
+  warnings: Do not instantiate ChannelMgr objects manually unless you understand the
+    complete TrinityCore communication subsystem. Incorrect usage can lead to memory
+    leaks or communication failures in player channels.
   related:
-  - ChannelMgr::ChannelMgr(const ChannelMgr&)
-  - ChannelMgr& ChannelMgr::operator=(ChannelMgr&&)
-  - ChannelMgr& ChannelMgr::operator=(const ChannelMgr&)
+  - ChannelMgr::~ChannelMgr
+  - ChannelMgr::GetChannel
+  - ChannelMgr::CreateChannel
 metadata:
   confidence: 0.9
-  generated_at: '2025-11-01T04:26:43.629226'
+  generated_at: '2025-11-02T18:05:56.215690'
   generator: lmstudio-qwen3-coder-30b
   version: 1.0.0
   source: core

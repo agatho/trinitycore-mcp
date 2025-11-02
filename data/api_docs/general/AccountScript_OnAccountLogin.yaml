@@ -1,0 +1,59 @@
+api:
+  class: AccountScript
+  method: OnAccountLogin
+  signature: void AccountScript::OnAccountLogin(uint32 accountId)
+documentation:
+  brief: Called when an account successfully logs into the game server
+  description: The OnAccountLogin method is a virtual callback function in the AccountScript
+    class that is invoked whenever a player account successfully authenticates and
+    logs into the World of Warcraft server. This method serves as a hook for custom
+    scripts to execute logic upon successful login, such as granting rewards, initializing
+    player data, or triggering events. The method is called after the authentication
+    process is complete but before the player character selection screen is displayed.
+    It provides access to the account identifier which can be used to retrieve or
+    modify account-specific information.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account that has successfully logged
+      in. This value corresponds to the ID field in the account table of the auth
+      database.
+  returns: null
+  examples:
+  - title: Basic Account Login Script
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnAccountLogin(uint32\
+      \ accountId) override\n    {\n        // Log successful login to database or\
+      \ console\n        sLog->outString(\"Account %u has logged in.\", accountId);\n\
+      \        \n        // Example: Grant a welcome item to new players\n       \
+      \ if (accountId == 12345)\n        {\n            // Logic to give item\n  \
+      \      }\n    }\n};"
+    language: cpp
+  - title: Advanced Account Login with Data Initialization
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnAccountLogin(uint32\
+      \ accountId) override\n    {\n        // Initialize account-specific data\n\
+      \        QueryResult result = CharacterDatabase.Query(\"SELECT guid FROM characters\
+      \ WHERE account = {}\", accountId);\n        if (result)\n        {\n      \
+      \      do\n            {\n                uint32 guid = result->Fetch()[0].Get<uint32>();\n\
+      \                // Process character data for this account\n              \
+      \  sLog->outString(\"Processing character %u for account %u\", guid, accountId);\n\
+      \            } while (result->NextRow());\n        }\n        \n        // Update\
+      \ last login timestamp\n        CharacterDatabase.Execute(\"UPDATE account SET\
+      \ last_login = NOW() WHERE id = {}\", accountId);\n    }\n};"
+    language: cpp
+  notes: This method is executed on the main server thread and should avoid heavy
+    computations or blocking operations to prevent server lag. It's recommended to
+    use asynchronous operations for time-consuming tasks. The accountId parameter
+    is guaranteed to be valid at the time of execution.
+  warnings: Do not perform database operations that might block the main thread for
+    extended periods, as this can cause server performance issues. Avoid modifying
+    account data in a way that could cause inconsistencies or security vulnerabilities.
+    Be cautious when using this hook with large-scale account operations.
+  related:
+  - OnAccountLogout
+  - OnAccountCreate
+  - OnAccountDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:34:15.381000'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

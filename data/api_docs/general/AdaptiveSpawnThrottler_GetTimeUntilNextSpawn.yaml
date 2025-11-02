@@ -1,0 +1,55 @@
+api:
+  class: AdaptiveSpawnThrottler
+  method: GetTimeUntilNextSpawn
+  signature: int AdaptiveSpawnThrottler::GetTimeUntilNextSpawn() const
+documentation:
+  brief: Calculates and returns the time in milliseconds until the next spawn event
+    occurs.
+  description: The GetTimeUntilNextSpawn method determines how long (in milliseconds)
+    remains before the next creature or game object spawn is scheduled to occur within
+    an adaptive spawn system. This method is typically used by spawn managers or AI
+    systems to control the timing of dynamic spawns, ensuring that creatures or objects
+    appear at appropriate intervals without overwhelming the server or client. It
+    evaluates internal throttling logic based on configured spawn rates, cooldowns,
+    and current spawn activity to compute the next scheduled spawn time. The returned
+    value can be zero or negative if a spawn is due immediately or has already passed
+    its scheduled time. This method does not modify any internal state and is safe
+    for repeated calls.
+  parameters: []
+  returns: An integer representing the time in milliseconds until the next spawn event
+    occurs. A positive value indicates a future spawn, zero means the spawn should
+    occur immediately, and negative values indicate that the spawn time has already
+    passed or is overdue.
+  examples:
+  - title: Basic Usage
+    code: "AdaptiveSpawnThrottler throttler;\nint delay = throttler.GetTimeUntilNextSpawn();\n\
+      if (delay <= 0)\n{\n    // Spawn is due now or overdue\n    DoSpawn();\n}\n\
+      else\n{\n    // Schedule next spawn after delay\n    ScheduleSpawn(delay);\n\
+      }"
+    language: cpp
+  - title: Integration with Spawn Manager
+    code: "class SpawnManager\n{\npublic:\n    void Update()\n    {\n        int timeUntilNext\
+      \ = throttler.GetTimeUntilNextSpawn();\n        if (timeUntilNext <= 0)\n  \
+      \      {\n            SpawnCreature();\n            throttler.Reset(); // Reset\
+      \ after spawn\n        }\n        else\n        {\n            // Continue waiting\n\
+      \        }\n    }\nprivate:\n    AdaptiveSpawnThrottler throttler;\n};"
+    language: cpp
+  notes: This method relies on internal timing mechanisms and should be used in contexts
+    where accurate time tracking is available. It is recommended to call this method
+    from within a consistent update loop or timer context to avoid inconsistencies
+    in spawn scheduling. The result may vary depending on the current state of the
+    throttler's internal cooldown and rate limiting logic.
+  warnings: Do not assume that a return value of zero means immediate spawning; it
+    could also indicate an overdue spawn event. Always check for negative values which
+    suggest that the spawn time has already passed, potentially indicating a scheduling
+    issue or race condition in the system.
+  related:
+  - Reset
+  - IsSpawnDue
+  - SetSpawnRate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T14:18:31.239500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: ScopedPerformanceMeasurement
+  method: ScopedPerformanceMeasurement
+  signature: void ScopedPerformanceMeasurement::ScopedPerformanceMeasurement(uint32_t
+    botGuid, const std::string & operation)
+documentation:
+  brief: Initializes a scoped performance measurement for a bot operation
+  description: The ScopedPerformanceMeasurement constructor initializes a performance
+    monitoring context for a specific bot operation. This mechanism tracks execution
+    time and resource usage of bot activities, providing valuable insights for performance
+    optimization and debugging. The measurement is automatically managed through RAII
+    (Resource Acquisition Is Initialization) principles, ensuring proper cleanup when
+    the scope ends. This functionality is particularly useful in TrinityCore's AI
+    system where bot behavior and performance monitoring are critical for maintaining
+    server stability and responsiveness.
+  parameters:
+  - name: botGuid
+    description: Unique identifier of the bot instance being measured. This GUID corresponds
+      to the bot's entry in the database and is used to associate performance metrics
+      with specific AI entities.
+  - name: operation
+    description: Name or description of the operation being measured. This string
+      identifies what specific action or process is being monitored, such as 'Movement',
+      'Combat', or 'Questing'.
+  returns: null
+  examples:
+  - title: Basic Performance Measurement Initialization
+    code: "void BotAI::UpdateAI()\n{\n    ScopedPerformanceMeasurement perfMeasure(GetBotGuid(),\
+      \ \"Movement\");\n    // Bot movement logic here\n    // Performance metrics\
+      \ will be automatically logged when perfMeasure goes out of scope\n}"
+    language: cpp
+  - title: Nested Performance Measurements
+    code: "void BotAI::DoCombat()\n{\n    ScopedPerformanceMeasurement combatPerf(GetBotGuid(),\
+      \ \"Combat\");\n    {\n        ScopedPerformanceMeasurement attackPerf(GetBotGuid(),\
+      \ \"Attack\");\n        // Attack logic\n    }\n    {\n        ScopedPerformanceMeasurement\
+      \ defensePerf(GetBotGuid(), \"Defense\");\n        // Defense logic\n    }\n\
+      }"
+    language: cpp
+  notes: This class implements RAII pattern for automatic performance measurement
+    cleanup. The measurements are typically logged to the TrinityCore logging system
+    with timestamps and execution durations. Performance data is usually aggregated
+    and can be accessed through debugging tools or performance monitoring interfaces.
+  warnings: The constructor does not perform any validation on the botGuid parameter,
+    so invalid GUIDs may cause issues in the logging system. Ensure that botGuid corresponds
+    to an active bot instance to avoid unexpected behavior.
+  related:
+  - ScopedPerformanceMeasurement::~ScopedPerformanceMeasurement
+  - ScopedPerformanceMeasurement::Start
+  - ScopedPerformanceMeasurement::Stop
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T15:38:47.756880'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

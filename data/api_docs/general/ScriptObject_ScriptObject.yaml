@@ -1,51 +1,52 @@
 api:
   class: ScriptObject
   method: ScriptObject
-  signature: void ScriptObject::ScriptObject(ScriptObject && right)
+  signature: void ScriptObject::ScriptObject(const char * name)
 documentation:
-  brief: Moves a ScriptObject instance to another ScriptObject instance using move
-    semantics.
-  description: The ScriptObject constructor that accepts an rvalue reference (ScriptObject&&)
-    is a move constructor. It transfers ownership of resources from the source ScriptObject
-    to the newly constructed object, leaving the source in a valid but unspecified
-    state. This is part of C++'s move semantics and is used to efficiently transfer
-    resources without deep copying. In the context of TrinityCore's scripting system,
-    this constructor allows for efficient construction of script objects when moving
-    them between scopes or containers. The move constructor typically swaps internal
-    pointers or handles rather than copying data, which improves performance during
-    object creation and assignment operations.
-  parameters: []
+  brief: Initializes a ScriptObject with the specified name for use in TrinityCore's
+    scripting system.
+  description: The ScriptObject constructor initializes a script object with a given
+    name, which is essential for registering and identifying scripts within the TrinityCore
+    framework. This constructor is typically used when creating custom AI behaviors,
+    event handlers, or other scripted components that need to be managed by the core
+    server. The name parameter serves as a unique identifier for the script instance
+    and is used internally by the scripting system to manage and dispatch events appropriately.
+    When a ScriptObject is instantiated using this constructor, it becomes part of
+    the global script registry and can be referenced by the server's scripting engine.
+  parameters:
+  - name: name
+    description: A null-terminated character string that serves as the unique identifier
+      for this script object. This name must be unique within the scope of registered
+      scripts to avoid conflicts. The name is used internally by TrinityCore's scripting
+      system to manage and reference the script instance.
   returns: null
   examples:
-  - title: Move Constructing a ScriptObject
-    code: 'ScriptObject&& source = std::move(someExistingScriptObject);
-
-      ScriptObject newObject(std::move(source)); // Move constructor usage'
+  - title: Basic ScriptObject Initialization
+    code: "class MyCustomAI : public ScriptObject\n{\npublic:\n    MyCustomAI() :\
+      \ ScriptObject(\"MyCustomAI\")\n    {\n        // Constructor logic here\n \
+      \   }\n};"
     language: cpp
-  - title: Using Move Constructor in Container
-    code: 'std::vector<ScriptObject> scriptObjects;
-
-      ScriptObject obj1;
-
-      scriptObjects.push_back(std::move(obj1)); // Implicit move constructor call'
+  - title: Creating a Custom Script with Unique Name
+    code: "class QuestScriptExample : public ScriptObject\n{\npublic:\n    QuestScriptExample()\
+      \ : ScriptObject(\"QuestScriptExample_12345\")\n    {\n        // This script\
+      \ will be registered under the name \"QuestScriptExample_12345\"\n    }\n};"
     language: cpp
-  notes: This is a move constructor, not a copy constructor. After calling this constructor,
-    the source object should not be used unless it's explicitly reset or reassigned.
-    The move constructor is typically generated automatically by the compiler when
-    no user-defined move constructor exists, but can be explicitly defined for custom
-    behavior. In TrinityCore, this pattern is commonly used in script object management
-    where objects are frequently moved between different containers or scopes.
-  warnings: Using the source ScriptObject after a move operation results in undefined
-    behavior. The moved-from object should not be accessed or used until it's reassigned
-    or explicitly reset. Be cautious when using this constructor in performance-critical
-    code paths where the move semantics might not provide expected benefits if objects
-    are not properly managed.
+  notes: The ScriptObject constructor should only be called during object initialization
+    and not from within gameplay loops or event handlers. The name parameter must
+    remain valid for the lifetime of the object, as it's used internally by the scripting
+    system. This constructor is part of the base class for all TrinityCore scripts
+    and should not be overridden unless necessary.
+  warnings: Do not use duplicate names for ScriptObject instances as this may cause
+    conflicts in the script registry. The name parameter must not be null or empty,
+    though the exact validation behavior depends on the core implementation. Avoid
+    calling this constructor from multithreaded contexts without proper synchronization.
   related:
-  - ScriptObject::operator=
-  - ScriptObject::~ScriptObject
+  - RegisterScript
+  - GetScriptName
+  - IsScriptRegistered
 metadata:
   confidence: 0.95
-  generated_at: '2025-11-01T03:11:09.320390'
+  generated_at: '2025-11-02T15:34:29.162010'
   generator: lmstudio-qwen3-coder-30b
   version: 1.0.0
   source: core

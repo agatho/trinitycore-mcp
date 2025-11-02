@@ -1,0 +1,55 @@
+api:
+  class: AccountMgr
+  method: DeleteAccount
+  signature: AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
+documentation:
+  brief: Deletes an account from the database by its unique identifier.
+  description: The DeleteAccount method removes a specified account from the TrinityCore
+    database system. This operation is irreversible and affects all associated data
+    including characters, guilds, and other account-specific information. The method
+    performs validation to ensure the account exists before attempting deletion and
+    returns an AccountOpResult indicating success or failure of the operation. In
+    World of Warcraft context, this function is typically used by administrative tools
+    or in response to user requests for account termination.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account to be deleted. Must be a valid,
+      existing account ID in the database.
+  returns: Returns an AccountOpResult enum value indicating the outcome of the deletion
+    operation. Possible values include SUCCESS, FAILED_NOT_FOUND, FAILED_ADMINISTRATOR_ACCOUNT,
+    and other error conditions depending on validation checks.
+  examples:
+  - title: Basic account deletion
+    code: "AccountOpResult result = AccountMgr::DeleteAccount(12345);\nif (result\
+      \ == ACCOUNT_SUCCESS)\n{\n    printf(\"Account deleted successfully\\n\");\n\
+      }\nelse\n{\n    printf(\"Failed to delete account: %d\\n\", result);\n}"
+    language: cpp
+  - title: Safe account deletion with error handling
+    code: "uint32 accountId = 98765;\nAccountOpResult result = AccountMgr::DeleteAccount(accountId);\n\
+      switch (result)\n{\n    case ACCOUNT_SUCCESS:\n        printf(\"Account %u deleted\
+      \ successfully\\n\", accountId);\n        break;\n    case ACCOUNT_NOT_FOUND:\n\
+      \        printf(\"Account %u does not exist\\n\", accountId);\n        break;\n\
+      \    case ACCOUNT_ADMINISTRATOR_ACCOUNT:\n        printf(\"Cannot delete administrator\
+      \ account %u\\n\", accountId);\n        break;\n    default:\n        printf(\"\
+      Unknown error deleting account %u\\n\", accountId);\n        break;\n}"
+    language: cpp
+  notes: This method performs database operations and may have performance implications
+    when executed frequently. It's recommended to use this function with proper authorization
+    checks and transaction handling in multi-threaded environments. The deletion process
+    typically cascades to remove all related character data, mail, auction house entries,
+    and other account-specific records.
+  warnings: This is a destructive operation that cannot be undone. Always verify the
+    accountId exists and that the requesting user has appropriate administrative privileges
+    before calling this method. Attempting to delete an administrator account will
+    result in failure and may log security events.
+  related:
+  - GetAccount
+  - CreateAccount
+  - UpdateAccount
+  - HasAccount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:35:59.586837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

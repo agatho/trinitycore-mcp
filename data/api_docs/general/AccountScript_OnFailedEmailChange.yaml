@@ -1,0 +1,58 @@
+api:
+  class: AccountScript
+  method: OnFailedEmailChange
+  signature: void AccountScript::OnFailedEmailChange(uint32 accountId)
+documentation:
+  brief: Called when an account email change attempt fails.
+  description: This method is invoked by the TrinityCore server when an attempt to
+    change an account's email address fails. It serves as a notification mechanism
+    for script developers to handle failed email change scenarios, such as logging
+    the event, sending alerts, or performing cleanup operations. The method provides
+    the account identifier of the affected account, allowing scripts to access and
+    modify related data if necessary. This callback is typically used in custom AccountScript
+    implementations to extend or override default behavior during account management
+    operations.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account for which the email change attempt
+      failed. This value corresponds to the 'id' field in the 'account' table within
+      the TrinityCore database.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnFailedEmailChange(uint32\
+      \ accountId) override\n    {\n        // Log the failed email change attempt\n\
+      \        sLog->outInfo(LOG_FILTER_GENERAL, \"Failed email change attempt for\
+      \ account ID: %u\", accountId);\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Database Access
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnFailedEmailChange(uint32\
+      \ accountId) override\n    {\n        // Retrieve account information from database\n\
+      \        QueryResult result = LoginDatabase.Query(\"SELECT username, email FROM\
+      \ account WHERE id = {}\", accountId);\n        if (result)\n        {\n   \
+      \         Field* fields = result->Fetch();\n            std::string username\
+      \ = fields[0].GetString();\n            std::string oldEmail = fields[1].GetString();\n\
+      \            \n            // Log the failure with additional context\n    \
+      \        sLog->outInfo(LOG_FILTER_GENERAL, \"Failed email change for user '%s'\
+      \ (ID: %u). Previous email was: %s\", username.c_str(), accountId, oldEmail.c_str());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the AccountScript interface and is intended to be
+    overridden by custom script implementations. It runs in the main server thread
+    and should avoid heavy computations or blocking operations to prevent performance
+    degradation. The accountId parameter is guaranteed to be valid at the time of
+    invocation.
+  warnings: Do not perform database writes or complex operations within this method
+    without proper locking mechanisms, as it may lead to deadlocks or race conditions.
+    Ensure that any logging or notification systems are thread-safe when used in this
+    callback.
+  related:
+  - OnAccountLogin
+  - OnFailedAccountLogin
+  - OnEmailChange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T14:32:45.268039'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

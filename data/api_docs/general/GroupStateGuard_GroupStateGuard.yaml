@@ -1,0 +1,59 @@
+api:
+  class: GroupStateGuard
+  method: GroupStateGuard
+  signature: void GroupStateGuard::GroupStateGuard(GroupStateMachine & stateMachine,
+    GroupState expectedState)
+documentation:
+  brief: Constructs a GroupStateGuard object to manage group state transitions within
+    the GroupStateMachine.
+  description: The GroupStateGuard constructor initializes a guard object that monitors
+    and manages transitions between different states in a GroupStateMachine. This
+    mechanism ensures that group state changes are properly coordinated and synchronized,
+    preventing race conditions or invalid state transitions during group operations
+    such as member additions, removals, or leadership changes. The guard typically
+    locks the state machine during critical sections to maintain consistency. This
+    is commonly used in TrinityCore's group management system where maintaining proper
+    group state integrity is essential for game mechanics like raid coordination,
+    instance locking, and player synchronization.
+  parameters:
+  - name: stateMachine
+    description: Reference to the GroupStateMachine object that this guard will monitor
+      and control. This represents the state machine managing all group-related states
+      and transitions.
+  - name: expectedState
+    description: The expected current state of the group that this guard is designed
+      to validate against. Used to ensure proper state handling during operations.
+  returns: null
+  examples:
+  - title: Basic GroupStateGuard Initialization
+    code: 'GroupStateMachine stateMachine;
+
+      GroupState expectedState = GROUP_STATE_ACTIVE;
+
+      GroupStateGuard guard(stateMachine, expectedState);'
+    language: cpp
+  - title: Using GroupStateGuard in a Group Operation Context
+    code: "void PerformGroupAction(Group* group)\n{\n    GroupStateMachine& sm = group->GetStateMachine();\n\
+      \    GroupStateGuard guard(sm, GROUP_STATE_READY);\n    // Critical section\
+      \ where group state is protected\n    group->AddMember(player);\n    // Guard\
+      \ automatically releases when it goes out of scope\n}"
+    language: cpp
+  notes: The GroupStateGuard acts as a RAII-style lock mechanism. It typically acquires
+    the state machine lock upon construction and releases it upon destruction, ensuring
+    that group state changes are atomic. Developers should be aware that this guard
+    is usually a temporary object meant to be used in local scopes for protecting
+    critical sections of group management code.
+  warnings: Improper use of GroupStateGuard can lead to deadlocks or inconsistent
+    group states. Always ensure that guards are properly scoped and that nested guards
+    do not create lock ordering issues. The guard should not be held across asynchronous
+    operations as this may cause unexpected behavior in concurrent environments.
+  related:
+  - GroupStateMachine::GetState
+  - GroupStateMachine::SetState
+  - GroupStateMachine::TransitionTo
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T17:04:02.277273'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

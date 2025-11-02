@@ -1,0 +1,51 @@
+api:
+  class: InstanceLock
+  method: InstanceLock
+  signature: void InstanceLock::InstanceLock(InstanceLock && param0)
+documentation:
+  brief: Moves an InstanceLock object, transferring its resources to a new instance.
+  description: The InstanceLock::InstanceLock constructor is a move constructor that
+    transfers ownership of resources from a temporary InstanceLock object to the newly
+    constructed instance. This allows for efficient resource management when creating
+    new InstanceLock objects from temporary or rvalue instances. The move constructor
+    ensures that the source object's resources are properly transferred while leaving
+    the source in a valid but unspecified state. In the context of TrinityCore's instance
+    management system, this constructor is used to efficiently handle InstanceLock
+    objects during object creation and assignment operations, particularly when dealing
+    with temporary lock objects created during instance entry or exit scenarios.
+  parameters:
+  - name: param0
+    description: An rvalue reference to an InstanceLock object whose resources will
+      be moved to this new instance. The source object will be left in a valid but
+      unspecified state after the move operation.
+  returns: null
+  examples:
+  - title: Move Constructing an InstanceLock
+    code: 'InstanceLock lock1 = InstanceLock();
+
+      InstanceLock lock2 = std::move(lock1); // Moves resources from lock1 to lock2'
+    language: cpp
+  - title: Using Move Constructor in Instance Management
+    code: "class InstanceManager {\npublic:\n    InstanceLock CreateLock() {\n   \
+      \     return InstanceLock(); // Return temporary object\n    }\n    \n    void\
+      \ ProcessInstance() {\n        InstanceLock lock = CreateLock(); // Move constructor\
+      \ used here\n        // Use lock...\n    }\n};"
+    language: cpp
+  notes: This is a move constructor, not a copy constructor. It's designed to avoid
+    expensive deep copies by transferring ownership of resources. The source object
+    after a move operation should not be used in any way that would access its previous
+    state. In TrinityCore's context, this move semantics are particularly important
+    for performance when handling instance locks during player entry/exit operations.
+  warnings: After calling this move constructor, the source InstanceLock object should
+    not be used as its state becomes undefined. Attempting to use the moved-from object
+    may result in undefined behavior or crashes. Always ensure that the source object
+    is not accessed after a move operation.
+  related:
+  - InstanceLock::operator=
+  - InstanceLock::~InstanceLock
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T16:58:22.911675'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

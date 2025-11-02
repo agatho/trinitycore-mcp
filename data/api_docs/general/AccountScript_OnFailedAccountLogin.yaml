@@ -1,0 +1,58 @@
+api:
+  class: AccountScript
+  method: OnFailedAccountLogin
+  signature: void AccountScript::OnFailedAccountLogin(uint32 accountId)
+documentation:
+  brief: Called when an account login attempt fails, allowing scripts to handle failed
+    authentication events.
+  description: The OnFailedAccountLogin method is a virtual callback function in the
+    AccountScript class that is invoked whenever a player attempts to log into their
+    account but the login fails. This method provides a way for custom scripts or
+    modules to react to failed login attempts, such as logging the event, implementing
+    rate limiting, or triggering security measures. The method receives the account
+    ID of the user whose login attempt failed, enabling developers to track specific
+    accounts or implement account-specific logic. It is part of TrinityCore's scripting
+    system that allows extensions to modify or enhance core game behavior without
+    modifying the base code.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account for which the login attempt
+      failed. This value corresponds to the 'id' field in the 'account' table of the
+      TrinityCore database.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    void OnFailedAccountLogin(uint32\
+      \ accountId) override\n    {\n        // Log failed login attempt\n        TC_LOG_INFO(\"\
+      account.login\", \"Failed login attempt for account ID: %u\", accountId);\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Rate Limiting
+    code: "class SecureAccountScript : public AccountScript\n{\npublic:\n    void\
+      \ OnFailedAccountLogin(uint32 accountId) override\n    {\n        // Increment\
+      \ failed login counter for this account\n        static std::map<uint32, int>\
+      \ failedAttempts;\n        ++failedAttempts[accountId];\n        \n        //\
+      \ If too many attempts, lock the account\n        if (failedAttempts[accountId]\
+      \ >= 5)\n        {\n            TC_LOG_WARNING(\"account.login\", \"Account\
+      \ ID %u locked due to multiple failed login attempts.\", accountId);\n     \
+      \       // Implement account lock logic here\n        }\n    }\n};"
+    language: cpp
+  notes: This method is executed on the main game thread and should avoid heavy computations
+    or blocking operations. It is recommended to use asynchronous logging or other
+    non-blocking mechanisms for performance reasons. The account ID passed to this
+    method is guaranteed to be valid at the time of the call, but it may not correspond
+    to an active account if the account was deleted or disabled.
+  warnings: Do not perform database operations directly within this callback without
+    proper locking or asynchronous handling, as it could lead to deadlocks or performance
+    degradation. Avoid implementing logic that might block the login flow, as this
+    can affect server responsiveness and user experience.
+  related:
+  - OnAccountLogin
+  - OnAccountLogout
+  - OnFailedUsernameLogin
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:33:17.738154'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

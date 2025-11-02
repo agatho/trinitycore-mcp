@@ -1,0 +1,44 @@
+api:
+  class: AccountScript
+  method: OnEmailChange
+  signature: void AccountScript::OnEmailChange(uint32 accountId)
+documentation:
+  brief: Called when an account's email address is changed in the database
+  description: This method is invoked by the TrinityCore framework whenever an account's
+    email address is updated within the database. It serves as a hook for script developers
+    to execute custom logic, such as sending notifications, logging changes, or updating
+    related systems when an account's email is modified. The method receives the unique
+    account identifier as a parameter and is typically used in AccountScript subclasses
+    to implement custom behavior upon email change events.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account whose email address has been
+      changed. This value corresponds to the 'id' field in the 'account' table of
+      the auth database.
+  returns: null
+  examples:
+  - title: Basic Account Email Change Handler
+    code: "class MyAccountScript : public AccountScript\n{\npublic:\n    MyAccountScript()\
+      \ : AccountScript(\"MyAccountScript\") {}\n\n    void OnEmailChange(uint32 accountId)\
+      \ override\n    {\n        // Log the email change event\n        sLog->outString(\"\
+      Email changed for account ID: %u\", accountId);\n        \n        // Optionally\
+      \ send a notification to the player\n        if (Player* player = sObjectAccessor->FindPlayerByLowGUID(accountId))\n\
+      \        {\n            player->SendNotification(\"Your email has been updated.\"\
+      );\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the database update context, so any heavy operations
+    should be deferred to avoid blocking the database transaction. It's recommended
+    to use asynchronous processing for time-consuming tasks.
+  warnings: Do not perform database operations directly within this method unless
+    absolutely necessary, as it may cause deadlocks or performance degradation. Avoid
+    modifying account data in this callback without proper synchronization.
+  related:
+  - OnAccountLogin
+  - OnAccountLogout
+  - OnPasswordChange
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:33:41.386068'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

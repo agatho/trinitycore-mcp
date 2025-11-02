@@ -1,0 +1,58 @@
+api:
+  class: ActionPriorityHelper
+  method: CreateEmergencyHeal
+  signature: PrioritizedAction ActionPriorityHelper::CreateEmergencyHeal(uint32 spellId,
+    int * target, float healthPct)
+documentation:
+  brief: Creates a prioritized emergency heal action for the AI to execute when target
+    health falls below specified threshold.
+  description: The CreateEmergencyHeal method generates a PrioritizedAction object
+    that represents an immediate healing spell cast. This action is designed to be
+    used in AI decision-making logic where urgent healing is required, typically triggered
+    when a target's health drops below a defined percentage. The method takes a spell
+    ID for the heal spell to cast, a pointer to the target unit, and a health percentage
+    threshold. When executed, this action will prioritize casting the specified heal
+    spell on the target if their current health is below the given threshold.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the healing spell to be cast. Must correspond
+      to a valid spell in the game database.
+  - name: target
+    description: Pointer to the target unit that will receive the heal. Can be NULL
+      if no specific target is provided, though this may result in invalid action
+      creation.
+  - name: healthPct
+    description: The health percentage threshold below which the emergency heal should
+      be triggered. Valid range is typically 0-100, where 0 means any health below
+      maximum and 100 means only when dead.
+  returns: A PrioritizedAction object representing the emergency heal action. This
+    object contains all necessary information for the AI to execute the heal at the
+    appropriate priority level.
+  examples:
+  - title: Basic Emergency Heal Creation
+    code: PrioritizedAction action = helper.CreateEmergencyHeal(44032, &targetUnit,
+      30.0f); // Cast Greater Heal when target's health drops below 30%
+    language: cpp
+  - title: Emergency Heal with Null Target Check
+    code: "if (targetUnit != nullptr)\n{\n    PrioritizedAction action = helper.CreateEmergencyHeal(2060,\
+      \ &targetUnit, 25.0f); // Cast Heal when target's health drops below 25%\n}"
+    language: cpp
+  notes: This method is primarily used within AI behavior trees to dynamically generate
+    emergency healing actions based on current combat conditions. The returned PrioritizedAction
+    should be added to the AI's action queue for execution. Performance-wise, this
+    method does not perform heavy operations but creates a lightweight action wrapper
+    that stores the spell information and target reference.
+  warnings: Ensure that the provided spellId corresponds to an actual healing spell
+    in the game database; otherwise, the resulting action may fail during execution.
+    Also, passing NULL as the target pointer will likely result in an invalid action
+    being created, which could cause runtime errors if executed.
+  related:
+  - CreatePriorityAction
+  - GetTargetHealthPercentage
+  - IsUnitInCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T14:23:33.254751'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
