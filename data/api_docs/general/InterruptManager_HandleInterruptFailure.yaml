@@ -1,0 +1,61 @@
+api:
+  class: InterruptManager
+  method: HandleInterruptFailure
+  signature: bool InterruptManager::HandleInterruptFailure(const InterruptTarget &
+    target, const InterruptResult & result)
+documentation:
+  brief: Handles the failure of an interrupt attempt on a target, returning true if
+    the interruption was successfully processed.
+  description: The HandleInterruptFailure method is responsible for processing the
+    outcome when an attempted interrupt on a target fails. This typically occurs during
+    combat when a spell or ability is interrupted by external factors such as movement,
+    damage, or other game mechanics. The method evaluates the provided interrupt target
+    and result to determine if the failure should be handled gracefully, potentially
+    logging the event or triggering related callbacks. It's part of the core interrupt
+    management system in TrinityCore that ensures proper handling of failed interrupt
+    attempts within the game's combat framework.
+  parameters:
+  - name: target
+    description: The target object that was being interrupted. This represents the
+      creature, player, or unit whose interrupt attempt failed.
+  - name: result
+    description: The result of the interrupt attempt which contains information about
+      why the interruption failed. Includes details like the reason code and associated
+      data.
+  returns: Returns true if the interrupt failure was successfully processed and handled,
+    otherwise returns false indicating that the failure could not be properly managed
+    or that further action is required.
+  examples:
+  - title: Basic usage of HandleInterruptFailure
+    code: "if (!interruptManager.HandleInterruptFailure(target, result)) {\n    //\
+      \ Log error or handle unprocessed interrupt failure\n    sLog->outError(\"Failed\
+      \ to process interrupt failure for target %u\", target.GetGUID().GetCounter());\n\
+      }"
+    language: cpp
+  - title: Advanced usage with logging and debugging
+    code: "InterruptResult result = InterruptResult(InterruptReason::MOVEMENT, 100);\n\
+      InterruptTarget target = InterruptTarget(player, SpellSchoolMask::SPELL_SCHOOL_MASK_ALL);\n\
+      bool success = interruptManager.HandleInterruptFailure(target, result);\nif\
+      \ (!success) {\n    sLog->outDebug(LOG_FILTER_SPELLS_EFFECTS, \"Interrupt failure\
+      \ not handled for player %s\", player.GetName().c_str());\n    // Potentially\
+      \ trigger additional cleanup or notification logic\n}"
+    language: cpp
+  notes: This method is typically invoked internally by the core interrupt system
+    and should not usually be called directly from external modules. The method assumes
+    that both target and result parameters are valid and properly initialized. It
+    may perform internal state updates or logging depending on the implementation
+    details of the InterruptManager class.
+  warnings: Improper handling of this method's return value can lead to inconsistent
+    interrupt states in combat. Ensure that all possible failure cases are accounted
+    for when implementing custom interrupt logic. Calling this method with invalid
+    parameters may result in undefined behavior.
+  related:
+  - HandleInterruptSuccess
+  - ProcessInterrupt
+  - IsInterruptible
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T05:05:57.061954'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

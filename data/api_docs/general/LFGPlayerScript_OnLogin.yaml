@@ -1,0 +1,50 @@
+api:
+  class: LFGPlayerScript
+  method: OnLogin
+  signature: void LFGPlayerScript::OnLogin(Player * player, bool loginFirst)
+documentation:
+  brief: Handles player login events for LFG (Looking for Group) functionality
+  description: The OnLogin method is a callback function invoked when a player successfully
+    logs into the game world. This method is part of the LFGPlayerScript class and
+    is responsible for initializing or updating LFG-related data structures for the
+    player upon login. It ensures that the player's LFG state is properly synchronized
+    with the server, including any queued groups, role preferences, and dungeon eligibility.
+    The method is automatically called by the TrinityCore framework during the login
+    process and does not require manual invocation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who has logged
+      in. This parameter provides access to all player-specific data and methods.
+  - name: loginFirst
+    description: Boolean flag indicating whether this is the first time the player
+      is logging in during their current session. If true, the player is logging in
+      for the first time; if false, they are reconnecting after a disconnect.
+  returns: null
+  examples:
+  - title: Basic implementation of OnLogin
+    code: "class MyLFGScript : public LFGPlayerScript\n{\npublic:\n    MyLFGScript()\
+      \ : LFGPlayerScript(\"MyLFGScript\") {}\n\n    void OnLogin(Player* player,\
+      \ bool loginFirst) override\n    {\n        // Log the player's login event\n\
+      \        if (loginFirst)\n            sLog->outString(\"Player %s logged in\
+      \ for the first time.\", player->GetName().c_str());\n        else\n       \
+      \     sLog->outString(\"Player %s reconnected.\", player->GetName().c_str());\n\
+      \n        // Initialize LFG data\n        player->GetSession()->SendLFGUpdateStatus();\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the login sequence, so it should avoid heavy
+    operations that could delay the login process. The 'loginFirst' parameter helps
+    distinguish between initial login and reconnection scenarios for proper state
+    management.
+  warnings: Do not modify core player data structures directly in this callback without
+    proper locking mechanisms. Ensure all LFG-related updates are thread-safe if accessed
+    from multiple contexts.
+  related:
+  - OnLogout
+  - OnLfgJoin
+  - OnLfgLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:03:42.613644'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

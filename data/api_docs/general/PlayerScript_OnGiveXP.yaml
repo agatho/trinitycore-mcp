@@ -1,0 +1,61 @@
+api:
+  class: PlayerScript
+  method: OnGiveXP
+  signature: void PlayerScript::OnGiveXP(Player * player, uint32 & amount, Unit *
+    victim)
+documentation:
+  brief: Modifies the experience points awarded to a player when they gain XP from
+    killing a unit.
+  description: The OnGiveXP method is a virtual callback function in the PlayerScript
+    class that allows custom scripts to modify the amount of experience points a player
+    receives when they kill a unit. This method is invoked during the XP awarding
+    process, providing an opportunity for developers to adjust XP values based on
+    various conditions such as player level, difficulty, or custom game rules. The
+    method takes a reference to the XP amount, allowing it to be modified in-place.
+    It's commonly used in custom expansions or modifications where standard XP calculations
+    need to be overridden or enhanced.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is receiving the experience points.
+      This parameter cannot be null during normal operation.
+  - name: amount
+    description: Reference to a uint32 value representing the base amount of experience
+      points to be awarded. This value can be modified by the script to increase or
+      decrease the XP given.
+  - name: victim
+    description: Pointer to the Unit object that was killed, which provides the basis
+      for XP calculation. Can be null if the victim is not a Unit (e.g., in special
+      cases).
+  returns: null
+  examples:
+  - title: Increase XP for low-level players
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnGiveXP(Player*\
+      \ player, uint32& amount, Unit* victim) override\n    {\n        if (player->GetLevel()\
+      \ < 10)\n            amount *= 2; // Double XP for low-level players\n    }\n\
+      };"
+    language: cpp
+  - title: Reduce XP for killing rare mobs
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnGiveXP(Player*\
+      \ player, uint32& amount, Unit* victim) override\n    {\n        if (victim\
+      \ && victim->GetEntry() == 12345) // Example rare mob entry\n            amount\
+      \ = static_cast<uint32>(amount * 0.7f); // Reduce XP by 30%\n    }\n};"
+    language: cpp
+  notes: This method is called during the normal XP awarding flow, so modifying the
+    'amount' parameter directly affects how much experience the player will actually
+    receive. Be cautious when altering XP amounts as it may impact game balance and
+    progression. The method can be called multiple times per kill if there are multiple
+    PlayerScripts registered.
+  warnings: Modifying the XP amount too drastically can unbalance gameplay. Ensure
+    that any XP adjustments are carefully tested to avoid making the game too easy
+    or too hard. Also, be aware that modifying the 'amount' parameter will affect
+    all subsequent processing in the XP awarding chain.
+  related:
+  - OnPlayerLevelUp
+  - OnGainXP
+  - OnPlayerKill
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:20:03.129247'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

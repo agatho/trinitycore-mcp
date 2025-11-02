@@ -1,0 +1,57 @@
+api:
+  class: LFGMgr
+  method: operator=
+  signature: LFGMgr & LFGMgr::operator=(LFGMgr && right)
+documentation:
+  brief: Moves the contents of another LFGMgr instance to this instance, leaving the
+    source in a valid but unspecified state.
+  description: The move assignment operator for LFGMgr transfers all managed resources
+    and state from the right-hand side LFGMgr object to the current object. This operation
+    is typically used to efficiently transfer ownership of internal data structures
+    without performing deep copies. The source object is left in a valid state, but
+    its contents are unspecified after the move. In the context of TrinityCore's LFG
+    (Looking for Group) system, this operator allows efficient management of LFG data
+    structures when reassigning or swapping LFG managers during gameplay operations
+    such as player group creation, queue management, or system cleanup. This is a
+    standard C++ move semantics implementation that avoids unnecessary copying of
+    potentially large internal data structures.
+  parameters: []
+  returns: A reference to the current LFGMgr object after the move assignment has
+    been completed, enabling chained assignments if needed.
+  examples:
+  - title: Basic Move Assignment
+    code: 'LFGMgr manager1;
+
+      LFGMgr manager2 = std::move(manager1); // Uses move constructor
+
+      // Or alternatively:
+
+      manager1 = std::move(manager2); // Uses move assignment operator'
+    language: cpp
+  - title: Usage in LFG System Context
+    code: "void UpdateLFGManager(LFGMgr& oldManager, LFGMgr& newManager) {\n    //\
+      \ Transfer LFG data from old manager to new manager\n    oldManager = std::move(newManager);\n\
+      \    // newManager is now in a valid but unspecified state\n}"
+    language: cpp
+  notes: This operator implements move semantics which is crucial for performance
+    optimization in systems managing large data structures like LFG queues. The moved-from
+    object remains in a valid state but its contents are undefined. This is particularly
+    important for LFGMgr as it likely manages complex internal state including player
+    queues, group information, and matchmaking data that should be efficiently transferred
+    rather than copied.
+  warnings: Never use the moved-from object after a move assignment unless explicitly
+    documented otherwise. The source object's state becomes unspecified but remains
+    valid, so accessing its members without proper initialization can lead to undefined
+    behavior. In LFG context, ensure that no active player queues or group operations
+    are disrupted by this operation.
+  related:
+  - LFGMgr::LFGMgr()
+  - LFGMgr::LFGMgr(LFGMgr&&)
+  - LFGMgr::operator=
+  - LFGMgr::Clear()
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:05:20.151904'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: MapManager
+  method: FindMap
+  signature: Map * MapManager::FindMap(uint32 mapId, uint32 instanceId) const
+documentation:
+  brief: Retrieves a pointer to a specific map instance based on its ID and instance
+    ID.
+  description: The FindMap method is used to locate and return a pointer to a Map
+    object within the TrinityCore server's map management system. It takes a map identifier
+    (mapId) and an instance identifier (instanceId) as parameters, allowing for retrieval
+    of both world maps and instance maps. The method performs a lookup in the internal
+    map container, returning a valid Map pointer if the requested map exists, or nullptr
+    if it does not. This functionality is essential for managing game world instances,
+    player movement between different map zones, and ensuring that objects are correctly
+    placed within their respective map contexts.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map type (e.g., 0 for Eastern Kingdoms,
+      1 for Kalimdor). This corresponds to the map entry in the database.
+  - name: instanceId
+    description: The instance identifier used to distinguish between different instances
+      of the same map. For world maps, this is typically 0; for instances like dungeons
+      or raids, this value identifies the specific instance.
+  returns: A pointer to a Map object if the specified map and instance exist in the
+    system. Returns nullptr if no matching map instance could be found.
+  examples:
+  - title: Find a World Map
+    code: "Map* worldMap = sMapMgr->FindMap(0, 0); // Find the Eastern Kingdoms map\n\
+      if (worldMap)\n{\n    // Use the map object\n    sLog->outString(\"Found world\
+      \ map: %u\", worldMap->GetId());\n}"
+    language: cpp
+  - title: Find a Dungeon Instance
+    code: "uint32 dungeonId = 1234; // Example dungeon ID\nuint32 instanceId = 5678;\
+      \ // Example instance ID\nMap* dungeonMap = sMapMgr->FindMap(dungeonId, instanceId);\n\
+      if (dungeonMap)\n{\n    // Process the dungeon instance map\n    sLog->outString(\"\
+      Found dungeon instance %u for map %u\", instanceId, dungeonId);\n}\nelse\n{\n\
+      \    sLog->outError(\"Failed to find dungeon instance %u for map %u\", instanceId,\
+      \ dungeonId);\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread that has access
+    to the MapManager singleton. The returned Map pointer should not be deleted or
+    modified directly; it's managed by the MapManager system. Performance-wise, this
+    lookup is generally fast due to internal hash maps used for indexing.
+  warnings: Be cautious when using the returned Map pointer as it may become invalid
+    if the map instance is destroyed (e.g., after a player leaves an instance). Always
+    check for null returns before using the pointer to avoid crashes. Also note that
+    this method does not create new maps; it only retrieves existing ones.
+  related:
+  - CreateMap
+  - GetMap
+  - RemoveMap
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T03:25:17.554412'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

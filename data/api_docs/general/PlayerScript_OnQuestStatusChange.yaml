@@ -1,0 +1,65 @@
+api:
+  class: PlayerScript
+  method: OnQuestStatusChange
+  signature: void PlayerScript::OnQuestStatusChange(Player * player, uint32 questId)
+documentation:
+  brief: Called when a player's quest status changes, allowing scripts to respond
+    to quest progress updates.
+  description: The OnQuestStatusChange method is a virtual callback function in the
+    PlayerScript class that is invoked whenever a player's quest status undergoes
+    modification within the TrinityCore framework. This event occurs during various
+    quest-related activities such as accepting a quest, completing a quest, or failing
+    a quest. The method provides developers with an opportunity to implement custom
+    logic in response to these changes, such as triggering rewards, updating player
+    data, or modifying game state. It serves as a key integration point for quest-based
+    scripting and is part of the broader player event system that enables dynamic
+    gameplay modifications.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose quest status has changed. This
+      parameter represents the specific player instance affected by the quest update.
+  - name: questId
+    description: The unique identifier of the quest that triggered the status change.
+      This value corresponds to the Quest ID defined in the database or quest templates.
+  returns: null
+  examples:
+  - title: Basic Quest Status Change Handler
+    code: "class MyQuestScript : public PlayerScript\n{\npublic:\n    MyQuestScript()\
+      \ : PlayerScript(\"MyQuestScript\") {}\n\n    void OnQuestStatusChange(Player*\
+      \ player, uint32 questId) override\n    {\n        // Log when a player completes\
+      \ a quest\n        if (player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)\n\
+      \        {\n            sLog->outString(\"Player %s completed quest %u\", player->GetName().c_str(),\
+      \ questId);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Quest Status Change with Reward Logic
+    code: "class RewardQuestScript : public PlayerScript\n{\npublic:\n    RewardQuestScript()\
+      \ : PlayerScript(\"RewardQuestScript\") {}\n\n    void OnQuestStatusChange(Player*\
+      \ player, uint32 questId) override\n    {\n        // Check if quest is completed\
+      \ and grant rewards\n        if (player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)\n\
+      \        {\n            // Grant experience reward\n            player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n            \n            // Send custom message\n            player->SendNotification(\"\
+      Quest completed! You have been rewarded.\");\n            \n            // Update\
+      \ achievement or other game state\n            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST,\
+      \ questId);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core quest management system and should
+    not be used to modify quest status directly. The player object passed in may be
+    in an inconsistent state during certain transitions, so it's recommended to use
+    GetQuestStatus() to verify current status before taking action. Performance-wise,
+    this method should avoid heavy operations or database queries as it can be called
+    frequently during quest progression.
+  warnings: Avoid modifying the player's quest status within this callback as it may
+    lead to infinite recursion or inconsistent state. Be cautious when performing
+    operations that could affect other players or systems, since this method is part
+    of the core event handling system and may be invoked in sensitive contexts.
+  related:
+  - OnQuestAccept
+  - OnQuestComplete
+  - OnQuestFailed
+  - OnQuestReward
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:13:25.030431'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

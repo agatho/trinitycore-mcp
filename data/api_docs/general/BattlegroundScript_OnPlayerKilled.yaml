@@ -1,0 +1,55 @@
+api:
+  class: BattlegroundScript
+  method: OnPlayerKilled
+  signature: void BattlegroundScript::OnPlayerKilled(int * victim, int * killer)
+documentation:
+  brief: Handles the event when a player is killed during a battleground, providing
+    access to victim and killer information.
+  description: The OnPlayerKilled method is a virtual callback function in the BattlegroundScript
+    class that is invoked whenever a player dies during a battleground match. This
+    method allows custom scripts to execute logic when a kill occurs, such as awarding
+    rewards, updating statistics, or modifying game state. The method receives pointers
+    to the victim and killer player IDs, which can be used to retrieve detailed player
+    information from the game world. It is typically used in battleground script extensions
+    to implement custom gameplay mechanics or balance adjustments specific to that
+    battleground type.
+  parameters:
+  - name: victim
+    description: Pointer to the integer ID of the player who was killed. This value
+      can be used to retrieve the victim's player object from the game world.
+  - name: killer
+    description: Pointer to the integer ID of the player who performed the kill. This
+      value can be used to retrieve the killer's player object from the game world.
+  returns: null
+  examples:
+  - title: Basic implementation of OnPlayerKilled
+    code: "class MyBattlegroundScript : public BattlegroundScript\n{\npublic:\n  \
+      \  void OnPlayerKilled(int* victim, int* killer) override\n    {\n        //\
+      \ Retrieve player objects using IDs\n        Player* victimPlayer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *victim));\n        Player* killerPlayer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *killer));\n        \n        if (killerPlayer && victimPlayer)\n        {\n\
+      \            // Award experience or items to the killer\n            killerPlayer->ModifyMoney(1000);\n\
+      \            // Log the kill\n            LOG_INFO(\"bg\", \"Player {} killed\
+      \ player {} in battleground.\", killerPlayer->GetName(), victimPlayer->GetName());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the battleground's core game loop, so any
+    heavy computations should be avoided to prevent performance degradation. The IDs
+    passed are guaranteed to be valid player GUIDs at the time of call, but the actual
+    player objects may not yet be fully initialized or could have been disconnected
+    by the time this function executes.
+  warnings: Do not assume that the player objects referenced by the IDs will still
+    exist when this method completes execution. Players may disconnect between the
+    time of death and when this callback is processed. Additionally, modifying game
+    state directly within this method can cause race conditions if not properly synchronized
+    with the main game thread.
+  related:
+  - OnPlayerJoined
+  - OnPlayerLeft
+  - Update
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T12:26:17.469558'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

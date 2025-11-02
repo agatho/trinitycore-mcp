@@ -1,0 +1,63 @@
+api:
+  class: ItemScript
+  method: OnRemove
+  signature: bool ItemScript::OnRemove(Player * player, Item * item)
+documentation:
+  brief: Executes custom logic when an item is removed from a player's inventory
+  description: The OnRemove method is a callback function in the ItemScript class
+    that gets invoked whenever an item is removed from a player's inventory. This
+    method allows developers to implement custom behavior such as triggering events,
+    modifying player stats, or performing cleanup operations when items are taken
+    out of inventory. The method is called during various inventory management scenarios
+    including item destruction, trading, selling, or moving items between containers.
+    It provides a way to extend the default item handling behavior in TrinityCore.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory the item belongs to.
+      This parameter represents the player who owns the item being removed.
+  - name: item
+    description: Pointer to the Item object that is being removed from the player's
+      inventory. This represents the specific item instance being processed.
+  returns: Returns true if the removal should proceed normally, or false to prevent
+    the item from being removed from the inventory. Returning false can be used to
+    block certain items from being removed under specific conditions.
+  examples:
+  - title: Basic Item Removal Prevention
+    code: "class MyItemScript : public ItemScript\n{\npublic:\n    MyItemScript()\
+      \ : ItemScript(\"MyItemScript\") {}\n\n    bool OnRemove(Player* player, Item*\
+      \ item) override\n    {\n        // Prevent removal of quest items\n       \
+      \ if (item->GetTemplate()->Flags & ITEM_FLAG_IS_QUEST_ITEM)\n            return\
+      \ false; // Block removal\n        \n        return true; // Allow normal removal\n\
+      \    }\n};"
+    language: cpp
+  - title: Custom Logic on Item Removal
+    code: "class EquipmentItemScript : public ItemScript\n{\npublic:\n    EquipmentItemScript()\
+      \ : ItemScript(\"EquipmentItemScript\") {}\n\n    bool OnRemove(Player* player,\
+      \ Item* item) override\n    {\n        // Trigger custom event when equipment\
+      \ is removed\n        if (item->GetTemplate()->Class == ITEM_CLASS_ARMOR ||\
+      \ \n            item->GetTemplate()->Class == ITEM_CLASS_WEAPON)\n        {\n\
+      \            // Apply stat changes or send message\n            player->SendNotification(\"\
+      Item removed from inventory\");\n            // Perform additional logic here\n\
+      \        }\n        \n        return true; // Allow removal\n    }\n};"
+    language: cpp
+  notes: This method is called during item removal operations, which can occur in
+    multiple contexts such as player logout, item trading, selling to vendors, or
+    item destruction. The method should be implemented carefully to avoid performance
+    issues or infinite recursion. It's important to note that the item may still be
+    valid when this method is called, but it will no longer be in the player's inventory.
+  warnings: Do not modify the player or item objects directly within this callback
+    without proper locking mechanisms. Returning false from this method prevents the
+    item from being removed, which might cause unexpected behavior if not handled
+    properly. Be cautious with complex logic that could block legitimate item removal
+    operations.
+  related:
+  - OnCreate
+  - OnUse
+  - OnRemove
+  - OnAdd
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:36:10.965096'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

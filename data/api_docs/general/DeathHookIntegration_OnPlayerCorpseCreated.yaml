@@ -1,0 +1,62 @@
+api:
+  class: DeathHookIntegration
+  method: OnPlayerCorpseCreated
+  signature: void DeathHookIntegration::OnPlayerCorpseCreated(Player * player, Corpse
+    * corpse)
+documentation:
+  brief: Invoked when a player's corpse is created after death, allowing integration
+    with custom death handling logic.
+  description: The OnPlayerCorpseCreated method is a callback function within the
+    DeathHookIntegration class that executes whenever a player's corpse is generated
+    following their death in the game world. This method provides developers with
+    an opportunity to implement custom behaviors such as logging, quest progression
+    updates, or modifications to loot distribution when a player dies. The method
+    receives references to both the player who died and the newly created corpse object,
+    enabling access to player state and corpse properties at the moment of death.
+    It is typically used in conjunction with other death-related hooks to create comprehensive
+    death mechanics or integrate with third-party systems like PvP tracking or raid
+    management tools.
+  parameters:
+  - name: player
+    description: A pointer to the Player object representing the player who has just
+      died and whose corpse was created. This parameter is guaranteed to be valid
+      during execution.
+  - name: corpse
+    description: A pointer to the Corpse object that was created as a result of the
+      player's death. This represents the physical remains of the player in the game
+      world, containing information such as position, loot, and time until decay.
+  returns: null
+  examples:
+  - title: Basic Logging of Player Death
+    code: "#include \"Player.h\"\n#include \"Corpse.h\"\n\nvoid DeathHookIntegration::OnPlayerCorpseCreated(Player*\
+      \ player, Corpse* corpse)\n{\n    sLog->outString(\"Player %s died at position\
+      \ (%f, %f, %f)\",\n        player->GetName().c_str(),\n        player->GetPositionX(),\n\
+      \        player->GetPositionY(),\n        player->GetPositionZ());\n}"
+    language: cpp
+  - title: Custom Loot Handling on Corpse Creation
+    code: "#include \"Player.h\"\n#include \"Corpse.h\"\n#include \"ObjectMgr.h\"\n\
+      \nvoid DeathHookIntegration::OnPlayerCorpseCreated(Player* player, Corpse* corpse)\n\
+      {\n    // Add a custom item to the corpse loot\n    if (ItemTemplate const*\
+      \ proto = sObjectMgr->GetItemTemplate(12345))\n    {\n        Item* item = Item::CreateItem(12345,\
+      \ 1);\n        if (item)\n        {\n            item->SetOwnerGuid(player->GetGUID());\n\
+      \            corpse->AddLootItem(item);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is executed synchronously within the game's main thread, so any
+    heavy computations or database operations should be handled carefully to avoid
+    performance degradation. The player and corpse objects passed into this method
+    are valid only during execution of the callback; do not store pointers beyond
+    the scope of this function unless you have ensured their lifetime.
+  warnings: Do not modify the player object directly from this hook, as it may lead
+    to undefined behavior or crashes. Also, be cautious when modifying the corpse
+    itself, especially with regard to loot distribution, as improper handling can
+    cause items to disappear or duplicate.
+  related:
+  - OnPlayerDeath
+  - OnCorpseDestroy
+  - OnPlayerLeaveWorld
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:48:21.872555'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

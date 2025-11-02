@@ -1,0 +1,56 @@
+api:
+  class: Guild
+  method: _GetItem
+  signature: Item * Guild::_GetItem(uint8 tabId, uint8 slotId) const
+documentation:
+  brief: Retrieves a guild item from a specified tab and slot.
+  description: The _GetItem method retrieves an Item object from a specific tab and
+    slot within the guild's inventory system. This method is typically used internally
+    by the Guild class to access items stored in guild banks. It takes tabId and slotId
+    as parameters to identify the exact location of the item within the guild's bank
+    structure. The method returns a pointer to the Item object if found, or nullptr
+    if no item exists at the specified location.
+  parameters:
+  - name: tabId
+    description: The identifier of the guild bank tab from which to retrieve the item.
+      Valid values are typically 0-6 for the main tabs, with additional tabs potentially
+      available depending on guild level and upgrades.
+  - name: slotId
+    description: The slot identifier within the specified tab. Slot IDs are usually
+      0-63, representing individual slots in a guild bank tab. Each tab can hold up
+      to 64 items.
+  returns: Returns a pointer to an Item object if an item exists at the specified
+    tab and slot. Returns nullptr if no item is present at the given location or if
+    invalid parameters are provided.
+  examples:
+  - title: Retrieve an item from guild bank
+    code: "Item* item = guild->_GetItem(0, 5);\nif (item)\n{\n    // Process the retrieved\
+      \ item\n    sLog->outString(\"Found item: %s\", item->GetTemplate()->Name.c_str());\n\
+      }\nelse\n{\n    sLog->outString(\"No item found at slot 5 in tab 0\");\n}"
+    language: cpp
+  - title: Iterate through all guild bank slots
+    code: "for (uint8 tab = 0; tab < MAX_GUILD_BANK_TABS; ++tab)\n{\n    for (uint8\
+      \ slot = 0; slot < GUILD_BANK_MAX_SLOTS_PER_TAB; ++slot)\n    {\n        Item*\
+      \ item = guild->_GetItem(tab, slot);\n        if (item)\n        {\n       \
+      \     // Process item\n            sLog->outString(\"Tab %u Slot %u: %s\", tab,\
+      \ slot, item->GetTemplate()->Name.c_str());\n        }\n    }\n}"
+    language: cpp
+  notes: This method is intended for internal use within the Guild class and should
+    not be called directly from outside the class. The method performs bounds checking
+    on tabId and slotId parameters, but assumes valid input if called externally.
+    It's recommended to validate parameters before calling this method in external
+    code.
+  warnings: Calling this method with invalid tabId or slotId values may result in
+    undefined behavior or memory access violations. Always ensure that tabId is between
+    0 and MAX_GUILD_BANK_TABS-1, and slotId is between 0 and GUILD_BANK_MAX_SLOTS_PER_TAB-1.
+    This method does not perform any locking or thread safety checks.
+  related:
+  - _SetItem
+  - _AddItem
+  - _RemoveItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:35:20.146689'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

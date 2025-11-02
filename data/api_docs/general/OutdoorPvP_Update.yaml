@@ -1,0 +1,54 @@
+api:
+  class: OutdoorPvP
+  method: Update
+  signature: void OutdoorPvP::Update(int diff)
+documentation:
+  brief: Updates the OutdoorPvP system state based on the elapsed time delta.
+  description: The Update method is responsible for processing and maintaining the
+    state of an OutdoorPvP zone. It is called periodically by the game loop with a
+    time delta parameter representing the milliseconds that have passed since the
+    last update. This method handles various game mechanics such as capturing territories,
+    updating player scores, managing respawn timers, and triggering events based on
+    the current state of the outdoor PvP area. The method ensures that the OutdoorPvP
+    zone remains synchronized with the overall game world state and responds appropriately
+    to player actions within the zone.
+  parameters:
+  - name: diff
+    description: The time delta in milliseconds since the last update call. This value
+      is used to determine how much time has passed and affects the timing of various
+      outdoor PvP events and state changes.
+  returns: null
+  examples:
+  - title: Basic Update Call
+    code: "void GameWorld::UpdateOutdoorPvP(int diff)\n{\n    for (auto& pvp : sOutdoorPvPMgr->GetAllOutdoorPvP())\n\
+      \    {\n        pvp->Update(diff);\n    }\n}"
+    language: cpp
+  - title: Custom OutdoorPvP Update Handler
+    code: "class MyOutdoorPvP : public OutdoorPvP\n{\npublic:\n    void Update(int\
+      \ diff) override\n    {\n        // Call base class update first\n        OutdoorPvP::Update(diff);\n\
+      \        \n        // Custom logic for this specific PvP zone\n        m_captureTimer\
+      \ -= diff;\n        if (m_captureTimer <= 0)\n        {\n            HandleCaptureEvent();\n\
+      \            m_captureTimer = 30000; // Reset timer to 30 seconds\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is typically called from the main game loop and should not be
+    invoked directly by other systems unless specifically required. The time delta
+    parameter (diff) is crucial for maintaining consistent timing of events across
+    different server performance conditions. The method may perform various operations
+    including checking player presence, updating territorial control, managing quest
+    states, and triggering zone-specific events.
+  warnings: Do not call this method with negative or extremely large values for diff
+    as it may cause unexpected behavior in time-sensitive outdoor PvP mechanics. Avoid
+    modifying the OutdoorPvP state directly within this method unless you understand
+    the full implications on synchronization and event handling.
+  related:
+  - GetAreaId
+  - HandlePlayerEnter
+  - HandlePlayerLeave
+  - SendUpdateWorldState
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:14:34.221452'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

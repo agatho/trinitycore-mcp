@@ -1,0 +1,58 @@
+api:
+  class: GameObjectAI
+  method: Destroyed
+  signature: void GameObjectAI::Destroyed(WorldObject * param0, uint32 param1)
+documentation:
+  brief: Handles the destruction event of a game object, notifying the AI system when
+    an object is being destroyed.
+  description: The Destroyed method is invoked by the TrinityCore framework when a
+    GameObject is about to be removed from the world, typically during cleanup or
+    destruction. This method allows the GameObject's AI implementation to perform
+    any necessary finalization tasks before the object is fully destroyed. It serves
+    as a callback mechanism for AI logic that needs to respond to the imminent removal
+    of the game object. The method is part of the GameObjectAI base class and can
+    be overridden by custom AI implementations to provide specific behavior during
+    destruction events.
+  parameters:
+  - name: param0
+    description: Pointer to the WorldObject instance that is being destroyed. This
+      represents the GameObject itself.
+  - name: param1
+    description: A uint32 value representing the destruction type or reason code.
+      The specific meaning depends on how the object was destroyed (e.g., player interaction,
+      spell effect, or system cleanup).
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyGameObjectAI : public GameObjectAI {\npublic:\n    void Destroyed(WorldObject*\
+      \ obj, uint32 reason) override {\n        // Perform cleanup tasks\n       \
+      \ if (obj)\n            sLog->outString(\"GameObject %u is being destroyed (reason:\
+      \ %u)\", obj->GetEntry(), reason);\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with State Cleanup
+    code: "class DoorGameObjectAI : public GameObjectAI {\npublic:\n    void Destroyed(WorldObject*\
+      \ obj, uint32 reason) override {\n        // Cancel any ongoing animations or\
+      \ effects\n        if (m_doorState != DOOR_STATE_CLOSED)\n            CloseDoor();\n\
+      \        \n        // Notify related systems about destruction\n        if (m_linkedTrigger)\n\
+      \            m_linkedTrigger->SetGoState(GO_STATE_ACTIVE);\n        \n     \
+      \   // Log destruction event\n        sLog->outString(\"Door %u destroyed due\
+      \ to reason %u\", obj->GetEntry(), reason);\n    }\n};"
+    language: cpp
+  notes: This method is called during the GameObject's destruction phase, so it should
+    not perform operations that require the object to be fully functional. It's recommended
+    to avoid modifying the object's state in a way that would cause further destruction
+    or recursion. The 'reason' parameter can be used to determine why the object was
+    destroyed for specialized handling.
+  warnings: Do not attempt to access or modify the GameObject after calling this method,
+    as it may lead to undefined behavior. Be cautious with any cleanup logic that
+    might trigger additional destruction events or cause memory corruption.
+  related:
+  - UpdateAI
+  - Initialize
+  - OnReset
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T07:16:56.915299'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

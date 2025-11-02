@@ -1,0 +1,62 @@
+api:
+  class: FormationManager
+  method: CalculateFormationPosition
+  signature: int FormationManager::CalculateFormationPosition(FormationRole role,
+    uint32 memberIndex)
+documentation:
+  brief: Calculates and returns the formation position offset for a given role and
+    member index within a group formation.
+  description: The CalculateFormationPosition method determines the relative positional
+    offset for a specific group member based on their formation role and index within
+    the group. This method is typically used in World of Warcraft's TrinityCore to
+    manage NPC or player formations, such as when creatures move in a coordinated
+    pattern during encounters. The method takes into account both the role (e.g.,
+    leader, flanker, rear) and the position of the member within that role's sequence
+    to compute an appropriate offset. It is commonly used by the FormationManager
+    class to calculate where each unit should be positioned relative to a formation
+    center or leader.
+  parameters:
+  - name: role
+    description: The FormationRole enum value indicating the position type of this
+      member within the formation (e.g., LEADER, FLANKER_LEFT, FLANKER_RIGHT, etc.).
+  - name: memberIndex
+    description: The zero-based index of this member within their assigned role group.
+      For example, if there are three flankers, memberIndex would be 0, 1, or 2.
+  returns: Returns an integer representing the calculated formation offset for the
+    specified role and member index. The value typically corresponds to a coordinate
+    offset (x, y) in the formation plane, with positive values indicating movement
+    away from the center and negative values towards it.
+  examples:
+  - title: Basic Usage Example
+    code: 'FormationManager manager;
+
+      int position = manager.CalculateFormationPosition(FormationRole::FLANKER_LEFT,
+      1);
+
+      // Returns offset for second left flanker in formation'
+    language: cpp
+  - title: Usage in Group Movement Context
+    code: "void MoveGroupInFormation(Unit* leader, std::vector<Unit*>& members) {\n\
+      \    for (size_t i = 0; i < members.size(); ++i) {\n        int offset = formationManager.CalculateFormationPosition(FormationRole::FLANKER_RIGHT,\
+      \ i);\n        // Apply offset to member's position relative to leader\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method assumes that the FormationManager has been properly initialized
+    with formation data. The returned value should be interpreted in the context of
+    a coordinate system defined by the calling code, typically relative to a formation
+    center or leader unit. Performance is generally negligible as this is a lookup-based
+    calculation.
+  warnings: Ensure that the FormationRole enum values are valid and that memberIndex
+    does not exceed the number of expected members for that role; otherwise, unexpected
+    behavior may occur. This method should not be called outside of a valid formation
+    context where formation data has been loaded.
+  related:
+  - GetFormationPosition
+  - SetFormationData
+  - ValidateFormation
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T07:37:39.739737'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

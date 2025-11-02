@@ -1,0 +1,55 @@
+api:
+  class: BotDatabasePool
+  method: ExecuteAsyncNoResult
+  signature: void BotDatabasePool::ExecuteAsyncNoResult(int * stmt, uint32 timeoutMs)
+documentation:
+  brief: Executes a database statement asynchronously without returning results.
+  description: The ExecuteAsyncNoResult method submits a database statement for asynchronous
+    execution within the BotDatabasePool. This method is designed to perform write
+    operations or queries that do not require result set retrieval, such as INSERT,
+    UPDATE, DELETE, or other DDL statements. The operation runs in the background
+    using the pool's thread pool, preventing blocking of the calling thread. The timeoutMs
+    parameter specifies how long to wait for the statement to complete before timing
+    out. This method is typically used in World of Warcraft TrinityCore environments
+    where database interactions must be handled efficiently to maintain server performance
+    and responsiveness.
+  parameters:
+  - name: stmt
+    description: Pointer to an integer representing the prepared database statement
+      identifier. This should reference a valid prepared statement created through
+      the database pool's preparation mechanism.
+  - name: timeoutMs
+    description: Timeout value in milliseconds for the asynchronous execution. If
+      the operation does not complete within this time, it will be cancelled or marked
+      as failed depending on implementation details.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'int statementId = botDatabasePool.PrepareStatement("INSERT INTO bot_data
+      (bot_id, data) VALUES (?, ?)");
+
+      botDatabasePool.ExecuteAsyncNoResult(&statementId, 5000);'
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "int statementId = botDatabasePool.PrepareStatement(\"UPDATE bot_config\
+      \ SET last_seen = NOW() WHERE bot_id = ?\");\nif (statementId != -1)\n{\n  \
+      \  botDatabasePool.ExecuteAsyncNoResult(&statementId, 3000);\n}\nelse\n{\n \
+      \   // Handle prepare statement error\n}"
+    language: cpp
+  notes: This method is non-blocking and uses a thread pool for execution. It's important
+    to ensure that the statement identifier passed is valid and prepared before calling
+    this method. The timeout value should be chosen carefully to balance responsiveness
+    with resource usage.
+  warnings: Do not pass null pointers for the stmt parameter; this will likely cause
+    undefined behavior or crashes. Ensure that all database statements are properly
+    prepared before attempting asynchronous execution.
+  related:
+  - PrepareStatement
+  - ExecuteAsyncResult
+  - ExecuteSyncNoResult
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:47:54.755874'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

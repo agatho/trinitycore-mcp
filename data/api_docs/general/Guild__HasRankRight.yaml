@@ -1,0 +1,56 @@
+api:
+  class: Guild
+  method: _HasRankRight
+  signature: bool Guild::_HasRankRight(const Player * player, uint32 right) const
+documentation:
+  brief: Checks if a player has the specified guild rank right.
+  description: The _HasRankRight method determines whether a given player possesses
+    a specific guild permission right. This internal method is used by the Guild class
+    to enforce access control based on player ranks within the guild structure. It
+    evaluates the player's current rank and compares it against the required permission
+    right, returning true if the player has sufficient privileges or false otherwise.
+    The method relies on the player's rank information stored in the guild membership
+    data.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose rank rights are being checked.
+      Must not be null.
+  - name: right
+    description: The guild permission right identifier to check against the player's
+      rank. This is typically a predefined constant representing specific guild permissions
+      like RANK_RIGHT_GUILD_BANK_VIEW, RANK_RIGHT_GUILD_BANK_DEPOSIT, etc.
+  returns: Returns true if the player has the specified guild rank right; otherwise
+    returns false. A return value of false indicates either that the player does not
+    have sufficient rank privileges or that the player is not a member of any guild.
+  examples:
+  - title: Basic usage to check guild bank deposit rights
+    code: "if (guild->_HasRankRight(player, RANK_RIGHT_GUILD_BANK_DEPOSIT)) {\n  \
+      \  // Player can deposit items into guild bank\n    SendGuildBankDepositResult(player,\
+      \ SUCCESS);\n} else {\n    // Player cannot deposit items\n    SendGuildBankDepositResult(player,\
+      \ FAILED);\n}"
+    language: cpp
+  - title: Checking multiple rank rights in sequence
+    code: "bool canViewBank = guild->_HasRankRight(player, RANK_RIGHT_GUILD_BANK_VIEW);\n\
+      bool canWithdraw = guild->_HasRankRight(player, RANK_RIGHT_GUILD_BANK_WITHDRAW);\n\
+      bool canModify = guild->_HasRankRight(player, RANK_RIGHT_GUILD_BANK_MODIFY);\n\
+      \nif (canViewBank && canWithdraw && canModify) {\n    // Player has full bank\
+      \ access\n}"
+    language: cpp
+  notes: This is an internal method and should not be called directly from outside
+    the Guild class. The method assumes that the player object passed in is valid
+    and properly initialized with guild membership data. Performance-wise, this method
+    performs a simple lookup operation based on rank ID comparison.
+  warnings: Ensure that the player parameter is not null before calling this method
+    to avoid undefined behavior. The right parameter should be a valid guild permission
+    constant; invalid values may lead to unexpected results or crashes.
+  related:
+  - GetMemberByGuid
+  - GetRankRights
+  - HasRankRight
+  - IsMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:29:58.923194'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

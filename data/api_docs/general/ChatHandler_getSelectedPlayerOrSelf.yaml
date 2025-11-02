@@ -1,0 +1,53 @@
+api:
+  class: ChatHandler
+  method: getSelectedPlayerOrSelf
+  signature: Player * ChatHandler::getSelectedPlayerOrSelf()
+documentation:
+  brief: Returns the currently selected player target or the player themselves if
+    no target is selected.
+  description: The getSelectedPlayerOrSelf method retrieves the Player object of the
+    currently selected unit in the chat handler's context. If a player is selected
+    as a target, that player is returned. If no target is selected, it returns the
+    ChatHandler's associated player (the command issuer). This method is commonly
+    used in game master commands where actions may be performed on either the selected
+    target or the command issuer if no target exists. The method ensures safe access
+    to player objects within the context of command execution and handles the necessary
+    null checks internally.
+  parameters: []
+  returns: A pointer to a Player object representing either the currently selected
+    target player or the ChatHandler's associated player. Returns nullptr if neither
+    a valid target nor the handler's player can be resolved.
+  examples:
+  - title: Basic usage in a GM command
+    code: "void HandleTeleportCommand(ChatHandler* handler, const char* args)\n{\n\
+      \    Player* target = handler->getSelectedPlayerOrSelf();\n    if (!target)\n\
+      \        return;\n    \n    // Teleport the target (or self) to a location\n\
+      \    target->TeleportTo(1, 0, 0, 0, 0);\n}"
+    language: cpp
+  - title: Using selected player in a reward command
+    code: "void HandleRewardCommand(ChatHandler* handler, const char* args)\n{\n \
+      \   Player* target = handler->getSelectedPlayerOrSelf();\n    if (!target)\n\
+      \        return;\n    \n    // Give gold to the target\n    target->ModifyMoney(10000);\n\
+      \    handler->PSendSysMessage(\"Gave 10g to %s.\", target->GetName().c_str());\n\
+      }"
+    language: cpp
+  notes: This method is typically used in game master (GM) commands where the command
+    behavior depends on whether a player target is selected. The returned Player pointer
+    is guaranteed to be valid within the context of the command execution, but callers
+    should still check for null returns. This method internally accesses the handler's
+    current selection state and may involve thread safety considerations if used outside
+    of command contexts.
+  warnings: Using this method in asynchronous or multi-threaded contexts without proper
+    synchronization can lead to race conditions. Always verify that the returned Player
+    pointer is not null before dereferencing it, especially when dealing with player
+    targets that might have been disconnected or deleted.
+  related:
+  - getSelectedPlayer
+  - getSelectedUnit
+  - GetSession
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:55:26.205411'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: BotActionManager
+  method: QueueAction
+  signature: void BotActionManager::QueueAction(BotAction && action)
+documentation:
+  brief: Queues a bot action for execution by the bot action manager.
+  description: The QueueAction method adds a BotAction object to the internal queue
+    of actions that will be processed by the bot action manager. This method is typically
+    used to schedule bot behaviors such as movement, casting spells, or interacting
+    with objects. The queued actions are executed in the order they were added, subject
+    to any priority or timing constraints imposed by the bot's AI system. The method
+    accepts an rvalue reference to a BotAction, allowing for efficient move semantics
+    and avoiding unnecessary copies of the action object.
+  parameters:
+  - name: action
+    description: An rvalue reference to a BotAction object that represents the action
+      to be queued for execution by the bot. This parameter is moved into the internal
+      queue, so the original object should not be used after calling this method.
+  returns: null
+  examples:
+  - title: Queuing a simple movement action
+    code: 'BotAction moveAction;
+
+      moveAction.SetType(BotActionType::MOVE_TO_POSITION);
+
+      moveAction.SetTargetPosition({100.0f, 200.0f, 300.0f});
+
+      botActionManager.QueueAction(std::move(moveAction));'
+    language: cpp
+  - title: Queuing a spell casting action
+    code: 'BotAction castAction;
+
+      castAction.SetType(BotActionType::CAST_SPELL);
+
+      castAction.SetSpellId(12345);
+
+      castAction.SetTargetGuid(PlayerGuid);
+
+      botActionManager.QueueAction(std::move(castAction));'
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread. The actual
+    execution of queued actions occurs on the main game thread during the next update
+    cycle. The BotAction object passed to this method should not be modified after
+    being queued, as it may lead to undefined behavior.
+  warnings: Passing an invalid or uninitialized BotAction object to this method can
+    result in undefined behavior. Ensure that the BotAction has been properly initialized
+    before queuing it. Also, note that this method does not validate whether the action
+    is valid for the current bot state; validation occurs during execution.
+  related:
+  - ExecuteQueuedActions
+  - ClearQueue
+  - GetActionCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:57:58.017903'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

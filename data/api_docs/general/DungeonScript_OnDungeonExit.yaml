@@ -1,0 +1,52 @@
+api:
+  class: DungeonScript
+  method: OnDungeonExit
+  signature: void DungeonScript::OnDungeonExit(int * player)
+documentation:
+  brief: Handles the event when a player exits a dungeon instance
+  description: The OnDungeonExit method is invoked when a player leaves a dungeon
+    instance, either through completion, abandonment, or forced removal. This method
+    serves as a callback for custom dungeon logic and can be overridden in script
+    implementations to perform actions such as rewarding players, resetting quest
+    states, or cleaning up temporary data. The method is typically called during the
+    player's transition out of the dungeon environment.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID) within the dungeon instance
+  returns: void
+  examples:
+  - title: Basic implementation of OnDungeonExit
+    code: "class MyDungeonScript : public DungeonScript {\npublic:\n    void OnDungeonExit(int*\
+      \ player) override {\n        // Log the exit event\n        sLog->outString(\"\
+      Player %d has exited the dungeon.\", *player);\n        // Perform cleanup or\
+      \ reward logic here\n    }\n};"
+    language: cpp
+  - title: Advanced implementation with player data handling
+    code: "class MyDungeonScript : public DungeonScript {\npublic:\n    void OnDungeonExit(int*\
+      \ player) override {\n        if (!player) return;\n        \n        // Retrieve\
+      \ player object\n        Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *player));\n        if (!plr) return;\n        \n        // Award completion\
+      \ bonus\n        plr->AddItem(ITEM_ID_COMPLETION_BONUS, 1);\n        \n    \
+      \    // Reset quest state\n        plr->CompleteQuest(QUEST_ID_DUNGEON);\n \
+      \       \n        // Send message to player\n        plr->SendNotification(\"\
+      Dungeon completed! You have been rewarded.\");\n    }\n};"
+    language: cpp
+  notes: This method is part of the DungeonScript class and should only be overridden
+    in custom scripts. The player parameter represents a GUID, not a direct pointer
+    to a Player object. Ensure proper null checking before dereferencing the player
+    pointer.
+  warnings: Improper handling of the player GUID may lead to invalid memory access
+    or incorrect behavior. Always verify that the player exists before attempting
+    to perform operations on them. This method is called during dungeon exit, so any
+    long-running operations might block the player's exit process.
+  related:
+  - OnDungeonEnter
+  - OnDungeonComplete
+  - OnDungeonFail
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:15:43.283737'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

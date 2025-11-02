@@ -1,0 +1,51 @@
+api:
+  class: LineOfSightManager
+  method: EstimateTimeUntilClearPath
+  signature: float LineOfSightManager::EstimateTimeUntilClearPath(Unit * target)
+documentation:
+  brief: Estimates the time until a clear line of sight path becomes available to
+    the target unit.
+  description: The EstimateTimeUntilClearPath method calculates and returns an estimated
+    time value, in seconds, representing how long it will take for a unit to have
+    a clear line of sight to a specified target. This estimation is typically used
+    by AI systems to determine when it's safe or optimal to perform actions that require
+    unobstructed vision, such as casting spells or moving toward the target. The method
+    relies on internal pathfinding and obstruction data to compute this value. It
+    does not directly modify any state but rather provides a predictive measure based
+    on current environmental conditions and unit positioning.
+  parameters: []
+  returns: A float value representing the estimated time in seconds until a clear
+    path to the target becomes available. Returns 0.0f if a clear path is already
+    present or if the target is invalid.
+  examples:
+  - title: Basic usage for AI decision making
+    code: "if (float timeToClear = lineOfSightManager->EstimateTimeUntilClearPath(targetUnit);\
+      \ timeToClear <= 2.0f)\n{\n    // Proceed with spell casting or movement\n \
+      \   unit->CastSpell(targetUnit, SPELL_FIREBALL);\n}"
+    language: cpp
+  - title: Using estimated time to delay actions
+    code: "float estimatedTime = lineOfSightManager->EstimateTimeUntilClearPath(targetUnit);\n\
+      if (estimatedTime > 0.0f)\n{\n    // Delay action by the estimated time\n  \
+      \  unit->AddDelayedEvent([unit, targetUnit]() {\n        if (unit->IsInFront(targetUnit))\n\
+      \            unit->CastSpell(targetUnit, SPELL_FROST_NOVA);\n    }, static_cast<uint32>(estimatedTime\
+      \ * 1000));\n}"
+    language: cpp
+  notes: This method is primarily used in AI pathing and decision-making logic. It
+    may not account for dynamic obstacles that appear after the initial calculation,
+    such as moving enemies or environmental changes. The estimation assumes static
+    environment properties and does not consider unit movement during the wait time.
+  warnings: The returned value is an estimate and should not be treated as a precise
+    timing value. It's best used for non-critical AI decisions where slight inaccuracies
+    are acceptable. Do not use this for critical actions that require exact timing,
+    such as dodging or precise spell casting.
+  related:
+  - IsInFront
+  - HasLineOfSight
+  - GetDistanceTo
+  - CalculatePath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T03:40:32.165210'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

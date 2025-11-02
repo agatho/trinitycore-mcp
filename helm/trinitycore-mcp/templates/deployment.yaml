@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "trinitycore-mcp.fullname" . }}
+  labels:
+    {{- include "trinitycore-mcp.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- include "trinitycore-mcp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "trinitycore-mcp.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "trinitycore-mcp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: mcp
+          containerPort: {{ .Values.config.mcpPort }}
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.config.nodeEnv | quote }}
+        - name: MCP_PORT
+          value: {{ .Values.config.mcpPort | quote }}
+        - name: MCP_HOST
+          value: {{ .Values.config.mcpHost | quote }}
+        - name: TRINITY_DB_HOST
+          value: {{ .Values.database.host | quote }}
+        - name: TRINITY_DB_PORT
+          value: {{ .Values.database.port | quote }}
+        - name: TRINITY_DB_NAME
+          value: {{ .Values.database.name | quote }}
+        - name: TRINITY_DB_USER
+          value: {{ .Values.database.user | quote }}
+        - name: TRINITY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "trinitycore-mcp.fullname" . }}-secrets
+              key: database-password
+        {{- if .Values.redis.enabled }}
+        - name: REDIS_HOST
+          value: {{ .Values.redis.host | quote }}
+        - name: REDIS_PORT
+          value: {{ .Values.redis.port | quote }}
+        {{- end }}
+        - name: HA_ENABLED
+          value: {{ .Values.config.haEnabled | quote }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+        {{- if .Values.persistence.logs.enabled }}
+        - name: logs
+          mountPath: /app/logs
+        {{- end }}
+        {{- if .Values.persistence.data.enabled }}
+        - name: data
+          mountPath: /app/data
+          readOnly: true
+        {{- end }}
+      volumes:
+      {{- if .Values.persistence.logs.enabled }}
+      - name: logs
+        persistentVolumeClaim:
+          claimName: {{ include "trinitycore-mcp.fullname" . }}-logs
+      {{- end }}
+      {{- if .Values.persistence.data.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ include "trinitycore-mcp.fullname" . }}-data
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

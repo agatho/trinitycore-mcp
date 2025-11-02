@@ -1,0 +1,66 @@
+api:
+  class: PlayerScript
+  method: OnDuelEnd
+  signature: void PlayerScript::OnDuelEnd(Player * winner, Player * loser, DuelCompleteType
+    type)
+documentation:
+  brief: Called when a duel ends between two players, providing information about
+    the winner, loser, and duel outcome type.
+  description: The OnDuelEnd method is a callback function in the PlayerScript class
+    that gets invoked whenever a duel concludes in World of Warcraft's TrinityCore
+    server. This method provides developers with the ability to execute custom logic
+    when a duel finishes, including access to both the winning and losing player objects
+    as well as the type of duel completion. The duel outcome can indicate whether
+    it was completed normally, aborted due to disconnection, or ended through other
+    game mechanics. This hook is particularly useful for implementing custom duel
+    rewards, tracking player statistics, or modifying game behavior during or after
+    duels.
+  parameters:
+  - name: winner
+    description: Pointer to the Player object representing the winner of the duel.
+      May be nullptr if no valid winner exists (e.g., in case of a draw or disconnection).
+  - name: loser
+    description: Pointer to the Player object representing the loser of the duel.
+      May be nullptr if no valid loser exists (e.g., in case of a draw or disconnection).
+  - name: type
+    description: Enumeration value indicating the type of duel completion. Possible
+      values include DUEL_WINNER, DUEL_LOSER, DUEL_FINISHED, DUEL_ABORTED, etc., depending
+      on how the duel concluded.
+  returns: null
+  examples:
+  - title: Basic example logging duel results
+    code: "class MyDuelScript : public PlayerScript\n{\npublic:\n    MyDuelScript()\
+      \ : PlayerScript(\"MyDuelScript\") {}\n\n    void OnDuelEnd(Player* winner,\
+      \ Player* loser, DuelCompleteType type) override\n    {\n        if (winner\
+      \ && loser)\n        {\n            LOG_INFO(\"server\", \"Duel ended: {} defeated\
+      \ {} with type {}\", \n                winner->GetName(), loser->GetName(),\
+      \ type);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced example awarding duel rewards
+    code: "class DuelRewardScript : public PlayerScript\n{\npublic:\n    DuelRewardScript()\
+      \ : PlayerScript(\"DuelRewardScript\") {}\n\n    void OnDuelEnd(Player* winner,\
+      \ Player* loser, DuelCompleteType type) override\n    {\n        if (!winner\
+      \ || !loser || type != DUEL_WINNER)\n            return;\n\n        // Award\
+      \ gold to the winner\n        uint32 goldReward = 1000;\n        winner->ModifyMoney(goldReward);\n\
+      \n        // Send a system message\n        ChatHandler(winner->GetSession()).SendSysMessage(\"\
+      You have won the duel and received 1000 gold!\");\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core duel management system, so it's
+    important to avoid performing operations that might interfere with the duel state
+    or session handling. The winner and loser pointers are guaranteed to be valid
+    during execution unless the duel was aborted or failed due to invalid conditions.
+  warnings: Do not attempt to modify player states or perform actions that could cause
+    race conditions or crashes within this method. Avoid calling methods that may
+    recursively trigger duel events, as this can lead to stack overflow or undefined
+    behavior.
+  related:
+  - OnDuelStart
+  - OnDuelReady
+  - OnDuelWin
+  - OnDuelLoss
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:22:57.936688'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

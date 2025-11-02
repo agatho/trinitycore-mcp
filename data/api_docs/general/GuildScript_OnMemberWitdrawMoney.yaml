@@ -1,0 +1,66 @@
+api:
+  class: GuildScript
+  method: OnMemberWitdrawMoney
+  signature: void GuildScript::OnMemberWitdrawMoney(Guild * guild, Player * player,
+    uint64 & amount, bool isRepair)
+documentation:
+  brief: Called when a guild member withdraws money from the guild bank.
+  description: This method is invoked whenever a player attempts to withdraw gold
+    from the guild bank. It provides an opportunity for custom scripts to intercept
+    and modify the withdrawal process, including adjusting the amount withdrawn or
+    preventing the transaction altogether. The method is part of the GuildScript system
+    which allows developers to extend or override default guild behaviors in TrinityCore.
+    This hook occurs before the actual money transfer takes place, allowing modifications
+    to the withdrawal amount or cancellation of the operation.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object from which the money is being withdrawn
+  - name: player
+    description: Pointer to the Player object attempting to withdraw the money
+  - name: amount
+    description: Reference to the amount of money (in copper) that will be withdrawn.
+      This value can be modified to change the actual withdrawal amount
+  - name: isRepair
+    description: Boolean flag indicating whether the withdrawal is for repair costs
+      (true) or general guild fund usage (false)
+  returns: null
+  examples:
+  - title: Basic Guild Money Withdrawal Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    MyGuildScript()\
+      \ : GuildScript(\"MyGuildScript\") {}\n\n    void OnMemberWitdrawMoney(Guild*\
+      \ guild, Player* player, uint64& amount, bool isRepair) override\n    {\n  \
+      \      // Limit maximum withdrawal to 100 gold\n        if (amount > 100 * GOLD)\n\
+      \            amount = 100 * GOLD;\n        \n        // Log the withdrawal\n\
+      \        LOG_INFO(\"guild\", \"Player {} withdrew {} copper from guild {}\"\
+      , player->GetName(), amount, guild->GetName());\n    }\n};"
+    language: cpp
+  - title: Prevent Withdrawals for Specific Players
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    MyGuildScript()\
+      \ : GuildScript(\"MyGuildScript\") {}\n\n    void OnMemberWitdrawMoney(Guild*\
+      \ guild, Player* player, uint64& amount, bool isRepair) override\n    {\n  \
+      \      // Prevent withdrawal for players with a specific rank\n        if (player->GetGuildRank()\
+      \ == 5)\n        {\n            // Cancel the withdrawal by setting amount to\
+      \ 0\n            amount = 0;\n            ChatHandler(player->GetSession()).SendSysMessage(\"\
+      You cannot withdraw money from the guild bank.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the guild bank withdrawal process, before any
+    modifications are made to the player's inventory or guild funds. The amount parameter
+    is passed by reference, allowing scripts to modify the withdrawal amount. Be cautious
+    when modifying the amount as it directly affects the transaction. This hook is
+    only triggered for valid guild members attempting to withdraw money from their
+    guild bank.
+  warnings: Modifying the 'amount' parameter can lead to unexpected behavior if not
+    handled carefully. Setting the amount to zero effectively cancels the withdrawal,
+    but this should be done with consideration of player experience and game balance.
+    Ensure that any modifications to the withdrawal amount are consistent with your
+    server's economy and guild rules.
+  related:
+  - OnMemberDepositMoney
+  - OnEvent
+  - OnDisband
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:51:45.785088'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

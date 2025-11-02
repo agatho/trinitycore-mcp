@@ -1,0 +1,54 @@
+api:
+  class: Battlefield
+  method: SpawnCreature
+  signature: Creature * Battlefield::SpawnCreature(int entry, const Position & pos)
+documentation:
+  brief: Spawns a creature with the specified entry ID at the given position within
+    the battlefield.
+  description: The SpawnCreature method creates and spawns a new Creature object within
+    the Battlefield environment at the specified location. This method is typically
+    used during battlefield initialization or dynamic event handling to add NPCs or
+    game entities to the battlefield. The creature will be associated with the battlefield's
+    instance and will follow standard creature behavior patterns including AI, respawning,
+    and interaction with players. The method returns a pointer to the newly created
+    Creature object which can be used for further manipulation or reference.
+  parameters:
+  - name: entry
+    description: The creature entry ID that defines what type of creature to spawn.
+      This corresponds to the creature_template.entry field in the database.
+  - name: pos
+    description: The Position structure specifying the x, y, z coordinates and orientation
+      where the creature should be spawned.
+  returns: A pointer to the newly created Creature object if successful, or nullptr
+    if the spawn operation failed due to invalid parameters or resource constraints.
+  examples:
+  - title: Basic Creature Spawn
+    code: "Creature* npc = battlefield->SpawnCreature(12345, Position(100.0f, 200.0f,\
+      \ 30.0f, 0.0f));\nif (npc)\n{\n    // Successfully spawned creature\n    npc->SetFaction(14);\n\
+      }"
+    language: cpp
+  - title: Spawn Multiple Creatures in Loop
+    code: "for (int i = 0; i < 5; ++i)\n{\n    Position spawnPos;\n    spawnPos.Relocate(100.0f\
+      \ + i * 10.0f, 200.0f, 30.0f, 0.0f);\n    Creature* mob = battlefield->SpawnCreature(12346,\
+      \ spawnPos);\n    if (mob)\n        mob->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);\n\
+      }"
+    language: cpp
+  notes: This method creates a creature that is bound to the battlefield's instance.
+    The creature will automatically be removed when the battlefield ends or is destroyed.
+    Ensure that the entry ID corresponds to a valid creature template in the database,
+    otherwise the spawn may fail silently. The Position object should contain valid
+    coordinates within the battlefield boundaries.
+  warnings: Do not call this method from within a creature's AI update loop as it
+    might cause stack overflow or undefined behavior. Avoid spawning too many creatures
+    simultaneously which could lead to performance degradation or memory issues. Always
+    check for null return values before using the returned Creature pointer.
+  related:
+  - DespawnCreature
+  - GetCreature
+  - SpawnGameObject
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T12:50:25.701676'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

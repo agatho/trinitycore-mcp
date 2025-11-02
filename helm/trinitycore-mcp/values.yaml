@@ -1,0 +1,193 @@
+# Default values for trinitycore-mcp Helm chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Replica count for the MCP server
+replicaCount: 3
+
+image:
+  repository: ghcr.io/agatho/trinitycore-mcp
+  pullPolicy: IfNotPresent
+  tag: "1.4.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 3000
+  metricsPort: 9090
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: mcp.trinitycore.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: trinitycore-mcp-tls
+      hosts:
+        - mcp.trinitycore.local
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - trinitycore-mcp
+        topologyKey: kubernetes.io/hostname
+
+# MCP Server configuration
+config:
+  nodeEnv: production
+  mcpPort: 3000
+  mcpHost: "0.0.0.0"
+  logLevel: info
+  logFormat: json
+  haEnabled: true
+  maxWorkers: 4
+  cacheEnabled: true
+  cacheTTL: 3600
+
+# Database configuration
+database:
+  host: mysql-primary
+  port: 3306
+  name: world
+  user: trinity
+  # Password should be set in secrets
+
+# Redis configuration
+redis:
+  enabled: true
+  host: redis
+  port: 6379
+
+# Persistent Volume Claims
+persistence:
+  logs:
+    enabled: true
+    accessMode: ReadWriteMany
+    size: 10Gi
+    storageClass: standard
+  data:
+    enabled: true
+    accessMode: ReadOnlyMany
+    size: 20Gi
+    storageClass: standard
+
+# Health checks
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: mcp
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /ready
+    port: mcp
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Update strategy
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+# MySQL configuration
+mysql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: fast-ssd
+  replica:
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: fast-ssd
+
+# Monitoring
+monitoring:
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+
+# Network policies
+networkPolicy:
+  enabled: false
+  policyTypes:
+    - Ingress
+    - Egress

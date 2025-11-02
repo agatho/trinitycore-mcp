@@ -1,0 +1,78 @@
+api:
+  class: GuildScript
+  method: OnRemoveMember
+  signature: void GuildScript::OnRemoveMember(Guild * guild, int guid, bool isDisbanding,
+    bool isKicked)
+documentation:
+  brief: Called when a member is removed from a guild, providing context about the
+    removal reason and guild state.
+  description: The OnRemoveMember method is a virtual callback function in the GuildScript
+    class that is invoked whenever a player is removed from a guild. This event occurs
+    during various guild management actions such as kicking a member, leaving the
+    guild voluntarily, or when the guild is disbanded. The method provides detailed
+    information about the removal through its parameters, allowing script implementations
+    to react accordingly. It serves as an important hook for custom guild behaviors,
+    logging, or integration with external systems that need to track guild membership
+    changes.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object from which the member is being removed.
+      This represents the guild context in which the removal occurs.
+  - name: guid
+    description: The global unique identifier (GUID) of the player who was removed
+      from the guild. Used to identify the specific member affected by this event.
+  - name: isDisbanding
+    description: Boolean flag indicating whether the guild is being disbanded. If
+      true, this removal is part of the disbanding process and not a direct kick or
+      leave action.
+  - name: isKicked
+    description: Boolean flag indicating whether the member was explicitly kicked
+      from the guild. If true, the removal was initiated by another guild member with
+      appropriate permissions.
+  returns: null
+  examples:
+  - title: Basic Guild Member Removal Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnRemoveMember(Guild*\
+      \ guild, uint32 guid, bool isDisbanding, bool isKicked) override\n    {\n  \
+      \      // Log the removal event\n        if (isKicked)\n            sLog->outString(\"\
+      Player with GUID %u was kicked from guild %s.\", guid, guild->GetName().c_str());\n\
+      \        else if (isDisbanding)\n            sLog->outString(\"Player with GUID\
+      \ %u left guild %s during disbanding.\", guid, guild->GetName().c_str());\n\
+      \        else\n            sLog->outString(\"Player with GUID %u left guild\
+      \ %s voluntarily.\", guid, guild->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Advanced Guild Member Removal with Custom Logic
+    code: "class AdvancedGuildScript : public GuildScript\n{\npublic:\n    void OnRemoveMember(Guild*\
+      \ guild, uint32 guid, bool isDisbanding, bool isKicked) override\n    {\n  \
+      \      // Notify other players in the guild about the removal\n        if (!isDisbanding)\n\
+      \        {\n            std::string message = \"Player \";\n            if (isKicked)\n\
+      \                message += \"was kicked from the guild\";\n            else\n\
+      \                message += \"left the guild\";\n            \n            //\
+      \ Broadcast message to all online members\n            for (auto const& itr\
+      \ : guild->GetMembers())\n            {\n                if (Player* player\
+      \ = ObjectAccessor::FindPlayer(itr.GetGUID()))\n                    ChatHandler(player->GetSession()).SendSysMessage(message);\n\
+      \            }\n        }\n        \n        // Perform cleanup or logging\n\
+      \        sLog->outString(\"Guild %s: Member GUID %u removed (kicked=%d, disbanding=%d)\"\
+      ,\n                        guild->GetName().c_str(), guid, isKicked, isDisbanding);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and must be overridden
+    in a derived class to provide custom behavior. The guild pointer may be invalid
+    if the guild has already been destroyed, so implementations should verify validity
+    before using it. This event fires after the actual removal has occurred but before
+    any final cleanup.
+  warnings: Do not attempt to modify the guild state directly within this callback
+    as it may lead to undefined behavior or crashes. Be cautious when accessing player
+    objects through GUIDs since they might no longer be in memory. Avoid performing
+    heavy operations inside this method as it's called synchronously during gameplay.
+  related:
+  - OnAddMember
+  - OnCreate
+  - OnDisband
+  - OnMemberWitdrawMoney
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T05:51:04.917217'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,69 @@
+api:
+  class: DB2Manager
+  method: EvaluateExpectedStat
+  signature: float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32
+    level, int32 expansion, uint32 contentTuningId, int unitClass, int32 mythicPlusMilestoneSeason)
+    const
+documentation:
+  brief: Calculates and returns the expected stat value for a given character level,
+    expansion, content tuning, class, and mythic+ milestone season.
+  description: The EvaluateExpectedStat method computes a normalized stat value based
+    on multiple game parameters including character level, expansion ID, content tuning
+    identifier, unit class, and mythic+ milestone season. This function is primarily
+    used in World of Warcraft's stat calculation systems to determine how stats scale
+    with progression. The method utilizes internal DB2 data tables to retrieve scaling
+    factors and applies them according to the provided parameters. It ensures that
+    stat values are consistent across different game versions and content updates
+    by referencing structured data rather than hardcoded values.
+  parameters:
+  - name: stat
+    description: The expected stat type to evaluate, defined by ExpectedStatType enumeration.
+      This specifies which stat (e.g., health, attack power, spell power) is being
+      calculated.
+  - name: level
+    description: The character level used for stat calculation. Must be a valid player
+      level within the game's supported range.
+  - name: expansion
+    description: The expansion ID that determines which set of scaling rules to apply.
+      Negative values may indicate special cases or legacy content.
+  - name: contentTuningId
+    description: Identifier for the specific content tuning, used to adjust stat scaling
+      for different zones, instances, or game modes.
+  - name: unitClass
+    description: The class of the unit (player or NPC) for which the stat is being
+      calculated. Negative values may indicate special classes or NPCs.
+  - name: mythicPlusMilestoneSeason
+    description: The mythic+ milestone season identifier, used to adjust stat scaling
+      for seasonal content and achievements.
+  returns: Returns a float representing the calculated expected stat value. The value
+    is typically normalized to a meaningful unit based on the stat type and game context.
+    Zero or negative values may indicate invalid parameters or no applicable scaling
+    data.
+  examples:
+  - title: Calculate health stat for level 60 warrior
+    code: float health = db2Mgr.EvaluateExpectedStat(EXPECTED_STAT_HEALTH, 60, 0,
+      0, 1, -1);
+    language: cpp
+  - title: Calculate attack power for level 80 death knight in Shadowlands expansion
+    code: float ap = db2Mgr.EvaluateExpectedStat(EXPECTED_STAT_ATTACK_POWER, 80, 8,
+      12345, 6, 2);
+    language: cpp
+  notes: This method relies heavily on internal DB2 data structures and assumes valid
+    parameter ranges. The implementation likely uses lookup tables or interpolation
+    algorithms to compute stat values based on the provided parameters. Performance
+    is generally good for single calls but may become significant if used in high-frequency
+    loops.
+  warnings: Invalid parameter combinations may result in unexpected or zero return
+    values. Ensure that contentTuningId and expansion IDs match valid entries in the
+    DB2 files, otherwise behavior is undefined. Using negative unitClass values might
+    lead to incorrect stat calculations for special NPCs.
+  related:
+  - GetExpectedStat
+  - CalculateStatScaling
+  - GetStatForLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T08:54:30.584967'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

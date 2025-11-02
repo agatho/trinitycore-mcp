@@ -1,0 +1,59 @@
+api:
+  class: CreatureTextMgr
+  method: TextExist
+  signature: bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
+    const
+documentation:
+  brief: Checks if a specific creature text group exists for a given entry.
+  description: The TextExist method determines whether a particular creature text
+    group has been defined for a specified creature entry in the database. This is
+    used primarily during NPC dialogue handling to verify that the requested text
+    group exists before attempting to retrieve or play it. The method performs a lookup
+    using the sourceEntry (creature entry ID) and textGroup (text group identifier)
+    parameters to check for existence within the CreatureTextMgr's internal data structures.
+    It returns true if the combination of creature entry and text group is found,
+    false otherwise. This functionality supports proper dialogue flow control in World
+    of Warcraft's TrinityCore server implementation.
+  parameters:
+  - name: sourceEntry
+    description: The creature entry ID (creature_template.entry) for which to check
+      text existence. Must be a valid creature template identifier present in the
+      database.
+  - name: textGroup
+    description: The text group identifier (CreatureTextGroup.groupid) to verify existence
+      for the specified creature entry. Valid range is typically 0-255, though exact
+      limits depend on database schema.
+  returns: Returns true if the specified creature text group exists for the given
+    source entry; otherwise returns false. This indicates whether the text data is
+    available for retrieval or playback.
+  examples:
+  - title: Basic usage to check text existence
+    code: "if (sCreatureTextMgr->TextExist(12345, 0)) {\n    // Text group 0 exists\
+      \ for creature entry 12345\n    // Proceed with dialogue logic\n}"
+    language: cpp
+  - title: Using in conditional dialogue flow
+    code: "uint32 npcEntry = player->GetNPCIfCanInteractWith();\nif (npcEntry && sCreatureTextMgr->TextExist(npcEntry,\
+      \ 1)) {\n    // Safe to proceed with text group 1 for this NPC\n    sCreatureTextMgr->SendText(player,\
+      \ npcEntry, 1);\n} else {\n    // No text defined for this group, fallback behavior\n\
+      \    player->PlayerTalkClass->SendCloseGossip();\n}"
+    language: cpp
+  notes: This method is typically used as a pre-check before attempting to send creature
+    text to players. The internal implementation likely uses hash maps or similar
+    data structures for fast lookup performance. It's important to note that this
+    check only validates existence of the text group itself, not the actual text content
+    or whether it can be played under current conditions.
+  warnings: This method does not validate the player's ability to hear or interact
+    with the creature. It simply checks database presence. Using this without proper
+    context validation may lead to silent failures in dialogue systems. Also, be aware
+    that text groups are indexed by group ID within a single creature entry, so multiple
+    creatures can share the same group ID without conflict.
+  related:
+  - SendText
+  - GetCreatureText
+  - CreatureTextMgr::LoadCreatureTexts
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:04:00.936134'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

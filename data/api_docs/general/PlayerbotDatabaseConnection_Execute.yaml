@@ -1,0 +1,54 @@
+api:
+  class: PlayerbotDatabaseConnection
+  method: Execute
+  signature: bool PlayerbotDatabaseConnection::Execute(const std::string & sql)
+documentation:
+  brief: Executes a SQL statement on the playerbot database connection
+  description: The Execute method performs a SQL command against the connected playerbot
+    database. It is used to run INSERT, UPDATE, DELETE, or other non-query SQL statements
+    that modify data in the database. The method returns true if the execution was
+    successful, and false if an error occurred during execution. This method is typically
+    used by playerbot AI logic to persist configuration changes, update player behavior
+    settings, or manage bot-related data within the TrinityCore database system.
+  parameters:
+  - name: sql
+    description: The complete SQL statement to execute as a string. This should be
+      a valid SQL command such as INSERT, UPDATE, DELETE, or similar data modification
+      statements. The statement must be properly formatted and escaped to prevent
+      SQL injection attacks.
+  returns: Returns true if the SQL statement executed successfully without errors,
+    false otherwise. If the database connection is not established or the SQL statement
+    fails for any reason (syntax error, constraint violation, etc.), the method will
+    return false.
+  examples:
+  - title: Basic Update Statement
+    code: "PlayerbotDatabaseConnection* db = sPlayerbotAIConfig->GetPlayerbotDatabase();\n\
+      bool success = db->Execute(\"UPDATE playerbots SET enabled = 1 WHERE bot_id\
+      \ = 12345\");\nif (success) {\n    // Update successful\n}"
+    language: cpp
+  - title: Insert New Bot Configuration
+    code: "std::string sql = \"INSERT INTO playerbot_config (bot_id, config_name,\
+      \ config_value) VALUES (12345, 'aggression', 'high')\";\nbool result = sPlayerbotAIConfig->GetPlayerbotDatabase()->Execute(sql);\n\
+      if (!result) {\n    // Handle error - log or retry\n}"
+    language: cpp
+  notes: This method is designed for executing data modification statements only.
+    For SELECT queries, use the appropriate query methods instead. The database connection
+    must be properly initialized before calling this method. All SQL strings should
+    be properly escaped to prevent injection attacks. This method may block until
+    the database operation completes, so it should not be called from time-critical
+    sections of code.
+  warnings: Do not pass untrusted user input directly into this method without proper
+    sanitization or parameterization. This can lead to SQL injection vulnerabilities.
+    The method does not provide transaction support - each execution is a standalone
+    operation. If you need atomic operations across multiple statements, consider
+    using explicit transaction handling.
+  related:
+  - Query
+  - PExecute
+  - Transaction
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:07:23.904364'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

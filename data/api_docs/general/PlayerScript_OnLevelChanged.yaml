@@ -1,0 +1,63 @@
+api:
+  class: PlayerScript
+  method: OnLevelChanged
+  signature: void PlayerScript::OnLevelChanged(Player * player, uint8 oldLevel)
+documentation:
+  brief: Called when a player's level changes in the game.
+  description: The OnLevelChanged method is a virtual callback function that is invoked
+    whenever a Player object's level is modified within the TrinityCore emulator.
+    This event occurs during various gameplay scenarios such as gaining experience,
+    using level-up items, or being teleported to a different level zone. The method
+    provides developers with an opportunity to implement custom logic in response
+    to level changes, such as adjusting player stats, granting new abilities, or triggering
+    quest updates. It is part of the PlayerScript system which allows for extending
+    core player behavior without modifying the base game code.
+  parameters:
+  - name: player
+    description: A pointer to the Player object whose level has changed. This parameter
+      represents the specific player instance affected by the level change.
+  - name: oldLevel
+    description: The previous level of the player before the change occurred. This
+      value is passed as a uint8 type and indicates what level the player was at prior
+      to the update.
+  returns: null
+  examples:
+  - title: Basic Level Change Handler
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnLevelChanged(Player*\
+      \ player, uint8 oldLevel) override\n    {\n        // Log the level change\n\
+      \        sLog->outString(\"Player %s has leveled up from %u to %u\", player->GetName().c_str(),\
+      \ oldLevel, player->getLevel());\n        \n        // Grant bonus stats based\
+      \ on new level\n        player->ModifyBonusDamage(5 * player->getLevel());\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Level-Based Quest Trigger
+    code: "class QuestLevelScript : public PlayerScript\n{\npublic:\n    void OnLevelChanged(Player*\
+      \ player, uint8 oldLevel) override\n    {\n        // Check if the new level\
+      \ triggers a quest\n        if (player->getLevel() >= 10 && oldLevel < 10)\n\
+      \        {\n            // Send quest to player\n            player->PlayerTalkClass->ClearMenus();\n\
+      \            player->PlayerTalkClass->SendGossipMenu(12345, player->GetGUID());\n\
+      \        }\n        \n        // Handle class-specific level rewards\n     \
+      \   switch (player->getClass())\n        {\n            case CLASS_WARRIOR:\n\
+      \                if (player->getLevel() % 5 == 0)\n                    player->AddItem(12345,\
+      \ 1); // Grant weapon\n                break;\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called after the level change has been applied to the player
+    object. Developers should be aware that any modifications made to the player's
+    stats or inventory within this callback will take effect immediately. The oldLevel
+    parameter provides context for what was previously true, which can be useful for
+    calculating differences or applying incremental changes.
+  warnings: Avoid performing heavy computations or database operations inside this
+    method as it may impact performance during frequent level changes. Be cautious
+    when modifying player data that could cause inconsistencies with the game state
+    or server stability.
+  related:
+  - Player::getLevel
+  - Player::SetLevel
+  - PlayerScript::OnLogin
+  - PlayerScript::OnLogout
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:19:28.163374'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

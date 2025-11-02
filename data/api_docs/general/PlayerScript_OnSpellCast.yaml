@@ -1,0 +1,64 @@
+api:
+  class: PlayerScript
+  method: OnSpellCast
+  signature: void PlayerScript::OnSpellCast(Player * player, Spell * spell, bool skipCheck)
+documentation:
+  brief: Executes custom logic when a player casts a spell
+  description: The OnSpellCast method is a callback function in the PlayerScript class
+    that is invoked whenever a player initiates the casting of a spell. This method
+    allows developers to inject custom behavior, validation, or modification of spell
+    casting operations. It provides access to both the player and the spell being
+    cast, enabling actions such as modifying spell properties, canceling the cast,
+    or triggering additional effects. The skipCheck parameter indicates whether certain
+    pre-cast validations should be bypassed, which can be useful for implementing
+    custom spell systems or cheat prevention mechanisms.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is casting the spell. This represents
+      the player character initiating the spell cast.
+  - name: spell
+    description: Pointer to the Spell object representing the spell being cast. Provides
+      access to spell data, effects, and properties during the casting process.
+  - name: skipCheck
+    description: Boolean flag indicating whether pre-cast validation checks should
+      be skipped. When true, certain built-in checks like mana requirements or cooldowns
+      may be bypassed.
+  returns: void
+  examples:
+  - title: Basic Spell Cast Interception
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnSpellCast(Player*\
+      \ player, Spell* spell, bool skipCheck) override\n    {\n        // Log spell\
+      \ cast information\n        sLog->outString(\"Player %s casts spell %u\", player->GetName().c_str(),\
+      \ spell->m_spellInfo->Id);\n        \n        // Prevent casting of specific\
+      \ spell\n        if (spell->m_spellInfo->Id == 12345)\n        {\n         \
+      \   player->SendSpellFailed(12345, SPELL_FAILED_BAD_TARGETS);\n            return;\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Custom Spell Modifier with Skip Check
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnSpellCast(Player*\
+      \ player, Spell* spell, bool skipCheck) override\n    {\n        // Apply a\
+      \ custom buff to the caster before casting\n        if (!skipCheck)\n      \
+      \  {\n            player->AddAura(98765, player);\n        }\n        \n   \
+      \     // Modify spell damage based on player's level\n        if (player->GetLevel()\
+      \ >= 80)\n        {\n            spell->m_damage += 100;\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This method is called during the spell casting process, so modifying spell
+    properties or player state should be done carefully to avoid unexpected behavior.
+    The skipCheck parameter can be used to bypass certain built-in validations but
+    may lead to exploits if not handled properly. Ensure that any modifications made
+    to the spell object do not cause crashes or invalid memory access.
+  warnings: Modifying spell data directly in this callback can cause instability if
+    not done correctly. Be cautious when using skipCheck as it may allow invalid spell
+    casts. Avoid performing heavy computations or database operations within this
+    method as it's called frequently during gameplay.
+  related:
+  - OnSpellCastStart
+  - OnSpellCastSuccess
+  - OnSpellCastFailed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T01:12:07.860917'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

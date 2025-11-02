@@ -1,0 +1,44 @@
+api:
+  class: GroupIntegration
+  method: OnGroupCreated
+  signature: void GroupIntegration::OnGroupCreated(Group * group)
+documentation:
+  brief: Invoked when a new group is created in the game world
+  description: The OnGroupCreated method is a callback function that gets triggered
+    whenever a new group (party) is formed in the World of Warcraft instance. This
+    method allows integration modules to perform custom logic or modifications when
+    groups are created, such as initializing group-specific data, applying buffs,
+    or logging group creation events. The method receives a pointer to the newly created
+    Group object which contains all relevant information about the group members and
+    their state. It is typically used by addons, modules, or custom extensions to
+    TrinityCore to extend default group behavior.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "void GroupIntegration::OnGroupCreated(Group* group)\n{\n    if (!group)\n\
+      \        return;\n    \n    // Log group creation\n    sLog->outString(\"New\
+      \ group created with %u members\", group->GetMembersCount());\n    \n    //\
+      \ Apply custom logic to the group\n    for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n         itr != group->GetMemberSlots().end();\
+      \ ++itr)\n    {\n        Player* player = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \        if (player)\n            player->AddAura(12345, player); // Example\
+      \ aura\n    }\n}"
+    language: cpp
+  notes: This method is called during the group creation process, so it's important
+    to ensure that any operations performed do not interfere with the group initialization.
+    The Group object passed to this method may not yet be fully initialized in all
+    aspects, particularly if other systems are still processing the group formation.
+  warnings: Do not attempt to modify or destroy the Group object directly within this
+    callback as it may lead to undefined behavior or crashes. Also, avoid performing
+    heavy operations that could block the main thread during group creation.
+  related:
+  - OnGroupDestroyed
+  - OnGroupMemberAdded
+  - OnGroupMemberRemoved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:51:24.832863'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

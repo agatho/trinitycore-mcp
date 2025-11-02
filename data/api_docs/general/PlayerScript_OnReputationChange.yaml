@@ -1,0 +1,66 @@
+api:
+  class: PlayerScript
+  method: OnReputationChange
+  signature: void PlayerScript::OnReputationChange(Player * player, uint32 factionId,
+    int32 & standing, bool incremental)
+documentation:
+  brief: Called when a player's reputation with a faction changes, allowing scripts
+    to modify or react to the change.
+  description: The OnReputationChange method is a hook in the PlayerScript class that
+    gets invoked whenever a player's standing with a specific faction is modified.
+    This method allows custom scripts to intercept and potentially alter the reputation
+    change event. The method provides access to the player object, the faction ID
+    involved, the current standing value, and a flag indicating whether the change
+    was incremental. It can be used to implement custom reputation behaviors, such
+    as preventing certain reputation gains or modifying how reputation changes affect
+    gameplay mechanics. The standing parameter is passed by reference, allowing scripts
+    to modify the final reputation value before it's applied.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose reputation is changing. This represents
+      the player who triggered the reputation change event.
+  - name: factionId
+    description: The unique identifier of the faction whose reputation is being modified.
+      This corresponds to entries in the Faction.dbc file.
+  - name: standing
+    description: Reference to the current standing value with the faction. Scripts
+      can modify this value to change the final reputation amount that gets applied.
+  - name: incremental
+    description: Boolean flag indicating whether the reputation change is incremental
+      (true) or absolute (false). When true, the standing value represents a delta;
+      when false, it represents the new absolute standing value.
+  returns: null
+  examples:
+  - title: Prevent Reputation Gain Below Threshold
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnReputationChange(Player*\
+      \ player, uint32 factionId, int32& standing, bool incremental) override\n  \
+      \  {\n        // Prevent reputation from going below -1000\n        if (standing\
+      \ < -1000)\n            standing = -1000;\n    }\n};"
+    language: cpp
+  - title: Modify Reputation Based on Player Level
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnReputationChange(Player*\
+      \ player, uint32 factionId, int32& standing, bool incremental) override\n  \
+      \  {\n        // Double reputation gain for players below level 10\n       \
+      \ if (player->GetLevel() < 10 && incremental)\n            standing *= 2;\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the reputation update process, so modifying
+    the standing value can affect subsequent game logic. Scripts should be careful
+    not to cause infinite loops or unexpected behavior when altering the standing
+    value. The factionId parameter refers to the internal faction identifier used
+    by TrinityCore's database.
+  warnings: Modifying the standing value directly can have unintended consequences
+    on quest completion, NPC interactions, and other reputation-based systems. Ensure
+    that any modifications maintain game balance and don't break existing mechanics.
+    Be cautious with incremental changes as they may compound if multiple scripts
+    modify the same value.
+  related:
+  - Player::GetReputation
+  - Player::SetReputation
+  - Player::ModifyReputation
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:12:45.429377'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

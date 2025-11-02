@@ -1,0 +1,60 @@
+api:
+  class: PlayerDumpReader
+  method: LoadDumpFromString
+  signature: DumpReturn PlayerDumpReader::LoadDumpFromString(const std::string & dump,
+    int account, std::string name, int guid)
+documentation:
+  brief: Loads and processes a player dump string into the database for the specified
+    account and character name.
+  description: The LoadDumpFromString method parses a player dump string, which typically
+    contains serialized character data including inventory, skills, quests, and other
+    game state information. It validates the dump data against the provided account
+    ID and character name, then imports the data into the TrinityCore database. This
+    method is commonly used for character restoration, migration, or administrative
+    operations where existing character data needs to be reimported into the game
+    world. The method performs internal validation checks on the dump format and ensures
+    consistency with the target account and GUID before committing changes.
+  parameters:
+  - name: dump
+    description: The serialized player dump string containing all character data including
+      inventory, skills, quests, and game state information
+  - name: account
+    description: The account ID to which the character belongs, used for validation
+      and database association
+  - name: name
+    description: The character name associated with the dump data, used for verification
+      and database lookup
+  - name: guid
+    description: The unique global identifier (GUID) of the character, used to ensure
+      proper data mapping in the database
+  returns: Returns a DumpReturn enum value indicating success or failure status of
+    the dump loading operation. Possible values include DUMP_SUCCESS, DUMP_INVALID_DATA,
+    DUMP_ACCOUNT_MISMATCH, DUMP_NAME_MISMATCH, and DUMP_ERROR.
+  examples:
+  - title: Basic character dump loading
+    code: "std::string dumpData = \"...serialized character data...\";\nPlayerDumpReader\
+      \ reader;\nDumpReturn result = reader.LoadDumpFromString(dumpData, 12345, \"\
+      TestCharacter\", 67890);\nif (result == DUMP_SUCCESS) {\n    printf(\"Character\
+      \ dump loaded successfully\\n\");\n} else {\n    printf(\"Failed to load character\
+      \ dump with error code: %d\\n\", result);\n}"
+    language: cpp
+  notes: This method performs extensive validation of the input dump data and should
+    only be called with properly formatted dump strings. The method may block during
+    database operations, so it's recommended to use it in a background thread for
+    better performance. Ensure that the account ID and character name match existing
+    records to avoid validation failures.
+  warnings: Calling this method with malformed or corrupted dump data can result in
+    database inconsistencies or partial character restoration. Always validate the
+    dump string format before calling this method, and ensure that the target account
+    and character name are valid. This operation modifies the database directly and
+    should be used carefully in production environments.
+  related:
+  - LoadDumpFromFile
+  - ValidateDumpString
+  - SaveCharacterDump
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T01:30:57.969433'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

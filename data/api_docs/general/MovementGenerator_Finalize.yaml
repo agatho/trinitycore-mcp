@@ -1,0 +1,62 @@
+api:
+  class: MovementGenerator
+  method: Finalize
+  signature: void MovementGenerator::Finalize(Unit * owner, bool active, bool movementInform)
+documentation:
+  brief: Finalizes movement generator state for a unit, cleaning up resources and
+    notifying relevant systems.
+  description: The Finalize method is responsible for completing the cleanup process
+    of a MovementGenerator instance. It ensures that all associated resources are
+    properly released and that any necessary notifications are sent to the owning
+    unit or subsystems. This method is typically called when a movement generator
+    is being removed from a unit's movement stack, either due to completion, interruption,
+    or replacement by another movement generator. The method handles internal state
+    management and ensures proper synchronization with the game world's movement system.
+  parameters:
+  - name: owner
+    description: Pointer to the Unit object that owns this movement generator. This
+      parameter is required and must not be null for valid operation.
+  - name: active
+    description: Boolean flag indicating whether the movement generator was actively
+      running. If true, additional cleanup steps may be performed related to active
+      movement state.
+  - name: movementInform
+    description: Boolean flag that determines if a movement inform message should
+      be sent to the owner unit. When true, signals completion or interruption of
+      movement to the unit's AI or movement handlers.
+  returns: null
+  examples:
+  - title: Basic Finalize Usage
+    code: "void MyMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)\n\
+      {\n    // Perform cleanup operations\n    if (movementInform)\n        owner->SendMovementInform(MOVEMENTINFORM_DEFAULT);\n\
+      \    \n    // Call base class Finalize if needed\n    MovementGenerator::Finalize(owner,\
+      \ active, movementInform);\n}"
+    language: cpp
+  - title: Advanced Finalize with State Management
+    code: "void CustomMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)\n\
+      {\n    if (active && movementInform)\n    {\n        // Notify AI of movement\
+      \ completion\n        owner->GetAI()->MovementInform(MOVEMENTINFORM_CUSTOM,\
+      \ GetId());\n        \n        // Reset internal state\n        m_isActive =\
+      \ false;\n        m_targetPosition = Position();\n    }\n    \n    // Call parent\
+      \ implementation\n    MovementGenerator::Finalize(owner, active, movementInform);\n\
+      }"
+    language: cpp
+  notes: This method is part of the movement generator lifecycle and should be called
+    before destruction or replacement. It's important to ensure that all movement-related
+    resources are properly released to prevent memory leaks. The method may be invoked
+    from different threads depending on how movement updates are processed in the
+    game loop.
+  warnings: Calling Finalize with a null owner pointer will likely result in undefined
+    behavior or crashes. Ensure that ownership relationships are properly maintained
+    before invoking this method. Also, avoid calling Finalize multiple times on the
+    same generator instance as it may lead to double-free errors or inconsistent state.
+  related:
+  - MovementGenerator::Initialize
+  - MovementGenerator::Update
+  - MovementGenerator::GetMovementGeneratorType
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T03:08:20.790376'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

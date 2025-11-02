@@ -1,0 +1,50 @@
+api:
+  class: Guild
+  method: _GetRankBankMoneyPerDay
+  signature: uint32 Guild::_GetRankBankMoneyPerDay(GuildRankId rankId) const
+documentation:
+  brief: Retrieves the maximum amount of gold that can be withdrawn from the guild
+    bank per day for a specified rank.
+  description: This method returns the daily gold withdrawal limit for a given guild
+    rank. In World of Warcraft's TrinityCore implementation, guilds have different
+    ranks with varying permissions and limitations. The guild bank allows members
+    to deposit and withdraw gold, but each rank has a specific daily cap on how much
+    gold they can withdraw. This function fetches that value for the specified rank
+    ID. The returned value represents the maximum amount in copper coins (as is standard
+    in WoW's currency system). This method is typically used internally by the guild
+    management system to enforce withdrawal limits based on player rank.
+  parameters: []
+  returns: A uint32 value representing the maximum daily gold withdrawal limit for
+    the specified rank, expressed in copper coins. Returns 0 if the rank ID is invalid
+    or no limit is set for that rank.
+  examples:
+  - title: Get Daily Withdrawal Limit for Guild Master Rank
+    code: 'uint32 maxWithdrawal = guild->_GetRankBankMoneyPerDay(GUILD_RANK_GUILD_MASTER);
+
+      // Returns the maximum daily gold withdrawal amount for the guild master rank
+      (typically 0, meaning no limit)'
+    language: cpp
+  - title: Check Withdrawal Limit for a Regular Member Rank
+    code: "uint32 limit = guild->_GetRankBankMoneyPerDay(GUILD_RANK_MEMBER);\nif (limit\
+      \ > 0)\n{\n    printf(\"Regular members can withdraw up to %u copper per day.\\\
+      n\", limit);\n}\nelse\n{\n    printf(\"No daily withdrawal limit for this rank.\\\
+      n\");\n}"
+    language: cpp
+  notes: This method is part of the internal guild bank system and likely called during
+    transactions to validate whether a player's withdrawal request exceeds their rank's
+    daily limit. It does not perform any validation on the input parameter, so calling
+    with an invalid rank ID may return unexpected results or zero. The actual implementation
+    depends on the guild rank configuration stored in the database.
+  warnings: Do not assume that all ranks have a non-zero limit; some ranks (like Guild
+    Master) may have unlimited withdrawals. Calling this method without proper validation
+    of the rank ID can lead to incorrect behavior if an invalid ID is passed.
+  related:
+  - _GetRankBankTabPermissions
+  - _GetRankBankWithdrawLimit
+  - _SetBankMoneyPerDay
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:32:30.301092'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

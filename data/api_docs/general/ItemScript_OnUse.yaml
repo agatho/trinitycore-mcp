@@ -1,0 +1,64 @@
+api:
+  class: ItemScript
+  method: OnUse
+  signature: bool ItemScript::OnUse(Player * player, Item * item, const SpellCastTargets
+    & targets, int castId)
+documentation:
+  brief: Handles the use of an item by a player, returning true if the item usage
+    was successfully processed.
+  description: The OnUse method is a virtual function in the ItemScript class that
+    gets invoked when a player attempts to use an item. This method allows custom
+    behavior to be defined for items, such as triggering spells, modifying player
+    stats, or performing quest-related actions. The method receives the player who
+    used the item, the item itself, the spell cast targets, and the cast identifier.
+    It returns true if the item usage was handled and should not proceed with default
+    behavior, or false if the default item usage logic should continue.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is using the item. This represents
+      the character performing the action.
+  - name: item
+    description: Pointer to the Item object being used. Contains information about
+      the item's properties and state.
+  - name: targets
+    description: Reference to SpellCastTargets structure containing the targets of
+      the spell cast initiated by using this item.
+  - name: castId
+    description: Integer identifier for the specific cast instance. Used to track
+      or distinguish different casts of the same item.
+  returns: Boolean value indicating whether the item usage was handled completely
+    (true) or if default processing should continue (false).
+  examples:
+  - title: Basic Item Usage Handler
+    code: "class MyItemScript : public ItemScript {\npublic:\n    MyItemScript() :\
+      \ ItemScript(\"MyItemScript\") {}\n\n    bool OnUse(Player* player, Item* item,\
+      \ const SpellCastTargets& targets, int castId) override {\n        // Example:\
+      \ Give player a temporary buff\n        player->AddAura(12345, player);\n  \
+      \      return true; // Prevent default item usage\n    }\n};"
+    language: cpp
+  - title: Conditional Item Usage
+    code: "class QuestItemScript : public ItemScript {\npublic:\n    QuestItemScript()\
+      \ : ItemScript(\"QuestItemScript\") {}\n\n    bool OnUse(Player* player, Item*\
+      \ item, const SpellCastTargets& targets, int castId) override {\n        if\
+      \ (player->GetQuestStatus(12345) == QUEST_STATUS_INCOMPLETE) {\n           \
+      \ player->AreaExploredOrEventHappens(12345);\n            return true; // Item\
+      \ used to complete quest\n        }\n        return false; // Allow default\
+      \ behavior\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and must be implemented
+    in a derived class. The implementation should avoid blocking operations or long-running
+    tasks to prevent performance issues. Item usage events are processed on the main
+    thread, so any heavy computation should be deferred.
+  warnings: Returning true from OnUse prevents the default item behavior from executing,
+    which may break expected game mechanics. Ensure that custom logic properly handles
+    all intended use cases before returning true.
+  related:
+  - ItemScript::OnRemove
+  - ItemScript::OnAdd
+  - ItemScript::OnCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:35:33.351131'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

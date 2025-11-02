@@ -1,0 +1,60 @@
+api:
+  class: BotSession
+  method: Update
+  signature: bool BotSession::Update(uint32 diff, int & updater)
+documentation:
+  brief: Updates the bot session state and returns true if the update was successful.
+  description: The Update method is responsible for processing and maintaining the
+    state of a bot session within the TrinityCore framework. It handles internal logic
+    such as updating AI behavior, managing timers, processing commands, and synchronizing
+    the bot's state with the game world. This method is typically called from the
+    main game loop at regular intervals to ensure that bot sessions remain responsive
+    and functional. The method may perform various operations including checking for
+    player input, updating NPC behavior, handling combat states, or managing quest
+    progress depending on the specific implementation of the bot system.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last update call. This
+      value is used to determine how much time has passed for timing-based operations
+      such as cooldowns, movement calculations, or AI decision making.
+  - name: updater
+    description: An integer reference that indicates which component or subsystem
+      is currently performing the update. This parameter allows for tracking and debugging
+      of different update sources within the bot system, helping identify which part
+      of the system is responsible for a particular update cycle.
+  returns: Returns true if the update process completed successfully without errors,
+    false otherwise. A return value of false may indicate issues such as invalid session
+    state, failed internal operations, or resource constraints that prevented proper
+    execution.
+  examples:
+  - title: Basic Update Call
+    code: "void GameLoop()\n{\n    uint32 diff = getMSTime();\n    int updater = 0;\n\
+      \    BotSession* session = GetBotSession();\n    if (session && !session->Update(diff,\
+      \ updater))\n    {\n        // Handle update failure\n        sLog->outError(\"\
+      Failed to update bot session\");\n    }\n}"
+    language: cpp
+  - title: Update with Multiple Updaters
+    code: "void ProcessBotUpdates()\n{\n    uint32 diff = getMSTime();\n    int updater\
+      \ = 0;\n    \n    // Update different bot components\n    for (auto& session\
+      \ : botSessions)\n    {\n        updater++;\n        if (!session->Update(diff,\
+      \ updater))\n        {\n            sLog->outError(\"Bot update failed for component\
+      \ %d\", updater);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically invoked from the main game loop or a dedicated bot
+    update thread. It's important to note that frequent calls to this method may impact
+    performance, especially when dealing with multiple bots simultaneously. The 'updater'
+    parameter can be used for debugging purposes to track which subsystem initiated
+    an update.
+  warnings: Calling this method without proper initialization of the BotSession or
+    with invalid parameters (e.g., negative diff values) could lead to undefined behavior.
+    Ensure that all bot sessions are properly validated before calling Update.
+  related:
+  - BotSession::Initialize
+  - BotSession::IsInitialized
+  - BotSession::GetGUID
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T11:05:25.260288'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

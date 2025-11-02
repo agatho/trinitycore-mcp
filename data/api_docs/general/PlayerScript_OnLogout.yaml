@@ -1,0 +1,58 @@
+api:
+  class: PlayerScript
+  method: OnLogout
+  signature: void PlayerScript::OnLogout(Player * player)
+documentation:
+  brief: Called when a player logs out of the game, allowing scripts to perform cleanup
+    or save operations.
+  description: The OnLogout method is a virtual callback function in the PlayerScript
+    class that is invoked whenever a player character successfully logs out of the
+    World of Warcraft server. This method provides an opportunity for custom scripts
+    or addons to execute specific logic during the logout process, such as saving
+    player data, cleaning up resources, or triggering events. The method is called
+    after the player's session has been terminated but before the player object is
+    fully destroyed. It serves as a key point in the player lifecycle for implementing
+    persistent state management and cleanup routines.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the character that is logging
+      out. This parameter provides access to all player-related data and methods during
+      the logout sequence.
+  returns: null
+  examples:
+  - title: Basic Logout Handler Implementation
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnLogout(Player*\
+      \ player) override\n    {\n        // Save player's custom data\n        SavePlayerData(player);\n\
+      \        \n        // Log the logout event\n        sLog->outString(\"Player\
+      \ %s has logged out.\", player->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Advanced Logout with Database Sync
+    code: "class AdvancedPlayerScript : public PlayerScript\n{\npublic:\n    void\
+      \ OnLogout(Player* player) override\n    {\n        // Ensure all pending operations\
+      \ are completed\n        player->SaveToDB();\n        \n        // Clear any\
+      \ temporary data\n        player->RemoveAllAuras();\n        \n        // Update\
+      \ session tracking in database\n        CharacterDatabase.PExecute(\"UPDATE\
+      \ account_session SET last_logout = NOW() WHERE account_id = %u\", player->GetSession()->GetAccountId());\n\
+      \        \n        // Notify other systems of logout\n        sScriptMgr->OnPlayerLogout(player);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the player's logout sequence, which occurs after
+    all pending operations have been processed but before the player object is destroyed.
+    It is important to note that any database writes or network operations performed
+    here should be lightweight to avoid blocking the logout process. The Player pointer
+    remains valid during this call, but accessing certain subsystems may not be safe
+    depending on the timing of the logout.
+  warnings: Avoid performing heavy I/O operations or long-running tasks in this method
+    as it can block the logout process and affect server performance. Do not attempt
+    to access network connections or perform database operations that might fail during
+    shutdown sequences, as these could lead to undefined behavior or crashes.
+  related:
+  - OnLogin
+  - OnCreate
+  - OnDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:18:09.803534'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

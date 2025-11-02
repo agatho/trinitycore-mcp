@@ -1,0 +1,60 @@
+api:
+  class: InventoryManager
+  method: UnequipItem
+  signature: bool InventoryManager::UnequipItem(uint8 slot)
+documentation:
+  brief: Unequips an item from the specified inventory slot and updates the player's
+    stats accordingly.
+  description: The UnequipItem method removes an item from the specified inventory
+    slot, recalculates the player's statistics (such as armor, damage, or spell power),
+    and sends appropriate update packets to the client. This method is typically invoked
+    when a player manually unequips an item or when the game system needs to force
+    an unequip due to equipment changes, such as level requirements or item restrictions.
+    The method ensures that all related game mechanics, including buffs, debuffs,
+    and stat modifiers, are properly adjusted after the unequip operation. It also
+    handles the removal of any temporary enchantments or effects associated with the
+    unequipped item.
+  parameters:
+  - name: slot
+    description: The inventory slot index from which the item should be unequipped.
+      Valid values range from 0 to 18, corresponding to different equipment slots
+      such as head, shoulders, chest, hands, feet, etc., depending on the player's
+      class and available slots.
+  returns: Returns true if the item was successfully unequipped from the specified
+    slot; otherwise returns false if the slot is invalid or empty.
+  examples:
+  - title: Unequip an item from the chest slot
+    code: "if (player->GetInventory()->UnequipItem(EQUIPMENT_SLOT_CHEST)) {\n    //\
+      \ Item successfully unequipped\n    player->SendEquipError(EQUIP_ERR_NONE, nullptr,\
+      \ nullptr);\n} else {\n    // Failed to unequip item\n    player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND,\
+      \ nullptr, nullptr);\n}"
+    language: cpp
+  - title: Unequip an item and update player stats
+    code: "uint8 slot = EQUIPMENT_SLOT_MAINHAND;\nif (player->GetInventory()->UnequipItem(slot))\
+      \ {\n    // Update player's combat statistics\n    player->UpdateDamagePhysical(BASE_ATTACK);\n\
+      \    player->UpdateDamagePhysical(OFF_ATTACK);\n    player->UpdateArmor();\n\
+      \    player->UpdateMaxHealth();\n    player->UpdateMaxPower(POWER_MANA);\n}\n\
+      // Send updated stats to client\nplayer->SendUpdateWorldState(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,\
+      \ player->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS));"
+    language: cpp
+  notes: This method assumes that the slot index provided is valid and corresponds
+    to an actual equipped item. It does not perform any validation on the slot itself,
+    so calling code should ensure the slot contains a valid item before invoking this
+    function. The method may trigger additional events or callbacks related to stat
+    updates, which can affect performance in high-frequency scenarios.
+  warnings: Calling UnequipItem with an invalid slot index may result in undefined
+    behavior or crashes. Always verify that the slot is valid and contains an item
+    before calling this method. Additionally, be aware that unequipping items might
+    cause temporary stat fluctuations during combat, so it's recommended to call this
+    function outside of active combat situations.
+  related:
+  - EquipItem
+  - AddItem
+  - RemoveItem
+  - IsEquippedItem
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T04:40:24.524624'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

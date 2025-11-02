@@ -1,0 +1,60 @@
+api:
+  class: LFGBotManager
+  method: OnGroupFormed
+  signature: void LFGBotManager::OnGroupFormed(int groupGuid)
+documentation:
+  brief: Handles the event when a new LFG group is formed by the LFGBot system
+  description: The OnGroupFormed method is invoked by the LFGBotManager when a new
+    Looking For Group (LFG) group has been successfully created and assembled. This
+    method processes the formation of the group, potentially updating internal tracking
+    structures, notifying other systems about the new group, and performing any necessary
+    cleanup or state transitions. The method accepts the unique identifier (GUID)
+    of the newly formed group as its parameter, which can be used to retrieve detailed
+    information about the group from the game's database or internal data structures.
+    This method is typically called as part of the LFG workflow within TrinityCore's
+    LFG system and is essential for maintaining synchronization between the bot's
+    operations and the core game mechanics.
+  parameters:
+  - name: groupGuid
+    description: The unique identifier (GUID) of the newly formed LFG group. This
+      value represents the database identifier for the group object within the TrinityCore
+      system, used to reference and manage the group's state, members, and associated
+      data.
+  returns: null
+  examples:
+  - title: Basic Usage in LFG Bot Logic
+    code: "void LFGBotManager::OnGroupFormed(int groupGuid)\n{\n    // Log the formation\
+      \ of a new group\n    sLog->outString(\"LFGBot: New LFG group formed with GUID\
+      \ %d\", groupGuid);\n    \n    // Update internal tracking structures\n    m_groupTracker[groupGuid]\
+      \ = GroupState::FORMED;\n    \n    // Notify other systems about the new group\n\
+      \    HandleGroupNotification(groupGuid);\n}"
+    language: cpp
+  - title: Advanced Usage with Group Data Retrieval
+    code: "void LFGBotManager::OnGroupFormed(int groupGuid)\n{\n    // Retrieve group\
+      \ information from database\n    Group* group = sObjectMgr->GetGroupByGUID(groupGuid);\n\
+      \    if (!group)\n        return;\n    \n    // Process each member of the group\n\
+      \    for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())\n\
+      \    {\n        Player* player = ref->getSource();\n        if (player)\n  \
+      \      {\n            // Update player's LFG status\n            player->SetLfgState(LFG_STATE_DONE);\n\
+      \        }\n    }\n    \n    // Mark group as completed in bot tracking\n  \
+      \  m_activeGroups.erase(groupGuid);\n}"
+    language: cpp
+  notes: This method is typically called from within the LFG subsystem of TrinityCore
+    and should be implemented to handle asynchronous group formation events. The method
+    does not directly modify the group object itself but rather responds to its creation,
+    making it suitable for post-processing actions such as logging, state updates,
+    or notifications.
+  warnings: Ensure that the groupGuid parameter is valid before attempting to access
+    group data, as invalid GUIDs may cause crashes or undefined behavior. The method
+    should not perform heavy operations that could block the main game thread, as
+    it's likely called during critical LFG workflow phases.
+  related:
+  - GetGroupByGUID
+  - HandleGroupNotification
+  - UpdateGroupState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:22:38.663202'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

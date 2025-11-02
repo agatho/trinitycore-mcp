@@ -1,0 +1,56 @@
+api:
+  class: PlayerbotDatabaseConnection
+  method: Query
+  signature: int PlayerbotDatabaseConnection::Query(const std::string & sql)
+documentation:
+  brief: Executes a SQL query against the playerbot database and returns the number
+    of affected rows.
+  description: The Query method in PlayerbotDatabaseConnection is used to execute
+    arbitrary SQL statements on the playerbot database. It performs a direct database
+    operation without returning result sets, making it suitable for INSERT, UPDATE,
+    DELETE, and other data modification operations. The method returns the number
+    of rows affected by the query, which can be useful for verifying the success of
+    database modifications. This method is typically used within the playerbot AI
+    system to manage configuration data, bot behavior settings, or persistent player-related
+    information stored in the database.
+  parameters:
+  - name: sql
+    description: The SQL query string to execute against the playerbot database. Must
+      be a valid SQL statement that modifies data (INSERT, UPDATE, DELETE) or returns
+      no result set.
+  returns: Returns an integer representing the number of rows affected by the executed
+    SQL query. For INSERT operations, this typically represents the number of rows
+    inserted. For UPDATE and DELETE operations, it indicates how many rows were modified
+    or removed. Returns 0 if no rows were affected or if the query failed.
+  examples:
+  - title: Basic Update Query
+    code: "PlayerbotDatabaseConnection* db = sPlayerbotAIConfig->GetPlayerbotDatabase();\n\
+      int affectedRows = db->Query(\"UPDATE playerbots_config SET enabled = 1 WHERE\
+      \ bot_id = 12345\");\nif (affectedRows > 0) {\n    // Successfully updated configuration\n\
+      }"
+    language: cpp
+  - title: Insert New Bot Configuration
+    code: "PlayerbotDatabaseConnection* db = sPlayerbotAIConfig->GetPlayerbotDatabase();\n\
+      int affectedRows = db->Query(\"INSERT INTO playerbots_config (bot_id, enabled,\
+      \ behavior) VALUES (54321, 1, 'combat')\");\nif (affectedRows > 0) {\n    //\
+      \ Successfully inserted new bot configuration\n}"
+    language: cpp
+  notes: This method is designed for use within the playerbot subsystem and should
+    not be used for general database operations. The SQL queries must be properly
+    escaped to prevent SQL injection attacks. The method does not return result sets,
+    so it's not suitable for SELECT statements that require data retrieval. All database
+    connections are managed by TrinityCore's connection pooling system.
+  warnings: Never pass user input directly into the SQL parameter without proper sanitization
+    or parameterization. This can lead to SQL injection vulnerabilities. The method
+    returns 0 for both no rows affected and potential errors, so error checking should
+    be implemented at a higher level if needed.
+  related:
+  - QueryResult
+  - PQuery
+  - DirectPQuery
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:06:33.556170'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

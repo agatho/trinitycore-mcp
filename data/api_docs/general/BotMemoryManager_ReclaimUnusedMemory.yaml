@@ -1,0 +1,51 @@
+api:
+  class: BotMemoryManager
+  method: ReclaimUnusedMemory
+  signature: uint64_t BotMemoryManager::ReclaimUnusedMemory()
+documentation:
+  brief: Reclaims unused memory from the bot memory manager and returns the amount
+    of memory freed in bytes.
+  description: The ReclaimUnusedMemory method is responsible for cleaning up and freeing
+    memory that is no longer being used by bots within the TrinityCore instance. This
+    method performs internal garbage collection to optimize memory usage, particularly
+    useful in environments where many bots are created and destroyed over time. It
+    helps prevent memory leaks and maintains efficient resource utilization. The method
+    does not require any parameters and returns a uint64_t value representing the
+    total number of bytes that were successfully freed during the operation.
+  parameters: []
+  returns: A uint64_t value indicating the total number of bytes of memory that was
+    reclaimed and freed by the bot memory manager. Returns zero if no unused memory
+    was found or if the operation had no effect.
+  examples:
+  - title: Basic Usage Example
+    code: "uint64_t freedMemory = botMemoryManager.ReclaimUnusedMemory();\nif (freedMemory\
+      \ > 0)\n{\n    std::cout << \"Freed \" << freedMemory << \" bytes of memory.\"\
+      \ << std::endl;\n}"
+    language: cpp
+  - title: Usage in Memory Management Loop
+    code: "void PerformPeriodicMemoryCleanup()\n{\n    static uint32_t lastCleanup\
+      \ = 0;\n    uint32_t currentTime = getMSTime();\n    \n    if (currentTime -\
+      \ lastCleanup > 30000) // Every 30 seconds\n    {\n        uint64_t freed =\
+      \ botMemoryManager.ReclaimUnusedMemory();\n        if (freed > 0)\n        {\n\
+      \            sLog->outString(\"Bot memory manager reclaimed %\" PRIu64 \" bytes.\"\
+      , freed);\n        }\n        lastCleanup = currentTime;\n    }\n}"
+    language: cpp
+  notes: This method should be called periodically to maintain optimal memory usage,
+    especially in long-running server environments with high bot activity. The operation
+    is non-blocking and safe to call from any thread context. It may not immediately
+    free all unused memory due to internal memory pools or allocation strategies used
+    by the bot system.
+  warnings: Calling this method too frequently can introduce unnecessary overhead.
+    It's recommended to batch calls or use it only when memory pressure is detected.
+    The freed memory count returned might be less than expected if memory is allocated
+    in large chunks or if there are active references preventing immediate deallocation.
+  related:
+  - GetUsedMemory
+  - GetTotalMemory
+  - ClearAllBots
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:30:24.783627'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,84 @@
+api:
+  class: PlayerChoiceScript
+  method: OnResponse
+  signature: void PlayerChoiceScript::OnResponse(WorldObject * object, Player * player,
+    const PlayerChoice * choice, const PlayerChoiceResponse * response, uint16 clientIdentifier)
+documentation:
+  brief: Handles player choice response events when a player makes a selection in
+    a player choice dialog.
+  description: The OnResponse method is invoked when a player interacts with a player
+    choice dialog by selecting an option. This method serves as the primary callback
+    for processing player decisions within interactive quest or NPC dialogue systems.
+    It provides access to the object that triggered the choice, the player who made
+    the selection, the specific choice being responded to, and the selected response.
+    The method allows scripters to implement custom logic based on the player's choice,
+    such as awarding rewards, starting quests, or modifying NPC behavior. This is
+    a core part of TrinityCore's player choice system that enables rich interactive
+    storytelling and quest mechanics.
+  parameters:
+  - name: object
+    description: Pointer to the WorldObject that triggered the player choice dialog
+      (typically an NPC or GameObject). Can be null if the choice was triggered through
+      other means.
+  - name: player
+    description: Pointer to the Player object who made the selection. This is guaranteed
+      to be a valid player instance when the method is called.
+  - name: choice
+    description: Pointer to the PlayerChoice structure representing the choice dialog
+      that was presented to the player. Contains metadata about the choice options
+      and associated data.
+  - name: response
+    description: Pointer to the PlayerChoiceResponse structure containing details
+      about the specific option selected by the player, including response ID and
+      associated actions.
+  - name: clientIdentifier
+    description: A 16-bit identifier sent from the client that uniquely identifies
+      this specific choice interaction. Used for tracking and validation purposes.
+  returns: void
+  examples:
+  - title: Basic player choice response handler
+    code: "class MyPlayerChoiceScript : public PlayerChoiceScript\n{\npublic:\n  \
+      \  void OnResponse(WorldObject* object, Player* player, const PlayerChoice*\
+      \ choice, const PlayerChoiceResponse* response, uint16 clientIdentifier) override\n\
+      \    {\n        // Handle the player's choice selection\n        if (response->ChoiceID\
+      \ == 1)\n        {\n            player->AddItem(ITEM_ID_REWARD, 1);\n      \
+      \      player->SendNotification(\"You have chosen option 1!\");\n        }\n\
+      \        else if (response->ChoiceID == 2)\n        {\n            player->TeleportTo(0,\
+      \ 0.0f, 0.0f, 0.0f, 0.0f);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced choice handling with quest progression
+    code: "class QuestChoiceScript : public PlayerChoiceScript\n{\npublic:\n    void\
+      \ OnResponse(WorldObject* object, Player* player, const PlayerChoice* choice,\
+      \ const PlayerChoiceResponse* response, uint16 clientIdentifier) override\n\
+      \    {\n        // Check if the player has completed required quest\n      \
+      \  if (player->GetQuestStatus(QUEST_ID_REQUIRED) == QUEST_STATUS_COMPLETE)\n\
+      \        {\n            // Process the choice based on selected option\n   \
+      \         switch (response->ResponseID)\n            {\n                case\
+      \ 0:\n                    player->CompleteQuest(QUEST_ID_CHOSEN);\n        \
+      \            break;\n                case 1:\n                    player->AddQuest(QUEST_ID_ALTERNATIVE,\
+      \ object);\n                    break;\n                default:\n         \
+      \           break;\n            }\n        }\n        else\n        {\n    \
+      \        player->SendNotification(\"You must complete the required quest first!\"\
+      );\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called on the server-side and executes within the context
+    of the player's session. The choice and response parameters are valid only during
+    the execution of this method and should not be stored or accessed asynchronously.
+    Implementations should avoid heavy computations or blocking operations to maintain
+    server performance. The clientIdentifier parameter can be used for logging or
+    debugging purposes to track specific choice interactions.
+  warnings: Do not call player->SaveToDB() or similar database methods directly from
+    this callback as it may cause race conditions. Ensure all player state changes
+    are properly queued and executed in the correct order. Be cautious with object
+    lifetime management - the WorldObject pointer may become invalid if the object
+    is destroyed before the method completes.
+  related:
+  - PlayerChoiceScript::OnSelect
+  - PlayerChoiceScript::OnCancel
+  - PlayerChoiceScript::OnShow
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:32:31.474561'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

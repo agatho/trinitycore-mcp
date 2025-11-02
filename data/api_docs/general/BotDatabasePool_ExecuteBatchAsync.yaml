@@ -1,0 +1,60 @@
+api:
+  class: BotDatabasePool
+  method: ExecuteBatchAsync
+  signature: void BotDatabasePool::ExecuteBatchAsync(const int & statements, std::function<void
+    (int)> callback, uint32 timeoutMs)
+documentation:
+  brief: Asynchronously executes a batch of database statements with optional callback
+    and timeout.
+  description: The ExecuteBatchAsync method initiates execution of a group of database
+    statements in a non-blocking manner, allowing the calling thread to continue without
+    waiting for completion. It accepts a reference to an integer representing the
+    number of statements to execute, a callback function that will be invoked upon
+    completion or failure, and a timeout value in milliseconds. This method is typically
+    used within the TrinityCore framework to perform background database operations
+    without blocking game loop execution. The batch execution ensures atomicity where
+    possible, and the callback provides a way to handle results or errors asynchronously.
+  parameters:
+  - name: statements
+    description: A constant reference to an integer indicating the number of database
+      statements to execute in the batch.
+  - name: callback
+    description: A std::function<void(int)> that will be executed once the batch operation
+      completes. The integer parameter represents the result code or status of the
+      operation.
+  - name: timeoutMs
+    description: An unsigned 32-bit integer specifying the maximum time in milliseconds
+      to wait for the batch execution to complete before timing out.
+  returns: void
+  examples:
+  - title: Basic usage of ExecuteBatchAsync
+    code: "int numStatements = 5;\nstd::function<void(int)> callback = [](int result)\
+      \ {\n    if (result == 0) {\n        printf(\"Batch executed successfully\\\
+      n\");\n    } else {\n        printf(\"Batch execution failed with code: %d\\\
+      n\", result);\n    }\n};\nbotDatabasePool.ExecuteBatchAsync(numStatements, callback,\
+      \ 5000);"
+    language: cpp
+  - title: Using ExecuteBatchAsync with lambda capture for context
+    code: "int statementCount = 10;\nstd::function<void(int)> callback = [this](int\
+      \ result) {\n    if (result == 0) {\n        this->OnBatchSuccess();\n    }\
+      \ else {\n        this->OnBatchFailure(result);\n    }\n};\nbotDatabasePool.ExecuteBatchAsync(statementCount,\
+      \ callback, 10000);"
+    language: cpp
+  notes: This method is designed for asynchronous database operations and should be
+    used carefully to avoid race conditions or data inconsistency issues. The callback
+    function is executed on the same thread that processes the database result, so
+    it's important to ensure thread safety when accessing shared resources from within
+    the callback.
+  warnings: Do not assume immediate execution of statements; always handle potential
+    timeouts and errors through the provided callback mechanism. Passing invalid statement
+    counts or zero timeout values may lead to undefined behavior or resource leaks.
+  related:
+  - ExecuteAsync
+  - Execute
+  - QueueAsync
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:47:27.866719'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

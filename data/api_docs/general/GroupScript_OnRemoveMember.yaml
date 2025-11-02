@@ -1,0 +1,92 @@
+api:
+  class: GroupScript
+  method: OnRemoveMember
+  signature: void GroupScript::OnRemoveMember(Group * group, int guid, RemoveMethod
+    method, int kicker, const char * reason)
+documentation:
+  brief: Called when a player is removed from a group, allowing scripts to execute
+    custom logic during member removal.
+  description: The OnRemoveMember method is a virtual callback function in the GroupScript
+    class that is invoked whenever a player is removed from a group in TrinityCore.
+    This event can occur due to various reasons such as kicking, leaving voluntarily,
+    or being disbanded. The method provides access to the group object, the GUID of
+    the removed member, the removal method used, and optional kicker and reason information.
+    It allows developers to implement custom behavior when group members are removed,
+    such as updating player data, sending notifications, or modifying game state.
+    This method is part of the scripting system that enables modders and server administrators
+    to extend default group functionality.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the member is being removed.
+      This represents the group context for the removal event.
+  - name: guid
+    description: The unique identifier (GUID) of the player who is being removed from
+      the group. This is typically a 32-bit integer representing the player's database
+      ID.
+  - name: method
+    description: The method used to remove the member, defined by the RemoveMethod
+      enum. Possible values include REMOVAL_METHOD_KICK, REMOVAL_METHOD_LEAVE, REMOVAL_METHOD_DISBAND,
+      etc., indicating how and why the player was removed.
+  - name: kicker
+    description: The GUID of the player who initiated the removal, if applicable.
+      This is typically set when a player is kicked from the group. May be 0 if not
+      applicable or unknown.
+  - name: reason
+    description: Optional string describing the reason for removal. This may be NULL
+      or empty depending on how the removal was initiated and whether a reason was
+      provided.
+  returns: null
+  examples:
+  - title: Basic Group Member Removal Handler
+    code: "#include \"GroupScript.h\"\n\nclass MyGroupScript : public GroupScript\n\
+      {\npublic:\n    MyGroupScript() : GroupScript(\"MyGroupScript\") {}\n\n    void\
+      \ OnRemoveMember(Group* group, uint32 guid, RemoveMethod method, uint32 kicker,\
+      \ const char* reason) override\n    {\n        // Log the removal event\n  \
+      \      sLog->outString(\"Player with GUID %u was removed from group %u using\
+      \ method %d\", guid, group->GetId(), method);\n\n        // Perform custom logic\
+      \ based on removal method\n        switch (method)\n        {\n            case\
+      \ REMOVAL_METHOD_KICK:\n                sLog->outString(\"Player was kicked\
+      \ by GUID %u\", kicker);\n                break;\n            case REMOVAL_METHOD_LEAVE:\n\
+      \                sLog->outString(\"Player left the group voluntarily\");\n \
+      \               break;\n            default:\n                sLog->outString(\"\
+      Player removed for unknown reason\");\n                break;\n        }\n \
+      \   }\n};"
+    language: cpp
+  - title: Advanced Custom Group Logic with Player Data Update
+    code: "#include \"GroupScript.h\"\n#include \"Player.h\"\n\nclass AdvancedGroupScript\
+      \ : public GroupScript\n{\npublic:\n    AdvancedGroupScript() : GroupScript(\"\
+      AdvancedGroupScript\") {}\n\n    void OnRemoveMember(Group* group, uint32 guid,\
+      \ RemoveMethod method, uint32 kicker, const char* reason) override\n    {\n\
+      \        // Get the player object if they are online\n        Player* player\
+      \ = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));\n \
+      \       if (!player)\n            return;\n\n        // Update player's group\
+      \ status\n        player->SetInGroup(false);\n\n        // Send custom message\
+      \ to the removed player\n        if (method == REMOVAL_METHOD_KICK && kicker)\n\
+      \        {\n            ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You were kicked from group by %u.\", kicker);\n        }\n\n        // Handle\
+      \ any cleanup or state changes\n        if (group->GetMembersCount() == 0)\n\
+      \        {\n            // Group is now empty, perform disband logic\n     \
+      \       sLog->outString(\"Group %u disbanded due to member removal\", group->GetId());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core group management system and should
+    not be used to modify the group state directly, as it may lead to race conditions
+    or inconsistent states. The group object passed in is valid during execution but
+    may become invalid after the callback completes if the group is destroyed. Developers
+    should be cautious when accessing player objects through GUIDs since players might
+    have logged out by the time this method executes.
+  warnings: Do not attempt to modify the group structure directly from within this
+    callback, as it can cause undefined behavior or crashes. Avoid performing expensive
+    operations in this method as it's called synchronously during group operations.
+    Be aware that the reason parameter may be NULL and should always be checked for
+    validity before use.
+  related:
+  - OnAddMember
+  - OnCreate
+  - OnDisband
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T06:42:52.009238'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

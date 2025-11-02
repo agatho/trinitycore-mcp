@@ -1,0 +1,54 @@
+api:
+  class: Condition
+  method: isLoaded
+  signature: bool Condition::isLoaded() const
+documentation:
+  brief: Checks whether the condition has been successfully loaded from database.
+  description: The isLoaded method returns a boolean value indicating if the Condition
+    object has been properly initialized with data from the database. This method
+    is typically used internally by the TrinityCore framework to verify that condition
+    data has been correctly retrieved and parsed before the condition can be evaluated
+    during game events or triggers. The method does not perform any database operations
+    itself but simply checks an internal flag or state that indicates successful loading.
+    It's commonly called before evaluating conditions to ensure data integrity and
+    prevent accessing uninitialized memory.
+  parameters: []
+  returns: True if the condition has been successfully loaded from the database and
+    is ready for evaluation; false otherwise. This typically means the object was
+    constructed with valid data or properly initialized through a load operation.
+  examples:
+  - title: Basic usage to check condition state
+    code: "Condition* cond = new Condition();\nif (cond->isLoaded()) {\n    // Proceed\
+      \ with condition evaluation\n    bool result = cond->Evaluate();\n} else {\n\
+      \    // Handle unloaded condition\n    sLog->outError(\"Condition failed to\
+      \ load properly\");\n}"
+    language: cpp
+  - title: Using isLoaded in a condition manager context
+    code: "class ConditionManager {\npublic:\n    bool ValidateConditions(std::vector<Condition*>&\
+      \ conditions) {\n        for (auto& cond : conditions) {\n            if (!cond->isLoaded())\
+      \ {\n                sLog->outError(\"Skipping unloaded condition at index %d\"\
+      , &cond - &conditions[0]);\n                continue;\n            }\n     \
+      \       // Process loaded conditions\n        }\n        return true;\n    }\n\
+      };"
+    language: cpp
+  notes: This method is typically used in conjunction with Condition::LoadFromDB()
+    or similar initialization methods. The internal state tracking for loading may
+    be implemented using a private boolean member variable that gets set to true after
+    successful database retrieval and parsing. It's important to note that even if
+    isLoaded() returns true, the condition might still fail evaluation due to runtime
+    conditions not matching the loaded criteria.
+  warnings: Do not assume that a condition being loaded means it will always evaluate
+    successfully. The isLoaded() method only verifies data presence, not logical validity
+    or current game state relevance. Also, calling this method on an uninitialized
+    Condition object may lead to undefined behavior if the internal loading flag isn't
+    properly initialized.
+  related:
+  - Condition::LoadFromDB
+  - Condition::Evaluate
+  - Condition::IsReady
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:31:54.765482'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

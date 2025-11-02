@@ -1,0 +1,53 @@
+api:
+  class: LFGBotManager
+  method: OnProposalFailed
+  signature: void LFGBotManager::OnProposalFailed(uint32 proposalId)
+documentation:
+  brief: Handles the failure of a Looking For Group (LFG) proposal by cleaning up
+    associated data and notifying relevant systems.
+  description: The OnProposalFailed method is invoked when a LFG proposal fails to
+    complete successfully. This typically occurs when a player's LFG request cannot
+    be fulfilled due to various reasons such as insufficient players, mismatched criteria,
+    or system errors. The method performs necessary cleanup operations including removing
+    the failed proposal from internal tracking structures, notifying involved players
+    of the failure, and potentially updating LFG queue states. It ensures that the
+    LFG system remains consistent and that players are properly informed about the
+    outcome of their group requests. This method is part of the LFGBotManager's core
+    functionality for managing automated LFG operations within the TrinityCore framework.
+  parameters:
+  - name: proposalId
+    description: Unique identifier for the LFG proposal that has failed. This ID corresponds
+      to a specific group matching request created by the LFG system.
+  returns: null
+  examples:
+  - title: Handling LFG Proposal Failure
+    code: "void HandleLFGFailure(uint32 proposalId)\n{\n    LFGBotManager* lfgBot\
+      \ = LFGBotManager::Instance();\n    lfgBot->OnProposalFailed(proposalId);\n}"
+    language: cpp
+  - title: Integration with LFG Event System
+    code: "class LFGEventHandler\n{\npublic:\n    void OnLFGProposalFailed(uint32\
+      \ proposalId)\n    {\n        // Log the failure\n        sLog->outInfo(LOG_FILTER_LFG,\
+      \ \"LFG Proposal %u failed\", proposalId);\n        \n        // Notify bot\
+      \ manager\n        LFGBotManager::Instance()->OnProposalFailed(proposalId);\n\
+      \        \n        // Update player status\n        Player* player = ObjectAccessor::FindPlayerByLowGUID(proposalId);\n\
+      \        if (player)\n        {\n            player->SendLFGBootProposalUpdate(LFG_BOOT_PROPOSAL_FAILED);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is typically called internally by the LFG system when a proposal
+    cannot be completed. Developers should ensure that any custom LFG logic properly
+    integrates with this method to maintain consistency in group matching operations.
+    The method assumes that the proposal ID is valid and corresponds to an existing
+    LFG proposal.
+  warnings: Improper handling of failed proposals may lead to inconsistent LFG queue
+    states or player confusion. Always validate the proposalId before calling this
+    method to prevent potential crashes or data corruption.
+  related:
+  - OnProposalSuccess
+  - OnProposalCreated
+  - GetProposalStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:21:11.659846'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

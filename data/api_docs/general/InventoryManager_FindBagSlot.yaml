@@ -1,0 +1,63 @@
+api:
+  class: InventoryManager
+  method: FindBagSlot
+  signature: int InventoryManager::FindBagSlot(uint32 itemId, uint32 count, int &
+    dest)
+documentation:
+  brief: Finds an available bag slot for a given item and count, storing the result
+    in the provided destination reference.
+  description: The FindBagSlot method searches through a player's inventory to locate
+    an appropriate bag slot that can accommodate a specified item and quantity. It
+    evaluates existing items in the inventory, considering stack limits and bag capacity
+    constraints. The method modifies the dest parameter to indicate the found slot
+    index or -1 if no suitable slot is available. This function is typically used
+    during item placement operations such as looting, trading, or inventory management
+    within the TrinityCore framework.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item to be placed in a bag slot
+  - name: count
+    description: The quantity of items to be placed in the bag slot
+  - name: dest
+    description: Reference to an integer that will store the found bag slot index,
+      or -1 if no slot is available
+  returns: Returns 1 if a suitable bag slot was found and dest was updated; returns
+    0 if no suitable slot exists or if the operation failed.
+  examples:
+  - title: Basic usage example
+    code: "uint32 itemId = 12345;\nuint32 count = 10;\nint destSlot = -1;\nInventoryManager*\
+      \ inventory = player->GetSession()->GetInventory();\nif (inventory->FindBagSlot(itemId,\
+      \ count, destSlot)) {\n    // Slot found, use destSlot for item placement\n\
+      \    printf(\"Found slot: %d\\n\", destSlot);\n} else {\n    // No suitable\
+      \ slot available\n    printf(\"No slot available for item %u\\n\", itemId);\n\
+      }"
+    language: cpp
+  - title: Advanced usage with stack handling
+    code: "uint32 itemId = 12345;\nuint32 count = 200;\nint destSlot = -1;\nInventoryManager*\
+      \ inventory = player->GetSession()->GetInventory();\nif (inventory->FindBagSlot(itemId,\
+      \ count, destSlot)) {\n    // Check if item can be stacked\n    ItemTemplate\
+      \ const* proto = sObjectMgr->GetItemTemplate(itemId);\n    if (proto && proto->Stackable\
+      \ > 1) {\n        // Handle stacking logic here\n        printf(\"Item can be\
+      \ stacked, slot: %d\\n\", destSlot);\n    }\n} else {\n    // Consider alternative\
+      \ actions like opening new bags\n    printf(\"No space for item %u, consider\
+      \ bag expansion\\n\", itemId);\n}"
+    language: cpp
+  notes: This method operates within the context of a player's inventory and is primarily
+    used during item transactions. It does not perform actual item placement but rather
+    identifies where an item could be placed. The dest parameter should be initialized
+    to -1 before calling this method. Performance may vary depending on inventory
+    size and complexity.
+  warnings: This method assumes that the player has sufficient permissions and that
+    the item exists in the game database. It does not validate item restrictions or
+    player conditions such as level requirements or bag capacity limits beyond basic
+    slot availability checks.
+  related:
+  - InventoryManager::AddItem
+  - InventoryManager::StoreItem
+  - InventoryManager::HasSpaceForItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T04:46:55.120922'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

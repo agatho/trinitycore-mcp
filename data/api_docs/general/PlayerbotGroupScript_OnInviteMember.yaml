@@ -1,0 +1,59 @@
+api:
+  class: PlayerbotGroupScript
+  method: OnInviteMember
+  signature: void PlayerbotGroupScript::OnInviteMember(Group * group, int guid)
+documentation:
+  brief: Handles the event when a player is invited to join a group
+  description: The OnInviteMember method is invoked when a player is invited to join
+    a group within the TrinityCore framework. This method serves as a hook for custom
+    bot logic or modifications to group invitation behavior. It allows developers
+    to intercept and modify how invitations are processed, potentially altering the
+    group composition or triggering additional actions upon invitation. The method
+    is typically used in playerbot scripts to customize bot behavior when joining
+    groups.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group the player is
+      being invited to join. This parameter provides access to group members, leader
+      information, and other group-related data.
+  - name: guid
+    description: The global unique identifier (GUID) of the player being invited to
+      the group. This value uniquely identifies the player within the game world and
+      can be used to retrieve player-specific data or perform operations on the invited
+      player.
+  returns: null
+  examples:
+  - title: Basic implementation example
+    code: "void MyPlayerbotScript::OnInviteMember(Group* group, int guid)\n{\n   \
+      \ // Log that a player was invited to a group\n    sLog->outString(\"Player\
+      \ with GUID %u was invited to group.\", guid);\n}"
+    language: cpp
+  - title: Advanced example with group data access
+    code: "void MyPlayerbotScript::OnInviteMember(Group* group, int guid)\n{\n   \
+      \ // Check if the group is full\n    if (group->GetMembersCount() >= MAX_GROUP_SIZE)\n\
+      \    {\n        // Reject invitation if group is full\n        return;\n   \
+      \ }\n    \n    // Get player name from GUID\n    Player* invitedPlayer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ guid));\n    if (invitedPlayer)\n    {\n        // Send a custom message to\
+      \ the invited player\n        invitedPlayer->GetSession()->SendAreaTriggerMessage(\"\
+      You have been invited to join a group!\");\n    }\n}"
+    language: cpp
+  notes: This method is part of the PlayerbotGroupScript class and is intended for
+    use in custom playerbot AI implementations. The group parameter may be null if
+    the invitation fails or the group has not yet been properly initialized. Developers
+    should ensure that any modifications to group state are thread-safe, as this method
+    may be called from different threads depending on the game context.
+  warnings: Be cautious when modifying group state within this callback, as it may
+    lead to inconsistent group behavior or crashes if not handled properly. Avoid
+    performing long-running operations in this method as it can block group invitation
+    processing. Also, ensure that the GUID parameter is valid before attempting to
+    access player data using it.
+  related:
+  - OnJoinGroup
+  - OnLeaveGroup
+  - OnGroupDisband
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T00:52:07.381757'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,69 @@
+api:
+  class: IVMapManager
+  method: getAreaAndLiquidData
+  signature: bool IVMapManager::getAreaAndLiquidData(unsigned int mapId, float x,
+    float y, float z, int reqLiquidType, AreaAndLiquidData & data) const
+documentation:
+  brief: Retrieves area and liquid data for a given map position, including terrain
+    type and water level information.
+  description: The getAreaAndLiquidData method queries the VMap (Virtual Map) system
+    to retrieve detailed area and liquid information at a specific coordinate on a
+    given map. It determines the area classification (such as indoor/outdoor, city,
+    dungeon, etc.) and provides liquid data including depth, type, and surface height.
+    This functionality is essential for game mechanics such as determining if a player
+    is standing in water, calculating buoyancy effects, or enforcing area-specific
+    rules. The method requires valid map coordinates and supports filtering by required
+    liquid type to optimize performance when only specific liquid information is needed.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map where the position is located. Must
+      be a valid map entry in the game database.
+  - name: x
+    description: The X coordinate of the position to query. Should be within the valid
+      world coordinate range for the specified map.
+  - name: y
+    description: The Y coordinate of the position to query. Should be within the valid
+      world coordinate range for the specified map.
+  - name: z
+    description: The Z (vertical) coordinate of the position to query. Used to determine
+      ground/liquid surface height and area classification.
+  - name: reqLiquidType
+    description: Specifies the required liquid type to filter results. A value of
+      -1 indicates no filtering, while other values correspond to specific liquid
+      types defined in the game (e.g., water, lava).
+  - name: data
+    description: Reference to an AreaAndLiquidData structure that will be populated
+      with the retrieved area and liquid information upon successful execution.
+  returns: Returns true if the method successfully retrieves valid area and liquid
+    data for the specified position, false otherwise. Failure may occur due to invalid
+    map coordinates, non-existent map ID, or internal VMap system errors.
+  examples:
+  - title: Basic usage to check if player is in water
+    code: "AreaAndLiquidData data;\nif (VMapManager2::instance()->getAreaAndLiquidData(0,\
+      \ 100.0f, 200.0f, 50.0f, -1, data)) {\n    if (data.liquidType != 0) {\n   \
+      \     // Player is in liquid\n        printf(\"Player is in liquid type: %d\\\
+      n\", data.liquidType);\n    }\n}"
+    language: cpp
+  - title: Query specific liquid type for collision detection
+    code: "AreaAndLiquidData data;\nif (VMapManager2::instance()->getAreaAndLiquidData(1,\
+      \ 1500.0f, 3000.0f, 100.0f, 1, data)) {\n    if (data.liquidType == 1) {\n \
+      \       // Found water at this location\n        printf(\"Water surface height:\
+      \ %f\\n\", data.liquidHeight);\n    }\n}"
+    language: cpp
+  notes: This method relies on the VMap system which must be properly initialized
+    and loaded with map data for accurate results. Performance can be affected by
+    complex terrain or high-frequency calls; consider caching results when possible.
+    The method does not perform coordinate validation beyond basic range checks.
+  warnings: Using invalid map IDs or coordinates outside of valid world bounds may
+    lead to undefined behavior or crashes. Always validate input parameters before
+    calling this method, especially in performance-critical code paths.
+  related:
+  - getAreaData
+  - getLiquidData
+  - isInLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:48:23.937660'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

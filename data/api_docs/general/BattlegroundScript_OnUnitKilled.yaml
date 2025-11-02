@@ -1,0 +1,54 @@
+api:
+  class: BattlegroundScript
+  method: OnUnitKilled
+  signature: void BattlegroundScript::OnUnitKilled(int * victim, int * killer)
+documentation:
+  brief: Handles the event when a unit is killed during a battleground, providing
+    access to victim and killer information.
+  description: The OnUnitKilled method is a virtual callback function in the BattlegroundScript
+    class that is invoked whenever a unit (player or NPC) is killed during a battleground
+    match. This method allows custom scripts to respond to kill events, enabling developers
+    to implement game logic such as scoring, rewards, or special effects based on
+    who killed whom. The parameters provide references to the victim and killer units,
+    which can be used to determine their types, teams, and other relevant properties.
+    This method is typically used in battleground scripts to customize gameplay mechanics
+    and ensure proper handling of combat outcomes within the context of a specific
+    battleground type.
+  parameters:
+  - name: victim
+    description: Pointer to an integer representing the unit that was killed. The
+      value corresponds to the GUID or internal identifier of the victim unit.
+  - name: killer
+    description: Pointer to an integer representing the unit responsible for the kill.
+      The value corresponds to the GUID or internal identifier of the killer unit.
+  returns: null
+  examples:
+  - title: Basic Kill Event Handler
+    code: "#include \"BattlegroundScript.h\"\n\nclass MyBattlegroundScript : public\
+      \ BattlegroundScript\n{\npublic:\n    void OnUnitKilled(int* victim, int* killer)\
+      \ override\n    {\n        // Log the kill event\n        sLog->outString(\"\
+      Unit killed: %d by %d\", *victim, *killer);\n        \n        // Example logic:\
+      \ Award points to killer\n        if (Player* player = ObjectAccessor::FindPlayer(*killer))\n\
+      \        {\n            player->ModifyMoney(1000); // Give 1000 copper\n   \
+      \     }\n    }\n};"
+    language: cpp
+  notes: This method is called during the battleground's lifecycle and should not
+    perform heavy operations that could block the game loop. The victim and killer
+    parameters are pointers to integers, which represent internal identifiers rather
+    than direct object references. Ensure proper null-checking before dereferencing
+    these values in custom implementations.
+  warnings: Improper handling of the victim or killer identifiers may lead to crashes
+    or undefined behavior. Always verify that the GUIDs correspond to valid units
+    before attempting to access their properties. Avoid performing operations that
+    modify game state directly within this callback without proper synchronization.
+  related:
+  - OnBattlegroundStart
+  - OnBattlegroundEnd
+  - OnPlayerJoin
+  - OnPlayerLeave
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T12:23:37.498183'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

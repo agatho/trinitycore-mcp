@@ -1,0 +1,54 @@
+api:
+  class: LFGQueue
+  method: UpdateWaitTimeAvg
+  signature: void LFGQueue::UpdateWaitTimeAvg(int32 waitTime, uint32 dungeonId)
+documentation:
+  brief: Updates the average wait time for a specific dungeon in the LFG queue system
+  description: The UpdateWaitTimeAvg method calculates and updates the average wait
+    time for a given dungeon ID within the Looking For Group (LFG) queue system. This
+    method is typically called when a player's wait time for a particular dungeon
+    is recorded, allowing the system to maintain statistical data about queue times.
+    The updated average is used to inform players about expected wait times and to
+    optimize group matching algorithms. The method takes into account the current
+    wait time and dungeon identifier to adjust internal statistics that represent
+    the average time players spend waiting for specific dungeon types.
+  parameters:
+  - name: waitTime
+    description: The actual wait time in seconds that a player spent waiting for the
+      dungeon. This value represents the duration from when a player joined the queue
+      until they were matched with a group.
+  - name: dungeonId
+    description: Unique identifier for the dungeon type. This ID corresponds to specific
+      dungeon entries in the game's database and is used to track wait times per dungeon
+      type.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: 'LFGQueue* queue = sLFGMgr->GetQueue(player->GetGUID());
+
+      queue->UpdateWaitTimeAvg(120, 1234); // Player waited 120 seconds for dungeon
+      ID 1234'
+    language: cpp
+  - title: Integration with player leave event
+    code: "void Player::OnLFGPlayerLeave()\n{\n    uint32 waitTime = time(nullptr)\
+      \ - m_LFGJoinTime;\n    if (waitTime > 0)\n    {\n        sLFGMgr->GetQueue(GetGUID())->UpdateWaitTimeAvg(waitTime,\
+      \ GetLFGDungeonId());\n    }\n}"
+    language: cpp
+  notes: This method likely maintains internal statistics using a running average
+    calculation to avoid storing all historical wait times. The dungeon ID parameter
+    should correspond to valid dungeon entries in the LFG system database. This method
+    is typically called during player queue exit events or when matching is completed.
+  warnings: Ensure that waitTime values are positive and reasonable, as negative or
+    extremely large values could skew average calculations. The dungeonId must be
+    a valid dungeon identifier from the game's database to prevent undefined behavior.
+  related:
+  - GetWaitTimeAvg
+  - UpdateDungeonList
+  - AddPlayerToQueue
+  - RemovePlayerFromQueue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:02:04.904390'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

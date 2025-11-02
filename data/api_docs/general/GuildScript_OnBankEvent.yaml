@@ -1,0 +1,80 @@
+api:
+  class: GuildScript
+  method: OnBankEvent
+  signature: void GuildScript::OnBankEvent(Guild * guild, uint8 eventType, uint8 tabId,
+    int playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+documentation:
+  brief: Invoked when a guild bank event occurs, providing details about the transaction.
+  description: The OnBankEvent method is a callback function in the GuildScript class
+    that gets triggered whenever an event occurs within a guild's bank system. This
+    includes actions such as depositing items or money, withdrawing items or money,
+    or moving items between tabs. The method provides comprehensive information about
+    the event, including the type of event, the involved player, and details about
+    the item or money exchanged. It allows developers to implement custom logic for
+    handling guild bank transactions, such as logging, notifications, or enforcing
+    restrictions.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object that owns the bank where the event occurred.
+  - name: eventType
+    description: 'Type of bank event that occurred. Possible values include: 0 (deposit),
+      1 (withdraw), 2 (move item), 3 (item destroyed).'
+  - name: tabId
+    description: Index of the source tab from which the item was moved or withdrawn,
+      or destination tab when moving items. Value is 0-6 for regular tabs, and 7 for
+      the guild bank's general tab.
+  - name: playerGuid
+    description: Global Unique Identifier (GUID) of the player who initiated the event.
+      This can be used to identify which player performed the action.
+  - name: itemOrMoney
+    description: Either the item entry ID if an item was involved, or the amount of
+      money in copper if money was involved.
+  - name: itemStackCount
+    description: Number of items in the stack that were moved, deposited, or withdrawn.
+      For monetary transactions, this value is typically 0.
+  - name: destTabId
+    description: Index of the destination tab when moving an item between tabs. Only
+      relevant for move events (eventType = 2).
+  returns: null
+  examples:
+  - title: Basic Logging of Guild Bank Events
+    code: "#include \"GuildScript.h\"\n\nclass MyGuildScript : public GuildScript\n\
+      {\npublic:\n    MyGuildScript() : GuildScript(\"MyGuildScript\") {}\n\n    void\
+      \ OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, int playerGuid, uint64\
+      \ itemOrMoney, uint16 itemStackCount, uint8 destTabId) override\n    {\n   \
+      \     // Log the event to console\n        std::string eventTypes[] = {\"Deposit\"\
+      , \"Withdraw\", \"Move Item\", \"Item Destroyed\"};\n        sLog->outString(\"\
+      Guild Bank Event: %s by player GUID %d in tab %d\", eventTypes[eventType].c_str(),\
+      \ playerGuid, tabId);\n    }\n};"
+    language: cpp
+  - title: Preventing Certain Item Withdrawals
+    code: "#include \"GuildScript.h\"\n\nclass RestrictedGuildScript : public GuildScript\n\
+      {\npublic:\n    RestrictedGuildScript() : GuildScript(\"RestrictedGuildScript\"\
+      ) {}\n\n    void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, int\
+      \ playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) override\n\
+      \    {\n        // Prevent withdrawal of items with entry ID 12345 (example\
+      \ restricted item)\n        if (eventType == 1 && itemOrMoney == 12345)\n  \
+      \      {\n            // Cancel the event by sending a message to the player\n\
+      \            Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ playerGuid));\n            if (player)\n                player->SendNotification(\"\
+      You cannot withdraw this item!\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core game logic after a bank event has been
+    processed. It's important to note that the player GUID may not always correspond
+    to an active player object if they have logged out since the event occurred. The
+    tabId and destTabId are zero-based indices, with valid values being 0-7 for standard
+    tabs.
+  warnings: Avoid performing heavy operations or blocking calls in this method as
+    it's invoked synchronously during gameplay. Do not modify the guild state directly
+    within this function unless you're certain about potential race conditions or
+    side effects.
+  related:
+  - OnGuildEvent
+  - OnMemberAdded
+  - OnMemberRemoved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:56:34.502963'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

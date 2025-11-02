@@ -1,0 +1,57 @@
+api:
+  class: PlayerScript
+  method: OnCreatureKill
+  signature: void PlayerScript::OnCreatureKill(Player * killer, Creature * killed)
+documentation:
+  brief: Executes custom logic when a player kills a creature in World of Warcraft.
+  description: The OnCreatureKill method is a virtual callback function within the
+    PlayerScript class that is invoked whenever a player successfully defeats a creature.
+    This method allows developers to implement custom game mechanics, quest progress
+    tracking, achievement rewards, or other events triggered by player-vs-creature
+    combat outcomes. The method provides access to both the killer (player) and the
+    killed (creature) objects, enabling detailed interaction with their properties
+    and states. It is part of TrinityCore's scripting system that allows for extensible
+    gameplay behavior without modifying core server code.
+  parameters:
+  - name: killer
+    description: Pointer to the Player object who successfully killed the creature.
+      This represents the active player character performing the kill action.
+  - name: killed
+    description: Pointer to the Creature object that was killed by the player. This
+      represents the enemy creature that has been defeated in combat.
+  returns: null
+  examples:
+  - title: Basic Achievement Reward on Creature Kill
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnCreatureKill(Player*\
+      \ killer, Creature* killed) override\n    {\n        // Grant achievement for\
+      \ killing a specific creature type\n        if (killed->GetEntry() == 12345)\n\
+      \        {\n            killer->CompletedAchievement(54321);\n        }\n  \
+      \  }\n};"
+    language: cpp
+  - title: Quest Progress Update on Creature Kill
+    code: "class QuestKillScript : public PlayerScript\n{\npublic:\n    void OnCreatureKill(Player*\
+      \ killer, Creature* killed) override\n    {\n        // Check if player has\
+      \ active quest that requires killing this creature\n        if (killer->GetQuestStatus(98765)\
+      \ == QUEST_STATUS_INCOMPLETE)\n        {\n            if (killed->GetEntry()\
+      \ == 54321)\n            {\n                killer->KilledMonsterCredit(54321);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the game's combat system after a creature has
+    been successfully killed. It runs in the main game thread and should avoid heavy
+    computations or blocking operations to maintain server performance. The pointers
+    passed to this function are guaranteed to be valid during execution, but may become
+    invalid if the objects are destroyed shortly after the call.
+  warnings: Avoid modifying the player or creature objects in ways that could cause
+    undefined behavior or crashes. Do not perform database operations directly within
+    this method as it might lead to deadlocks. Be cautious when accessing object properties
+    that might change during combat processing.
+  related:
+  - OnPlayerKilledByCreature
+  - OnCreatureLoot
+  - OnPlayerEnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:24:28.098446'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

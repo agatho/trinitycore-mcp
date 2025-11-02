@@ -1,0 +1,54 @@
+api:
+  class: ObstacleAvoidanceManager
+  method: RemoveObstacle
+  signature: void ObstacleAvoidanceManager::RemoveObstacle(int guid)
+documentation:
+  brief: Removes an obstacle from the obstacle avoidance system by its unique identifier.
+  description: The RemoveObstacle method removes a specific obstacle from the AI's
+    obstacle avoidance system using its unique global identifier (GUID). This method
+    is typically used during pathfinding to dynamically update the navigation mesh
+    by removing previously registered obstacles such as destructible objects, moving
+    creatures, or temporary environmental hazards. The system maintains an internal
+    list of active obstacles and this function allows for their removal to ensure
+    accurate path calculations. It's important that the GUID provided corresponds
+    to a valid obstacle that was previously added to the system; otherwise, the operation
+    may have no effect or potentially cause undefined behavior.
+  parameters:
+  - name: guid
+    description: The unique global identifier (GUID) of the obstacle to be removed.
+      This value must correspond to an existing obstacle that has been previously
+      registered with the ObstacleAvoidanceManager.
+  returns: null
+  examples:
+  - title: Remove a destructible object from pathfinding
+    code: "void OnDestructibleDestroyed(Unit* destroyer, WorldObject* destructible)\n\
+      {\n    if (auto* obstacleManager = sObjectMgr->GetObstacleAvoidanceManager())\n\
+      \    {\n        obstacleManager->RemoveObstacle(destructible->GetGUID().GetRawValue());\n\
+      \    }\n}"
+    language: cpp
+  - title: Remove multiple obstacles in a loop
+    code: "void RemoveAllObstaclesInArea(Position const& center, float radius)\n{\n\
+      \    if (auto* obstacleManager = sObjectMgr->GetObstacleAvoidanceManager())\n\
+      \    {\n        std::vector<int> toRemove;\n        for (auto const& obstacle\
+      \ : obstacleManager->GetActiveObstacles())\n        {\n            if (obstacle->GetPosition().DistTo(center)\
+      \ <= radius)\n                toRemove.push_back(obstacle->GetGUID());\n   \
+      \     }\n        for (int guid : toRemove)\n            obstacleManager->RemoveObstacle(guid);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the AI pathfinding subsystem and should be called
+    from within a thread-safe context when dealing with dynamic world objects. The
+    underlying implementation likely uses a hash map or similar data structure for
+    fast lookup, so performance is generally O(1) for removal operations.
+  warnings: Calling this method with an invalid or non-existent GUID may result in
+    silent failure or undefined behavior. Ensure that the obstacle was previously
+    added to the manager before attempting to remove it.
+  related:
+  - AddObstacle
+  - HasObstacle
+  - GetActiveObstacles
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T02:19:51.705921'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

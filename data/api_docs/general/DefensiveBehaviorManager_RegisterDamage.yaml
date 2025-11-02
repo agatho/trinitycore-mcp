@@ -1,0 +1,57 @@
+api:
+  class: DefensiveBehaviorManager
+  method: RegisterDamage
+  signature: void DefensiveBehaviorManager::RegisterDamage(uint32 damage, uint32 timestamp)
+documentation:
+  brief: Records damage dealt by a player for defensive behavior tracking.
+  description: The RegisterDamage method logs incoming damage events for a player's
+    defensive behavior system. This method is typically invoked when a player takes
+    damage during combat, allowing the game to track damage patterns and adjust defensive
+    abilities or cooldowns accordingly. The timestamp parameter helps maintain accurate
+    timing of damage events, which is crucial for mechanics like damage-based cooldown
+    reductions or defensive stance adjustments. The method does not return any value
+    but updates internal tracking structures used by the defensive behavior manager.
+  parameters:
+  - name: damage
+    description: The amount of damage dealt to the player. Must be a non-negative
+      integer representing the damage value.
+  - name: timestamp
+    description: The Unix timestamp when the damage occurred. Used for tracking damage
+      timing and applying time-based defensive mechanics.
+  returns: null
+  examples:
+  - title: Basic Damage Registration
+    code: 'DefensiveBehaviorManager* dbm = player->GetDefensiveBehaviorManager();
+
+      uint32 damageTaken = 150;
+
+      uint32 currentTime = time(nullptr);
+
+      dbm->RegisterDamage(damageTaken, currentTime);'
+    language: cpp
+  - title: Integration with Combat System
+    code: "void Player::DealDamage(Unit* target, uint32 damage)\n{\n    // ... combat\
+      \ logic ...\n    if (target->IsPlayer())\n    {\n        Player* player = static_cast<Player*>(target);\n\
+      \        DefensiveBehaviorManager* dbm = player->GetDefensiveBehaviorManager();\n\
+      \        uint32 timestamp = time(nullptr);\n        dbm->RegisterDamage(damage,\
+      \ timestamp);\n    }\n    // ... rest of combat logic ...\n}"
+    language: cpp
+  notes: This method is designed to be called from combat-related code paths. The
+    timestamp should ideally reflect the actual time when damage was applied, not
+    when it was calculated. The defensive behavior manager may use this data to determine
+    if certain defensive abilities should be triggered or if cooldowns should be adjusted
+    based on recent damage intake.
+  warnings: Ensure that the damage parameter is validated before calling this method
+    to prevent negative values which could cause unexpected behavior in defensive
+    mechanics. The timestamp should be a valid Unix timestamp; invalid timestamps
+    may lead to incorrect time-based calculations.
+  related:
+  - GetDamageHistory
+  - ResetDamageTracking
+  - CalculateDefensiveCooldownReduction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:39:38.866427'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

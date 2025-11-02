@@ -1,0 +1,62 @@
+api:
+  class: QuestManager
+  method: TurnInQuest
+  signature: bool QuestManager::TurnInQuest(uint32 questId, uint32 rewardChoice, WorldObject
+    * questGiver)
+documentation:
+  brief: Completes a quest by turning it in to the specified quest giver with an optional
+    reward choice.
+  description: The TurnInQuest method processes the completion of a player's quest
+    by validating the quest requirements, checking if the player has the necessary
+    items or kills, and awarding the selected reward. It interacts with the quest
+    system to update quest status, grant experience, items, and reputation as appropriate.
+    The method ensures that all quest conditions are met before allowing the quest
+    to be turned in. This function is typically called when a player interacts with
+    a quest giver object to turn in a completed quest.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being turned in. Must correspond
+      to a valid quest entry in the database.
+  - name: rewardChoice
+    description: The index of the reward choice selected by the player (0-based).
+      If the quest has multiple reward options, this determines which one is awarded.
+  - name: questGiver
+    description: Pointer to the WorldObject representing the quest giver. Must be
+      a valid object such as an NPC or GameObject that can accept quest completions.
+  returns: Returns true if the quest was successfully turned in and all rewards were
+    processed, false otherwise. A return value of false may indicate invalid quest
+    ID, missing requirements, or other validation failures.
+  examples:
+  - title: Basic Quest Turn-In
+    code: "if (player->GetQuestManager().TurnInQuest(12345, 0, npc)) {\n    // Quest\
+      \ completed successfully\n    player->SendAreaTriggerMessage(\"Quest completed!\"\
+      );\n} else {\n    // Failed to turn in quest\n    player->SendAreaTriggerMessage(\"\
+      Failed to complete quest.\");\n}"
+    language: cpp
+  - title: Turn-In with Reward Choice
+    code: "uint32 questId = 67890;\nuint32 rewardChoice = 2; // Select third reward\
+      \ option\nWorldObject* questGiver = player->GetNPC();\n\nif (player->GetQuestManager().TurnInQuest(questId,\
+      \ rewardChoice, questGiver)) {\n    player->AddItem(ITEM_ID_REWARD, 1);\n  \
+      \  player->ModifyMoney(10000);\n    // Additional reward processing\n}"
+    language: cpp
+  notes: This method internally validates quest completion requirements including
+    item possession, kill counts, and quest state. It handles both single and multiple
+    reward options for quests. The method assumes that the player has already met
+    all prerequisite conditions for the quest. This is a core function in the quest
+    system and should be used carefully to maintain game balance.
+  warnings: Calling this method without proper validation may result in incorrect
+    quest progression or reward distribution. Ensure that the quest giver object is
+    valid and that the quest ID exists in the database before calling. The rewardChoice
+    parameter must be within valid range for the specific quest, otherwise behavior
+    is undefined.
+  related:
+  - GetQuestStatus
+  - AddQuest
+  - CompleteQuest
+  - RewardQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-01T23:59:44.167935'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

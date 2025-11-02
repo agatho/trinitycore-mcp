@@ -1,0 +1,50 @@
+api:
+  class: InterruptRotationManager
+  method: SelectFallbackMethod
+  signature: FallbackMethod InterruptRotationManager::SelectFallbackMethod(uint32
+    spellId) const
+documentation:
+  brief: Selects and returns the appropriate fallback method for spell interruption
+    handling during rotation.
+  description: The SelectFallbackMethod function determines which fallback mechanism
+    should be used when a spell interruption occurs during an AI rotation. This method
+    is typically invoked when standard interruption logic fails or when specific conditions
+    are met that require alternative handling strategies. The returned FallbackMethod
+    enum indicates the type of fallback behavior to execute, such as continuing with
+    the next spell in the rotation, resetting the rotation state, or attempting a
+    different spell sequence. This functionality is crucial for maintaining smooth
+    AI behavior and preventing rotation lockups during combat scenarios.
+  parameters: []
+  returns: A FallbackMethod enum value indicating the specific fallback strategy to
+    be applied when spell interruption occurs. Possible values may include methods
+    like CONTINUE_ROTATION, RESET_ROTATION, or ALTERNATE_SPELL depending on implementation
+    details.
+  examples:
+  - title: Basic usage in AI logic
+    code: "class MyAI : public CreatureAI {\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override {\n        if (m_spellCooldown > 0)\n            m_spellCooldown\
+      \ -= diff;\n        \n        if (!m_spellCooldown && m_rotationManager->IsInterrupted())\
+      \ {\n            FallbackMethod fallback = m_rotationManager->SelectFallbackMethod(0);\n\
+      \            switch (fallback) {\n                case FallbackMethod::CONTINUE_ROTATION:\n\
+      \                    // Proceed with next spell\n                    break;\n\
+      \                case FallbackMethod::RESET_ROTATION:\n                    //\
+      \ Reset rotation state\n                    break;\n            }\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is part of the interrupt handling system and should be called
+    only when spell interruption has been detected. The implementation may vary based
+    on current combat state, spell type, or AI configuration. Consider caching the
+    result if this method is called frequently during a single update cycle.
+  warnings: Do not call this method outside of interrupt handling contexts as it may
+    return unexpected fallback behaviors. Ensure that all possible FallbackMethod
+    values are properly handled in downstream logic to avoid undefined behavior.
+  related:
+  - IsInterrupted
+  - HandleInterrupt
+  - GetInterruptReason
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T04:52:02.677862'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

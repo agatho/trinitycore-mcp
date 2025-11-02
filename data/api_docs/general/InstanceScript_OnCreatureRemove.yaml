@@ -1,0 +1,60 @@
+api:
+  class: InstanceScript
+  method: OnCreatureRemove
+  signature: void InstanceScript::OnCreatureRemove(Creature * creature)
+documentation:
+  brief: Called when a creature is removed from the instance, allowing custom behavior
+    to be executed.
+  description: The OnCreatureRemove method is a virtual callback function in the InstanceScript
+    class that is invoked whenever a Creature object is removed from an instance world.
+    This typically occurs when the creature is destroyed, despawned, or otherwise
+    no longer present in the instance. Developers can override this method to implement
+    custom logic such as updating instance state, triggering events, or cleaning up
+    references to the removed creature. The method provides access to the Creature
+    pointer, enabling interaction with the specific creature that was removed. This
+    callback is part of the instance scripting system used for managing dynamic content
+    within World of Warcraft instances.
+  parameters:
+  - name: creature
+    description: Pointer to the Creature object that has been removed from the instance.
+      This parameter provides access to the creature's properties and methods for
+      interaction.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "void ExampleInstanceScript::OnCreatureRemove(Creature* creature)\n{\n \
+      \   // Log when a creature is removed\n    sLog->outString(\"Creature %u removed\
+      \ from instance.\", creature->GetEntry());\n    \n    // Perform custom logic\
+      \ based on creature type\n    if (creature->GetEntry() == BOSS_ENTRY)\n    {\n\
+      \        // Trigger event or update instance state\n        SetData(DATA_BOSS_DEFEATED,\
+      \ 1);\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with Instance State Management
+    code: "void MyInstanceScript::OnCreatureRemove(Creature* creature)\n{\n    //\
+      \ Update creature count for instance tracking\n    if (creature->GetEntry()\
+      \ == EVENT_CREATURE_ENTRY)\n    {\n        --m_eventCreatureCount;\n       \
+      \ \n        // If all event creatures are gone, trigger next phase\n       \
+      \ if (m_eventCreatureCount <= 0 && m_phase == PHASE_EVENT)\n        {\n    \
+      \        m_phase = PHASE_COMPLETED;\n            DoCompleteQuest();\n      \
+      \  }\n    }\n    \n    // Clean up any references to the removed creature\n\
+      \    m_creatureGuids.erase(creature->GetGUID());\n}"
+    language: cpp
+  notes: This method is called during the creature's removal process, so any modifications
+    to the creature or its state should be handled carefully. The creature pointer
+    may become invalid after this function returns in some scenarios, so avoid storing
+    long-term references to it. This callback is part of the instance scripting system
+    and should only be overridden in custom InstanceScript implementations.
+  warnings: Avoid performing heavy operations within this method as it may be called
+    frequently during instance cleanup or creature removal events. Be cautious when
+    modifying instance state from this callback, as recursive calls or race conditions
+    might occur if not properly managed.
+  related:
+  - OnCreatureCreate
+  - OnGameObjectRemove
+  - OnInstanceRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:23:18.461943'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

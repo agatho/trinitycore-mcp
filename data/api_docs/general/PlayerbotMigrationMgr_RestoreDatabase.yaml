@@ -1,0 +1,52 @@
+api:
+  class: PlayerbotMigrationMgr
+  method: RestoreDatabase
+  signature: bool PlayerbotMigrationMgr::RestoreDatabase(const std::string & backupPath)
+documentation:
+  brief: Restores the playerbot database from a specified backup file path
+  description: The RestoreDatabase method attempts to restore the playerbot database
+    state using a backup file located at the provided path. This functionality is
+    typically used during migration processes or when reverting changes made to the
+    playerbot system. The method validates the existence and integrity of the backup
+    file before proceeding with the restoration process. It may involve stopping active
+    bot operations, replacing current database contents with backup data, and restarting
+    the bot management system. The operation is designed to be atomic, ensuring that
+    either the full restoration succeeds or fails without leaving the database in
+    a corrupted state.
+  parameters:
+  - name: backupPath
+    description: Absolute or relative path to the backup file containing playerbot
+      database state. Must point to a valid file with appropriate read permissions.
+      The file should be in a format compatible with the current TrinityCore playerbot
+      system version.
+  returns: Returns true if the database restoration was successful and complete, false
+    otherwise. A return value of false may indicate issues such as invalid file path,
+    insufficient permissions, corrupted backup data, or failure during the restore
+    process.
+  examples:
+  - title: Basic Database Restoration
+    code: "PlayerbotMigrationMgr* migrationMgr = PlayerbotMigrationMgr::instance();\n\
+      bool success = migrationMgr->RestoreDatabase(\"/path/to/playerbots_backup.sql\"\
+      );\nif (success) {\n    sLog->outString(\"Playerbot database restored successfully.\"\
+      );\n} else {\n    sLog->outError(\"Failed to restore playerbot database from\
+      \ backup.\");\n}"
+    language: cpp
+  notes: This method should only be called during maintenance windows or when the
+    playerbot system is not actively processing commands. The backup file must match
+    the expected schema version of the current TrinityCore installation to prevent
+    compatibility issues. Consider backing up the current database before attempting
+    restoration.
+  warnings: Attempting to restore a corrupted or incompatible backup file may result
+    in data loss or system instability. Ensure that the backup path is accessible
+    and contains valid, unmodified database backup files. Never execute this method
+    while bots are actively running without proper shutdown procedures.
+  related:
+  - BackupDatabase
+  - GetDatabaseStatus
+  - MigrateDatabase
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T00:46:58.260599'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

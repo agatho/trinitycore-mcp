@@ -1,0 +1,57 @@
+api:
+  class: GuildScript
+  method: OnMOTDChanged
+  signature: void GuildScript::OnMOTDChanged(Guild * guild, const std::string & newMotd)
+documentation:
+  brief: Invoked when a guild's Message of the Day (MOTD) is changed, allowing scripts
+    to react to the update.
+  description: The OnMOTDChanged method is a callback function in the GuildScript
+    class that is triggered whenever a guild's Message of the Day (MOTD) is modified
+    by a guild leader or officer. This method allows custom scripts to perform actions
+    such as logging the change, sending notifications to players, or updating external
+    systems when the MOTD is updated. The method receives a pointer to the affected
+    guild and the new MOTD string as parameters. It is part of TrinityCore's scripting
+    system that enables developers to extend or modify guild behavior without modifying
+    core game code.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object whose MOTD has been changed. This parameter
+      provides access to all guild-related data and methods for the affected guild.
+  - name: newMotd
+    description: The new Message of the Day string that was set for the guild. This
+      string contains the updated MOTD text as entered by the guild leader or officer.
+  returns: null
+  examples:
+  - title: Basic MOTD Change Logging
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnMOTDChanged(Guild*\
+      \ guild, const std::string& newMotd) override\n    {\n        LOG_INFO(\"guild\"\
+      , \"MOTD changed for guild '{}' to: {}\", guild->GetName(), newMotd);\n    }\n\
+      };"
+    language: cpp
+  - title: Broadcast MOTD Change to Guild Members
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnMOTDChanged(Guild*\
+      \ guild, const std::string& newMotd) override\n    {\n        for (auto const&\
+      \ member : guild->GetMembers())\n        {\n            if (Player* player =\
+      \ ObjectAccessor::FindConnectedPlayer(member.GetGuid()))\n            {\n  \
+      \              ChatHandler(player->GetSession()).SendSysMessage(\"Guild MOTD\
+      \ has been updated.\");\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the game's core guild management system,
+    typically after a successful MOTD update. It runs in the main thread and should
+    avoid long-running operations to prevent performance issues. The guild pointer
+    passed to this function is guaranteed to be valid during execution.
+  warnings: Do not modify the guild state or attempt to change the MOTD again within
+    this callback, as it may lead to recursion or unexpected behavior. Be cautious
+    with logging or network operations that could impact server performance under
+    high load.
+  related:
+  - OnGuildCreated
+  - OnGuildDisbanded
+  - OnMemberAdded
+  - OnMemberRemoved
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:52:55.069670'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

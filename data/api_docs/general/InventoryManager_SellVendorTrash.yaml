@@ -1,0 +1,59 @@
+api:
+  class: InventoryManager
+  method: SellVendorTrash
+  signature: uint32 InventoryManager::SellVendorTrash(Creature * vendor)
+documentation:
+  brief: Sells all vendor-trash items from the player's inventory to the specified
+    vendor.
+  description: The SellVendorTrash method iterates through the player's inventory
+    and sells all items that are classified as 'vendor-trash' to the provided vendor
+    creature. Vendor-trash items are typically low-value, quest-related items or consumables
+    that can be sold back to vendors for copper. This method handles the transaction
+    process including updating the player's money and removing the sold items from
+    their inventory. The function returns the total amount of money earned from selling
+    these items. It is commonly used in vendor interaction logic to automate the sale
+    of unwanted inventory items.
+  parameters:
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor to whom items
+      will be sold. Must be a valid vendor creature with a valid entry ID and sellable
+      item list.
+  returns: Returns the total amount of copper money earned from selling all vendor-trash
+    items. Returns 0 if no vendor-trash items are found or if the vendor is invalid.
+  examples:
+  - title: Basic usage in vendor interaction
+    code: "void Player::HandleVendorInteraction(Creature* vendor)\n{\n    uint32 moneyEarned\
+      \ = GetInventory()->SellVendorTrash(vendor);\n    if (moneyEarned > 0)\n   \
+      \ {\n        ModifyMoney(moneyEarned);\n        SendBuyBackPacket(vendor);\n\
+      \    }\n}"
+    language: cpp
+  - title: Checking for vendor-trash items before selling
+    code: "uint32 InventoryManager::SellVendorTrash(Creature* vendor)\n{\n    if (!vendor\
+      \ || !vendor->isVendor())\n        return 0;\n\n    uint32 totalMoney = 0;\n\
+      \    for (uint8 slot = 0; slot < MAX_INVENTORY_SLOT; ++slot)\n    {\n      \
+      \  Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);\n        if (item\
+      \ && IsVendorTrash(item))\n        {\n            totalMoney += item->GetTemplate()->SellPrice;\n\
+      \            DestroyItem(INVENTORY_SLOT_BAG_0, slot, true);\n        }\n   \
+      \ }\n\n    return totalMoney;\n}"
+    language: cpp
+  notes: This method only sells items that are marked as vendor-trash in the item
+    template. It does not sell items that are bound or have special restrictions.
+    The method assumes proper validation of the vendor pointer and checks for valid
+    vendor status before proceeding with sales. Performance is optimized by iterating
+    through inventory slots directly rather than using complex lookup mechanisms.
+  warnings: Ensure that the vendor parameter is properly validated to prevent crashes
+    from null pointers. This method modifies player inventory and money, so it should
+    only be called in appropriate contexts such as vendor interaction handlers. Be
+    cautious when calling this method multiple times in rapid succession as it may
+    cause unexpected behavior with item removal and money updates.
+  related:
+  - SellItem
+  - BuyItem
+  - IsVendorTrash
+  - GetItemCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T04:42:05.863305'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

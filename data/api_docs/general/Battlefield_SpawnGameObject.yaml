@@ -1,0 +1,64 @@
+api:
+  class: Battlefield
+  method: SpawnGameObject
+  signature: GameObject * Battlefield::SpawnGameObject(int entry, const Position &
+    pos, const QuaternionData & rot)
+documentation:
+  brief: Spawns a game object with the specified entry ID at the given position and
+    rotation within the battlefield.
+  description: The SpawnGameObject method creates and places a new GameObject instance
+    into the battlefield world. It takes an entry identifier, position coordinates,
+    and rotational data to determine where and how the object is instantiated. This
+    method is typically used during battlefield initialization or dynamic event handling
+    to add interactive elements like doors, traps, or decorative objects. The spawned
+    GameObject becomes part of the battlefield's active object list and will be managed
+    by the game world system until explicitly removed. The method returns a pointer
+    to the newly created GameObject instance which can be used for further manipulation
+    or reference.
+  parameters:
+  - name: entry
+    description: The unique identifier (entry ID) of the GameObject template to spawn.
+      This corresponds to entries defined in the game's database tables such as gameobject_template.
+  - name: pos
+    description: The Position structure containing the x, y, z coordinates where the
+      GameObject should be spawned in the world.
+  - name: rot
+    description: The QuaternionData structure defining the orientation of the spawned
+      GameObject using quaternion rotation values (x, y, z, w).
+  returns: A pointer to the newly created GameObject instance if successful, or nullptr
+    if the spawn operation failed due to invalid parameters or resource limitations.
+  examples:
+  - title: Basic GameObject Spawn
+    code: "GameObject* go = battlefield->SpawnGameObject(176582, Position(100.0f,\
+      \ 200.0f, 300.0f, 0.0f), QuaternionData(0.0f, 0.0f, 0.0f, 1.0f));\nif (go)\n\
+      {\n    // Successfully spawned game object\n    go->SetRespawnTime(300); //\
+      \ Set respawn time to 5 minutes\n}"
+    language: cpp
+  - title: Spawn with Custom Rotation
+    code: "Position spawnPos(500.0f, 600.0f, 700.0f);\nQuaternionData rotation;\n\
+      rotation.x = 0.0f;\nrotation.y = 0.0f;\nrotation.z = 0.707f;\nrotation.w = 0.707f;\
+      \ // 90 degree rotation around Z-axis\nGameObject* door = battlefield->SpawnGameObject(181562,\
+      \ spawnPos, rotation);\nif (door)\n{\n    door->SetUInt32Value(GAMEOBJECT_FLAGS,\
+      \ GO_FLAG_NOT_SELECTABLE);\n}"
+    language: cpp
+  notes: This method integrates with TrinityCore's GameObject system and relies on
+    proper database entries for the specified 'entry' parameter. The returned GameObject
+    pointer should be stored carefully as it may become invalid if the object is destroyed
+    or removed from the battlefield. Consider using smart pointers or reference counting
+    mechanisms when storing references to spawned objects.
+  warnings: Do not call this method from within a game loop without proper synchronization,
+    as it may cause race conditions with the world update system. Ensure that all
+    parameters are valid before calling - especially the entry ID which must exist
+    in the database or the function will return nullptr. Be cautious about spawning
+    too many objects simultaneously as it can impact performance.
+  related:
+  - RemoveGameObject
+  - GetGameObject
+  - SpawnCreature
+  - DespawnGameObject
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T12:49:54.424157'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,74 @@
+api:
+  class: ObjectMgr
+  method: CheckPlayerName
+  signature: int ObjectMgr::CheckPlayerName(std::string_view name, LocaleConstant
+    locale, bool create)
+documentation:
+  brief: Validates a player name against game rules and returns an error code indicating
+    success or failure.
+  description: The CheckPlayerName method verifies whether a given player name adheres
+    to the game's naming rules for the specified locale. It checks for invalid characters,
+    length restrictions, and reserved words. The method is typically used during character
+    creation or name changes to ensure compliance with World of Warcraft's naming
+    policies. When the 'create' parameter is true, it also validates that the name
+    is not already in use by another player. This method helps maintain game integrity
+    by preventing inappropriate or conflicting names.
+  parameters:
+  - name: name
+    description: The player name to validate as a std::string_view. Must be between
+      2 and 12 characters long, containing only valid alphanumeric characters and
+      spaces.
+  - name: locale
+    description: The LocaleConstant representing the game locale for which the name
+      validation should be performed. Determines language-specific rules and character
+      sets.
+  - name: create
+    description: Boolean flag indicating if this is a character creation check (true)
+      or a general validation (false). When true, checks if name is already taken.
+  returns: 'Returns an integer code indicating the result of the name validation:
+
+    - 0: Name is valid and available
+
+    - 1: Name is invalid due to length or character restrictions
+
+    - 2: Name contains forbidden words or phrases
+
+    - 3: Name is already taken (when create=true)
+
+    - 4: Name is too short or too long for the specified locale
+
+    - 5: Name contains invalid characters not allowed in the given locale'
+  examples:
+  - title: Basic name validation
+    code: "int result = sObjectMgr->CheckPlayerName(\"ShadowHunter\", LOCALE_en, false);\n\
+      if (result == 0) {\n    // Name is valid\n    printf(\"Name is acceptable\\\
+      n\");\n} else {\n    // Handle invalid name\n    printf(\"Invalid name: %d\\\
+      n\", result);\n}"
+    language: cpp
+  - title: Character creation validation
+    code: "std::string playerName = \"NewPlayer123\";\nint result = sObjectMgr->CheckPlayerName(playerName,\
+      \ LOCALE_en, true);\nif (result == 0) {\n    // Proceed with character creation\n\
+      \    printf(\"Creating character with name: %s\\n\", playerName.c_str());\n\
+      } else if (result == 3) {\n    // Name already taken\n    printf(\"Error: Name\
+      \ is already in use\\n\");\n} else {\n    // Other validation errors\n    printf(\"\
+      Name validation failed with code: %d\\n\", result);\n}"
+    language: cpp
+  notes: This method performs case-insensitive checks and may cache results for performance.
+    It's thread-safe when used with proper locking mechanisms. The method respects
+    locale-specific rules, so names valid in one language might be invalid in another.
+    For optimal performance, avoid calling this method repeatedly without need.
+  warnings: Do not use this method to validate names from untrusted sources without
+    proper sanitization. The method assumes the name is already pre-sanitized for
+    basic characters but does not protect against all forms of injection or malicious
+    input. Always check return values before proceeding with character creation or
+    name changes.
+  related:
+  - GetPlayerNameByGUID
+  - IsPlayerNameValid
+  - CheckForBannedNames
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:46:21.025594'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

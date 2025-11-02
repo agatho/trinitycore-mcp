@@ -1,0 +1,54 @@
+api:
+  class: DB2Manager
+  method: Zone2MapCoordinates
+  signature: bool DB2Manager::Zone2MapCoordinates(uint32 areaId, float & x, float
+    & y) const
+documentation:
+  brief: Converts a zone (area) identifier to its corresponding map coordinates.
+  description: The Zone2MapCoordinates method translates a given area ID into map
+    coordinates (x, y). This is commonly used in World of Warcraft's TrinityCore to
+    determine the position of an area on a map. The method retrieves precomputed mapping
+    data from internal DB2 files that store zone-to-map coordinate relationships.
+    It returns true if the conversion was successful and false if the area ID is invalid
+    or not found in the database.
+  parameters:
+  - name: areaId
+    description: The unique identifier of the zone/area to convert. This corresponds
+      to the AreaTable.db2 file's ID field.
+  - name: x
+    description: Reference to a float that will be set to the X coordinate on the
+      map if the conversion succeeds.
+  - name: y
+    description: Reference to a float that will be set to the Y coordinate on the
+      map if the conversion succeeds.
+  returns: True if the area ID was found and coordinates were successfully retrieved;
+    false otherwise.
+  examples:
+  - title: Basic Usage
+    code: "float x, y;\nif (sDB2Manager->Zone2MapCoordinates(1234, x, y)) {\n    printf(\"\
+      Coordinates: (%f, %f)\\n\", x, y);\n} else {\n    printf(\"Area ID 1234 not\
+      \ found.\\n\");\n}"
+    language: cpp
+  - title: Using with Player Location
+    code: "Player* player = ...;\nuint32 areaId = player->GetAreaId();\nfloat x, y;\n\
+      if (sDB2Manager->Zone2MapCoordinates(areaId, x, y)) {\n    // Use coordinates\
+      \ for map display or navigation\n    player->SendNotification(\"You are at map\
+      \ coordinates (%f, %f)\", x, y);\n}"
+    language: cpp
+  notes: This method relies on internal DB2 data structures and assumes that the DB2Manager
+    has been properly initialized with zone mapping data. The coordinates returned
+    are typically normalized to a range between 0 and 100, representing relative map
+    positions.
+  warnings: Ensure that the area ID passed is valid and corresponds to an actual zone
+    in the game database; invalid IDs will cause the method to return false without
+    setting x or y values.
+  related:
+  - Map2ZoneCoordinates
+  - GetAreaName
+  - GetMapCoordinatesForArea
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T08:51:00.538655'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

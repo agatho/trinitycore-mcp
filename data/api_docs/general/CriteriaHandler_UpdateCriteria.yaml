@@ -1,73 +1,88 @@
 api:
   class: CriteriaHandler
   method: UpdateCriteria
-  signature: void CriteriaHandler::UpdateCriteria(int type, uint64 miscValue1, uint64
-    miscValue2, uint64 miscValue3, const WorldObject * ref, Player * referencePlayer)
+  signature: void CriteriaHandler::UpdateCriteria(const Criteria * criteria, uint64
+    miscValue1, uint64 miscValue2, uint64 miscValue3, const WorldObject * ref, Player
+    * referencePlayer)
 documentation:
-  brief: Updates player criteria based on specified type and miscellaneous values.
-  description: The UpdateCriteria method is responsible for advancing or modifying
-    player achievement criteria within the TrinityCore framework. It takes a criteria
-    type and associated miscellaneous values to determine how to update the player's
-    progress toward specific achievements. The method may be invoked when certain
-    in-game events occur, such as killing a creature, collecting items, or completing
-    quests. This function interacts with the player's criteria data stored in their
-    database record and updates it accordingly. It requires a reference object and
-    potentially a player reference for context-dependent criteria evaluation.
+  brief: Updates a criteria entry based on provided miscellaneous values and reference
+    objects.
+  description: The UpdateCriteria method is responsible for updating player achievement
+    criteria within the TrinityCore framework. It processes a given criteria object
+    along with three miscellaneous values and a reference to either a WorldObject
+    or Player, which are used to determine if the criteria should be progressed or
+    completed. This method typically gets invoked when certain in-game events occur
+    that may contribute to fulfilling criteria requirements such as killing creatures,
+    collecting items, or reaching specific locations. The method does not return any
+    value but modifies internal player data structures related to achievements and
+    criteria tracking.
   parameters:
-  - name: type
-    description: The type of criteria to update, typically representing an achievement
-      criterion category (e.g., kill creature, collect item). Valid values are defined
-      by the game's criteria system.
+  - name: criteria
+    description: Pointer to the Criteria object that defines what needs to be tracked
+      and updated. This object contains information about the type of criterion being
+      evaluated, required amounts, and associated quest or achievement IDs.
   - name: miscValue1
-    description: First miscellaneous value used for criteria evaluation. Its meaning
-      depends on the criteria type; may represent creature entry ID, item ID, or other
-      relevant data.
+    description: First miscellaneous value used in evaluating the criteria. Its meaning
+      depends on the specific criteria type; for example, it might represent a creature
+      entry ID when tracking kills, or an item ID when tracking collections.
   - name: miscValue2
-    description: Second miscellaneous value used for criteria evaluation. Often used
-      in conjunction with miscValue1 to provide additional context for the criterion
-      check.
+    description: Second miscellaneous value used in evaluating the criteria. Often
+      represents additional context such as a zone ID, faction ID, or another identifier
+      needed for complex criterion checks.
   - name: miscValue3
-    description: Third miscellaneous value used for criteria evaluation. May be used
-      for more complex criteria involving multiple parameters or thresholds.
+    description: Third miscellaneous value used in evaluating the criteria. Typically
+      used for more advanced criterion types where multiple parameters are required
+      to define completion conditions.
   - name: ref
-    description: Pointer to a WorldObject that provides context for the criteria update.
-      Can be nullptr if no specific object is involved in the event triggering the
-      update.
+    description: Pointer to a WorldObject that serves as a reference point or context
+      for the criteria update. This could be a creature, game object, item, or any
+      other world entity relevant to the criterion being updated.
   - name: referencePlayer
-    description: Pointer to the Player who triggered or is associated with this criteria
-      update. May be nullptr if not directly related to a player action.
+    description: Pointer to the Player who is associated with this criteria update.
+      This player's progress will be modified according to the provided criteria and
+      values. May be null if the update is not directly tied to a specific player.
   returns: null
   examples:
-  - title: Update criteria for killing a specific creature
-    code: 'Player* player = ...;
+  - title: Updating Kill Criteria for a Specific Creature
+    code: 'Criteria* crit = sObjectMgr->GetCriteria(12345);
+
+      Player* player = ...;
 
       WorldObject* target = ...;
 
-      CriteriaHandler::UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, 12345, 0, 0, target,
-      player);'
+      uint64 creatureEntry = 1234;
+
+      CriteriaHandler::UpdateCriteria(crit, creatureEntry, 0, 0, target, player);'
     language: cpp
-  - title: Update criteria for collecting a specific item
-    code: 'Player* player = ...;
+  - title: Updating a Collection Criteria with Multiple Parameters
+    code: 'Criteria* crit = sObjectMgr->GetCriteria(54321);
+
+      Player* player = ...;
 
       WorldObject* item = ...;
 
-      CriteriaHandler::UpdateCriteria(CRITERIA_TYPE_GET_ITEM, 67890, 0, 0, item, player);'
+      uint64 itemId = 9876;
+
+      uint64 zoneId = 456;
+
+      CriteriaHandler::UpdateCriteria(crit, itemId, zoneId, 0, item, player);'
     language: cpp
-  notes: This method is part of the internal achievement tracking system and should
-    generally be called through appropriate event handlers rather than directly. The
-    criteria type must match predefined constants in the codebase. Performance-wise,
-    this function may trigger database writes if progress changes significantly.
-  warnings: Ensure that all parameters are valid before calling to avoid unexpected
-    behavior or crashes. Passing invalid WorldObject pointers can lead to undefined
-    behavior. This method modifies player data and should not be called outside of
-    appropriate game logic contexts.
+  notes: This method is part of the internal achievement and criterion tracking system
+    in TrinityCore. It's commonly called from event handlers or other systems that
+    detect progress towards criteria completion. The method internally checks if the
+    provided values match the expected pattern for the given criteria type, and may
+    trigger updates to player progress, achievements, and related notifications.
+  warnings: Incorrect parameter values can lead to incorrect criterion progression
+    or even invalid data states. Ensure that miscValue parameters are correctly set
+    according to the criteria definition. Passing null pointers for ref or referencePlayer
+    may cause undefined behavior or errors depending on how the criteria is defined.
   related:
-  - GetCriteriaProgress
+  - GetCriteria
+  - CheckCriteriaProgress
   - CompleteCriteria
-  - ResetCriteria
 metadata:
   confidence: 0.9
-  generated_at: '2025-11-01T01:15:57.535381'
+  generated_at: '2025-11-02T08:57:30.706096'
   generator: lmstudio-qwen3-coder-30b
   version: 1.0.0
   source: core

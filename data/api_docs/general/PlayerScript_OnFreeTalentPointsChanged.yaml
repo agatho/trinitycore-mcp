@@ -1,0 +1,59 @@
+api:
+  class: PlayerScript
+  method: OnFreeTalentPointsChanged
+  signature: void PlayerScript::OnFreeTalentPointsChanged(Player * player, uint32
+    points)
+documentation:
+  brief: Invoked when a player's free talent points are modified, allowing scripts
+    to respond to changes in available talent point allocation.
+  description: The OnFreeTalentPointsChanged method is a callback function within
+    the PlayerScript class that gets triggered whenever a player's free talent points
+    are altered. This typically occurs when players gain levels, spend talent points,
+    or receive other gameplay events that affect their ability to allocate talents.
+    The method provides access to both the affected player object and the new number
+    of available free talent points, enabling custom logic such as UI updates, quest
+    progress tracking, or balance adjustments. It is part of TrinityCore's scripting
+    system that allows developers to extend or modify core game behavior without directly
+    modifying the engine code.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose free talent points have changed.
+      This represents the specific player instance affected by the event.
+  - name: points
+    description: The new number of free talent points available for the player. This
+      value reflects the updated state after any changes have been applied.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnFreeTalentPointsChanged(Player*\
+      \ player, uint32 points) override\n    {\n        // Log the change in free\
+      \ talent points\n        sLog->outString(\"Player %s now has %u free talent\
+      \ points.\", player->GetName().c_str(), points);\n    }\n};"
+    language: cpp
+  - title: Advanced Example with UI Update
+    code: "class TalentPointScript : public PlayerScript\n{\npublic:\n    void OnFreeTalentPointsChanged(Player*\
+      \ player, uint32 points) override\n    {\n        // Send a custom packet to\
+      \ update the player's UI\n        WorldPacket data(SMSG_TALENT_POINTS_CHANGED,\
+      \ 4);\n        data << uint32(points);\n        player->SendDirectMessage(&data);\n\
+      \        \n        // Trigger any related quest updates or notifications\n \
+      \       if (points > 0)\n            player->CastSpell(player, 12345, true);\
+      \ // Example spell effect\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core game loop and should not perform
+    heavy operations that could block other players or cause performance issues. It's
+    recommended to avoid long-running computations or database access directly inside
+    this callback.
+  warnings: Avoid modifying player state or calling functions that might recursively
+    trigger this event, as it can lead to infinite loops or stack overflows. Also,
+    be cautious about using player pointers in asynchronous contexts where the player
+    might have logged out.
+  related:
+  - OnTalentPointSpent
+  - OnPlayerLevelUp
+  - OnPlayerLearnTalent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:20:37.035617'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

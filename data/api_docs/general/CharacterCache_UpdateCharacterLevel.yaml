@@ -1,0 +1,62 @@
+api:
+  class: CharacterCache
+  method: UpdateCharacterLevel
+  signature: void CharacterCache::UpdateCharacterLevel(const int & guid, uint8 level)
+documentation:
+  brief: Updates the level of a character in the cache using the provided GUID and
+    level values.
+  description: The UpdateCharacterLevel method is responsible for updating the cached
+    level information for a specific character identified by their globally unique
+    identifier (GUID). This method is typically used within the TrinityCore framework
+    to maintain consistency between the database and in-memory character data. It
+    ensures that any changes to a character's level are reflected in the local cache,
+    which can improve performance by reducing database queries. The method accepts
+    a constant reference to the GUID and a uint8 value representing the new level.
+    This operation is generally performed during character progression events such
+    as leveling up or when loading character data from the database.
+  parameters:
+  - name: guid
+    description: A constant reference to the globally unique identifier of the character
+      whose level needs to be updated. This value uniquely identifies the character
+      within the game world and is typically obtained from the database or character
+      creation process.
+  - name: level
+    description: An 8-bit unsigned integer representing the new level value for the
+      character. Valid values are typically between 1 and 255, though the exact range
+      may depend on game mechanics and expansion support.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'CharacterCache* cache = CharacterCache::Instance();
+
+      int characterGuid = 12345;
+
+      uint8 newLevel = 60;
+
+      cache->UpdateCharacterLevel(characterGuid, newLevel);'
+    language: cpp
+  - title: Usage with Level Progression Event
+    code: "void OnPlayerLevelUp(Player* player)\n{\n    CharacterCache* cache = CharacterCache::Instance();\n\
+      \    cache->UpdateCharacterLevel(player->GetGUID().GetCounter(), player->getLevel());\n\
+      }"
+    language: cpp
+  notes: This method operates on the in-memory cache and does not directly modify
+    the database. Changes made using this method will only persist until the server
+    restarts or until a subsequent database sync occurs. The character GUID should
+    be validated before calling this method to prevent errors. This method is thread-safe
+    if used with proper synchronization mechanisms.
+  warnings: Ensure that the GUID parameter corresponds to an existing character in
+    the cache, otherwise unexpected behavior may occur. Avoid calling this method
+    with invalid level values (e.g., zero or negative numbers) as it may cause inconsistencies
+    in game mechanics. The method does not perform any validation on the level value
+    itself beyond type checking.
+  related:
+  - GetCharacterLevel
+  - UpdateCharacterData
+  - LoadCharacterCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T10:06:35.613804'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

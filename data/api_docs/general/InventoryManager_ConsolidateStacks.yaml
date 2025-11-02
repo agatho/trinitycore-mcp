@@ -1,0 +1,55 @@
+api:
+  class: InventoryManager
+  method: ConsolidateStacks
+  signature: uint32 InventoryManager::ConsolidateStacks()
+documentation:
+  brief: Consolidates item stacks in the player's inventory by merging identical items
+    into fewer, larger stacks.
+  description: The ConsolidateStacks method attempts to merge identical items within
+    the player's inventory into larger stacks, reducing the total number of item entries.
+    This operation is typically performed when items are added to the inventory or
+    when the player's inventory is being optimized. The method iterates through all
+    slots in the inventory and combines items that have the same entry ID, display
+    ID, and other relevant properties (such as enchantments, gems, etc.) into larger
+    stacks up to the maximum stack size allowed by the item definition. This helps
+    reduce inventory clutter and can improve performance by minimizing the number
+    of item entries that need to be processed or saved. The operation respects item
+    stacking rules and will not merge items with different properties such as enchantments
+    or durability.
+  parameters: []
+  returns: Returns the total number of stacks that were successfully consolidated.
+    A return value of zero indicates no consolidation occurred, which may happen when
+    there are no eligible stacks to merge or when all items are already in their maximum
+    stackable configuration.
+  examples:
+  - title: Basic Usage
+    code: "uint32 consolidated = player->GetSession()->GetInventoryManager()->ConsolidateStacks();\n\
+      if (consolidated > 0)\n{\n    TC_LOG_DEBUG(\"player.inventory\", \"Successfully\
+      \ consolidated %u stacks\", consolidated);\n}"
+    language: cpp
+  - title: Inventory Optimization
+    code: "void Player::OptimizeInventory()\n{\n    uint32 consolidated = GetSession()->GetInventoryManager()->ConsolidateStacks();\n\
+      \    if (consolidated > 0)\n    {\n        SendNotifyMessage(\"Inventory optimized:\
+      \ %u stacks consolidated.\", consolidated);\n    }\n}"
+    language: cpp
+  notes: This method should be called after inventory modifications to ensure optimal
+    stack usage. It does not modify the item data itself, but rather reorganizes how
+    items are stored in the inventory slots. The consolidation process respects all
+    item stacking rules including those for soulbound items, quest items, and items
+    with unique properties that cannot be stacked.
+  warnings: Calling this method frequently during rapid inventory changes may cause
+    unexpected behavior or performance issues. It should typically be called after
+    batch inventory modifications rather than on every individual item addition or
+    removal. The method does not account for temporary inventory states such as items
+    being in transit or in a trade window.
+  related:
+  - AddItem
+  - StoreItem
+  - SwapItem
+  - RemoveItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:47:48.855568'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

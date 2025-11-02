@@ -1,0 +1,61 @@
+api:
+  class: PositionManager
+  method: FindSafePosition
+  signature: int PositionManager::FindSafePosition(const int & fromPos, float minDistance)
+documentation:
+  brief: Finds a safe position near the given starting position, ensuring minimum
+    distance from obstacles.
+  description: The FindSafePosition method searches for a valid and safe location
+    in the game world near the specified starting position. It ensures that the resulting
+    position is free from collisions and adheres to the minimum distance constraint
+    from nearby obstacles or terrain features. This method is commonly used during
+    NPC movement, player teleportation, or any scenario where a valid spatial coordinate
+    must be determined without intersecting with solid objects. The method operates
+    within the context of TrinityCore's navigation mesh system and considers various
+    environmental factors such as terrain height, object placement, and world boundaries.
+  parameters:
+  - name: fromPos
+    description: The reference position from which to search for a safe location.
+      This is typically an integer identifier or index representing a specific point
+      in the game world's coordinate system.
+  - name: minDistance
+    description: The minimum distance that the returned safe position must maintain
+      from nearby obstacles or solid objects. Must be a positive floating-point value.
+  returns: An integer identifier representing the found safe position. Returns -1
+    if no suitable safe position could be located within reasonable search parameters.
+  examples:
+  - title: Basic usage to find a safe position near a given point
+    code: "int safePos = positionManager.FindSafePosition(12345, 2.0f);\nif (safePos\
+      \ != -1) {\n    // Use the safe position for movement or teleportation\n   \
+      \ printf(\"Found safe position: %d\\n\", safePos);\n} else {\n    // Handle\
+      \ case where no safe position was found\n    printf(\"No safe position found.\\\
+      n\");\n}"
+    language: cpp
+  - title: Using FindSafePosition in NPC movement logic
+    code: "class NPC {\npublic:\n    void MoveToSafeLocation(PositionManager& posMgr,\
+      \ int currentPos) {\n        int safePos = posMgr.FindSafePosition(currentPos,\
+      \ 3.0f);\n        if (safePos != -1) {\n            // Proceed with movement\
+      \ to the safe position\n            this->SetPosition(safePos);\n        } else\
+      \ {\n            // Fallback behavior when no safe spot is available\n     \
+      \       this->SetPosition(currentPos);\n        }\n    }\n};"
+    language: cpp
+  notes: The method internally utilizes TrinityCore's navigation mesh and collision
+    detection systems to determine safety. Performance may vary depending on the complexity
+    of the surrounding terrain and number of obstacles near the starting position.
+    The search algorithm prioritizes finding a valid location within acceptable bounds
+    rather than maximizing distance from all obstacles.
+  warnings: This method might return -1 if the system cannot find a safe position
+    within its internal limits, which could lead to unexpected behavior in movement
+    logic if not properly handled. Avoid calling this method with very small minDistance
+    values as it may result in failure to find valid positions due to tight collision
+    constraints.
+  related:
+  - GetSafePosition
+  - ValidatePosition
+  - FindNearestValidPosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T00:31:33.092370'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

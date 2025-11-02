@@ -1,0 +1,59 @@
+api:
+  class: ObjectMgr
+  method: AddGraveyardLink
+  signature: bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team,
+    bool persist)
+documentation:
+  brief: Registers a graveyard link for a specific zone and team in the ObjectMgr
+    system.
+  description: The AddGraveyardLink method is responsible for associating a graveyard
+    with a particular zone and team within the TrinityCore world database. This linkage
+    determines which graveyard players will be teleported to when they die in the
+    specified zone, depending on their team (Alliance or Horde). The method ensures
+    that each graveyard-zone-team combination is unique and properly stored in memory
+    for runtime use. It supports persistence of this data through the persist flag,
+    allowing developers to control whether changes are written to persistent storage.
+  parameters:
+  - name: id
+    description: The unique identifier of the graveyard to be linked. This corresponds
+      to the ID field in the graveyard_zone table in the database.
+  - name: zoneId
+    description: The zone identifier where this graveyard is located. This maps to
+      the ZoneID field in the database and defines the geographical area affected
+      by this link.
+  - name: team
+    description: The team associated with this graveyard link (0 = Alliance, 1 = Horde).
+      A value of 2 typically represents both teams or neutral zones.
+  - name: persist
+    description: A boolean flag indicating whether the link should be persisted to
+      the database. If true, changes are written to persistent storage; if false,
+      only in-memory updates occur.
+  returns: Returns true if the graveyard link was successfully added or updated in
+    the system. Returns false if the operation failed due to invalid parameters, duplicate
+    entries, or other internal errors.
+  examples:
+  - title: Basic Usage
+    code: ObjectMgr::instance()->AddGraveyardLink(1001, 1234, TEAM_ALLIANCE, true);
+    language: cpp
+  - title: Adding Horde Graveyard Link
+    code: ObjectMgr::instance()->AddGraveyardLink(1002, 5678, TEAM_HORDE, false);
+    language: cpp
+  notes: This method is typically called during server startup or when loading graveyard
+    data from the database. The ObjectMgr maintains an internal cache of all graveyard
+    links for fast lookup during player death events. It's important to ensure that
+    zone IDs and graveyard IDs are valid before calling this function to avoid runtime
+    errors.
+  warnings: Calling this method with invalid parameters (e.g., non-existent zone ID
+    or graveyard ID) may result in undefined behavior or database corruption if persistence
+    is enabled. Always validate input data before invoking this method, especially
+    when dynamically adding links during runtime.
+  related:
+  - GetGraveyardLink
+  - LoadGraveyardLinks
+  - RemoveGraveyardLink
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T02:50:10.326343'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

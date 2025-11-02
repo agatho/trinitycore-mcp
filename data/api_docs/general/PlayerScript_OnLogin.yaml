@@ -1,0 +1,65 @@
+api:
+  class: PlayerScript
+  method: OnLogin
+  signature: void PlayerScript::OnLogin(Player * player, bool firstLogin)
+documentation:
+  brief: Called when a player logs into the game, allowing scripts to execute custom
+    logic during login.
+  description: The OnLogin method is a virtual callback function in the PlayerScript
+    class that is invoked whenever a player successfully logs into the World of Warcraft
+    server through TrinityCore. This method provides an opportunity for custom modifications
+    or actions to be executed at the moment of login, such as sending welcome messages,
+    applying temporary buffs, initializing player data, or triggering quest events.
+    The firstLogin parameter indicates whether this is the player's first time logging
+    in since their account was created or if they are returning after a previous session.
+    This method can be overridden by custom script implementations to extend or modify
+    default login behavior.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who has logged
+      in. This parameter provides access to all player-related data and methods for
+      manipulation during the login process.
+  - name: firstLogin
+    description: Boolean flag indicating if this is the first login session for the
+      player. True means it's their initial login since account creation, false indicates
+      a return visit after previous logouts.
+  returns: null
+  examples:
+  - title: Basic OnLogin Implementation
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    MyPlayerScript()\
+      \ : PlayerScript(\"MyPlayerScript\") {}\n\n    void OnLogin(Player* player,\
+      \ bool firstLogin) override\n    {\n        if (firstLogin)\n        {\n   \
+      \         ChatHandler(player->GetSession()).SendSysMessage(\"Welcome to our\
+      \ server! This is your first login.\");\n        }\n        else\n        {\n\
+      \            ChatHandler(player->GetSession()).SendSysMessage(\"Welcome back,\
+      \ returning player!\");\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced OnLogin with Data Initialization
+    code: "class CustomPlayerScript : public PlayerScript\n{\npublic:\n    CustomPlayerScript()\
+      \ : PlayerScript(\"CustomPlayerScript\") {}\n\n    void OnLogin(Player* player,\
+      \ bool firstLogin) override\n    {\n        // Apply a temporary buff on first\
+      \ login\n        if (firstLogin)\n        {\n            player->AddAura(12345,\
+      \ player); // Example aura ID\n            player->SetUInt32Value(PLAYER_FIELD_COINAGE,\
+      \ 1000000); // Give starting gold\n        }\n\n        // Log the login event\n\
+      \        sLog->outString(\"Player %s logged in at %s\", player->GetName().c_str(),\
+      \ GetTimeString().c_str());\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game loop during the login sequence,
+    so it should avoid heavy computations or blocking operations to prevent server
+    lag. The player object passed in will be fully initialized with all session data,
+    but some subsystems like quest tracking might not be completely loaded yet depending
+    on the login phase.
+  warnings: Avoid performing database writes directly within this method as it may
+    cause deadlocks or performance issues. Also, do not call methods that require
+    a full player state initialization during OnLogin, as some systems may not be
+    ready yet.
+  related:
+  - PlayerScript::OnLogout
+  - PlayerScript::OnCreate
+  - PlayerScript::OnDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:18:48.753946'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

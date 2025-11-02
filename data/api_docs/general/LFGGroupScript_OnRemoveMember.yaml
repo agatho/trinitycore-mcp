@@ -1,0 +1,68 @@
+api:
+  class: LFGGroupScript
+  method: OnRemoveMember
+  signature: void LFGGroupScript::OnRemoveMember(Group * group, int guid, int method,
+    int kicker, const char * reason)
+documentation:
+  brief: Called when a member is removed from a LFG group, providing context about
+    the removal method and reason.
+  description: The OnRemoveMember method is invoked whenever a player is removed from
+    a Looking for Group (LFG) group. This callback allows scripts to react to group
+    member removals, which can occur due to various reasons such as leaving the group
+    voluntarily, being kicked by a leader, or automatic removal due to timeout or
+    disconnection. The method provides detailed information about how and why the
+    player was removed, enabling custom logic for handling group dynamics, loot distribution,
+    or player experience adjustments. This method is part of the LFGGroupScript interface
+    and is typically used in custom scripts or addons that modify standard LFG behavior.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the member was removed. This
+      represents the LFG group context.
+  - name: guid
+    description: The global unique identifier (GUID) of the player who was removed
+      from the group.
+  - name: method
+    description: Integer representing the method used to remove the member. Common
+      values include 0 for leaving, 1 for being kicked, and 2 for timeout or disconnection.
+  - name: kicker
+    description: The GUID of the player who initiated the removal, if applicable (e.g.,
+      a kick). Zero if not applicable.
+  - name: reason
+    description: Null-terminated string describing the reason for removal. May be
+      NULL or empty in some cases.
+  returns: null
+  examples:
+  - title: Basic implementation to log group member removals
+    code: "#include \"ScriptMgr.h\"\n#include \"LFGGroupScript.h\"\n\nclass MyLFGGroupScript\
+      \ : public LFGGroupScript\n{\npublic:\n    MyLFGGroupScript() : LFGGroupScript(\"\
+      MyLFGGroupScript\") {}\n\n    void OnRemoveMember(Group* group, uint64 guid,\
+      \ uint8 method, uint64 kicker, const char* reason) override\n    {\n       \
+      \ if (Player* player = ObjectAccessor::FindPlayer(guid))\n        {\n      \
+      \      sLog->outInfo(LOG_FILTER_GENERAL, \"Player %s was removed from LFG group.\"\
+      , player->GetName().c_str());\n            \n            switch (method)\n \
+      \           {\n                case 0:\n                    sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Reason: Player left voluntarily.\");\n                    break;\n     \
+      \           case 1:\n                    if (Player* kickerPlayer = ObjectAccessor::FindPlayer(kicker))\n\
+      \                        sLog->outInfo(LOG_FILTER_GENERAL, \"Reason: Kicked\
+      \ by %s.\", kickerPlayer->GetName().c_str());\n                    break;\n\
+      \                default:\n                    sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Reason: Unknown method %u.\", method);\n                    break;\n   \
+      \         }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the group removal process, so any modifications
+    to the group or player state within this function must be carefully considered
+    to avoid race conditions or inconsistent states. The 'reason' parameter may be
+    NULL in some cases, so always check for null before using it.
+  warnings: Modifying group members or player state directly from this callback can
+    lead to undefined behavior or crashes if not handled properly. Ensure that all
+    operations are safe and do not interfere with the ongoing removal process.
+  related:
+  - OnAddMember
+  - OnGroupCreate
+  - OnGroupDestroy
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:14:12.288252'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

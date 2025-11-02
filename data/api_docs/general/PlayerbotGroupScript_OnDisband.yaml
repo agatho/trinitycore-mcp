@@ -1,0 +1,46 @@
+api:
+  class: PlayerbotGroupScript
+  method: OnDisband
+  signature: void PlayerbotGroupScript::OnDisband(Group * group)
+documentation:
+  brief: Handles the event when a player group is disbanded in the game.
+  description: The OnDisband method is invoked when a player group (such as a raid
+    or party) is disbanded, either manually by the group leader or automatically due
+    to player logout or other conditions. This method allows scripts to perform cleanup
+    operations, notify other systems, or modify player behavior upon group dissolution.
+    It serves as a hook for custom bot logic that needs to respond to group disbanding
+    events, particularly in playerbot scenarios where automated behavior must adapt
+    to changing group dynamics.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that is being disbanded. This parameter
+      provides access to group members, leader information, and other group-related
+      data at the time of disbanding.
+  returns: null
+  examples:
+  - title: Basic usage in a custom script
+    code: "class MyPlayerbotScript : public PlayerbotGroupScript {\npublic:\n    void\
+      \ OnDisband(Group* group) override {\n        // Log that the group was disbanded\n\
+      \        sLog->outString(\"Group disbanded: %u\", group->GetId());\n       \
+      \ \n        // Perform cleanup tasks for each member\n        for (uint8 i =\
+      \ 0; i < group->GetMembersCount(); ++i) {\n            Group::MemberSlot* slot\
+      \ = group->GetMemberSlot(i);\n            if (slot)\n                sLog->outString(\"\
+      Cleaning up member: %s\", slot->name.c_str());\n        }\n    }\n};"
+    language: cpp
+  notes: This method is typically called during the group destruction phase, so any
+    access to group members or data should be done carefully as the group structure
+    may already be partially invalidated. It's recommended to cache necessary information
+    before performing operations that might rely on the group's integrity.
+  warnings: Avoid modifying the group object directly within this method, as it may
+    lead to undefined behavior or crashes. Also, be cautious of potential race conditions
+    if multiple threads are involved in group management.
+  related:
+  - OnAddMember
+  - OnRemoveMember
+  - OnLeaderChanged
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T00:52:34.860890'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: ReputationMgr
+  method: ReputationToRank
+  signature: int ReputationMgr::ReputationToRank(const FactionEntry * factionEntry,
+    int32 standing)
+documentation:
+  brief: Converts a reputation standing value into a rank index for the specified
+    faction.
+  description: The ReputationToRank method takes a faction entry and a reputation
+    standing value, then returns the corresponding rank index that represents the
+    player's standing with that faction. This is used internally by TrinityCore to
+    determine which reputation rank (e.g., Hated, Neutral, Friendly) a player has
+    reached based on their standing value. The method performs a lookup against the
+    faction's reputation rank thresholds defined in the game data. It is commonly
+    used when displaying reputation status or determining access to faction-specific
+    rewards and quests.
+  parameters:
+  - name: factionEntry
+    description: Pointer to the FactionEntry structure that defines the faction's
+      properties, including its reputation rank thresholds. Must not be null.
+  - name: standing
+    description: The current reputation standing value for the player with the specified
+      faction. Can be negative (hated), zero (neutral), or positive (friendly).
+  returns: Returns an integer representing the rank index of the player's standing
+    with the given faction. The value typically ranges from 0 to 8, where 0 is Hated
+    and 8 is Exalted. Returns -1 if the input parameters are invalid or if the faction
+    entry does not contain valid rank data.
+  examples:
+  - title: Basic usage of ReputationToRank
+    code: 'const FactionEntry* faction = sFactionStore.LookupEntry(72); // Example:
+      Gnomeregan
+
+      int32 playerStanding = 10000;
+
+      int rankIndex = reputationMgr->ReputationToRank(faction, playerStanding);
+
+      // rankIndex will be the index of the corresponding reputation rank'
+    language: cpp
+  - title: Using ReputationToRank to determine faction status
+    code: "const FactionEntry* faction = sFactionStore.LookupEntry(470); // Argent\
+      \ Dawn\nint32 playerStanding = player->GetReputation(faction->ID);\nint rankIndex\
+      \ = reputationMgr->ReputationToRank(faction, playerStanding);\nif (rankIndex\
+      \ >= 5) {\n    // Player has at least Friendly standing with this faction\n}"
+    language: cpp
+  notes: This method relies on the internal structure of FactionEntry and assumes
+    that rank thresholds are properly defined. The method does not modify any player
+    or faction data, it only performs a lookup calculation. It is thread-safe as long
+    as the FactionEntry passed in remains valid during execution.
+  warnings: Ensure that the FactionEntry pointer is valid before calling this method;
+    passing a null pointer will likely result in undefined behavior. Also, the standing
+    value should be within expected bounds for the faction to ensure meaningful rank
+    determination.
+  related:
+  - GetReputation
+  - SetReputation
+  - ReputationRankToName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:43:01.840289'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

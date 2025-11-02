@@ -1,0 +1,62 @@
+api:
+  class: Guild
+  method: _GetMemberRemainingSlots
+  signature: int32 Guild::_GetMemberRemainingSlots(const Member & member, uint8 tabId)
+    const
+documentation:
+  brief: Calculates the remaining slot capacity for a guild member in a specific tab
+    of the guild's inventory.
+  description: The _GetMemberRemainingSlots method determines how many additional
+    items can be placed into a specified guild bank tab by a given member. This calculation
+    takes into account the member's permissions and the current item count within
+    the tab. The method is used internally to enforce guild bank slot limitations
+    and access controls. It returns a negative value if the member does not have sufficient
+    permissions to deposit items in the specified tab, or zero if no more items can
+    be added due to capacity limits.
+  parameters:
+  - name: member
+    description: Reference to the guild member whose remaining slot capacity is being
+      calculated. This parameter determines the member's access level and permissions
+      for the specified tab.
+  - name: tabId
+    description: Identifier of the guild bank tab for which to calculate remaining
+      slots. Valid values are typically 0-6, corresponding to the standard guild bank
+      tabs (0 being the first tab).
+  returns: Returns an int32 representing the number of additional items that can be
+    deposited into the specified tab by the member. A positive value indicates available
+    slots, zero means no more items can be added, and a negative value typically indicates
+    insufficient permissions or invalid tab ID.
+  examples:
+  - title: Check remaining slots for a guild member in tab 0
+    code: "int32 remainingSlots = guild->_GetMemberRemainingSlots(member, 0);\nif\
+      \ (remainingSlots > 0) {\n    // Member can deposit items\n} else if (remainingSlots\
+      \ == 0) {\n    // Tab is full\n} else {\n    // Insufficient permissions or\
+      \ invalid tab\n}"
+    language: cpp
+  - title: Determine if a member can add an item to a guild bank tab
+    code: "uint8 tabIndex = 2;\nint32 slotsAvailable = guild->_GetMemberRemainingSlots(member,\
+      \ tabIndex);\nif (slotsAvailable >= 1) {\n    // Proceed with depositing one\
+      \ item\n    guild->DepositItem(tabIndex, item);\n} else if (slotsAvailable <\
+      \ 0) {\n    // Handle insufficient permissions\n    SendGuildBankPermissionError(member,\
+      \ tabIndex);\n}"
+    language: cpp
+  notes: This method is typically called during guild bank operations to validate
+    whether a member can deposit items. It does not directly modify any state; it
+    only performs calculations based on existing data. The implementation likely checks
+    the member's rank permissions and compares against the tab's current item count
+    versus its maximum capacity.
+  warnings: Ensure that the tabId parameter is within valid range (typically 0-6)
+    to avoid undefined behavior or incorrect results. This method may return negative
+    values for permission-related errors, so callers should handle these cases appropriately
+    to prevent unexpected program flow.
+  related:
+  - Guild::GetMember
+  - Guild::GetBankTab
+  - Guild::DepositItem
+  - Guild::WithdrawItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T06:33:57.930613'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

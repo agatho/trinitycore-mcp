@@ -1,0 +1,84 @@
+api:
+  class: GuildScript
+  method: OnItemMove
+  signature: void GuildScript::OnItemMove(Guild * guild, Player * player, Item * pItem,
+    bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, bool isDestBank, uint8 destContainer,
+    uint8 destSlotId)
+documentation:
+  brief: Called when an item is moved within a guild's bank or inventory.
+  description: The OnItemMove method is invoked whenever an item is moved between
+    containers within a guild's bank or inventory system. This event handler allows
+    custom scripts to intercept and modify the behavior of item movements, such as
+    preventing certain items from being moved, applying restrictions based on item
+    type or player rank, or triggering additional actions like logging or notifications.
+    The method provides detailed information about both source and destination locations,
+    including container types and slot identifiers, enabling precise control over
+    movement logic.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object where the item movement occurs. This
+      represents the guild context for the operation.
+  - name: player
+    description: Pointer to the Player object who initiated the item movement. This
+      is the player performing the action.
+  - name: pItem
+    description: Pointer to the Item object being moved. Represents the actual item
+      undergoing the container change.
+  - name: isSrcBank
+    description: Boolean flag indicating whether the source container is a guild bank
+      (true) or regular inventory (false).
+  - name: srcContainer
+    description: The container ID of the source location where the item originated.
+      For bank containers, this typically represents the bank tab index.
+  - name: srcSlotId
+    description: The slot ID within the source container where the item was located.
+  - name: isDestBank
+    description: Boolean flag indicating whether the destination container is a guild
+      bank (true) or regular inventory (false).
+  - name: destContainer
+    description: The container ID of the destination location where the item is being
+      moved. For bank containers, this typically represents the bank tab index.
+  - name: destSlotId
+    description: The slot ID within the destination container where the item will
+      be placed.
+  returns: null
+  examples:
+  - title: Basic Item Movement Logging
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnItemMove(Guild*\
+      \ guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8\
+      \ srcSlotId, bool isDestBank, uint8 destContainer, uint8 destSlotId) override\n\
+      \    {\n        LOG_INFO(\"guild\", \"Player {} moved item {} from {}:{} to\
+      \ {}:{}\", \n                 player->GetName(), pItem->GetEntry(), \n     \
+      \            isSrcBank ? \"bank\" : \"inventory\", srcSlotId,\n            \
+      \     isDestBank ? \"bank\" : \"inventory\", destSlotId);\n    }\n};"
+    language: cpp
+  - title: Preventing Movement of Specific Item Types
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnItemMove(Guild*\
+      \ guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8\
+      \ srcSlotId, bool isDestBank, uint8 destContainer, uint8 destSlotId) override\n\
+      \    {\n        // Prevent moving soulbound items\n        if (pItem->GetTemplate()->Flags\
+      \ & ITEM_FLAG_SOULBOUND)\n        {\n            ChatHandler(player->GetSession()).SendSysMessage(\"\
+      You cannot move soulbound items.\");\n            // Cancel the movement by\
+      \ not doing anything - the original action will be reverted\n        }\n   \
+      \ }\n};"
+    language: cpp
+  notes: This method is called during item movement operations and executes within
+    the game's main thread. It should avoid heavy computations or blocking operations
+    to prevent performance degradation. The parameters provide sufficient information
+    to determine the exact movement context, including whether it involves bank tabs
+    or player inventory.
+  warnings: Modifying item positions directly through this callback may cause inconsistencies
+    in the client UI if not handled carefully. Ensure that any changes to the movement
+    logic do not violate game rules or create exploits. Be cautious when implementing
+    complex logic that might affect multiple players simultaneously.
+  related:
+  - OnItemAdd
+  - OnItemRemove
+  - OnBankTabAdd
+  - OnBankTabRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:53:45.579959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

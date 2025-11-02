@@ -1,0 +1,56 @@
+api:
+  class: BotLifecycleMgr
+  method: RegisterEventHandler
+  signature: uint32 BotLifecycleMgr::RegisterEventHandler(LifecycleEventInfo::Type
+    eventType, EventHandler handler)
+documentation:
+  brief: Registers a new event handler for a specified bot lifecycle event type and
+    returns a unique identifier for the registered handler.
+  description: The RegisterEventHandler method allows developers to subscribe custom
+    callback functions to specific bot lifecycle events within the TrinityCore framework.
+    This function takes an event type and a handler function pointer, then registers
+    the handler in an internal event system. The method returns a unique identifier
+    (uint32) that can be used later to unregister or manage the event handler. Lifecycle
+    events typically include actions such as bot creation, destruction, login, logout,
+    or state changes. This mechanism enables modular and extensible behavior for bot
+    management systems without tightly coupling components.
+  parameters:
+  - name: eventType
+    description: The type of lifecycle event to register the handler for. Must be
+      a valid value from the LifecycleEventInfo::Type enumeration.
+  - name: handler
+    description: A function pointer to the event handler that will be invoked when
+      the specified lifecycle event occurs. The signature of this function must match
+      the expected EventHandler type.
+  returns: Returns a unique uint32 identifier for the registered event handler. This
+    ID can be used in subsequent calls to unregister or modify the handler. A return
+    value of 0 typically indicates an error or invalid registration attempt.
+  examples:
+  - title: Basic Event Handler Registration
+    code: "void MyEventHandler(Bot* bot) {\n    // Custom logic here\n}\n\nuint32\
+      \ handlerId = BotLifecycleMgr::Instance()->RegisterEventHandler(\n    LifecycleEventInfo::Type::BOT_CREATED,\n\
+      \    &MyEventHandler\n);"
+    language: cpp
+  - title: Using Lambda Expression as Handler
+    code: "uint32 handlerId = BotLifecycleMgr::Instance()->RegisterEventHandler(\n\
+      \    LifecycleEventInfo::Type::BOT_DESTROYED,\n    [](Bot* bot) {\n        sLog->outString(\"\
+      Bot %u destroyed\", bot->GetGUID().GetCounter());\n    }\n);"
+    language: cpp
+  notes: The returned handler ID should be stored by the caller for potential future
+    use in unregistering the event handler. The internal event system may have limitations
+    on how many handlers can be registered per event type, and performance could degrade
+    if too many handlers are registered for frequent events.
+  warnings: Do not attempt to register handlers with invalid or uninitialized event
+    types. Repeatedly registering the same handler without unregistering it will result
+    in multiple invocations of the same handler during an event, which may lead to
+    unexpected behavior or performance issues.
+  related:
+  - UnregisterEventHandler
+  - TriggerEvent
+  - GetEventHandlerCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:36:53.297887'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: PlayerScript
+  method: OnFailedDelete
+  signature: void PlayerScript::OnFailedDelete(int guid, uint32 accountId)
+documentation:
+  brief: Called when a player deletion attempt fails in the TrinityCore database.
+  description: The OnFailedDelete method is invoked by the TrinityCore server when
+    an attempt to delete a player character from the database has failed. This callback
+    allows custom scripts to handle failed deletion attempts, such as logging errors,
+    notifying administrators, or implementing rollback mechanisms. The method receives
+    the unique identifier (GUID) of the player and the account ID associated with
+    the player's account. It is typically used in conjunction with PlayerScript subclasses
+    to extend or modify the default behavior during player deletion operations.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player character that failed
+      to be deleted from the database.
+  - name: accountId
+    description: The account ID associated with the player's account, used to identify
+      which account the player belongs to.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnFailedDelete(int\
+      \ guid, uint32 accountId) override\n    {\n        // Log the failed deletion\
+      \ attempt\n        sLog->outError(LOG_FILTER_GENERAL, \"Failed to delete player\
+      \ with GUID %u and Account ID %u\", guid, accountId);\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Error Handling
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnFailedDelete(int\
+      \ guid, uint32 accountId) override\n    {\n        // Attempt to retry deletion\
+      \ or notify admin\n        sLog->outError(LOG_FILTER_GENERAL, \"Player deletion\
+      \ failed for GUID %u (Account: %u). Attempting recovery...\", guid, accountId);\n\
+      \        \n        // Optionally trigger a notification system\n        // Send\
+      \ email, log to database, etc.\n    }\n};"
+    language: cpp
+  notes: This method is part of the PlayerScript interface and should be overridden
+    in custom script classes. It's important to note that this callback does not prevent
+    the deletion from failing; it only provides a way to react to such failures. The
+    GUID and accountId parameters are guaranteed to be valid at the time of invocation.
+  warnings: Ensure proper logging or error handling within this method, as failure
+    to do so may result in silent errors during player management operations. Avoid
+    performing heavy operations in this callback as it may impact server performance.
+  related:
+  - PlayerScript::OnDelete
+  - PlayerScript::OnCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T01:21:07.800801'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

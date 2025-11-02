@@ -1,0 +1,57 @@
+api:
+  class: QuestAcceptanceManager
+  method: MeetsReputationRequirement
+  signature: bool QuestAcceptanceManager::MeetsReputationRequirement(const int * quest)
+    const
+documentation:
+  brief: Checks if the player meets the reputation requirements for accepting a quest
+  description: The MeetsReputationRequirement method evaluates whether the player
+    character has sufficient reputation with the required factions to accept a specific
+    quest. This method typically checks against faction thresholds defined in the
+    quest's reputation requirements. It is used during quest acceptance validation
+    to ensure players meet the necessary standing prerequisites before they can begin
+    a quest. The method returns true if all reputation conditions are satisfied, or
+    false if any requirement is not met. This functionality is integral to the World
+    of Warcraft quest system and helps maintain game balance by ensuring players progress
+    through factions in an appropriate manner.
+  parameters:
+  - name: quest
+    description: Pointer to an integer representing the quest ID. The value should
+      correspond to a valid quest entry in the database.
+  returns: Returns true if the player's reputation with all required factions meets
+    or exceeds the minimum thresholds specified in the quest requirements; otherwise
+    returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (questManager.MeetsReputationRequirement(&questId)) {\n    // Player\
+      \ can accept the quest\n    player->AddQuest(questId);\n} else {\n    // Reputation\
+      \ requirements not met\n    player->SendNotification(\"You do not meet the reputation\
+      \ requirements for this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Acceptance
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (!quest) return;\n\
+      \    \n    int questId = quest->GetQuestId();\n    if (sQuestAcceptanceManager->MeetsReputationRequirement(&questId))\
+      \ {\n        // Proceed with normal quest acceptance\n        Player::OnQuestAccept(quest);\n\
+      \    } else {\n        // Prevent quest acceptance and notify player\n     \
+      \   SendNotification(\"Your reputation is not sufficient to accept this quest.\"\
+      );\n        return;\n    }\n}"
+    language: cpp
+  notes: This method likely accesses faction data from the database and compares it
+    against cached or loaded reputation values. It may involve multiple faction checks
+    for a single quest, depending on how the quest is configured in the game files.
+    The method should be called before attempting to add a quest to the player's active
+    quests to prevent invalid state.
+  warnings: Ensure that the quest ID passed to this method corresponds to a valid
+    quest entry in the database; passing an invalid or uninitialized pointer could
+    lead to undefined behavior. This method does not modify any player state directly,
+    but its result should be used to control quest acceptance flow.
+  related:
+  - GetReputationForFaction
+  - CanPlayerAcceptQuest
+  - CheckQuestRequirements
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T00:09:26.487962'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

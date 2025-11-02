@@ -1,0 +1,367 @@
+#!/usr/bin/env python3
+"""
+Extract spell attribute flags from TrinityCore SharedDefines.h
+and generate comprehensive TypeScript spell-attributes.ts database.
+
+Phase 7 Enhancement #2: Automated attribute extraction
+"""
+
+import re
+from pathlib import Path
+from typing import List, Dict, Tuple
+
+# Category classification based on flag names and descriptions
+CATEGORY_PATTERNS = {
+    "CASTING": [
+        "CAST", "CHANNEL", "ABILITY", "TRADESKILL", "COOLDOWN",
+        "SPELL_START", "SPELL_BASE"
+    ],
+    "TARGETING": [
+        "TARGET", "REDIRECT", "TRACK", "CHAIN", "AOE", "DEST", "LOCATION",
+        "LINE_OF_SIGHT"
+    ],
+    "EFFECTS": [
+        "DAMAGE", "HEAL", "DISPEL", "PURGE", "STACKING", "SCALING",
+        "POINTS", "TRIGGER"
+    ],
+    "COMBAT": [
+        "COMBAT", "ATTACK", "SWING", "THREAT", "DODGE", "PARRY", "BLOCK",
+        "MISS", "CRIT", "HIT", "RANGED", "MELEE", "WEAPON"
+    ],
+    "AURA": [
+        "AURA", "BUFF", "DEBUFF", "PERSISTENT", "DURATION", "REFRESH",
+        "STACK", "UNIQUE"
+    ],
+    "RESTRICTIONS": [
+        "ONLY_", "NOT_", "ALLOW", "REQUIRE", "RESTRICT", "ARENA",
+        "BATTLEGROUND", "PVP", "INSTANCE", "INDOOR", "OUTDOOR",
+        "MOUNTED", "SITTING", "STEALTHED", "DEAD", "PEACEFUL",
+        "SHAPESHIFT"
+    ],
+    "UI": [
+        "DISPLAY", "LOG", "ICON", "TOOLTIP", "BAR", "CLIENT",
+        "SPELLBOOK", "VISUAL", "ANIM"
+    ],
+    "PROC": [
+        "PROC", "TRIGGER"
+    ],
+    "MECHANICS": [
+        "MECHANIC", "SKILLUP", "SERVER", "AI", "PET", "SUMMON"
+    ],
+    "IMMUNITIES": [
+        "IMMUN", "REFLECT", "ABSORB", "DEFLECT"
+    ],
+    "COSTS": [
+        "COST", "MANA", "POWER", "REAGENT", "CHARGE", "CONSUME"
+    ],
+    "MOVEMENT": [
+        "JUMP", "CHARGE", "TELEPORT", "KNOCKBACK", "FLYING",
+        "GROUNDED", "PATHING"
+    ]
+}
+
+
+def classify_category(flag_name: str, description: str) -> str:
+    """Classify a flag into a category based on name and description"""
+    text = (flag_name + " " + description).upper()
+
+    # Check each category pattern
+    for category, patterns in CATEGORY_PATTERNS.items():
+        for pattern in patterns:
+            if pattern in text:
+                return category.lower()
+
+    return "unknown"
+
+
+def extract_attributes(shared_defines_path: Path) -> List[Dict]:
+    """Extract all SpellAttr0-15 enum definitions from SharedDefines.h"""
+    with open(shared_defines_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Find all SpellAttr enum blocks
+    enum_pattern = r'enum SpellAttr(\d+) : uint32\s*\{([^}]+)\};'
+    enum_matches = re.finditer(enum_pattern, content, re.DOTALL)
+
+    attributes = []
+
+    for enum_match in enum_matches:
+        attr_index = int(enum_match.group(1))
+        enum_body = enum_match.group(2)
+
+        # Parse individual flags
+        flag_pattern = r'SPELL_ATTR\d+_(\w+)\s*=\s*(0x[0-9A-Fa-f]+),?\s*(?:/\*([^*]+)\*/)?\s*// TITLE\s+([^$\n]+?)(?:\s+DESCRIPTION\s+([^$\n]+))?$'
+
+        flags = []
+        for flag_match in re.finditer(flag_pattern, enum_body, re.MULTILINE):
+            flag_name = flag_match.group(1)
+            flag_value = flag_match.group(2)
+            nyi_marker = flag_match.group(3)  # NYI comment if present
+            title = flag_match.group(4).strip()
+            description = flag_match.group(5).strip() if flag_match.group(5) else None
+
+            # Detect client-only flags
+            client_only = "(client only)" in title.lower() or (description and "(client only)" in description.lower())
+
+            # Detect NYI flags
+            nyi = nyi_marker is not None and "NYI" in nyi_marker
+
+            # Classify category
+            category = classify_category(flag_name, description or title)
+
+            flags.append({
+                "name": flag_name,
+                "value": flag_value,
+                "title": title.replace(" (client only)", "").strip(),
+                "description": description,
+                "category": category,
+                "nyi": nyi,
+                "clientOnly": client_only
+            })
+
+        attributes.append({
+            "index": attr_index,
+            "fieldName": f"Attributes{attr_index}",
+            "flags": flags
+        })
+
+    # Sort by index
+    attributes.sort(key=lambda x: x["index"])
+    return attributes
+
+
+def generate_typescript(attributes: List[Dict], output_path: Path):
+    """Generate TypeScript spell-attributes.ts file"""
+
+    ts_lines = [
+        '/**',
+        ' * Spell Attribute Flag Database for WoW 11.2 (The War Within)',
+        ' *',
+        ' * Complete database of all 512 TrinityCore spell attribute flags across 16 attribute fields.',
+        ' * Extracted from SharedDefines.h SpellAttr0-15 enums.',
+        ' *',
+        ' * Phase 7 Enhancement #2: Enterprise-grade spell attribute parsing',
+        ' *',
+        ' * @module spell-attributes',
+        ' * @version 1.0.0',
+        ' * @date 2025-11-01',
+        ' * @auto-generated by extract_spell_attributes.py',
+        ' */',
+        '',
+        '/**',
+        ' * Spell attribute flag category',
+        ' */',
+        'export enum AttributeCategory {',
+        '  CASTING = "casting",',
+        '  TARGETING = "targeting",',
+        '  EFFECTS = "effects",',
+        '  COMBAT = "combat",',
+        '  AURA = "aura",',
+        '  RESTRICTIONS = "restrictions",',
+        '  UI = "ui",',
+        '  PROC = "proc",',
+        '  MECHANICS = "mechanics",',
+        '  IMMUNITIES = "immunities",',
+        '  COSTS = "costs",',
+        '  MOVEMENT = "movement",',
+        '  UNKNOWN = "unknown"',
+        '}',
+        '',
+        '/**',
+        ' * Spell attribute flag definition',
+        ' */',
+        'export interface AttributeFlag {',
+        '  /** Hex value of the flag */',
+        '  value: number;',
+        '  /** Flag constant name from TrinityCore */',
+        '  name: string;',
+        '  /** Short title from TITLE comment */',
+        '  title: string;',
+        '  /** Full description from DESCRIPTION comment (if available) */',
+        '  description?: string;',
+        '  /** Attribute category for organization */',
+        '  category: AttributeCategory;',
+        '  /** Whether this attribute is NYI (Not Yet Implemented) in TrinityCore */',
+        '  nyi?: boolean;',
+        '  /** Whether this attribute is client-only */',
+        '  clientOnly?: boolean;',
+        '}',
+        '',
+        '/**',
+        ' * Spell attribute field definition (Attributes0-15)',
+        ' */',
+        'export interface AttributeField {',
+        '  /** Field index (0-15) */',
+        '  index: number;',
+        '  /** Field name (e.g., "Attributes0") */',
+        '  fieldName: string;',
+        '  /** All 32 flags for this attribute field */',
+        '  flags: AttributeFlag[];',
+        '}',
+        '',
+        '/**',
+        ' * Complete spell attribute database: All 512 flags across 16 attribute fields',
+        ' * Organized by attribute field (Attributes0-15)',
+        ' */',
+        'export const SPELL_ATTRIBUTE_DATABASE: AttributeField[] = ['
+    ]
+
+    # Generate each attribute field
+    for attr_idx, attr in enumerate(attributes):
+        ts_lines.append('  // ' + '=' * 72)
+        ts_lines.append(f'  // SpellAttr{attr["index"]} ({attr["fieldName"]})')
+        ts_lines.append('  // ' + '=' * 72)
+        ts_lines.append('  {')
+        ts_lines.append(f'    index: {attr["index"]},')
+        ts_lines.append(f'    fieldName: "{attr["fieldName"]}",')
+        ts_lines.append('    flags: [')
+
+        # Generate each flag
+        for flag_idx, flag in enumerate(attr["flags"]):
+            ts_lines.append('      {')
+            ts_lines.append(f'        value: {flag["value"]},')
+            ts_lines.append(f'        name: "{flag["name"]}",')
+            ts_lines.append(f'        title: "{escape_string(flag["title"])}",')
+
+            if flag["description"]:
+                ts_lines.append(f'        description: "{escape_string(flag["description"])}",')
+
+            ts_lines.append(f'        category: AttributeCategory.{flag["category"].upper()}')
+
+            if flag.get("nyi"):
+                ts_lines.append('        , nyi: true')
+
+            if flag.get("clientOnly"):
+                ts_lines.append('        , clientOnly: true')
+
+            # Add comma except for last flag
+            if flag_idx < len(attr["flags"]) - 1:
+                ts_lines.append('      },')
+            else:
+                ts_lines.append('      }')
+
+        ts_lines.append('    ]')
+
+        # Add comma except for last attribute
+        if attr_idx < len(attributes) - 1:
+            ts_lines.append('  },')
+            ts_lines.append('')
+        else:
+            ts_lines.append('  }')
+
+    ts_lines.append('];')
+    ts_lines.append('')
+
+    # Add utility functions
+    ts_lines.extend([
+        '/**',
+        ' * Get all attribute flags for a specific attribute field',
+        ' */',
+        'export function getAttributeFlags(attrIndex: number): AttributeFlag[] | undefined {',
+        '  const field = SPELL_ATTRIBUTE_DATABASE.find((f) => f.index === attrIndex);',
+        '  return field?.flags;',
+        '}',
+        '',
+        '/**',
+        ' * Get attribute flag by name',
+        ' */',
+        'export function getAttributeFlagByName(name: string): AttributeFlag | undefined {',
+        '  for (const field of SPELL_ATTRIBUTE_DATABASE) {',
+        '    const flag = field.flags.find((f) => f.name === name);',
+        '    if (flag) return flag;',
+        '  }',
+        '  return undefined;',
+        '}',
+        '',
+        '/**',
+        ' * Get all attribute flags grouped by category',
+        ' */',
+        'export function getAttributeFlagsByCategory(category: AttributeCategory): AttributeFlag[] {',
+        '  const result: AttributeFlag[] = [];',
+        '  for (const field of SPELL_ATTRIBUTE_DATABASE) {',
+        '    result.push(...field.flags.filter((f) => f.category === category));',
+        '  }',
+        '  return result;',
+        '}',
+        '',
+        '/**',
+        ' * Parse bitfield attribute value and return matched flags',
+        ' */',
+        'export function parseAttributeBitfield(attrIndex: number, attrValue: number): AttributeFlag[] {',
+        '  const flags = getAttributeFlags(attrIndex);',
+        '  if (!flags) return [];',
+        '',
+        '  const matched: AttributeFlag[] = [];',
+        '  for (const flag of flags) {',
+        '    if (attrValue & flag.value) {',
+        '      matched.push(flag);',
+        '    }',
+        '  }',
+        '  return matched;',
+        '}',
+        ''
+    ])
+
+    # Write to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(ts_lines))
+
+    return len(ts_lines)
+
+
+def escape_string(s: str) -> str:
+    """Escape string for TypeScript"""
+    return s.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+
+
+def main():
+    """Main extraction workflow"""
+    # Paths
+    trinity_root = Path(r'C:\TrinityBots\TrinityCore')
+    shared_defines = trinity_root / 'src' / 'server' / 'game' / 'Miscellaneous' / 'SharedDefines.h'
+    output_file = Path(r'C:\TrinityBots\trinitycore-mcp\src\data\spell-attributes.ts')
+
+    print("[*] Extracting spell attributes from TrinityCore...")
+    print(f"    Source: {shared_defines}")
+    print()
+
+    if not shared_defines.exists():
+        print(f"[ERROR] SharedDefines.h not found at {shared_defines}")
+        return 1
+
+    # Extract attributes
+    attributes = extract_attributes(shared_defines)
+
+    # Statistics
+    total_flags = sum(len(attr["flags"]) for attr in attributes)
+    print(f"[+] Extracted {len(attributes)} attribute fields ({total_flags} total flags)")
+    print()
+
+    # Category breakdown
+    category_counts = {}
+    for attr in attributes:
+        for flag in attr["flags"]:
+            cat = flag["category"]
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+
+    print("[*] Flag distribution by category:")
+    for cat, count in sorted(category_counts.items(), key=lambda x: -x[1]):
+        print(f"    {cat.upper():15s}: {count:3d} flags")
+    print()
+
+    # Generate TypeScript
+    print("[*] Generating spell-attributes.ts...")
+    line_count = generate_typescript(attributes, output_file)
+
+    print(f"[+] Generated {output_file}")
+    print(f"    {line_count:,} lines")
+    print(f"    {total_flags} attribute flags")
+    print(f"    {len(attributes)} attribute fields (Attr0-{len(attributes)-1})")
+    print()
+    print("[SUCCESS] Spell attribute extraction complete!")
+
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())

@@ -1,0 +1,60 @@
+api:
+  class: CombatAI
+  method: UpdateAI
+  signature: void CombatAI::UpdateAI(int diff)
+documentation:
+  brief: Updates the combat AI behavior based on elapsed time and current combat state
+  description: The UpdateAI method is a core component of the CombatAI class that
+    handles the periodic updating of enemy AI behavior during combat. It processes
+    various combat-related logic including target selection, spell casting, movement
+    decisions, and cooldown management. The method is called by the game engine at
+    regular intervals with a time delta parameter indicating how much time has passed
+    since the last update. This allows the AI to make dynamic decisions based on changing
+    combat conditions such as health levels, target positioning, and ability availability.
+    The method typically evaluates whether to cast spells, move to optimal positions,
+    or switch targets based on predefined combat strategies.
+  parameters:
+  - name: diff
+    description: The time elapsed in milliseconds since the last update call. This
+      parameter is used to determine how much time has passed for cooldown calculations,
+      movement timing, and decision making.
+  returns: null
+  examples:
+  - title: Basic CombatAI Update Usage
+    code: "void EnemyCreature::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n    \n    // Call the base CombatAI update method\n    CombatAI::UpdateAI(diff);\n\
+      \    \n    // Additional custom AI logic can be added here\n}"
+    language: cpp
+  - title: Custom CombatAI with Extended Logic
+    code: "void AdvancedEnemy::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n    \n    // Custom combat logic before calling base UpdateAI\n\
+      \    if (HealthBelow(30))\n    {\n        if (CanCast(SPELL_FLEE))\n       \
+      \     DoCast(SPELL_FLEE);\n    }\n    \n    // Call the parent CombatAI update\
+      \ method\n    CombatAI::UpdateAI(diff);\n    \n    // Custom logic after base\
+      \ update\n    if (me->HasUnitState(UNIT_STATE_CASTING))\n        return;\n \
+      \   \n    if (CanCast(SPELL_ENRAGE) && !me->HasAura(SPELL_ENRAGE))\n       \
+      \ DoCast(SPELL_ENRAGE);\n}"
+    language: cpp
+  notes: The UpdateAI method is typically called from the creature's main update loop
+    in TrinityCore. It's important to note that this method should not be called directly
+    by custom AI implementations unless inheriting from CombatAI, as it relies on
+    internal state management. The 'diff' parameter represents actual game time and
+    should be used for timing-sensitive operations like spell cooldowns and movement
+    calculations.
+  warnings: Avoid calling UpdateAI directly without proper initialization of the CombatAI
+    base class. The method assumes that a valid combat target exists and that the
+    creature is in combat state. Calling this method when no victim is set may lead
+    to undefined behavior or crashes. Also, be careful not to override critical AI
+    behaviors that are handled internally by this method.
+  related:
+  - UpdateVictim
+  - DoCast
+  - CanCast
+  - EnterCombat
+  - JustDied
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:39:17.486587'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

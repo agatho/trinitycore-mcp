@@ -1,0 +1,52 @@
+api:
+  class: LineOfSightManager
+  method: CheckSpellLineOfSight
+  signature: LoSResult LineOfSightManager::CheckSpellLineOfSight(Unit * target, uint32
+    spellId)
+documentation:
+  brief: Checks if a spell's line of sight to a target unit is unobstructed.
+  description: The CheckSpellLineOfSight method determines whether a spell can be
+    cast from the caster's position to a target unit without any physical or game
+    object obstructions. It evaluates the line of sight using the World of Warcraft's
+    collision system and returns a LoSResult indicating success or failure. This is
+    crucial for spell validation in TrinityCore, ensuring that spells cannot be cast
+    through walls or other blocking objects. The method considers both the caster
+    and target positions, as well as any environmental obstacles between them.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the spell's target. Must
+      be a valid unit in the same map as the caster.
+  - name: spellId
+    description: The unique identifier of the spell being checked. Used to determine
+      spell-specific line of sight rules and restrictions.
+  returns: LoSResult enum value indicating the outcome of the line of sight check.
+    Possible values include LOS_SUCCESS if no obstruction is found, LOS_OBSTRUCTED
+    if an obstacle blocks the path, and potentially other status codes depending on
+    implementation details.
+  examples:
+  - title: Basic Line of Sight Check
+    code: "Unit* target = player->GetSelectedUnit();\nif (target)\n{\n    LoSResult\
+      \ result = lineOfSightManager->CheckSpellLineOfSight(target, 12345);\n    if\
+      \ (result == LOS_SUCCESS)\n    {\n        // Spell can be cast\n        player->CastSpell(target,\
+      \ 12345, true);\n    }\n    else\n    {\n        // Spell cannot be cast due\
+      \ to obstruction\n        player->SendSpellFailed(12345, SPELL_FAILED_LINE_OF_SIGHT);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically used during spell casting validation before executing
+    a spell. It performs collision detection against all interactive objects in the
+    game world including terrain, buildings, and other units. The implementation may
+    cache results for performance optimization in certain scenarios.
+  warnings: Ensure that both the caster and target units are valid and exist in the
+    same map instance before calling this method. Passing invalid pointers can lead
+    to crashes or undefined behavior. The spellId parameter must correspond to a valid
+    spell entry in the database.
+  related:
+  - CheckLineOfSight
+  - IsInLineOfSight
+  - GetSpellRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T03:42:23.698181'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

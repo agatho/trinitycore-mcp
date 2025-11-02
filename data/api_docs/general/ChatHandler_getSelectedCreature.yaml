@@ -1,0 +1,48 @@
+api:
+  class: ChatHandler
+  method: getSelectedCreature
+  signature: Creature * ChatHandler::getSelectedCreature()
+documentation:
+  brief: Returns the Creature object selected by the player in the game world.
+  description: The getSelectedCreature method retrieves the currently selected creature
+    object from the player's selection context. This method is typically used within
+    the TrinityCore server's command handling system to access the target creature
+    for various administrative or debugging commands. The returned pointer may be
+    null if no creature is currently selected or if the selected object is not a creature.
+    The method relies on the ChatHandler's internal selection state and should only
+    be called when the player has an active selection in the game world.
+  parameters: []
+  returns: A pointer to the Creature object that is currently selected by the player,
+    or nullptr if no creature is selected or if the selection is invalid.
+  examples:
+  - title: Basic usage to check selected creature
+    code: "Creature* target = handler->getSelectedCreature();\nif (target)\n{\n  \
+      \  handler->PSendSysMessage(\"Selected creature: %s\", target->GetName().c_str());\n\
+      }\nelse\n{\n    handler->SendSysMessage(\"No creature selected.\");\n}"
+    language: cpp
+  - title: Using selected creature in a command implementation
+    code: "bool HandleTeleportCreatureCommand(ChatHandler* handler, char const* args)\n\
+      {\n    Creature* target = handler->getSelectedCreature();\n    if (!target)\n\
+      \    {\n        handler->SendSysMessage(\"You must select a creature first.\"\
+      );\n        return false;\n    }\n    \n    Player* player = handler->GetSession()->GetPlayer();\n\
+      \    target->NearTeleportTo(player->GetPosition());\n    handler->PSendSysMessage(\"\
+      Teleported creature %s to your location.\", target->GetName().c_str());\n  \
+      \  return true;\n}"
+    language: cpp
+  notes: This method depends on the player's current selection state and will only
+    return valid results when a creature is actively selected in the game world. The
+    returned pointer should not be deleted or modified directly as it represents an
+    object managed by the server's core systems.
+  warnings: Calling this method without verifying that a creature is actually selected
+    may result in a null pointer dereference if not properly checked. Always validate
+    the return value before using it in operations that require a valid Creature object.
+  related:
+  - getSelectedPlayer
+  - getSelectedObject
+  - SetSelectedCreature
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:57:09.740408'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

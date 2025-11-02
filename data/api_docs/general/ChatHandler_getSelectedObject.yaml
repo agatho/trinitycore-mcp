@@ -1,0 +1,51 @@
+api:
+  class: ChatHandler
+  method: getSelectedObject
+  signature: WorldObject * ChatHandler::getSelectedObject()
+documentation:
+  brief: Retrieves the currently selected WorldObject from the chat handler's context.
+  description: The getSelectedObject method returns a pointer to the WorldObject that
+    is currently selected within the ChatHandler's context. This selection typically
+    corresponds to an object targeted by the player using the game's targeting system,
+    such as a creature, player, or game object. The method serves as a utility for
+    command implementations that need to operate on the currently selected target.
+    It is commonly used in GM commands where actions are performed on the selected
+    entity rather than on the command issuer. The returned pointer may be null if
+    no object is currently selected or if the selected object has been destroyed since
+    the selection was made.
+  parameters: []
+  returns: A pointer to the currently selected WorldObject, or nullptr if no object
+    is selected or if the selected object is no longer valid.
+  examples:
+  - title: Basic usage in a GM command
+    code: "WorldObject* target = handler->getSelectedObject();\nif (target)\n{\n \
+      \   handler->PSendSysMessage(\"Selected object type: %u\", target->GetTypeId());\n\
+      }\nelse\n{\n    handler->SendSysMessage(\"No object selected.\");\n}"
+    language: cpp
+  - title: Using selected object in a teleport command
+    code: "WorldObject* target = handler->getSelectedObject();\nif (target)\n{\n \
+      \   Player* player = handler->GetSession()->GetPlayer();\n    if (player)\n\
+      \    {\n        player->TeleportTo(target->GetMapId(), target->GetPositionX(),\
+      \ target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on the internal selection state maintained by the ChatHandler.
+    It is important to check for null return values as the selected object may have
+    been destroyed or removed from the game world between the time it was selected
+    and when this method is called. The method does not perform any validation of
+    the object's current existence or validity beyond returning a pointer.
+  warnings: Be cautious when using the returned pointer directly without checking
+    for null, as accessing a destroyed object can lead to crashes or undefined behavior.
+    Additionally, the selected object may be invalidated if it is removed from the
+    game world (e.g., killed, despawned) between selection and retrieval.
+  related:
+  - getSelectedPlayer
+  - getSelectedCreature
+  - getSelectedGameObject
+  - setSelectedObject
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:56:17.741669'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

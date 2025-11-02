@@ -1,0 +1,60 @@
+api:
+  class: LFGMgr
+  method: RemovePlayerFromGroup
+  signature: uint8 LFGMgr::RemovePlayerFromGroup(int gguid, int guid)
+documentation:
+  brief: Removes a player from a LFG group by GUID
+  description: 'The RemovePlayerFromGroup method removes a specified player from a
+    Looking For Group (LFG) group using their unique identifiers. This function is
+    typically used when a player leaves a group, gets kicked, or when the group is
+    disbanded. The method takes two parameters: the group GUID (gguid) and the player
+    GUID (guid). It returns a status code indicating success or failure of the operation.
+    The LFG system in TrinityCore manages dungeon and raid groups for players seeking
+    content through the game''s built-in grouping system.'
+  parameters:
+  - name: gguid
+    description: The global unique identifier of the LFG group from which the player
+      will be removed
+  - name: guid
+    description: The global unique identifier of the player to be removed from the
+      LFG group
+  returns: Returns uint8 value indicating the result of the operation. Common return
+    values include 0 for success, and non-zero values for various error conditions
+    such as invalid group or player GUIDs, player not found in group, or group already
+    disbanded.
+  examples:
+  - title: Basic usage to remove a player from an LFG group
+    code: "uint8 result = sLFGMgr->RemovePlayerFromGroup(12345, 67890);\nif (result\
+      \ == 0) {\n    // Player successfully removed\n    sWorld->SendWorldText(LFG_REMOVED_FROM_GROUP);\n\
+      } else {\n    // Handle error based on result value\n    sWorld->SendWorldText(LFG_REMOVE_FAILED);\n\
+      }"
+    language: cpp
+  - title: Using RemovePlayerFromGroup in a group management context
+    code: "void HandlePlayerLeaveLFGGroup(Player* player, uint64 groupId) {\n    if\
+      \ (!player || !groupId) return;\n    \n    uint8 result = sLFGMgr->RemovePlayerFromGroup(groupId,\
+      \ player->GetGUID().GetCounter());\n    \n    if (result == 0) {\n        //\
+      \ Notify other group members\n        player->GetSession()->SendLfgPlayerLeave();\n\
+      \        sWorld->SendWorldText(LFG_PLAYER_LEFT_GROUP, player->GetName().c_str());\n\
+      \    } else {\n        // Log error or notify player\n        sLog->outError(\"\
+      Failed to remove player %u from LFG group %u\", player->GetGUID().GetCounter(),\
+      \ groupId);\n    }\n}"
+    language: cpp
+  notes: This method is part of the LFG (Looking For Group) subsystem in TrinityCore.
+    It's typically called internally by the LFG system when managing group membership,
+    but can also be invoked directly from other systems that need to manipulate LFG
+    groups. The function assumes valid GUIDs and proper group state management.
+  warnings: Ensure that both gguid and guid parameters are valid before calling this
+    method. Improper use may lead to inconsistent group states or crashes if invalid
+    GUIDs are passed. This method should not be called on groups that have already
+    been disbanded or are in an invalid state.
+  related:
+  - AddPlayerToGroup
+  - GetGroupByGuid
+  - DisbandGroup
+  - IsPlayerInLFGGroup
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:08:17.353608'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

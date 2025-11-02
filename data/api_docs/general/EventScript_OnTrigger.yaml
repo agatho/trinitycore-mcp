@@ -1,0 +1,62 @@
+api:
+  class: EventScript
+  method: OnTrigger
+  signature: void EventScript::OnTrigger(WorldObject * object, WorldObject * invoker,
+    uint32 eventId)
+documentation:
+  brief: Executes custom script logic when an event is triggered by a WorldObject
+    in the game world.
+  description: The OnTrigger method is a virtual callback function that gets invoked
+    whenever a specific event is activated within the TrinityCore framework. This
+    method allows developers to implement custom behavior or actions when certain
+    conditions are met, such as player interactions with game objects, area triggers,
+    or other scripted events. It serves as the core mechanism for attaching functional
+    logic to events in the game's AI and scripting system. The method receives information
+    about the object that triggered the event and the invoker (if applicable), enabling
+    precise control over how different entities respond to events.
+  parameters:
+  - name: object
+    description: Pointer to the WorldObject that triggered the event. This can be
+      a player, creature, game object, or any other type of world entity that initiates
+      the event.
+  - name: invoker
+    description: Pointer to the WorldObject that invoked or caused the event to occur.
+      May be nullptr if no specific invoker exists, or may point to the same object
+      as 'object' in some cases.
+  - name: eventId
+    description: Unique identifier for the specific event being triggered. Used to
+      distinguish between different types of events and route execution accordingly.
+  returns: null
+  examples:
+  - title: Basic Event Trigger Implementation
+    code: "class MyEventScript : public EventScript {\npublic:\n    void OnTrigger(WorldObject*\
+      \ object, WorldObject* invoker, uint32 eventId) override {\n        if (eventId\
+      \ == 1001) {\n            // Handle event 1001\n            object->Say(\"Event\
+      \ triggered!\", LANG_UNIVERSAL);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Event Trigger with Conditional Logic
+    code: "class QuestTriggerScript : public EventScript {\npublic:\n    void OnTrigger(WorldObject*\
+      \ object, WorldObject* invoker, uint32 eventId) override {\n        if (!object\
+      \ || !invoker)\n            return;\n\n        if (Player* player = object->ToPlayer())\
+      \ {\n            if (eventId == 5001 && player->GetQuestStatus(12345) == QUEST_STATUS_INCOMPLETE)\
+      \ {\n                player->AddQuestReward(12345);\n                player->SendDirectMessage(\"\
+      Quest completed!\");\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: The method is part of the EventScript base class and must be overridden in
+    derived classes to provide custom functionality. Ensure that all pointers are
+    validated before use, as they may be null. The eventId parameter allows for efficient
+    routing of multiple event types within a single script instance.
+  warnings: Never assume that either 'object' or 'invoker' will not be nullptr; always
+    perform null checks. Be cautious with long-running operations inside this method
+    as it's called synchronously during the game loop and can affect performance if
+    blocking operations are performed.
+  related:
+  - EventScript::OnReset
+  - EventScript::OnUpdate
+  - EventScript::OnInitialize
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T07:51:23.270268'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

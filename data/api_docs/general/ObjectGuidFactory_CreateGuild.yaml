@@ -1,0 +1,70 @@
+api:
+  class: ObjectGuidFactory
+  method: CreateGuild
+  signature: ObjectGuid ObjectGuidFactory::CreateGuild(HighGuid type, uint32 realmId,
+    uint64 dbId)
+documentation:
+  brief: Creates a unique ObjectGuid for a guild with specified high GUID type, realm
+    ID, and database identifier.
+  description: The CreateGuild method generates a unique ObjectGuid specifically for
+    guild entities within the TrinityCore framework. It constructs the GUID using
+    a combination of a HighGuid type to identify the entity category, a realm ID to
+    distinguish between different realms or instances, and a database ID that uniquely
+    identifies the guild within that realm. This method is essential for maintaining
+    consistent and unique identification of guilds across the game world, ensuring
+    proper synchronization between server memory and database records. The generated
+    GUID follows the standard TrinityCore ObjectGuid format which includes a 32-bit
+    realm ID, a 28-bit low GUID (dbId), and a 4-bit high GUID type to categorize entity
+    types.
+  parameters:
+  - name: type
+    description: HighGuid enum value specifying the type of object being created.
+      For guilds, this should be a valid HighGuid value such as HIGHGUID_GUILD or
+      similar, indicating that the resulting ObjectGuid represents a guild entity.
+  - name: realmId
+    description: 32-bit unsigned integer representing the realm ID where the guild
+      exists. This ensures that guilds from different realms have distinct GUIDs even
+      if they share the same database ID.
+  - name: dbId
+    description: 64-bit unsigned integer representing the unique identifier of the
+      guild in the database. This value is used as the low portion of the ObjectGuid
+      to ensure uniqueness within a realm.
+  returns: Returns an ObjectGuid object that uniquely identifies a guild entity. The
+    returned GUID contains the specified realm ID, dbId, and type information encoded
+    according to TrinityCore's ObjectGuid format.
+  examples:
+  - title: Creating a Guild GUID
+    code: 'ObjectGuid guildGuid = sObjectGuidFactory->CreateGuild(HIGHGUID_GUILD,
+      1, 12345);
+
+      // Creates a guild GUID for realm ID 1 with database ID 12345'
+    language: cpp
+  - title: Using Guild GUID in Guild Creation
+    code: 'uint32 realmId = sWorld->GetRealmId();
+
+      ObjectGuid guildGuid = sObjectGuidFactory->CreateGuild(HIGHGUID_GUILD, realmId,
+      newGuildDbId);
+
+      guild->SetGUID(guildGuid);
+
+      // Sets the generated GUID on a newly created guild object'
+    language: cpp
+  notes: This method is typically used during guild creation or loading from database.
+    The HighGuid type must be valid for guild entities, and the realmId should match
+    the current realm context. The dbId parameter should correspond to a valid entry
+    in the guild table of the database.
+  warnings: Ensure that the provided realmId matches the actual realm context where
+    the guild will exist. Using an incorrect realmId can lead to GUID conflicts or
+    incorrect entity identification. The dbId must be unique within the realm to maintain
+    proper GUID uniqueness.
+  related:
+  - CreatePlayer
+  - CreateCreature
+  - CreateItem
+  - CreateGameObject
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:59:21.784469'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

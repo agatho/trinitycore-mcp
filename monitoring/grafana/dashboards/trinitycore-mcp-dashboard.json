@@ -1,0 +1,309 @@
+{
+  "dashboard": {
+    "title": "TrinityCore MCP Server Dashboard",
+    "tags": ["trinitycore", "mcp", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "HTTP Request Rate",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(trinitycore_mcp_http_requests_total[5m])",
+            "legendFormat": "{{method}} {{path}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Requests/sec", "format": "short" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "HTTP Request Duration (p95)",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(trinitycore_mcp_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{method}} {{path}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Duration (s)", "format": "s" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "MCP Tool Invocations",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(trinitycore_mcp_mcp_tool_invocations_total[5m])",
+            "legendFormat": "{{tool_name}} ({{status}})",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Invocations/sec", "format": "short" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "MCP Tool Duration (p95)",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(trinitycore_mcp_mcp_tool_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{tool_name}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Duration (s)", "format": "s" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_memory_usage_bytes{type='rss'}",
+            "legendFormat": "RSS",
+            "refId": "A"
+          },
+          {
+            "expr": "trinitycore_mcp_memory_usage_bytes{type='heapUsed'}",
+            "legendFormat": "Heap Used",
+            "refId": "B"
+          },
+          {
+            "expr": "trinitycore_mcp_memory_usage_bytes{type='heapTotal'}",
+            "legendFormat": "Heap Total",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          { "label": "Memory", "format": "bytes" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "CPU Usage",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_cpu_usage_percent",
+            "legendFormat": "CPU %",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "CPU %", "format": "percent", "max": 100 },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Active Connections",
+        "type": "stat",
+        "gridPos": { "x": 0, "y": 24, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_active_connections",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Request Queue Depth",
+        "type": "stat",
+        "gridPos": { "x": 6, "y": 24, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_request_queue_depth",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "gridPos": { "x": 12, "y": 24, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_cache_hit_rate",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          },
+          "unit": "percentunit"
+        }
+      },
+      {
+        "id": 10,
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": { "x": 18, "y": 24, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "rate(trinitycore_mcp_http_errors_total[5m])",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.1, "color": "yellow" },
+                { "value": 1, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Database Connection Pool",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 28, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "trinitycore_mcp_db_connection_pool_size",
+            "legendFormat": "Total",
+            "refId": "A"
+          },
+          {
+            "expr": "trinitycore_mcp_db_connection_pool_active",
+            "legendFormat": "Active",
+            "refId": "B"
+          },
+          {
+            "expr": "trinitycore_mcp_db_connection_pool_idle",
+            "legendFormat": "Idle",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          { "label": "Connections", "format": "short" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Database Query Duration (p95)",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 28, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(trinitycore_mcp_db_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{operation}} {{table}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Duration (s)", "format": "s" },
+          { "show": false }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Event Loop Lag (p95)",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 36, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(trinitycore_mcp_event_loop_lag_seconds_bucket[5m]))",
+            "legendFormat": "Event Loop Lag",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "label": "Lag (s)", "format": "s" },
+          { "show": false }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": null, "color": "green" },
+                { "value": 0.1, "color": "yellow" },
+                { "value": 0.5, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "Business Metrics - Lookups",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 36, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(trinitycore_mcp_spell_lookups_total[5m])",
+            "legendFormat": "Spells ({{source}})",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(trinitycore_mcp_creature_lookups_total[5m])",
+            "legendFormat": "Creatures ({{source}})",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(trinitycore_mcp_quest_lookups_total[5m])",
+            "legendFormat": "Quests ({{source}})",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          { "label": "Lookups/sec", "format": "short" },
+          { "show": false }
+        ]
+      }
+    ]
+  }
+}

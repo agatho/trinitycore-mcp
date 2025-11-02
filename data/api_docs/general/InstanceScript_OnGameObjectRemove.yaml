@@ -1,0 +1,57 @@
+api:
+  class: InstanceScript
+  method: OnGameObjectRemove
+  signature: void InstanceScript::OnGameObjectRemove(GameObject * go)
+documentation:
+  brief: Called when a game object is removed from the instance, allowing custom logic
+    to be executed.
+  description: The OnGameObjectRemove method is a virtual callback function in the
+    InstanceScript class that gets invoked whenever a GameObject is removed from the
+    instance. This typically occurs when the object is destroyed, despawned, or otherwise
+    no longer present in the world. Developers can override this method in their custom
+    instance scripts to implement specific behaviors such as updating quest states,
+    triggering events, or cleaning up references related to the removed game object.
+    The method provides access to the GameObject pointer that was removed, enabling
+    developers to query its properties and perform actions based on the object's type
+    or state.
+  parameters:
+  - name: go
+    description: Pointer to the GameObject that has been removed from the instance.
+      This parameter is never null when the method is called.
+  returns: null
+  examples:
+  - title: Basic Override Example
+    code: "class MyInstanceScript : public InstanceScript\n{\npublic:\n    void OnGameObjectRemove(GameObject*\
+      \ go) override\n    {\n        // Check if the removed object is a specific\
+      \ type\n        if (go->GetEntry() == 12345)\n        {\n            // Perform\
+      \ custom logic when this object is removed\n            sLog->outString(\"Custom\
+      \ object removed from instance\");\n        }\n    }\n};"
+    language: cpp
+  - title: Quest State Update Example
+    code: "class MyInstanceScript : public InstanceScript\n{\npublic:\n    void OnGameObjectRemove(GameObject*\
+      \ go) override\n    {\n        // If a quest-related object is removed, update\
+      \ quest state\n        if (go->GetEntry() == 12346)\n        {\n           \
+      \ // Mark quest as incomplete or trigger related events\n            for (auto&\
+      \ player : GetPlayers())\n            {\n                if (player && player->GetQuestStatus(54321)\
+      \ == QUEST_STATUS_INCOMPLETE)\n                {\n                    player->SetQuestStatus(54321,\
+      \ QUEST_STATUS_COMPLETE);\n                }\n            }\n        }\n   \
+      \ }\n};"
+    language: cpp
+  notes: This method is called during the GameObject's removal process, so any modifications
+    to the GameObject itself should be handled carefully. The GameObject pointer remains
+    valid only for the duration of this call and should not be stored for later use
+    unless explicitly referenced elsewhere.
+  warnings: Do not attempt to modify or delete the GameObject within this callback
+    as it may already be in the process of being destroyed. Avoid performing heavy
+    operations that could block the game loop, as this method is called synchronously
+    during world updates.
+  related:
+  - OnGameObjectCreate
+  - OnGameObjectUpdate
+  - OnInstanceRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:22:43.679874'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: GroupScript
+  method: OnChangeLeader
+  signature: void GroupScript::OnChangeLeader(Group * group, int newLeaderGuid, int
+    oldLeaderGuid)
+documentation:
+  brief: Called when the leader of a group changes, allowing scripts to respond to
+    leadership transitions.
+  description: The OnChangeLeader method is a callback function in the GroupScript
+    class that is invoked whenever the leader of a group is changed. This event occurs
+    during group operations such as promoting a new leader or transferring leadership
+    between players. The method provides access to both the old and new leader's GUIDs,
+    enabling scripts to perform actions based on the leadership transition. It is
+    part of the TrinityCore scripting system that allows custom behavior in response
+    to group events. The method does not return any value and is executed synchronously
+    within the game loop.
+  parameters:
+  - name: group
+    description: Pointer to the Group object whose leader has changed. This parameter
+      provides access to all group members and group-related data.
+  - name: newLeaderGuid
+    description: The global unique identifier (GUID) of the player who has become
+      the new group leader. This value represents the player's identity within the
+      game world.
+  - name: oldLeaderGuid
+    description: The global unique identifier (GUID) of the player who was previously
+      the group leader. This value represents the previous leader's identity within
+      the game world.
+  returns: null
+  examples:
+  - title: Basic Group Leader Change Handler
+    code: "#include \"GroupScript.h\"\n\nclass MyGroupScript : public GroupScript\n\
+      {\npublic:\n    MyGroupScript() : GroupScript(\"MyGroupScript\") {}\n\n    void\
+      \ OnChangeLeader(Group* group, int newLeaderGuid, int oldLeaderGuid) override\n\
+      \    {\n        // Log the leadership change\n        sLog->outString(\"Group\
+      \ leader changed from %d to %d\", oldLeaderGuid, newLeaderGuid);\n        \n\
+      \        // Perform actions based on new leader\n        Player* newLeader =\
+      \ ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, newLeaderGuid));\n\
+      \        if (newLeader)\n        {\n            newLeader->SendNotification(\"\
+      You are now the group leader!\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during group leadership transitions and should not
+    perform heavy operations that could block the game loop. The group pointer passed
+    to this function is guaranteed to be valid during execution. It's important to
+    note that GUIDs are unique identifiers for players within the TrinityCore system,
+    typically represented as 32-bit integers.
+  warnings: Avoid performing blocking operations or complex calculations in this method
+    as it runs synchronously in the game loop and can impact performance. Ensure that
+    the group pointer is valid before accessing its members to prevent crashes.
+  related:
+  - Group::GetLeaderGuid
+  - Group::SetLeader
+  - Group::ChangeLeader
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T06:44:30.140539'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

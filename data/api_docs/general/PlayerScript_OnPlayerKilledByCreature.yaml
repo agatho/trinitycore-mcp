@@ -1,0 +1,66 @@
+api:
+  class: PlayerScript
+  method: OnPlayerKilledByCreature
+  signature: void PlayerScript::OnPlayerKilledByCreature(Creature * killer, Player
+    * killed)
+documentation:
+  brief: Called when a player is killed by a creature, allowing custom behavior to
+    be implemented.
+  description: 'The OnPlayerKilledByCreature method is a virtual callback function
+    in the PlayerScript class that is invoked whenever a player character is defeated
+    by a creature in World of Warcraft. This method provides developers with the ability
+    to execute custom logic, such as modifying loot distribution, triggering quest
+    events, or applying special effects when a player dies to a specific type of enemy.
+    The method receives two parameters: the creature that caused the death and the
+    player who was killed. It is part of TrinityCore''s scripting system which allows
+    for extensive customization of game behavior without modifying core server code.'
+  parameters:
+  - name: killer
+    description: Pointer to the Creature object that killed the player. This represents
+      the enemy creature responsible for the death.
+  - name: killed
+    description: Pointer to the Player object who was killed by the creature. This
+      represents the player character who died.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    MyPlayerScript()\
+      \ : PlayerScript(\"MyPlayerScript\") {}\n\n    void OnPlayerKilledByCreature(Creature*\
+      \ killer, Player* killed) override\n    {\n        // Log the event\n      \
+      \  sLog->outString(\"Player %s was killed by %s\", killed->GetName().c_str(),\
+      \ killer->GetName().c_str());\n        \n        // Example: Give bonus XP to\
+      \ killer\n        if (killer && killed)\n        {\n            killer->AddThreat(killed,\
+      \ 100.0f);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Quest Triggering
+    code: "class DeathQuestScript : public PlayerScript\n{\npublic:\n    DeathQuestScript()\
+      \ : PlayerScript(\"DeathQuestScript\") {}\n\n    void OnPlayerKilledByCreature(Creature*\
+      \ killer, Player* killed) override\n    {\n        if (!killer || !killed)\n\
+      \            return;\n\n        // Check if the killer is a specific boss\n\
+      \        if (killer->GetEntry() == 12345)\n        {\n            // Trigger\
+      \ quest completion for player\n            if (killed->HasQuest(54321))\n  \
+      \          {\n                killed->AreaExploredOrEventHappens(54321);\n \
+      \           }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the game's core combat system during player death
+    processing. It should be used carefully as it may be invoked frequently during
+    high-traffic gameplay scenarios. Developers should avoid heavy computations or
+    database operations within this function to maintain server performance. The pointers
+    passed to this method are guaranteed to be valid at the time of invocation, but
+    may become invalid if the objects are destroyed after the callback completes.
+  warnings: Do not modify the player's state directly in this method without proper
+    checks, as it could lead to undefined behavior or crashes. Avoid calling methods
+    that might cause recursive calls or infinite loops. Be aware that this function
+    is called from within combat processing, so any long-running operations may block
+    other players' gameplay.
+  related:
+  - OnPlayerKilledByPlayer
+  - OnPlayerDeath
+  - OnPlayerEnterCombat
+  - OnPlayerLeaveCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:14:42.296730'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

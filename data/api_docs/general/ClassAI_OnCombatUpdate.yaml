@@ -1,0 +1,51 @@
+api:
+  class: ClassAI
+  method: OnCombatUpdate
+  signature: void ClassAI::OnCombatUpdate(int diff)
+documentation:
+  brief: Updates the AI behavior during combat based on elapsed time.
+  description: The OnCombatUpdate method is a core component of the ClassAI system
+    that handles periodic AI updates while an NPC is in combat. This method is called
+    by the game engine at regular intervals with a time delta parameter, allowing
+    the AI to perform actions such as casting spells, moving, or targeting enemies
+    based on the passage of time. It serves as the primary mechanism for implementing
+    dynamic combat behaviors and ensures that AI-controlled creatures respond appropriately
+    to changing battlefield conditions. The method typically processes queued actions,
+    manages cooldowns, and evaluates combat state changes to maintain realistic NPC
+    behavior during fights.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last update call. This
+      value is used to determine how much time has passed for timing-based AI behaviors
+      such as spell cooldowns, movement calculations, and action scheduling.
+  returns: null
+  examples:
+  - title: Basic combat AI update implementation
+    code: "void ClassAI::OnCombatUpdate(int diff)\n{\n    if (!UpdateVictim())\n \
+      \       return;\n\n    // Process spell casts with cooldowns\n    if (m_spellCooldown\
+      \ > 0)\n        m_spellCooldown -= diff;\n\n    if (m_spellCooldown <= 0 &&\
+      \ !me->IsNonMeleeSpellCasted(false))\n    {\n        CastSpell();\n        m_spellCooldown\
+      \ = 3000; // 3 second cooldown\n    }\n}"
+    language: cpp
+  notes: This method is invoked automatically by the TrinityCore framework during
+    combat, so developers should not call it directly. The diff parameter represents
+    actual game time and accounts for server tick rates, making timing-based behaviors
+    consistent across different server configurations. It's important to note that
+    this function runs in the context of the creature's AI thread and should avoid
+    heavy computations or blocking operations.
+  warnings: Avoid performing expensive operations within OnCombatUpdate as it is called
+    frequently during combat and can impact performance. Do not modify the creature's
+    state in ways that might cause race conditions with other systems, especially
+    when dealing with target changes or spell casting. Be careful with time-based
+    logic to ensure it remains consistent across different server tick rates.
+  related:
+  - OnEnterCombat
+  - OnLeaveCombat
+  - UpdateVictim
+  - CastSpell
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:51:36.093365'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

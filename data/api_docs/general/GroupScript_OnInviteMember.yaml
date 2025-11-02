@@ -1,0 +1,59 @@
+api:
+  class: GroupScript
+  method: OnInviteMember
+  signature: void GroupScript::OnInviteMember(Group * group, int guid)
+documentation:
+  brief: Called when a player is invited to join a group
+  description: This method is invoked by the TrinityCore scripting system whenever
+    a player attempts to invite another player to join their group. It provides an
+    opportunity for custom scripts to intercept and potentially modify the invitation
+    process. The method receives the group object that initiated the invitation and
+    the GUID of the invited player. This allows script developers to implement custom
+    logic such as permission checks, cooldowns, or restrictions on who can be invited
+    to groups.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group that is inviting
+      a member
+  - name: guid
+    description: The unique identifier (GUID) of the player being invited to the group
+  returns: null
+  examples:
+  - title: Basic Group Invitation Handler
+    code: "class MyGroupScript : public GroupScript\n{\npublic:\n    MyGroupScript()\
+      \ : GroupScript(\"MyGroupScript\") {}\n\n    void OnInviteMember(Group* group,\
+      \ uint32 guid) override\n    {\n        // Log the invitation\n        sLog->outString(\"\
+      Player with GUID %u was invited to group %u\", guid, group->GetId());\n    \
+      \    \n        // Allow all invitations by default\n        // Custom logic\
+      \ could be added here to deny certain invites\n    }\n};"
+    language: cpp
+  - title: Restrict Invitations Based on Player Level
+    code: "class LevelRestrictedGroupScript : public GroupScript\n{\npublic:\n   \
+      \ LevelRestrictedGroupScript() : GroupScript(\"LevelRestrictedGroupScript\"\
+      ) {}\n\n    void OnInviteMember(Group* group, uint32 guid) override\n    {\n\
+      \        // Get the invited player\n        Player* invitedPlayer = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(guid,\
+      \ 0, HIGHGUID_PLAYER));\n        \n        if (!invitedPlayer)\n           \
+      \ return;\n        \n        // Prevent inviting players below level 10\n  \
+      \      if (invitedPlayer->GetLevel() < 10)\n        {\n            group->SendSystemMessage(\"\
+      You cannot invite players below level 10.\");\n            // Note: This does\
+      \ not actually cancel the invitation, it just logs and informs\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the group invitation process before the actual
+    invitation is sent. It's important to note that modifying the group state directly
+    within this function might not prevent the invitation from completing, as it's
+    a notification rather than a control point for the invitation itself.
+  warnings: Do not perform operations that could block or delay the game thread for
+    extended periods, as this method is called synchronously during gameplay. Also,
+    be cautious when accessing player data in this function, as the invited player
+    may not yet be fully loaded into memory.
+  related:
+  - OnAddMember
+  - OnRemoveMember
+  - OnDisband
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:43:27.809250'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

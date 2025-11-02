@@ -1,0 +1,60 @@
+api:
+  class: PlayerScript
+  method: OnBindToInstance
+  signature: void PlayerScript::OnBindToInstance(Player * player, Difficulty difficulty,
+    uint32 mapId, bool permanent, uint8 extendState)
+documentation:
+  brief: Called when a player is bound to an instance, either permanently or temporarily,
+    during dungeon or raid entry.
+  description: This method is invoked by the TrinityCore server when a player is bound
+    to a specific instance of a map, typically during entry into a dungeon or raid.
+    The binding can be either permanent (for normal instances) or temporary (for heroic
+    or mythic difficulties). This event allows scripts to perform custom actions such
+    as modifying player stats, sending messages, or adjusting game state upon instance
+    binding. It is part of the PlayerScript system which enables custom behavior for
+    various player events in the game world.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is being bound to an instance.
+  - name: difficulty
+    description: The difficulty level of the instance (e.g., normal, heroic, mythic).
+  - name: mapId
+    description: Unique identifier for the map/instance that the player is being bound
+      to.
+  - name: permanent
+    description: Boolean flag indicating whether the binding is permanent (true) or
+      temporary (false).
+  - name: extendState
+    description: Extended state information related to the instance binding, typically
+      used for additional context like expansion-specific flags.
+  returns: null
+  examples:
+  - title: Basic Instance Binding Script
+    code: "#include \"ScriptMgr.h\"\n#include \"Player.h\"\n\nclass MyPlayerScript\
+      \ : public PlayerScript\n{\npublic:\n    MyPlayerScript() : PlayerScript(\"\
+      MyPlayerScript\") {}\n\n    void OnBindToInstance(Player* player, Difficulty\
+      \ difficulty, uint32 mapId, bool permanent, uint8 extendState) override\n  \
+      \  {\n        if (permanent)\n        {\n            ChatHandler(player->GetSession()).SendSysMessage(\"\
+      You have been permanently bound to this instance.\");\n        }\n        else\n\
+      \        {\n            ChatHandler(player->GetSession()).SendSysMessage(\"\
+      You have been temporarily bound to this instance.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called on the server-side and does not involve client-side
+    interaction directly. Scripts should avoid performing heavy operations in this
+    handler to prevent lag or performance issues. The 'extendState' parameter may
+    be used for future expansion features and its values are currently not well-documented
+    in public APIs.
+  warnings: Avoid modifying player state too aggressively within this method, as it
+    can interfere with core game mechanics. Ensure that any modifications made during
+    instance binding do not cause conflicts with other systems like loot distribution
+    or quest progression.
+  related:
+  - OnEnterCombat
+  - OnLeaveCombat
+  - OnMapChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T01:28:32.573965'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

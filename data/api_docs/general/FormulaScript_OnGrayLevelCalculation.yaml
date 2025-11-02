@@ -1,0 +1,57 @@
+api:
+  class: FormulaScript
+  method: OnGrayLevelCalculation
+  signature: void FormulaScript::OnGrayLevelCalculation(uint8 & grayLevel, uint8 playerLevel)
+documentation:
+  brief: Calculates the gray level threshold for player versus player combat based
+    on player level differences
+  description: The OnGrayLevelCalculation method is a hook point in TrinityCore's
+    formula system that allows custom scripts to modify the gray level threshold used
+    in player versus player combat calculations. This threshold determines at what
+    level difference between players they can engage in combat without triggering
+    penalized PvP mechanics. The method receives a reference to the gray level value
+    and the player's current level, allowing modifications to be made directly to
+    the gray level calculation. It is typically invoked during PvP encounter setup
+    or when determining if two players are within acceptable level ranges for combat.
+  parameters:
+  - name: grayLevel
+    description: Reference to the calculated gray level value that will be modified
+      by the script. This represents the maximum level difference at which players
+      can engage in PvP without penalties.
+  - name: playerLevel
+    description: The current level of the player for whom the gray level is being
+      calculated. Used as context to determine appropriate gray level thresholds based
+      on game progression.
+  returns: null
+  examples:
+  - title: Basic Gray Level Modification
+    code: "class MyFormulaScript : public FormulaScript\n{\npublic:\n    void OnGrayLevelCalculation(uint8&\
+      \ grayLevel, uint8 playerLevel) override\n    {\n        // Set gray level to\
+      \ 5 levels above player's current level\n        grayLevel = playerLevel + 5;\n\
+      \    }\n};"
+    language: cpp
+  - title: Conditional Gray Level Adjustment
+    code: "class MyFormulaScript : public FormulaScript\n{\npublic:\n    void OnGrayLevelCalculation(uint8&\
+      \ grayLevel, uint8 playerLevel) override\n    {\n        // For low-level players,\
+      \ use a more lenient gray level\n        if (playerLevel < 10)\n           \
+      \ grayLevel = 3;\n        else if (playerLevel < 20)\n            grayLevel\
+      \ = 5;\n        else\n            grayLevel = 8;\n    }\n};"
+    language: cpp
+  notes: This method is called during PvP combat initialization and modifies the gray
+    level threshold in-place. Changes made to grayLevel will affect subsequent PvP
+    mechanics such as honor point gains, experience loss, and combat restrictions.
+    The method runs in the context of the game's main thread and should avoid heavy
+    computations or blocking operations.
+  warnings: Modifying grayLevel directly can significantly impact gameplay balance.
+    Be cautious when adjusting values as it affects core PvP mechanics. Ensure that
+    changes maintain reasonable level progression boundaries to prevent exploitation
+    or unfair advantages in player combat.
+  related:
+  - OnPlayerPvPCalculation
+  - OnLevelDifferenceCalculation
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T07:24:17.204251'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: BotMemoryManager
+  method: RecordAllocation
+  signature: void BotMemoryManager::RecordAllocation(void * address, uint64_t size,
+    MemoryCategory category, uint32_t botGuid, const std::string & context)
+documentation:
+  brief: Records a memory allocation in the bot's memory management system for tracking
+    and debugging purposes.
+  description: The RecordAllocation method logs details about a memory allocation
+    performed by a bot, including the allocated address, size, category, associated
+    bot GUID, and contextual information. This functionality is crucial for monitoring
+    memory usage patterns, detecting leaks, and profiling bot behavior within the
+    TrinityCore environment. The method does not perform any allocation itself but
+    merely tracks existing allocations made by the bot system. It is typically invoked
+    automatically during memory management operations or manually when specific tracking
+    is required.
+  parameters:
+  - name: address
+    description: Pointer to the allocated memory block. Must be a valid memory address,
+      cannot be null.
+  - name: size
+    description: Size in bytes of the allocated memory block. Must be a positive integer
+      value.
+  - name: category
+    description: Memory category indicating the type or purpose of the allocation
+      (e.g., AI, pathfinding, inventory).
+  - name: botGuid
+    description: Unique identifier (GUID) of the bot that performed the allocation.
+      Must be a valid 32-bit unsigned integer.
+  - name: context
+    description: String describing the context or reason for the allocation, useful
+      for debugging and tracking purposes.
+  returns: null
+  examples:
+  - title: Basic usage of RecordAllocation
+    code: 'BotMemoryManager* memoryManager = BotMemoryManager::Instance();
+
+      void* allocatedMem = malloc(1024);
+
+      memoryManager->RecordAllocation(allocatedMem, 1024, MemoryCategory::AI, 12345,
+      "AI decision making");'
+    language: cpp
+  - title: Recording allocation with dynamic context
+    code: 'std::string context = "Pathfinding node allocation for bot " + std::to_string(botGuid);
+
+      memoryManager->RecordAllocation(pathNode, sizeof(PathNode), MemoryCategory::PATHFINDING,
+      botGuid, context);'
+    language: cpp
+  notes: This method is part of a memory tracking system designed for debugging and
+    performance analysis in TrinityCore's bot framework. It assumes that the memory
+    allocation has already occurred and simply records metadata about it. The implementation
+    may involve thread-safe operations if multiple bots are allocating memory concurrently.
+  warnings: Ensure that the address parameter points to valid allocated memory; passing
+    an invalid or freed pointer can lead to undefined behavior. The context string
+    should be kept concise for performance reasons, especially in high-frequency allocation
+    scenarios.
+  related:
+  - RecordDeallocation
+  - GetMemoryUsage
+  - ClearMemoryRecords
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:29:56.216831'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

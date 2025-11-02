@@ -1,0 +1,48 @@
+api:
+  class: GroupMgr
+  method: RemoveGroup
+  signature: void GroupMgr::RemoveGroup(Group * group)
+documentation:
+  brief: Removes a group from the group manager's internal tracking system.
+  description: The RemoveGroup method removes a specified Group object from the GroupMgr's
+    collection of active groups. This method is typically called when a group is disbanded
+    or when a player leaves a group, ensuring that the group is no longer tracked
+    by the group management system. It performs necessary cleanup operations such
+    as removing references to the group and potentially notifying other subsystems
+    about the group's removal. The group object itself is not deleted from memory;
+    this method only removes it from the manager's tracking.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that needs to be removed from the group
+      manager. Must be a valid pointer to an existing group, otherwise behavior is
+      undefined.
+  returns: null
+  examples:
+  - title: Removing a group after player leaves
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    GroupMgr::instance()->RemoveGroup(group);\n\
+      \    // Group is now removed from manager\n}"
+    language: cpp
+  - title: Disbanding a group and cleaning up
+    code: "void DisbandGroup(Player* leader)\n{\n    Group* group = leader->GetGroup();\n\
+      \    if (group && group->IsLeader(leader->GetGUID()))\n    {\n        // Notify\
+      \ all members\n        group->Disband();\n        // Remove the group from manager\n\
+      \        GroupMgr::instance()->RemoveGroup(group);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the group is valid and has been properly initialized.
+    It does not delete the group object, so callers should ensure proper memory management
+    if needed. The method may trigger internal cleanup routines but does not directly
+    affect players in the group unless they are also removed.
+  warnings: Passing a null pointer to this method will likely cause undefined behavior
+    or crashes. Always verify that the group exists and is valid before calling RemoveGroup.
+    Additionally, ensure that no other systems are actively using the group object
+    after calling this method.
+  related:
+  - AddGroup
+  - GetGroup
+  - Group::Disband
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:46:40.716450'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

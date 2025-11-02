@@ -1,0 +1,59 @@
+api:
+  class: BattlegroundMgr
+  method: FindBattlegroundScriptTemplate
+  signature: const BattlegroundScriptTemplate * BattlegroundMgr::FindBattlegroundScriptTemplate(uint32
+    mapId, int bgTypeId) const
+documentation:
+  brief: Retrieves the battleground script template for a specified map and battleground
+    type.
+  description: The FindBattlegroundScriptTemplate method searches for and returns
+    a const pointer to a BattlegroundScriptTemplate object that corresponds to the
+    given map ID and battleground type ID. This function is used internally by the
+    battleground system to locate the appropriate script template for initializing
+    and managing battleground instances. The method performs a lookup in an internal
+    registry or map structure that associates map identifiers with their corresponding
+    battleground templates. It ensures that each battleground type is correctly mapped
+    to its script implementation, which defines behaviors such as scoring, win conditions,
+    and reward distribution.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map where the battleground is located.
+      This value corresponds to the Map ID defined in the game's map database.
+  - name: bgTypeId
+    description: The type identifier of the battleground. This value determines which
+      specific battleground template to retrieve, such as AV (Alterac Valley), WS
+      (Warsong Gulch), etc.
+  returns: A const pointer to a BattlegroundScriptTemplate object if a matching template
+    is found; otherwise, returns nullptr if no script template exists for the specified
+    map and battleground type.
+  examples:
+  - title: Find Script Template for Warsong Gulch
+    code: "const BattlegroundScriptTemplate* bgTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(489,\
+      \ BATTLEGROUND_WS);\nif (bgTemplate)\n{\n    // Proceed with using the battleground\
+      \ template\n    TC_LOG_INFO(\"bg\", \"Found battleground template for Warsong\
+      \ Gulch\");\n}"
+    language: cpp
+  - title: Validate Template Before Initialization
+    code: "uint32 mapId = 529;\nint bgTypeId = BATTLEGROUND_AB;\nconst BattlegroundScriptTemplate*\
+      \ template = sBattlegroundMgr->FindBattlegroundScriptTemplate(mapId, bgTypeId);\n\
+      if (!template)\n{\n    TC_LOG_ERROR(\"bg\", \"No script template found for map\
+      \ %u, bg type %i\", mapId, bgTypeId);\n    return;\n}\n// Proceed with creating\
+      \ a new battleground instance\nBattleground* bg = new Battleground();\nbg->SetScript(template);"
+    language: cpp
+  notes: This method is typically used during the initialization phase of battleground
+    creation. It is assumed that all valid map IDs and battleground type IDs passed
+    to this function are registered in the game's internal data structures. The returned
+    pointer should not be modified or freed, as it points to a static or managed resource.
+  warnings: Do not assume that the returned pointer will always be valid; always check
+    for nullptr before using the result. Passing invalid mapId or bgTypeId values
+    may lead to undefined behavior or incorrect lookup results.
+  related:
+  - GetBattlegroundTemplate
+  - CreateBattleground
+  - GetBattleground
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T12:35:02.465537'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: BattlegroundScript
+  method: OnPlayerJoined
+  signature: void BattlegroundScript::OnPlayerJoined(int * player, bool inBattleground)
+documentation:
+  brief: Handles player join events in battlegrounds, triggering custom logic when
+    a player enters or leaves a battleground.
+  description: The OnPlayerJoined method is a virtual callback function within the
+    BattlegroundScript class that is invoked whenever a player joins or exits a battleground.
+    This method allows developers to implement custom behavior such as initializing
+    player data, applying buffs, tracking player statistics, or modifying gameplay
+    mechanics specific to the battleground. The method receives a pointer to the player's
+    ID and a boolean flag indicating whether the player is entering (true) or leaving
+    (false) the battleground. It is typically used in custom battleground scripts
+    to extend or modify default TrinityCore behavior during player participation in
+    battlegrounds.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). This value points to the player object within the battleground context.
+  - name: inBattleground
+    description: Boolean flag indicating if the player is entering (true) or leaving
+      (false) the battleground. Used to distinguish between join and leave events.
+  returns: null
+  examples:
+  - title: Basic Player Join Handler
+    code: "class MyBattlegroundScript : public BattlegroundScript\n{\npublic:\n  \
+      \  void OnPlayerJoined(int* player, bool inBattleground) override\n    {\n \
+      \       if (inBattleground)\n        {\n            // Apply custom buff when\
+      \ player joins\n            Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(player));\n\
+      \            if (plr)\n                plr->AddAura(12345, plr); // Example\
+      \ aura\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Player Tracking in Battleground
+    code: "class CustomBattlegroundScript : public BattlegroundScript\n{\npublic:\n\
+      \    void OnPlayerJoined(int* player, bool inBattleground) override\n    {\n\
+      \        Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(*player));\n  \
+      \      if (!plr)\n            return;\n\n        if (inBattleground)\n     \
+      \   {\n            // Track player entry time\n            battleground->GetPlayerEntryTime()[plr->GetGUID()]\
+      \ = time(nullptr);\n            // Log event\n            sLog->outString(\"\
+      Player %s joined battleground.\", plr->GetName().c_str());\n        }\n    \
+      \    else\n        {\n            // Handle player leaving\n            battleground->GetPlayerEntryTime().erase(plr->GetGUID());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core battleground system during player state
+    transitions. Developers should ensure that any modifications to player state are
+    thread-safe and do not interfere with the core battleground logic. The player
+    pointer may be invalid if the player has already left the game or if the battleground
+    instance is being destroyed.
+  warnings: Do not modify the player's position or teleport them directly in this
+    method without proper checks, as it can cause synchronization issues. Avoid performing
+    heavy computations inside this callback to prevent lag in battleground operations.
+  related:
+  - OnPlayerLeft
+  - OnBattlegroundStart
+  - OnBattlegroundEnd
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T12:26:53.327923'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: BotPopulationManager
+  method: InvalidateCache
+  signature: void BotPopulationManager::InvalidateCache(uint32 zoneId)
+documentation:
+  brief: Invalidates the cache for a specified zone to force recalculation of bot
+    population data.
+  description: The InvalidateCache method clears cached bot population data for the
+    given zone ID, ensuring that subsequent requests will trigger a fresh calculation
+    or retrieval of bot spawn information. This is typically used when changes occur
+    in the zone's environment or configuration that would affect how bots are distributed
+    or spawned. The method does not return any value and operates directly on internal
+    caching structures within the BotPopulationManager class. It is commonly invoked
+    after zone modifications, map updates, or during server maintenance to ensure
+    data consistency.
+  parameters:
+  - name: zoneId
+    description: The unique identifier of the zone for which the cache should be invalidated.
+      This corresponds to the Zone ID used internally by TrinityCore's map and area
+      system.
+  returns: null
+  examples:
+  - title: Invalidating Cache for a Specific Zone
+    code: 'BotPopulationManager* manager = BotPopulationManager::Instance();
+
+      manager->InvalidateCache(1234); // Invalidates cache for zone ID 1234'
+    language: cpp
+  - title: Using in Response to Zone Update Event
+    code: "void OnZoneUpdate(uint32 zoneId)\n{\n    BotPopulationManager* manager\
+      \ = BotPopulationManager::Instance();\n    manager->InvalidateCache(zoneId);\n\
+      \    // Additional logic to handle updated zone data\n}"
+    language: cpp
+  notes: This method directly affects internal caching behavior and should be used
+    carefully in performance-critical sections. It may cause temporary delays if the
+    cache is subsequently rebuilt, especially for large zones with many bots. The
+    invalidation process is not thread-safe and should ideally be called from a single-threaded
+    context or synchronized appropriately.
+  warnings: Calling InvalidateCache repeatedly without proper throttling can lead
+    to excessive recalculations and potential performance degradation. Ensure that
+    this method is only invoked when necessary, such as after significant zone modifications
+    or during controlled maintenance windows.
+  related:
+  - GetBotPopulation
+  - UpdateCache
+  - IsCacheValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:13:48.890303'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

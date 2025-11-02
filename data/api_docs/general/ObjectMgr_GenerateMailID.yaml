@@ -1,0 +1,51 @@
+api:
+  class: ObjectMgr
+  method: GenerateMailID
+  signature: uint64 ObjectMgr::GenerateMailID()
+documentation:
+  brief: Generates a unique identifier for mail messages within the TrinityCore database.
+  description: The GenerateMailID method produces a globally unique 64-bit identifier
+    for mail items in the World of Warcraft database. This function is typically used
+    when creating new mail entries to ensure each message has a distinct ID that can
+    be referenced later. The generated ID is usually stored in the mail table's 'id'
+    field and is essential for tracking mail delivery, retrieval, and management within
+    the game system. The method maintains internal state to prevent duplicate IDs
+    from being generated during runtime.
+  parameters: []
+  returns: A uint64 value representing the newly generated unique mail identifier.
+    This ID is guaranteed to be unique within the current server instance and can
+    be used directly as the primary key for new mail records in the database.
+  examples:
+  - title: Creating a new mail entry with generated ID
+    code: 'uint64 mailId = sObjectMgr->GenerateMailID();
+
+      MailSender sender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM);
+
+      MailReceiver receiver(playerGuid, playerName);
+
+      MailDraft draft("Subject", "Body text");
+
+      draft.AddItem(itemTemplate);
+
+      draft.SendMailTo(MailReceiver(receiver), sender);
+
+      // The mailId is now available for logging or additional processing'
+    language: cpp
+  notes: This method relies on an internal counter maintained by ObjectMgr to ensure
+    uniqueness. It's thread-safe and should be called before inserting new mail records
+    into the database. The generated IDs are sequential but not necessarily consecutive
+    due to potential gaps from failed insertions or server restarts.
+  warnings: Do not call this method without proper database transaction handling when
+    creating mail entries, as duplicate IDs could lead to data integrity issues. Also,
+    ensure that the returned ID is properly stored in the database before any mail
+    operations are finalized.
+  related:
+  - GetMail
+  - SaveMail
+  - DeleteMail
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:42:02.201160'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: CasterAI
+  method: UpdateAI
+  signature: void CasterAI::UpdateAI(int diff)
+documentation:
+  brief: Updates the AI behavior for a caster unit based on elapsed time and combat
+    state.
+  description: The UpdateAI method is responsible for managing the artificial intelligence
+    logic of a caster unit within the TrinityCore framework. It processes the unit's
+    actions, spell casting, target selection, and movement decisions based on the
+    time elapsed since the last update (diff parameter). This method is typically
+    called by the core game loop at regular intervals to ensure that AI-controlled
+    creatures behave realistically in combat situations. The implementation handles
+    cooldowns, line-of-sight checks, and prioritization of offensive and defensive
+    spells according to the caster's defined behavior.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last AI update call.
+      This value is used to determine when spells can be cast again, how long to wait
+      between actions, and to manage timing-sensitive behaviors such as spell cooldowns
+      and movement delays.
+  returns: null
+  examples:
+  - title: Basic AI Update Usage
+    code: "void ExampleCreatureAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    // Call base class UpdateAI to handle caster-specific\
+      \ logic\n    CasterAI::UpdateAI(diff);\n}"
+    language: cpp
+  - title: Custom Caster AI with Spell Casting
+    code: "class MyCasterAI : public CasterAI\n{\npublic:\n    MyCasterAI(Creature*\
+      \ creature) : CasterAI(creature) {}\n\n    void UpdateAI(uint32 diff) override\n\
+      \    {\n        if (!UpdateVictim())\n            return;\n\n        // Custom\
+      \ logic before calling base implementation\n        if (me->HasUnitState(UNIT_STATE_CASTING))\n\
+      \            return;\n\n        // Call parent implementation for standard caster\
+      \ AI\n        CasterAI::UpdateAI(diff);\n    }\n};"
+    language: cpp
+  notes: This method is part of the core AI system and should not be overridden without
+    careful consideration. The diff parameter represents actual game time, so timing-sensitive
+    behaviors will be consistent across different server loads. Performance-wise,
+    this function should avoid heavy computations or database queries as it's called
+    frequently during combat.
+  warnings: Do not call this method directly from outside the AI update loop; always
+    let the core system handle calling UpdateAI. Overriding this method without calling
+    the base implementation may break standard caster behavior including spell casting,
+    targeting, and cooldown management.
+  related:
+  - UpdateVictim
+  - DoCast
+  - SelectSpell
+  - CanCast
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T10:12:48.559382'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: IVMapManager
+  method: existsMap
+  signature: LoadResult IVMapManager::existsMap(const char * pBasePath, unsigned int
+    pMapId, int x, int y)
+documentation:
+  brief: Checks if a specific map tile exists for the given map ID and coordinates.
+  description: The existsMap method determines whether a particular map tile is available
+    for loading within the TrinityCore instance. It verifies the existence of map
+    data files at the specified base path for a given map ID and grid coordinates
+    (x, y). This functionality is crucial for terrain and navigation systems in World
+    of Warcraft emulation, ensuring that only valid map tiles are processed during
+    world loading or player movement. The method returns a LoadResult enum indicating
+    success, failure, or other status conditions related to the map tile's availability.
+  parameters:
+  - name: pBasePath
+    description: The base directory path where map data files are stored. This typically
+      points to the 'maps' directory in the TrinityCore installation.
+  - name: pMapId
+    description: The unique identifier of the map to check. This corresponds to the
+      Map ID used internally by the game engine and must match valid map entries in
+      the database.
+  - name: x
+    description: The X coordinate of the grid tile to verify. Grid coordinates are
+      typically in the range [0, 63] for standard map tiles.
+  - name: y
+    description: The Y coordinate of the grid tile to verify. Grid coordinates are
+      typically in the range [0, 63] for standard map tiles.
+  returns: Returns a LoadResult enum value indicating the status of the map tile existence
+    check. Possible values include LOAD_RESULT_SUCCESS if the tile exists and can
+    be loaded, LOAD_RESULT_ERROR if an error occurred during verification, and LOAD_RESULT_NOT_FOUND
+    if no data file exists for the specified tile.
+  examples:
+  - title: Basic usage to verify map tile existence
+    code: "const char* basePath = \"maps\";\nuint32 mapId = 0; // Eastern Kingdoms\n\
+      int x = 10;\nint y = 15;\nLoadResult result = VMapManager2->existsMap(basePath,\
+      \ mapId, x, y);\nif (result == LOAD_RESULT_SUCCESS) {\n    // Tile exists and\
+      \ can be loaded\n    printf(\"Map tile (%d,%d) for map %u is available\\n\"\
+      , x, y, mapId);\n} else {\n    // Tile does not exist or cannot be loaded\n\
+      \    printf(\"Map tile (%d,%d) for map %u is not available\\n\", x, y, mapId);\n\
+      }"
+    language: cpp
+  notes: This method is primarily used by the VMapManager system to determine which
+    map tiles should be loaded into memory. It performs file system checks without
+    actually loading the tile data, making it efficient for pre-checking before full
+    loading operations. The method assumes that map files follow standard naming conventions
+    expected by TrinityCore's VMap implementation.
+  warnings: This method does not validate the actual content of map files beyond their
+    existence. A successful return does not guarantee that the tile will load correctly
+    if the file is corrupted or incompatible with the current version of the emulator.
+    Additionally, calling this method in high-frequency scenarios may cause performance
+    overhead due to filesystem operations.
+  related:
+  - loadMap
+  - getVMapManager
+  - existsMapFile
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:49:02.190765'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,72 @@
+api:
+  class: GuildBankManager
+  method: MoveItem
+  signature: bool GuildBankManager::MoveItem(int * player, uint32 fromTab, uint32
+    fromSlot, uint32 toTab, uint32 toSlot)
+documentation:
+  brief: Moves an item from one slot to another within the guild bank.
+  description: The MoveItem method facilitates the relocation of items between different
+    tabs and slots in a player's guild bank. This operation is typically invoked when
+    a guild member attempts to reorganize their stored items. The method validates
+    that both the source and destination slots are valid, checks if the player has
+    sufficient permissions to access the guild bank, and ensures that the move does
+    not violate any item stacking or slot restrictions. It also handles updating the
+    guild's bank log and may trigger notifications to other guild members depending
+    on server configuration.
+  parameters:
+  - name: player
+    description: Pointer to the player's GUID (Global Unique Identifier) who is attempting
+      to perform the move operation. This parameter ensures that only authorized players
+      can manipulate guild bank contents.
+  - name: fromTab
+    description: Index of the source tab from which the item will be moved. Tabs are
+      zero-indexed, with 0 representing the first tab in the guild bank interface.
+  - name: fromSlot
+    description: Index of the slot within the source tab from which the item will
+      be moved. Slots are also zero-indexed and correspond to specific positions within
+      a tab.
+  - name: toTab
+    description: Index of the destination tab where the item will be moved. Must be
+      a valid tab index within the guild bank's tab range.
+  - name: toSlot
+    description: Index of the slot within the destination tab where the item will
+      be placed. Must be a valid slot index within the specified tab.
+  returns: Returns true if the item was successfully moved; otherwise, returns false.
+    A return value of false may indicate invalid parameters, insufficient permissions,
+    or an attempt to move an item into an occupied slot without proper stacking rules.
+  examples:
+  - title: Basic Item Movement
+    code: "if (guildBankManager->MoveItem(&playerGuid, 0, 5, 1, 3)) {\n    // Successfully\
+      \ moved item from tab 0, slot 5 to tab 1, slot 3\n    sLog->outString(\"Item\
+      \ moved successfully\");\n} else {\n    // Failed to move item\n    sLog->outString(\"\
+      Failed to move item\");\n}"
+    language: cpp
+  - title: Moving Item with Error Handling
+    code: "uint32 fromTab = 0;\nuint32 fromSlot = 10;\nuint32 toTab = 2;\nuint32 toSlot\
+      \ = 0;\nint playerGuid = 123456;\n\nif (guildBankManager->MoveItem(&playerGuid,\
+      \ fromTab, fromSlot, toTab, toSlot)) {\n    sLog->outString(\"Item moved successfully\
+      \ from tab %u slot %u to tab %u slot %u\", \n                    fromTab, fromSlot,\
+      \ toTab, toSlot);\n} else {\n    sLog->outString(\"Failed to move item from\
+      \ tab %u slot %u to tab %u slot %u\", \n                    fromTab, fromSlot,\
+      \ toTab, toSlot);\n}"
+    language: cpp
+  notes: This method assumes that the player has already been authenticated and authorized
+    to access the guild bank. It does not perform any checks on item type or stack
+    limits beyond basic slot validation. The actual movement of items is handled internally
+    by the TrinityCore framework, including updating database records and sending
+    updates to clients.
+  warnings: Ensure that all tab and slot indices are valid before calling this method
+    to avoid undefined behavior. Improper use of invalid indices may lead to crashes
+    or data corruption in the guild bank system. Additionally, this function should
+    not be called from multiple threads concurrently without proper synchronization
+    mechanisms.
+  related:
+  - GuildBankManager::DepositItem
+  - GuildBankManager::WithdrawItem
+  - GuildBankManager::SwapItems
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:13:00.999942'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

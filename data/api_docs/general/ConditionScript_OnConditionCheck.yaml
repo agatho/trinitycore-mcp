@@ -1,0 +1,77 @@
+api:
+  class: ConditionScript
+  method: OnConditionCheck
+  signature: bool ConditionScript::OnConditionCheck(const Condition * condition, ConditionSourceInfo
+    & sourceInfo)
+documentation:
+  brief: Evaluates a condition and returns whether it passes or fails based on the
+    provided source information.
+  description: The OnConditionCheck method is a virtual callback function in the ConditionScript
+    class that allows custom logic to be executed when a game condition needs to be
+    evaluated. This method is invoked during various game events such as quest progress,
+    NPC interactions, or item usage where conditions are checked. It provides an opportunity
+    for developers to override default condition behavior and implement custom validation
+    rules. The method receives a pointer to the condition being checked and source
+    information that includes context about where and how the condition was triggered.
+    The return value determines whether the condition is met (true) or not (false),
+    which can affect quest progression, NPC dialogue options, or other conditional
+    game mechanics.
+  parameters:
+  - name: condition
+    description: Pointer to the Condition object that needs to be evaluated. This
+      contains the condition type, parameters, and target information required for
+      evaluation.
+  - name: sourceInfo
+    description: Reference to ConditionSourceInfo structure containing contextual
+      data about where and how the condition check was initiated. Includes information
+      such as the source entity, trigger type, and related objects involved in the
+      condition evaluation.
+  returns: Boolean value indicating whether the condition passes (true) or fails (false).
+    A true return allows the conditional logic to proceed, while false prevents it.
+  examples:
+  - title: Basic Condition Check Override
+    code: "class MyConditionScript : public ConditionScript\n{\npublic:\n    MyConditionScript()\
+      \ : ConditionScript(\"MyConditionScript\") {}\n\n    bool OnConditionCheck(const\
+      \ Condition* condition, ConditionSourceInfo& sourceInfo) override\n    {\n \
+      \       // Custom logic to evaluate a specific condition type\n        if (condition->m_conditionType\
+      \ == CONDITION_AURA)\n        {\n            // Check if player has specific\
+      \ aura\n            return sourceInfo.m_sourcePlayer && sourceInfo.m_sourcePlayer->HasAura(12345);\n\
+      \        }\n        \n        // Default behavior for other conditions\n   \
+      \     return false;\n    }\n};"
+    language: cpp
+  - title: Advanced Condition with Multiple Checks
+    code: "class AdvancedConditionScript : public ConditionScript\n{\npublic:\n  \
+      \  AdvancedConditionScript() : ConditionScript(\"AdvancedConditionScript\")\
+      \ {}\n\n    bool OnConditionCheck(const Condition* condition, ConditionSourceInfo&\
+      \ sourceInfo) override\n    {\n        switch (condition->m_conditionType)\n\
+      \        {\n            case CONDITION_ZONE_MAP:\n                return sourceInfo.m_sourcePlayer\
+      \ && \n                       sourceInfo.m_sourcePlayer->GetZoneId() == condition->m_conditionValue1;\n\
+      \            \n            case CONDITION_REPUTATION_RANK:\n               \
+      \ if (sourceInfo.m_sourcePlayer)\n                {\n                    FactionEntry\
+      \ const* faction = sFactionStore.LookupEntry(condition->m_conditionValue1);\n\
+      \                    return faction && sourceInfo.m_sourcePlayer->GetReputationRank(faction)\
+      \ >= condition->m_conditionValue2;\n                }\n                return\
+      \ false;\n            \n            default:\n                return ConditionScript::OnConditionCheck(condition,\
+      \ sourceInfo);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore's condition system and should be implemented
+    carefully to avoid performance bottlenecks. The ConditionSourceInfo structure
+    contains pointers that must be validated before use. Custom implementations should
+    consider thread safety if used in concurrent environments. The base implementation
+    returns false by default, so it's important to explicitly handle all condition
+    types you want to override.
+  warnings: Improper handling of the ConditionSourceInfo can lead to crashes or undefined
+    behavior when accessing invalid pointers. Always validate that source entities
+    exist before using them. Overriding this method for every condition type may cause
+    performance issues if not optimized properly. Be aware that returning true for
+    conditions that should normally fail can break game logic and quest progression.
+  related:
+  - ConditionScript::OnConditionCheck
+  - ConditionScript::OnConditionCheck
+  - ConditionScript::OnConditionCheck
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T09:29:34.251992'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

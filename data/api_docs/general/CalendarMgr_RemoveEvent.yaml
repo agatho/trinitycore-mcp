@@ -1,0 +1,53 @@
+api:
+  class: CalendarMgr
+  method: RemoveEvent
+  signature: void CalendarMgr::RemoveEvent(CalendarEvent * calendarEvent, int remover)
+documentation:
+  brief: Removes a calendar event from the calendar manager and notifies affected
+    players.
+  description: The RemoveEvent method removes a specified calendar event from the
+    calendar manager's internal data structures. It handles the cleanup of event references,
+    updates related player invitations, and broadcasts removal notifications to all
+    involved parties. This method ensures that the calendar system remains consistent
+    after an event is deleted. The remover parameter indicates which entity (player
+    or system) initiated the removal, affecting how notifications are formatted and
+    who receives them. The method does not validate whether the calendarEvent pointer
+    is valid before attempting removal, so callers should ensure proper null checking.
+  parameters:
+  - name: calendarEvent
+    description: Pointer to the CalendarEvent object that needs to be removed from
+      the system. Must not be null or an invalid memory address.
+  - name: remover
+    description: Identifier indicating who initiated the removal of the event. Typically
+      represents a player GUID or system identifier. Used for notification purposes
+      and determining access rights.
+  returns: null
+  examples:
+  - title: Basic Event Removal
+    code: "CalendarEvent* myEvent = sCalendarMgr->GetEvent(12345);\nif (myEvent)\n\
+      {\n    sCalendarMgr->RemoveEvent(myEvent, player->GetGUID().GetCounter());\n\
+      }"
+    language: cpp
+  - title: System-initiated Event Removal
+    code: "CalendarEvent* systemEvent = sCalendarMgr->GetEvent(98765);\nif (systemEvent)\n\
+      {\n    sCalendarMgr->RemoveEvent(systemEvent, 0); // System remover\n}"
+    language: cpp
+  notes: This method assumes that the calendarEvent parameter is valid and properly
+    initialized. It does not perform any validation on the event's existence in the
+    manager before attempting removal. The actual removal process may involve multiple
+    internal steps including database updates, packet sends to players, and cleanup
+    of associated data structures.
+  warnings: Calling this method with a null or invalid calendarEvent pointer will
+    likely result in undefined behavior or crashes. Always verify that the event exists
+    and is valid before calling RemoveEvent. Be cautious when removing events that
+    have active invitations or ongoing participation from players.
+  related:
+  - GetEvent
+  - AddEvent
+  - UpdateEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T10:21:23.564198'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

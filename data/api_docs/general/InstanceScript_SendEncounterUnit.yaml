@@ -1,0 +1,61 @@
+api:
+  class: InstanceScript
+  method: SendEncounterUnit
+  signature: void InstanceScript::SendEncounterUnit(EncounterFrameType type, const
+    Unit * unit, int param1, int param2)
+documentation:
+  brief: Sends an encounter unit event to the client for display in the encounter
+    frame.
+  description: The SendEncounterUnit method is used by InstanceScript subclasses to
+    communicate with the client about specific units involved in an encounter. It
+    allows the server to notify the client when certain units should be displayed
+    or highlighted in the encounter frame, such as boss units or important NPCs during
+    a dungeon or raid encounter. This method supports different types of encounter
+    frames and can pass additional parameters for customization. The method is typically
+    called during encounter events like boss spawn, phase changes, or unit activation.
+  parameters:
+  - name: type
+    description: The type of encounter frame to display. Defines how the unit should
+      be presented in the UI (e.g., boss, add, vehicle). Valid values are typically
+      defined by the EncounterFrameType enum.
+  - name: unit
+    description: Pointer to the Unit object that should be displayed in the encounter
+      frame. Can be nullptr if no specific unit is being referenced.
+  - name: param1
+    description: Additional parameter for customizing the display behavior. The meaning
+      depends on the EncounterFrameType and can represent things like phase, health
+      percentage, or special flags.
+  - name: param2
+    description: Second additional parameter for further customization of the encounter
+      frame display. Often used in conjunction with param1 to provide more detailed
+      information about the unit's state.
+  returns: null
+  examples:
+  - title: Basic Boss Encounter Unit Display
+    code: "void InstanceScript::OnBossEnterCombat()\n{\n    if (Creature* boss = GetCreature(DATA_BOSS))\n\
+      \    {\n        SendEncounterUnit(ENCOUNTER_FRAME_BOSS, boss, 0, 0);\n    }\n\
+      }"
+    language: cpp
+  - title: Custom Encounter Unit with Phase Information
+    code: "void InstanceScript::OnPhaseChange(uint32 phase)\n{\n    if (Creature*\
+      \ add = GetCreature(DATA_ADD_1))\n    {\n        SendEncounterUnit(ENCOUNTER_FRAME_ADD,\
+      \ add, phase, 100);\n    }\n}"
+    language: cpp
+  notes: This method directly communicates with the client's UI system to update encounter
+    frames. It should only be called when the encounter state actually changes, not
+    on every tick or event. The unit parameter must be a valid pointer to an existing
+    Unit object that has been properly initialized in the world.
+  warnings: Passing nullptr for the unit parameter may result in undefined behavior
+    or client-side errors. Ensure that the unit exists and is valid before calling
+    this method. Also, avoid calling this method excessively during rapid state changes
+    as it may cause UI flickering or performance issues.
+  related:
+  - SendEncounterUnit
+  - UpdateEncounterFrame
+  - SetBossState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:18:13.399179'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

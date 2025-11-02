@@ -1,0 +1,56 @@
+api:
+  class: InterruptRotationManager
+  method: HandleFailedInterrupt
+  signature: void InterruptRotationManager::HandleFailedInterrupt(Unit * caster, uint32
+    spellId)
+documentation:
+  brief: Handles the logic when an interrupt attempt fails during spell casting.
+  description: The HandleFailedInterrupt method is responsible for managing the consequences
+    when a unit's attempt to interrupt another unit's spell casting fails. This typically
+    occurs in combat scenarios where a caster is interrupted by an opposing unit's
+    abilities or actions. The method processes the failure state, potentially updating
+    the caster's internal state, logging the event, and triggering any associated
+    callbacks or notifications within the TrinityCore framework. It ensures proper
+    game state management and maintains synchronization between the server and client
+    regarding interrupt outcomes.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit object that attempted the interrupt. This represents
+      the unit performing the interrupt action, which could be a player, NPC, or pet.
+  - name: spellId
+    description: The identifier of the spell being interrupted. This value corresponds
+      to the SpellEntry in the database and determines how the failure is handled
+      based on the specific spell type.
+  returns: null
+  examples:
+  - title: Basic usage in interrupt handler
+    code: "void MyInterruptHandler::OnInterruptFailed(Unit* caster, uint32 spellId)\n\
+      {\n    InterruptRotationManager::HandleFailedInterrupt(caster, spellId);\n}"
+    language: cpp
+  - title: Advanced usage with additional logging
+    code: "void CombatAI::ProcessInterruptFailure(Unit* caster, uint32 spellId)\n\
+      {\n    // Log the failed interrupt attempt\n    sLog->outDebug(LOG_FILTER_COMBAT,\
+      \ \"Interrupt failed for %s attempting to interrupt spell %u\", \n         \
+      \          caster->GetName().c_str(), spellId);\n    \n    // Handle the failure\
+      \ through the manager\n    InterruptRotationManager::HandleFailedInterrupt(caster,\
+      \ spellId);\n    \n    // Optionally reset or modify AI behavior\n    if (caster->IsPlayer())\n\
+      \        static_cast<Player*>(caster)->GetMotionMaster()->Clear();\n}"
+    language: cpp
+  notes: This method is part of the interrupt rotation system and should be called
+    only when an actual interrupt attempt has failed. It assumes that the caster parameter
+    is valid and not null. The spellId must correspond to a known spell in the database
+    for proper handling.
+  warnings: Ensure that the caster pointer is valid before calling this method, as
+    passing a null pointer will result in undefined behavior. Also, be cautious about
+    calling this method from within interrupt-related callbacks to avoid potential
+    recursion or stack overflow issues.
+  related:
+  - HandleSuccessfulInterrupt
+  - IsInterruptible
+  - GetInterruptCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:56:20.713814'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

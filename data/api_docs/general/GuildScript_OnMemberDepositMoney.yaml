@@ -1,0 +1,58 @@
+api:
+  class: GuildScript
+  method: OnMemberDepositMoney
+  signature: void GuildScript::OnMemberDepositMoney(Guild * guild, Player * player,
+    uint64 & amount)
+documentation:
+  brief: Called when a guild member deposits money into the guild bank.
+  description: This method is invoked as part of the GuildScript system in TrinityCore
+    whenever a player deposits gold into the guild bank. It allows custom scripts
+    to intercept and modify the deposit behavior, such as applying taxes, limiting
+    deposits, or triggering events. The method provides access to both the guild and
+    the player involved in the transaction, along with a reference to the amount being
+    deposited which can be modified by the script. This is particularly useful for
+    implementing guild economy mechanics or enforcing guild-specific rules on financial
+    transactions.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object representing the guild where the money
+      is being deposited.
+  - name: player
+    description: Pointer to the Player object representing the player who is depositing
+      the money.
+  - name: amount
+    description: Reference to a uint64 value representing the amount of money (in
+      copper) being deposited. This value can be modified by the script to change
+      the actual deposit amount.
+  returns: null
+  examples:
+  - title: Basic Example - Limit Maximum Deposit
+    code: "void MyGuildScript::OnMemberDepositMoney(Guild* guild, Player* player,\
+      \ uint64& amount)\n{\n    if (amount > 1000000) // 100 gold in copper\n    {\n\
+      \        amount = 1000000; // Cap deposit at 100 gold\n    }\n}"
+    language: cpp
+  - title: Advanced Example - Apply Guild Tax
+    code: "void MyGuildScript::OnMemberDepositMoney(Guild* guild, Player* player,\
+      \ uint64& amount)\n{\n    // Apply 5% tax on deposits\n    uint64 tax = amount\
+      \ / 20; // 5% of the amount\n    amount -= tax;\n    \n    // Log the transaction\n\
+      \    LOG_INFO(\"guild\", \"Player {} deposited {} copper with {} copper tax\
+      \ applied.\",\n             player->GetName(), amount + tax, tax);\n}"
+    language: cpp
+  notes: This method is called during the guild bank deposit process, before the actual
+    transaction is committed. Scripts should avoid performing operations that might
+    block or take long, as this could affect gameplay performance. The 'amount' parameter
+    is passed by reference, allowing modification of the deposit amount directly.
+  warnings: Modifying the 'amount' parameter can significantly alter the game economy.
+    Be cautious when reducing amounts, as it may cause unexpected behavior if other
+    systems depend on the original deposit value. Also, avoid calling methods that
+    might recursively trigger this event to prevent stack overflow.
+  related:
+  - OnMemberWithdrawMoney
+  - OnGuildBankEvent
+  - OnMemberUpdateMOTD
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:52:20.166564'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

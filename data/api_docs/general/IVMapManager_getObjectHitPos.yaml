@@ -1,0 +1,84 @@
+api:
+  class: IVMapManager
+  method: getObjectHitPos
+  signature: bool IVMapManager::getObjectHitPos(unsigned int pMapId, float x1, float
+    y1, float z1, float x2, float y2, float z2, float & rx, float & ry, float & rz,
+    float pModifyDist)
+documentation:
+  brief: Calculates the hit position of an object between two points in a specified
+    map.
+  description: The getObjectHitPos method determines the exact point where a line
+    segment intersects with an object in the game world. It performs a raycast from
+    the starting point (x1, y1, z1) to the ending point (x2, y2, z2) within the specified
+    map (pMapId). The method modifies the provided coordinates (rx, ry, rz) to reflect
+    the actual hit position, adjusted by the pModifyDist parameter which can be used
+    to fine-tune the result. This functionality is essential for calculating line-of-sight,
+    spell targeting, and other game mechanics that require precise object intersection
+    detection.
+  parameters:
+  - name: pMapId
+    description: The unique identifier of the map where the raycast will be performed.
+      Must correspond to a valid map in the game world.
+  - name: x1
+    description: The X coordinate of the starting point of the raycast.
+  - name: y1
+    description: The Y coordinate of the starting point of the raycast.
+  - name: z1
+    description: The Z coordinate of the starting point of the raycast.
+  - name: x2
+    description: The X coordinate of the ending point of the raycast.
+  - name: y2
+    description: The Y coordinate of the ending point of the raycast.
+  - name: z2
+    description: The Z coordinate of the ending point of the raycast.
+  - name: rx
+    description: Reference to the X coordinate where the raycast hits an object. Will
+      be updated with the hit position.
+  - name: ry
+    description: Reference to the Y coordinate where the raycast hits an object. Will
+      be updated with the hit position.
+  - name: rz
+    description: Reference to the Z coordinate where the raycast hits an object. Will
+      be updated with the hit position.
+  - name: pModifyDist
+    description: A distance modifier that adjusts the final hit position. Positive
+      values move the hit point closer to the start, negative values move it further
+      away.
+  returns: Returns true if a valid intersection was found between the raycast and
+    an object in the specified map; otherwise returns false if no intersection occurs
+    or if the operation fails.
+  examples:
+  - title: Basic usage to find line-of-sight hit position
+    code: "float x1 = 100.0f, y1 = 100.0f, z1 = 50.0f;\nfloat x2 = 200.0f, y2 = 200.0f,\
+      \ z2 = 50.0f;\nfloat hitX, hitY, hitZ;\n\nif (IVMapManager::getInstance()->getObjectHitPos(0,\
+      \ x1, y1, z1, x2, y2, z2, hitX, hitY, hitZ, 0.0f)) {\n    // Successfully found\
+      \ a hit position\n    printf(\"Hit at (%.2f, %.2f, %.2f)\\n\", hitX, hitY, hitZ);\n\
+      } else {\n    // No intersection occurred\n    printf(\"No object hit in the\
+      \ raycast\\n\");\n}"
+    language: cpp
+  - title: Using modify distance to adjust hit position
+    code: "float x1 = 0.0f, y1 = 0.0f, z1 = 10.0f;\nfloat x2 = 0.0f, y2 = 100.0f,\
+      \ z2 = 10.0f;\nfloat hitX, hitY, hitZ;\n\n// Adjust hit position to be slightly\
+      \ closer to start point\nif (IVMapManager::getInstance()->getObjectHitPos(0,\
+      \ x1, y1, z1, x2, y2, z2, hitX, hitY, hitZ, -2.0f)) {\n    printf(\"Adjusted\
+      \ hit at (%.2f, %.2f, %.2f)\\n\", hitX, hitY, hitZ);\n}"
+    language: cpp
+  notes: This method relies on the underlying VMap (Virtual Map) system to perform
+    collision detection. The performance of this method is dependent on the complexity
+    of the map geometry and the number of objects in the specified area. It's recommended
+    to use this function sparingly in performance-critical code paths.
+  warnings: The method may return false even if a valid map ID is provided if no intersections
+    occur or if the map data is not loaded. Ensure that the map is properly initialized
+    before calling this method. Also, be cautious with negative pModifyDist values
+    as they can cause unexpected behavior when the adjustment moves the hit point
+    beyond the original ray direction.
+  related:
+  - getAreaHitPos
+  - getObjectHitBox
+  - isInLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:46:33.068237'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

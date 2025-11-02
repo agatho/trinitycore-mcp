@@ -1,0 +1,58 @@
+api:
+  class: DB2StorageBase
+  method: Load
+  signature: void DB2StorageBase::Load(const std::string & path, LocaleConstant locale)
+documentation:
+  brief: Loads DB2 data from the specified file path for the given locale
+  description: The Load method initializes and populates a DB2 storage container with
+    data from a specified file path, targeting a particular locale. This method is
+    typically used during server startup or runtime to load localized database table
+    data required by various subsystems. The method handles parsing of the DB2 file
+    format, which is used in World of Warcraft for storing structured game data such
+    as item templates, creature data, and other static game information. It ensures
+    that the loaded data is properly indexed and accessible for fast lookup operations.
+    The locale parameter determines which localized version of the data to load, allowing
+    for proper internationalization support.
+  parameters:
+  - name: path
+    description: The absolute or relative file path to the DB2 data file to be loaded.
+      This should point to a valid .db2 file containing structured game data.
+  - name: locale
+    description: The locale constant specifying which localized version of the data
+      to load. Valid values are typically defined in LocaleConstant enum such as LOCALE_enUS,
+      LOCALE_koKR, etc.
+  returns: null
+  examples:
+  - title: Basic DB2 Storage Load
+    code: 'DB2StorageBase* itemStorage = new DB2StorageBase();
+
+      itemStorage->Load("dbc/item.db2", LOCALE_enUS);'
+    language: cpp
+  - title: Loading Multiple Locale Data
+    code: 'DB2StorageBase* creatureStorage = new DB2StorageBase();
+
+      creatureStorage->Load("dbc/creature.db2", LOCALE_enUS);
+
+      creatureStorage->Load("dbc/creature.db2", LOCALE_frFR);'
+    language: cpp
+  notes: This method is typically called during server initialization or when locale
+    changes occur. The DB2 files are binary format tables that must be properly aligned
+    and formatted. The method performs internal error checking and will silently fail
+    if the file cannot be read or parsed correctly. It's recommended to verify successful
+    loading by checking the storage state after calling this method.
+  warnings: Calling Load on an already-loaded storage may result in data corruption
+    or memory leaks. Always ensure proper cleanup before reloading. The method does
+    not validate that the file is a valid DB2 format - invalid files may cause undefined
+    behavior. This method should typically be called from the main thread as it may
+    perform blocking I/O operations.
+  related:
+  - LoadFromDB
+  - GetRecord
+  - HasRecord
+  - GetNumRecords
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:50:07.168926'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

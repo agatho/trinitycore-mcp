@@ -1,0 +1,58 @@
+api:
+  class: ExampleManager
+  method: OnUpdate
+  signature: void ExampleManager::OnUpdate(uint32 elapsed)
+documentation:
+  brief: Updates the example manager state based on elapsed time since last update
+  description: The OnUpdate method is a core callback function that gets invoked periodically
+    by the game loop to process and update the internal state of the ExampleManager.
+    It receives a time delta parameter representing milliseconds elapsed since the
+    last execution, allowing the manager to perform time-based operations such as
+    cooldown management, event scheduling, or periodic checks. This method is typically
+    called from TrinityCore's main update loop and should be used for lightweight,
+    non-blocking operations that need to occur regularly. The implementation must
+    handle the elapsed time appropriately to maintain consistent behavior across different
+    server loads and frame rates.
+  parameters:
+  - name: elapsed
+    description: The number of milliseconds that have passed since the last update
+      call. This value is used to determine how much time has passed for time-based
+      calculations and should be used to scale any time-dependent operations within
+      the manager.
+  returns: null
+  examples:
+  - title: Basic Update Implementation
+    code: "void ExampleManager::OnUpdate(uint32 elapsed)\n{\n    // Process cooldowns\n\
+      \    if (cooldownTimer > 0)\n        cooldownTimer = std::max(0u, cooldownTimer\
+      \ - elapsed);\n    \n    // Handle periodic events\n    if (eventTimer <= elapsed)\n\
+      \    {\n        HandlePeriodicEvent();\n        eventTimer = EVENT_INTERVAL;\n\
+      \    }\n    else\n    {\n        eventTimer -= elapsed;\n    }\n}"
+    language: cpp
+  - title: Advanced Update with Multiple Timers
+    code: "void ExampleManager::OnUpdate(uint32 elapsed)\n{\n    // Update multiple\
+      \ timers\n    for (auto& timer : timers)\n    {\n        if (timer.active)\n\
+      \            timer.timeLeft = std::max(0u, timer.timeLeft - elapsed);\n    }\n\
+      \    \n    // Clean up expired timers\n    timers.erase(std::remove_if(timers.begin(),\
+      \ timers.end(),\n        [](const Timer& t) { return t.timeLeft == 0; }), timers.end());\n\
+      \    \n    // Process pending actions\n    while (!pendingActions.empty())\n\
+      \    {\n        auto action = pendingActions.front();\n        pendingActions.pop();\n\
+      \        ExecuteAction(action);\n    }\n}"
+    language: cpp
+  notes: This method is called from the main game thread and should avoid heavy computations
+    or blocking operations. It's designed to be lightweight and fast, typically completing
+    within a few milliseconds. The elapsed parameter provides accurate timing information
+    for smooth gameplay mechanics.
+  warnings: Do not perform database operations directly in this method as it may cause
+    performance issues or deadlocks. Avoid calling methods that might block or take
+    significant time to complete. Be cautious with thread synchronization if the manager
+    is accessed from multiple threads.
+  related:
+  - Update
+  - Initialize
+  - Reset
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T07:47:01.389338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

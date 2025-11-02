@@ -1,0 +1,57 @@
+api:
+  class: LeaderChangedHandler
+  method: HandleEvent
+  signature: bool LeaderChangedHandler::HandleEvent(const GroupEvent & event)
+documentation:
+  brief: Processes group leader change events and returns whether the event was handled
+    successfully
+  description: The HandleEvent method in LeaderChangedHandler is responsible for processing
+    group leader change notifications within the TrinityCore framework. This method
+    is invoked when a group's leader status changes, such as when a player is promoted
+    or demoted from leader role. It handles the necessary game logic updates including
+    updating group member permissions, notifying clients of the change, and maintaining
+    internal group state consistency. The method ensures that all related systems
+    are synchronized with the new group leadership structure.
+  parameters:
+  - name: event
+    description: The GroupEvent object containing details about the leader change,
+      including the old leader, new leader, and group context information
+  returns: Returns true if the event was successfully processed and all necessary
+    updates were applied; returns false if processing failed or was unable to complete
+  examples:
+  - title: Basic usage in group management
+    code: "LeaderChangedHandler handler;\nGroupEvent event;\n// ... populate event\
+      \ with leader change data ...\nbool result = handler.HandleEvent(event);\nif\
+      \ (result) {\n    // Event processed successfully\n    sLog->outString(\"Group\
+      \ leader changed successfully\");\n} else {\n    // Failed to process the event\n\
+      \    sLog->outError(\"Failed to handle group leader change\");\n}"
+    language: cpp
+  - title: Integration with group update system
+    code: "class GroupLeaderManager {\npublic:\n    static bool UpdateGroupLeader(Group*\
+      \ group, Player* newLeader) {\n        GroupEvent event;\n        event.type\
+      \ = GROUP_EVENT_LEADER_CHANGED;\n        event.group = group;\n        event.oldLeader\
+      \ = group->GetLeaderGuid();\n        event.newLeader = newLeader->GetGUID();\n\
+      \        \n        LeaderChangedHandler handler;\n        return handler.HandleEvent(event);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is typically called from within the group management system and
+    should only be invoked when a legitimate leader change event occurs. The method
+    assumes that proper validation of the event data has already been performed by
+    the caller. It may trigger additional notifications to clients and update internal
+    game state, so performance considerations should be taken into account for frequent
+    leader changes.
+  warnings: Do not call this method directly with invalid or unvalidated GroupEvent
+    objects as it may cause undefined behavior or crashes. Ensure that the event contains
+    valid group context and leader information before invoking this handler. This
+    method modifies group state internally and should only be called from thread-safe
+    contexts in multi-threaded environments.
+  related:
+  - Group::SetLeader
+  - Group::GetLeaderGuid
+  - GroupEvent::Validate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T03:58:01.195770'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

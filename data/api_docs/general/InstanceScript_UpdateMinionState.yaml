@@ -1,0 +1,62 @@
+api:
+  class: InstanceScript
+  method: UpdateMinionState
+  signature: void InstanceScript::UpdateMinionState(Creature * minion, EncounterState
+    state)
+documentation:
+  brief: Updates the state of a minion creature within an instance encounter.
+  description: The UpdateMinionState method is used to synchronize the encounter state
+    with a specific minion creature in a World of Warcraft instance. This method typically
+    gets called when a minion's status changes during an encounter, such as when it
+    dies or becomes engaged. It allows the InstanceScript to manage the overall encounter
+    state by updating individual minion states accordingly. The method ensures that
+    the encounter logic remains consistent and that proper events are triggered based
+    on minion behavior. This is particularly important for scripted encounters where
+    minions have specific roles in the overall boss fight mechanics.
+  parameters:
+  - name: minion
+    description: Pointer to the Creature object representing the minion whose state
+      needs to be updated. Must not be null and should represent a valid creature
+      within the instance.
+  - name: state
+    description: The new EncounterState value that represents the current status of
+      the minion. This typically indicates whether the minion is alive, dead, or in
+      some other encounter-specific state.
+  returns: null
+  examples:
+  - title: Updating a minion's state when it dies
+    code: "void BossAI::UpdateMinionState(Creature* minion, EncounterState state)\n\
+      {\n    if (minion && state == NOT_STARTED)\n    {\n        // Update the encounter\
+      \ state based on minion death\n        instance->SetData(DATA_MINION_DEATH,\
+      \ 1);\n        // Call base implementation to handle state changes\n       \
+      \ InstanceScript::UpdateMinionState(minion, state);\n    }\n}"
+    language: cpp
+  - title: Handling multiple minions in an encounter
+    code: "void MyInstanceScript::HandleMinionDeath(Creature* minion)\n{\n    // Update\
+      \ the minion's state to reflect death\n    UpdateMinionState(minion, DONE);\n\
+      \    \n    // Check if all required minions are dead\n    uint32 aliveMinions\
+      \ = 0;\n    for (auto& entry : minionList)\n    {\n        if (entry->IsAlive())\n\
+      \            ++aliveMinions;\n    }\n    \n    if (aliveMinions == 0)\n    {\n\
+      \        // All minions dead, proceed with next phase\n        SetBossState(BOSS_PHASE_TWO,\
+      \ IN_PROGRESS);\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework when
+    minion states change during encounters. Developers should ensure that the minion
+    pointer passed is valid and that the state value represents a legitimate encounter
+    state. The method may trigger additional logic within the InstanceScript depending
+    on how it's implemented in the specific encounter.
+  warnings: Passing a null pointer for the minion parameter will likely cause a crash
+    or undefined behavior. Always validate that the creature exists before calling
+    this method. Additionally, ensure that the EncounterState value is appropriate
+    for the current encounter context to avoid inconsistent state management.
+  related:
+  - SetBossState
+  - GetBossState
+  - SetData
+  - GetData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:16:23.703959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

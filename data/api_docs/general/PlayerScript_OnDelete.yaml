@@ -1,0 +1,64 @@
+api:
+  class: PlayerScript
+  method: OnDelete
+  signature: void PlayerScript::OnDelete(int guid, uint32 accountId)
+documentation:
+  brief: Handles cleanup operations when a player character is deleted from the database.
+  description: The OnDelete method is a callback function invoked by the TrinityCore
+    server when a player character is permanently removed from the database. This
+    method allows script developers to perform necessary cleanup tasks such as removing
+    associated data, logging deletion events, or updating related systems. The method
+    receives the unique identifier (GUID) of the deleted player and the account ID
+    to which the player belonged. It is typically called during account deletion or
+    character removal processes within the game's lifecycle management.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player character being deleted.
+      This value represents the internal database ID used by TrinityCore to identify
+      the specific player instance.
+  - name: accountId
+    description: The account ID associated with the player's account. This identifies
+      which user account the deleted character belonged to within the game system.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnDelete(int\
+      \ guid, uint32 accountId) override\n    {\n        // Log the deletion event\n\
+      \        sLog->outString(\"Player with GUID %d deleted from account %u\", guid,\
+      \ accountId);\n        \n        // Perform any cleanup operations here\n  \
+      \      // For example: remove cached data, update statistics, etc.\n    }\n\
+      };"
+    language: cpp
+  - title: Advanced Implementation with Data Cleanup
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnDelete(int\
+      \ guid, uint32 accountId) override\n    {\n        // Remove any cached player\
+      \ data\n        sObjectAccessor->RemovePlayerFromCache(guid);\n        \n  \
+      \      // Update database to remove associated records\n        CharacterDatabase.PExecute(\"\
+      DELETE FROM player_quests WHERE guid = %u\", guid);\n        CharacterDatabase.PExecute(\"\
+      DELETE FROM player_tutorials WHERE player_guid = %u\", guid);\n        \n  \
+      \      // Log the deletion for administrative purposes\n        sLog->outString(\"\
+      Player GUID %d deleted from account %u. Cleanup completed.\", guid, accountId);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the final stages of player deletion, after all
+    references to the character have been removed but before the database record is
+    actually purged. Developers should ensure that any cleanup operations are lightweight
+    and do not block the main game thread for extended periods. The method may be
+    invoked multiple times in certain scenarios, such as when handling account deletions
+    with multiple characters.
+  warnings: Do not attempt to access player data or objects within this callback,
+    as they may already be invalid or removed from memory. Avoid performing heavy
+    database operations that could impact server performance. Be cautious about modifying
+    global systems during deletion, as it might interfere with the normal flow of
+    account or character management.
+  related:
+  - OnCreate
+  - OnLogin
+  - OnLogout
+  - OnDelete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:23:33.828031'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

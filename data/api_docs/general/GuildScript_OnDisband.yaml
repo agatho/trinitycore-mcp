@@ -1,0 +1,58 @@
+api:
+  class: GuildScript
+  method: OnDisband
+  signature: void GuildScript::OnDisband(Guild * guild)
+documentation:
+  brief: Called when a guild is disbanded, allowing scripts to perform cleanup or
+    logging operations.
+  description: The OnDisband method is a virtual callback function in the GuildScript
+    class that is invoked whenever a guild is disbanded within the TrinityCore server.
+    This method provides an opportunity for custom scripts to execute logic such as
+    logging the event, cleaning up associated data, or notifying players. The method
+    receives a pointer to the Guild object being disbanded, which can be used to access
+    guild information like name, leader, members, and other properties before the
+    guild is destroyed. This event occurs during the guild disbanding process, typically
+    triggered by the guild leader using the /guild disband command or through administrative
+    actions.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object that is being disbanded. This parameter
+      provides access to all guild-related data including members, permissions, and
+      guild details before the guild structure is removed from memory.
+  returns: null
+  examples:
+  - title: Basic Guild Disband Logging
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnDisband(Guild*\
+      \ guild) override\n    {\n        if (guild)\n        {\n            sLog->outString(\"\
+      Guild '%s' has been disbanded.\", guild->GetName().c_str());\n        }\n  \
+      \  }\n};"
+    language: cpp
+  - title: Cleanup Associated Data on Guild Disband
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnDisband(Guild*\
+      \ guild) override\n    {\n        if (!guild)\n            return;\n\n     \
+      \   std::string guildName = guild->GetName();\n        // Remove any custom\
+      \ data associated with this guild\n        sWorld->RemoveGuildData(guildName);\n\
+      \        \n        // Log the event to database or external system\n       \
+      \ sLog->outString(\"Disbanded guild '%s' - cleaning up associated data.\", guildName.c_str());\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is executed synchronously during the guild disbanding process,
+    so any heavy operations should be considered carefully to avoid performance impacts.
+    The Guild pointer passed to this method remains valid until the end of the function
+    call, but accessing members or other related objects after the method completes
+    may result in undefined behavior if they have already been freed.
+  warnings: Ensure that no references are maintained to the guild object beyond the
+    scope of this method, as the guild structure will be destroyed immediately after
+    this callback returns. Avoid performing operations that might block or take significant
+    time within this function to prevent server lag.
+  related:
+  - OnCreate
+  - OnMemberAdded
+  - OnMemberRemoved
+  - OnEvent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:55:41.125579'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

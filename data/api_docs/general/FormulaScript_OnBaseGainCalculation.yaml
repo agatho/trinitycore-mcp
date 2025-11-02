@@ -1,0 +1,67 @@
+api:
+  class: FormulaScript
+  method: OnBaseGainCalculation
+  signature: void FormulaScript::OnBaseGainCalculation(uint32 & gain, uint8 playerLevel,
+    uint8 mobLevel)
+documentation:
+  brief: Calculates the base experience gain for a player defeating a mob based on
+    level difference
+  description: The OnBaseGainCalculation method is invoked during experience reward
+    calculations to determine the initial base gain value before modifiers are applied.
+    This method takes into account both the player's level and the mob's level to
+    compute an appropriate base experience amount. The calculation considers the relative
+    levels of the combatants, with higher-level mobs generally providing more experience,
+    but with diminishing returns for large level differences. The method modifies
+    the gain parameter in-place, allowing scripts to adjust the base experience value
+    dynamically based on custom game logic or balance considerations.
+  parameters:
+  - name: gain
+    description: Reference to the base experience gain value that will be modified
+      by this method. This value represents the calculated base experience before
+      any multipliers or bonuses are applied.
+  - name: playerLevel
+    description: The current level of the player who defeated the mob. Used in conjunction
+      with mobLevel to determine the base experience calculation.
+  - name: mobLevel
+    description: The level of the mob that was defeated by the player. This parameter
+      is crucial for calculating level-based experience adjustments.
+  returns: null
+  examples:
+  - title: Basic implementation example
+    code: "class MyFormulaScript : public FormulaScript\n{\npublic:\n    void OnBaseGainCalculation(uint32&\
+      \ gain, uint8 playerLevel, uint8 mobLevel) override\n    {\n        // Simple\
+      \ adjustment: increase base gain by 10% for each level difference\n        int32\
+      \ levelDiff = static_cast<int32>(mobLevel) - static_cast<int32>(playerLevel);\n\
+      \        if (levelDiff > 0)\n        {\n            gain += (gain * levelDiff\
+      \ * 10) / 100;\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced example with custom scaling
+    code: "class AdvancedFormulaScript : public FormulaScript\n{\npublic:\n    void\
+      \ OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel) override\n\
+      \    {\n        // Apply exponential scaling based on level difference\n   \
+      \     int32 diff = static_cast<int32>(mobLevel) - static_cast<int32>(playerLevel);\n\
+      \        if (diff > 0)\n        {\n            float multiplier = 1.0f + (diff\
+      \ * 0.05f); // 5% per level difference\n            gain = static_cast<uint32>(gain\
+      \ * multiplier);\n        }\n        else if (diff < -5)\n        {\n      \
+      \      // Reduce gain for significantly lower-level mobs\n            gain =\
+      \ static_cast<uint32>(gain * 0.7f);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the experience calculation phase of mob kills
+    and should not perform heavy computations or database operations as it may impact
+    combat performance. The gain parameter is passed by reference, so modifications
+    directly affect the final experience reward. Scripts that override this method
+    should be careful to maintain balance and avoid making experience rewards too
+    high or too low.
+  warnings: Modifying the gain value can significantly impact gameplay balance. Be
+    cautious when adjusting base experience values as it affects player progression
+    and game economy. Avoid using blocking operations or heavy computations in this
+    method to prevent performance degradation during combat.
+  related:
+  - OnGainCalculation
+  - OnLevelGainCalculation
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T07:25:58.497482'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

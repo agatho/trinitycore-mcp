@@ -1,0 +1,70 @@
+api:
+  class: ObjectGuidFactory
+  method: CreateMobileSession
+  signature: ObjectGuid ObjectGuidFactory::CreateMobileSession(uint32 realmId, uint16
+    arg1, uint64 counter)
+documentation:
+  brief: Creates a unique ObjectGuid for a mobile session identifier used in TrinityCore's
+    networking and session management.
+  description: The CreateMobileSession method generates a unique ObjectGuid specifically
+    designed for identifying mobile sessions within the TrinityCore framework. This
+    GUID is typically used to track player sessions, client connections, or other
+    dynamic entities that require a globally unique identifier across the game world.
+    The generated GUID incorporates realm ID, session-specific arguments, and a counter
+    value to ensure uniqueness. This method is commonly invoked during client authentication,
+    session creation, or when establishing new network connections in the World of
+    Warcraft server environment.
+  parameters:
+  - name: realmId
+    description: The unique identifier of the realm where the session will be active.
+      This value typically corresponds to the realm's ID in the database and helps
+      distinguish sessions across different realms.
+  - name: arg1
+    description: A session-specific argument that provides additional context or identification
+      for the mobile session. The exact meaning of this parameter depends on the calling
+      code but often represents a client-specific value or connection type identifier.
+  - name: counter
+    description: A monotonically increasing counter value used to ensure GUID uniqueness.
+      This typically increments with each new session creation and helps prevent collisions
+      in GUID generation.
+  returns: Returns an ObjectGuid object that uniquely identifies the mobile session.
+    The returned GUID contains encoded information about the realm, session arguments,
+    and counter to provide a globally unique identifier suitable for use in TrinityCore's
+    session management system.
+  examples:
+  - title: Basic usage for creating a mobile session GUID
+    code: 'ObjectGuid guid = ObjectGuidFactory::CreateMobileSession(1, 0x1234, 56789);
+
+      // Creates a unique session GUID for realm ID 1 with argument 0x1234 and counter
+      56789'
+    language: cpp
+  - title: Creating mobile session GUID during client connection handling
+    code: 'uint32 realmId = sWorld->GetRealmID();
+
+      uint16 sessionId = GetNextSessionId();
+
+      uint64 counter = sObjectMgr->GetNextSessionCounter();
+
+      ObjectGuid sessionGuid = ObjectGuidFactory::CreateMobileSession(realmId, sessionId,
+      counter);
+
+      // Used to assign a unique identifier to a new player session'
+    language: cpp
+  notes: This method is typically called during the authentication process when establishing
+    new client connections. The generated GUIDs are designed to be globally unique
+    across all realms and sessions. Developers should ensure that the counter parameter
+    is properly managed to prevent collisions, especially in high-concurrency scenarios.
+  warnings: Improper handling of the counter value can lead to GUID collisions which
+    may cause session management issues or unexpected behavior in network communication.
+    The realmId should always correspond to a valid realm in the database to avoid
+    invalid session identifiers.
+  related:
+  - CreatePlayerGuid
+  - CreateCreatureGuid
+  - CreateGameObjectGuid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T02:56:29.698171'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

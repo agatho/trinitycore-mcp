@@ -1,0 +1,60 @@
+api:
+  class: FormulaScript
+  method: OnGroupRateCalculation
+  signature: void FormulaScript::OnGroupRateCalculation(float & rate, uint32 count,
+    bool isRaid)
+documentation:
+  brief: Modifies the experience rate for group encounters based on player count and
+    raid status
+  description: The OnGroupRateCalculation method is a hook point in TrinityCore's
+    FormulaScript system that allows custom modifications to the experience rate applied
+    to group-based encounters. This method is invoked when calculating the reward
+    multiplier for groups of players participating in content such as dungeons, raids,
+    or world events. The rate parameter can be adjusted to increase or decrease the
+    experience gain, while count represents the number of players in the group and
+    isRaid indicates whether the encounter is classified as a raid instance. This
+    hook provides developers with the ability to implement custom scaling mechanics
+    for group rewards, such as diminishing returns for large groups or bonus multipliers
+    for small groups.
+  parameters:
+  - name: rate
+    description: Reference to the experience rate multiplier that can be modified
+      in-place. Default value is typically 1.0f, representing normal experience gain.
+  - name: count
+    description: The number of players participating in the group encounter. Used
+      to determine scaling behavior for group-based rewards.
+  - name: isRaid
+    description: Boolean flag indicating whether the encounter is classified as a
+      raid instance (true) or a regular dungeon/normal content (false).
+  returns: null
+  examples:
+  - title: Implementing Diminishing Returns for Large Groups
+    code: "class MyFormulaScript : public FormulaScript\n{\npublic:\n    void OnGroupRateCalculation(float&\
+      \ rate, uint32 count, bool isRaid) override\n    {\n        if (count > 5)\n\
+      \        {\n            // Apply diminishing returns for groups larger than\
+      \ 5 players\n            rate *= (5.0f / static_cast<float>(count));\n     \
+      \   }\n    }\n};"
+    language: cpp
+  - title: Adding Raid Bonuses for Small Groups
+    code: "class MyFormulaScript : public FormulaScript\n{\npublic:\n    void OnGroupRateCalculation(float&\
+      \ rate, uint32 count, bool isRaid) override\n    {\n        if (isRaid && count\
+      \ <= 3)\n        {\n            // Small raid groups get a bonus\n         \
+      \   rate *= 1.5f;\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during experience calculation for group encounters
+    and should not perform heavy operations or blocking calls to avoid performance
+    impact. The rate parameter is passed by reference, allowing direct modification
+    of the experience multiplier value.
+  warnings: Modifying the rate parameter can significantly affect player progression
+    and game balance. Ensure that any changes maintain a reasonable gameplay experience
+    and do not create unintended exploits or unbalanced reward structures.
+  related:
+  - OnGroupRateCalculation
+  - OnPlayerRateCalculation
+  - OnQuestRateCalculation
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T07:23:44.475083'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

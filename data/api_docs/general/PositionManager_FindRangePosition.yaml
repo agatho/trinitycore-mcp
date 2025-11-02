@@ -1,0 +1,64 @@
+api:
+  class: PositionManager
+  method: FindRangePosition
+  signature: int PositionManager::FindRangePosition(Unit * target, float minRange,
+    float maxRange, float preferredAngle)
+documentation:
+  brief: Finds a valid position within a specified range and angle from a target unit.
+  description: The FindRangePosition method calculates and returns a suitable position
+    for a unit that lies within a defined minimum and maximum range from a target
+    unit, while also considering a preferred angular direction. This method is typically
+    used in AI behavior scripting to determine optimal positioning for spell casting,
+    movement, or combat engagement. It evaluates the surrounding terrain and collision
+    data to ensure the returned position is valid for unit placement. The method accounts
+    for the unit's current orientation and the target's location to compute an appropriate
+    position that respects both range constraints and angular preferences.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit from which the range calculation is performed.
+      Must be a valid Unit object, otherwise behavior is undefined.
+  - name: minRange
+    description: Minimum distance in yards from the target unit. Must be non-negative
+      and less than or equal to maxRange.
+  - name: maxRange
+    description: Maximum distance in yards from the target unit. Must be non-negative
+      and greater than or equal to minRange.
+  - name: preferredAngle
+    description: Preferred angular direction (in radians) relative to the target's
+      facing direction. Used to bias position selection towards a specific angle.
+  returns: Returns an integer value indicating success or failure of the position
+    calculation. A positive value typically indicates a valid position was found,
+    while zero or negative values may indicate failure or no suitable positions within
+    constraints.
+  examples:
+  - title: Basic usage to find a ranged position
+    code: "Unit* target = player->GetVictim();\nint result = positionManager->FindRangePosition(target,\
+      \ 5.0f, 20.0f, M_PI / 4);\nif (result > 0) {\n    // Position found and valid\n\
+      }"
+    language: cpp
+  - title: Using FindRangePosition for spell positioning
+    code: "Unit* target = unit->GetVictim();\nfloat minRange = 10.0f;\nfloat maxRange\
+      \ = 30.0f;\nfloat preferredAngle = unit->GetOrientation() + M_PI / 2; // 90\
+      \ degrees offset\nint positionResult = positionManager->FindRangePosition(target,\
+      \ minRange, maxRange, preferredAngle);\nif (positionResult > 0) {\n    // Proceed\
+      \ with spell casting or movement to calculated position\n}"
+    language: cpp
+  notes: This method internally uses collision detection and terrain evaluation to
+    ensure returned positions are valid for unit placement. It may perform multiple
+    iterations to find a suitable position within the specified constraints. The method
+    assumes that the target unit is valid and located in the same map as the calling
+    unit.
+  warnings: Calling this method with invalid parameters (e.g., minRange > maxRange)
+    may lead to undefined behavior or failure. Ensure that the target unit pointer
+    is valid before calling. In high-frequency AI scenarios, repeated calls to this
+    method may impact performance due to collision checks.
+  related:
+  - GetRangePosition
+  - CalculatePosition
+  - IsValidPosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T00:32:43.616481'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

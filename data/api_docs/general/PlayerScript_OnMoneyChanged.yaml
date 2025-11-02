@@ -1,0 +1,59 @@
+api:
+  class: PlayerScript
+  method: OnMoneyChanged
+  signature: void PlayerScript::OnMoneyChanged(Player * player, int64 & amount)
+documentation:
+  brief: Called when a player's money amount changes, allowing scripts to react to
+    monetary updates.
+  description: The OnMoneyChanged method is a callback function in the PlayerScript
+    class that gets invoked whenever a player's money balance is modified within the
+    TrinityCore emulator. This event triggers during various game actions such as
+    looting gold from mobs, selling items, or trading with other players. The method
+    provides access to both the player object and a reference to the amount of money
+    that was changed, enabling scripts to implement custom logic like logging transactions,
+    enforcing monetary limits, or triggering in-game events based on financial changes.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose money has changed. This parameter
+      is never null and represents the specific player instance affected by the monetary
+      change.
+  - name: amount
+    description: Reference to an int64 value representing the amount of money that
+      was added or removed from the player's inventory. A positive value indicates
+      money was gained, while a negative value indicates money was lost.
+  returns: null
+  examples:
+  - title: Basic Logging of Money Changes
+    code: "class MoneyLogScript : public PlayerScript\n{\npublic:\n    void OnMoneyChanged(Player*\
+      \ player, int64& amount) override\n    {\n        if (amount > 0)\n        \
+      \    LOG_INFO(\"scripts\", \"Player {} gained {} gold.\", player->GetName(),\
+      \ amount);\n        else\n            LOG_INFO(\"scripts\", \"Player {} lost\
+      \ {} gold.\", player->GetName(), -amount);\n    }\n};"
+    language: cpp
+  - title: Enforcing Maximum Money Limit
+    code: "class MaxMoneyScript : public PlayerScript\n{\npublic:\n    void OnMoneyChanged(Player*\
+      \ player, int64& amount) override\n    {\n        int64 currentMoney = player->GetMoney();\n\
+      \        if (currentMoney > 1000000000LL) // 1 billion copper\n        {\n \
+      \           player->SetMoney(1000000000LL);\n            player->SendNotification(\"\
+      You cannot carry more than 1 billion gold.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called after the money change has been applied to the player's
+    inventory. It is important to note that this event fires for all monetary changes,
+    including those caused by game mechanics like quest rewards or vendor transactions.
+    Scripts should be mindful of performance when implementing complex logic here,
+    as this function may be called frequently during gameplay.
+  warnings: Modifying the 'amount' reference directly is not recommended and could
+    lead to unpredictable behavior. The amount parameter reflects the change that
+    occurred, not the final balance. Be cautious about using this event in loops or
+    recursive operations which might cause stack overflow or infinite recursion.
+  related:
+  - Player::GetMoney
+  - Player::SetMoney
+  - Player::AddItem
+  - Player::RemoveItem
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:16:50.378762'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

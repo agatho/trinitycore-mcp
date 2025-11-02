@@ -1,0 +1,72 @@
+api:
+  class: ItemScript
+  method: OnCastItemCombatSpell
+  signature: bool ItemScript::OnCastItemCombatSpell(Player * player, Unit * victim,
+    const SpellInfo * spellInfo, Item * item)
+documentation:
+  brief: Executes custom logic when a player casts a combat spell using an item.
+  description: The OnCastItemCombatSpell method is a virtual callback function in
+    the ItemScript class that allows custom behavior to be defined when a player uses
+    an item to cast a combat-related spell. This method is invoked during the spell
+    casting process, typically after the item's spell has been validated but before
+    it is executed. It provides developers with the ability to modify or intercept
+    combat spell usage from items such as weapons, trinkets, or consumables. The return
+    value determines whether the default spell casting behavior should proceed or
+    be canceled.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is casting the spell using the item.
+      This parameter must not be null and represents the caster in the combat scenario.
+  - name: victim
+    description: Pointer to the Unit object that is being targeted by the spell. May
+      be null if the spell is not targeting a specific unit (e.g., area-of-effect
+      spells).
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell being cast. This includes spell properties, effects, and casting
+      requirements.
+  - name: item
+    description: Pointer to the Item object that is being used to cast the spell.
+      This represents the source item of the combat spell.
+  returns: Returns true if the spell casting should proceed with default behavior,
+    or false if the spell casting should be canceled or modified by custom logic.
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyItemScript : public ItemScript\n{\npublic:\n    MyItemScript()\
+      \ : ItemScript(\"MyItemScript\") {}\n\n    bool OnCastItemCombatSpell(Player*\
+      \ player, Unit* victim, const SpellInfo* spellInfo, Item* item) override\n \
+      \   {\n        // Prevent casting if player has a specific aura\n        if\
+      \ (player->HasAura(12345))\n            return false;\n        \n        //\
+      \ Allow default behavior otherwise\n        return true;\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Custom Effects
+    code: "class EnchantedWeaponScript : public ItemScript\n{\npublic:\n    EnchantedWeaponScript()\
+      \ : ItemScript(\"EnchantedWeaponScript\") {}\n\n    bool OnCastItemCombatSpell(Player*\
+      \ player, Unit* victim, const SpellInfo* spellInfo, Item* item) override\n \
+      \   {\n        // Apply additional effect when using enchanted weapon\n    \
+      \    if (item->GetEntry() == 12345)\n        {\n            // Add a temporary\
+      \ buff to the player\n            player->AddAura(67890, player);\n        \
+      \    \n            // Log the event\n            sLog->outString(\"Player %u\
+      \ used enchanted weapon.\", player->GetGUID().GetCounter());\n        }\n  \
+      \      \n        return true;\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and should be implemented
+    in a custom ItemScript subclass. It's called during the spell casting pipeline,
+    so modifying player state or spell effects should be done carefully to avoid unexpected
+    behavior. The spellInfo parameter provides access to all spell properties, including
+    effects, duration, and range.
+  warnings: Modifying spell behavior in this method can have cascading effects on
+    combat mechanics. Returning false will cancel the spell entirely, which may break
+    expected gameplay flow. Ensure that any custom logic doesn't introduce exploits
+    or performance bottlenecks.
+  related:
+  - ItemScript::OnUse
+  - ItemScript::OnRemove
+  - ItemScript::OnEquip
+  - ItemScript::OnUnequip
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:38:14.153061'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

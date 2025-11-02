@@ -1,0 +1,70 @@
+api:
+  class: QuestScript
+  method: OnQuestObjectiveChange
+  signature: void QuestScript::OnQuestObjectiveChange(Player * player, const Quest
+    * quest, const QuestObjective & objective, int32 oldAmount, int32 newAmount)
+documentation:
+  brief: Invoked when a quest objective's progress amount changes for a player.
+  description: The OnQuestObjectiveChange method is a callback function that gets
+    triggered whenever the progress of a specific quest objective is modified for
+    a player. This occurs when the player interacts with quest-related elements such
+    as killing monsters, collecting items, or completing other required actions. The
+    method provides detailed information about the change, including the old and new
+    amounts of progress, allowing scripts to respond dynamically to quest progression.
+    It serves as an essential hook for customizing quest behavior, implementing dynamic
+    rewards, or modifying quest objectives in real-time based on player actions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose quest objective has changed. This
+      represents the specific player instance involved in the quest progression.
+  - name: quest
+    description: Pointer to the Quest object that contains the modified objective.
+      This provides access to quest metadata and configuration.
+  - name: objective
+    description: Reference to the QuestObjective structure representing the specific
+      objective that changed. Contains details about the objective type, required
+      amount, and associated data.
+  - name: oldAmount
+    description: Integer value representing the previous progress amount for the objective
+      before the change occurred.
+  - name: newAmount
+    description: Integer value representing the updated progress amount for the objective
+      after the change occurred.
+  returns: null
+  examples:
+  - title: Basic Objective Change Handler
+    code: "void MyQuestScript::OnQuestObjectiveChange(Player* player, const Quest*\
+      \ quest, const QuestObjective& objective, int32 oldAmount, int32 newAmount)\n\
+      {\n    if (newAmount > oldAmount)\n    {\n        // Log the progress increase\n\
+      \        sLog->outString(\"Player %s made progress on quest %u, objective %u\
+      \ from %d to %d\", \n                       player->GetName().c_str(), quest->GetQuestId(),\
+      \ objective.Id, oldAmount, newAmount);\n    }\n}"
+    language: cpp
+  - title: Custom Reward Based on Objective Progress
+    code: "void MyQuestScript::OnQuestObjectiveChange(Player* player, const Quest*\
+      \ quest, const QuestObjective& objective, int32 oldAmount, int32 newAmount)\n\
+      {\n    if (objective.Type == QUEST_OBJECTIVE_KILL && newAmount >= objective.RequiredAmount)\n\
+      \    {\n        // Award bonus item when objective is completed\n        player->AddItem(ITEM_ID_BONUS_REWARD,\
+      \ 1);\n        player->SendNotification(\"Quest objective completed! Bonus reward\
+      \ awarded.\");\n    }\n}"
+    language: cpp
+  notes: This method is called during quest progression updates and should be used
+    carefully to avoid performance issues or infinite loops. The method may be invoked
+    multiple times per second during rapid progress changes, so any heavy computations
+    should be minimized. It's recommended to use this callback for lightweight operations
+    such as logging, notifications, or simple conditional logic rather than complex
+    database operations.
+  warnings: Avoid modifying quest data directly within this callback unless absolutely
+    necessary, as it may cause race conditions or unexpected behavior. Do not perform
+    blocking operations or long-running tasks inside this method, as it can block
+    the main game thread and affect performance for all players.
+  related:
+  - OnQuestAccept
+  - OnQuestComplete
+  - OnQuestFailed
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:53:18.167359'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,240 @@
+# Prometheus Alert Rules for TrinityCore MCP Server
+# Defines alerting conditions for monitoring
+
+groups:
+  - name: trinitycore_mcp_alerts
+    interval: 30s
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(trinitycore_mcp_http_errors_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+          component: http
+        annotations:
+          summary: "High HTTP error rate detected"
+          description: "Error rate is {{ $value }} errors/sec for {{ $labels.instance }}"
+
+      # Critical error rate alert
+      - alert: CriticalErrorRate
+        expr: rate(trinitycore_mcp_http_errors_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: critical
+          component: http
+        annotations:
+          summary: "Critical HTTP error rate detected"
+          description: "Error rate is {{ $value }} errors/sec for {{ $labels.instance }}"
+
+      # High memory usage alert
+      - alert: HighMemoryUsage
+        expr: (trinitycore_mcp_memory_usage_bytes{type="heapUsed"} / trinitycore_mcp_memory_usage_bytes{type="heapTotal"}) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Heap usage is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # Critical memory usage alert
+      - alert: CriticalMemoryUsage
+        expr: (trinitycore_mcp_memory_usage_bytes{type="heapUsed"} / trinitycore_mcp_memory_usage_bytes{type="heapTotal"}) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Heap usage is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # High CPU usage alert
+      - alert: HighCPUUsage
+        expr: trinitycore_mcp_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% for {{ $labels.instance }}"
+
+      # Critical CPU usage alert
+      - alert: CriticalCPUUsage
+        expr: trinitycore_mcp_cpu_usage_percent > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical CPU usage detected"
+          description: "CPU usage is {{ $value }}% for {{ $labels.instance }}"
+
+      # Event loop lag alert
+      - alert: EventLoopLag
+        expr: histogram_quantile(0.95, rate(trinitycore_mcp_event_loop_lag_seconds_bucket[5m])) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Event loop lag detected"
+          description: "P95 event loop lag is {{ $value }}s for {{ $labels.instance }}"
+
+      # Critical event loop lag alert
+      - alert: CriticalEventLoopLag
+        expr: histogram_quantile(0.95, rate(trinitycore_mcp_event_loop_lag_seconds_bucket[5m])) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Critical event loop lag detected"
+          description: "P95 event loop lag is {{ $value }}s for {{ $labels.instance }}"
+
+      # MCP tool error rate alert
+      - alert: HighMcpToolErrorRate
+        expr: (rate(trinitycore_mcp_mcp_tool_errors_total[5m]) / rate(trinitycore_mcp_mcp_tool_invocations_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp_tools
+        annotations:
+          summary: "High MCP tool error rate"
+          description: "MCP tool {{ $labels.tool_name }} error rate is {{ $value | humanizePercentage }}"
+
+      # Slow MCP tool alert
+      - alert: SlowMcpTool
+        expr: histogram_quantile(0.95, rate(trinitycore_mcp_mcp_tool_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp_tools
+        annotations:
+          summary: "Slow MCP tool execution"
+          description: "MCP tool {{ $labels.tool_name }} P95 duration is {{ $value }}s"
+
+      # Database connection pool exhaustion alert
+      - alert: DatabasePoolExhaustion
+        expr: (trinitycore_mcp_db_connection_pool_idle / trinitycore_mcp_db_connection_pool_size) < 0.1
+        for: 3m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "Only {{ $value | humanizePercentage }} of connections are idle for {{ $labels.instance }}"
+
+      # Database query errors alert
+      - alert: DatabaseQueryErrors
+        expr: rate(trinitycore_mcp_db_query_errors_total[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database query errors detected"
+          description: "Query error rate is {{ $value }} errors/sec for {{ $labels.instance }}"
+
+      # Slow database queries alert
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(trinitycore_mcp_db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "P95 query duration is {{ $value }}s for {{ $labels.operation }} on {{ $labels.table }}"
+
+      # Low cache hit rate alert
+      - alert: LowCacheHitRate
+        expr: trinitycore_mcp_cache_hit_rate < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # High request queue depth alert
+      - alert: HighRequestQueueDepth
+        expr: trinitycore_mcp_request_queue_depth > 100
+        for: 3m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High request queue depth"
+          description: "Request queue depth is {{ $value }} for {{ $labels.instance }}"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up{job="trinitycore-mcp"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "TrinityCore MCP service is down"
+          description: "Instance {{ $labels.instance }} is down"
+
+      # No active connections alert (possible issue)
+      - alert: NoActiveConnections
+        expr: trinitycore_mcp_active_connections == 0
+        for: 10m
+        labels:
+          severity: info
+          component: system
+        annotations:
+          summary: "No active connections"
+          description: "No active connections for {{ $labels.instance }} for 10 minutes"
+
+      # MySQL down alert
+      - alert: MySQLDown
+        expr: up{job="mysql-primary"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "MySQL primary is down"
+          description: "MySQL primary database is unreachable"
+
+      # Redis down alert
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache is unreachable"
+
+  - name: business_metric_alerts
+    interval: 60s
+    rules:
+      # Unusual spike in spell lookups
+      - alert: SpellLookupSpike
+        expr: rate(trinitycore_mcp_spell_lookups_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "Unusual spike in spell lookups"
+          description: "Spell lookup rate is {{ $value }} lookups/sec"
+
+      # Unusual spike in creature lookups
+      - alert: CreatureLookupSpike
+        expr: rate(trinitycore_mcp_creature_lookups_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "Unusual spike in creature lookups"
+          description: "Creature lookup rate is {{ $value }} lookups/sec"

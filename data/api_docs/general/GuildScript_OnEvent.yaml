@@ -1,0 +1,68 @@
+api:
+  class: GuildScript
+  method: OnEvent
+  signature: void GuildScript::OnEvent(Guild * guild, uint8 eventType, int playerGuid1,
+    int playerGuid2, uint8 newRank)
+documentation:
+  brief: Handles guild-related events such as member joins, quits, promotions, and
+    rank changes.
+  description: The OnEvent method is a callback function in the GuildScript class
+    that gets invoked whenever specific guild-related events occur. It provides developers
+    with the ability to customize or extend the behavior of guild operations by reacting
+    to various actions like players joining or leaving the guild, being promoted or
+    demoted, or having their rank changed. This method serves as a hook for custom
+    logic and is essential for implementing guild-specific modifications within TrinityCore's
+    framework.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object that triggered the event. Represents
+      the guild instance where the event occurred.
+  - name: eventType
+    description: 'Identifier indicating the type of guild event that occurred. Possible
+      values include: 0 (Member join), 1 (Member quit), 2 (Member kicked), 3 (Promotion),
+      4 (Demotion), 5 (Rank change).'
+  - name: playerGuid1
+    description: GUID of the first player involved in the event. For example, the
+      player who joined or was promoted.
+  - name: playerGuid2
+    description: GUID of the second player involved in the event. Used primarily for
+      events like kicks where two players are involved (e.g., kicker and kicked).
+  - name: newRank
+    description: New rank value assigned to the player. Relevant when eventType is
+      promotion, demotion, or rank change.
+  returns: null
+  examples:
+  - title: Basic Guild Event Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnEvent(Guild*\
+      \ guild, uint8 eventType, int playerGuid1, int playerGuid2, uint8 newRank) override\n\
+      \    {\n        switch (eventType)\n        {\n            case 0: // Member\
+      \ join\n                sLog->outString(\"Player with GUID %d joined the guild.\"\
+      , playerGuid1);\n                break;\n            case 3: // Promotion\n\
+      \                sLog->outString(\"Player with GUID %d was promoted to rank\
+      \ %d.\", playerGuid1, newRank);\n                break;\n        }\n    }\n\
+      };"
+    language: cpp
+  - title: Advanced Guild Event Handling with Custom Logic
+    code: "class AdvancedGuildScript : public GuildScript\n{\npublic:\n    void OnEvent(Guild*\
+      \ guild, uint8 eventType, int playerGuid1, int playerGuid2, uint8 newRank) override\n\
+      \    {\n        if (eventType == 3 || eventType == 4)\n        {\n         \
+      \   // Handle promotion or demotion\n            Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ playerGuid1));\n            if (player)\n            {\n                player->SendNotification(\"\
+      You have been %s to rank %d.\", eventType == 3 ? \"promoted\" : \"demoted\"\
+      , newRank);\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core TrinityCore codebase during guild
+    operations. Developers should avoid performing heavy computations inside this
+    function to prevent performance degradation. The event types and their meanings
+    are defined by the game's internal logic, so changes in those may affect how events
+    are processed.
+  warnings: Do not modify the guild state directly inside this method unless absolutely
+    necessary, as it can lead to race conditions or unexpected behavior. Ensure all
+    GUID lookups are safe and that players exist before attempting to access them.
+  related: []
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:55:07.649667'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: ChatHandler
+  method: extractPlayerTarget
+  signature: bool ChatHandler::extractPlayerTarget(char * args, Player ** player,
+    int * player_guid, int * player_name)
+documentation:
+  brief: Extracts a player target from command arguments and retrieves player information
+    including GUID and name.
+  description: The extractPlayerTarget method parses command arguments to identify
+    and retrieve information about a targeted player in the game. It supports various
+    input formats such as player names, GUIDs, or selection targets. The method populates
+    output parameters with the resolved player reference, GUID, and name if successful.
+    This functionality is commonly used in game master commands where player targeting
+    is required for operations like teleportation, banishment, or inspection. The
+    method returns true upon successful extraction and population of target data,
+    or false if the target cannot be resolved or is invalid.
+  parameters:
+  - name: args
+    description: Character array containing command arguments that specify the player
+      target (e.g., player name, GUID, or 'self')
+  - name: player
+    description: Pointer to a Player pointer that will be set to the resolved player
+      object if found
+  - name: player_guid
+    description: Pointer to an integer that will be populated with the GUID of the
+      target player if found
+  - name: player_name
+    description: Pointer to an integer that will be populated with the name hash of
+      the target player if found
+  returns: True if a valid player target was successfully extracted and all output
+    parameters were populated; false otherwise.
+  examples:
+  - title: Basic Player Target Extraction
+    code: "char args[] = \"JohnDoe\";\nPlayer* target_player = nullptr;\nint guid\
+      \ = 0;\nint name_hash = 0;\nif (handler->extractPlayerTarget(args, &target_player,\
+      \ &guid, &name_hash)) {\n    // Successfully extracted player\n    handler->PSendSysMessage(\"\
+      Found player: %s with GUID: %u\", target_player->GetName().c_str(), guid);\n\
+      } else {\n    handler->SendSysMessage(\"Player not found.\");\n}"
+    language: cpp
+  - title: Extracting Player by GUID
+    code: "char args[] = \"12345\";\nPlayer* target_player = nullptr;\nint guid =\
+      \ 0;\nint name_hash = 0;\nif (handler->extractPlayerTarget(args, &target_player,\
+      \ &guid, &name_hash)) {\n    // Successfully extracted player by GUID\n    handler->PSendSysMessage(\"\
+      Found player with GUID %u: %s\", guid, target_player->GetName().c_str());\n\
+      } else {\n    handler->SendSysMessage(\"Invalid GUID or player not found.\"\
+      );\n}"
+    language: cpp
+  notes: This method is commonly used in command implementations where player targeting
+    is required. It handles multiple input formats including direct name matching,
+    GUID lookup, and selection-based targeting. The method internally uses the WorldSession
+    to resolve targets and may perform additional validation checks on the target
+    player's online status.
+  warnings: The method assumes that the provided arguments are valid and properly
+    formatted. Incorrectly formatted arguments or non-existent players will result
+    in a false return value without any error messages. Always check the return value
+    before using the output parameters.
+  related:
+  - extractPlayerTarget
+  - getSelectedPlayer
+  - getSelectedUnit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:58:15.438173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

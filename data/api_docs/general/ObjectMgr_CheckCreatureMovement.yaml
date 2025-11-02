@@ -1,0 +1,65 @@
+api:
+  class: ObjectMgr
+  method: CheckCreatureMovement
+  signature: void ObjectMgr::CheckCreatureMovement(const char * table, uint64 id,
+    int & creatureMovement)
+documentation:
+  brief: Checks and validates creature movement data for a specified creature in the
+    database.
+  description: The CheckCreatureMovement method performs validation on creature movement
+    data stored in the specified database table for a given creature ID. It ensures
+    that movement-related entries are consistent and properly formatted, preventing
+    invalid or corrupted movement data from affecting game mechanics. This method
+    is typically used during server startup or when loading creature data to maintain
+    data integrity. The method modifies the provided integer reference to indicate
+    the result of the validation check.
+  parameters:
+  - name: table
+    description: A null-terminated string specifying the database table name containing
+      creature movement data. Common values include 'creature_movement', 'creature_movement_template',
+      or related movement tables.
+  - name: id
+    description: A 64-bit unsigned integer representing the unique identifier (GUID)
+      of the creature to validate. This is typically the creature's database entry
+      ID used to locate specific movement records.
+  - name: creatureMovement
+    description: A reference to an integer that will be updated with the validation
+      result. The value indicates whether the movement data passed validation (typically
+      0 or positive) or failed (negative value).
+  returns: null
+  examples:
+  - title: Basic usage of CheckCreatureMovement
+    code: "uint64 creatureGuid = 12345;\nint movementResult = 0;\nObjectMgr::CheckCreatureMovement(\"\
+      creature_movement\", creatureGuid, movementResult);\nif (movementResult < 0)\
+      \ {\n    // Handle invalid movement data\n    sLog->outError(\"Invalid movement\
+      \ data for creature %u\", creatureGuid);\n}"
+    language: cpp
+  - title: Checking movement data during server initialization
+    code: "void LoadCreatureMovementData() {\n    QueryResult result = WorldDatabase.Query(\"\
+      SELECT id FROM creature WHERE id IN (SELECT id FROM creature_movement)\");\n\
+      \    if (!result) return;\n    \n    do {\n        Field* fields = result->Fetch();\n\
+      \        uint64 creatureId = fields[0].GetUInt64();\n        int movementStatus\
+      \ = 0;\n        sObjectMgr->CheckCreatureMovement(\"creature_movement\", creatureId,\
+      \ movementStatus);\n        if (movementStatus < 0) {\n            sLog->outError(\"\
+      Movement validation failed for creature %u\", creatureId);\n        }\n    }\
+      \ while (result->NextRow());\n}"
+    language: cpp
+  notes: This method is primarily used during server initialization or data loading
+    phases to ensure that creature movement data is valid before being used in gameplay.
+    It may perform database queries and should be called with appropriate thread safety
+    considerations. The validation logic might vary depending on the table type and
+    specific game mechanics implemented.
+  warnings: Calling this method without proper database connection or with invalid
+    table names can lead to assertion failures or undefined behavior. Ensure that
+    the creature ID exists in the database before calling this method, as it may not
+    handle non-existent creatures gracefully.
+  related:
+  - GetCreatureTemplate
+  - LoadCreatureMovement
+  - ValidateCreatureData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T02:48:19.466389'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

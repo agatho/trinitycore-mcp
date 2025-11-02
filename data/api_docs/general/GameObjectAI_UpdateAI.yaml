@@ -1,0 +1,58 @@
+api:
+  class: GameObjectAI
+  method: UpdateAI
+  signature: void GameObjectAI::UpdateAI(uint32 param0)
+documentation:
+  brief: Updates the game object's AI behavior based on elapsed time and current state.
+  description: The UpdateAI method is a core component of the GameObjectAI class that
+    handles the periodic updating of game object behaviors in the TrinityCore engine.
+    This method is called by the game loop at regular intervals to process AI logic,
+    handle state transitions, and manage interactions with players or other game entities.
+    It typically contains the main logic for how a game object should behave over
+    time, such as triggering events, managing timers, or responding to external stimuli.
+    The method may be overridden in custom GameObjectAI implementations to provide
+    specific behaviors for different types of game objects like doors, chests, or
+    interactive environment elements.
+  parameters:
+  - name: param0
+    description: Elapsed time in milliseconds since the last update call. This parameter
+      is used to calculate time-based behaviors and ensure consistent timing across
+      different server performance conditions.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyGameObjectAI : public GameObjectAI\n{\npublic:\n    MyGameObjectAI(GameObject*\
+      \ go) : GameObjectAI(go) {}\n    \n    void UpdateAI(uint32 diff) override\n\
+      \    {\n        if (diff >= 1000)\n        {\n            // Perform actions\
+      \ every second\n            DoSomething();\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Timer-Based Logic
+    code: "class ChestGameObjectAI : public GameObjectAI\n{\nprivate:\n    uint32\
+      \ m_resetTimer;\n    bool m_isOpen;\n    \npublic:\n    ChestGameObjectAI(GameObject*\
+      \ go) : GameObjectAI(go), m_resetTimer(0), m_isOpen(false) {}\n    \n    void\
+      \ UpdateAI(uint32 diff) override\n    {\n        if (m_isOpen)\n        {\n\
+      \            m_resetTimer += diff;\n            if (m_resetTimer >= 30000) //\
+      \ 30 seconds\n            {\n                ResetChest();\n               \
+      \ m_resetTimer = 0;\n                m_isOpen = false;\n            }\n    \
+      \    }\n    }\n};"
+    language: cpp
+  notes: The UpdateAI method is called from the main game loop and should not block
+    or perform heavy computations that could affect server performance. It's recommended
+    to use small time intervals for frequent updates and consider using timers or
+    event-based systems for complex logic. The parameter 'diff' represents the actual
+    elapsed time since last update, which may vary depending on server load.
+  warnings: Avoid performing database operations or sending packets directly from
+    this method as it can cause performance issues or race conditions. Do not call
+    methods that modify the GameObject's state in ways that might conflict with other
+    systems. Be careful with long-running operations that could block the game loop.
+  related:
+  - GameObjectAI::Initialize
+  - GameObjectAI::JustDied
+  - GameObjectAI::OnReset
+  - GameObjectAI::DoAction
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T07:15:02.694916'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

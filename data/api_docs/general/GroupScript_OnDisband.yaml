@@ -1,0 +1,50 @@
+api:
+  class: GroupScript
+  method: OnDisband
+  signature: void GroupScript::OnDisband(Group * group)
+documentation:
+  brief: Invoked when a group is disbanded, allowing scripts to perform cleanup or
+    notification operations.
+  description: The OnDisband method is a callback function in the GroupScript class
+    that is executed whenever a player group is disbanded in the game. This typically
+    occurs when the group leader removes all members from the group or when the last
+    member leaves the group. The method provides an opportunity for custom scripts
+    to perform cleanup operations, send notifications, or modify game state upon group
+    disbandment. It serves as a hook point for extending or modifying default group
+    behavior without directly altering core TrinityCore functionality.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that is being disbanded. This parameter
+      provides access to all group members, group settings, and other relevant information
+      at the time of disbandment.
+  returns: null
+  examples:
+  - title: Basic Group Disband Script
+    code: "class MyGroupScript : public GroupScript\n{\npublic:\n    MyGroupScript()\
+      \ : GroupScript(\"MyGroupScript\") {}\n\n    void OnDisband(Group* group) override\n\
+      \    {\n        // Log group disbandment\n        sLog->outString(\"Group disbanded:\
+      \ %u\", group->GetId());\n        \n        // Notify players in the group\n\
+      \        for (Group::MemberSlotList::const_iterator i = group->GetMemberSlots().begin();\
+      \ i != group->GetMemberSlots().end(); ++i)\n        {\n            if (Player*\
+      \ player = ObjectAccessor::FindPlayer(i->guid))\n            {\n           \
+      \     player->SendNotification(\"Your group has been disbanded.\");\n      \
+      \      }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the group disbanding process, which happens
+    after all members have been removed from the group but before the group object
+    is destroyed. Scripts should be mindful of potential race conditions if they access
+    player objects or other shared resources that may be invalidated during this time.
+  warnings: Ensure that any operations performed in OnDisband do not cause additional
+    disbanding of the same group, which could lead to infinite recursion. Also, be
+    cautious when accessing player objects directly as players might have already
+    logged out or been removed from the world.
+  related:
+  - OnAddMember
+  - OnRemoveMember
+  - OnLeaderChanged
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T06:43:56.882945'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

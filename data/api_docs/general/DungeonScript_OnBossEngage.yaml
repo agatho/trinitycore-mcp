@@ -1,0 +1,59 @@
+api:
+  class: DungeonScript
+  method: OnBossEngage
+  signature: void DungeonScript::OnBossEngage(int * player, int * boss)
+documentation:
+  brief: Called when a boss in a dungeon encounter becomes engaged with players
+  description: The OnBossEngage method is invoked when a dungeon boss begins combat
+    with player characters. This method serves as a hook for custom dungeon script
+    logic to execute when boss engagement occurs, allowing developers to implement
+    specific behaviors such as starting timers, spawning additional NPCs, or modifying
+    combat parameters. The method is typically called during the initial phase of
+    a boss encounter and may be used to synchronize game state changes with the beginning
+    of combat.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player identifier (GUID) involved
+      in the boss engagement
+  - name: boss
+    description: Pointer to an integer representing the boss identifier (GUID) that
+      is engaging with players
+  returns: void
+  examples:
+  - title: Basic Boss Engagement Handler
+    code: "class MyDungeonScript : public DungeonScript\n{\npublic:\n    void OnBossEngage(int*\
+      \ player, int* boss) override\n    {\n        // Log the engagement event\n\
+      \        sLog->outString(\"Boss %d engaged with player %d\", *boss, *player);\n\
+      \        \n        // Start a custom timer or trigger an event\n        // Example:\
+      \ Trigger a spell or set a flag\n    }\n};"
+    language: cpp
+  - title: Advanced Boss Engagement with State Management
+    code: "class MyDungeonScript : public DungeonScript\n{\npublic:\n    void OnBossEngage(int*\
+      \ player, int* boss) override\n    {\n        // Validate input parameters\n\
+      \        if (!player || !boss)\n            return;\n        \n        // Store\
+      \ engagement data in a map or database\n        BossEngagementData data;\n \
+      \       data.playerGuid = *player;\n        data.bossGuid = *boss;\n       \
+      \ data.engagementTime = time(nullptr);\n        \n        // Update encounter\
+      \ state\n        sMap->SetEncounterState(*boss, ENCOUNTER_STATE_IN_PROGRESS);\n\
+      \        \n        // Notify other systems about the engagement\n        sGameEventMgr->HandleGameEventStart(12345);\
+      \ // Example event\n    }\n};"
+    language: cpp
+  notes: This method is part of the DungeonScript base class and should be overridden
+    in derived classes to provide custom behavior. The pointers passed to this method
+    are guaranteed to be valid during execution, but their contents may change after
+    the method returns. It's recommended to copy the values immediately if they need
+    to persist beyond the scope of this function call.
+  warnings: Do not perform long-running operations within this method as it can block
+    the game loop and affect performance. Avoid modifying player or boss objects directly
+    from this hook without proper locking mechanisms. Be cautious about potential
+    race conditions if multiple threads might access the same data structures concurrently.
+  related:
+  - OnBossDeath
+  - OnPlayerEnter
+  - OnPlayerLeave
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T08:18:06.088903'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: PositionManager
+  method: FindDpsPosition
+  signature: int PositionManager::FindDpsPosition(Unit * target, PositionType type)
+documentation:
+  brief: Calculates and returns the optimal position for a DPS unit to engage a target
+    based on specified positioning type.
+  description: The FindDpsPosition method determines the best positional coordinates
+    for a Damage Per Second (DPS) class unit to effectively attack a given target.
+    It evaluates various factors such as combat range, line of sight, and target mobility
+    to compute an ideal engagement position. The method takes into account the target's
+    current PositionType to determine whether to find a close-range, mid-range, or
+    optimal positioning strategy. This functionality is commonly used in AI-driven
+    NPC behavior systems where positioning is critical for effective combat performance.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target enemy that the
+      DPS unit will engage. Must be a valid non-null pointer to an existing unit.
+  - name: type
+    description: PositionType enum value specifying the desired positioning strategy.
+      Valid values include CLOSE_RANGE, MEDIUM_RANGE, and OPTIMAL_POSITIONING which
+      dictate how the method calculates the optimal engagement point relative to the
+      target.
+  returns: Returns an integer value representing the calculated position index or
+    identifier. A positive return indicates a successful calculation with a valid
+    position. Zero or negative values may indicate failure conditions such as invalid
+    parameters, unreachable targets, or insufficient data for positioning calculations.
+  examples:
+  - title: Basic DPS Position Calculation
+    code: "Unit* target = player->GetVictim();\nPositionType type = PositionType::OPTIMAL_POSITIONING;\n\
+      int positionIndex = positionManager->FindDpsPosition(target, type);\nif (positionIndex\
+      \ > 0) {\n    // Proceed with movement to calculated position\n    player->MovePosition(positionIndex);\n\
+      }"
+    language: cpp
+  - title: DPS Positioning with Range Selection
+    code: "Unit* target = ai->GetTarget();\nPositionType type = PositionType::CLOSE_RANGE;\n\
+      int positionIndex = positionManager->FindDpsPosition(target, type);\nif (positionIndex\
+      \ > 0) {\n    // Move to close-range position for melee DPS\n    player->SetFacingTo(target);\n\
+      \    player->MovePosition(positionIndex);\n} else {\n    // Fallback to standard\
+      \ attack if no valid position found\n    player->Attack(target, true);\n}"
+    language: cpp
+  notes: This method relies on internal pathfinding and positioning algorithms that
+    consider terrain, obstacles, and unit collision detection. The returned index
+    should be interpreted as a reference to a pre-calculated position within the AI's
+    internal positioning system rather than a direct coordinate value. Performance
+    may vary depending on target complexity and current map conditions.
+  warnings: Ensure that the target pointer is valid before calling this method to
+    avoid undefined behavior. The PositionType parameter must be one of the predefined
+    enum values; invalid inputs may cause unexpected results or crashes. In high-traffic
+    scenarios, repeated calls to this method might impact performance due to pathfinding
+    computations.
+  related:
+  - GetDpsPosition
+  - CalculateOptimalPosition
+  - ValidatePosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T00:37:30.384462'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

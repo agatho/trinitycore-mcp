@@ -1,0 +1,48 @@
+api:
+  class: LFGGroupScript
+  method: OnDisband
+  signature: void LFGGroupScript::OnDisband(Group * group)
+documentation:
+  brief: Called when a LFG group is disbanded, allowing scripts to perform cleanup
+    or notify players.
+  description: The OnDisband method is invoked when a Looking For Group (LFG) group
+    is disbanded, typically triggered by the group leader leaving the group or explicitly
+    disbanding it. This method provides a hook for custom scripts to execute logic
+    such as cleaning up player data, sending notifications, or resetting LFG status.
+    It ensures that any necessary cleanup or state changes occur when the group ceases
+    to exist. The method is part of the LFGGroupScript class and is called automatically
+    by the TrinityCore framework during group disbanding events.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that is being disbanded. This represents
+      the LFG group instance which is no longer active.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyLFGScript : public LFGGroupScript\n{\npublic:\n    void OnDisband(Group*\
+      \ group) override\n    {\n        // Log that the group was disbanded\n    \
+      \    sLog->outInfo(LOG_FILTER_GENERAL, \"LFG Group disbanded with %u members.\"\
+      , group->GetMembersCount());\n        \n        // Perform any custom cleanup\
+      \ here\n        for (Group::MemberSlotList::const_iterator itr = group->GetMemberSlots().begin();\n\
+      \             itr != group->GetMemberSlots().end(); ++itr)\n        {\n    \
+      \        Player* player = ObjectAccessor::FindPlayer(itr->guid);\n         \
+      \   if (player)\n            {\n                // Reset LFG status for each\
+      \ player\n                player->SetLfgDungeon(0);\n            }\n       \
+      \ }\n    }\n};"
+    language: cpp
+  notes: This method is called during the group disbanding process, so any modifications
+    to the group object itself should be handled carefully. The group pointer passed
+    in may become invalid after this function returns if the group is fully destroyed.
+  warnings: Do not attempt to access or modify the group object after performing operations
+    that might lead to its destruction. Be cautious with asynchronous operations that
+    could cause race conditions.
+  related:
+  - OnJoin
+  - OnLeave
+  - OnProposalUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:15:34.022282'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

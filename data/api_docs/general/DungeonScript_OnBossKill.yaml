@@ -1,0 +1,53 @@
+api:
+  class: DungeonScript
+  method: OnBossKill
+  signature: void DungeonScript::OnBossKill(int * player, int * boss)
+documentation:
+  brief: Executes custom logic when a boss is defeated within a dungeon instance
+  description: The OnBossKill method is a virtual callback function that gets invoked
+    whenever a boss creature is successfully defeated in a dungeon scenario. This
+    method allows developers to implement custom behaviors such as awarding loot,
+    triggering quest updates, modifying game state, or initiating cutscenes. It serves
+    as an event handler for boss kill events and is typically overridden in custom
+    dungeon script classes. The method receives references to the player who killed
+    the boss and the boss creature itself, enabling fine-grained control over post-boss-kill
+    actions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who defeated
+      the boss. This parameter may be null if the kill was not performed by a player
+      (e.g., in certain scripted scenarios).
+  - name: boss
+    description: Pointer to the Creature object representing the boss that was defeated.
+      This parameter is guaranteed to be valid during the method call.
+  returns: void
+  examples:
+  - title: Basic Boss Kill Handler Implementation
+    code: "class MyDungeonScript : public DungeonScript\n{\npublic:\n    void OnBossKill(int*\
+      \ player, int* boss) override\n    {\n        // Award bonus loot to the player\
+      \ who killed the boss\n        if (player && boss)\n        {\n            Player*\
+      \ plr = ObjectAccessor::FindPlayer(*player);\n            Creature* bossCreature\
+      \ = ObjectAccessor::GetCreature(*boss);\n            \n            if (plr &&\
+      \ bossCreature)\n            {\n                // Example: Give a special item\n\
+      \                plr->AddItem(ITEM_ID_BOSS_TREASURE, 1);\n                \n\
+      \                // Log the event\n                sLog->outString(\"Player\
+      \ %u defeated boss %u\", plr->GetGUID().GetCounter(), bossCreature->GetEntry());\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core dungeon instance logic, so it's
+    important to ensure that any operations performed do not interfere with the normal
+    flow of the game. Be cautious when modifying player state or world objects directly
+    inside this handler as it might cause unexpected behavior if not handled properly.
+  warnings: Avoid performing heavy computations or blocking operations in this method
+    since it's called synchronously during combat processing. Also, ensure that pointers
+    passed to this function are valid before dereferencing them to prevent crashes.
+  related:
+  - OnBossEnterCombat
+  - OnDungeonComplete
+  - OnPlayerEnterDungeon
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:17:29.222479'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

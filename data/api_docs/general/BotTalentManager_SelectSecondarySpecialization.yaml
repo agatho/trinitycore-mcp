@@ -1,0 +1,78 @@
+api:
+  class: BotTalentManager
+  method: SelectSecondarySpecialization
+  signature: SpecChoice BotTalentManager::SelectSecondarySpecialization(uint8 cls,
+    int faction, uint32 level, uint8 primarySpec)
+documentation:
+  brief: Selects a secondary specialization for a bot character based on class, faction,
+    level, and primary specialization.
+  description: The SelectSecondarySpecialization method determines and returns an
+    appropriate secondary talent specialization for a bot character within the TrinityCore
+    framework. This method is typically used during bot initialization or when rebalancing
+    bot characters to ensure they have a valid secondary spec that aligns with their
+    class, faction, level, and existing primary specialization. The selection process
+    considers game balance mechanics, class-specific talent trees, and faction-based
+    restrictions to assign a meaningful secondary specialization. It ensures that
+    bots maintain appropriate gameplay characteristics while adhering to the game's
+    talent system constraints.
+  parameters:
+  - name: cls
+    description: The character class identifier (e.g., CLASS_WARRIOR = 1, CLASS_PALADIN
+      = 2, etc.) for which the secondary specialization is being selected.
+  - name: faction
+    description: The faction identifier (e.g., FACTION_ALLIANCE = 0, FACTION_HORDE
+      = 1) that influences specialization availability and restrictions.
+  - name: level
+    description: The current level of the bot character, which affects the available
+      talent points and specialization options.
+  - name: primarySpec
+    description: The index of the primary specialization currently assigned to the
+      bot character (0-based index for the class's talent trees).
+  returns: A SpecChoice enum value indicating the selected secondary specialization.
+    Possible values include valid specialization indices or special constants like
+    SPEC_CHOICE_NONE if no suitable specialization could be determined.
+  examples:
+  - title: Basic usage for selecting a secondary specialization
+    code: 'BotTalentManager talentMgr;
+
+      uint8 cls = CLASS_MAGE;
+
+      int faction = FACTION_ALLIANCE;
+
+      uint32 level = 60;
+
+      uint8 primarySpec = 0;
+
+      SpecChoice choice = talentMgr.SelectSecondarySpecialization(cls, faction, level,
+      primarySpec);
+
+      // choice now contains the selected secondary specialization for a level 60
+      Alliance Mage with primary spec 0'
+    language: cpp
+  - title: Using in bot initialization context
+    code: "void InitializeBot(Bot* bot) {\n    uint8 cls = bot->getClass();\n    int\
+      \ faction = bot->getFaction();\n    uint32 level = bot->getLevel();\n    uint8\
+      \ primarySpec = bot->GetPrimaryTalentTree();\n    \n    SpecChoice secondarySpec\
+      \ = BotTalentManager::SelectSecondarySpecialization(cls, faction, level, primarySpec);\n\
+      \    if (secondarySpec != SPEC_CHOICE_NONE) {\n        bot->SetSecondaryTalentTree(secondarySpec);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely uses internal logic to evaluate class-specific talent
+    trees and faction restrictions. It may cache results for performance optimization
+    in high-frequency scenarios. The implementation should be thread-safe if called
+    from multiple bot threads simultaneously.
+  warnings: Ensure that the input parameters are valid before calling this method,
+    as invalid class or faction values might lead to undefined behavior or incorrect
+    specialization assignments. This method assumes all necessary data structures
+    (talent trees, faction restrictions) are properly initialized in the TrinityCore
+    environment.
+  related:
+  - GetPrimaryTalentTree
+  - SetSecondaryTalentTree
+  - CalculateTalentPoints
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T10:37:48.742580'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

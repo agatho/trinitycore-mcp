@@ -1,0 +1,69 @@
+api:
+  class: OnlyOnceAreaTriggerScript
+  method: OnTrigger
+  signature: bool OnlyOnceAreaTriggerScript::OnTrigger(Player * player, const AreaTriggerEntry
+    * trigger)
+documentation:
+  brief: Executes custom logic when a player enters an area trigger that is configured
+    to only activate once.
+  description: The OnTrigger method is a virtual callback function in the OnlyOnceAreaTriggerScript
+    class that is invoked whenever a Player enters an AreaTrigger. This script type
+    ensures the trigger's associated event or action occurs only once per player,
+    regardless of how many times they enter the trigger zone. The method receives
+    a reference to the player and the area trigger entry, allowing for custom behavior
+    such as quest progress updates, reward delivery, or teleportation. It returns
+    a boolean value indicating whether the default trigger handling should proceed
+    (true) or be suppressed (false).
+  parameters:
+  - name: player
+    description: A pointer to the Player object who has entered the area trigger.
+      This parameter is never null and represents the specific player interacting
+      with the trigger.
+  - name: trigger
+    description: A pointer to the AreaTriggerEntry structure that defines the properties
+      of the area trigger being activated. Contains data such as the trigger's ID,
+      position, and other metadata.
+  returns: Returns true if default area trigger behavior should continue (e.g., allow
+    further processing or display of visual effects), or false if custom logic has
+    fully handled the event and no further action is required.
+  examples:
+  - title: Basic Implementation
+    code: "class MyOnlyOnceTriggerScript : public OnlyOnceAreaTriggerScript\n{\npublic:\n\
+      \    MyOnlyOnceTriggerScript() : OnlyOnceAreaTriggerScript(\"MyOnlyOnceTrigger\"\
+      ) {}\n\n    bool OnTrigger(Player* player, const AreaTriggerEntry* trigger)\
+      \ override\n    {\n        // Grant a quest reward only once\n        if (!player->HasQuest(12345))\n\
+      \        {\n            player->AddQuest(12345);\n            player->CompleteQuest(12345);\n\
+      \            return false; // Suppress default behavior\n        }\n       \
+      \ return true;\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Teleportation
+    code: "class TeleportOnceTriggerScript : public OnlyOnceAreaTriggerScript\n{\n\
+      public:\n    TeleportOnceTriggerScript() : OnlyOnceAreaTriggerScript(\"TeleportOnceTrigger\"\
+      ) {}\n\n    bool OnTrigger(Player* player, const AreaTriggerEntry* trigger)\
+      \ override\n    {\n        // Teleport player to a new location only once\n\
+      \        if (!player->GetQuestStatus(67890))\n        {\n            player->TeleportTo(1234,\
+      \ 100.0f, 200.0f, 300.0f, 0.0f);\n            player->SetQuestStatus(67890,\
+      \ QUEST_STATUS_COMPLETE);\n            return false; // Prevent default area\
+      \ trigger effects\n        }\n        return true;\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore scripting system and must be implemented
+    within a derived class that inherits from OnlyOnceAreaTriggerScript. The script
+    name passed to the constructor should match the area trigger's ScriptName field
+    in the database. Be cautious when modifying player state or quest status inside
+    this function, as it may affect gameplay balance.
+  warnings: Do not perform heavy computations or blocking operations within this method,
+    as it is called synchronously during the game loop and can impact performance.
+    Avoid calling methods that might cause recursion or infinite loops, especially
+    if they involve other area trigger callbacks.
+  related:
+  - OnlyOnceAreaTriggerScript::OnTrigger
+  - AreaTriggerScript::OnTrigger
+  - Player::HasQuest
+  - Player::AddQuest
+  - Player::CompleteQuest
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:16:24.986837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

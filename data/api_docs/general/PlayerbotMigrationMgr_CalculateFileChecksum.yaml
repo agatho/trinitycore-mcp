@@ -1,0 +1,58 @@
+api:
+  class: PlayerbotMigrationMgr
+  method: CalculateFileChecksum
+  signature: std::string PlayerbotMigrationMgr::CalculateFileChecksum(const std::string
+    & filepath)
+documentation:
+  brief: Calculates and returns the MD5 checksum of a specified file path for playerbot
+    migration purposes.
+  description: The CalculateFileChecksum method computes the MD5 hash of a given file
+    located at the specified filepath. This functionality is primarily used within
+    the PlayerbotMigrationMgr class to verify file integrity during player bot migration
+    processes. The method reads the entire contents of the file and generates a cryptographic
+    checksum that can be used to detect changes or corruption in the file. It's commonly
+    employed when migrating player bot configurations or data between different versions
+    or instances of the TrinityCore server. The method assumes the file exists and
+    is readable, though it may throw exceptions if access permissions are denied or
+    if the file is inaccessible.
+  parameters:
+  - name: filepath
+    description: The absolute or relative path to the file for which the MD5 checksum
+      will be calculated. Must point to a valid, readable file on the filesystem.
+  returns: A std::string containing the hexadecimal representation of the MD5 checksum
+    for the specified file. Returns an empty string if the file cannot be accessed
+    or read.
+  examples:
+  - title: Basic usage to calculate a file's checksum
+    code: "std::string checksum = PlayerbotMigrationMgr::CalculateFileChecksum(\"\
+      config/playerbots.xml\");\nif (!checksum.empty()) {\n    std::cout << \"File\
+      \ checksum: \" << checksum << std::endl;\n} else {\n    std::cerr << \"Failed\
+      \ to calculate checksum for file.\" << std::endl;\n}"
+    language: cpp
+  - title: Using the checksum for migration verification
+    code: "std::string configPath = \"config/playerbots.xml\";\nstd::string currentChecksum\
+      \ = PlayerbotMigrationMgr::CalculateFileChecksum(configPath);\n// Compare with\
+      \ previously stored checksum to verify integrity\nif (currentChecksum == previousChecksum)\
+      \ {\n    // Proceed with migration\n    std::cout << \"Configuration unchanged,\
+      \ proceeding with migration.\" << std::endl;\n} else {\n    // Configuration\
+      \ has changed, handle accordingly\n    std::cout << \"Configuration changed,\
+      \ aborting migration.\" << std::endl;\n}"
+    language: cpp
+  notes: This method performs a full file read operation which may impact performance
+    for large files. It is recommended to cache checksum results when possible. The
+    implementation uses standard MD5 hashing and assumes the system has sufficient
+    memory to load the entire file into memory during processing.
+  warnings: The method does not validate whether the file exists before attempting
+    to read it, so calling code should ensure the file path is valid. If the file
+    is locked or inaccessible due to permissions, the method may return an empty string
+    without throwing an exception. Large files will consume significant memory during
+    processing.
+  related:
+  - PlayerbotMigrationMgr::MigratePlayerbots
+  - PlayerbotMigrationMgr::VerifyFileIntegrity
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T00:49:18.472549'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

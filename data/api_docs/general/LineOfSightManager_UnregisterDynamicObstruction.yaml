@@ -1,0 +1,52 @@
+api:
+  class: LineOfSightManager
+  method: UnregisterDynamicObstruction
+  signature: void LineOfSightManager::UnregisterDynamicObstruction(GameObject * obj)
+documentation:
+  brief: Removes a dynamic game object obstruction from the line-of-sight system.
+  description: The UnregisterDynamicObstruction method removes a specified GameObject
+    from the line-of-sight manager's internal tracking of dynamic obstructions. This
+    allows the system to properly calculate visibility and pathfinding for units in
+    the world, as dynamic objects such as doors, gates, or moving platforms can block
+    line of sight. The method ensures that when an object is removed from the world
+    (e.g., destroyed, despawned, or moved out of range), it no longer affects the
+    LOS calculations. This is particularly important for maintaining accurate AI behavior
+    and spell targeting in TrinityCore's game engine.
+  parameters:
+  - name: obj
+    description: Pointer to the GameObject that should be removed from dynamic obstruction
+      tracking. Must not be null, and the object must have been previously registered
+      with RegisterDynamicObstruction.
+  returns: None. This method does not return any value.
+  examples:
+  - title: Unregister a door GameObject when it is destroyed
+    code: "void OnGameObjectDestroyed(GameObject* go)\n{\n    if (go->GetGOInfo()->type\
+      \ == GAMEOBJECT_TYPE_DOOR)\n    {\n        sLineOfSightManager->UnregisterDynamicObstruction(go);\n\
+      \    }\n}"
+    language: cpp
+  - title: Remove multiple dynamic obstructions in a cleanup routine
+    code: "void CleanupObstructions()\n{\n    for (auto& obj : dynamicObstructions)\n\
+      \    {\n        sLineOfSightManager->UnregisterDynamicObstruction(obj);\n  \
+      \  }\n    dynamicObstructions.clear();\n}"
+    language: cpp
+  notes: This method assumes that the GameObject pointer is valid and has been previously
+    registered with RegisterDynamicObstruction. It's crucial to call this method when
+    a dynamic obstruction is removed from the world to prevent memory leaks or incorrect
+    LOS calculations. The implementation internally manages a collection of registered
+    objects, so calling this method multiple times on the same object may result in
+    undefined behavior.
+  warnings: Calling this method with a null pointer will likely cause a crash. Always
+    ensure that the GameObject exists and has been properly registered before unregistering
+    it. Additionally, if an object is unregistered but still exists in the world,
+    it could lead to incorrect line-of-sight calculations until the next LOS recalculation
+    cycle.
+  related:
+  - RegisterDynamicObstruction
+  - IsInLineOfSight
+  - UpdateDynamicObstructions
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T03:37:01.382121'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

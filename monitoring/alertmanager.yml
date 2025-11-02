@@ -1,0 +1,174 @@
+# Alertmanager Configuration for TrinityCore MCP Server
+# Manages alert routing and notification channels
+
+global:
+  # Global SMTP configuration (for email alerts)
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@trinitycore-mcp.local'
+  smtp_auth_username: 'alerts@trinitycore-mcp.local'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+  # Default escalation timeout
+  resolve_timeout: 5m
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Alert routing configuration
+route:
+  # Default receiver for all alerts
+  receiver: 'default'
+
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+
+  # Wait time before sending first notification
+  group_wait: 30s
+
+  # Wait time before sending notifications for new alerts in same group
+  group_interval: 5m
+
+  # Wait time before re-sending a notification
+  repeat_interval: 4h
+
+  # Sub-routes for specific alert handling
+  routes:
+    # Critical alerts go to PagerDuty and Slack immediately
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+
+    # Warning alerts go to Slack
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      repeat_interval: 2h
+      continue: true
+
+    # Info alerts go to email only
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+      repeat_interval: 12h
+
+    # Database alerts
+    - match:
+        component: database
+      receiver: 'database-team'
+      continue: true
+
+    # System alerts
+    - match:
+        component: system
+      receiver: 'ops-team'
+      continue: true
+
+# Alert receivers (notification channels)
+receivers:
+  # Default receiver (email)
+  - name: 'default'
+    email_configs:
+      - to: 'ops-team@trinitycore-mcp.local'
+        headers:
+          Subject: '[TrinityCore MCP] {{ .Status | toUpper }}: {{ .GroupLabels.alertname }}'
+        html: '{{ template "email.default.html" . }}'
+
+  # Critical alerts (PagerDuty + Slack + Email)
+  - name: 'critical-alerts'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .GroupLabels.alertname }}: {{ .Annotations.summary }}'
+        details:
+          firing: '{{ template "pagerduty.default.description" . }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-critical'
+        title: ':rotating_light: Critical Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}'
+        color: 'danger'
+        send_resolved: true
+    email_configs:
+      - to: 'critical-alerts@trinitycore-mcp.local'
+        headers:
+          Subject: '[CRITICAL] {{ .GroupLabels.alertname }}'
+          Priority: 'urgent'
+
+  # Warning alerts (Slack + Email)
+  - name: 'warning-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-warning'
+        title: ':warning: Warning Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}'
+        color: 'warning'
+        send_resolved: true
+    email_configs:
+      - to: 'ops-team@trinitycore-mcp.local'
+        headers:
+          Subject: '[WARNING] {{ .GroupLabels.alertname }}'
+
+  # Info alerts (Email only)
+  - name: 'info-alerts'
+    email_configs:
+      - to: 'ops-team@trinitycore-mcp.local'
+        headers:
+          Subject: '[INFO] {{ .GroupLabels.alertname }}'
+
+  # Database team alerts
+  - name: 'database-team'
+    email_configs:
+      - to: 'database-team@trinitycore-mcp.local'
+        headers:
+          Subject: '[Database] {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#database-alerts'
+        title: ':database: Database Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}'
+
+  # Ops team alerts
+  - name: 'ops-team'
+    email_configs:
+      - to: 'ops-team@trinitycore-mcp.local'
+        headers:
+          Subject: '[System] {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#ops-alerts'
+        title: ':gear: System Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}'
+
+# Inhibition rules (suppress certain alerts when others are firing)
+inhibit_rules:
+  # Suppress warning alerts if critical alert is firing for same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # Suppress specific component alerts if service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '(HighErrorRate|HighMemoryUsage|EventLoopLag)'
+    equal: ['instance']
+
+  # Suppress cache hit rate alerts if Redis is down
+  - source_match:
+      alertname: 'RedisDown'
+    target_match:
+      component: 'cache'
+    equal: ['cluster']
+
+  # Suppress database query alerts if MySQL is down
+  - source_match:
+      alertname: 'MySQLDown'
+    target_match:
+      component: 'database'
+    equal: ['cluster']

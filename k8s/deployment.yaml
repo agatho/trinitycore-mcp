@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trinitycore-mcp
+  namespace: trinitycore
+  labels:
+    app: trinitycore-mcp
+    version: v1.4.0
+    component: server
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: trinitycore-mcp
+  template:
+    metadata:
+      labels:
+        app: trinitycore-mcp
+        version: v1.4.0
+        component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: trinitycore-mcp
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      
+      containers:
+      - name: mcp-server
+        image: ghcr.io/agatho/trinitycore-mcp:1.4.0
+        imagePullPolicy: IfNotPresent
+        
+        ports:
+        - name: mcp
+          containerPort: 3000
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MCP_PORT
+          value: "3000"
+        - name: MCP_HOST
+          value: "0.0.0.0"
+        - name: TRINITY_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: trinitycore-config
+              key: database.host
+        - name: TRINITY_DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: trinitycore-config
+              key: database.port
+        - name: TRINITY_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: trinitycore-secrets
+              key: database.user
+        - name: TRINITY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: trinitycore-secrets
+              key: database.password
+        - name: TRINITY_DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: trinitycore-config
+              key: database.name
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: trinitycore-config
+              key: redis.host
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: trinitycore-config
+              key: redis.port
+        - name: HA_ENABLED
+          value: "true"
+        
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: mcp
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: mcp
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: data
+          mountPath: /app/data
+          readOnly: true
+      
+      volumes:
+      - name: logs
+        persistentVolumeClaim:
+          claimName: trinitycore-logs
+      - name: data
+        persistentVolumeClaim:
+          claimName: trinitycore-data
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - trinitycore-mcp
+              topologyKey: kubernetes.io/hostname

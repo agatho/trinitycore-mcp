@@ -1,0 +1,48 @@
+api:
+  class: LFGGroupScript
+  method: OnAddMember
+  signature: void LFGGroupScript::OnAddMember(Group * group, int guid)
+documentation:
+  brief: Called when a player is added to a LFG group
+  description: This method is invoked by the TrinityCore LFG (Looking for Group) system
+    whenever a player is successfully added to a group. It serves as a hook for custom
+    scripts to execute logic when group membership changes occur. The method provides
+    access to both the group object and the GUID of the player being added, allowing
+    for detailed tracking and modification of group behavior during LFG operations.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that the player is being added to. This
+      represents the current LFG group state.
+  - name: guid
+    description: The unique identifier (GUID) of the player being added to the group.
+      Used for identifying the specific player in the game world.
+  returns: null
+  examples:
+  - title: Basic LFG Group Member Addition Handler
+    code: "class MyLFGScript : public LFGGroupScript\n{\npublic:\n    MyLFGScript()\
+      \ : LFGGroupScript(\"MyLFGScript\") {}\n\n    void OnAddMember(Group* group,\
+      \ uint64 guid) override\n    {\n        // Log when a player joins an LFG group\n\
+      \        sLog->outString(\"Player with GUID %u was added to LFG group.\", guid);\n\
+      \        \n        // Example: Update group leader if needed\n        if (group\
+      \ && group->GetLeaderGUID() == 0)\n        {\n            group->SetLeader(guid);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the LFG system's scripting interface and is typically
+    used to implement custom behavior when players join LFG groups. The group object
+    passed in may not yet be fully initialized, so care should be taken when accessing
+    group properties. This hook is called after the player has been successfully added
+    to the group but before any further LFG processing occurs.
+  warnings: Do not modify the group structure directly within this method unless absolutely
+    necessary, as it could cause race conditions or inconsistent state. Avoid performing
+    heavy operations in this callback as it may affect LFG performance. Be cautious
+    when using player GUIDs without verifying their validity first.
+  related:
+  - OnRemoveMember
+  - OnDisband
+  - OnUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:16:27.813277'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

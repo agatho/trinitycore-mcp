@@ -1,0 +1,54 @@
+api:
+  class: MovementGenerator
+  method: Update
+  signature: bool MovementGenerator::Update(Unit * owner, uint32 diff)
+documentation:
+  brief: Updates the movement generator's state for the given unit over the specified
+    time delta.
+  description: The Update method is responsible for advancing the internal state of
+    a MovementGenerator, typically used to control how a Unit (such as a player or
+    creature) moves through the game world. It processes the movement logic based
+    on the elapsed time (diff) and updates the unit's position or movement state accordingly.
+    This method is called regularly by the game engine's update loop and is crucial
+    for maintaining smooth and realistic movement behavior. The return value indicates
+    whether the movement generator should continue running or has completed its task.
+  parameters:
+  - name: owner
+    description: Pointer to the Unit object that this MovementGenerator is controlling.
+      Must not be null.
+  - name: diff
+    description: Time delta in milliseconds since the last update call. Used to calculate
+      movement progression and timing.
+  returns: Returns true if the movement generator should continue running, false if
+    it has completed its task or should be removed from the unit's movement stack.
+  examples:
+  - title: Basic Movement Generator Update
+    code: "bool result = movementGenerator->Update(player, 50);\nif (!result) {\n\
+      \    // Movement generator finished, remove it\n    player->GetMotionMaster()->Clear();\n\
+      }"
+    language: cpp
+  - title: Movement Generator Update in Game Loop
+    code: "void UpdateAI(uint32 diff) override {\n    if (movementGenerator) {\n \
+      \       if (!movementGenerator->Update(me, diff)) {\n            // Movement\
+      \ completed, reset or switch to another generator\n            movementGenerator\
+      \ = nullptr;\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the Unit's Update function within the
+    game loop. MovementGenerators are expected to be lightweight and efficient, as
+    they may be updated every tick. The 'diff' parameter should be carefully handled
+    to ensure consistent movement regardless of frame rate variations.
+  warnings: Never call this method directly on a MovementGenerator without ensuring
+    that it is properly initialized and attached to a valid Unit. Improper use can
+    lead to undefined behavior or crashes if the owner unit is destroyed while the
+    generator is active.
+  related:
+  - MovementGenerator::Initialize
+  - MovementGenerator::Interrupt
+  - MovementGenerator::Reset
+  - Unit::GetMotionMaster
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T03:07:23.210728'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

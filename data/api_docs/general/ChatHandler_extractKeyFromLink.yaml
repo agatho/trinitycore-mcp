@@ -1,0 +1,62 @@
+api:
+  class: ChatHandler
+  method: extractKeyFromLink
+  signature: char * ChatHandler::extractKeyFromLink(char * text, const char *const
+    * linkTypes, int * found_idx, char ** something1)
+documentation:
+  brief: Extracts a key from a chat link string based on specified link types.
+  description: The extractKeyFromLink method parses a chat link string and extracts
+    a key identifier based on predefined link type patterns. It searches through the
+    provided linkTypes array to determine the type of link and returns the corresponding
+    key. The method modifies the input text pointer during parsing and can optionally
+    populate a found index and additional data pointer. This functionality is commonly
+    used in World of Warcraft's TrinityCore for handling item links, quest links,
+    and other game object references within chat messages.
+  parameters:
+  - name: text
+    description: Pointer to the chat link string to parse. This string will be modified
+      during parsing as the method advances through the text.
+  - name: linkTypes
+    description: Array of null-terminated strings representing supported link types
+      (e.g., 'item', 'quest', 'spell'). Must not be null.
+  - name: found_idx
+    description: Pointer to an integer that will receive the index of the matched
+      link type from the linkTypes array. Can be null if not needed.
+  - name: something1
+    description: Pointer to a character pointer that will receive additional data
+      related to the extracted key. Can be null if not needed.
+  returns: Returns a pointer to the extracted key string within the input text, or
+    NULL if no valid link type is found.
+  examples:
+  - title: Basic usage extracting an item key
+    code: "char text[] = \"|cff0070dd|Hitem:12345:0:0:0|h[Example Item]|h|r\";\nconst\
+      \ char* linkTypes[] = {\"item\", \"quest\", \"spell\"};\nint found_idx;\nchar*\
+      \ key;\nkey = handler->extractKeyFromLink(text, linkTypes, &found_idx, NULL);\n\
+      if (key) {\n    printf(\"Found key: %s at index %d\\n\", key, found_idx);\n}"
+    language: cpp
+  - title: Advanced usage with additional data extraction
+    code: "char text[] = \"|cff0070dd|Hitem:12345:0:0:0|h[Example Item]|h|r\";\nconst\
+      \ char* linkTypes[] = {\"item\", \"quest\", \"spell\"};\nint found_idx;\nchar*\
+      \ additional_data;\nchar* key = handler->extractKeyFromLink(text, linkTypes,\
+      \ &found_idx, &additional_data);\nif (key && additional_data) {\n    printf(\"\
+      Key: %s, Additional data: %s\\n\", key, additional_data);\n}"
+    language: cpp
+  notes: The method modifies the input text string by advancing the pointer as it
+    parses through the link structure. The returned key points into the original text
+    buffer and should not be freed separately. This function is typically used internally
+    by chat handlers to process user input containing game object links.
+  warnings: Do not pass null pointers for parameters that are required (text, linkTypes).
+    The method assumes valid link format; malformed links may cause undefined behavior
+    or incorrect results. Be careful when using the returned key pointer as it points
+    into the original text buffer and becomes invalid if the buffer is modified or
+    freed.
+  related:
+  - ChatHandler::extractLineFromMessage
+  - ChatHandler::parseLink
+  - ChatHandler::getLinkType
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T10:00:41.333615'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

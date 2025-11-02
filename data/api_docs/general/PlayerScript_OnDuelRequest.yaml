@@ -1,0 +1,68 @@
+api:
+  class: PlayerScript
+  method: OnDuelRequest
+  signature: void PlayerScript::OnDuelRequest(Player * target, Player * challenger)
+documentation:
+  brief: Handles the event when a player requests a duel with another player
+  description: The OnDuelRequest method is invoked when one player sends a duel challenge
+    to another player in World of Warcraft. This method allows custom scripts to intercept
+    and modify the duel request behavior, such as preventing duels under certain conditions,
+    modifying duel rules, or triggering custom events. The method is part of the PlayerScript
+    system which provides hooks for various player-related events in TrinityCore.
+    It is called before the duel is officially initiated and can be used to cancel
+    or alter the duel request process.
+  parameters:
+  - name: target
+    description: The player who is being challenged to a duel. This represents the
+      recipient of the duel request.
+  - name: challenger
+    description: The player who is initiating the duel request. This represents the
+      player sending the challenge.
+  returns: null
+  examples:
+  - title: Basic Duel Request Handler
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnDuelRequest(Player*\
+      \ target, Player* challenger) override\n    {\n        // Prevent duels in sanctified\
+      \ areas\n        if (target->GetAreaId() == 1234 || challenger->GetAreaId()\
+      \ == 1234)\n        {\n            target->SendNotification(\"Dueling is not\
+      \ allowed in this area.\");\n            challenger->SendNotification(\"Dueling\
+      \ is not allowed in this area.\");\n            return;\n        }\n       \
+      \ \n        // Allow the duel to proceed\n        // No action needed - duel\
+      \ will be accepted by default\n    }\n};"
+    language: cpp
+  - title: Advanced Duel Request with Custom Logic
+    code: "class AdvancedDuelScript : public PlayerScript\n{\npublic:\n    void OnDuelRequest(Player*\
+      \ target, Player* challenger) override\n    {\n        // Check if players are\
+      \ in same group\n        if (target->GetGroup() && challenger->GetGroup() &&\
+      \ \n            target->GetGroup() == challenger->GetGroup())\n        {\n \
+      \           target->SendNotification(\"You cannot duel players in your group.\"\
+      );\n            challenger->SendNotification(\"You cannot duel players in your\
+      \ group.\");\n            return;\n        }\n        \n        // Check if\
+      \ either player is in combat\n        if (target->IsInCombat() || challenger->IsInCombat())\n\
+      \        {\n            target->SendNotification(\"Cannot initiate duel while\
+      \ in combat.\");\n            challenger->SendNotification(\"Cannot initiate\
+      \ duel while in combat.\");\n            return;\n        }\n        \n    \
+      \    // Log the duel request\n        sLog->outString(\"Duel requested: %s vs\
+      \ %s\", \n                       challenger->GetName().c_str(), \n         \
+      \              target->GetName().c_str());\n    }\n};"
+    language: cpp
+  notes: This method is called during the duel request process and occurs before any
+    duel-related actions are taken. The method can be used to prevent duels from starting
+    by simply returning early without taking further action. It's important to note
+    that this method may be called multiple times for the same players if they repeatedly
+    send duel requests.
+  warnings: Avoid performing heavy operations in this method as it is called frequently
+    during player interactions. Do not attempt to modify player state directly through
+    this method, as it might cause unexpected behavior or race conditions. Be careful
+    when canceling duels, as improper handling could lead to client-side issues or
+    disconnects.
+  related:
+  - OnDuelStart
+  - OnDuelEnd
+  - OnPlayerEnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:22:17.555273'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: ObjectMgr
+  method: FindGraveyardData
+  signature: const GraveyardData * ObjectMgr::FindGraveyardData(uint32 id, uint32
+    zone) const
+documentation:
+  brief: Retrieves graveyard data for a specified zone ID
+  description: The FindGraveyardData method searches the internal graveyard database
+    for a matching graveyard entry based on the provided zone identifier. It returns
+    a pointer to the GraveyardData structure if found, or nullptr if no matching graveyard
+    exists for the given zone. This method is typically used during player death processing
+    and zone transitions to determine appropriate graveyard locations. The method
+    performs a lookup in the object manager's graveyard cache and does not modify
+    any persistent data.
+  parameters:
+  - name: id
+    description: The unique identifier of the graveyard to find
+  - name: zone
+    description: The zone ID for which to search for a graveyard
+  returns: A pointer to the GraveyardData structure if a matching graveyard is found,
+    or nullptr if no graveyard exists for the specified zone ID
+  examples:
+  - title: Find graveyard data for a specific zone
+    code: "const GraveyardData* graveyard = sObjectMgr->FindGraveyardData(0, 1234);\n\
+      if (graveyard)\n{\n    // Use the graveyard data\n    printf(\"Found graveyard\
+      \ at %u, %u\\n\", graveyard->x, graveyard->y);\n}"
+    language: cpp
+  - title: Check if a zone has a graveyard before player death
+    code: "uint32 zoneId = player->GetZoneId();\nconst GraveyardData* graveyard =\
+      \ sObjectMgr->FindGraveyardData(0, zoneId);\nif (!graveyard)\n{\n    // Handle\
+      \ case where no graveyard exists for this zone\n    player->SendNotification(\"\
+      No graveyard available in this zone.\");\n}"
+    language: cpp
+  notes: This method is thread-safe as it only reads from cached data structures.
+    The method performs a lookup operation that should be relatively fast due to internal
+    indexing, but performance may vary depending on the number of registered graveyards.
+    The returned pointer is valid only for the lifetime of the ObjectMgr instance
+    and should not be stored or used after the manager has been destroyed.
+  warnings: The method returns nullptr when no graveyard is found, so always check
+    the return value before dereferencing. Using an invalid zone ID may result in
+    a null return, which could lead to unexpected behavior if not properly handled.
+    The method does not validate whether the returned graveyard data is actually usable
+    for player death mechanics.
+  related:
+  - GetGraveyardData
+  - AddGraveyardData
+  - LoadGraveyardData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T02:42:56.851927'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

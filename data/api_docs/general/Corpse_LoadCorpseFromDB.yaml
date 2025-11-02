@@ -1,0 +1,62 @@
+api:
+  class: Corpse
+  method: LoadCorpseFromDB
+  signature: bool Corpse::LoadCorpseFromDB(int guid, int * fields)
+documentation:
+  brief: Loads corpse data from the database using the provided GUID and field information.
+  description: The LoadCorpseFromDB method retrieves corpse-related data from the
+    database for a specific corpse identified by its GUID. It populates the Corpse
+    object's internal fields with data fetched from the database, including position,
+    orientation, owner information, and other relevant corpse properties. This method
+    is typically invoked during server startup or when a player attempts to resurrect
+    a corpse. The method requires valid database connection and proper field indexing
+    to correctly load all necessary data. It performs validation checks on the loaded
+    data to ensure consistency and integrity before returning control to the calling
+    function.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the corpse to be loaded from the
+      database. This value must correspond to an existing corpse entry in the database.
+  - name: fields
+    description: An array of database field values that contain the corpse data to
+      be loaded. The fields should be properly indexed and aligned with the expected
+      database schema for corpse records.
+  returns: Returns true if the corpse data was successfully loaded from the database
+    and all validation checks passed; otherwise returns false if loading failed or
+    validation failed.
+  examples:
+  - title: Basic corpse loading example
+    code: "int corpseGuid = 12345;\nint fields[10];\n// Assume fields are populated\
+      \ with data from database query\nif (corpse.LoadCorpseFromDB(corpseGuid, fields))\
+      \ {\n    // Corpse loaded successfully\n    printf(\"Corpse %d loaded successfully\\\
+      n\", corpseGuid);\n} else {\n    // Failed to load corpse\n    printf(\"Failed\
+      \ to load corpse %d\\n\", corpseGuid);\n}"
+    language: cpp
+  - title: Integration with database query result
+    code: "QueryResult result = WorldDatabase.Query(\"SELECT * FROM corpses WHERE\
+      \ guid = {}\", corpseGuid);\nif (result) {\n    Field* fields = result->Fetch();\n\
+      \    if (corpse.LoadCorpseFromDB(corpseGuid, (int*)fields)) {\n        // Corpse\
+      \ data successfully loaded into object\n        printf(\"Corpse data loaded\
+      \ for GUID: %d\\n\", corpseGuid);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the database connection is already established and
+    valid. The fields array must be properly allocated and contain data in the correct
+    order as expected by the Corpse class. The method performs internal validation
+    of loaded values to ensure data integrity, but does not perform any additional
+    business logic validation beyond basic field consistency checks.
+  warnings: Calling this method with an invalid GUID or improperly formatted fields
+    array may result in undefined behavior or crashes. Ensure that database connections
+    are stable and that the fields array contains valid data before calling this method.
+    This method should only be called when the Corpse object is in a clean state to
+    avoid data corruption.
+  related:
+  - SaveCorpseToDB
+  - DeleteFromDB
+  - GetGUID
+  - SetOwner
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:10:18.880830'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

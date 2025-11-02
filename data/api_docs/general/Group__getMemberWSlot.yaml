@@ -1,0 +1,57 @@
+api:
+  class: Group
+  method: _getMemberWSlot
+  signature: member_witerator Group::_getMemberWSlot(int Guid)
+documentation:
+  brief: Retrieves a writable iterator to a group member slot by GUID.
+  description: The _getMemberWSlot method is an internal utility function within the
+    Group class that provides a writable iterator to a specific group member identified
+    by their GUID. This allows for direct manipulation of the member data within the
+    group's internal container structure. The method is typically used internally
+    by other group management functions to access and modify member information without
+    requiring additional lookups. It operates on the assumption that the provided
+    GUID corresponds to an existing group member, and accessing a non-existent member
+    may result in undefined behavior or iterator invalidation.
+  parameters:
+  - name: Guid
+    description: The unique identifier (GUID) of the group member to locate within
+      the group. This should correspond to a valid player GUID that is currently a
+      member of the group.
+  returns: A writable iterator (member_witerator) pointing to the group member slot
+    associated with the provided GUID. If the GUID does not correspond to any existing
+    member, the behavior is undefined and may result in an invalid iterator or crash.
+  examples:
+  - title: Accessing a Group Member for Modification
+    code: "Group* group = ...; // Assume group is valid\nuint64 playerGuid = 123456789ULL;\n\
+      member_witerator memberIter = group->_getMemberWSlot(playerGuid);\nif (memberIter\
+      \ != group->Begin()) {\n    // Modify the member data directly through the iterator\n\
+      \    (*memberIter)->SetOnline(false); // Example modification\n}"
+    language: cpp
+  - title: Safe Usage with Existence Check
+    code: "Group* group = ...;\nuint64 playerGuid = 123456789ULL;\nif (group->IsMember(playerGuid))\
+      \ {\n    member_witerator memberIter = group->_getMemberWSlot(playerGuid);\n\
+      \    // Proceed with safe modification\n    (*memberIter)->SetLevel(80); //\
+      \ Example safe operation\n} else {\n    // Handle case where player is not in\
+      \ the group\n}"
+    language: cpp
+  notes: This method is an internal implementation detail and should not be called
+    directly by external code. It returns a raw iterator which must be used carefully
+    to avoid invalidating the container or causing memory corruption. The returned
+    iterator is only valid as long as the group structure remains unchanged and no
+    other operations modify the member list.
+  warnings: Using this method without proper validation can lead to undefined behavior,
+    including crashes or memory corruption. Never assume that a GUID corresponds to
+    an existing member; always validate membership before calling this function. The
+    returned iterator should not be stored for long-term use as group modifications
+    may invalidate it.
+  related:
+  - GetMemberGUID
+  - IsMember
+  - Begin
+  - End
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T07:01:08.143786'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

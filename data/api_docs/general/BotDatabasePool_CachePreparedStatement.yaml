@@ -1,0 +1,62 @@
+api:
+  class: BotDatabasePool
+  method: CachePreparedStatement
+  signature: void BotDatabasePool::CachePreparedStatement(uint32 stmtId, const std::string
+    & sql)
+documentation:
+  brief: Caches a prepared SQL statement for use by the bot database pool.
+  description: The CachePreparedStatement method stores a SQL statement in the BotDatabasePool's
+    internal cache, associating it with a unique identifier. This allows for efficient
+    reuse of frequently executed queries without the overhead of re-parsing and compiling
+    the SQL each time. The cached statements are typically used by bot systems to
+    perform database operations such as retrieving player data, updating bot configurations,
+    or managing bot-related information. The method is designed to improve performance
+    by reducing redundant SQL compilation efforts within the context of the bot subsystem.
+  parameters:
+  - name: stmtId
+    description: A unique identifier for the prepared statement. This ID is used to
+      reference the cached statement in subsequent database operations. Must be a
+      positive integer that uniquely identifies this specific SQL query within the
+      pool.
+  - name: sql
+    description: The SQL statement string to be prepared and cached. This should be
+      a valid SQL query that can be executed against the bot database. The statement
+      will be parsed, compiled, and stored for future use by the database pool.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'uint32 stmtId = 1001;
+
+      std::string sql = "SELECT * FROM bot_players WHERE guid = ?";
+
+      BotDatabasePool::instance()->CachePreparedStatement(stmtId, sql);'
+    language: cpp
+  - title: Caching Multiple Statements
+    code: 'BotDatabasePool::instance()->CachePreparedStatement(1001, "SELECT * FROM
+      bot_players WHERE guid = ?");
+
+      BotDatabasePool::instance()->CachePreparedStatement(1002, "UPDATE bot_players
+      SET last_seen = ? WHERE guid = ?");
+
+      BotDatabasePool::instance()->CachePreparedStatement(1003, "INSERT INTO bot_logs
+      (bot_id, action, timestamp) VALUES (?, ?, ?)");'
+    language: cpp
+  notes: This method is typically called during initialization or setup phases of
+    the bot system. The cached statements are thread-safe and can be accessed concurrently
+    by multiple threads. It's recommended to cache only frequently used statements
+    to avoid memory overhead. The statement ID must be unique within the pool to prevent
+    conflicts.
+  warnings: Calling this method with an already cached statement ID will overwrite
+    the previous statement, potentially causing unexpected behavior if other parts
+    of the code depend on the old statement. Ensure that all statement IDs are properly
+    managed and unique to avoid conflicts.
+  related:
+  - GetPreparedStatement
+  - ExecutePreparedStatement
+  - PrepareStatement
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T11:49:09.870914'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

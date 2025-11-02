@@ -1,0 +1,65 @@
+api:
+  class: IVMapManager
+  method: getHeight
+  signature: float IVMapManager::getHeight(unsigned int pMapId, float x, float y,
+    float z, float maxSearchDist)
+documentation:
+  brief: Retrieves the height value at a specified location within a given map.
+  description: The getHeight method calculates and returns the Z-coordinate (height)
+    of the ground or terrain at the specified X and Y coordinates on the given map.
+    This is essential for determining walkable surfaces, collision detection, and
+    positioning objects in the game world. The method uses a maximum search distance
+    to find the closest valid height value, which helps avoid issues with missing
+    or invalid data. It's commonly used by movement systems, AI pathfinding, and object
+    placement logic.
+  parameters:
+  - name: pMapId
+    description: The unique identifier of the map where the height is to be retrieved.
+      This corresponds to the Map ID used internally by TrinityCore.
+  - name: x
+    description: The X coordinate in the world space for which to find the height
+      value.
+  - name: y
+    description: The Y coordinate in the world space for which to find the height
+      value.
+  - name: z
+    description: The initial Z coordinate used as a reference point for searching
+      the terrain. This helps determine if the search should proceed above or below
+      this point.
+  - name: maxSearchDist
+    description: The maximum distance to search for a valid height value. If no valid
+      height is found within this range, the method may return an invalid result or
+      use fallback logic.
+  returns: Returns the Z-coordinate (height) of the terrain at the specified location.
+    If no valid height can be determined within the maximum search distance, it may
+    return a default or invalid value such as -50000.0f, indicating an error condition.
+  examples:
+  - title: Basic usage to get ground height
+    code: float height = vmapManager->getHeight(0, 100.0f, 200.0f, 300.0f, 50.0f);
+      // Get height at map 0, x=100, y=200, z=300 with max search distance of 50
+    language: cpp
+  - title: Using getHeight for character positioning
+    code: 'float playerHeight = vmapManager->getHeight(player->GetMapId(), player->GetPositionX(),
+      player->GetPositionY(), player->GetPositionZ(), 10.0f);
+
+      player->SetPosition(player->GetPositionX(), player->GetPositionY(), playerHeight);
+      // Align character with terrain'
+    language: cpp
+  notes: This method relies on the VMap (Virtual Map) system used by TrinityCore to
+    handle height and collision data. The implementation may vary based on map-specific
+    VMap files. It's recommended to validate the returned height value before using
+    it for critical gameplay logic, as invalid values might be returned if no terrain
+    is found within the search distance.
+  warnings: Using a very small maxSearchDist can result in frequent invalid height
+    returns, especially in areas with complex terrain or missing VMap data. Always
+    consider fallback logic when using this method in performance-critical code paths.
+  related:
+  - getAreaHeight
+  - getHeightAtLocation
+  - isInLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:47:11.915771'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

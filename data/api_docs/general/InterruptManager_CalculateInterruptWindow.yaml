@@ -1,0 +1,71 @@
+api:
+  class: InterruptManager
+  method: CalculateInterruptWindow
+  signature: float InterruptManager::CalculateInterruptWindow(const InterruptTarget
+    & target, InterruptMethod method)
+documentation:
+  brief: Calculates the interrupt window duration for a given target and interrupt
+    method.
+  description: The CalculateInterruptWindow method determines the time window during
+    which an interrupt can be successfully applied to a target based on the specified
+    interrupt method. This calculation is crucial for determining when a spell or
+    ability can be interrupted by another spell or effect in World of Warcraft's combat
+    system. The method takes into account various factors such as the target's current
+    state, the type of interrupt being attempted, and game mechanics related to spell
+    interruption timing. It returns a floating-point value representing the duration
+    of the interrupt window in seconds.
+  parameters:
+  - name: target
+    description: The InterruptTarget object representing the entity that is being
+      interrupted. This contains information about the target's current state, spell
+      casting status, and other relevant properties needed to calculate the interrupt
+      window.
+  - name: method
+    description: The InterruptMethod enum value specifying the type of interrupt being
+      calculated. This determines how the interrupt window is computed based on the
+      nature of the interruption (e.g., melee interrupts, spell interrupts, etc.).
+  returns: A float value representing the duration of the interrupt window in seconds.
+    This value indicates how long an interrupt can be successfully applied to the
+    target after the interrupt attempt begins.
+  examples:
+  - title: Basic Interrupt Window Calculation
+    code: 'InterruptTarget target;
+
+      target.castingSpell = SpellId::Fireball;
+
+      target.isCasting = true;
+
+      InterruptMethod method = InterruptMethod::SPELL_INTERRUPT;
+
+      float window = interruptManager.CalculateInterruptWindow(target, method);
+
+      // window now contains the calculated interrupt duration in seconds'
+    language: cpp
+  - title: Using Interrupt Window for Combat Logic
+    code: "void ApplyInterruptLogic(Unit* attacker, Unit* target) {\n    InterruptTarget\
+      \ interruptTarget;\n    interruptTarget.castingSpell = target->GetCurrentSpell();\n\
+      \    interruptTarget.isCasting = target->HasUnitState(UNIT_STATE_CASTING);\n\
+      \    \n    float interruptWindow = interruptManager.CalculateInterruptWindow(interruptTarget,\
+      \ InterruptMethod::MELEE_INTERRUPT);\n    \n    if (interruptWindow > 0.0f)\
+      \ {\n        // Proceed with interrupt logic\n        target->InterruptSpell(CURRENT_FIRST_CASTED_SPELL);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically used within the core combat system to determine
+    whether an interrupt can be successfully applied. The calculation may involve
+    complex interactions between spell properties, target states, and game mechanics.
+    The returned value should be interpreted as a time duration in seconds that represents
+    the valid window for applying the interrupt.
+  warnings: The method assumes that the InterruptTarget object is properly initialized
+    with valid data. Using uninitialized or invalid target data may lead to incorrect
+    calculations. Additionally, this method should only be called during appropriate
+    combat states where interrupts are possible.
+  related:
+  - GetInterruptTarget
+  - IsInterruptible
+  - ApplyInterrupt
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T05:09:09.901577'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

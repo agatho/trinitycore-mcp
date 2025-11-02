@@ -1,0 +1,47 @@
+api:
+  class: CalendarMgr
+  method: FreeInviteId
+  signature: void CalendarMgr::FreeInviteId(uint64 id)
+documentation:
+  brief: Frees a calendar invite ID for reuse by the system.
+  description: The FreeInviteId method releases a previously allocated calendar invite
+    identifier, making it available for future use. This method is typically called
+    when a calendar event invitation is no longer needed or has been cancelled. The
+    calendar manager maintains an internal pool of invite IDs that can be reused to
+    avoid exhausting the ID space. This function ensures proper resource management
+    within the calendar subsystem by returning unused IDs back to the pool.
+  parameters:
+  - name: id
+    description: The unique identifier (GUID) of the calendar invite to be freed.
+      This value must correspond to a previously allocated invite ID that is currently
+      in use.
+  returns: null
+  examples:
+  - title: Freeing an Unused Calendar Invite
+    code: 'uint64 inviteId = sCalendarMgr->GetNextInviteId();
+
+      // ... process the invite ...
+
+      sCalendarMgr->FreeInviteId(inviteId);'
+    language: cpp
+  - title: Cleaning Up After Event Cancellation
+    code: "void CancelCalendarEvent(uint64 eventId)\n{\n    // Cancel event logic\
+      \ here\n    for (auto& invite : eventInvites)\n    {\n        sCalendarMgr->FreeInviteId(invite.Id);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the calendar subsystem's resource management system.
+    It should only be called with IDs that were previously allocated by the CalendarMgr.
+    The implementation likely maintains an internal data structure to track used and
+    free invite IDs, possibly using a pool or bitmap approach for efficiency.
+  warnings: Calling FreeInviteId with an invalid or already-freed ID may result in
+    undefined behavior or resource leaks. Ensure that each ID is only freed once and
+    only after it has been properly allocated by the calendar manager.
+  related:
+  - GetNextInviteId
+  - AllocateInviteId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T10:22:14.220366'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

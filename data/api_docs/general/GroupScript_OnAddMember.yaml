@@ -1,0 +1,50 @@
+api:
+  class: GroupScript
+  method: OnAddMember
+  signature: void GroupScript::OnAddMember(Group * group, int guid)
+documentation:
+  brief: Called when a new member is added to a group
+  description: This method is invoked by the TrinityCore framework whenever a player
+    is added to a group, such as when joining a raid, party, or battleground group.
+    It allows script developers to execute custom logic in response to group membership
+    changes. The method provides access to both the group object and the GUID of the
+    newly added member, enabling actions like sending notifications, adjusting player
+    stats, or triggering quest events. This callback is part of the GroupScript system
+    that allows for extending default group behavior through scripting.
+  parameters:
+  - name: group
+    description: Pointer to the Group object to which the member was added. This represents
+      the group structure containing the new member.
+  - name: guid
+    description: The unique identifier (GUID) of the player who was added to the group.
+      This is typically a 32-bit integer representing the player's database ID.
+  returns: null
+  examples:
+  - title: Basic Group Member Addition Handler
+    code: "class MyGroupScript : public GroupScript\n{\npublic:\n    MyGroupScript()\
+      \ : GroupScript(\"MyGroupScript\") {}\n\n    void OnAddMember(Group* group,\
+      \ uint32 guid) override\n    {\n        // Log that a member was added to the\
+      \ group\n        sLog->outString(\"Player with GUID %u was added to group %u\"\
+      , guid, group->GetId());\n        \n        // Optionally send a message to\
+      \ all group members\n        if (Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ guid)))\n        {\n            ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Welcome to the group!\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the group membership update process and should
+    not perform heavy operations that could block other game systems. The group object
+    passed in is guaranteed to be valid, but it may not yet be fully initialized with
+    all members depending on the timing of the call.
+  warnings: Avoid modifying the group structure or calling methods that might cause
+    recursion during this callback. Also, ensure that any player lookups using the
+    GUID are safe and don't result in null pointer dereferences if the player is not
+    currently online.
+  related:
+  - OnRemoveMember
+  - OnDisband
+  - OnMemberWanted
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T06:44:59.465568'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

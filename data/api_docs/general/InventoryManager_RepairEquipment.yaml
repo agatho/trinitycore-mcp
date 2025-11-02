@@ -1,0 +1,54 @@
+api:
+  class: InventoryManager
+  method: RepairEquipment
+  signature: uint32 InventoryManager::RepairEquipment(Creature * vendor)
+documentation:
+  brief: Repairs all damaged equipment for the player using the specified vendor's
+    services.
+  description: The RepairEquipment method calculates and applies repair costs for
+    all damaged items in the player's inventory using the provided vendor's pricing.
+    It iterates through the player's inventory, identifies items that are damaged
+    (durability less than maximum), computes the total repair cost based on the vendor's
+    repair rates, deducts the cost from the player's gold, and restores full durability
+    to all repaired items. The method returns the total amount of gold spent on repairs.
+    This functionality is typically invoked when a player interacts with a repair
+    vendor NPC in World of Warcraft.
+  parameters:
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor offering repair
+      services. Must be a valid NPC with repair capabilities, otherwise behavior is
+      undefined.
+  returns: Returns the total amount of gold (uint32) that was spent on repairing all
+    damaged equipment. Returns 0 if no items were damaged or if the player had insufficient
+    funds.
+  examples:
+  - title: Basic Repair Equipment Usage
+    code: "uint32 goldSpent = inventoryManager->RepairEquipment(vendorCreature);\n\
+      if (goldSpent > 0)\n{\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You paid %u gold for repairs.\", goldSpent);\n}"
+    language: cpp
+  - title: Check Repair Before Execution
+    code: "if (player->HasItemWithBrokenDurability())\n{\n    uint32 totalCost = inventoryManager->RepairEquipment(vendorCreature);\n\
+      \    if (totalCost > 0)\n        player->ModifyMoney(-static_cast<int32>(totalCost));\n\
+      }\nelse\n{\n    ChatHandler(player->GetSession()).PSendSysMessage(\"Your equipment\
+      \ is already fully repaired.\");\n}"
+    language: cpp
+  notes: This method assumes the vendor parameter is valid and has repair capabilities.
+    The method internally checks for item durability and will only process items that
+    are damaged. It does not validate if the player has sufficient gold before attempting
+    repairs, so it's recommended to check funds beforehand or handle potential errors
+    in calling code.
+  warnings: Calling this method with a null vendor pointer will likely result in undefined
+    behavior or crashes. Ensure the vendor is a valid repair NPC before invoking this
+    method. The method modifies player gold and item durability directly, so it should
+    only be called during appropriate game events or user interactions.
+  related:
+  - GetItemByPos
+  - HasItemWithBrokenDurability
+  - ModifyMoney
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:42:51.804356'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

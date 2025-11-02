@@ -1,0 +1,72 @@
+api:
+  class: PlayerAchievementMgr
+  method: SendCriteriaUpdate
+  signature: void PlayerAchievementMgr::SendCriteriaUpdate(const Criteria * entry,
+    const CriteriaProgress * progress, int timeElapsed, bool timedCompleted) const
+documentation:
+  brief: Sends an update message to the player's client about a criteria progress
+    change.
+  description: The SendCriteriaUpdate method is responsible for notifying the player's
+    client about changes in achievement criteria progress. This method is typically
+    called when a player's progress towards completing an achievement criterion has
+    been modified, such as when they complete a quest, kill a mob, or collect items.
+    The method sends the updated criteria information to the client via network packets,
+    ensuring that the UI reflects the current progress. It handles timing aspects
+    of criteria completion and ensures proper synchronization between server-side
+    progress tracking and client-side display.
+  parameters:
+  - name: entry
+    description: Pointer to the Criteria structure containing the criteria definition
+      and metadata. This parameter defines what type of criteria is being updated
+      and its properties.
+  - name: progress
+    description: Pointer to the CriteriaProgress structure containing the current
+      progress state for this specific criteria. This includes the progress value,
+      completion status, and other relevant tracking information.
+  - name: timeElapsed
+    description: Integer representing the time elapsed since the criteria was started
+      or last updated, in milliseconds. Used for timed criteria that have time-based
+      completion requirements.
+  - name: timedCompleted
+    description: Boolean flag indicating whether a timed criteria has been completed.
+      This is used to signal special handling for time-limited achievements.
+  returns: null
+  examples:
+  - title: Basic Criteria Update
+    code: "void UpdatePlayerKillCriteria(Player* player, uint32 creatureId) {\n  \
+      \  // Assume we have a criteria entry and progress\n    Criteria* criteriaEntry\
+      \ = sObjectMgr->GetCriteriaByTypeAndValue(CRITERIA_TYPE_KILL_CREATURE, creatureId);\n\
+      \    CriteriaProgress* progress = player->GetAchievementMgr()->GetCriteriaProgress(criteriaEntry);\n\
+      \    \n    if (progress) {\n        // Update the progress\n        progress->Counter++;\n\
+      \        \n        // Send update to client\n        player->GetAchievementMgr()->SendCriteriaUpdate(criteriaEntry,\
+      \ progress, 0, false);\n    }\n}"
+    language: cpp
+  - title: Timed Criteria Completion
+    code: "void CompleteTimedCriteria(Player* player, uint32 criteriaId) {\n    Criteria*\
+      \ entry = sObjectMgr->GetCriteriaById(criteriaId);\n    CriteriaProgress* progress\
+      \ = player->GetAchievementMgr()->GetCriteriaProgress(entry);\n    \n    if (progress\
+      \ && !progress->Completed) {\n        // Mark as completed\n        progress->Completed\
+      \ = true;\n        progress->Date = time(nullptr);\n        \n        // Send\
+      \ update with timed completion flag\n        player->GetAchievementMgr()->SendCriteriaUpdate(entry,\
+      \ progress, 30000, true);\n    }\n}"
+    language: cpp
+  notes: This method is part of the achievement system and should only be called when
+    actual progress changes occur. It's important to ensure that the CriteriaProgress
+    structure passed in is valid and properly initialized. The method may trigger
+    additional logic such as checking for achievement completion or sending notifications
+    to other players if the criteria is part of a group achievement.
+  warnings: Calling this method with invalid pointers can cause crashes. Always validate
+    that both entry and progress parameters are not null before calling. Be careful
+    when using timed criteria updates, as incorrect timeElapsed values can lead to
+    inconsistent UI behavior in the client.
+  related:
+  - GetCriteriaProgress
+  - UpdateCriteriaProgress
+  - CheckAchievementCriteria
+  - SendAchievementEarned
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T01:33:30.445715'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

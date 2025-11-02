@@ -1,0 +1,64 @@
+api:
+  class: PathfindingManager
+  method: FindPathToUnit
+  signature: PathResult PathfindingManager::FindPathToUnit(Unit * target, float range,
+    PathFlags flags)
+documentation:
+  brief: Calculates and returns a path to the specified unit within the given range
+    using the provided path flags.
+  description: The FindPathToUnit method computes a navigable path from the caller's
+    current position to a target Unit, considering the specified range and pathfinding
+    flags. It utilizes TrinityCore's internal pathfinding system to determine whether
+    a valid route exists between the two entities. The method is commonly used by
+    AI-controlled creatures or NPCs to navigate toward players or other units. The
+    returned PathResult contains information about the success of the path calculation
+    and can be used to determine if movement along the path should proceed. This function
+    respects terrain, obstacles, and unit-specific movement constraints defined by
+    the provided flags.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit for which the path is being calculated.
+      Must not be null.
+  - name: range
+    description: Maximum distance within which the path should lead to the target
+      unit. A value of 0.0f typically means no range restriction.
+  - name: flags
+    description: PathFlags that define how the pathfinding algorithm behaves, such
+      as whether to avoid water or obstacles. These flags control path quality and
+      constraints.
+  returns: A PathResult object indicating the success or failure of the pathfinding
+    operation. On success, it contains valid path data; on failure, it indicates why
+    no path was found (e.g., invalid target, unreachable destination).
+  examples:
+  - title: Basic usage to find a path to a player unit
+    code: "Unit* target = ...; // Assume this is a valid player or NPC\nfloat range\
+      \ = 10.0f;\nPathFlags flags = PATHFINDING_NORMAL;\nPathResult result = sPathfindingManager->FindPathToUnit(target,\
+      \ range, flags);\nif (result.IsSuccess()) {\n    // Proceed with movement along\
+      \ the path\n}"
+    language: cpp
+  - title: Using FindPathToUnit for AI navigation with custom flags
+    code: "Unit* target = ...;\nfloat range = 5.0f;\nPathFlags flags = PATHFINDING_NO_WATER\
+      \ | PATHFINDING_NO_OBSTACLES;\nPathResult result = sPathfindingManager->FindPathToUnit(target,\
+      \ range, flags);\nif (result.IsSuccess()) {\n    // AI can now move along the\
+      \ path\n    // Example: Move towards the first point in the path\n}"
+    language: cpp
+  notes: This method is blocking and may impact performance if called frequently without
+    optimization. It internally uses the NavMesh system for pathfinding, so ensure
+    that the target unit's location is valid and within loaded grids. The PathResult
+    object returned should be checked for validity before attempting to use the path
+    data.
+  warnings: Do not call this method with a null target pointer; it will likely crash
+    or produce undefined behavior. Avoid calling this in tight loops without caching
+    results, as pathfinding can be computationally expensive. Be aware that even if
+    a path is found, it may not be traversable due to dynamic obstacles or terrain
+    changes.
+  related:
+  - FindPathToLocation
+  - FindPathToUnitWithRange
+  - GetPathResult
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:55:35.475902'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

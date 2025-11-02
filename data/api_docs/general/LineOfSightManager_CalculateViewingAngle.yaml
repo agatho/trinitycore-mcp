@@ -1,0 +1,53 @@
+api:
+  class: LineOfSightManager
+  method: CalculateViewingAngle
+  signature: float LineOfSightManager::CalculateViewingAngle(Unit * target)
+documentation:
+  brief: Calculates the viewing angle between the calling unit and a target unit for
+    line-of-sight determination.
+  description: The CalculateViewingAngle method computes the angular difference in
+    degrees between the facing direction of the calling Unit and the direction towards
+    a specified target Unit. This value is used internally by the LineOfSightManager
+    to determine whether a line of sight exists between two units, taking into account
+    their relative positions and orientations. The method performs geometric calculations
+    based on the unit's current orientation and the target's position in 3D space.
+    It returns a normalized angle value that can be compared against field-of-view
+    thresholds or other angular constraints used in game mechanics such as spell casting,
+    NPC behavior, or combat targeting.
+  parameters: []
+  returns: Returns a float value representing the viewing angle in degrees between
+    the calling unit and the target unit. A return value of 0.0 indicates that the
+    target is directly in front of the unit, while values approaching 180.0 suggest
+    the target is behind the unit. Values outside the valid range (typically -180
+    to 180) may indicate invalid or uncalculated results.
+  examples:
+  - title: Basic Usage for Line-of-Sight Check
+    code: "Unit* player = ...;\nUnit* npc = ...;\nfloat angle = player->GetMap()->GetLineOfSightManager()->CalculateViewingAngle(npc);\n\
+      if (angle < 90.0f) {\n    // Target is within 90-degree field of view\n}"
+    language: cpp
+  - title: Using Angle for Spell Casting Validation
+    code: "Unit* caster = ...;\nUnit* target = ...;\nfloat viewingAngle = caster->GetMap()->GetLineOfSightManager()->CalculateViewingAngle(target);\n\
+      if (viewingAngle <= 45.0f && caster->IsWithinLOS(target)) {\n    // Cast spell\
+      \ only if within 45-degree angle and line of sight\n}"
+    language: cpp
+  notes: This method relies on the internal positioning and orientation data of both
+    units, so it should be called only when both units are properly initialized and
+    located in the same map instance. The calculation assumes a flat-world coordinate
+    system for simplicity, though actual implementation may account for terrain height
+    differences. Performance is generally low-cost as it involves basic trigonometric
+    operations.
+  warnings: Calling this method on a unit that has not been added to a valid map or
+    whose position data is invalid will result in undefined behavior. Ensure that
+    both the calling unit and target unit are in the same map instance before invoking
+    this function. Do not use the return value directly for combat logic without verifying
+    that the units are within expected ranges.
+  related:
+  - IsWithinLOS
+  - GetLineOfSightManager
+  - CalculateDistance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T03:45:00.416648'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

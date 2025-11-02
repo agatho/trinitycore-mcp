@@ -1,0 +1,66 @@
+api:
+  class: PathfindingManager
+  method: FindGroupCoordinatedPath
+  signature: PathResult PathfindingManager::FindGroupCoordinatedPath(const int & goal,
+    const int & group)
+documentation:
+  brief: Calculates and returns a coordinated movement path for a group of units toward
+    a specified goal position.
+  description: The FindGroupCoordinatedPath method computes a navigation path that
+    allows multiple units within a group to move together in a coordinated manner
+    towards a defined destination. This functionality is essential for group-based
+    AI behaviors such as following a leader, forming formations, or executing complex
+    tactical movements. The method takes into account the spatial relationships between
+    group members and ensures that each unit follows an optimized route while maintaining
+    group cohesion. It utilizes internal pathfinding algorithms to determine valid
+    waypoints and avoids obstacles in the environment. The result is a structured
+    path that can be consumed by the group's movement system to execute the coordinated
+    motion.
+  parameters:
+  - name: goal
+    description: The identifier or index representing the destination point for the
+      group. This typically corresponds to a waypoint, NPC, or location in the game
+      world that the group should navigate toward.
+  - name: group
+    description: The identifier of the group whose members will follow the computed
+      path. This parameter references a specific group within the game's group management
+      system and determines which units are included in the coordinated movement.
+  returns: A PathResult object containing the computed path data for the group. The
+    result includes waypoints, movement flags, and metadata that can be used to guide
+    each member of the group along their individual paths while maintaining group
+    coordination. Returns an invalid path if no valid route could be calculated or
+    if the goal/group parameters are invalid.
+  examples:
+  - title: Basic Group Pathfinding Usage
+    code: "PathResult result = sPathfindingManager->FindGroupCoordinatedPath(100,\
+      \ 5);\nif (result.IsValid()) {\n    // Process the path and assign it to group\
+      \ members\n    for (auto& waypoint : result.GetWaypoints()) {\n        // Apply\
+      \ movement logic per unit\n    }\n}"
+    language: cpp
+  - title: Group Pathfinding with Error Handling
+    code: "int goalId = 205;\nint groupId = 3;\nPathResult path = sPathfindingManager->FindGroupCoordinatedPath(goalId,\
+      \ groupId);\nif (!path.IsValid()) {\n    // Handle pathfinding failure\n   \
+      \ sLog->outError(\"Failed to compute coordinated path for group %d to goal %d\"\
+      , groupId, goalId);\n} else {\n    // Proceed with group movement execution\n\
+      \    sGroupMovementHandler->ExecuteGroupPath(groupId, path);\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with group management systems
+    and requires that both the goal and group identifiers are valid within the current
+    game context. The implementation may cache or precompute certain path data to
+    improve performance for frequently requested paths. It's recommended to call this
+    method asynchronously during idle periods to avoid blocking gameplay threads.
+  warnings: Calling this method with invalid goal or group IDs can lead to undefined
+    behavior or crashes. Ensure that the specified goal exists in the world and that
+    the group is active before invoking this function. Additionally, repeated calls
+    for the same group and goal without changes may return cached results, which might
+    not reflect real-time environmental changes.
+  related:
+  - FindPath
+  - GetGroupMembers
+  - UpdateGroupPositions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T01:59:07.524403'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

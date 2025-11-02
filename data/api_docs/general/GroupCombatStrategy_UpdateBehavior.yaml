@@ -1,0 +1,56 @@
+api:
+  class: GroupCombatStrategy
+  method: UpdateBehavior
+  signature: void GroupCombatStrategy::UpdateBehavior(BotAI * ai, uint32 diff)
+documentation:
+  brief: Updates the combat behavior of a bot within a group based on the provided
+    AI context and time delta.
+  description: The UpdateBehavior method is responsible for managing and adjusting
+    the combat actions of a bot that is part of a group in TrinityCore. It evaluates
+    the current state of the bot's AI, including target selection, spell casting,
+    movement, and positioning, to ensure effective group combat performance. This
+    method is typically called during each AI update cycle and uses the provided time
+    delta (diff) to determine how much time has passed since the last update, which
+    affects timing-sensitive behaviors like spell cooldowns or movement pacing. The
+    method operates within the context of a GroupCombatStrategy, which defines how
+    bots should behave collectively in combat situations rather than individually.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance that controls the behavior of the bot.
+      This parameter provides access to the AI's internal state, target information,
+      and available actions.
+  - name: diff
+    description: Time delta in milliseconds since the last update call. Used to calculate
+      timing-based behaviors such as spell cooldowns, movement delays, or reaction
+      times.
+  returns: null
+  examples:
+  - title: Basic usage within AI update loop
+    code: "void BotAI::UpdateAI(uint32 diff)\n{\n    if (groupCombatStrategy)\n  \
+      \      groupCombatStrategy->UpdateBehavior(this, diff);\n}"
+    language: cpp
+  - title: Integration with custom combat logic
+    code: "void GroupCombatStrategy::UpdateBehavior(BotAI* ai, uint32 diff)\n{\n \
+      \   if (!ai || !ai->GetBot())\n        return;\n\n    // Update target selection\n\
+      \    if (ai->GetTarget() && ai->GetTarget()->IsDead())\n        ai->SetTarget(nullptr);\n\
+      \n    // Handle spell casting\n    if (ai->CanCastSpell(SPELL_FIREBALL))\n \
+      \       ai->CastSpell(SPELL_FIREBALL);\n\n    // Adjust positioning\n    if\
+      \ (ai->GetDistanceToTarget() > 10.0f)\n        ai->MoveToTarget();\n}"
+    language: cpp
+  notes: This method is expected to be called regularly, typically every tick or frame,
+    by the AI system. It's important that the BotAI instance passed in is valid and
+    properly initialized. The diff parameter should reflect actual elapsed time for
+    accurate behavior timing.
+  warnings: Passing a null pointer for 'ai' will result in undefined behavior. Ensure
+    that the BotAI object is fully constructed and has a valid group context before
+    calling this method.
+  related:
+  - GroupCombatStrategy::GetBehavior
+  - GroupCombatStrategy::SetBehavior
+  - BotAI::UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:58:24.353607'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

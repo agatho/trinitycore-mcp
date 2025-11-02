@@ -1,0 +1,57 @@
+api:
+  class: LFGGroupScript
+  method: OnInviteMember
+  signature: void LFGGroupScript::OnInviteMember(Group * group, int guid)
+documentation:
+  brief: Invoked when a player is invited to join a Looking for Group (LFG) instance.
+  description: The OnInviteMember method is a callback function within the LFGGroupScript
+    class that gets triggered whenever a player is invited to join an LFG group or
+    dungeon. This method allows custom scripts to respond to invitation events, such
+    as logging the event, modifying player behavior, or enforcing custom rules during
+    the LFG process. It is part of TrinityCore's LFG system which manages group formation
+    and dungeon matching for players seeking cooperative content. The method provides
+    access to both the target group and the GUID of the invited player, enabling developers
+    to implement logic based on group composition or individual player data.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that the player is being invited to join.
+      This represents the LFG group or instance the player is being added to.
+  - name: guid
+    description: The unique identifier (GUID) of the player being invited. This is
+      used to identify the specific player within the game world and can be used to
+      retrieve player data or perform operations on that particular character.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyLFGScript : public LFGGroupScript\n{\npublic:\n    MyLFGScript()\
+      \ : LFGGroupScript(\"MyLFGScript\") {}\n\n    void OnInviteMember(Group* group,\
+      \ uint64 guid) override\n    {\n        // Log the invitation event\n      \
+      \  sLog->outString(\"Player with GUID %u was invited to group.\", guid);\n \
+      \       \n        // Optionally check if player is already in another group\n\
+      \        Player* player = ObjectAccessor::FindPlayer(guid);\n        if (player\
+      \ && player->GetGroup() != group)\n        {\n            // Handle cross-group\
+      \ invitations\n            sLog->outString(\"Player %s was invited to a different\
+      \ group.\", player->GetName().c_str());\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the LFG invitation process, typically when a
+    player is selected by the LFG system to join a specific group. Developers should
+    be aware that this method may be invoked multiple times for the same player if
+    they are invited to different groups or re-invited after leaving. The Group pointer
+    provided is valid only within the scope of this function call and should not be
+    stored for later use without proper reference management.
+  warnings: Do not perform operations that might block or delay execution, as this
+    method is called synchronously during LFG processing. Avoid modifying group membership
+    directly from this callback unless absolutely necessary, as it could lead to inconsistent
+    group states or crashes. Be cautious when accessing player data through the GUID,
+    as the player may not be online or accessible at all times.
+  related:
+  - OnJoin
+  - OnLeave
+  - OnDisband
+  - OnCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:15:07.723244'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

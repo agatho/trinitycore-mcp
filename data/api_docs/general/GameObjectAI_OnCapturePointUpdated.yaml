@@ -1,0 +1,66 @@
+api:
+  class: GameObjectAI
+  method: OnCapturePointUpdated
+  signature: bool GameObjectAI::OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState
+    param0)
+documentation:
+  brief: Handles updates to battleground capture point states, returning true if the
+    update was processed successfully.
+  description: The OnCapturePointUpdated method is invoked when a battleground capture
+    point's state changes, such as during objective captures or resets. This method
+    allows GameObjectAI implementations to react to these state transitions, enabling
+    custom behaviors like sound effects, visual updates, or quest progression. The
+    method receives a BattlegroundCapturePointState packet containing the updated
+    state information and returns a boolean indicating whether the update was successfully
+    handled. It is typically called from the battleground system during capture point
+    events and should be overridden by custom GameObjectAI implementations that need
+    to respond to such changes.
+  parameters:
+  - name: param0
+    description: A reference to a BattlegroundCapturePointState packet containing
+      updated capture point data including ownership, progress, and state flags.
+  returns: Returns true if the capture point update was successfully processed by
+    the AI implementation; false otherwise. Returning false may indicate that the
+    update was not handled or encountered an error.
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCapturePointAI : public GameObjectAI {\npublic:\n    bool OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState\
+      \ const& state) override {\n        // Log the capture point update\n      \
+      \  TC_LOG_DEBUG(\"bg\", \"Capture point updated: Owner = %u, Progress = %f\"\
+      , state.Owner, state.Progress);\n        \n        // Perform custom logic based\
+      \ on new state\n        if (state.Owner == TEAM_ALLIANCE)\n            SendGameObjectCustomAnim(0);\n\
+      \        \n        return true; // Successfully processed\n    }\n};"
+    language: cpp
+  - title: Advanced State Handling with Conditional Logic
+    code: "class AdvancedCapturePointAI : public GameObjectAI {\npublic:\n    bool\
+      \ OnCapturePointUpdated(WorldPackets::Battleground::BattlegroundCapturePointState\
+      \ const& state) override {\n        // Check if capture point is being captured\n\
+      \        if (state.State == BattlegroundCapturePointState::STATE_CAPTURED)\n\
+      \            PlaySoundToPlayers(SOUND_CAPTURED);\n        \n        // Update\
+      \ visual effects based on progress\n        if (state.Progress > 0.5f && state.Progress\
+      \ < 0.9f)\n            SetGameObjectVisualState(VISUAL_STATE_HALF_CAPTURED);\n\
+      \        else if (state.Progress >= 0.9f)\n            SetGameObjectVisualState(VISUAL_STATE_FULLY_CAPTURED);\n\
+      \        \n        // Trigger quest events\n        if (state.Owner != GetGameObject()->GetOwnerGUID())\n\
+      \            HandleQuestUpdate(state.Owner);\n        \n        return true;\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called from the battleground system's update loop and should
+    not perform heavy operations that could block the game thread. The BattlegroundCapturePointState
+    parameter contains all relevant state information, including ownership team, capture
+    progress, and current state flags. Implementations should be prepared to handle
+    various state transitions and may need to synchronize with other systems like
+    quest tracking or visual effects.
+  warnings: Do not modify the state parameter directly as it's passed by const reference.
+    Avoid performing blocking operations within this method as it can impact battleground
+    performance. Ensure that all custom logic properly handles edge cases such as
+    invalid ownership states or unexpected progress values.
+  related:
+  - OnGameObjectUpdate
+  - OnBattlegroundEnd
+  - OnCapturePointReset
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T07:16:05.489719'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

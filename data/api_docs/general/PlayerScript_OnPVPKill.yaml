@@ -1,0 +1,65 @@
+api:
+  class: PlayerScript
+  method: OnPVPKill
+  signature: void PlayerScript::OnPVPKill(Player * killer, Player * killed)
+documentation:
+  brief: Called when a player kills another player in PvP combat
+  description: The OnPVPKill method is a virtual callback function in the PlayerScript
+    class that gets invoked whenever a player successfully kills another player during
+    a PvP encounter. This method serves as an event handler for PvP kill events and
+    allows custom scripts to execute logic when such kills occur, such as awarding
+    rewards, updating statistics, or modifying player behavior. The method provides
+    access to both the killer and killed player objects, enabling developers to perform
+    actions based on player attributes, faction status, or other game state information.
+  parameters:
+  - name: killer
+    description: Pointer to the Player object who performed the killing blow in PvP
+      combat
+  - name: killed
+    description: Pointer to the Player object who was killed by the killer in PvP
+      combat
+  returns: null
+  examples:
+  - title: Basic PvP Kill Handler
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnPVPKill(Player*\
+      \ killer, Player* killed) override\n    {\n        // Log the PvP kill event\n\
+      \        std::string message = \"Player \" + killer->GetName() + \" killed \"\
+      \ + killed->GetName();\n        sLog->outString(message.c_str());\n        \n\
+      \        // Award bonus honor to the killer\n        killer->RewardHonor(killed,\
+      \ 1);\n    }\n};"
+    language: cpp
+  - title: Advanced PvP Kill with Custom Logic
+    code: "class HonorRewardScript : public PlayerScript\n{\npublic:\n    void OnPVPKill(Player*\
+      \ killer, Player* killed) override\n    {\n        // Only process if both players\
+      \ are in the same battleground\n        if (killer->GetBattleground() && killed->GetBattleground()\
+      \ &&\n            killer->GetBattleground() == killed->GetBattleground())\n\
+      \        {\n            // Check if killer is from a different faction\n   \
+      \         if (killer->GetTeamId() != killed->GetTeamId())\n            {\n \
+      \               // Award honor based on killed player's level\n            \
+      \    uint32 honor = 100 + (killed->getLevel() * 5);\n                killer->RewardHonor(killed,\
+      \ honor);\n                \n                // Add a custom achievement\n \
+      \               if (killer->GetAchievementMgr()->GetAchievementCounter(12345)\
+      \ < 10)\n                {\n                    killer->GetAchievementMgr()->SetAchievementCounter(12345,\
+      \ \n                        killer->GetAchievementMgr()->GetAchievementCounter(12345)\
+      \ + 1);\n                }\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the PvP kill processing flow in TrinityCore.
+    It's important to note that both player pointers are valid and should not be null
+    when this method is invoked. The method executes within the context of the game
+    world thread, so any heavy operations should be handled carefully to avoid performance
+    degradation.
+  warnings: Developers should ensure that all player pointer operations are safe and
+    that players have valid states before performing actions on them. Avoid modifying
+    player state in ways that could cause instability or exploits. Also, be aware
+    that this method is called for every PvP kill, so excessive processing may impact
+    server performance.
+  related:
+  - OnPlayerKilledByCreature
+  - OnPVPKill
+  - OnPlayerDeath
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:15:23.194013'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

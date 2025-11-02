@@ -1,0 +1,53 @@
+api:
+  class: Conversation
+  method: Update
+  signature: void Conversation::Update(int diff)
+documentation:
+  brief: Updates the conversation state based on the elapsed time since last update.
+  description: The Update method is responsible for advancing the internal state of
+    a conversation object, typically handling dialogue progression, timer-based events,
+    and NPC response scheduling. It processes any pending actions such as sending
+    messages to players, updating quest states, or triggering follow-up conversations.
+    This method is usually called by the game's main update loop at regular intervals,
+    using the 'diff' parameter to determine how much time has passed since the last
+    execution. The implementation ensures that conversations progress smoothly and
+    maintain proper timing for interactive elements like timed responses or delayed
+    dialogue sequences.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last update call. This
+      value is used to determine how much conversation state should advance, particularly
+      for time-sensitive events such as delayed messages or timed responses.
+  returns: null
+  examples:
+  - title: Basic Update Call
+    code: "void GameWorld::Update(uint32 diff)\n{\n    // Update all active conversations\n\
+      \    for (auto& conversation : sObjectAccessor->GetAllConversations())\n   \
+      \ {\n        conversation->Update(diff);\n    }\n}"
+    language: cpp
+  - title: Conversation Update with State Management
+    code: "void MyConversation::Update(int diff)\n{\n    if (m_state == CONVERSATION_STATE_ACTIVE)\n\
+      \    {\n        m_timer -= diff;\n        if (m_timer <= 0)\n        {\n   \
+      \         SendNextLine();\n            m_timer = 1000; // Reset timer\n    \
+      \    }\n    }\n}"
+    language: cpp
+  notes: This method should be called regularly by the game loop to ensure smooth
+    conversation progression. The 'diff' parameter is crucial for maintaining consistent
+    timing across different frame rates and system performance conditions. Developers
+    should avoid calling this method directly from non-main threads unless thread
+    safety has been explicitly ensured.
+  warnings: Do not modify conversation state directly within Update without proper
+    synchronization, as concurrent access can lead to race conditions. Also, be cautious
+    when modifying the conversation's internal timer or progression logic, as incorrect
+    handling may cause dialogue glitches or infinite loops.
+  related:
+  - GetState
+  - SetState
+  - SendNextLine
+  - IsFinished
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:21:14.024453'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: PlayerbotWorldScript
+  method: OnShutdownInitiate
+  signature: void PlayerbotWorldScript::OnShutdownInitiate(int code, int mask)
+documentation:
+  brief: Handles the shutdown initiation event for player bots in the World of Warcraft
+    server.
+  description: 'The OnShutdownInitiate method is a callback function within the PlayerbotWorldScript
+    class that is invoked when the game server begins the shutdown process. This method
+    allows player bot AI scripts to perform cleanup operations, save state information,
+    or notify other systems before the server shuts down. It provides two parameters:
+    ''code'' which indicates the type of shutdown (e.g., normal shutdown, restart,
+    crash), and ''mask'' which contains additional flags or options related to the
+    shutdown process. The method is typically called during server maintenance, updates,
+    or emergency situations where the game world needs to be closed gracefully.'
+  parameters:
+  - name: code
+    description: An integer value indicating the type of shutdown operation being
+      initiated. Common values include 0 for normal shutdown, 1 for restart, and negative
+      values for crash scenarios.
+  - name: mask
+    description: A bitmask containing additional flags or options related to the shutdown
+      process. This parameter can be used to specify shutdown behavior such as immediate
+      termination, graceful exit, or forced cleanup.
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "void PlayerbotWorldScript::OnShutdownInitiate(int code, int mask)\n{\n\
+      \    // Log shutdown event\n    sLog->outString(\"Player bot shutdown initiated\
+      \ with code: %d and mask: %d\", code, mask);\n    \n    // Perform cleanup operations\n\
+      \    // e.g., save player bot states, disconnect bots, etc.\n}"
+    language: cpp
+  - title: Shutdown Handling with State Saving
+    code: "void PlayerbotWorldScript::OnShutdownInitiate(int code, int mask)\n{\n\
+      \    if (code == 0) // Normal shutdown\n    {\n        // Save all player bot\
+      \ states to database\n        for (auto& bot : sPlayerbotAIConfig->GetPlayerBots())\n\
+      \        {\n            bot->SaveState();\n        }\n        \n        // Notify\
+      \ players that bots are disconnecting\n        sWorld->SendServerMessage(SERVER_MSG_STRING,\
+      \ \"Player bots are saving state before shutdown.\");\n    }\n    else if (code\
+      \ == 1) // Restart\n    {\n        // Perform quick cleanup for restart\n  \
+      \      sLog->outString(\"Restart initiated - preparing for quick shutdown\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method is called from the main server thread during shutdown sequence.
+    Implementations should avoid heavy computations or blocking operations as they
+    may delay the shutdown process. The method is part of the TrinityCore scripting
+    interface and must be implemented in custom playerbot scripts to handle server
+    shutdown events properly.
+  warnings: Do not perform long-running operations in this method as it can block
+    the server shutdown process. Avoid accessing database connections that might already
+    be closed or in an inconsistent state during shutdown. Be cautious with any resource
+    cleanup that could interfere with other systems trying to shut down simultaneously.
+  related:
+  - OnShutdownCancel
+  - OnWorldUpdate
+  - OnPlayerBotLogin
+  - OnPlayerBotLogout
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T00:44:43.952686'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

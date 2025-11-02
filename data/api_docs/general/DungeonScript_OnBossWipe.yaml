@@ -1,0 +1,64 @@
+api:
+  class: DungeonScript
+  method: OnBossWipe
+  signature: void DungeonScript::OnBossWipe(int * player, int * boss)
+documentation:
+  brief: Called when a boss in a dungeon wipe occurs, allowing script to handle the
+    event
+  description: The OnBossWipe method is a virtual callback function within the DungeonScript
+    class that gets invoked whenever a boss encounter in a dungeon results in a wipe.
+    This typically happens when all players in the group fail to defeat the boss within
+    the allowed time or under certain conditions. The method allows custom scripts
+    to execute specific logic, such as logging the event, rewarding players, resetting
+    timers, or modifying game state upon a boss wipe. It is part of the TrinityCore's
+    scripting system that enables developers to extend or modify dungeon behavior
+    without directly altering core game mechanics.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player ID who participated
+      in the wipe event
+  - name: boss
+    description: Pointer to an integer representing the boss ID that was wiped
+  returns: void
+  examples:
+  - title: Basic Boss Wipe Handler
+    code: "class MyDungeonScript : public DungeonScript {\npublic:\n    void OnBossWipe(int*\
+      \ player, int* boss) override {\n        // Log the wipe event\n        sLog->outString(\"\
+      Player %d wiped boss %d\", *player, *boss);\n        \n        // Reset player\
+      \ cooldowns or apply debuffs\n        Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *player));\n        if (plr)\n            plr->AddAura(12345, plr); // Example\
+      \ aura\n    }\n};"
+    language: cpp
+  - title: Advanced Boss Wipe with Group Handling
+    code: "class AdvancedDungeonScript : public DungeonScript {\npublic:\n    void\
+      \ OnBossWipe(int* player, int* boss) override {\n        // Get the group of\
+      \ the player\n        Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *player));\n        if (!plr || !plr->GetGroup())\n            return;\n \
+      \       \n        // Broadcast wipe message to group\n        Group* group =\
+      \ plr->GetGroup();\n        for (GroupReference* ref = group->GetFirstMember();\
+      \ ref; ref = ref->next()) {\n            Player* member = ref->getSource();\n\
+      \            if (member)\n                member->SendNotification(\"Boss %d\
+      \ has been wiped!\", *boss);\n        }\n        \n        // Reset dungeon\
+      \ timer or apply penalties\n        sWorld->SendWorldText(LANG_DUNGEON_WIPE_EVENT,\
+      \ *boss);\n    }\n};"
+    language: cpp
+  notes: This method is typically called from within the core dungeon encounter logic
+    when a wipe condition is met. Developers should be cautious about modifying player
+    state or applying effects directly in this function as it may impact performance
+    or cause unexpected behavior if not handled properly. The pointers passed to the
+    method are guaranteed to be valid at the time of invocation.
+  warnings: Do not perform heavy operations or blocking calls inside OnBossWipe, as
+    it is called synchronously during encounter processing. Avoid modifying the game
+    world state in ways that could interfere with core mechanics or cause race conditions.
+    Ensure that player and boss IDs are properly validated before using them to prevent
+    crashes or undefined behavior.
+  related:
+  - OnBossKill
+  - OnPlayerEnter
+  - OnDungeonComplete
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:16:56.868165'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

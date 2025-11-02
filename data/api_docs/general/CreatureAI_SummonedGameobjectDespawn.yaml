@@ -1,0 +1,55 @@
+api:
+  class: CreatureAI
+  method: SummonedGameobjectDespawn
+  signature: void CreatureAI::SummonedGameobjectDespawn(GameObject * param0)
+documentation:
+  brief: Removes a summoned game object from the world when invoked by the creature
+    AI.
+  description: The SummonedGameobjectDespawn method is used to destroy and remove
+    a previously summoned GameObject from the game world. This method is typically
+    called by CreatureAI implementations when a summoned object should be dismissed
+    or removed, such as after a spell effect has completed or when the creature's
+    AI logic determines the object is no longer needed. It ensures proper cleanup
+    of the GameObject and removes it from all relevant systems including the map,
+    grid, and object managers. The method does not perform any validation on the input
+    GameObject pointer; it assumes the provided GameObject was previously summoned
+    by this AI instance.
+  parameters:
+  - name: param0
+    description: Pointer to the GameObject that should be despawned. This GameObject
+      must have been previously summoned using a valid summoning mechanism such as
+      CreatureAI::SummonGameObject().
+  returns: null
+  examples:
+  - title: Basic usage in creature AI
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void JustDied()\
+      \ override {\n        // Despawn any summoned GameObjects\n        if (summonedGO)\n\
+      \            SummonedGameobjectDespawn(summonedGO);\n    }\n};"
+    language: cpp
+  - title: Despawning multiple summoned objects
+    code: "class BossAI : public CreatureAI {\nprivate:\n    std::vector<GameObject*>\
+      \ summonedObjects;\npublic:\n    void DoDespawnAllSummons() {\n        for (auto&\
+      \ go : summonedObjects)\n            if (go)\n                SummonedGameobjectDespawn(go);\n\
+      \        summonedObjects.clear();\n    }\n};"
+    language: cpp
+  notes: This method directly calls the GameObject's RemoveFromWorld() function internally,
+    which handles all necessary cleanup including removing from the map's object grids
+    and notifying other systems. It is safe to call this method multiple times on
+    the same GameObject, though it will have no effect after the first call. The GameObject
+    pointer should not be accessed after calling this method as it may lead to dangling
+    pointer issues.
+  warnings: Calling this method with a null or invalid GameObject pointer will likely
+    result in undefined behavior or crash. Always verify that the GameObject exists
+    and was summoned by this AI instance before calling this method. Additionally,
+    if the GameObject is part of an active spell effect or has ongoing events, despawning
+    it immediately may cause unexpected behavior in those systems.
+  related:
+  - CreatureAI::SummonGameObject
+  - CreatureAI::DoSummon
+  - CreatureAI::DespawnAllSummons
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:06:30.501935'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,88 @@
+api:
+  class: CreatureTextMgr
+  method: SendChat
+  signature: uint32 CreatureTextMgr::SendChat(Creature * source, uint8 textGroup,
+    const WorldObject * whisperTarget, int msgType, int language, CreatureTextRange
+    range, uint32 sound, int playType, int team, bool gmOnly, Player * srcPlr)
+documentation:
+  brief: Sends a creature text message to players within a specified range, optionally
+    whispering to a specific target or team.
+  description: The SendChat method is used to broadcast a creature's text message
+    to nearby players in the World of Warcraft environment. It supports various messaging
+    types including normal chat, emotes, and whispers. The method allows for fine-grained
+    control over who receives the message through parameters such as whisper target,
+    team, and play type. It can also play associated sounds and respects game mechanics
+    like GM-only messages and language settings. This functionality is typically used
+    by NPCs to communicate with players in an engaging and context-aware manner.
+  parameters:
+  - name: source
+    description: Pointer to the Creature object that is sending the chat message.
+      Must be a valid creature instance.
+  - name: textGroup
+    description: The text group identifier (0-255) which corresponds to a specific
+      set of texts defined in the creature_text table.
+  - name: whisperTarget
+    description: Optional pointer to a WorldObject (typically a Player) to whisper
+      the message directly to. If NULL, the message is broadcast to nearby players.
+  - name: msgType
+    description: Message type indicating how the text should be displayed (e.g., CHAT_MSG_MONSTER_SAY,
+      CHAT_MSG_MONSTER_YELL).
+  - name: language
+    description: Language ID for the message. 0 typically means default language or
+      no specific language.
+  - name: range
+    description: CreatureTextRange enum value defining how far the message should
+      be broadcast (e.g., SAY_RANGE, YELL_RANGE).
+  - name: sound
+    description: Sound entry ID from the SoundEntries database table. If 0, no sound
+      is played.
+  - name: playType
+    description: Play type for the sound (e.g., PLAY_NORMAL, PLAY_GROUP).
+  - name: team
+    description: Team ID to restrict message visibility. If 0, all players receive
+      it; otherwise, only players of that team see it.
+  - name: gmOnly
+    description: Boolean flag indicating whether the message should only be sent to
+      Game Masters (GMs).
+  - name: srcPlr
+    description: Pointer to the source Player object, used in some special cases for
+      context or filtering. Can be NULL.
+  returns: Returns a uint32 value representing the number of players who received
+    the message successfully. Zero indicates no players were affected.
+  examples:
+  - title: Basic creature chat broadcast
+    code: 'Creature* creature = ...; // valid creature instance
+
+      uint32 result = sCreatureTextMgr->SendChat(creature, 1, nullptr, CHAT_MSG_MONSTER_SAY,
+      LANG_UNIVERSAL, SAY_RANGE, 0, PLAY_NORMAL, 0, false, nullptr);
+
+      // Sends text group 1 as a normal say message to all nearby players'
+    language: cpp
+  - title: Whisper specific player with sound
+    code: 'Creature* creature = ...;
+
+      Player* targetPlayer = ...; // valid player instance
+
+      uint32 result = sCreatureTextMgr->SendChat(creature, 2, targetPlayer, CHAT_MSG_MONSTER_SAY,
+      LANG_UNIVERSAL, SAY_RANGE, 12345, PLAY_NORMAL, 0, false, nullptr);
+
+      // Sends text group 2 as a whisper to a specific player with sound ID 12345'
+    language: cpp
+  notes: The method internally uses the creature_text table entries and respects the
+    range defined by CreatureTextRange. It checks for valid creature instances, handles
+    team restrictions, and ensures proper message delivery to players within the specified
+    area. The sound parameter requires a valid SoundEntries ID from the database.
+  warnings: Passing an invalid Creature pointer or NULL whisperTarget may cause undefined
+    behavior. Ensure that textGroup corresponds to existing entries in the creature_text
+    table to avoid silent failures. Be cautious with team restrictions as they might
+    not work correctly if the target player's team is not properly set.
+  related:
+  - GetCreatureText
+  - SendChatToPlayer
+  - SendChatToPlayersInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:04:53.356346'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

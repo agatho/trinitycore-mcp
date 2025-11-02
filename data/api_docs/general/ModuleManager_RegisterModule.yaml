@@ -1,0 +1,59 @@
+api:
+  class: ModuleManager
+  method: RegisterModule
+  signature: void ModuleManager::RegisterModule(const std::string & name, std::function<void
+    ()> onStartup, std::function<void (uint32)> onUpdate, std::function<void ()> onShutdown)
+documentation:
+  brief: Registers a new module with startup, update, and shutdown callbacks.
+  description: 'The RegisterModule method allows developers to register custom modules
+    into the TrinityCore module system. Each module is identified by a unique name
+    and can define three key lifecycle functions: onStartup, which executes when the
+    module initializes; onUpdate, which runs periodically during server operation
+    with a tick count parameter; and onShutdown, which executes when the module is
+    unloaded. This mechanism enables modular extension of core server functionality
+    without modifying the base code. The method does not return any value but integrates
+    the module into the system''s execution flow.'
+  parameters:
+  - name: name
+    description: A unique string identifier for the module. Must be non-empty and
+      globally unique within the server instance to avoid conflicts.
+  - name: onStartup
+    description: A std::function<void()> that will be called once during module initialization.
+      Can be used to set up resources, register hooks, or perform one-time setup tasks.
+  - name: onUpdate
+    description: A std::function<void(uint32)> that will be invoked periodically during
+      server runtime. The uint32 parameter represents the number of milliseconds since
+      last update, allowing for time-based logic.
+  - name: onShutdown
+    description: A std::function<void()> that will be executed when the module is
+      unloaded or the server shuts down. Useful for cleanup operations such as releasing
+      memory or unregistering events.
+  returns: null
+  examples:
+  - title: Basic Module Registration
+    code: "ModuleManager::Instance()->RegisterModule(\"MyCustomModule\",\n    []()\
+      \ {\n        // Startup logic\n        sLog->outString(\"MyCustomModule initialized.\"\
+      );\n    },\n    [](uint32 diff) {\n        // Update logic\n        if (diff\
+      \ > 1000)\n            sLog->outString(\"Updating...\");\n    },\n    []() {\n\
+      \        // Shutdown logic\n        sLog->outString(\"MyCustomModule shutting\
+      \ down.\");\n    });"
+    language: cpp
+  notes: This method should typically be called during server initialization or module
+    loading phase. Module registration is not thread-safe and should occur before
+    the main server loop begins. The onUpdate function may be called from different
+    threads depending on how TrinityCore handles concurrency, so any shared resources
+    accessed within it must be properly synchronized.
+  warnings: Registering a module with an already-existing name will likely overwrite
+    or cause undefined behavior. Avoid registering modules after the server has started
+    running to prevent runtime issues. Be cautious with long-running operations in
+    onUpdate functions as they can block the main thread and affect performance.
+  related:
+  - UnregisterModule
+  - GetModule
+  - LoadAllModules
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T03:16:13.208442'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: PlayerScript
+  method: OnPlayerRepop
+  signature: void PlayerScript::OnPlayerRepop(Player * player)
+documentation:
+  brief: Called when a player repops at a spirit healer or death knight summon.
+  description: The OnPlayerRepop method is a callback function in the PlayerScript
+    class that gets invoked whenever a player character respawns after dying. This
+    event occurs both when a player is resurrected by a spirit healer and when they
+    are summoned by a death knight. The method provides an opportunity for custom
+    scripts to execute logic during the repop process, such as adjusting player stats,
+    applying temporary buffs, or triggering quest events. It's important to note that
+    this function is called after the player has already been teleported to the location
+    of their spirit healer and before they are fully respawned in the game world.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the character who is repoping.
+      This parameter provides access to all player-related data and methods during
+      the repop event.
+  returns: null
+  examples:
+  - title: Basic Repop Event Handler
+    code: "class MyPlayerScript : public PlayerScript\n{\npublic:\n    void OnPlayerRepop(Player*\
+      \ player) override\n    {\n        // Apply a temporary buff when player repops\n\
+      \        player->AddAura(12345, player);\n        ChatHandler(player->GetSession()).SendSysMessage(\"\
+      You have been blessed upon respawn!\");\n    }\n};"
+    language: cpp
+  - title: Advanced Repop with Conditional Logic
+    code: "class AdvancedRepopScript : public PlayerScript\n{\npublic:\n    void OnPlayerRepop(Player*\
+      \ player) override\n    {\n        // Check if player is in a specific zone\n\
+      \        if (player->GetMapId() == 1234)\n        {\n            // Reset player's\
+      \ quest progress\n            player->ResetQuest(5678);\n            // Give\
+      \ experience bonus\n            player->ModifyMoney(10000);\n        }\n   \
+      \     else\n        {\n            // Apply standard repop effects\n       \
+      \     player->SetHealth(player->GetMaxHealth());\n            player->SetPower(POWER_MANA,\
+      \ player->GetMaxPower(POWER_MANA));\n        }\n    }\n};"
+    language: cpp
+  notes: This method is executed in the context of the game's main thread and should
+    not perform heavy computations that could block other players. The player object
+    passed to this function is fully initialized and accessible, but may not yet be
+    fully visible to other players in the world. It's recommended to avoid modifying
+    player state in a way that would cause immediate visual changes during repop,
+    as the respawn animation might interfere with such modifications.
+  warnings: Avoid performing operations that could cause the player to become stuck
+    or unable to interact with the game world after this callback completes. Do not
+    attempt to teleport or modify the player's position directly in this method unless
+    absolutely necessary, as it may conflict with the repop process. Be cautious when
+    modifying player stats or inventory items, as these changes might not persist
+    properly if the repop sequence is interrupted.
+  related:
+  - OnPlayerDeath
+  - OnPlayerEnterWorld
+  - OnPlayerLogout
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T01:14:01.840453'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

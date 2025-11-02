@@ -1,0 +1,55 @@
+api:
+  class: InstanceScript
+  method: OnPlayerLeave
+  signature: void InstanceScript::OnPlayerLeave(Player * param0)
+documentation:
+  brief: Called when a player leaves an instance, allowing for cleanup and state management.
+  description: The OnPlayerLeave method is invoked whenever a player exits an instance
+    zone, whether through death, leaving the map, or disconnecting. This virtual method
+    provides a hook for instance scripts to perform necessary cleanup operations such
+    as removing references to the player, updating instance state, or triggering related
+    events. It ensures that the instance script can properly manage its internal data
+    structures and maintain consistency when players are no longer present in the
+    instance. The method is part of the TrinityCore's instance management system and
+    is called automatically by the core during player removal from an instance.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is leaving the instance. This parameter
+      represents the specific player who triggered the event and can be used to access
+      player data, perform actions on the player, or check their state.
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "class MyInstanceScript : public InstanceScript\n{\npublic:\n    void OnPlayerLeave(Player*\
+      \ player) override\n    {\n        // Remove player from instance data\n   \
+      \     if (player)\n        {\n            // Perform cleanup operations\n  \
+      \          player->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);\n        }\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Usage with Instance State Management
+    code: "class BossInstanceScript : public InstanceScript\n{\nprivate:\n    uint32\
+      \ m_uiPlayerCount;\n\npublic:\n    void OnPlayerLeave(Player* player) override\n\
+      \    {\n        if (player)\n        {\n            --m_uiPlayerCount;\n   \
+      \         // If no players left, reset instance\n            if (m_uiPlayerCount\
+      \ == 0)\n            {\n                ResetInstance();\n            }\n  \
+      \      }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core's player removal logic and should not
+    perform heavy operations or blocking calls. It is safe to access player data,
+    but be aware that the player may already be in a disconnected state. The instance
+    script should avoid modifying the player object directly unless necessary, as
+    the player may be destroyed shortly after this call.
+  warnings: Do not assume that the player pointer will remain valid beyond the scope
+    of this method. If you need to perform delayed operations on the player, store
+    their GUID instead and retrieve them later. Avoid performing database operations
+    or complex logic within this method to prevent performance issues.
+  related:
+  - OnPlayerEnter
+  - OnInstanceDestroy
+  - OnInstanceUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:21:38.919190'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: BotDatabasePool
+  method: ExecuteSync
+  signature: int BotDatabasePool::ExecuteSync(int * stmt, uint32 timeoutMs)
+documentation:
+  brief: Executes a database statement synchronously with a specified timeout.
+  description: The ExecuteSync method performs a synchronous execution of a database
+    statement within the BotDatabasePool, allowing for controlled blocking behavior
+    during database operations. This method is designed to handle database transactions
+    in a thread-safe manner, ensuring that operations complete within the defined
+    timeout period. It's typically used in bot-related systems where database consistency
+    and timing are critical for proper functionality.
+  parameters:
+  - name: stmt
+    description: Pointer to an integer representing the prepared statement to execute.
+      This value should be initialized with a valid statement identifier before calling
+      the method.
+  - name: timeoutMs
+    description: Timeout value in milliseconds for the database operation. If the
+      operation exceeds this time, it will be terminated and return an error code.
+  returns: Returns an integer indicating the result of the execution. A return value
+    of 0 typically indicates success, while non-zero values may represent various
+    error conditions such as timeout, connection failure, or statement execution errors.
+  examples:
+  - title: Basic usage of ExecuteSync
+    code: "int statement = 12345;\nint result = botDatabasePool.ExecuteSync(&statement,\
+      \ 5000);\nif (result == 0) {\n    // Operation completed successfully\n} else\
+      \ {\n    // Handle error condition\n}"
+    language: cpp
+  - title: Using ExecuteSync with error handling
+    code: "int statement = prepareStatement(\"INSERT INTO bot_data VALUES (?, ?)\"\
+      );\nint result = botDatabasePool.ExecuteSync(&statement, 10000);\nswitch (result)\
+      \ {\n    case 0:\n        // Success\n        break;\n    case -1:\n       \
+      \ // Timeout occurred\n        break;\n    default:\n        // Other error\n\
+      \        break;\n}"
+    language: cpp
+  notes: This method blocks the calling thread until either the database operation
+    completes or the timeout is reached. It's important to choose appropriate timeout
+    values to avoid deadlocks in multi-threaded environments. The method assumes that
+    the statement parameter has been properly initialized with a valid database statement
+    identifier.
+  warnings: Using excessive timeouts can lead to performance degradation and potential
+    deadlocks. Ensure that all database statements passed to this method are properly
+    prepared and validated before execution. This method should not be called from
+    time-critical sections of code where blocking behavior is undesirable.
+  related:
+  - BotDatabasePool::ExecuteAsync
+  - BotDatabasePool::BeginTransaction
+  - BotDatabasePool::CommitTransaction
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T11:46:31.377907'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

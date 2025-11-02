@@ -1,0 +1,59 @@
+api:
+  class: DungeonScript
+  method: FindCreatureNearby
+  signature: int * DungeonScript::FindCreatureNearby(int * player, uint32 entry, float
+    range) const
+documentation:
+  brief: Finds and returns the GUID of the nearest creature matching the specified
+    entry within the given range.
+  description: The FindCreatureNearby method searches for a creature with the specified
+    entry ID within a defined range from the player. It returns a pointer to an integer
+    representing the creature's GUID if found, or nullptr if no matching creature
+    exists within the specified distance. This method is commonly used in dungeon
+    scripts to locate specific NPCs or enemies for scripted events, combat triggers,
+    or quest progression. The search considers only creatures that are currently spawned
+    and visible to the player. The range parameter defines the maximum distance (in
+    yards) from the player's position to search for the creature.
+  parameters:
+  - name: player
+    description: Pointer to the player object to use as reference point for the search.
+      Must be a valid player instance.
+  - name: entry
+    description: The creature entry ID to search for. This corresponds to the 'entry'
+      field in the creature_template table.
+  - name: range
+    description: Maximum distance (in yards) from the player to search for the creature.
+      Must be a positive value.
+  returns: Pointer to an integer representing the GUID of the found creature, or nullptr
+    if no matching creature is within range.
+  examples:
+  - title: Basic usage to find a specific NPC
+    code: "int* creatureGuid = dungeonScript->FindCreatureNearby(player, 12345, 10.0f);\n\
+      if (creatureGuid != nullptr) {\n    // Creature found, use the GUID\n    uint64\
+      \ guid = *creatureGuid;\n    // Perform actions with the creature\n}"
+    language: cpp
+  - title: Using FindCreatureNearby in a combat trigger
+    code: "int* enemyGuid = dungeonScript->FindCreatureNearby(player, 98765, 25.0f);\n\
+      if (enemyGuid != nullptr && *enemyGuid > 0) {\n    // Trigger combat with the\
+      \ found creature\n    Creature* enemy = player->GetMap()->GetCreature(*enemyGuid);\n\
+      \    if (enemy) {\n        enemy->AI()->AttackStart(player);\n    }\n}"
+    language: cpp
+  notes: The method performs a spatial search using the player's current position
+    and checks against all active creatures in the same map. It is optimized for dungeon
+    environments where creature density is typically low. The returned GUID pointer
+    should be checked for null before dereferencing to avoid crashes.
+  warnings: Ensure that the player parameter is valid and not null, as passing an
+    invalid pointer will lead to undefined behavior. Also, be aware that if multiple
+    creatures with the same entry exist within range, only one (typically the first
+    found) will be returned. Consider using FindCreatureNearby in combination with
+    other methods like GetCreature() for more precise targeting.
+  related:
+  - FindGameObjectNearby
+  - GetCreature
+  - GetPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T08:24:57.093426'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

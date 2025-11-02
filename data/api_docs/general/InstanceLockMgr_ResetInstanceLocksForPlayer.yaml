@@ -1,0 +1,79 @@
+api:
+  class: InstanceLockMgr
+  method: ResetInstanceLocksForPlayer
+  signature: void InstanceLockMgr::ResetInstanceLocksForPlayer(const int & playerGuid,
+    int mapId, int difficulty, int * locksReset, int * locksFailedToReset)
+documentation:
+  brief: Resets instance locks for a specified player, optionally filtering by map
+    ID and difficulty.
+  description: The ResetInstanceLocksForPlayer method clears all or specific instance
+    locks associated with a given player in the TrinityCore instance lock management
+    system. This function is typically used when a player's lock status needs to be
+    reset, such as after completing a raid or dungeon, or when administrative actions
+    are required. The method accepts a player GUID and optional filters for map ID
+    and difficulty to determine which locks should be reset. It also provides output
+    parameters that indicate how many locks were successfully reset and how many failed
+    during the process. This functionality is crucial for maintaining proper instance
+    lock state in World of Warcraft-style content, ensuring players can re-enter instances
+    correctly after cooldowns or resets.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player whose instance locks are
+      to be reset. This is typically a 32-bit integer representing the player's database
+      entry.
+  - name: mapId
+    description: Optional filter for the map ID. If set to -1, all maps will be considered.
+      Otherwise, only locks for this specific map ID will be reset.
+  - name: difficulty
+    description: Optional filter for the difficulty level. If set to -1, all difficulties
+      will be considered. Otherwise, only locks matching this difficulty level will
+      be reset.
+  - name: locksReset
+    description: Pointer to an integer that will receive the count of successfully
+      reset instance locks. This value is updated upon completion of the operation.
+  - name: locksFailedToReset
+    description: Pointer to an integer that will receive the count of instance locks
+      that failed to reset. This value is updated upon completion of the operation.
+  returns: null
+  examples:
+  - title: Reset all instance locks for a player
+    code: 'int locksReset = 0;
+
+      int locksFailedToReset = 0;
+
+      InstanceLockMgr::instance()->ResetInstanceLocksForPlayer(12345, -1, -1, &locksReset,
+      &locksFailedToReset);
+
+      printf("Successfully reset %d locks, failed to reset %d locks\n", locksReset,
+      locksFailedToReset);'
+    language: cpp
+  - title: Reset instance locks for a specific map and difficulty
+    code: 'int locksReset = 0;
+
+      int locksFailedToReset = 0;
+
+      InstanceLockMgr::instance()->ResetInstanceLocksForPlayer(12345, 100, 1, &locksReset,
+      &locksFailedToReset);
+
+      printf("Successfully reset %d locks for map 100, difficulty 1, failed to reset
+      %d locks\n", locksReset, locksFailedToReset);'
+    language: cpp
+  notes: This method is part of the instance lock management system and interacts
+    directly with the database to update player lock states. It should be used carefully
+    in performance-critical code paths as it may involve multiple database operations.
+    The function assumes that the provided player GUID exists in the database, otherwise
+    behavior is undefined.
+  warnings: Passing invalid player GUIDs or negative values for mapId/difficulty (other
+    than -1) can lead to unexpected behavior or errors. Ensure proper validation before
+    calling this method. Also note that resetting locks does not automatically notify
+    the client; additional logic may be required to synchronize UI state.
+  related:
+  - GetInstanceLockForPlayer
+  - SetInstanceLockForPlayer
+  - CheckInstanceLockStatus
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T05:36:21.100434'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

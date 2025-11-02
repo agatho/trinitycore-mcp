@@ -1,0 +1,67 @@
+api:
+  class: ReputationMgr
+  method: ModifyReputation
+  signature: bool ReputationMgr::ModifyReputation(const FactionEntry * factionEntry,
+    int32 standing, bool spillOverOnly, bool noSpillover)
+documentation:
+  brief: Modifies the reputation standing with a specified faction, optionally handling
+    spillover effects.
+  description: The ModifyReputation method adjusts a player's reputation level with
+    a given faction. It accepts a FactionEntry pointer to identify the faction, an
+    integer representing the change in standing (positive or negative), and two boolean
+    flags that control how spillover is handled. The method returns true if the reputation
+    was successfully modified, false otherwise. This function is typically used during
+    quest completions, NPC interactions, or other game events where a player's relationship
+    with a faction changes. Reputation changes can trigger various in-game effects
+    such as access to faction-specific items, quests, or area restrictions.
+  parameters:
+  - name: factionEntry
+    description: Pointer to the FactionEntry structure that defines the faction whose
+      reputation is being modified. Must not be null.
+  - name: standing
+    description: Integer value representing the change in reputation standing. Positive
+      values increase reputation, negative values decrease it. The value is typically
+      in increments of 100 or 1000 depending on faction thresholds.
+  - name: spillOverOnly
+    description: Boolean flag that determines whether to only process spillover effects
+      from this reputation change. If true, the method will not directly modify the
+      faction's standing but may still apply spillover to other factions.
+  - name: noSpillover
+    description: Boolean flag that disables all spillover behavior for this modification.
+      When true, no spillover effects are applied regardless of faction settings or
+      other conditions.
+  returns: Returns true if the reputation was successfully modified and any associated
+    effects were processed. Returns false if the modification failed due to invalid
+    parameters or other internal errors.
+  examples:
+  - title: Basic Reputation Increase
+    code: "FactionEntry* entry = sFactionStore.LookupEntry(1118); // Argent Dawn\n\
+      if (entry)\n{\n    reputationMgr->ModifyReputation(entry, 1000, false, false);\n\
+      }"
+    language: cpp
+  - title: Suppressing Spillover Effects
+    code: "FactionEntry* entry = sFactionStore.LookupEntry(942); // Stormwind\nif\
+      \ (entry)\n{\n    reputationMgr->ModifyReputation(entry, -500, false, true);\n\
+      }"
+    language: cpp
+  notes: This method interacts closely with the player's ReputationMgr instance and
+    relies on faction definitions stored in the game database. The reputation change
+    may trigger updates to the client UI and potentially unlock new content or quests
+    depending on the faction thresholds. The method handles edge cases like reputation
+    caps and ensures that changes are properly synchronized with the player's saved
+    data.
+  warnings: Passing a null factionEntry pointer will likely cause undefined behavior
+    or crashes. Always validate the faction entry before calling this method. Be cautious
+    when modifying large reputation changes as they may trigger cascading effects
+    through spillover systems, especially with factions that have complex relationships.
+  related:
+  - GetReputation
+  - SetReputation
+  - AddReputation
+  - GetFactionStanding
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-01T23:43:41.870677'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

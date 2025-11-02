@@ -1,0 +1,73 @@
+api:
+  class: IVMapManager
+  method: loadMap
+  signature: LoadResult IVMapManager::loadMap(const char * pBasePath, unsigned int
+    pMapId, int x, int y)
+documentation:
+  brief: Loads a specific map tile for the given map ID and coordinates
+  description: The loadMap method is responsible for loading a specific map tile from
+    the VMap (Virtual Map) system in TrinityCore. It takes a base path, map ID, and
+    grid coordinates (x, y) to determine which map tile should be loaded into memory.
+    This method is typically used during player movement or zone loading to ensure
+    that the appropriate terrain and object data for a specific location is available.
+    The method returns a LoadResult enum indicating whether the operation succeeded,
+    failed, or if the tile was already loaded. It's an essential part of the dynamic
+    map loading system that allows for efficient memory usage by only loading necessary
+    map data.
+  parameters:
+  - name: pBasePath
+    description: The base file path where VMap data files are stored. This typically
+      points to the directory containing .vmap files used for collision detection
+      and terrain data.
+  - name: pMapId
+    description: The unique identifier of the map to load. This corresponds to the
+      Map ID used internally by TrinityCore to identify different zones or instances.
+  - name: x
+    description: The X coordinate of the grid tile to load. Grid coordinates are typically
+      in the range 0-63 for standard map tiles.
+  - name: y
+    description: The Y coordinate of the grid tile to load. Grid coordinates are typically
+      in the range 0-63 for standard map tiles.
+  returns: Returns a LoadResult enum value indicating the outcome of the loading operation.
+    Possible values include SUCCESS, FAILED, ALREADY_LOADED, or other status codes
+    depending on the implementation. The result helps determine if the map tile was
+    successfully loaded, if it was already present in memory, or if there was an error
+    during the process.
+  examples:
+  - title: Basic Map Tile Loading
+    code: "IVMapManager* vmapManager = sVMapMgr;\nLoadResult result = vmapManager->loadMap(\"\
+      ./vmaps\", 0, 10, 15);\nif (result == LOAD_RESULT_SUCCESS) {\n    // Map tile\
+      \ loaded successfully\n    printf(\"Map tile loaded successfully\\n\");\n} else\
+      \ {\n    // Handle loading failure\n    printf(\"Failed to load map tile\\n\"\
+      );\n}"
+    language: cpp
+  - title: Loading Multiple Tiles in a Loop
+    code: "IVMapManager* vmapManager = sVMapMgr;\nfor (int x = 0; x < 64; ++x) {\n\
+      \    for (int y = 0; y < 64; ++y) {\n        LoadResult result = vmapManager->loadMap(\"\
+      ./vmaps\", 0, x, y);\n        if (result == LOAD_RESULT_SUCCESS || result ==\
+      \ LOAD_RESULT_ALREADY_LOADED) {\n            // Continue with successful or\
+      \ already loaded tiles\n            continue;\n        } else {\n          \
+      \  // Log error for failed tile loading\n            printf(\"Failed to load\
+      \ tile at (%d,%d)\\n\", x, y);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the core during player movement
+    or zone transitions. It's important to note that loading map tiles can be a performance-intensive
+    operation, especially when loading large numbers of tiles simultaneously. The
+    method may block until the tile data is fully loaded from disk, so it should be
+    used judiciously in performance-critical sections of code.
+  warnings: Calling this method with invalid coordinates or non-existent map IDs can
+    result in errors or undefined behavior. Always validate inputs before calling
+    this method. Additionally, because this method may block during file I/O operations,
+    it should not be called from time-sensitive threads such as those handling network
+    requests or game loop updates.
+  related:
+  - loadMap
+  - unloadMap
+  - getVMap
+  - isTileLoaded
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T05:43:55.686954'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,64 @@
+api:
+  class: QuestScript
+  method: OnQuestStatusChange
+  signature: void QuestScript::OnQuestStatusChange(Player * player, const Quest *
+    quest, QuestStatus oldStatus, QuestStatus newStatus)
+documentation:
+  brief: Called when a player's quest status changes during gameplay
+  description: The OnQuestStatusChange method is invoked whenever a player's quest
+    status transitions from one state to another in the game. This event occurs during
+    normal quest progression, such as when a player accepts a quest, completes it,
+    or fails it. The method provides access to both the old and new quest status values,
+    allowing scripts to perform custom logic based on the transition. It is part of
+    the QuestScript class and serves as a hook for custom quest behavior implementation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose quest status is changing. This
+      represents the player character involved in the quest progression.
+  - name: quest
+    description: Pointer to the Quest object that is being modified. Contains information
+      about the specific quest being progressed.
+  - name: oldStatus
+    description: 'The previous QuestStatus of the player for this quest. Valid values
+      are typically: QUEST_STATUS_NONE, QUEST_STATUS_COMPLETE, QUEST_STATUS_INCOMPLETE,
+      or QUEST_STATUS_FAILED.'
+  - name: newStatus
+    description: The new QuestStatus of the player for this quest after the change.
+      Can be any valid QuestStatus value indicating the updated state.
+  returns: null
+  examples:
+  - title: Basic Quest Status Change Handler
+    code: "class MyQuestScript : public QuestScript\n{\npublic:\n    void OnQuestStatusChange(Player*\
+      \ player, const Quest* quest, QuestStatus oldStatus, QuestStatus newStatus)\
+      \ override\n    {\n        if (newStatus == QUEST_STATUS_COMPLETE)\n       \
+      \ {\n            // Award rewards when quest is completed\n            player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Quest Status Change with Logging
+    code: "class LoggingQuestScript : public QuestScript\n{\npublic:\n    void OnQuestStatusChange(Player*\
+      \ player, const Quest* quest, QuestStatus oldStatus, QuestStatus newStatus)\
+      \ override\n    {\n        sLog->outString(\"Player %s changed quest %u status\
+      \ from %u to %u\", \n                       player->GetName().c_str(), quest->GetQuestId(),\
+      \ oldStatus, newStatus);\n        \n        if (newStatus == QUEST_STATUS_INCOMPLETE\
+      \ && oldStatus == QUEST_STATUS_NONE)\n        {\n            // Quest accepted\n\
+      \            player->SendNotification(\"You have accepted the quest: %s\", quest->GetTitle().c_str());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core game loop and should avoid heavy
+    computations or blocking operations. The QuestStatus enum typically includes values
+    like QUEST_STATUS_NONE, QUEST_STATUS_COMPLETE, QUEST_STATUS_INCOMPLETE, and QUEST_STATUS_FAILED.
+    Be aware that multiple status changes can occur rapidly during quest progression.
+  warnings: Do not modify player state directly inside this method without proper
+    safeguards, as it may cause recursion or inconsistent game state. Avoid calling
+    methods that might trigger additional quest status changes from within this handler
+    to prevent potential stack overflow issues.
+  related:
+  - OnQuestAccept
+  - OnQuestComplete
+  - OnQuestFailed
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-01T23:52:36.028056'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

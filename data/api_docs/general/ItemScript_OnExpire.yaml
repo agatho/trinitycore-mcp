@@ -1,0 +1,61 @@
+api:
+  class: ItemScript
+  method: OnExpire
+  signature: bool ItemScript::OnExpire(Player * player, const ItemTemplate * proto)
+documentation:
+  brief: Handles the event when an item expires in a player's inventory
+  description: The OnExpire method is invoked when an item with a time-based expiration
+    (such as temporary enchantments, consumable items with duration, or quest items)
+    reaches its end of life. This method allows custom scripts to define behavior
+    when such items are removed from the player's inventory due to expiration. The
+    method receives the player who owns the item and the item template that expired,
+    providing context for implementing custom logic. It returns a boolean value indicating
+    whether the default expiration handling should proceed or be suppressed.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory contains the expired
+      item. This parameter is never null and represents the owner of the item that
+      has expired.
+  - name: proto
+    description: Pointer to the ItemTemplate structure describing the type of item
+      that expired. This provides access to item properties such as name, class, subclass,
+      and duration settings.
+  returns: Returns true if the default expiration handling should continue (e.g.,
+    item is removed from inventory), or false if custom handling has already processed
+    the expiration and the default behavior should be skipped.
+  examples:
+  - title: Basic Item Expiration Handler
+    code: "class MyItemScript : public ItemScript\n{\npublic:\n    bool OnExpire(Player*\
+      \ player, const ItemTemplate* proto) override\n    {\n        // Prevent default\
+      \ behavior for quest items\n        if (proto->Class == ITEM_CLASS_QUEST)\n\
+      \            return false;\n        \n        // Allow default handling for\
+      \ other items\n        return true;\n    }\n};"
+    language: cpp
+  - title: Custom Expiration Logic with Notification
+    code: "class CustomItemScript : public ItemScript\n{\npublic:\n    bool OnExpire(Player*\
+      \ player, const ItemTemplate* proto) override\n    {\n        // Send a custom\
+      \ message to the player\n        player->GetSession()->SendNotification(\"Your\
+      \ %s has expired!\", proto->Name.c_str());\n        \n        // Log expiration\
+      \ event\n        sLog->outString(\"Item %u expired for player %s\", proto->ItemId,\
+      \ player->GetName().c_str());\n        \n        // Allow default handling to\
+      \ remove item\n        return true;\n    }\n};"
+    language: cpp
+  notes: This method is part of the ItemScript system in TrinityCore which allows
+    developers to hook into various item-related events. The OnExpire event occurs
+    after an item's duration has passed but before it is removed from inventory. Be
+    cautious when returning false, as this may leave items in the player's inventory
+    indefinitely if not handled properly.
+  warnings: Returning false from OnExpire will prevent the default expiration handling,
+    which might lead to items remaining in the player's inventory beyond their intended
+    duration. Ensure that custom logic properly manages item cleanup or risk leaving
+    stale items in the game world.
+  related:
+  - ItemScript::OnRemove
+  - ItemScript::OnUse
+  - ItemScript::OnCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T04:37:28.567343'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

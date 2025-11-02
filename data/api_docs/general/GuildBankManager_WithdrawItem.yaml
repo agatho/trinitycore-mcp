@@ -1,0 +1,62 @@
+api:
+  class: GuildBankManager
+  method: WithdrawItem
+  signature: bool GuildBankManager::WithdrawItem(int * player, uint32 tabId, uint32
+    slotId, uint32 stackCount)
+documentation:
+  brief: Attempts to withdraw an item from the guild bank into a player's inventory.
+  description: The WithdrawItem method facilitates the transfer of items from a specified
+    guild bank tab and slot into the player's personal inventory. It handles stack
+    management, checks for sufficient space in the player's inventory, and ensures
+    proper item validation before performing the transaction. This method is typically
+    invoked when a guild member interacts with the guild bank interface to retrieve
+    items they have previously deposited.
+  parameters:
+  - name: player
+    description: Pointer to the player object attempting to withdraw the item. Must
+      be a valid pointer to a Player instance.
+  - name: tabId
+    description: Identifier of the guild bank tab from which the item is being withdrawn.
+      Valid range depends on configured guild bank tabs, typically 0-7 for standard
+      configurations.
+  - name: slotId
+    description: Index of the specific slot within the tab from which to withdraw
+      the item. Slot indices are usually 0-63 for each tab.
+  - name: stackCount
+    description: Number of items to withdraw from the stack. Must be a positive integer
+      not exceeding the available quantity in the guild bank slot.
+  returns: Returns true if the item withdrawal was successful, false otherwise. Failure
+    may occur due to invalid parameters, insufficient inventory space, or lack of
+    access permissions.
+  examples:
+  - title: Basic Withdrawal
+    code: "Player* player = ...; // Valid player instance\nuint32 tabId = 0;\nuint32\
+      \ slotId = 5;\nuint32 stackCount = 1;\nbool success = sGuildBankMgr->WithdrawItem(&player,\
+      \ tabId, slotId, stackCount);\nif (success) {\n    // Item successfully withdrawn\n\
+      } else {\n    // Withdrawal failed\n}"
+    language: cpp
+  - title: Partial Stack Withdrawal
+    code: "Player* player = ...;\nuint32 tabId = 1;\nuint32 slotId = 10;\nuint32 stackCount\
+      \ = 5;\nbool success = sGuildBankMgr->WithdrawItem(&player, tabId, slotId, stackCount);\n\
+      if (success) {\n    // Partial stack of 5 items withdrawn\n} else {\n    //\
+      \ Handle error case\n}"
+    language: cpp
+  notes: This method performs internal validation including checking if the player
+    has permission to access the guild bank tab, verifying that the slot contains
+    a valid item, and ensuring there's enough space in the player's inventory. It
+    also updates the guild bank transaction log and sends appropriate UI feedback
+    messages to the player.
+  warnings: The 'player' parameter must be a valid non-null pointer; passing null
+    will likely cause a crash or undefined behavior. Additionally, the method assumes
+    that all parameters are within acceptable ranges and does not perform extensive
+    bounds checking beyond basic validation.
+  related:
+  - DepositItem
+  - MoveItem
+  - UpdateTabPermissions
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T06:08:44.011039'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

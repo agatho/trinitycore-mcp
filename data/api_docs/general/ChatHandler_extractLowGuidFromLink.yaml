@@ -1,0 +1,65 @@
+api:
+  class: ChatHandler
+  method: extractLowGuidFromLink
+  signature: int ChatHandler::extractLowGuidFromLink(char * text, int & guidHigh)
+documentation:
+  brief: Extracts the low GUID from a game object link string and returns its type.
+  description: The extractLowGuidFromLink method parses a game object link string
+    (such as those used in chat commands or database entries) to extract the low GUID
+    portion and determine the type of the object it refers to. This function is commonly
+    used in TrinityCore's ChatHandler class for processing user input related to in-game
+    entities like players, creatures, game objects, or items. The method modifies
+    the guidHigh parameter to indicate the high GUID portion of the full GUID, which
+    is essential for uniquely identifying objects within the TrinityCore world. It
+    returns an integer representing the type of the object (e.g., player, creature,
+    gameobject, item).
+  parameters:
+  - name: text
+    description: A null-terminated character array containing a game object link string
+      in the format |H[type]:[lowGuid]:[highGuid]|h[name]|h. This is typically obtained
+      from user input or database fields.
+  - name: guidHigh
+    description: Reference to an integer that will be updated with the high GUID portion
+      of the full GUID extracted from the link string. This value is used in combination
+      with the returned low GUID to form a complete 64-bit GUID.
+  returns: An integer representing the type of the object referenced by the link.
+    Common return values include 0 for players, 1 for creatures, 2 for game objects,
+    and 3 for items. Returns -1 if parsing fails or the link is invalid.
+  examples:
+  - title: Basic usage to extract GUID from a creature link
+    code: 'char* creatureLink = "|Hcreature:12345:0|h[Some Creature]|h";
+
+      int highGuid = 0;
+
+      int type = handler->extractLowGuidFromLink(creatureLink, highGuid);
+
+      // type will be 1 (creature), highGuid will be 0'
+    language: cpp
+  - title: Using in a command handler to process user input
+    code: "if (args.length() < 1)\n    return false;\n\nchar* link = (char*)args.c_str();\n\
+      int highGuid = 0;\nint type = handler->extractLowGuidFromLink(link, highGuid);\n\
+      \nif (type == -1) {\n    handler->PSendSysMessage(\"Invalid link format.\");\n\
+      \    return false;\n}\n\nuint32 lowGuid = 0; // This would normally be extracted\
+      \ from the link\nhandler->PSendSysMessage(\"Object type: %d, Low GUID: %u, High\
+      \ GUID: %d\", type, lowGuid, highGuid);"
+    language: cpp
+  notes: This method assumes that the input text is a properly formatted game object
+    link string. It does not perform validation on the actual existence of the referenced
+    object in the world. The method is part of TrinityCore's ChatHandler system and
+    is typically used within command handlers to parse user-provided links to in-game
+    entities.
+  warnings: Ensure that the input text parameter points to a valid null-terminated
+    string; otherwise, undefined behavior may occur. The guidHigh parameter should
+    be initialized before calling this method as its value will be overwritten. Do
+    not use this function with malformed or untrusted link strings without proper
+    validation.
+  related:
+  - extractGuidFromLink
+  - extractLowGuid
+  - getSelectedObject
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T09:59:26.689410'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

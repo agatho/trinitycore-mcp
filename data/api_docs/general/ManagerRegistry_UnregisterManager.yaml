@@ -1,0 +1,58 @@
+api:
+  class: ManagerRegistry
+  method: UnregisterManager
+  signature: bool ManagerRegistry::UnregisterManager(const std::string & managerId)
+documentation:
+  brief: Removes a registered manager from the registry by its unique identifier.
+  description: The UnregisterManager method removes a previously registered manager
+    from the ManagerRegistry. It takes a string identifier that uniquely represents
+    the manager to be removed. The method returns true if the manager was successfully
+    found and removed, or false if no manager with the specified ID exists in the
+    registry. This functionality is essential for managing dynamic systems within
+    TrinityCore where managers may need to be unloaded or replaced during runtime.
+    The operation ensures that resources associated with the manager are properly
+    released and that subsequent attempts to access the manager using its ID will
+    fail.
+  parameters:
+  - name: managerId
+    description: A unique string identifier representing the manager to be unregistered.
+      This should match the identifier used when registering the manager via RegisterManager.
+  returns: Returns true if a manager with the specified ID was successfully found
+    and removed from the registry. Returns false if no manager with the given ID exists
+    in the registry, indicating that either the manager was never registered or has
+    already been unregistered.
+  examples:
+  - title: Basic Unregistration
+    code: "ManagerRegistry& registry = ManagerRegistry::Instance();\nbool success\
+      \ = registry.UnregisterManager(\"PlayerManager\");\nif (success) {\n    std::cout\
+      \ << \"Player manager successfully unregistered.\" << std::endl;\n} else {\n\
+      \    std::cout << \"Player manager not found in registry.\" << std::endl;\n}"
+    language: cpp
+  - title: Safe Unregistration with Error Handling
+    code: "ManagerRegistry& registry = ManagerRegistry::Instance();\nstd::string managerId\
+      \ = \"CreatureAIManager\";\n\n// Attempt to unregister the manager\nif (registry.UnregisterManager(managerId))\
+      \ {\n    // Manager was successfully removed\n    LOG_INFO(\"server\", \"Successfully\
+      \ unregistered manager: {}\", managerId);\n} else {\n    // Manager was not\
+      \ found in registry\n    LOG_WARNING(\"server\", \"Attempted to unregister non-existent\
+      \ manager: {}\", managerId);\n}"
+    language: cpp
+  notes: This method assumes thread safety is handled by the caller or the underlying
+    registry implementation. The manager ID must exactly match the one used during
+    registration, including case sensitivity. If a manager holds references to other
+    objects or resources, those should be properly cleaned up before calling this
+    method.
+  warnings: Calling UnregisterManager with an invalid or non-existent managerId will
+    return false but will not cause any errors. Ensure that all references to the
+    manager are removed before unregistering it to prevent dangling pointers or access
+    violations. This method should not be called concurrently with RegisterManager
+    for the same manager ID without proper synchronization.
+  related:
+  - RegisterManager
+  - GetManager
+  - HasManager
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T03:27:29.031122'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

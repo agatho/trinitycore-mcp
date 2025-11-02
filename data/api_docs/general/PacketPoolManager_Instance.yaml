@@ -1,0 +1,53 @@
+api:
+  class: PacketPoolManager
+  method: Instance
+  signature: PacketPoolManager * PacketPoolManager::Instance()
+documentation:
+  brief: Returns the singleton instance of the PacketPoolManager class
+  description: The Instance method implements the singleton pattern for the PacketPoolManager
+    class, ensuring that only one instance of the manager exists throughout the application
+    lifecycle. This method is typically used to access the global packet pool manager
+    responsible for handling network packet allocation and deallocation in TrinityCore's
+    networking subsystem. The returned instance manages memory pools for game packets,
+    optimizing performance by reusing allocated memory blocks instead of constantly
+    allocating and deallocating memory. This approach reduces garbage collection overhead
+    and improves overall server performance, especially during high-traffic scenarios
+    when many packets are being processed simultaneously.
+  parameters: []
+  returns: A pointer to the single PacketPoolManager instance. The method never returns
+    NULL as it's implemented as a singleton with guaranteed instantiation.
+  examples:
+  - title: Accessing the packet pool manager
+    code: 'PacketPoolManager* poolManager = PacketPoolManager::Instance();
+
+      WorldPacket* packet = poolManager->GetPacket();
+
+      // Use the packet for network communication
+
+      poolManager->ReturnPacket(packet);'
+    language: cpp
+  - title: Using instance in a network handler
+    code: "void HandlePlayerLogin(Player* player)\n{\n    PacketPoolManager* pool\
+      \ = PacketPoolManager::Instance();\n    WorldPacket* loginPacket = pool->GetPacket();\n\
+      \    loginPacket->Initialize(SMSG_LOGIN_VERIFY_WORLD, 4);\n    loginPacket->PutUInt32(0x00000001);\
+      \ // Map ID\n    player->SendDirectMessage(loginPacket);\n    pool->ReturnPacket(loginPacket);\n\
+      }"
+    language: cpp
+  notes: This method is thread-safe as the singleton instance is created during application
+    initialization. The PacketPoolManager typically manages pre-allocated memory pools
+    for different packet sizes to optimize allocation performance. Developers should
+    not manually delete or destroy the returned instance as it's managed by the singleton
+    pattern.
+  warnings: While this is a singleton, developers should be cautious about tight coupling
+    to the global manager. In unit testing scenarios, consider mocking or dependency
+    injection patterns rather than relying directly on the singleton instance.
+  related:
+  - GetPacket
+  - ReturnPacket
+  - InitializePools
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:08:18.765762'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

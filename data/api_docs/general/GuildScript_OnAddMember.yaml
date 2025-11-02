@@ -1,0 +1,56 @@
+api:
+  class: GuildScript
+  method: OnAddMember
+  signature: void GuildScript::OnAddMember(Guild * guild, Player * player, uint8 plRank)
+documentation:
+  brief: Called when a player is added to a guild
+  description: This method is invoked by the TrinityCore server whenever a player
+    joins a guild. It serves as a hook for custom scripts to execute logic when a
+    new member is added to a guild. The method provides access to both the guild object
+    and the player who was added, along with the rank of the new member. This allows
+    developers to implement custom behaviors such as sending welcome messages, granting
+    in-game rewards, or modifying player permissions upon guild membership.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object that the player is being added to. This
+      represents the guild instance in which the member is joining.
+  - name: player
+    description: Pointer to the Player object representing the player who has been
+      added to the guild.
+  - name: plRank
+    description: The rank level of the new guild member, represented as a uint8 value.
+      This typically corresponds to predefined ranks like Guild::GUILD_RANK_OFFICER
+      or Guild::GUILD_RANK_MEMBER.
+  returns: null
+  examples:
+  - title: Basic Guild Member Addition Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnAddMember(Guild*\
+      \ guild, Player* player, uint8 plRank) override\n    {\n        // Log the event\n\
+      \        sLog->outString(\"Player %s has joined guild %s with rank %u\", \n\
+      \                        player->GetName().c_str(), \n                     \
+      \   guild->GetName().c_str(), \n                        plRank);\n        \n\
+      \        // Example: Grant a special item to new members\n        if (plRank\
+      \ == GUILD_RANK_MEMBER)\n        {\n            Item* item = player->StoreNewItemInInventorySlot(0,\
+      \ 12345, 1); // Example item ID\n            if (item)\n                player->SendItemPushResult(item,\
+      \ false, true, false, true);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the GuildScript system which allows developers to
+    extend or override default guild behavior. It's executed in the context of the
+    game world thread and should avoid heavy computations or blocking operations.
+    The player object passed may not yet be fully initialized with all data from the
+    database at this point.
+  warnings: Avoid modifying the guild or player objects in ways that could cause race
+    conditions or inconsistencies. Be cautious when performing database writes or
+    complex logic inside this callback as it can impact performance and stability
+    of the server.
+  related:
+  - OnRemoveMember
+  - OnDisband
+  - OnMemberWitdrawMoney
+  - OnMemberDepositMoney
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:57:30.587170'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: ObjectMgr
+  method: NewOrExistCreatureData
+  signature: int & ObjectMgr::NewOrExistCreatureData(int spawnId)
+documentation:
+  brief: Retrieves or creates creature data for a given spawn ID, returning a reference
+    to its unique identifier.
+  description: The NewOrExistCreatureData method in the ObjectMgr class is responsible
+    for managing creature data within the TrinityCore world. It takes a spawn ID as
+    input and either retrieves existing creature data associated with that ID or creates
+    new creature data if it doesn't already exist. This method ensures that each spawn
+    ID maps to a unique creature instance, which is essential for maintaining proper
+    creature spawning and tracking in the game world. The returned reference allows
+    direct manipulation of the creature's unique identifier (GUID), enabling efficient
+    access and modification of creature state during runtime. This functionality is
+    crucial for dynamic creature spawning systems, quest-related creature management,
+    and ensuring consistency across different game mechanics that rely on creature
+    GUIDs.
+  parameters: []
+  returns: Returns a reference to an integer representing the unique identifier (GUID)
+    of the creature data associated with the given spawn ID. If no existing creature
+    data is found for the spawn ID, a new entry is created and its GUID is returned.
+    The reference allows direct modification of the stored GUID value.
+  examples:
+  - title: Basic Usage
+    code: 'int& creatureGuid = sObjectMgr->NewOrExistCreatureData(12345);
+
+      // Use creatureGuid for further operations
+
+      creatureGuid = 98765; // Modify the GUID directly'
+    language: cpp
+  - title: Integration with Creature Spawning
+    code: "uint32 spawnId = 54321;\nint& guidRef = sObjectMgr->NewOrExistCreatureData(spawnId);\n\
+      if (guidRef == 0)\n{\n    // First time this spawn ID is used, create new creature\n\
+      \    guidRef = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);\n}\n// Now guidRef\
+      \ contains a valid creature GUID for the spawn ID"
+    language: cpp
+  notes: This method operates within the ObjectMgr's internal data structures and
+    should be used carefully to avoid conflicts with existing creature data. The returned
+    reference points directly into the manager's internal storage, so modifications
+    affect the stored value immediately. Consider thread safety implications when
+    using this method in multi-threaded environments where multiple systems might
+    access or modify creature data concurrently.
+  warnings: The method modifies internal state and returns a direct reference to an
+    integer stored within ObjectMgr. Improper use of the returned reference can lead
+    to unexpected behavior or data corruption. Avoid storing references to the returned
+    value across function calls without proper synchronization, as the underlying
+    data structure may change during runtime operations.
+  related:
+  - GetCreatureData
+  - CreateCreatureData
+  - GenerateLowGuid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T02:41:01.152049'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

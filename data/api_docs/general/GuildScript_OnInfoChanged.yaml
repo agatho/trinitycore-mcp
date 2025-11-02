@@ -1,0 +1,63 @@
+api:
+  class: GuildScript
+  method: OnInfoChanged
+  signature: void GuildScript::OnInfoChanged(Guild * guild, const std::string & newInfo)
+documentation:
+  brief: Invoked when a guild's information text is modified, allowing scripts to
+    react to changes in guild details.
+  description: The OnInfoChanged method is a callback function that gets triggered
+    whenever the information text of a guild is updated. This event occurs when a
+    guild leader or officer modifies the guild's 'info' field through in-game commands
+    or UI elements. The method provides access to both the modified guild object and
+    the new information string, enabling custom logic such as logging changes, sending
+    notifications, or triggering other game events based on the updated guild data.
+    This callback is part of the GuildScript system which allows developers to extend
+    or modify guild behavior through scripting.
+  parameters:
+  - name: guild
+    description: Pointer to the Guild object whose information has been changed. This
+      parameter provides access to all guild properties and methods for further processing.
+  - name: newInfo
+    description: The new information text that was set for the guild. This string
+      contains the updated value of the guild's info field as provided by the user.
+  returns: null
+  examples:
+  - title: Basic Guild Info Change Handler
+    code: "class MyGuildScript : public GuildScript\n{\npublic:\n    void OnInfoChanged(Guild*\
+      \ guild, const std::string& newInfo) override\n    {\n        // Log the change\
+      \ to the server console\n        sLog->outString(\"Guild %s info changed to:\
+      \ %s\", guild->GetName().c_str(), newInfo.c_str());\n        \n        // Send\
+      \ a message to all guild members\n        guild->BroadcastToGuild(sWorld, \"\
+      Guild info has been updated.\");\n    }\n};"
+    language: cpp
+  - title: Advanced Info Change with Validation
+    code: "class ValidatingGuildScript : public GuildScript\n{\npublic:\n    void\
+      \ OnInfoChanged(Guild* guild, const std::string& newInfo) override\n    {\n\
+      \        // Check if the new info contains prohibited content\n        if (newInfo.find(\"\
+      badword\") != std::string::npos)\n        {\n            // Revert to previous\
+      \ info or notify admin\n            sLog->outString(\"Blocked invalid guild\
+      \ info change for guild %s\", guild->GetName().c_str());\n            return;\n\
+      \        }\n        \n        // Store the new info in a custom database table\n\
+      \        // ... database logic here ...\n        \n        // Notify all online\
+      \ members\n        guild->BroadcastToGuild(sWorld, \"Guild information updated\
+      \ successfully.\");\n    }\n};"
+    language: cpp
+  notes: This method is called synchronously during the guild info update process.
+    Script implementations should avoid performing heavy operations or blocking calls
+    that could impact server performance. The Guild object passed to this method is
+    guaranteed to be valid and fully initialized at the time of the callback.
+  warnings: Avoid modifying the guild object within this callback as it may cause
+    undefined behavior or infinite recursion. Do not perform database operations directly
+    in this function without proper locking mechanisms. Be cautious about accessing
+    other systems that might not yet have been updated with the new info value.
+  related:
+  - OnCreate
+  - OnDisband
+  - OnMemberAdded
+  - OnMemberRemoved
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T05:54:24.046293'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

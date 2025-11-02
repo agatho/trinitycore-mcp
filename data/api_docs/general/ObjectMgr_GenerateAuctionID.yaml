@@ -1,0 +1,50 @@
+api:
+  class: ObjectMgr
+  method: GenerateAuctionID
+  signature: uint32 ObjectMgr::GenerateAuctionID()
+documentation:
+  brief: Generates a unique identifier for a new auction item in the auction house
+    system
+  description: The GenerateAuctionID method is responsible for creating a unique 32-bit
+    identifier for each new auction item added to the auction house. This identifier
+    is used internally by TrinityCore to track and manage auction listings, ensuring
+    no two auctions share the same ID. The method typically increments an internal
+    counter or retrieves the next available ID from a database sequence, maintaining
+    uniqueness across all active and pending auctions in the game world. It's commonly
+    called when a player places an item up for auction through the auction house interface.
+  parameters: []
+  returns: A unique 32-bit unsigned integer representing the new auction identifier
+    that can be used to reference the auction in database operations and game logic.
+    The returned value is guaranteed to be non-zero and unique within the current
+    auction house context.
+  examples:
+  - title: Generating an Auction ID for a New Listing
+    code: 'uint32 auctionId = sObjectMgr->GenerateAuctionID();
+
+      AuctionEntry* auction = new AuctionEntry();
+
+      auction->id = auctionId;
+
+      auction->itemTemplate = itemTemplate;
+
+      sAuctionMgr->AddAuction(auction);'
+    language: cpp
+  notes: This method is thread-safe and should be called before creating any new auction
+    entry. The generated IDs are typically stored in the `auction` table of the database
+    with the 'id' field. The implementation likely uses atomic operations or database
+    transactions to ensure ID uniqueness across multiple concurrent server instances.
+  warnings: Do not call this method without proper synchronization if you're managing
+    auctions from multiple threads, as it could lead to duplicate IDs. Also, never
+    assume that returned auction IDs are sequential - they may be generated using
+    a random or hash-based approach for security and anti-exploitation purposes.
+  related:
+  - AddAuction
+  - GetAuction
+  - RemoveAuction
+  - GetAuctionCount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T02:42:25.690983'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

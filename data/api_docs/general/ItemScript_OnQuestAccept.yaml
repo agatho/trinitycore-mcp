@@ -1,0 +1,64 @@
+api:
+  class: ItemScript
+  method: OnQuestAccept
+  signature: bool ItemScript::OnQuestAccept(Player * player, Item * item, const Quest
+    * quest)
+documentation:
+  brief: Handles quest acceptance logic when a player uses an item to accept a quest.
+  description: The OnQuestAccept method is a callback function in the ItemScript class
+    that is invoked when a player successfully accepts a quest by using an item. This
+    method allows custom behavior to be implemented when a quest is accepted through
+    item usage, such as modifying player stats, spawning NPCs, or triggering events.
+    The method returns true if the quest acceptance should proceed normally, or false
+    to prevent the quest from being accepted. It's commonly used in custom quest items
+    that have special conditions or effects upon quest acceptance.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is accepting the quest using the
+      item. This represents the player character performing the action.
+  - name: item
+    description: Pointer to the Item object that was used to accept the quest. This
+      is the specific item instance that triggered the callback.
+  - name: quest
+    description: Pointer to the Quest object that is being accepted. Contains information
+      about the quest being accepted, such as ID, title, and objectives.
+  returns: Returns true if the quest acceptance should proceed normally, or false
+    to prevent the quest from being accepted. Returning false will stop the normal
+    quest acceptance process.
+  examples:
+  - title: Basic Quest Accept Implementation
+    code: "class MyItemScript : public ItemScript\n{\npublic:\n    MyItemScript()\
+      \ : ItemScript(\"MyCustomItem\") {}\n\n    bool OnQuestAccept(Player* player,\
+      \ Item* item, const Quest* quest) override\n    {\n        // Grant bonus experience\
+      \ when accepting a specific quest\n        if (quest->GetQuestId() == 12345)\n\
+      \        {\n            player->ModifyMoney(10000);\n            return true;\n\
+      \        }\n        return false;\n    }\n};"
+    language: cpp
+  - title: Conditional Quest Accept with Event Triggering
+    code: "class SpecialQuestItem : public ItemScript\n{\npublic:\n    SpecialQuestItem()\
+      \ : ItemScript(\"SpecialQuestItem\") {}\n\n    bool OnQuestAccept(Player* player,\
+      \ Item* item, const Quest* quest) override\n    {\n        // Only allow acceptance\
+      \ if player has required items\n        if (player->HasItemCount(54321, 1))\n\
+      \        {\n            // Spawn NPC on quest accept\n            player->SummonCreature(98765,\
+      \ player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0,\
+      \ TEMPSUMMON_TIMED_DESPAWN, 30000);\n            return true;\n        }\n \
+      \       return false;\n    }\n};"
+    language: cpp
+  notes: This method is called during the quest acceptance process, so any modifications
+    to player state or quest data should be done carefully. The item and quest parameters
+    are valid only for the duration of this call. Be cautious with returning false
+    as it prevents normal quest acceptance, which may break expected game flow.
+  warnings: Returning false from this method will completely block the quest from
+    being accepted, potentially breaking quest progression. Ensure proper validation
+    before returning false. Do not modify player state in ways that could cause crashes
+    or inconsistencies during quest handling.
+  related:
+  - OnQuestReward
+  - OnUse
+  - OnQuestComplete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T04:36:51.311227'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

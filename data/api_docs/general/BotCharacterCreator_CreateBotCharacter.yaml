@@ -1,0 +1,88 @@
+api:
+  class: BotCharacterCreator
+  method: CreateBotCharacter
+  signature: CreateResult BotCharacterCreator::CreateBotCharacter(uint32 accountId,
+    uint8 race, uint8 classId, uint8 gender, const std::string & name, int & outGuid,
+    std::string & outErrorMsg)
+documentation:
+  brief: Creates a new bot character for the specified account with the given attributes.
+  description: The CreateBotCharacter method is responsible for generating a new bot
+    character within the TrinityCore framework. It accepts account details, race,
+    class, gender, and name to construct a valid character entry in the database.
+    The method ensures that all provided parameters are validated before attempting
+    creation. If successful, it returns the GUID of the newly created character and
+    sets an empty error message. In case of failure, it provides a descriptive error
+    message through outErrorMsg and leaves outGuid undefined. This function is typically
+    used by game masters or automated systems to programmatically add bot characters
+    for testing or gameplay purposes.
+  parameters:
+  - name: accountId
+    description: Unique identifier of the account to which the character will belong.
+      Must be a valid existing account ID in the database.
+  - name: race
+    description: Race of the character, represented as an integer value matching TrinityCore's
+      race constants (e.g., 1 for Human, 2 for Orc).
+  - name: classId
+    description: Class of the character, represented as an integer value matching
+      TrinityCore's class constants (e.g., 1 for Warrior, 2 for Paladin).
+  - name: gender
+    description: Gender of the character, either 0 for male or 1 for female.
+  - name: name
+    description: Unique name for the character. Must be between 3 and 12 characters
+      long and not already in use by another character.
+  - name: outGuid
+    description: Output parameter that receives the unique global identifier (GUID)
+      of the newly created character upon successful completion.
+  - name: outErrorMsg
+    description: Output parameter that receives a descriptive error message if character
+      creation fails. Empty string indicates success.
+  returns: 'Returns a CreateResult enum indicating the outcome of the operation:
+
+    - SUCCESS: Character was created successfully.
+
+    - FAILED: General failure during creation process.
+
+    - NAME_IN_USE: Provided name is already taken by another character.
+
+    - INVALID_RACE_CLASS: Specified race and class combination is not valid.
+
+    - ACCOUNT_LIMIT_EXCEEDED: Account has reached maximum allowed characters.
+
+    - OTHER: Other unspecified error conditions.'
+  examples:
+  - title: Basic Bot Character Creation
+    code: "int guid;\nstd::string errorMsg;\nCreateResult result = creator.CreateBotCharacter(12345,\
+      \ 1, 1, 0, \"TestBot\", guid, errorMsg);\nif (result == CreateResult::SUCCESS)\
+      \ {\n    std::cout << \"Created bot character with GUID: \" << guid << std::endl;\n\
+      } else {\n    std::cout << \"Failed to create bot character: \" << errorMsg\
+      \ << std::endl;\n}"
+    language: cpp
+  - title: Handling Different Creation Results
+    code: "int guid;\nstd::string errorMsg;\nCreateResult result = creator.CreateBotCharacter(12345,\
+      \ 10, 8, 1, \"ShadowBot\", guid, errorMsg);\nswitch (result) {\ncase CreateResult::SUCCESS:\n\
+      \    std::cout << \"Character created with GUID: \" << guid << std::endl;\n\
+      \    break;\ncase CreateResult::NAME_IN_USE:\n    std::cout << \"Name already\
+      \ taken!\" << std::endl;\n    break;\ncase CreateResult::INVALID_RACE_CLASS:\n\
+      \    std::cout << \"Invalid race/class combination.\" << std::endl;\n    break;\n\
+      default:\n    std::cout << \"Creation failed: \" << errorMsg << std::endl;\n\
+      \    break;\n}"
+    language: cpp
+  notes: This method performs database operations and should be used carefully in
+    performance-sensitive contexts. It assumes that the provided account ID exists
+    and has sufficient permissions to create a character. The method does not validate
+    character name uniqueness against other bots or players unless explicitly checked
+    by the system.
+  warnings: Ensure that all input parameters are properly validated before calling
+    this method, especially accountId, race, classId, and gender values. Using invalid
+    combinations may lead to unexpected behavior or database corruption. Avoid calling
+    this method from high-frequency loops without proper rate limiting.
+  related:
+  - GetBotCharacterGuid
+  - DeleteBotCharacter
+  - IsBotCharacterNameAvailable
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T11:56:27.607925'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
