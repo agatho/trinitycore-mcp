@@ -67,19 +67,52 @@ export function loadAllAPIDocs(): APIMethod[] {
       const content = fs.readFileSync(filePath, 'utf8');
       const doc = yaml.load(content) as any;
 
-      // Parse method name to extract class and method
-      const [className, methodName] = doc.method?.split('::') || ['Unknown', 'Unknown'];
+      // Extract class and method from the new YAML structure
+      const className = doc.api?.class || 'Unknown';
+      const methodName = doc.api?.method || 'Unknown';
+      const signature = doc.api?.signature || `${className}::${methodName}`;
+
+      // Extract documentation fields
+      const documentation = doc.documentation || {};
+      const description = documentation.brief || documentation.description || '';
+
+      // Extract parameters from documentation.parameters
+      const parameters = documentation.parameters?.map((param: any) => ({
+        name: param.name || '',
+        type: '', // Type is in signature, not in parameters array
+        description: param.description || '',
+      }));
+
+      // Extract return type from documentation.returns
+      const returns = documentation.returns ? {
+        type: '', // Type is in signature
+        description: typeof documentation.returns === 'string' ? documentation.returns : '',
+      } : undefined;
+
+      // Extract usage examples
+      const usage = documentation.examples?.map((ex: any) =>
+        `// ${ex.title || 'Example'}\n${ex.code || ''}`
+      ).join('\n\n') || undefined;
+
+      // Extract notes and warnings
+      const notes = [
+        documentation.notes,
+        documentation.warnings ? `⚠️ Warning: ${documentation.warnings}` : null,
+      ].filter(Boolean).join('\n\n') || undefined;
+
+      // Extract related methods
+      const related_methods = documentation.related || undefined;
 
       methods.push({
-        method: doc.method || 'Unknown',
+        method: signature,
         className,
         methodName,
-        description: doc.description || '',
-        parameters: doc.parameters,
-        returns: doc.returns,
-        usage: doc.usage,
-        notes: doc.notes,
-        related_methods: doc.related_methods,
+        description,
+        parameters,
+        returns,
+        usage,
+        notes,
+        related_methods,
       });
     } catch (error) {
       console.error(`Error loading ${file}:`, error);
