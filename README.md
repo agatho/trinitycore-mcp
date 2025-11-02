@@ -628,17 +628,35 @@ Many features originally planned for v3.0.0 have already been implemented:
 
 ### v2.2.0 (In Progress - Target Q1 2025)
 
-**🔄 Remaining Tasks:**
+**🎨 Web UI Enhancements** (Inspired by TrinityCore API Explorer)
+- **UI Component Library** - Implement shadcn/ui design system with 30+ reusable components
+- **Dark Mode Support** - Complete dark/light theme toggle with persistent preferences
+- **Responsive Design** - Mobile, tablet, desktop optimization for all Web UI pages
+- **Documentation Export** - JSON, CSV, Markdown export for API documentation
+- **Advanced Search UI** - Autocomplete, fuzzy matching, search filters
+- **Topic Categorization** - Organize 55 MCP tools into browsable categories (Combat, Spells, Items, etc.)
+
+**🔧 Development Tools**
 - **MCP Tool Registration** - Register 10 development tool modules as MCP tools (would increase to 65 total)
-- **Web UI Frontend Integration** - Add visual interfaces for List 2 tools in Web UI
-- **Machine Learning Enhancement** - Integrate ML models for code completion accuracy
-- **3D Visualization** - Implement Three.js rendering for world map tool
+- **List 2 Tool Integration** - Add visual interfaces for Bot Debugger, Game Simulator, Behavior Tree Editor
+- **Machine Learning Enhancement** - Integrate ML models for Smart Code Completion accuracy
 
-**Note**: Basic Web UI is already complete (Phase 1), but List 2 tool integration is pending.
+**📊 Visualization**
+- **3D World Map** - Three.js rendering for world map tool with creature spawn visualization
+- **Performance Metrics Dashboard** - Real-time charts for bot performance monitoring
 
-### v3.0.0 (Target Q2 2025) - Remaining Advanced Features
+**Estimated Timeline**: 8-10 weeks | **Priority**: HIGH
 
-**🎯 New Focus Areas:**
+### v3.0.0 (Target Q2 2025) - Advanced Features
+
+**🔍 Advanced Documentation & Discovery** (Inspired by API Explorer)
+- **Class Hierarchy Visualization** - D3.js interactive tree showing TrinityCore inheritance (342+ classes)
+- **API Version Diff Tool** - Compare TrinityCore versions (3.3.5a vs 11.2), track breaking changes
+- **Related Methods Algorithm** - Smart suggestions for related API methods
+- **Advanced Search Engine** - Optional Elasticsearch integration for fuzzy matching (<50ms autocomplete)
+- **Method Dependency Graph** - Visualize method call chains and dependencies
+
+**🏗️ Infrastructure & Scalability**
 - **High Availability** - Load balancing, failover, multi-region deployment
 - **Advanced Security** - Authentication (OAuth2, JWT), rate limiting, API key management, input validation
 - **Auto-scaling** - Kubernetes HPA (Horizontal Pod Autoscaler) integration
@@ -646,14 +664,36 @@ Many features originally planned for v3.0.0 have already been implemented:
 - **Multi-tenancy** - Support for multiple isolated deployments
 - **Advanced Metrics** - Custom business metrics, SLA monitoring, cost optimization
 
+**Estimated Timeline**: 10-12 weeks | **Priority**: MEDIUM
+
 ### v4.0.0 (Vision - Q3 2025)
 
-**🔮 Future Enhancements:**
-- **AI-Powered Features** - Machine learning for bot behavior optimization, automated testing generation
+**👥 Community & Collaboration** (Inspired by API Explorer)
+- **Code Examples Library** - Community-contributed TrinityCore code examples with voting and ratings
+- **Q&A System** - Stack Overflow-style questions and answers for bot development
+- **Pattern Library** - Pre-written guides for common tasks (spawn creature, cast spell, handle quest)
+- **User Profiles** - Developer profiles with contributions, reputation, badges
 - **Real-time Collaboration** - Multi-user bot debugging sessions, shared workspaces
-- **Advanced Visualization** - Interactive 3D world rendering, AR/VR support for development
+
+**🤖 AI & Automation**
+- **AI-Powered Features** - Machine learning for bot behavior optimization, automated testing generation
+- **Smart Code Generator** - AI-assisted code generation from natural language descriptions
+- **Automated Test Generation** - AI generates unit tests for TrinityCore scripts
+- **Bug Prediction** - ML model predicts potential bugs before code review
+
+**🎮 Advanced Visualization & Interaction**
+- **Interactive 3D World Rendering** - WebGL-based 3D map viewer with bot positioning
+- **AR/VR Support** - Virtual reality development environment for bot debugging
+- **API Playground** - Interactive method tester with live code execution
+- **Visual Spell Editor** - Drag-and-drop spell effect designer
+
+**📱 Platform Expansion**
 - **Plugin Ecosystem** - Third-party plugin marketplace, community extensions
 - **Mobile Apps** - iOS/Android apps for monitoring and basic management
+- **VS Code Extension** - Inline TrinityCore documentation in VS Code
+- **CLI Tools** - Command-line tools for bot deployment and management
+
+**Estimated Timeline**: 14-16 weeks | **Priority**: LOW (Future Vision)
 
 ## Contributing
 
@@ -702,6 +742,7 @@ GPL-2.0 (same as TrinityCore)
 **Version**: 2.1.1
 **Status**: ✅ Production Ready
 **MCP Tools**: 55 registered + 10 development modules
+**Roadmap**: Enhanced with TrinityCore API Explorer concepts
 **Last Updated**: 2025-11-02
 
 Generated with [Claude Code](https://claude.com/claude-code)

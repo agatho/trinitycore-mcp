@@ -1,43 +1,49 @@
 api:
   class: ArenaTeam
   method: ArenaTeam
-  signature: void ArenaTeam::ArenaTeam(const ArenaTeam & param0)
+  signature: void ArenaTeam::ArenaTeam(ArenaTeam && param0)
 documentation:
-  brief: Copies the data from another ArenaTeam object into this instance.
-  description: The ArenaTeam copy constructor initializes a new ArenaTeam object by
-    copying all data members from an existing ArenaTeam object. This method is typically
-    used when creating a duplicate of an existing arena team, preserving all team
-    properties including members, statistics, and configuration settings. In the context
-    of TrinityCore's World of Warcraft emulation, this constructor ensures that arena
-    team state is properly maintained during operations such as team duplication,
-    serialization, or temporary team creation for gameplay mechanics.
+  brief: Moves an arena team object to a new location using move semantics.
+  description: The ArenaTeam constructor that accepts an rvalue reference to another
+    ArenaTeam object performs a move operation, transferring all resources from the
+    source object to the current object. This is a standard C++ move constructor implementation
+    that efficiently reassigns internal data members and resets the source object's
+    state. The method is typically used when arena team objects need to be transferred
+    between containers or scopes without unnecessary copying. In the context of TrinityCore's
+    World of Warcraft server architecture, this operation supports efficient management
+    of arena team data structures during dynamic allocation and reallocation scenarios.
   parameters: []
   returns: null
   examples:
-  - title: Creating a copy of an existing arena team
-    code: 'ArenaTeam originalTeam;
+  - title: Move Constructing an ArenaTeam
+    code: 'ArenaTeam team1;
 
-      // ... populate originalTeam with data ...
+      // ... populate team1 with data ...
 
-      ArenaTeam copiedTeam(originalTeam); // Uses the copy constructor'
+      ArenaTeam team2 = std::move(team1); // Move constructor invoked'
     language: cpp
-  notes: This method performs a shallow copy of the ArenaTeam object's data members.
-    Any pointers or complex objects within the team structure should be handled carefully
-    to avoid dangling references or memory issues. The implementation assumes that
-    the source ArenaTeam object is in a valid state.
-  warnings: Ensure that the source ArenaTeam object is fully initialized before using
-    this constructor, as copying from an uninitialized or partially constructed object
-    may lead to undefined behavior. Avoid using this constructor in multithreaded
-    environments without proper synchronization if the source object might be modified
-    concurrently.
+  - title: Using Move in Container Operations
+    code: 'std::vector<ArenaTeam> teams;
+
+      ArenaTeam newTeam;
+
+      teams.push_back(std::move(newTeam)); // Efficiently moves team into vector'
+    language: cpp
+  notes: This is a move constructor, not a regular constructor. After the operation,
+    the source object should be considered in a valid but unspecified state. The implementation
+    assumes that ArenaTeam contains resources that can be safely moved rather than
+    copied.
+  warnings: Ensure that the source ArenaTeam object is not used after being moved
+    from, as its internal state may be left in an undefined but valid condition. This
+    constructor is typically called implicitly during move operations and should not
+    be invoked directly unless explicitly needed for resource management.
   related:
-  - ArenaTeam::GetId
-  - ArenaTeam::GetName
-  - ArenaTeam::GetCaptain
-  - ArenaTeam::AddMember
+  - ArenaTeam::ArenaTeam()
+  - ArenaTeam::~ArenaTeam()
+  - ArenaTeam& ArenaTeam::operator=(ArenaTeam&&)
 metadata:
-  confidence: 0.9
-  generated_at: '2025-11-02T18:48:25.502408'
+  confidence: 0.92
+  generated_at: '2025-11-02T18:49:15.167083'
   generator: lmstudio-qwen3-coder-30b
   version: 1.0.0
   source: core
