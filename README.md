@@ -248,17 +248,49 @@ Add to `.claude/mcp-servers-config.json` or `claude_desktop_config.json`:
 
 ## Usage
 
-### Start MCP Server
+### 🚀 Quick Start (Recommended)
+
+Start both MCP server and Web UI with automatic browser opening:
 
 ```bash
-# Production mode
+npm run start:all
+```
+
+This will:
+1. ✅ Build the MCP server (if not already built)
+2. ✅ Install Web UI dependencies (if needed)
+3. ✅ Start the MCP server (stdio mode)
+4. ✅ Start the Web UI development server (http://localhost:3000)
+5. ✅ Automatically open your default browser to the Web UI
+
+**Environment Variables**:
+- `PORT` - Web UI port (default: 3000)
+- `NO_OPEN` - Set to `true` to skip opening browser
+
+### Start Services Individually
+
+#### Start MCP Server Only
+
+```bash
+# Production mode (stdio transport)
 npm start
 
-# Development mode (watch for changes)
+# Alternative command
+npm run start:mcp
+
+# Development mode (watch for TypeScript changes)
 npm run dev
 ```
 
-Server will start and listen for MCP protocol connections.
+Server will start and listen for MCP protocol connections on stdio.
+
+#### Start Web UI Only
+
+```bash
+npm run start:web
+```
+
+Starts the Next.js development server on http://localhost:3000.
 
 ### Test MCP Tools
 
