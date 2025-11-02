@@ -1,0 +1,70 @@
+api:
+  class: AreaTrigger
+  method: LoadFromDB
+  signature: bool AreaTrigger::LoadFromDB(int spawnId, int * map, bool addToMap, bool
+    allowDuplicate)
+documentation:
+  brief: Loads an area trigger from the database using the specified spawn ID and
+    optional map assignment.
+  description: The LoadFromDB method initializes an AreaTrigger object by retrieving
+    its data from the database based on a given spawn identifier. It supports optional
+    parameters to assign the trigger to a specific map and handle duplicate entries.
+    This method is typically used during server startup or when dynamically spawning
+    area triggers in the game world. The method performs database lookups and initializes
+    internal state variables for the area trigger, including position, orientation,
+    and associated data such as spell effects or quest requirements. It returns true
+    upon successful loading and false if the operation fails due to missing data or
+    invalid parameters.
+  parameters:
+  - name: spawnId
+    description: Unique identifier of the area trigger spawn entry in the database.
+      This ID corresponds to entries in the areatrigger_teleport or areatrigger_template
+      tables.
+  - name: map
+    description: Pointer to an integer representing the map ID where the area trigger
+      should be loaded. If null, the map information is retrieved from the database.
+      Must be a valid map ID if provided.
+  - name: addToMap
+    description: Boolean flag indicating whether the loaded area trigger should be
+      automatically added to the corresponding map's object manager. If true, the
+      trigger becomes active and can be processed by the game engine.
+  - name: allowDuplicate
+    description: Boolean flag that determines if duplicate area triggers (based on
+      spawn ID) are allowed. If false, existing triggers with the same ID will not
+      be loaded again.
+  returns: True if the area trigger was successfully loaded from the database and
+    initialized; false otherwise. Failure can occur due to invalid spawn ID, missing
+    database entries, or invalid map assignment.
+  examples:
+  - title: Basic Area Trigger Loading
+    code: "AreaTrigger* trigger = new AreaTrigger();\nint spawnId = 12345;\nint mapId\
+      \ = 0;\nbool success = trigger->LoadFromDB(spawnId, &mapId, true, false);\n\
+      if (success)\n{\n    // Trigger loaded successfully\n}"
+    language: cpp
+  - title: Loading Area Trigger Without Map Assignment
+    code: "AreaTrigger* trigger = new AreaTrigger();\nint spawnId = 54321;\nbool success\
+      \ = trigger->LoadFromDB(spawnId, nullptr, true, true);\nif (success)\n{\n  \
+      \  // Trigger loaded without explicit map assignment\n}"
+    language: cpp
+  notes: This method assumes that the database connection is already established and
+    valid. The area trigger must exist in the database with a matching spawn ID. When
+    addToMap is set to true, the trigger will be registered with the map's object
+    manager and will participate in world updates. Performance considerations include
+    database query overhead which may impact server startup times if many triggers
+    are being loaded.
+  warnings: Calling this method with an invalid spawnId or null map pointer can lead
+    to undefined behavior or crashes. Ensure that the provided map ID is valid before
+    calling this function. If allowDuplicate is set to false and a trigger with the
+    same spawnId already exists, it will not be reloaded, potentially causing inconsistencies
+    in dynamic content.
+  related:
+  - AreaTrigger::SaveToDB
+  - AreaTrigger::DeleteFromDB
+  - AreaTrigger::GetSpawnId
+  - AreaTrigger::IsLoaded
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T14:08:22.605504'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

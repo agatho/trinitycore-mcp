@@ -1,0 +1,60 @@
+api:
+  class: AuctionHouseMgr
+  method: CheckThrottle
+  signature: AuctionThrottleResult AuctionHouseMgr::CheckThrottle(const Player * player,
+    bool addonTainted, AuctionCommand command)
+documentation:
+  brief: Checks if a player's auction house actions are within throttle limits
+  description: The CheckThrottle method evaluates whether a player's recent auction
+    house activities have exceeded predefined rate limits. It considers both regular
+    auction commands and addon-tainted interactions to prevent spamming or abuse of
+    the auction system. The method returns an AuctionThrottleResult enum indicating
+    if the action should be allowed, throttled, or blocked based on the player's activity
+    history and current server configuration.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose auction house actions are being
+      checked. Must not be null.
+  - name: addonTainted
+    description: Boolean flag indicating if the player's client has been modified
+      with addons that may bypass normal restrictions. When true, stricter throttling
+      rules may apply.
+  - name: command
+    description: Enumeration value representing the type of auction command being
+      executed (e.g., bid, list, cancel). Determines which throttle limits are applied.
+  returns: AuctionThrottleResult enum indicating the outcome of the throttle check.
+    Possible values include ALLOWED, THROTTLED, or BLOCKED depending on the player's
+    recent activity and server settings.
+  examples:
+  - title: Basic throttle check before listing an item
+    code: "AuctionThrottleResult result = sAuctionHouseMgr->CheckThrottle(player,\
+      \ false, AUCTION_COMMAND_LIST);\nif (result == AUCTION_THROTTLE_ALLOWED) {\n\
+      \    // Proceed with auction listing\n} else if (result == AUCTION_THROTTLE_BLOCKED)\
+      \ {\n    // Inform player that they are blocked from auctioning\n}"
+    language: cpp
+  - title: Throttle check for addon-tainted client
+    code: "AuctionThrottleResult result = sAuctionHouseMgr->CheckThrottle(player,\
+      \ true, AUCTION_COMMAND_BID);\nswitch (result) {\n    case AUCTION_THROTTLE_ALLOWED:\n\
+      \        // Allow bid\n        break;\n    case AUCTION_THROTTLE_THROTTLED:\n\
+      \        // Apply delay or reduced functionality\n        break;\n    case AUCTION_THROTTLE_BLOCKED:\n\
+      \        // Prevent bid entirely\n        break;\n}"
+    language: cpp
+  notes: This method is typically called before processing any auction house command
+    to enforce rate limiting. The throttle limits are configurable server-side and
+    may vary based on player account status, subscription level, or other factors.
+    The implementation uses internal tracking of recent player actions to determine
+    if they're exceeding allowed thresholds.
+  warnings: Do not call this method with a null player pointer as it will likely cause
+    a crash. Be aware that addon-tainted clients may be subject to more restrictive
+    throttling rules which could impact legitimate gameplay.
+  related:
+  - GetAuctionHouseItem
+  - AddAuctionItem
+  - RemoveAuctionItem
+  - GetAuctionHouse
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T13:43:02.347357'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

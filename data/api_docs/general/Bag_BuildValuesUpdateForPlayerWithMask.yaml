@@ -1,0 +1,80 @@
+api:
+  class: Bag
+  method: BuildValuesUpdateForPlayerWithMask
+  signature: void Bag::BuildValuesUpdateForPlayerWithMask(int * data, const int &
+    requestedObjectMask, const int & requestedItemMask, const int & requestedContainerMask,
+    const int * target) const
+documentation:
+  brief: Updates player object values with specified masks for bag data
+  description: The BuildValuesUpdateForPlayerWithMask method constructs and populates
+    update data for a player's bag object using three distinct masks to determine
+    which fields should be included in the update packet. This method is typically
+    used during packet serialization to efficiently transmit only relevant information
+    about container contents, item properties, and container-specific attributes to
+    the client. The method operates on internal data structures representing the bag's
+    state and applies bitwise operations to filter and format the update values based
+    on the provided mask parameters.
+  parameters:
+  - name: data
+    description: Pointer to an integer array where the constructed update values will
+      be stored. This array must be pre-allocated with sufficient space to hold all
+      relevant field values.
+  - name: requestedObjectMask
+    description: Bitmask specifying which object-related fields should be included
+      in the update. Each bit corresponds to a specific field in the object's update
+      data structure.
+  - name: requestedItemMask
+    description: Bitmask specifying which item-related fields should be included in
+      the update. This controls what properties of contained items are transmitted
+      to the client.
+  - name: requestedContainerMask
+    description: Bitmask specifying which container-specific fields should be included
+      in the update. This determines what container metadata is sent to the player.
+  - name: target
+    description: Pointer to a target object or null, used as reference for determining
+      field updates. May influence how certain values are calculated or filtered during
+      the update process.
+  returns: No return value. The method modifies the data array in-place with updated
+    values.
+  examples:
+  - title: Basic usage to build a container update packet
+    code: 'int updateData[256];
+
+      int objectMask = 0x01;
+
+      int itemMask = 0x02;
+
+      int containerMask = 0x04;
+
+      Bag* bag = player->GetBag(0);
+
+      bag->BuildValuesUpdateForPlayerWithMask(updateData, objectMask, itemMask, containerMask,
+      nullptr);'
+    language: cpp
+  - title: Using masks to selectively update specific container properties
+    code: 'int buffer[128];
+
+      uint32 fullMask = 0xFFFFFFFF;
+
+      Bag* myBag = player->GetBag(1);
+
+      myBag->BuildValuesUpdateForPlayerWithMask(buffer, fullMask, 0x00, 0x00, &player->GetObjectGuid());'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when preparing updates for network transmission. The data array
+    must be large enough to accommodate all fields specified by the combined masks.
+    Performance considerations include avoiding unnecessary mask combinations that
+    would result in excessive field updates.
+  warnings: Incorrectly setting mask values can lead to incomplete or malformed update
+    packets, potentially causing client-side errors or visual glitches. Ensure that
+    the target parameter is properly initialized if used in the implementation logic.
+  related:
+  - BuildValuesUpdateForPlayer
+  - BuildOutOfRangeUpdateForPlayer
+  - GetUpdateData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T13:11:42.809160'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

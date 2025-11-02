@@ -1,0 +1,50 @@
+api:
+  class: AuctionHouseScript
+  method: OnAuctionSuccessful
+  signature: void AuctionHouseScript::OnAuctionSuccessful(AuctionHouseObject * ah,
+    AuctionPosting * auction)
+documentation:
+  brief: Called when an auction completes successfully in the auction house system
+  description: This method is invoked by the auction house system when an auction
+    has been successfully completed, meaning the item was sold to the highest bidder.
+    The method provides access to both the auction house object and the specific auction
+    posting that was completed. It allows script developers to implement custom logic
+    such as logging sales, awarding rewards, or modifying game state upon successful
+    auction completion. This hook is executed after all standard auction processing
+    has been completed and the transaction is finalized.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      where the auction took place
+  - name: auction
+    description: Pointer to the AuctionPosting object containing details about the
+      completed auction, including bidder information and final sale price
+  returns: null
+  examples:
+  - title: Basic logging of successful auctions
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionSuccessful(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        if (auction && auction->GetBidderGuid())\n        {\n      \
+      \      LOG_INFO(\"server\", \"Auction successful: {} sold for {}g {}s {}c to\
+      \ {}\",\n                auction->GetItemTemplate()->GetName(),\n          \
+      \      auction->GetFinalPrice() / 10000,\n                (auction->GetFinalPrice()\
+      \ % 10000) / 100,\n                (auction->GetFinalPrice() % 100),\n     \
+      \           auction->GetBidderGuid().ToString());\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should not perform heavy
+    operations that could block the auction processing. The auction object passed
+    in may contain sensitive data about the transaction, so care should be taken when
+    logging or storing this information.
+  warnings: Do not modify the auction object directly within this callback as it may
+    cause inconsistencies in the auction house system. Avoid performing database operations
+    or other blocking calls that could impact server performance.
+  related:
+  - OnAuctionExpired
+  - OnAuctionRemoved
+  - OnAuctionBid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T13:35:58.837242'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

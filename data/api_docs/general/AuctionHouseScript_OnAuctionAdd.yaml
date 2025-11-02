@@ -1,0 +1,62 @@
+api:
+  class: AuctionHouseScript
+  method: OnAuctionAdd
+  signature: void AuctionHouseScript::OnAuctionAdd(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Called when a new auction is added to the auction house, allowing scripts
+    to execute custom logic.
+  description: The OnAuctionAdd method is a virtual callback function in the AuctionHouseScript
+    class that is invoked whenever a new auction item is successfully posted on the
+    auction house. This method provides developers with the ability to implement custom
+    behaviors such as logging, notifications, or modifications to auction properties
+    when items are listed for sale. The method receives references to both the auction
+    house object and the specific auction posting, enabling access to all relevant
+    auction data including item details, bid amounts, and auction duration. It is
+    typically used in custom scripts or mods to extend or modify default auction house
+    functionality without altering core TrinityCore code.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      where the auction was added. This provides access to auction house settings
+      and global auction data.
+  - name: auction
+    description: Pointer to the AuctionPosting object containing details about the
+      newly added auction, including item information, starting bid, buyout price,
+      and auction duration.
+  returns: null
+  examples:
+  - title: Basic logging of new auctions
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionAdd(AuctionHouseObject* ah, AuctionPosting* auction) override\n \
+      \   {\n        // Log when a new auction is added\n        sLog->outString(\"\
+      New auction added: %s\", auction->item->GetTemplate()->Name.c_str());\n    }\n\
+      };"
+    language: cpp
+  - title: Preventing certain items from being auctioned
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionAdd(AuctionHouseObject* ah, AuctionPosting* auction) override\n \
+      \   {\n        // Prevent stacking items with low value from being auctioned\n\
+      \        if (auction->item->GetTemplate()->SellPrice <= 10)\n        {\n   \
+      \         // Cancel the auction by removing it\n            ah->RemoveAuction(auction);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the auction posting process, after all validation
+    checks have passed but before the auction is fully committed to the database.
+    Be cautious when modifying auction data directly within this callback as it may
+    lead to inconsistent states or performance issues if not handled properly.
+  warnings: Modifying auction data in this callback can cause race conditions or database
+    inconsistencies if not carefully managed. Avoid performing heavy operations or
+    blocking calls that could delay auction processing. Also, be aware that the auction
+    object might not yet be fully initialized with all database values when this method
+    is called.
+  related:
+  - OnAuctionRemove
+  - OnAuctionSuccessful
+  - OnAuctionExpired
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T13:37:30.235177'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

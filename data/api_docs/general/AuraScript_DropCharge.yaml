@@ -1,0 +1,62 @@
+api:
+  class: AuraScript
+  method: DropCharge
+  signature: bool AuraScript::DropCharge(int removeMode)
+documentation:
+  brief: Removes a charge from the aura and returns true if the aura was removed due
+    to charge depletion.
+  description: The DropCharge method decreases the charge count of an aura by one.
+    If the aura has no charges remaining after this decrement, it will be removed
+    from the target. This method is typically used in conjunction with aura applications
+    that have limited uses or charges, such as certain abilities or buffs. The removeMode
+    parameter determines how the removal is handled internally, affecting whether
+    the aura's removal is processed immediately or deferred. The method returns true
+    if the aura was fully consumed and removed due to charge depletion, otherwise
+    false.
+  parameters:
+  - name: removeMode
+    description: An integer value indicating how the aura removal should be handled.
+      Valid values typically include 0 for immediate removal, 1 for deferred removal,
+      or other mode-specific constants depending on implementation details.
+  returns: Returns true if the aura was removed due to charge depletion; otherwise
+    returns false if charges remain or if the aura wasn't removed.
+  examples:
+  - title: Basic Usage in AuraScript
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnApply += AuraApplyFn(MyAuraScript::OnApplyHandler);\n\
+      \    }\n\n    void OnApplyHandler(Aura const* aura, AuraEffect const* effect)\n\
+      \    {\n        // Drop a charge when aura is applied\n        if (aura->GetCharges()\
+      \ > 0)\n        {\n            DropCharge(0); // Immediate removal mode\n  \
+      \      }\n    }\n};"
+    language: cpp
+  - title: Conditional Charge Dropping with Logic
+    code: "class ChargeBasedAuraScript : public AuraScript\n{\npublic:\n    void Register()\
+      \ override\n    {\n        OnUpdate += AuraUpdateFn(ChargeBasedAuraScript::OnUpdateHandler);\n\
+      \    }\n\n    void OnUpdateHandler(int32 duration)\n    {\n        // Drop a\
+      \ charge every 5 seconds\n        if (GetAura()->GetDuration() % 5000 == 0)\n\
+      \        {\n            if (DropCharge(1)) // Deferred removal mode\n      \
+      \      {\n                // Aura was removed due to no charges left\n     \
+      \           SendScriptWarning(\"Aura consumed completely\");\n            }\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the aura management system in TrinityCore and interacts
+    with the internal charge tracking mechanism. It should only be called from within
+    an AuraScript context where the aura instance is valid. The removeMode parameter
+    affects how the aura removal is processed, which may influence event firing order
+    or visual effects.
+  warnings: Calling DropCharge on an aura that has no charges left will result in
+    undefined behavior or potential crash if not handled properly. Ensure that the
+    aura actually has charges before calling this method. Also note that depending
+    on removeMode, the aura might be removed asynchronously, so any dependent logic
+    should account for this.
+  related:
+  - GetCharges
+  - SetCharges
+  - AddCharge
+  - RemoveAura
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T13:22:01.383115'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

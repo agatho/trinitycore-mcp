@@ -1,0 +1,55 @@
+api:
+  class: AoEDecisionManager
+  method: NeedsDoTRefresh
+  signature: bool AoEDecisionManager::NeedsDoTRefresh(Unit * target, uint32 dotSpellId)
+    const
+documentation:
+  brief: Determines whether a DoT spell on the target needs to be refreshed based
+    on current state and duration.
+  description: The NeedsDoTRefresh method evaluates if a Damage over Time (DoT) spell
+    identified by its spell ID is nearing expiration or has already expired on the
+    specified target unit. It returns true when the DoT should be refreshed to maintain
+    its effect, typically used in AI decision-making for spell casting. This method
+    considers factors such as remaining duration of the DoT, the time since last application,
+    and potential reapplication mechanics specific to the spell. The method is part
+    of the AoE decision-making system and is commonly invoked during combat logic
+    to optimize spell usage.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object on which the DoT effect is applied or
+      being evaluated. Must not be null.
+  - name: dotSpellId
+    description: The unique identifier (Spell ID) of the Damage over Time spell being
+      checked for refresh eligibility. Must correspond to a valid DoT spell in the
+      game's database.
+  returns: Returns true if the DoT spell on the target needs to be refreshed, false
+    otherwise. A return value of true indicates that the current duration is insufficient
+    or expired and a new application should occur.
+  examples:
+  - title: Basic usage in AI logic
+    code: "if (aoeDecisionManager.NeedsDoTRefresh(target, 12345)) {\n    // Cast the\
+      \ DoT spell again\n    caster->CastSpell(target, 12345, true);\n}"
+    language: cpp
+  - title: Using with multiple DoTs in a loop
+    code: "std::vector<uint32> dotSpells = {12345, 67890, 54321};\nfor (uint32 spellId\
+      \ : dotSpells) {\n    if (aoeDecisionManager.NeedsDoTRefresh(target, spellId))\
+      \ {\n        caster->CastSpell(target, spellId, true);\n    }\n}"
+    language: cpp
+  notes: This method likely uses internal timers or duration tracking mechanisms to
+    determine DoT expiration. It may be influenced by effects like haste, spell duration
+    modifiers, or specific mechanics such as stacking DoTs. The implementation assumes
+    that the target has a valid aura for the given spell ID and that the spell is
+    a DoT.
+  warnings: Ensure that the target unit is valid and not null before calling this
+    method. Also, make sure the dotSpellId corresponds to an actual DoT spell in the
+    game's database; otherwise behavior may be undefined or result in incorrect decisions.
+  related:
+  - GetDoTDuration
+  - IsDoTActive
+  - RefreshDoT
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T14:12:43.438405'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

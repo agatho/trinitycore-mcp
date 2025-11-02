@@ -1,0 +1,63 @@
+api:
+  class: AuctionManager
+  method: CalculateUndercutPrice
+  signature: uint64 AuctionManager::CalculateUndercutPrice(uint64 lowestPrice, AuctionStrategy
+    strategy)
+documentation:
+  brief: Calculates the undercut price for an auction based on the lowest price and
+    auction strategy.
+  description: The CalculateUndercutPrice method determines the appropriate bid price
+    for an auction item by applying a strategic adjustment to the lowest current bid.
+    This method is used in auction house mechanics to ensure competitive bidding while
+    maintaining game balance. The calculation takes into account the lowest existing
+    price and applies a predefined undercut strategy to determine the new bid amount.
+    The method ensures that players can undercut competitors without creating unrealistic
+    or exploitative pricing scenarios.
+  parameters:
+  - name: lowestPrice
+    description: The current lowest bid price for the auction item. Must be a positive
+      integer representing copper coins.
+  - name: strategy
+    description: The undercut strategy to apply. This enum determines how much to
+      undercut the lowest price (e.g., 5%, 10%, or fixed amount).
+  returns: Returns a uint64 value representing the calculated undercut price in copper
+    coins. The result is always greater than zero and represents a valid bid that
+    will undercut the current lowest price.
+  examples:
+  - title: Basic Undercut Calculation
+    code: 'uint64 currentLowest = 100000; // 10 gold
+
+      AuctionStrategy strategy = AUCTION_STRATEGY_5_PERCENT;
+
+      uint64 undercutPrice = auctionManager.CalculateUndercutPrice(currentLowest,
+      strategy);
+
+      // Result would be 95000 (5% less than 100000)'
+    language: cpp
+  - title: Using Fixed Amount Strategy
+    code: 'uint64 currentLowest = 50000; // 5 gold
+
+      AuctionStrategy strategy = AUCTION_STRATEGY_FIXED_AMOUNT;
+
+      uint64 undercutPrice = auctionManager.CalculateUndercutPrice(currentLowest,
+      strategy);
+
+      // Result would be 49900 (100 copper less than 50000)'
+    language: cpp
+  notes: This method is typically used during auction creation or bidding processes.
+    The undercut calculation ensures that players cannot undercut by extremely small
+    amounts, which could lead to infinite bidding loops. Implementation may include
+    minimum thresholds to prevent undercutting below a certain value.
+  warnings: Ensure that the lowestPrice parameter is validated before calling this
+    method to avoid negative values or overflow issues. The strategy enum should be
+    properly initialized to prevent undefined behavior in the calculation logic.
+  related:
+  - GetAuctionHouseFees
+  - PlaceBid
+  - CalculateAuctionTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T13:32:14.297545'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

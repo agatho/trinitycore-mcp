@@ -1,0 +1,60 @@
+api:
+  class: AuctionHouseMgr
+  method: PendingAuctionAdd
+  signature: bool AuctionHouseMgr::PendingAuctionAdd(const Player * player, uint32
+    auctionHouseId, uint32 auctionId, uint64 deposit)
+documentation:
+  brief: Adds a pending auction to the auction house manager for processing.
+  description: The PendingAuctionAdd method is responsible for registering a new auction
+    with the auction house system. It takes in player information, auction house identifier,
+    and auction details to prepare the auction for listing. This method typically
+    acts as an intermediary step before the actual auction is finalized and added
+    to the auction house database. The method returns true if the auction was successfully
+    queued for processing, or false if there were issues such as invalid parameters
+    or system errors. This functionality is crucial for maintaining the integrity
+    of the auction system in World of Warcraft's TrinityCore implementation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who is creating
+      the auction. Must not be null and must represent a valid online player.
+  - name: auctionHouseId
+    description: Unique identifier for the auction house where the auction will be
+      listed. Valid values correspond to known auction house entries in the game database.
+  - name: auctionId
+    description: Unique identifier for the specific auction being created. Must be
+      a valid, unused auction ID within the system's range.
+  - name: deposit
+    description: The bid deposit amount in copper that the player must pay to place
+      the auction. This value determines the minimum bid required and is used for
+      auction mechanics.
+  returns: Returns true if the auction was successfully queued for processing by the
+    auction house manager, false otherwise. A return of false may indicate invalid
+    parameters, insufficient funds, or system errors during the queuing process.
+  examples:
+  - title: Basic Auction Addition
+    code: "Player* player = ...; // Valid player object\nuint32 auctionHouseId = 1;\n\
+      uint32 auctionId = 1001;\nuint64 deposit = 50000; // 5 gold in copper\n\nbool\
+      \ success = sAuctionHouseMgr->PendingAuctionAdd(player, auctionHouseId, auctionId,\
+      \ deposit);\nif (success)\n{\n    // Auction queued successfully\n    sWorld->SendWorldText(LANG_AUCTION_ADD_SUCCESS);\n\
+      }\nelse\n{\n    // Failed to queue auction\n    sWorld->SendWorldText(LANG_AUCTION_ADD_FAILED);\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the auction house system when
+    a player attempts to create an auction. The actual auction creation and database
+    insertion may occur asynchronously after this method returns. Developers should
+    ensure that all input parameters are validated before calling this method to prevent
+    unexpected behavior.
+  warnings: Calling this method with invalid or null player pointers can lead to crashes
+    or undefined behavior. Ensure that the auctionHouseId and auctionId values are
+    valid and within expected ranges. The deposit value must be properly calculated
+    according to game rules to avoid inconsistencies in auction mechanics.
+  related:
+  - AuctionHouseMgr::AddAuction
+  - AuctionHouseMgr::RemoveAuction
+  - AuctionHouseMgr::UpdateAuctions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T13:41:40.434090'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

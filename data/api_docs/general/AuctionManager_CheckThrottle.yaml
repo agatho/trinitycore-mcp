@@ -1,0 +1,58 @@
+api:
+  class: AuctionManager
+  method: CheckThrottle
+  signature: bool AuctionManager::CheckThrottle(Player * bot, bool isCommodity)
+documentation:
+  brief: Checks if a player is under auction throttle limits for posting items or
+    commodities.
+  description: The CheckThrottle method evaluates whether a given player has exceeded
+    the allowed number of auctions they can post within a specified time window. This
+    mechanism prevents spamming and ensures fair play in the auction house system.
+    The method takes into account both regular item auctions and commodity auctions,
+    applying different throttle rules for each type. It returns true if the player
+    is currently throttled (cannot post more auctions), and false if they are allowed
+    to proceed with posting.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the player whose auction
+      throttle status is being checked.
+  - name: isCommodity
+    description: Boolean flag indicating whether the auction being checked is for
+      a commodity (true) or a regular item (false).
+  returns: Returns true if the player is currently under throttle limits and cannot
+    post more auctions, false otherwise.
+  examples:
+  - title: Basic throttle check before posting an auction
+    code: "if (!sAuctionMgr->CheckThrottle(player, false)) {\n    // Proceed with\
+      \ posting regular item auction\n    sAuctionMgr->AddAuction(auction);\n} else\
+      \ {\n    // Inform player they are throttled\n    player->SendAuctionSellError(AUCTION_SUCCESS);\n\
+      }"
+    language: cpp
+  - title: Checking throttle for commodity auction
+    code: "Player* bot = ...;\nif (sAuctionMgr->CheckThrottle(bot, true)) {\n    //\
+      \ Handle throttled commodity auction attempt\n    ChatHandler(bot->GetSession()).SendSysMessage(\"\
+      You are currently under auction throttle for commodities.\");\n} else {\n  \
+      \  // Allow commodity auction posting\n    sAuctionMgr->AddAuction(commodityAuction);\n\
+      }"
+    language: cpp
+  notes: This method likely interacts with internal auction house data structures
+    and may involve checking recent auction activity timestamps. The throttle limits
+    are configurable in the server settings and can vary between regular items and
+    commodities. It's important to note that this check is typically performed before
+    allowing any new auction creation to prevent exceeding rate limits.
+  warnings: Calling this method without proper player validation may lead to crashes
+    or unexpected behavior. Ensure that the Player pointer is valid and not null before
+    invoking this method. Additionally, the throttle mechanism might be affected by
+    server-side configuration changes, so relying on hardcoded thresholds could cause
+    issues in different environments.
+  related:
+  - AddAuction
+  - RemoveAuction
+  - GetAuctionHouseEntry
+  - IsAuctionValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T13:31:25.859965'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

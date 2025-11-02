@@ -1,0 +1,73 @@
+api:
+  class: AuctionHouse
+  method: CreateAuction
+  signature: bool AuctionHouse::CreateAuction(int * player, uint32 itemGuid, uint32
+    stackCount, uint32 bid, uint32 buyout, uint32 duration)
+documentation:
+  brief: Creates a new auction entry in the auction house system for a specified item.
+  description: The CreateAuction method is responsible for generating a new auction
+    listing within the auction house system. It takes parameters including the player's
+    identifier, item GUID, stack count, bid amount, buyout price, and auction duration
+    to construct and store the auction record. This method ensures that all necessary
+    validations are performed before creating the auction, such as checking if the
+    item belongs to the player and verifying valid pricing and duration values. The
+    auction will appear in the auction house interface for other players to view and
+    bid on.
+  parameters:
+  - name: player
+    description: Pointer to the player's unique identifier (GUID) who is creating
+      the auction. Must point to a valid player object within the game world.
+  - name: itemGuid
+    description: The globally unique identifier of the item being auctioned. This
+      must correspond to an existing item in the player's inventory or bank.
+  - name: stackCount
+    description: Number of items in the stack being auctioned. Must be a positive
+      integer and cannot exceed the item's maximum stack size.
+  - name: bid
+    description: Minimum bid amount required to participate in the auction. Should
+      be a valid gold value, typically 0 for no minimum bid.
+  - name: buyout
+    description: The fixed price at which the item can be purchased immediately without
+      bidding. Must be greater than or equal to the bid amount and cannot exceed maximum
+      allowed buyout values.
+  - name: duration
+    description: Duration of the auction in seconds. Valid durations are typically
+      1 hour (3600), 2 hours (7200), or 4 hours (14400).
+  returns: Returns true if the auction was successfully created and stored in the
+    database, false otherwise. Failure may occur due to invalid parameters, insufficient
+    permissions, or item ownership issues.
+  examples:
+  - title: Basic Auction Creation
+    code: "uint32 itemGuid = 12345;\nuint32 stackCount = 1;\nuint32 bid = 0;\nuint32\
+      \ buyout = 100000;\nuint32 duration = 3600;\nint playerGuid = 67890;\nbool success\
+      \ = auctionHouse->CreateAuction(&playerGuid, itemGuid, stackCount, bid, buyout,\
+      \ duration);\nif (success) {\n    // Auction created successfully\n}"
+    language: cpp
+  - title: Creating an Auction with Bid and Buyout
+    code: "uint32 itemGuid = 54321;\nuint32 stackCount = 5;\nuint32 bid = 5000;\n\
+      uint32 buyout = 25000;\nuint32 duration = 7200;\nint playerGuid = 98765;\nbool\
+      \ success = auctionHouse->CreateAuction(&playerGuid, itemGuid, stackCount, bid,\
+      \ buyout, duration);\nif (success) {\n    // Auction created with minimum bid\
+      \ and buyout\n}"
+    language: cpp
+  notes: This method performs internal validation checks including item ownership
+    verification, stack size limits, and price consistency. It also updates the auction
+    house database and may trigger notifications to other players in the vicinity
+    or online. The method is typically called from within player interaction handlers
+    when a user attempts to list an item for auction.
+  warnings: Calling this method without proper validation of input parameters can
+    lead to invalid auction entries or database corruption. Ensure that the player
+    GUID points to a valid online character, and that the item exists in their inventory
+    before calling this function. Also note that creating auctions with extremely
+    high buyout prices may be restricted by server configuration.
+  related:
+  - GetAuction
+  - UpdateAuction
+  - RemoveAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T13:50:46.632182'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

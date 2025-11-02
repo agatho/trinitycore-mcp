@@ -1,0 +1,54 @@
+api:
+  class: AoEDecisionManager
+  method: FindTargetClusters
+  signature: int AoEDecisionManager::FindTargetClusters(float maxRange) const
+documentation:
+  brief: Calculates and returns the number of target clusters within the specified
+    maximum range for area-of-effect spell targeting.
+  description: The FindTargetClusters method evaluates the current AI state to determine
+    how many distinct groups (clusters) of valid targets exist within the given maximum
+    range. This is primarily used by area-of-effect spells to make decisions about
+    optimal targeting strategies, such as whether to cast on a single cluster or spread
+    the effect across multiple clusters. The method considers factors like target
+    validity, line of sight, and threat levels to group nearby enemies into logical
+    clusters. It does not modify any internal state but rather provides a snapshot
+    of potential targeting options for decision-making purposes.
+  parameters: []
+  returns: Returns an integer representing the number of distinct target clusters
+    found within the specified maximum range. A return value of zero indicates no
+    valid targets were found, while positive values indicate the count of separate
+    groups of targets that meet the criteria for clustering.
+  examples:
+  - title: Basic Usage in AI Decision Logic
+    code: "int clusterCount = decisionManager.FindTargetClusters(30.0f);\nif (clusterCount\
+      \ > 0)\n{\n    // Proceed with AoE spell targeting logic\n    if (clusterCount\
+      \ == 1)\n        target = GetSingleClusterTarget();\n    else\n        target\
+      \ = GetBestClusterTarget();\n}"
+    language: cpp
+  - title: Integration with Spell Casting Logic
+    code: "void CastAOESpell()\n{\n    float maxRange = GetSpellMaxRange();\n    int\
+      \ clusters = FindTargetClusters(maxRange);\n    \n    if (clusters >= 2)\n \
+      \   {\n        // Cast wide AoE spell targeting multiple clusters\n        CastSpellOnMultipleTargets();\n\
+      \    }\n    else if (clusters == 1)\n    {\n        // Cast focused AoE on single\
+      \ cluster\n        CastSpellOnSingleTarget();\n    }\n    else\n    {\n    \
+      \    // No targets available, cancel spell\n        CancelSpell();\n    }\n}"
+    language: cpp
+  notes: This method relies on the internal target selection logic and may be affected
+    by current threat levels, line of sight restrictions, and target validity checks.
+    The clustering algorithm typically groups targets based on proximity and possibly
+    threat level to ensure optimal spell usage. Performance is generally good as it's
+    designed for real-time AI decision making in combat scenarios.
+  warnings: This method should not be called during active spell casting or while
+    the AI is in transition states, as it may return outdated target information.
+    Ensure that the maximum range parameter is appropriate for the specific spell
+    being considered to avoid incorrect targeting decisions.
+  related:
+  - GetTargetClusters
+  - FindSingleTarget
+  - IsWithinRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T14:13:15.615958'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

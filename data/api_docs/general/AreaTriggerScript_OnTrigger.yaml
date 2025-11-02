@@ -1,0 +1,60 @@
+api:
+  class: AreaTriggerScript
+  method: OnTrigger
+  signature: bool AreaTriggerScript::OnTrigger(Player * player, const AreaTriggerEntry
+    * trigger)
+documentation:
+  brief: Executes custom logic when a player enters an area trigger
+  description: The OnTrigger method is a virtual callback function that gets invoked
+    whenever a Player enters an AreaTrigger. This method allows developers to implement
+    custom behavior such as teleporting players, triggering quests, applying effects,
+    or performing any game logic specific to the area trigger. The method receives
+    both the player who entered the trigger and the area trigger entry data, enabling
+    contextual actions based on the trigger's properties. Return true to allow normal
+    processing of the area trigger, or false to prevent default behavior such as teleportation
+    or quest activation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who entered the area trigger. This parameter
+      is never null during the callback execution.
+  - name: trigger
+    description: Pointer to the AreaTriggerEntry structure containing metadata about
+      the area trigger that was activated. Includes properties like trigger ID, position,
+      and associated quest or spell data.
+  returns: Returns true to allow normal processing of the area trigger (e.g., teleportation,
+    quest activation), or false to prevent default behavior and handle the trigger
+    entirely within custom code.
+  examples:
+  - title: Basic Area Trigger Handler
+    code: "class MyAreaTriggerScript : public AreaTriggerScript\n{\npublic:\n    bool\
+      \ OnTrigger(Player* player, const AreaTriggerEntry* trigger) override\n    {\n\
+      \        // Teleport player to a specific location\n        player->TeleportTo(1234,\
+      \ 100.0f, 200.0f, 300.0f, 0.0f);\n        return true;\n    }\n};"
+    language: cpp
+  - title: Conditional Area Trigger with Quest Activation
+    code: "class QuestAreaTriggerScript : public AreaTriggerScript\n{\npublic:\n \
+      \   bool OnTrigger(Player* player, const AreaTriggerEntry* trigger) override\n\
+      \    {\n        // Only activate quest if player has required item\n       \
+      \ if (player->HasItem(5678))\n        {\n            player->AddQuest(9012);\n\
+      \            return true;\n        }\n        return false; // Prevent default\
+      \ behavior\n    }\n};"
+    language: cpp
+  notes: This method is called from the game's main update loop and should avoid heavy
+    computations or blocking operations. The AreaTriggerEntry data is read-only during
+    this callback, so modifications to trigger properties will not affect the actual
+    area trigger behavior.
+  warnings: Do not call methods that modify the player's state (like TeleportTo) within
+    this function unless necessary, as it may cause unexpected behavior if the player
+    is already in motion. Also, returning false does not guarantee that no further
+    processing occurs; some default actions might still happen depending on how the
+    area trigger is configured.
+  related:
+  - AreaTriggerScript::OnTrigger
+  - AreaTriggerScript::OnTriggerEnter
+  - AreaTriggerScript::OnTriggerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:04:25.778236'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

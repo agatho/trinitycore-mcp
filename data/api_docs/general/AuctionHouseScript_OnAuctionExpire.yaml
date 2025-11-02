@@ -1,0 +1,49 @@
+api:
+  class: AuctionHouseScript
+  method: OnAuctionExpire
+  signature: void AuctionHouseScript::OnAuctionExpire(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Called when an auction expires in the auction house system
+  description: The OnAuctionExpire method is a callback function that gets invoked
+    whenever an auction listing reaches its expiration time in the auction house.
+    This method allows script developers to implement custom behavior when auctions
+    expire, such as sending notifications to players, logging auction activity, or
+    modifying auction data before cleanup. The method provides access to both the
+    auction house object and the specific auction posting that has expired, enabling
+    detailed interaction with the auction's state and associated data.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      instance where the auction expired
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the specific auction
+      that has expired
+  returns: null
+  examples:
+  - title: Basic Auction Expiry Handler
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionExpire(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        // Log the expired auction\n        sLog->outString(\"Auction\
+      \ %u expired in AH %u\", auction->Id, ah->GetId());\n        \n        // Notify\
+      \ the auction owner\n        if (Player* owner = ObjectAccessor::FindPlayer(auction->OwnerGuid))\n\
+      \        {\n            owner->SendNotification(\"Your auction has expired and\
+      \ was not sold.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the auction house cleanup process, so modifications
+    to the auction object should be done carefully. The auction object may be in a
+    transitional state during this callback, and accessing certain properties might
+    not be safe if the auction has already been removed from active lists.
+  warnings: Avoid performing operations that could modify the auction house structure
+    or cause re-entrancy issues within this callback. Be cautious when accessing auction
+    data that might have already been freed or marked for deletion.
+  related:
+  - OnAuctionSold
+  - OnAuctionBid
+  - OnAuctionRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T13:36:56.407214'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

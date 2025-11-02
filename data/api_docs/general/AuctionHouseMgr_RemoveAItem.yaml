@@ -1,0 +1,60 @@
+api:
+  class: AuctionHouseMgr
+  method: RemoveAItem
+  signature: bool AuctionHouseMgr::RemoveAItem(int itemGuid, bool deleteItem, int
+    * trans)
+documentation:
+  brief: Removes an item from the auction house database and optionally deletes the
+    item object.
+  description: The RemoveAItem method is responsible for removing an auctioned item
+    from the auction house system. It takes the item's GUID as input and removes it
+    from the auction database. If the deleteItem flag is set to true, the actual item
+    object will also be deleted from the database. The trans parameter can be used
+    to pass a transaction handle for database operations, allowing the removal to
+    be part of a larger transaction. This method ensures that auction listings are
+    properly cleaned up when items are sold, canceled, or removed for other reasons.
+  parameters:
+  - name: itemGuid
+    description: The unique identifier (GUID) of the item to be removed from the auction
+      house. This is typically the database ID of the auctioned item.
+  - name: deleteItem
+    description: Boolean flag indicating whether the actual item object should also
+      be deleted from the database. If true, both the auction listing and the item
+      itself are removed; if false, only the auction listing is removed.
+  - name: trans
+    description: Pointer to a transaction handle that can be used for database operations.
+      Allows the removal operation to be part of a larger database transaction for
+      consistency. Can be null if no transaction is needed.
+  returns: Returns true if the item was successfully removed from the auction house
+    system, false otherwise. The method may return false if the item with the specified
+    GUID does not exist in the auction database or if there was a database error during
+    the removal process.
+  examples:
+  - title: Remove an auctioned item without deleting the actual item
+    code: bool success = sAuctionHouseMgr->RemoveAItem(12345, false, nullptr);
+    language: cpp
+  - title: Remove an auctioned item and delete the actual item object
+    code: 'Transaction* trans = new Transaction();
+
+      bool success = sAuctionHouseMgr->RemoveAItem(67890, true, trans);
+
+      delete trans;'
+    language: cpp
+  notes: This method is typically called internally by the auction house system when
+    items are sold or canceled. The transaction parameter allows for atomic operations
+    when removing multiple related items. Ensure that proper locking mechanisms are
+    in place if this method is called from multiple threads simultaneously.
+  warnings: Be cautious when using the deleteItem flag as it permanently removes the
+    item object from the database. Make sure the item is not referenced elsewhere
+    before calling with deleteItem=true. Also, ensure that any transaction passed
+    to the method is properly managed to avoid database inconsistencies.
+  related:
+  - AddAItem
+  - GetAItem
+  - UpdateAItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T13:40:26.265330'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

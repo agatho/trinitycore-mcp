@@ -1,0 +1,59 @@
+api:
+  class: AuraScript
+  method: _Validate
+  signature: bool AuraScript::_Validate(const SpellInfo * entry)
+documentation:
+  brief: Validates whether the AuraScript instance is compatible with the provided
+    spell entry.
+  description: The _Validate method checks if the current AuraScript implementation
+    is suitable for use with a given SpellInfo object. This method ensures that the
+    aura script's requirements and constraints align with the spell's properties,
+    such as aura type, duration, and other spell-specific attributes. It typically
+    performs internal validation logic to confirm that the script can safely be applied
+    to the specified spell without causing runtime errors or unexpected behavior.
+    The validation occurs during aura application and helps maintain game integrity
+    by preventing incompatible auras from being applied to spells.
+  parameters:
+  - name: entry
+    description: Pointer to the SpellInfo structure representing the spell that this
+      aura script is intended to be used with. Must not be null.
+  returns: Returns true if the AuraScript is valid and compatible with the provided
+    spell entry, false otherwise. A return value of false typically indicates that
+    the aura script cannot be properly applied to the specified spell due to incompatibility
+    or invalid configuration.
+  examples:
+  - title: Basic validation check
+    code: "class MyAuraScript : public AuraScript\n{\npublic:\n    bool _Validate(const\
+      \ SpellInfo* entry) override\n    {\n        // Allow only specific aura types\n\
+      \        if (entry->GetAuraType() == SPELL_AURA_MOD_STAT)\n            return\
+      \ true;\n        \n        return false;\n    }\n};"
+    language: cpp
+  - title: Advanced validation with multiple conditions
+    code: "class AdvancedAuraScript : public AuraScript\n{\npublic:\n    bool _Validate(const\
+      \ SpellInfo* entry) override\n    {\n        // Validate aura type and spell\
+      \ category\n        if (entry->GetAuraType() != SPELL_AURA_DUMMY)\n        \
+      \    return false;\n        \n        // Ensure the spell is not flagged as\
+      \ passive\n        if (entry->HasAttribute(SPELL_ATTR0_PASSIVE))\n         \
+      \   return false;\n        \n        // Validate that it's a harmful spell\n\
+      \        if (entry->GetSpellFamilyName() == SPELLFAMILY_MAGE && entry->GetSpellIconID()\
+      \ != 1234)\n            return false;\n        \n        return true;\n    }\n\
+      };"
+    language: cpp
+  notes: This method is called during the aura application process and should be implemented
+    efficiently to avoid performance bottlenecks. The validation logic should not
+    have side effects or modify spell data. It's recommended to cache any expensive
+    computations if the same spell entry is validated multiple times.
+  warnings: Do not perform operations that could alter the spell state or cause side
+    effects within this method. Avoid calling methods that might trigger additional
+    aura processing or modify global game state, as this can lead to undefined behavior
+    or infinite recursion.
+  related:
+  - AuraScript::OnApply
+  - AuraScript::OnRemove
+  - AuraScript::OnUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T13:18:13.403211'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

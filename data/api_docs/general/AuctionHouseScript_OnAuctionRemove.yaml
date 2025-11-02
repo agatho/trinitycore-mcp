@@ -1,0 +1,59 @@
+api:
+  class: AuctionHouseScript
+  method: OnAuctionRemove
+  signature: void AuctionHouseScript::OnAuctionRemove(AuctionHouseObject * ah, AuctionPosting
+    * auction)
+documentation:
+  brief: Called when an auction is removed from the auction house, allowing scripts
+    to perform custom logic.
+  description: The OnAuctionRemove method is a virtual callback function in the AuctionHouseScript
+    class that is invoked whenever an auction listing is removed from the auction
+    house system. This can occur due to various reasons such as the auction expiring
+    without being bought, the item being successfully sold, or the seller canceling
+    the auction manually. The method provides access to both the auction house object
+    and the specific auction posting that was removed, enabling custom scripts to
+    execute logic such as logging, notifying players, updating databases, or modifying
+    game state. This callback is part of the TrinityCore scripting system's extensibility
+    framework for auction house behavior.
+  parameters:
+  - name: ah
+    description: Pointer to the AuctionHouseObject representing the auction house
+      instance where the auction was removed.
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the specific auction
+      that has been removed from the auction house.
+  returns: null
+  examples:
+  - title: Basic Auction Removal Logging
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionRemove(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        // Log when an auction is removed\n        sLog->outString(\"\
+      Auction for item %u removed from AH.\", auction->itemTemplate->ItemId);\n  \
+      \  }\n};"
+    language: cpp
+  - title: Notify Player on Auction Removal
+    code: "class MyAuctionScript : public AuctionHouseScript\n{\npublic:\n    void\
+      \ OnAuctionRemove(AuctionHouseObject* ah, AuctionPosting* auction) override\n\
+      \    {\n        // Notify the seller if they are online\n        if (Player*\
+      \ player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player,\
+      \ auction->owner)))\n        {\n            player->SendNotification(\"Your\
+      \ auction for %s has been removed.\", auction->itemTemplate->Name1);\n     \
+      \   }\n    }\n};"
+    language: cpp
+  notes: This method is called during the auction house cleanup process, so it's important
+    to avoid heavy operations or database queries that could impact performance. The
+    auction object passed in may have already been partially cleaned up by the time
+    this callback executes.
+  warnings: Do not attempt to modify or re-add the auction within this callback as
+    it may lead to undefined behavior or crashes. Ensure any player notifications
+    are done safely and avoid blocking operations.
+  related:
+  - OnAuctionAdd
+  - OnAuctionBid
+  - OnAuctionSuccessful
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T13:36:30.294182'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

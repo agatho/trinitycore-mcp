@@ -1,0 +1,46 @@
+api:
+  class: Bag
+  method: SaveToDB
+  signature: void Bag::SaveToDB(int trans)
+documentation:
+  brief: Saves the bag and its contents to the database with optional transaction
+    support.
+  description: The SaveToDB method persists the current state of a Bag object and
+    all items contained within it to the TrinityCore database. This method is typically
+    invoked when a player's inventory changes, ensuring that modifications such as
+    item additions, removals, or stack updates are committed to persistent storage.
+    The optional transaction parameter allows for batch operations to be grouped together
+    for atomicity. This method does not directly handle database connections but relies
+    on the existing transaction management system within the TrinityCore framework.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided, the save operation
+      will be executed within the context of this transaction. A value of -1 indicates
+      no transaction is used and a new one will be started internally.
+  returns: null
+  examples:
+  - title: Basic Save Operation
+    code: "Bag* bag = player->GetBag(0);\nif (bag)\n{\n    bag->SaveToDB();\n}"
+    language: cpp
+  - title: Save with Transaction
+    code: "TransactionPtr trans = new Transaction();\nBag* bag = player->GetBag(1);\n\
+      if (bag)\n{\n    bag->SaveToDB(trans);\n}\ntrans->Execute();"
+    language: cpp
+  notes: This method is part of the item persistence system in TrinityCore. It should
+    only be called when changes to the bag's contents have occurred and need to be
+    saved. The method internally handles serialization of item data and ensures proper
+    database updates for both the bag itself and all contained items.
+  warnings: Calling this method without a valid transaction context may result in
+    performance degradation due to individual database transactions being created
+    for each save operation. Avoid calling this method during high-frequency inventory
+    operations unless necessary.
+  related:
+  - Bag::LoadFromDB
+  - Item::SaveToDB
+  - Player::SaveInventory
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T13:10:03.573866'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: AreaTriggerScript
+  method: OnExit
+  signature: bool AreaTriggerScript::OnExit(Player * player, const AreaTriggerEntry
+    * trigger)
+documentation:
+  brief: Handles player exit from an area trigger, allowing custom logic execution
+  description: The OnExit method is invoked when a player leaves an area trigger zone.
+    This virtual method provides a hook for custom scripts to execute specific behavior
+    when a player exits a defined area trigger. The method receives the player object
+    and the area trigger entry data as parameters. Returning true typically indicates
+    that the default handling should be skipped, while returning false allows normal
+    processing to continue. This method is commonly used in custom area trigger implementations
+    to control quest progression, activate events, or modify player state upon leaving
+    a trigger zone.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is exiting the area trigger. This
+      parameter represents the specific player instance that triggered the exit event.
+  - name: trigger
+    description: Pointer to the AreaTriggerEntry structure containing data about the
+      area trigger being exited. This provides access to trigger properties such as
+      ID, position, and other configuration values.
+  returns: Boolean value indicating whether default processing should be skipped (true)
+    or allowed to proceed (false). Returning true prevents standard area trigger exit
+    behavior from executing.
+  examples:
+  - title: Basic Area Trigger Exit Handler
+    code: "class MyAreaTriggerScript : public AreaTriggerScript\n{\npublic:\n    bool\
+      \ OnExit(Player* player, const AreaTriggerEntry* trigger) override\n    {\n\
+      \        // Log the exit event\n        LOG_INFO(\"server\", \"Player {} exited\
+      \ area trigger {}\", player->GetName(), trigger->ID);\n        \n        //\
+      \ Allow normal processing to continue\n        return false;\n    }\n};"
+    language: cpp
+  - title: Area Trigger Exit with Quest Completion
+    code: "class QuestAreaTriggerScript : public AreaTriggerScript\n{\npublic:\n \
+      \   bool OnExit(Player* player, const AreaTriggerEntry* trigger) override\n\
+      \    {\n        // Check if player has the required quest\n        if (player->GetQuestStatus(12345)\
+      \ == QUEST_STATUS_INCOMPLETE)\n        {\n            // Complete the quest\n\
+      \            player->CompleteQuest(12345);\n            \n            // Prevent\
+      \ default behavior to avoid duplicate completion\n            return true;\n\
+      \        }\n        \n        return false;\n    }\n};"
+    language: cpp
+  notes: This method is part of the AreaTriggerScript base class and should be overridden
+    in derived classes. The method is called from the game's core area trigger system,
+    so performance considerations are important for frequently used triggers. Be careful
+    not to perform heavy operations that could block the game loop.
+  warnings: Do not modify player state in ways that could cause instability or infinite
+    loops. Avoid calling methods that might recursively trigger area trigger events.
+    Returning true should be used sparingly as it bypasses standard area trigger exit
+    handling.
+  related:
+  - OnEnter
+  - OnUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T14:05:00.233350'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
