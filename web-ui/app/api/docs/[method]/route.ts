@@ -9,10 +9,11 @@ import { getMethodByName } from '@/lib/api-docs-loader';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { method: string } }
+  { params }: { params: Promise<{ method: string }> }
 ) {
   try {
-    const methodName = decodeURIComponent(params.method);
+    const { method: methodParam } = await params;
+    const methodName = decodeURIComponent(methodParam);
 
     // Get method documentation
     const method = getMethodByName(methodName);

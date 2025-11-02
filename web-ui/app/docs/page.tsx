@@ -248,9 +248,9 @@ export default function DocsPage() {
                   <div className="text-sm text-slate-400 mb-4">
                     Showing {methods.length} method{methods.length !== 1 ? "s" : ""}
                   </div>
-                  {methods.map((method) => (
+                  {methods.map((method, index) => (
                     <Link
-                      key={method.method}
+                      key={`${method.className}_${method.methodName}_${index}`}
                       href={`/docs/${encodeURIComponent(method.method)}`}
                     >
                       <Card className="bg-slate-800/50 border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer group">
