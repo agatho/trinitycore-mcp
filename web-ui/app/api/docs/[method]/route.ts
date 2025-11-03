@@ -1,11 +1,11 @@
 /**
  * API Method Detail Route
  * GET /api/docs/[method] - Get specific method documentation
- * Example: GET /api/docs/Player::CastSpell
+ * Example: GET /api/docs/Player_CastSpell (uses ID, not full signature)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getMethodByName } from '@/lib/api-docs-loader';
+import { getMethodById } from '@/lib/api-docs-loader';
 
 export async function GET(
   request: NextRequest,
@@ -13,16 +13,16 @@ export async function GET(
 ) {
   try {
     const { method: methodParam } = await params;
-    const methodName = decodeURIComponent(methodParam);
+    const methodId = decodeURIComponent(methodParam);
 
-    // Get method documentation
-    const method = getMethodByName(methodName);
+    // Get method documentation by ID (ClassName_MethodName format)
+    const method = getMethodById(methodId);
 
     if (!method) {
       return NextResponse.json(
         {
           success: false,
-          error: `Method ${methodName} not found`,
+          error: `Method with ID ${methodId} not found`,
         },
         { status: 404 }
       );

@@ -13,6 +13,7 @@ export interface APIMethod {
   className: string;
   methodName: string;
   description: string;
+  id: string; // URL-safe identifier (ClassName_MethodName)
   parameters?: Array<{
     name: string;
     type: string;
@@ -67,6 +68,9 @@ export function loadAllAPIDocs(): APIMethod[] {
       const content = fs.readFileSync(filePath, 'utf8');
       const doc = yaml.load(content) as any;
 
+      // Extract ID from filename (e.g., "AccountMgr_ChangeEmail.yaml" -> "AccountMgr_ChangeEmail")
+      const id = file.replace('.yaml', '');
+
       // Extract class and method from the new YAML structure
       const className = doc.api?.class || 'Unknown';
       const methodName = doc.api?.method || 'Unknown';
@@ -108,6 +112,7 @@ export function loadAllAPIDocs(): APIMethod[] {
         className,
         methodName,
         description,
+        id,
         parameters,
         returns,
         usage,
@@ -186,6 +191,76 @@ export function searchMethods(query: string): APIMethod[] {
 export function getMethodByName(fullName: string): APIMethod | null {
   const methods = loadAllAPIDocs();
   return methods.find(m => m.method === fullName) || null;
+}
+
+/**
+ * Get method by ID (ClassName_MethodName) - Optimized single-file loader
+ */
+export function getMethodById(id: string): APIMethod | null {
+  const docsPath = getAPIDocsPath();
+  const filePath = path.join(docsPath, `${id}.yaml`);
+
+  if (!fs.existsSync(filePath)) {
+    console.warn(`API doc file not found: ${filePath}`);
+    return null;
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const doc = yaml.load(content) as any;
+
+    // Extract class and method from the YAML structure
+    const className = doc.api?.class || 'Unknown';
+    const methodName = doc.api?.method || 'Unknown';
+    const signature = doc.api?.signature || `${className}::${methodName}`;
+
+    // Extract documentation fields
+    const documentation = doc.documentation || {};
+    const description = documentation.brief || documentation.description || '';
+
+    // Extract parameters
+    const parameters = documentation.parameters?.map((param: any) => ({
+      name: param.name || '',
+      type: '', // Type is in signature
+      description: param.description || '',
+    }));
+
+    // Extract return type
+    const returns = documentation.returns ? {
+      type: '',
+      description: typeof documentation.returns === 'string' ? documentation.returns : '',
+    } : undefined;
+
+    // Extract usage examples
+    const usage = documentation.examples?.map((ex: any) =>
+      `// ${ex.title || 'Example'}\n${ex.code || ''}`
+    ).join('\n\n') || undefined;
+
+    // Extract notes and warnings
+    const notes = [
+      documentation.notes,
+      documentation.warnings ? `⚠️ Warning: ${documentation.warnings}` : null,
+    ].filter(Boolean).join('\n\n') || undefined;
+
+    // Extract related methods
+    const related_methods = documentation.related || undefined;
+
+    return {
+      method: signature,
+      className,
+      methodName,
+      description,
+      id,
+      parameters,
+      returns,
+      usage,
+      notes,
+      related_methods,
+    };
+  } catch (error) {
+    console.error(`Error loading ${id}.yaml:`, error);
+    return null;
+  }
 }
 
 /**

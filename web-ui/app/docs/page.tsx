@@ -12,6 +12,7 @@ interface APIMethod {
   className: string;
   methodName: string;
   description: string;
+  id: string;
   parameters?: Array<{
     name: string;
     type: string;
@@ -251,7 +252,7 @@ export default function DocsPage() {
                   {methods.map((method, index) => (
                     <Link
                       key={`${method.className}_${method.methodName}_${index}`}
-                      href={`/docs/${encodeURIComponent(method.method)}`}
+                      href={`/docs/${method.id}`}
                     >
                       <Card className="bg-slate-800/50 border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer group">
                         <CardHeader>
