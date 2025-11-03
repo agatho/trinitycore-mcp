@@ -44,7 +44,7 @@ export default function SpellsPage() {
       const spellId = parseInt(searchQuery);
 
       if (!isNaN(spellId)) {
-        const result = await callTool("mcp__trinitycore__get-spell-info", { spellId });
+        const result = await callTool("get-spell-info", { spellId });
 
         // Convert single spell result to array format
         if (result) {
