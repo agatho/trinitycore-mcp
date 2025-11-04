@@ -831,10 +831,20 @@ export class CodeAnalysisEngine {
  * @param serenaMCPClient - Serena MCP client instance
  * @returns Configured CodeAnalysisEngine
  */
-export function createCodeAnalysisEngine(serenaMCPClient: any): CodeAnalysisEngine {
+export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): CodeAnalysisEngine {
   // Wrap Serena MCP tools for CodeAnalysisEngine
   const serenaTool = {
     getSymbolsOverview: async (filepath: string): Promise<SerenaFileOverview> => {
+      // If AST data provided, use it instead of calling Serena
+      if (astData && astData[filepath]) {
+        return astData[filepath] as SerenaFileOverview;
+      }
+
+      // Fallback to Serena MCP if available
+      if (!serenaMCPClient) {
+        throw new Error('No Serena MCP client available and no AST data provided for: ' + filepath);
+      }
+
       const result = await serenaMCPClient.callTool('mcp__serena__get_symbols_overview', {
         relative_path: filepath,
       });

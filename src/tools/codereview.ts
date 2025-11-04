@@ -21,6 +21,10 @@ import type { LLMConfig } from "../code-review/AIReviewEngine.js";
 
 /**
  * Review a single file for code quality issues
+ *
+ * Two-step orchestration (recommended):
+ * 1. Call Serena MCP to get AST data
+ * 2. Pass AST data to this function via astData parameter
  */
 export async function reviewFile(
   filePath: string,
@@ -34,6 +38,7 @@ export async function reviewFile(
     projectRoot?: string;
     compilerType?: CompilerType;
     verbose?: boolean;
+    astData?: any; // Pre-generated AST from Serena MCP (two-step orchestration)
   } = {}
 ): Promise<string> {
   try {
@@ -57,6 +62,7 @@ export async function reviewFile(
       projectRoot: options.projectRoot,
       compilerType: options.compilerType || "gcc",
       verbose: options.verbose ?? false,
+      astData: options.astData, // Pass pre-generated AST
     };
 
     const orchestrator = await createCodeReviewOrchestrator(config);

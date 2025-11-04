@@ -125,6 +125,13 @@ export interface CodeReviewConfig {
    * If not provided, code analysis will be limited
    */
   serena?: any;
+
+  /**
+   * Pre-generated AST data from Serena MCP (two-step orchestration)
+   * When provided, skips Serena calls and uses this AST directly
+   * Format: { [filePath: string]: AST }
+   */
+  astData?: any;
 }
 
 /**
@@ -263,11 +270,12 @@ export class CodeReviewOrchestrator {
       compilerType: config.compilerType || 'gcc',
       verbose: config.verbose ?? false,
       serena: config.serena || undefined,
+      astData: config.astData || undefined,
     };
 
     // Initialize components
     this.ruleEngine = new TrinityRuleEngine();
-    this.codeAnalysisEngine = createCodeAnalysisEngine(this.config.serena);
+    this.codeAnalysisEngine = createCodeAnalysisEngine(this.config.serena, this.config.astData);
     this.reportGenerator = createReviewReportGenerator();
 
     // Initialize AI engine if enabled and LLM config provided
