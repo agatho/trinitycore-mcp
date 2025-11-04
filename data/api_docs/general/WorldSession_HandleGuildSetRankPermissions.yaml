@@ -1,0 +1,51 @@
+api:
+  class: WorldSession
+  method: HandleGuildSetRankPermissions
+  signature: void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRankPermissions
+    & packet)
+documentation:
+  brief: Updates guild rank permissions based on data received from a client packet
+  description: Handles the client request to modify guild rank permissions. This method
+    processes a GuildSetRankPermissions packet sent by the player's client, which
+    contains updated permission settings for a specific guild rank. The method validates
+    that the player has sufficient privileges to make such changes, ensures the target
+    rank exists within the guild, and applies the new permission flags to the rank.
+    It also broadcasts the updated permissions to all guild members who have the necessary
+    access level to view them.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage in guild management
+    code: "void HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRankPermissions&\
+      \ packet)\n{\n    // Validate player is in a guild\n    if (!GetPlayer()->GetGuildId())\n\
+      \        return;\n    \n    // Get guild and verify rank exists\n    Guild*\
+      \ guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId());\n    if (!guild\
+      \ || packet.RankId >= guild->GetNumRanks())\n        return;\n    \n    // Update\
+      \ permissions for the specified rank\n    guild->SetRankPermissions(packet.RankId,\
+      \ packet.Permissions);\n    \n    // Send updated permissions to all guild members\n\
+      \    guild->SendGuildRankUpdate();\n}"
+    language: cpp
+  notes: This method assumes that the client has already validated the player's authority
+    to modify guild ranks. The actual permission flags are typically defined in the
+    game's configuration and may vary between different World of Warcraft expansions
+    or server customizations. This function is part of the core guild management system
+    and should be called only when a valid packet is received from an authenticated
+    session.
+  warnings: Improper handling of rank permissions can lead to security vulnerabilities
+    where players might gain unauthorized access to guild functions. Always validate
+    that the player has the appropriate guild leader or officer status before allowing
+    permission modifications. This method does not perform any automatic synchronization
+    with other servers in a cluster environment, so additional logic may be required
+    for distributed systems.
+  related:
+  - HandleGuildCreate
+  - HandleGuildQuery
+  - HandleGuildSetLeader
+  - Guild::SetRankPermissions
+  - Guild::SendGuildRankUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:29:24.699004'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: PathfindingAdapter
+  method: GetCacheStatistics
+  signature: void PathfindingAdapter::GetCacheStatistics(uint32 & hits, uint32 & misses,
+    uint32 & evictions) const
+documentation:
+  brief: Retrieves cache hit, miss, and eviction statistics for pathfinding operations.
+  description: The GetCacheStatistics method provides detailed performance metrics
+    for the pathfinding cache within the PathfindingAdapter class. It populates three
+    output parameters with counts representing how many pathfinding requests resulted
+    in cache hits, misses, or evictions. This information is crucial for monitoring
+    and optimizing pathfinding performance in World of Warcraft environments. The
+    method does not modify any internal state and can be called at any time during
+    runtime to assess cache efficiency.
+  parameters:
+  - name: hits
+    description: Reference to a uint32 variable that will be filled with the number
+      of successful cache hits during pathfinding operations.
+  - name: misses
+    description: Reference to a uint32 variable that will be filled with the number
+      of cache misses during pathfinding operations.
+  - name: evictions
+    description: Reference to a uint32 variable that will be filled with the number
+      of entries evicted from the cache during pathfinding operations.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'uint32 hits = 0, misses = 0, evictions = 0;
+
+      pathfindingAdapter->GetCacheStatistics(hits, misses, evictions);
+
+      TC_LOG_INFO("misc", "Pathfinding Cache Stats - Hits: %u, Misses: %u, Evictions:
+      %u", hits, misses, evictions);'
+    language: cpp
+  - title: Performance Monitoring Example
+    code: "void LogPathfindingCacheStats() {\n    uint32 hits = 0, misses = 0, evictions\
+      \ = 0;\n    pathfindingAdapter->GetCacheStatistics(hits, misses, evictions);\n\
+      \    float hitRatio = (hits + misses) > 0 ? static_cast<float>(hits) / (hits\
+      \ + misses) : 0.0f;\n    TC_LOG_INFO(\"pathfinding\", \"Cache Hit Ratio: %.2f%%\
+      \ (Hits: %u, Misses: %u, Evictions: %u)\", \n                hitRatio * 100.0f,\
+      \ hits, misses, evictions);\n}"
+    language: cpp
+  notes: This method provides read-only access to internal cache statistics and does
+    not perform any locking operations. It's safe to call from multiple threads concurrently,
+    though the returned values may be inconsistent across calls due to concurrent
+    modifications. The statistics are cumulative since the last reset or initialization
+    of the pathfinding adapter.
+  warnings: The returned statistics are not thread-safe and may change between the
+    time they are read and when they are used in calculations. For accurate performance
+    analysis, consider collecting these statistics at regular intervals or during
+    specific testing phases rather than in real-time gameplay scenarios.
+  related:
+  - GetPath
+  - CalculatePath
+  - ResetCache
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T22:13:28.711952'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

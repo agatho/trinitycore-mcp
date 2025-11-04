@@ -1,0 +1,65 @@
+api:
+  class: NavMeshInterface
+  method: IsOnNavMesh
+  signature: bool NavMeshInterface::IsOnNavMesh(Map * map, const int & position, float
+    tolerance) const
+documentation:
+  brief: Checks if a given position is located on the navigation mesh for the specified
+    map.
+  description: The IsOnNavMesh method determines whether a specified position lies
+    within the boundaries of the navigation mesh for a given map. This is essential
+    for pathfinding operations in World of Warcraft's TrinityCore engine, ensuring
+    that AI characters and players can only navigate valid areas. The method uses
+    a tolerance value to account for minor positioning inaccuracies or floating-point
+    precision issues. It returns true if the position is on the navmesh, false otherwise.
+    This check is crucial for preventing units from attempting to move through invalid
+    terrain or obstacles.
+  parameters:
+  - name: map
+    description: Pointer to the Map object for which the navigation mesh check is
+      performed. Must be a valid map instance.
+  - name: position
+    description: The position coordinate to check against the navmesh. This parameter
+      likely represents a specific point in world coordinates or a serialized position
+      identifier.
+  - name: tolerance
+    description: Floating-point value defining how much deviation from the exact navmesh
+      boundary is acceptable. Higher values allow for more lenient matching, useful
+      for handling positioning inaccuracies.
+  returns: Boolean value indicating whether the specified position is located on the
+    navigation mesh. Returns true if the position is valid and within the navmesh
+    boundaries; returns false if the position is outside the navmesh or invalid.
+  examples:
+  - title: Basic usage to check if a player's position is on navmesh
+    code: "Map* map = player->GetMap();\nfloat tolerance = 0.5f;\nbool isValid = NavMeshInterface::Instance().IsOnNavMesh(map,\
+      \ player->GetPosition(), tolerance);\nif (!isValid)\n{\n    // Handle invalid\
+      \ position case\n    sLog->outError(\"Player position is not on navmesh\");\n\
+      }"
+    language: cpp
+  - title: Using IsOnNavMesh for AI pathfinding validation
+    code: "Unit* aiUnit = ...;\nMap* map = aiUnit->GetMap();\nfloat tolerance = 1.0f;\n\
+      WorldLocation targetLoc = aiUnit->GetTargetLocation();\nif (NavMeshInterface::Instance().IsOnNavMesh(map,\
+      \ targetLoc.GetPosition(), tolerance))\n{\n    // Proceed with pathfinding\n\
+      \    aiUnit->SetCanMove(true);\n}\nelse\n{\n    // Avoid invalid destination\n\
+      \    aiUnit->SetCanMove(false);\n}"
+    language: cpp
+  notes: This method relies on the underlying navigation mesh data structure which
+    must be properly initialized and updated for accurate results. The tolerance parameter
+    allows for minor positioning errors but should be tuned based on game requirements
+    to balance accuracy with performance. The method is typically used in conjunction
+    with other navmesh operations like FindPath or GetNearestPointOnNavMesh.
+  warnings: Ensure that the Map pointer passed is valid and initialized before calling
+    this method, as passing a null or uninitialized map could lead to undefined behavior.
+    Be cautious when using very small tolerance values as they may cause false negatives
+    due to floating-point precision issues.
+  related:
+  - FindPath
+  - GetNearestPointOnNavMesh
+  - IsInWater
+  - IsInLineOfSight
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-03T22:59:47.666222'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

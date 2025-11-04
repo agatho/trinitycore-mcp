@@ -1,0 +1,56 @@
+api:
+  class: Ticket
+  method: SetAssignedTo
+  signature: void Ticket::SetAssignedTo(int guid, bool param1)
+documentation:
+  brief: Assigns a ticket to a specific game master identified by GUID
+  description: The SetAssignedTo method assigns a support ticket to a game master
+    within the TrinityCore server. This method updates the ticket's assignment status
+    and records the GUID of the assigned game master. The assignment typically occurs
+    when a game master accepts responsibility for resolving a player's issue. The
+    method does not validate whether the provided GUID corresponds to an active game
+    master, so it's the caller's responsibility to ensure the target is a valid administrator.
+    This method is part of the ticketing system used by TrinityCore's in-game support
+    functionality.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the game master to whom the ticket
+      should be assigned. This value must correspond to a valid player account with
+      administrator privileges.
+  - name: param1
+    description: A boolean flag that likely controls additional assignment behavior,
+      such as whether to send a notification to the assigned game master or update
+      related timestamps. The exact meaning depends on internal implementation details.
+  returns: null
+  examples:
+  - title: Basic Ticket Assignment
+    code: 'Ticket* ticket = sTicketMgr->GetTicketById(12345);
+
+      ticket->SetAssignedTo(98765, true);'
+    language: cpp
+  - title: Assigning Ticket with Notification Flag
+    code: 'uint32 gmGuid = sObjectMgr->GetPlayerGUIDByName("AdminUser");
+
+      Ticket* ticket = sTicketMgr->GetTicketByPlayerGUID(playerGuid);
+
+      ticket->SetAssignedTo(gmGuid, false); // No notification sent'
+    language: cpp
+  notes: This method modifies internal ticket state and should be called only when
+    appropriate. The assignment does not automatically update the ticket's status
+    field; additional logic may be required to transition the ticket into an 'in progress'
+    or 'assigned' state. Consider that this method is typically used in conjunction
+    with other ticket management functions.
+  warnings: Ensure that the provided GUID actually refers to a valid game master account,
+    as invalid assignments can cause issues with ticket tracking and player support
+    workflows. The param1 parameter's behavior may vary depending on server configuration
+    or patch versions.
+  related:
+  - GetAssignedTo
+  - SetStatus
+  - UpdateTicket
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T16:21:05.356817'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

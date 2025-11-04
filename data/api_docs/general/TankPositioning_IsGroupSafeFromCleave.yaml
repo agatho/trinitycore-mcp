@@ -1,0 +1,64 @@
+api:
+  class: TankPositioning
+  method: IsGroupSafeFromCleave
+  signature: bool TankPositioning::IsGroupSafeFromCleave(Unit * target, const int
+    & tankPos, float cleaveAngle)
+documentation:
+  brief: Determines whether the group is safe from a cleave attack based on tank positioning
+    and target orientation.
+  description: The IsGroupSafeFromCleave method evaluates if the current group configuration
+    is protected from a cleave attack originating from a specified target. It considers
+    the tank's position relative to the target and the angle of the cleave ability
+    to determine if any group members would be caught in the cleave's area of effect.
+    This method is typically used in AI decision-making for positioning strategies,
+    particularly when managing threat distribution or avoiding dangerous AoE abilities.
+    The method requires a valid target unit and assumes that the tank's position is
+    already determined within the group context.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the source of the cleave
+      attack. Must be a valid, non-null pointer to a Unit in the game world.
+  - name: tankPos
+    description: Integer value indicating the relative position of the tank within
+      the group. This parameter defines where the tank is positioned for cleave evaluation
+      purposes (e.g., 0 = front, 1 = middle, 2 = back).
+  - name: cleaveAngle
+    description: Float value representing the angular extent of the cleave ability
+      in degrees. Defines how wide the cleave's area of effect is, typically between
+      0 and 360 degrees.
+  returns: Returns true if the group is considered safe from the cleave attack based
+    on current positioning; otherwise returns false. A return value of false indicates
+    that at least one group member would be affected by the cleave.
+  examples:
+  - title: Basic usage to check group safety
+    code: "if (tankPositioning->IsGroupSafeFromCleave(targetUnit, 0, 120.0f)) {\n\
+      \    // Proceed with positioning\n} else {\n    // Adjust tank position or warn\
+      \ players\n}"
+    language: cpp
+  - title: Using in a combat AI decision loop
+    code: "void CombatAI::Update()\n{\n    if (IsGroupSafeFromCleave(currentTarget,\
+      \ tankPosition, cleaveAngle))\n    {\n        // Continue with current strategy\n\
+      \        DoCleaveAttack();\n    }\n    else\n    {\n        // Reassess positioning\n\
+      \        AdjustTankPosition();\n    }\n}"
+    language: cpp
+  notes: This method assumes that the tank's position is already established within
+    the group context and that the target unit has valid orientation data. The cleave
+    angle should be interpreted in the context of the game's coordinate system, typically
+    measured from the target's facing direction. Performance-wise, this method performs
+    geometric calculations involving angles and positions, so it may have moderate
+    computational cost during frequent calls.
+  warnings: Ensure that the target unit is valid before calling this method to avoid
+    undefined behavior. The tankPos parameter must be within expected bounds (typically
+    0-2) or else the result may be unpredictable. Incorrectly setting cleaveAngle
+    can lead to false safety assessments, especially if it's set to a value outside
+    the typical range of cleave abilities.
+  related:
+  - GetTankPosition
+  - SetTankPosition
+  - CalculateCleaveArea
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T17:37:22.515402'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

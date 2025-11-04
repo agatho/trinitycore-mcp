@@ -1,0 +1,43 @@
+api:
+  class: WorldSession
+  method: HandleGuildBankWithdrawMoney
+  signature: void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney
+    & packet)
+documentation:
+  brief: Processes a guild bank money withdrawal request from a player.
+  description: Handles the client-initiated request to withdraw gold from the guild
+    bank. This method validates the player's permissions, checks if the guild has
+    sufficient funds, and updates both the player's inventory and the guild bank balance
+    accordingly. The operation requires the player to be a member of a guild with
+    appropriate banking rights. It ensures that the withdrawal does not exceed the
+    available guild funds and maintains data consistency between the player and guild
+    bank states.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Guild Bank Withdrawal Handling
+    code: "void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney&\
+      \ packet)\n{\n    // Validate player is in a guild\n    if (!GetPlayer()->GetGuildId())\n\
+      \        return;\n    \n    // Process the withdrawal\n    Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId());\n\
+      \    if (!guild)\n        return;\n    \n    uint32 amount = packet.Amount;\n\
+      \    if (amount > 0 && guild->WithdrawMoney(amount))\n    {\n        GetPlayer()->ModifyMoney(amount);\n\
+      \        SendGuildBankMoneyChange(amount, true);\n    }\n}"
+    language: cpp
+  notes: This method is part of the guild bank system and relies on proper guild banking
+    permissions. It should only be called when a player attempts to withdraw money
+    from their guild's bank account. The method assumes that the packet data has already
+    been validated by the network layer.
+  warnings: Improper validation of guild membership or funds can lead to exploits
+    where players might withdraw more money than available. Always verify that the
+    player has proper permissions and that sufficient funds exist before processing
+    withdrawals.
+  related:
+  - HandleGuildBankDepositMoney
+  - HandleGuildBankQueryTab
+  - HandleGuildBankSwapItems
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:01:55.991178'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,49 @@
+api:
+  class: Guild
+  method: _DeleteMemberFromDB
+  signature: void Guild::_DeleteMemberFromDB(int trans, int lowguid)
+documentation:
+  brief: Removes a guild member's data from the database using a transaction and low
+    GUID.
+  description: The _DeleteMemberFromDB method is an internal utility function within
+    the Guild class that removes all stored information about a specific guild member
+    from the database. It takes a database transaction handle and the low GUID of
+    the player to be removed, ensuring that the deletion occurs within the context
+    of an existing transaction for data consistency. This method is typically called
+    when a player leaves a guild or is kicked, and it directly interacts with the
+    database to purge relevant records such as member-specific guild data, permissions,
+    and other associated information. The function does not return any value, as its
+    purpose is purely to perform the deletion operation.
+  parameters:
+  - name: trans
+    description: The database transaction handle used for executing the deletion query.
+      This ensures that the operation is atomic and consistent with other related
+      database changes within the same transaction scope.
+  - name: lowguid
+    description: The low GUID (Globally Unique Identifier) of the player whose guild
+      membership data should be deleted from the database. This value uniquely identifies
+      the player within the game world.
+  returns: null
+  examples:
+  - title: Basic Usage in Guild Member Removal
+    code: "void RemoveGuildMember(Guild* guild, uint32 playerLowGuid) {\n    TransactionHolder\
+      \ trans;\n    // Begin transaction\n    trans.Begin();\n    \n    // Delete\
+      \ member from database\n    guild->_DeleteMemberFromDB(trans, playerLowGuid);\n\
+      \    \n    // Commit transaction\n    trans.Commit();\n}"
+    language: cpp
+  notes: This method is intended for internal use only and should not be called directly
+    by external code. It assumes that the provided transaction is already initialized
+    and active, and that the lowguid corresponds to a valid player in the guild. The
+    method performs no validation on inputs beyond basic type checking.
+  warnings: Calling this method without an active database transaction may result
+    in inconsistent data or database errors. Ensure that all related operations are
+    wrapped within the same transaction context for proper rollback behavior.
+  related:
+  - _AddMemberToDB
+  - _UpdateMemberInDB
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:49:28.345800'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

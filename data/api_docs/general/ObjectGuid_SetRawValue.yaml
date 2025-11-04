@@ -1,0 +1,61 @@
+api:
+  class: ObjectGuid
+  method: SetRawValue
+  signature: void ObjectGuid::SetRawValue(uint64 high, uint64 low)
+documentation:
+  brief: Sets the raw 64-bit high and low values of the ObjectGuid.
+  description: The SetRawValue method assigns new high and low 64-bit values to the
+    ObjectGuid object, effectively reconstructing the full 128-bit GUID from its constituent
+    parts. This method is typically used when working with raw GUID data from database
+    entries or network packets where the GUID is split into two 64-bit components.
+    The method directly modifies the internal state of the ObjectGuid instance without
+    performing any validation on the input values, so callers must ensure that the
+    provided values are appropriate for the intended use case. In World of Warcraft's
+    TrinityCore implementation, ObjectGuids are used extensively to uniquely identify
+    game objects, players, creatures, and other entities within the game world.
+  parameters:
+  - name: high
+    description: The upper 64 bits of the 128-bit GUID value. This typically represents
+      the type-specific portion or server identifier of the GUID.
+  - name: low
+    description: The lower 64 bits of the 128-bit GUID value. This usually contains
+      the unique instance identifier or object index within the game world.
+  returns: null
+  examples:
+  - title: Setting a GUID from database values
+    code: 'ObjectGuid guid;
+
+      guid.SetRawValue(0x0000000000001234ULL, 0x56789ABCDEF00000ULL);
+
+      // Resulting GUID combines high and low parts into a full 128-bit value'
+    language: cpp
+  - title: Reconstructing a player GUID from network data
+    code: 'uint64 serverId = 12345;
+
+      uint64 objectId = 67890;
+
+      ObjectGuid playerGuid;
+
+      playerGuid.SetRawValue(serverId, objectId);
+
+      // playerGuid now represents a valid player identifier for TrinityCore'
+    language: cpp
+  notes: This method performs no validation of the input values. It is the caller's
+    responsibility to ensure that the provided high and low values form a meaningful
+    GUID for the intended context. The ObjectGuid class in TrinityCore uses a 128-bit
+    internal representation, so this method directly sets both components without
+    any conversion or normalization.
+  warnings: Using invalid or malformed high/low values may result in unexpected behavior
+    when the GUID is used in game logic. Be cautious when setting these values from
+    external sources like database queries or network packets where data integrity
+    cannot be guaranteed.
+  related:
+  - ObjectGuid::GetRawValue
+  - ObjectGuid::SetHigh
+  - ObjectGuid::SetLow
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T22:33:59.400110'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

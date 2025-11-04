@@ -1,0 +1,56 @@
+api:
+  class: ResourceMonitor
+  method: GetResourceStarvationTime
+  signature: uint32 ResourceMonitor::GetResourceStarvationTime(ResourceType type)
+documentation:
+  brief: Calculates and returns the time in seconds until a specified resource type
+    becomes depleted based on current consumption rate.
+  description: The GetResourceStarvationTime method determines how long a given resource
+    type will last before it is completely consumed, based on the current rate of
+    usage. This method is typically used by the game engine to provide warnings or
+    notifications when players are approaching resource exhaustion. The calculation
+    takes into account the current resource amount and the rate at which that resource
+    is being consumed over time. It's commonly used for mana, health, or other consumable
+    resources in World of Warcraft-style gameplay mechanics. The method assumes a
+    steady consumption rate and does not account for temporary buffs, debuffs, or
+    changes in consumption behavior during the calculation period.
+  parameters: []
+  returns: Returns a uint32 value representing the number of seconds until the specified
+    resource type reaches zero. If the resource is already at zero or below, the method
+    returns 0. If the resource is infinite or not tracked by the monitor, it may return
+    a large value or 0 depending on implementation.
+  examples:
+  - title: Check mana starvation time
+    code: "uint32 manaStarvationTime = resourceMonitor->GetResourceStarvationTime(ResourceType::MANA);\n\
+      if (manaStarvationTime < 30)\n{\n    // Notify player that mana will run out\
+      \ soon\n    SendSystemMessage(\"Your mana is running low!\");\n}"
+    language: cpp
+  - title: Determine resource sustainability for AI decision making
+    code: "ResourceMonitor* monitor = player->GetResourceMonitor();\nuint32 healthTime\
+      \ = monitor->GetResourceStarvationTime(ResourceType::HEALTH);\nuint32 manaTime\
+      \ = monitor->GetResourceStarvationTime(ResourceType::MANA);\n\nif (healthTime\
+      \ > 60 && manaTime > 30)\n{\n    // Player can safely continue with current\
+      \ strategy\n    player->SetAIState(AIState::CONTINUOUS_CASTING);\n}\nelse if\
+      \ (healthTime <= 10)\n{\n    // Player should seek healing immediately\n   \
+      \ player->SetAIState(AIState::FLEE_TO_HEAL);\n}"
+    language: cpp
+  notes: This method relies on accurate tracking of resource consumption rates. The
+    implementation may cache recent consumption data to improve performance, but this
+    can lead to slight inaccuracies during rapid changes in resource usage patterns.
+    The method should be called periodically rather than on every tick for optimal
+    performance.
+  warnings: The returned time value is an estimate based on current consumption rate
+    and does not account for future changes in behavior or external factors such as
+    temporary resource regeneration effects. Using this value for critical game logic
+    decisions without additional validation may lead to unexpected behavior during
+    gameplay transitions.
+  related:
+  - GetResourceAmount
+  - GetResourceType
+  - SetResourceStarvationCallback
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T19:34:27.507261'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

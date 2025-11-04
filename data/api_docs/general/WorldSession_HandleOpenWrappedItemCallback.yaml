@@ -1,0 +1,56 @@
+api:
+  class: WorldSession
+  method: HandleOpenWrappedItemCallback
+  signature: void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, int itemGuid,
+    int result)
+documentation:
+  brief: Processes the callback when a player opens a wrapped item, handling the result
+    of the operation.
+  description: The HandleOpenWrappedItemCallback method is invoked when a player attempts
+    to open a wrapped item, such as a present or gift box. This method processes the
+    outcome of the operation, including success or failure conditions, and updates
+    the player's inventory accordingly. It typically handles the logic for unwrapping
+    items, applying rewards, and managing any associated quest or achievement progress.
+    The method is part of the WorldSession's packet handling system and is triggered
+    by client-side interactions with wrapped items in the game world.
+  parameters:
+  - name: pos
+    description: The position in the player's inventory where the wrapped item was
+      located. This value indicates which slot the item occupied before being opened.
+  - name: itemGuid
+    description: The unique identifier (GUID) of the wrapped item that was opened.
+      This GUID is used to track and reference the specific item in the game world.
+  - name: result
+    description: The result code indicating the outcome of the open operation. Values
+      typically represent success, failure, or specific error conditions related to
+      item opening mechanics.
+  returns: null
+  examples:
+  - title: Basic usage in packet handling
+    code: "void WorldSession::HandleOpenWrappedItemCallback(uint16 pos, int itemGuid,\
+      \ int result)\n{\n    if (result == 0) // Success\n    {\n        Player* player\
+      \ = GetPlayer();\n        Item* item = player->GetItemByGuid(ObjectGuid(itemGuid));\n\
+      \        if (item)\n        {\n            // Process reward distribution\n\
+      \            player->AddItem(item->GetTemplate()->ItemId, 1);\n        }\n \
+      \   }\n    else\n    {\n        // Handle failure case\n        SendNotification(\"\
+      Failed to open the item.\");\n    }\n}"
+    language: cpp
+  notes: This method is part of the asynchronous item handling system in TrinityCore.
+    It's important to note that the result parameter may contain different values
+    depending on the type of wrapped item and the game state. The method should be
+    called only when a valid packet has been received from the client indicating an
+    attempt to open a wrapped item.
+  warnings: Improper handling of the result parameter can lead to incorrect item distribution
+    or failure to update player progress. Ensure that all inventory checks are performed
+    before processing the callback, and validate GUIDs to prevent potential exploits
+    related to item manipulation.
+  related:
+  - HandleItemQuerySingle
+  - HandleOpenItem
+  - SendItemPushResult
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T21:21:54.497036'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

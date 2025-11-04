@@ -1,0 +1,90 @@
+api:
+  class: TerrainInfo
+  method: GetWaterOrGroundLevel
+  signature: float TerrainInfo::GetWaterOrGroundLevel(const PhaseShift & phaseShift,
+    uint32 mapId, float x, float y, float z, float * ground, bool swim, float collisionHeight,
+    const DynamicMapTree * dynamicMapTree)
+documentation:
+  brief: Calculates and returns the water or ground level at a specified location
+    within a given map.
+  description: The GetWaterOrGroundLevel method determines the vertical position (Z-coordinate)
+    of either the ground surface or water level at a specific coordinate on a map.
+    It takes into account phase shifts, dynamic map trees for collision detection,
+    and can optionally return the ground level separately. This function is essential
+    for determining character positioning, swimming mechanics, and terrain interactions
+    in World of Warcraft environments. The method supports both ground-level and water-level
+    queries based on the swim parameter and uses the provided collision height for
+    accurate vertical positioning.
+  parameters:
+  - name: phaseShift
+    description: The phase shift information that defines which phases are active
+      for this query, affecting visibility and interaction with phased game objects.
+  - name: mapId
+    description: The unique identifier of the map where the location is situated.
+      Used to determine which map data should be queried.
+  - name: x
+    description: The X coordinate of the location being queried in map space.
+  - name: y
+    description: The Y coordinate of the location being queried in map space.
+  - name: z
+    description: The initial Z coordinate used as a reference point for finding the
+      actual ground or water level.
+  - name: ground
+    description: Pointer to a float that will be filled with the ground level if non-null.
+      This parameter allows retrieving both ground and water levels in one call.
+  - name: swim
+    description: Boolean flag indicating whether to query for water level (true) or
+      ground level (false).
+  - name: collisionHeight
+    description: The height used for collision detection when determining the actual
+      Z position, particularly important for swimming and flying characters.
+  - name: dynamicMapTree
+    description: Pointer to a dynamic map tree structure used for precise terrain
+      and object collision checking. Can be null if no dynamic data is available.
+  returns: Returns the calculated Z-coordinate representing either the ground level
+    or water level at the specified location, depending on the swim parameter. The
+    value represents the vertical position in world coordinates.
+  examples:
+  - title: Basic Ground Level Query
+    code: 'PhaseShift phase;
+
+      float x = 100.0f, y = 200.0f, z = 50.0f;
+
+      float groundLevel = terrainInfo->GetWaterOrGroundLevel(phase, 0, x, y, z, nullptr,
+      false, 1.0f, nullptr);
+
+      // groundLevel now contains the Z-coordinate of the ground at (x,y)'
+    language: cpp
+  - title: Swimming Water Level Query with Ground Retrieval
+    code: 'PhaseShift phase;
+
+      float x = 100.0f, y = 200.0f, z = 50.0f;
+
+      float groundZ = 0.0f;
+
+      float waterLevel = terrainInfo->GetWaterOrGroundLevel(phase, 0, x, y, z, &groundZ,
+      true, 1.0f, nullptr);
+
+      // waterLevel contains the Z-coordinate of the water surface
+
+      // groundZ contains the Z-coordinate of the ground at (x,y)'
+    language: cpp
+  notes: This method internally utilizes collision detection via the DynamicMapTree
+    for accurate terrain querying. It's commonly used in movement validation, swimming
+    mechanics, and character positioning calculations. The method may perform expensive
+    operations when dynamic map trees are involved, especially in large or complex
+    environments.
+  warnings: Ensure that the provided coordinates are within valid map bounds; otherwise,
+    undefined behavior may occur. When using dynamicMapTree, make sure it's properly
+    initialized for the given map to avoid incorrect results. The ground parameter
+    should be checked for null before use to prevent access violations.
+  related:
+  - GetHeight
+  - IsInLineOfSight
+  - GetTerrain
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-03T16:51:46.521015'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

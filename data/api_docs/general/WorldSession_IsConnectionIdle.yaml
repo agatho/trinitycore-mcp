@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: IsConnectionIdle
+  signature: bool WorldSession::IsConnectionIdle() const
+documentation:
+  brief: Checks whether the session's connection has been idle for an extended period.
+  description: The IsConnectionIdle method determines if the WorldSession's underlying
+    network connection has remained inactive for longer than the configured idle timeout
+    threshold. This check is essential for maintaining server performance and preventing
+    resource exhaustion from stale connections. The method evaluates the time elapsed
+    since the last received packet or activity on the connection. If the idle duration
+    exceeds the defined limit, the method returns true, indicating that the session
+    should be considered inactive and potentially disconnected. This functionality
+    helps in managing server resources efficiently by identifying and cleaning up
+    idle client sessions.
+  parameters: []
+  returns: Returns true if the connection has been idle beyond the configured timeout
+    threshold; otherwise, returns false.
+  examples:
+  - title: Basic usage to check for idle session
+    code: "if (session->IsConnectionIdle()) {\n    // Handle idle session\n    session->KickPlayer(\"\
+      Session is idle.\");\n}"
+    language: cpp
+  - title: Using in a periodic cleanup routine
+    code: "void World::UpdateSessions() {\n    for (auto& session : sWorld->GetAllSessions())\
+      \ {\n        if (session->IsConnectionIdle()) {\n            // Log idle session\n\
+      \            sLog->outInfo(LOG_FILTER_SERVER, \"Idle session disconnected: %u\"\
+      , session->GetAccountId());\n            session->KickPlayer(\"Idle connection.\"\
+      );\n        }\n    }\n}"
+    language: cpp
+  notes: This method relies on internal timing mechanisms to track connection activity.
+    The idle timeout value is typically configurable via server settings and may vary
+    based on the specific TrinityCore configuration. The implementation uses monotonic
+    time sources for accuracy and avoids potential issues with system clock adjustments.
+  warnings: The method should not be used as a substitute for proper session management
+    or authentication checks. It's primarily intended for cleanup purposes and does
+    not validate the actual state of the client application itself.
+  related:
+  - WorldSession::GetLatency
+  - WorldSession::IsConnected
+  - WorldSession::UpdateLastReadTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:07:21.513596'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,48 @@
+api:
+  class: WorldSession
+  method: GetPlayerName
+  signature: const std::string & WorldSession::GetPlayerName() const
+documentation:
+  brief: Returns the current player's name associated with this session
+  description: The GetPlayerName method retrieves the character name of the player
+    currently logged into the game session. This method is commonly used in various
+    game systems to identify players for communication, logging, or interaction purposes.
+    The returned string represents the full character name as stored in the database
+    and is valid only when a player is actively connected and authenticated through
+    this session. The method does not perform any validation or authentication checks
+    itself; it simply returns the cached player name from the session state.
+  parameters: []
+  returns: A constant reference to a std::string containing the player's character
+    name. The string will be empty if no player is currently associated with the session.
+  examples:
+  - title: Basic Usage
+    code: "void HandlePlayerCommand(WorldSession* session)\n{\n    const std::string&\
+      \ playerName = session->GetPlayerName();\n    if (!playerName.empty())\n   \
+      \ {\n        sLog->outString(\"Current player: %s\", playerName.c_str());\n\
+      \    }\n}"
+    language: cpp
+  - title: Using in Chat Message Processing
+    code: "void ProcessChatMessage(WorldSession* session, const std::string& message)\n\
+      {\n    const std::string& playerName = session->GetPlayerName();\n    if (!playerName.empty())\n\
+      \    {\n        sWorld->SendServerMessage(SERVER_MSG_STRING, \"[%s]: %s\", playerName.c_str(),\
+      \ message.c_str());\n    }\n}"
+    language: cpp
+  notes: The returned string reference is valid only as long as the session remains
+    active and the player object exists. This method should not be called from threads
+    other than the one handling the session's game loop. The name is cached at login
+    time and may not reflect any temporary name changes during gameplay unless explicitly
+    updated by the system.
+  warnings: Do not modify the returned string reference as it points to internal session
+    data. Calling this method on a session without an associated player will return
+    an empty string, which should be checked before use. Avoid calling this method
+    in performance-critical sections where frequent access might impact server responsiveness.
+  related:
+  - GetPlayer()
+  - GetAccountId()
+  - GetSecurity()
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:55:59.698028'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

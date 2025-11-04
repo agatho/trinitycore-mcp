@@ -1,0 +1,52 @@
+api:
+  class: RBACPermission
+  method: GetLinkedPermissions
+  signature: const RBACPermissionContainer & RBACPermission::GetLinkedPermissions()
+    const
+documentation:
+  brief: Returns the container of permissions linked to this RBAC permission.
+  description: The GetLinkedPermissions method retrieves a constant reference to the
+    RBACPermissionContainer that holds all permissions directly linked to this RBAC
+    permission. This is used in the TrinityCore authentication and authorization system
+    to determine which lower-level permissions are included within a higher-level
+    permission node. The returned container allows iteration over all linked permissions,
+    enabling systems to check for transitive permission grants or build comprehensive
+    permission sets for user roles. This method does not modify any internal state
+    and provides read-only access to the linked permission collection.
+  parameters: []
+  returns: A constant reference to an RBACPermissionContainer containing all permissions
+    directly linked to this RBAC permission. The container may be empty if no permissions
+    are linked, but will never be null.
+  examples:
+  - title: Iterating over linked permissions
+    code: "RBACPermission* perm = sAccountMgr->GetRBACPermission(123);\nif (perm)\n\
+      {\n    const RBACPermissionContainer& linkedPerms = perm->GetLinkedPermissions();\n\
+      \    for (auto it = linkedPerms.begin(); it != linkedPerms.end(); ++it)\n  \
+      \  {\n        std::cout << \"Linked permission ID: \" << *it << std::endl;\n\
+      \    }\n}"
+    language: cpp
+  - title: Checking if a specific permission is linked
+    code: "RBACPermission* perm = sAccountMgr->GetRBACPermission(123);\nif (perm)\n\
+      {\n    const RBACPermissionContainer& linkedPerms = perm->GetLinkedPermissions();\n\
+      \    if (linkedPerms.find(456) != linkedPerms.end())\n    {\n        std::cout\
+      \ << \"Permission 456 is linked to this permission\" << std::endl;\n    }\n}"
+    language: cpp
+  notes: This method returns a constant reference, so the returned container should
+    not be modified. The RBACPermissionContainer is typically implemented as a set
+    or similar collection type for efficient lookup. This method is commonly used
+    during permission evaluation and role assignment processes in TrinityCore's access
+    control system.
+  warnings: Modifying the returned container through a non-const reference would result
+    in undefined behavior, as it's a const reference. Be aware that this method may
+    be called frequently during permission checks, so performance considerations should
+    be taken into account when iterating over large linked permission sets.
+  related:
+  - RBACPermission::AddLinkedPermission
+  - RBACPermission::RemoveLinkedPermission
+  - RBACPermission::HasLinkedPermission
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T19:44:44.622855'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

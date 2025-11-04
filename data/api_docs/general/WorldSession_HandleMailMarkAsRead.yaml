@@ -1,0 +1,51 @@
+api:
+  class: WorldSession
+  method: HandleMailMarkAsRead
+  signature: void WorldSession::HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead
+    & markAsRead)
+documentation:
+  brief: Processes a client request to mark one or more mails as read in the player's
+    mailbox.
+  description: The HandleMailMarkAsRead method is responsible for processing incoming
+    client packets that indicate which mails the player wants to mark as read. This
+    method typically receives a list of mail IDs from the client and updates the corresponding
+    mail records in the database to reflect their read status. It ensures that the
+    player's mailbox UI accurately reflects which messages have been read, and may
+    trigger additional game mechanics such as updating quest progress or notifying
+    the player of new mail notifications. The method operates within the WorldSession
+    context, meaning it handles the network communication and authentication aspects
+    before performing the database operations.
+  parameters:
+  - name: markAsRead
+    description: A packet structure containing the list of mail IDs that the client
+      wishes to mark as read. This typically includes a vector or list of unique identifiers
+      for specific mails in the player's mailbox.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: "void WorldSession::HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead&\
+      \ markAsRead)\n{\n    for (uint64 mailId : markAsRead.MailIDs)\n    {\n    \
+      \    if (Player* player = GetPlayer())\n        {\n            if (MailItemInfo*\
+      \ mail = sWorld->GetMailItem(mailId))\n            {\n                mail->IsRead\
+      \ = true;\n                // Update database\n                CharacterDatabase.Execute(\"\
+      UPDATE mail SET is_read = 1 WHERE id = {}\", mailId);\n            }\n     \
+      \   }\n    }\n}"
+    language: cpp
+  notes: This method should only be called from within the WorldSession context, and
+    assumes proper authentication and authorization of the player. It is part of the
+    mail system's client-server synchronization mechanism. The implementation may
+    vary depending on how TrinityCore handles mail persistence and caching.
+  warnings: Improper handling of mail IDs could lead to security vulnerabilities or
+    data corruption. Ensure that all mail ID validation occurs before database updates
+    to prevent unauthorized access to other players' mail.
+  related:
+  - HandleMailGetList
+  - HandleMailTakeItem
+  - HandleMailTakeMoney
+  - HandleMailDelete
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:40:19.633319'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

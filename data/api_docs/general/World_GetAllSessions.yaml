@@ -1,0 +1,52 @@
+api:
+  class: World
+  method: GetAllSessions
+  signature: const SessionMap & World::GetAllSessions() const
+documentation:
+  brief: Returns a constant reference to the map of all active client sessions in
+    the world.
+  description: The GetAllSessions method provides access to a read-only view of all
+    currently active player sessions connected to the TrinityCore server. This map
+    contains session objects that represent the connection state between the server
+    and each logged-in player. The returned SessionMap is typically used for iterating
+    through all connected players, broadcasting messages, or performing operations
+    on active sessions. The method does not create or modify any sessions; it simply
+    provides a reference to an internal data structure containing all current connections.
+  parameters: []
+  returns: A constant reference to the SessionMap which contains all active client
+    sessions. Each entry in the map typically maps a session identifier (such as a
+    GUID) to a Session object representing that player's connection state.
+  examples:
+  - title: Iterate Through All Active Sessions
+    code: "for (const auto& sessionPair : sWorld->GetAllSessions()) {\n    if (sessionPair.second\
+      \ && sessionPair.second->GetPlayer()) {\n        // Process each connected player\n\
+      \        std::cout << \"Player: \" << sessionPair.second->GetPlayer()->GetName()\
+      \ << std::endl;\n    }\n}"
+    language: cpp
+  - title: Broadcast Message to All Players
+    code: "const auto& sessions = sWorld->GetAllSessions();\nfor (const auto& sessionPair\
+      \ : sessions) {\n    if (sessionPair.second && sessionPair.second->GetPlayer())\
+      \ {\n        sessionPair.second->SendNotification(\"Server maintenance scheduled\
+      \ in 5 minutes.\");\n    }\n}"
+    language: cpp
+  notes: The returned SessionMap is read-only and should not be modified directly.
+    Modifications to the session state should be done through appropriate session
+    methods or by using the World object's session management functions. The map may
+    change during iteration if sessions are added or removed, so caution should be
+    exercised when modifying session states during iteration.
+  warnings: Accessing this method while sessions are being added or removed can lead
+    to undefined behavior if not properly synchronized. The returned reference is
+    only valid as long as the World object remains alive and no modifications occur
+    to the session map structure. Avoid storing references to individual sessions
+    from this map for extended periods without verifying their validity.
+  related:
+  - GetSession
+  - AddSession
+  - RemoveSession
+  - GetPlayers
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T15:30:17.229653'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

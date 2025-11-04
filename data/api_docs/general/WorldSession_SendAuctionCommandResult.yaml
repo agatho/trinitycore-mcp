@@ -1,0 +1,87 @@
+api:
+  class: WorldSession
+  method: SendAuctionCommandResult
+  signature: void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand
+    command, AuctionResult errorCode, int delayForNextAction, InventoryResult bagResult)
+documentation:
+  brief: Sends an auction command result message to the client, notifying them of
+    the outcome of their auction action.
+  description: The SendAuctionCommandResult method is used by the WorldSession class
+    to communicate the results of auction commands performed by a player. It sends
+    a packet to the client that includes information about whether the auction command
+    succeeded or failed, along with additional details such as error codes and delay
+    timers. This method is typically invoked after processing actions like placing
+    an auction, canceling an auction, or buying an item from the auction house. The
+    method supports various auction commands and provides appropriate feedback based
+    on the outcome of these operations.
+  parameters:
+  - name: auctionId
+    description: The unique identifier of the auction being processed. This value
+      is typically obtained when creating or modifying an auction entry.
+  - name: command
+    description: The type of auction command that was executed. This parameter determines
+      how the client interprets the result and which error codes are valid.
+  - name: errorCode
+    description: The specific error code indicating the outcome of the auction command.
+      A value of 0 typically indicates success, while non-zero values represent different
+      types of failures or restrictions.
+  - name: delayForNextAction
+    description: An optional delay (in milliseconds) that the client should wait before
+      performing another auction-related action. This is used to prevent spamming
+      and enforce rate limiting.
+  - name: bagResult
+    description: Represents the inventory result of the operation, indicating whether
+      items were successfully added or removed from the player's bag. Used for cases
+      where items are involved in the auction transaction.
+  returns: null
+  examples:
+  - title: Sending a successful auction command result
+    code: 'WorldSession* session = player->GetSession();
+
+      uint32 auctionId = 12345;
+
+      AuctionCommand cmd = AUCTION_SELL_ITEM;
+
+      AuctionResult result = AUCTION_SUCCESS;
+
+      int delay = 0;
+
+      InventoryResult bagResult = EQUIP_ERR_OK;
+
+      session->SendAuctionCommandResult(auctionId, cmd, result, delay, bagResult);'
+    language: cpp
+  - title: Sending an auction command result with error code
+    code: 'WorldSession* session = player->GetSession();
+
+      uint32 auctionId = 0;
+
+      AuctionCommand cmd = AUCTION_BUY_ITEM;
+
+      AuctionResult result = AUCTION_NOT_ENOUGH_MONEY;
+
+      int delay = 1000;
+
+      InventoryResult bagResult = EQUIP_ERR_INVENTORY_FULL;
+
+      session->SendAuctionCommandResult(auctionId, cmd, result, delay, bagResult);'
+    language: cpp
+  notes: This method directly sends a network packet to the client and should only
+    be called from within the context of a valid WorldSession. It's commonly used
+    in conjunction with other auction-related methods such as AuctionHouseMgr::AddAuction()
+    or AuctionHouseMgr::RemoveAuction(). The delayForNextAction parameter helps enforce
+    client-side throttling to prevent excessive requests.
+  warnings: Ensure that all parameters are properly validated before calling this
+    method, especially the auctionId and command values. Incorrect values may cause
+    client-side errors or unexpected behavior. Also note that sending incorrect error
+    codes can lead to misleading feedback for players.
+  related:
+  - WorldSession::SendAuctionList
+  - WorldSession::SendAuctionWon
+  - AuctionHouseMgr::AddAuction
+  - AuctionHouseMgr::RemoveAuction
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:51:00.801050'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

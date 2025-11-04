@@ -1,0 +1,44 @@
+api:
+  class: WorldSession
+  method: HandleCancelTradeOpcode
+  signature: void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade
+    & cancelTrade)
+documentation:
+  brief: Cancels an ongoing trade session between two players.
+  description: The HandleCancelTradeOpcode method processes a client's request to
+    cancel an active trade session. When invoked, it terminates the current trade
+    window, returns any items that were previously offered by either player back to
+    their inventories, and sends appropriate feedback to both parties. This method
+    ensures proper cleanup of trade state data and maintains synchronization between
+    the client and server regarding trade status. The operation is typically triggered
+    when a player clicks the 'Cancel' button during a trade interaction.
+  parameters:
+  - name: cancelTrade
+    description: A packet containing trade cancellation data from the client, including
+      trade session identifier and player context.
+  returns: null
+  examples:
+  - title: Basic Trade Cancellation
+    code: "void WorldSession::HandleCancelTradeOpcode(WorldPackets::Trade::CancelTrade&\
+      \ cancelTrade)\n{\n    if (Player* trader = GetPlayer()->GetTrader())\n    {\n\
+      \        trader->GetSession()->SendTradeStatus(TRADE_STATUS_CANCELLED);\n  \
+      \      trader->SetTrader(nullptr);\n    }\n    GetPlayer()->SetTrader(nullptr);\n\
+      \    SendTradeStatus(TRADE_STATUS_CANCELLED);\n}"
+    language: cpp
+  notes: This method assumes that the player has an active trade session and that
+    the trade window is open. It performs cleanup of internal trade state variables
+    and sends necessary network messages to both players involved in the trade.
+  warnings: Improper handling of trade cancellation may lead to items being stuck
+    in the trade window or inconsistent inventory states between client and server.
+    Always ensure proper synchronization of trade status before and after calling
+    this method.
+  related:
+  - HandleTradeStatusOpcode
+  - HandleAcceptTradeOpcode
+  - HandleSetTradeItemOpcode
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:40:59.195633'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

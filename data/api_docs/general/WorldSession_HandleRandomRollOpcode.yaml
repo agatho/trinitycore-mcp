@@ -1,0 +1,51 @@
+api:
+  class: WorldSession
+  method: HandleRandomRollOpcode
+  signature: void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient
+    & packet)
+documentation:
+  brief: Processes a random roll request from a client, generating and broadcasting
+    a random number between specified minimum and maximum values.
+  description: The HandleRandomRollOpcode method handles incoming random roll requests
+    from players in World of Warcraft. When a player initiates a random roll using
+    the /roll command or related interface, this method processes the client's request
+    by extracting the minimum and maximum values from the packet. It then generates
+    a random number within that range and broadcasts the result to all players in
+    the same zone or instance. This functionality supports game mechanics such as
+    loot rolling, dice games, and other random selection systems where fairness and
+    transparency are important. The method ensures that all players receive the same
+    generated value, maintaining synchronization across the game world.
+  parameters:
+  - name: packet
+    description: The incoming packet containing the random roll request data including
+      minimum and maximum values for the roll.
+  returns: null
+  examples:
+  - title: Basic Random Roll Handling
+    code: "void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient&\
+      \ packet)\n{\n    uint32 min = packet.Min;\n    uint32 max = packet.Max;\n \
+      \   \n    if (min > max)\n        return;\n    \n    uint32 result = rand()\
+      \ % (max - min + 1) + min;\n    \n    WorldPackets::Misc::RandomRollServer rollResult;\n\
+      \    rollResult.Roll = result;\n    rollResult.Player = GetPlayer()->GetGUID();\n\
+      \    \n    SendPacket(rollResult.Write());\n}"
+    language: cpp
+  notes: This method should only be called from the main game thread as it interacts
+    with player sessions and sends network packets. The random number generation uses
+    standard C++ rand() function which may not provide cryptographically secure randomness
+    but is sufficient for game mechanics. The packet structure assumes that min and
+    max values are validated before this method is called.
+  warnings: Ensure proper validation of min/max values to prevent negative numbers
+    or invalid ranges. This method doesn't implement any anti-cheat measures against
+    manipulated packets, so additional checks may be required in production environments.
+    Be aware that broadcasting the result to all players in the zone can impact performance
+    with large groups.
+  related:
+  - SendPacket
+  - GetPlayer
+  - GetGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T20:54:48.550812'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

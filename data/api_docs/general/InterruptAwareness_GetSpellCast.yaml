@@ -1,0 +1,53 @@
+api:
+  class: InterruptAwareness
+  method: GetSpellCast
+  signature: const DetectedSpellCast * InterruptAwareness::GetSpellCast(int casterGuid,
+    uint32 spellId) const
+documentation:
+  brief: Retrieves a detected spell cast instance by caster GUID and spell ID.
+  description: The GetSpellCast method retrieves a const pointer to a DetectedSpellCast
+    object that matches the specified caster GUID and spell ID. This method is typically
+    used within the InterruptAwareness system to track or query ongoing spell casts
+    by specific players for interrupt-related logic. The method performs a lookup
+    in an internal data structure containing detected spell casts, returning a valid
+    pointer if a match is found, or nullptr if no matching spell cast exists. It's
+    important to note that this method does not modify any state and is intended for
+    read-only access to spell cast information.
+  parameters:
+  - name: casterGuid
+    description: The global unique identifier (GUID) of the caster whose spell cast
+      is being queried.
+  - name: spellId
+    description: The numeric ID of the spell being cast, used to identify the specific
+      spell in the detected spell cast list.
+  returns: A const pointer to a DetectedSpellCast object if a matching spell cast
+    is found; otherwise, returns nullptr if no such spell cast exists.
+  examples:
+  - title: Basic Usage Example
+    code: "const DetectedSpellCast* spellCast = interruptAwareness.GetSpellCast(playerGuid,\
+      \ 12345);\nif (spellCast != nullptr)\n{\n    // Process the detected spell cast\n\
+      \    sLog->outString(\"Found spell cast: %u\", spellCast->GetSpellId());\n}"
+    language: cpp
+  - title: Interrupt Check Example
+    code: "const DetectedSpellCast* spellCast = interruptAwareness.GetSpellCast(targetGuid,\
+      \ 98765);\nif (spellCast && spellCast->IsInterruptible())\n{\n    // Apply interrupt\
+      \ logic\n    target->AddAura(12345, target);\n}"
+    language: cpp
+  notes: This method assumes that the internal data structures are properly maintained
+    and thread-safe. It's recommended to use this method only when spell cast detection
+    has already occurred and the spell cast is known to be active. The returned pointer
+    should not be modified directly as it points to a const object.
+  warnings: Do not assume the returned pointer will remain valid beyond the scope
+    of the current function call unless explicitly managed by the caller. If multiple
+    spell casts are possible for the same caster and spell ID, this method may return
+    any one of them depending on internal implementation details.
+  related:
+  - InterruptAwareness::AddSpellCast
+  - InterruptAwareness::RemoveSpellCast
+  - InterruptAwareness::HasSpellCast
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T02:59:05.698003'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

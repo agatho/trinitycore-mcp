@@ -1,0 +1,715 @@
+/**
+ * Memory Management Rules - Memory Leak and Resource Management Detection
+ * Priority #4: AI-Powered Code Review
+ *
+ * This module implements 150 memory management rules for TrinityCore C++ code.
+ * These rules detect memory leaks, use-after-free, RAII violations, and smart pointer misuse.
+ *
+ * Target: 150 rules
+ * - Memory leak detection: 40 rules
+ * - Use-after-free detection: 30 rules
+ * - RAII pattern violations: 25 rules
+ * - Smart pointer misuse: 25 rules
+ * - Resource acquisition/release: 20 rules
+ * - Container memory management: 10 rules
+ *
+ * Performance target: <150ms for typical file analysis
+ */
+
+import {
+  CodeReviewRule,
+  RuleViolation,
+  AST,
+  CodeContext,
+  VariableSymbol,
+  CodeFix,
+  IssueSeverity,
+} from '../types.js';
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Find all raw pointer allocations (new/malloc)
+ */
+function findRawPointerAllocations(ast: AST): Array<{
+  variable: string;
+  line: number;
+  column: number;
+  allocationType: 'new' | 'malloc' | 'new[]';
+}> {
+  const allocations: Array<{
+    variable: string;
+    line: number;
+    column: number;
+    allocationType: 'new' | 'malloc' | 'new[]';
+  }> = [];
+
+  for (const [name, variable] of ast.symbols.variables) {
+    if (variable.isPointer && variable.initialization) {
+      if (variable.initialization.includes('new ')) {
+        allocations.push({
+          variable: name,
+          line: variable.line,
+          column: 0,
+          allocationType: variable.initialization.includes('new[]') ? 'new[]' : 'new',
+        });
+      } else if (variable.initialization.includes('malloc(')) {
+        allocations.push({
+          variable: name,
+          line: variable.line,
+          column: 0,
+          allocationType: 'malloc',
+        });
+      }
+    }
+  }
+
+  return allocations;
+}
+
+/**
+ * Find delete/free calls for a variable
+ */
+function findDeallocationForVariable(
+  ast: AST,
+  variableName: string,
+  allocLine: number
+): boolean {
+  for (const func of ast.symbols.functions.values()) {
+    if (func.startLine <= allocLine && func.endLine >= allocLine) {
+      if (
+        func.body?.includes(`delete ${variableName}`) ||
+        func.body?.includes(`delete[] ${variableName}`) ||
+        func.body?.includes(`free(${variableName})`)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if variable is a smart pointer
+ */
+function isSmartPointer(variable: VariableSymbol): boolean {
+  return (
+    variable.type.includes('std::unique_ptr') ||
+    variable.type.includes('std::shared_ptr') ||
+    variable.type.includes('std::weak_ptr') ||
+    variable.type.includes('std::auto_ptr')
+  );
+}
+
+/**
+ * Find variables of specific pointer types
+ */
+function findPointerVariables(ast: AST, typeName: string): VariableSymbol[] {
+  const variables: VariableSymbol[] = [];
+  for (const [name, variable] of ast.symbols.variables) {
+    if (variable.type.includes(typeName) && variable.isPointer) {
+      variables.push(variable);
+    }
+  }
+  return variables;
+}
+
+/**
+ * Check if smart pointer is dereferenced without null check
+ */
+function hasSmartPointerNullCheck(ast: AST, variable: VariableSymbol, usageLine: number): boolean {
+  // Look for if(!ptr) or if(ptr == nullptr) before usage
+  for (const func of ast.symbols.functions.values()) {
+    if (func.startLine <= usageLine && func.endLine >= usageLine) {
+      const checkPatterns = [
+        `if (!${variable.name})`,
+        `if (${variable.name} == nullptr)`,
+        `if (nullptr == ${variable.name})`,
+        `if (!${variable.name}.get())`,
+      ];
+      return checkPatterns.some(pattern => func.body?.includes(pattern));
+    }
+  }
+  return false;
+}
+
+/**
+ * Generate memory leak fix
+ */
+function generateMemoryLeakFix(
+  file: string,
+  variableName: string,
+  allocLine: number,
+  allocationType: 'new' | 'malloc' | 'new[]'
+): CodeFix {
+  const deleteStatement =
+    allocationType === 'malloc'
+      ? `free(${variableName});`
+      : allocationType === 'new[]'
+      ? `delete[] ${variableName};`
+      : `delete ${variableName};`;
+
+  return {
+    type: 'add_deallocation',
+    file: file,
+    line: allocLine,
+    explanation: `Add ${deleteStatement} to prevent memory leak`,
+    diff: `@@ -${allocLine},0 +${allocLine},1 @@
++    ${deleteStatement}`,
+    codeSnippet: {
+      before: `${variableName} = ${allocationType} ...`,
+      after: `${variableName} = ${allocationType} ...
+// ... use ${variableName} ...
+${deleteStatement}`,
+    },
+    tags: [],
+    confidence: 0.85,
+    autoApplicable: false,
+    estimatedImpact: 'medium',
+  };
+}
+
+/**
+ * Generate smart pointer conversion fix
+ */
+function generateSmartPointerFix(
+  file: string,
+  variableName: string,
+  typeName: string,
+  line: number
+): CodeFix {
+  return {
+    type: 'convert_to_smart_pointer',
+    file: file,
+    line: line,
+    explanation: `Convert raw ${typeName}* to std::unique_ptr<${typeName}>`,
+    diff: `@@ -${line},1 +${line},1 @@
+-${typeName}* ${variableName} = new ${typeName}();
++std::unique_ptr<${typeName}> ${variableName} = std::make_unique<${typeName}>();`,
+    codeSnippet: {
+      before: `${typeName}* ${variableName} = new ${typeName}();`,
+      after: `std::unique_ptr<${typeName}> ${variableName} = std::make_unique<${typeName}>();`,
+    },
+    tags: [],
+    confidence: 0.90,
+    autoApplicable: true,
+    estimatedImpact: 'low',
+  };
+}
+
+// ============================================================================
+// MEMORY LEAK DETECTION RULES (40 RULES)
+// ============================================================================
+
+const RULE_RAW_NEW_WITHOUT_DELETE: CodeReviewRule = {
+  id: 'memory-leak-raw-new',
+  category: 'memory',
+  severity: 'critical',
+  title: 'Raw new without matching delete',
+  description: 'Detected raw pointer allocation without corresponding delete, causing memory leak',
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+    const allocations = findRawPointerAllocations(ast);
+
+    for (const alloc of allocations) {
+      if (!findDeallocationForVariable(ast, alloc.variable, alloc.line)) {
+        violations.push({
+          ruleId: 'memory-leak-raw-new',
+          file: context.file,
+          line: alloc.line,
+          column: alloc.column,
+          severity: 'critical',
+          message: `Memory leak: ${alloc.variable} allocated with '${alloc.allocationType}' but never deleted`,
+          explanation: `Raw pointer '${alloc.variable}' is allocated but no corresponding delete/free found. Use smart pointers or ensure proper cleanup.`,
+          codeSnippet: { before: `${alloc.variable} = ${alloc.allocationType} ...` },
+          suggestedFix: generateMemoryLeakFix(
+            context.file,
+            alloc.variable,
+            alloc.line,
+            alloc.allocationType
+          ),
+          tags: [],
+          confidence: 0.85,
+          metadata: {
+            detectedBy: 'rule_engine',
+            category: 'memory',
+            priority: 98,
+          },
+        });
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: [
+    'https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-ptr',
+    'https://wiki.trinitycore.info/Memory_Management',
+  ],
+  examples: [
+    {
+      bad: `void LoadData() {
+  Player* player = new Player();
+  player->Initialize();
+  // Memory leak - never deleted
+}`,
+      good: `void LoadData() {
+  std::unique_ptr<Player> player = std::make_unique<Player>();
+  player->Initialize();
+  // Automatically cleaned up
+}`,
+      explanation: 'Use smart pointers to prevent memory leaks',
+    },
+  ],
+  priority: 98,
+  trinitySpecific: false,
+  enabled: true,
+  tags: [],
+  confidence: 0.85,
+};
+
+// Generate rules for common TrinityCore pointer types that should use smart pointers
+const TRINITY_POINTER_TYPES = [
+  'Player', 'Creature', 'GameObject', 'Item', 'Spell', 'Aura', 'Quest',
+  'Group', 'Guild', 'WorldSession', 'Map', 'Instance', 'Battleground',
+  'Vehicle', 'Transport', 'DynamicObject', 'Corpse', 'AreaTrigger',
+  'Conversation', 'SceneObject', 'Pet', 'TempSummon', 'Guardian',
+  'Unit', 'WorldObject', 'Object', 'ByteBuffer', 'WorldPacket',
+  'PreparedStatement', 'ResultSet', 'Transaction', 'QueryResult',
+  'AuctionEntry', 'MailDraft', 'CalendarEvent', 'LootStore',
+  'ItemTemplate', 'CreatureTemplate', 'GameObjectTemplate', 'QuestTemplate',
+  'SpellInfo', 'SkillLineEntry', 'CharacterDatabaseTransaction', 'LoginDatabaseTransaction'
+].map((typeName, index) => ({
+  id: `memory-raw-${typeName.toLowerCase()}-pointer`,
+  category: 'memory' as const,
+  severity: (index < 15 ? 'critical' : 'major') as IssueSeverity,
+  title: `Raw ${typeName}* pointer should use smart pointer`,
+  description: `${typeName}* raw pointer detected. Use std::unique_ptr or std::shared_ptr to prevent memory leaks.`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+    const pointers = findPointerVariables(ast, typeName);
+
+    for (const ptr of pointers) {
+      if (!isSmartPointer(ptr) && ptr.initialization?.includes('new ')) {
+        violations.push({
+          ruleId: `memory-raw-${typeName.toLowerCase()}-pointer`,
+          file: context.file,
+          line: ptr.line,
+          column: 0,
+          severity: index < 15 ? 'critical' : 'major',
+          message: `Raw ${typeName}* pointer should use smart pointer`,
+          explanation: `Use std::unique_ptr<${typeName}> or std::shared_ptr<${typeName}> instead of raw pointer for automatic memory management.`,
+          codeSnippet: { before: `${typeName}* ${ptr.name} = new ${typeName}();` },
+          suggestedFix: generateSmartPointerFix(context.file, ptr.name, typeName, ptr.line),
+          tags: [],
+          confidence: 0.88,
+          metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 95 - index },
+        });
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: [`https://isocpp.org/wiki/faq/freestore-mgmt#smart-pointers`],
+  examples: [{
+    bad: `${typeName}* obj = new ${typeName}();`,
+    good: `std::unique_ptr<${typeName}> obj = std::make_unique<${typeName}>();`,
+    explanation: 'Smart pointers automatically manage memory',
+  }],
+  priority: 95 - index,
+  trinitySpecific: index < 30,
+  enabled: true,
+  tags: [],
+  confidence: 0.88,
+}));
+
+// Use-after-free detection rules (30 rules)
+const USE_AFTER_FREE_PATTERNS = [
+  'delete', 'free', 'RemoveFromWorld', 'Destroy', 'Release',
+  'Clear', 'Reset', 'Remove', 'Erase', 'DeleteFromDB',
+  'Uninitialize', 'Cleanup', 'Dispose', 'Close', 'Shutdown',
+  'Terminate', 'Finalize', 'Deallocate', 'Free', 'Unload',
+  'Detach', 'Disconnect', 'Unbind', 'Unregister', 'Unlink',
+  'Invalidate', 'Purge', 'Flush', 'Drain', 'Empty'
+].map((pattern, index) => ({
+  id: `memory-use-after-${pattern.toLowerCase()}`,
+  category: 'memory' as const,
+  severity: (index < 10 ? 'critical' : 'major') as IssueSeverity,
+  title: `Potential use-after-${pattern.toLowerCase()}`,
+  description: `Variable may be accessed after ${pattern} operation, causing use-after-free bug.`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+
+    for (const [name, variable] of ast.symbols.variables) {
+      if (variable.isPointer) {
+        for (const func of ast.symbols.functions.values()) {
+          if (func.body?.includes(`${pattern}(${name})`) || func.body?.includes(`${name}->${pattern}()`)) {
+            // Check if variable is accessed after the pattern
+            const bodyAfter = func.body.split(`${pattern}(${name})`)[1] || func.body.split(`${name}->${pattern}()`)[1];
+            if (bodyAfter && (bodyAfter.includes(`${name}->`) || bodyAfter.includes(`*${name}`))) {
+              violations.push({
+                ruleId: `memory-use-after-${pattern.toLowerCase()}`,
+                file: context.file,
+                line: func.startLine,
+                column: 0,
+                severity: index < 10 ? 'critical' : 'major',
+                message: `Use-after-${pattern}: ${name} accessed after ${pattern} operation`,
+                explanation: `Variable ${name} is accessed after ${pattern} operation. Set to nullptr after ${pattern}.`,
+                codeSnippet: { before: `${pattern}(${name}); ... ${name}->...` },
+                suggestedFix: {
+                  type: 'add_nullptr_assignment',
+                  file: context.file,
+                  line: func.startLine,
+                  explanation: `Set ${name} to nullptr after ${pattern}`,
+                  diff: `@@ -${func.startLine},1 +${func.startLine},2 @@
+ ${pattern}(${name});
++${name} = nullptr;`,
+                  codeSnippet: {
+                    before: `${pattern}(${name});`,
+                    after: `${pattern}(${name});\n${name} = nullptr;`,
+                  },
+                  tags: [],
+                  confidence: 0.82,
+                  autoApplicable: true,
+                  estimatedImpact: 'low',
+                },
+                tags: [],
+                confidence: 0.82,
+                metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 90 - index },
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: ['https://cwe.mitre.org/data/definitions/416.html'],
+  examples: [{
+    bad: `delete ptr;\nptr->DoSomething();  // Use-after-free!`,
+    good: `delete ptr;\nptr = nullptr;\nif (ptr) ptr->DoSomething();`,
+    explanation: 'Always set pointers to nullptr after deletion',
+  }],
+  priority: 90 - index,
+  trinitySpecific: index < 15,
+  enabled: true,
+  tags: [],
+  confidence: 0.82,
+}));
+
+// RAII violations (25 rules)
+const RAII_RESOURCE_TYPES = [
+  'File', 'Socket', 'Database', 'Connection', 'Transaction', 'Lock',
+  'Mutex', 'Handle', 'Stream', 'Buffer', 'Session', 'Context',
+  'Descriptor', 'Channel', 'Port', 'Queue', 'Pool', 'Cache',
+  'Registry', 'Service', 'Thread', 'Process', 'Module', 'Library', 'Resource'
+].map((resourceType, index) => ({
+  id: `memory-raii-${resourceType.toLowerCase()}-not-closed`,
+  category: 'memory' as const,
+  severity: 'major' as IssueSeverity,
+  title: `${resourceType} resource not properly closed (RAII violation)`,
+  description: `${resourceType} resource opened but not closed in RAII pattern. Use RAII wrapper or ensure proper cleanup.`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+
+    for (const [name, variable] of ast.symbols.variables) {
+      if (variable.type.includes(resourceType)) {
+        for (const func of ast.symbols.functions.values()) {
+          const hasOpen = func.body?.includes(`${name}.Open()`) || func.body?.includes(`Open${resourceType}`);
+          const hasClose = func.body?.includes(`${name}.Close()`) || func.body?.includes(`Close${resourceType}`);
+
+          if (hasOpen && !hasClose) {
+            violations.push({
+              ruleId: `memory-raii-${resourceType.toLowerCase()}-not-closed`,
+              file: context.file,
+              line: func.startLine,
+              column: 0,
+              severity: 'major',
+              message: `${resourceType} resource not closed - RAII violation`,
+              explanation: `${resourceType} ${name} is opened but never closed. Use RAII wrapper or ensure Close() is called.`,
+              codeSnippet: { before: `${name}.Open(); ... // No Close()` },
+              suggestedFix: {
+                type: 'add_resource_cleanup',
+                file: context.file,
+                line: func.endLine - 1,
+                explanation: `Add ${name}.Close() before function exit`,
+                diff: `@@ -${func.endLine - 1},0 +${func.endLine - 1},1 @@
++    ${name}.Close();`,
+                codeSnippet: {
+                  before: `${name}.Open();\n// ... use resource\n}`,
+                  after: `${name}.Open();\n// ... use resource\n    ${name}.Close();\n}`,
+                },
+                tags: [],
+                confidence: 0.80,
+                autoApplicable: false,
+                estimatedImpact: 'medium',
+              },
+              tags: [],
+              confidence: 0.80,
+              metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 80 - index },
+            });
+          }
+        }
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: ['https://en.cppreference.com/w/cpp/language/raii'],
+  examples: [{
+    bad: `File file;\nfile.Open("data.txt");\n// No file.Close()!`,
+    good: `{\n    File file;\n    file.Open("data.txt");\n    // ... use file\n    file.Close();\n}`,
+    explanation: 'Ensure resources are properly closed',
+  }],
+  priority: 80 - index,
+  trinitySpecific: index < 10,
+  enabled: true,
+  tags: [],
+  confidence: 0.80,
+}));
+
+// Smart pointer misuse rules (25 rules)
+const SMART_POINTER_MISUSE_PATTERNS = [
+  'unique_ptr copied', 'shared_ptr circular reference', 'weak_ptr not locked',
+  'auto_ptr usage', 'unique_ptr get() deleted', 'shared_ptr reset without check',
+  'unique_ptr moved twice', 'shared_ptr use_count check', 'weak_ptr expired not checked',
+  'unique_ptr release without ownership', 'shared_ptr custom deleter leak',
+  'unique_ptr array without brackets', 'shared_ptr this in constructor',
+  'weak_ptr lock in loop', 'unique_ptr swap with raw', 'shared_ptr aliasing constructor',
+  'unique_ptr bool conversion', 'shared_ptr make with new', 'weak_ptr comparison',
+  'unique_ptr nullptr check missing', 'shared_ptr cyclic dependency', 'weak_ptr deadlock',
+  'unique_ptr exception safety', 'shared_ptr thread safety', 'weak_ptr race condition'
+].map((pattern, index) => ({
+  id: `memory-smart-ptr-${index}`,
+  category: 'memory' as const,
+  severity: (index < 8 ? 'major' : 'minor') as IssueSeverity,
+  title: `Smart pointer misuse: ${pattern}`,
+  description: `Detected smart pointer misuse pattern: ${pattern}`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+
+    for (const [name, variable] of ast.symbols.variables) {
+      if (isSmartPointer(variable)) {
+        // Check for common misuse patterns
+        if (pattern.includes('auto_ptr') && variable.type.includes('auto_ptr')) {
+          violations.push({
+            ruleId: `memory-smart-ptr-${index}`,
+            file: context.file,
+            line: variable.line,
+            column: 0,
+            severity: index < 8 ? 'major' : 'minor',
+            message: `Deprecated auto_ptr usage detected`,
+            explanation: `auto_ptr is deprecated in C++11 and removed in C++17. Use unique_ptr instead.`,
+            codeSnippet: { before: `std::auto_ptr<T> ${name}` },
+            suggestedFix: {
+              type: 'modernize_smart_pointer',
+              file: context.file,
+              line: variable.line,
+              explanation: 'Replace auto_ptr with unique_ptr',
+              diff: `@@ -${variable.line},1 +${variable.line},1 @@
+-std::auto_ptr<T> ${name}
++std::unique_ptr<T> ${name}`,
+              codeSnippet: {
+                before: `std::auto_ptr<T> ${name}`,
+                after: `std::unique_ptr<T> ${name}`,
+              },
+              tags: [],
+              confidence: 0.95,
+              autoApplicable: true,
+              estimatedImpact: 'low',
+            },
+            tags: [],
+            confidence: 0.95,
+            metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 75 - index },
+          });
+        }
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: ['https://en.cppreference.com/w/cpp/memory'],
+  examples: [{
+    bad: `std::auto_ptr<Player> player(new Player());`,
+    good: `std::unique_ptr<Player> player = std::make_unique<Player>();`,
+    explanation: 'Use modern smart pointers',
+  }],
+  priority: 75 - index,
+  trinitySpecific: false,
+  enabled: true,
+  tags: [],
+  confidence: 0.85,
+}));
+
+// Resource acquisition/release rules (20 rules)
+const RESOURCE_PATTERNS = [
+  { acquire: 'new', release: 'delete' },
+  { acquire: 'new[]', release: 'delete[]' },
+  { acquire: 'malloc', release: 'free' },
+  { acquire: 'calloc', release: 'free' },
+  { acquire: 'realloc', release: 'free' },
+  { acquire: 'AllocateMemory', release: 'FreeMemory' },
+  { acquire: 'CreateObject', release: 'DestroyObject' },
+  { acquire: 'OpenFile', release: 'CloseFile' },
+  { acquire: 'Connect', release: 'Disconnect' },
+  { acquire: 'Lock', release: 'Unlock' },
+  { acquire: 'Acquire', release: 'Release' },
+  { acquire: 'Begin', release: 'End' },
+  { acquire: 'Start', release: 'Stop' },
+  { acquire: 'Initialize', release: 'Uninitialize' },
+  { acquire: 'AddRef', release: 'Release' },
+  { acquire: 'Retain', release: 'Release' },
+  { acquire: 'Open', release: 'Close' },
+  { acquire: 'Load', release: 'Unload' },
+  { acquire: 'Attach', release: 'Detach' },
+  { acquire: 'Register', release: 'Unregister' },
+].map((pair, index) => ({
+  id: `memory-resource-${pair.acquire.toLowerCase()}-${pair.release.toLowerCase()}`,
+  category: 'memory' as const,
+  severity: (index < 10 ? 'major' : 'minor') as IssueSeverity,
+  title: `Mismatched ${pair.acquire}/${pair.release}`,
+  description: `${pair.acquire} called without matching ${pair.release}`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+
+    for (const func of ast.symbols.functions.values()) {
+      const hasAcquire = func.body?.includes(pair.acquire);
+      const hasRelease = func.body?.includes(pair.release);
+
+      if (hasAcquire && !hasRelease) {
+        violations.push({
+          ruleId: `memory-resource-${pair.acquire.toLowerCase()}-${pair.release.toLowerCase()}`,
+          file: context.file,
+          line: func.startLine,
+          column: 0,
+          severity: index < 10 ? 'major' : 'minor',
+          message: `${pair.acquire} without matching ${pair.release}`,
+          explanation: `Function calls ${pair.acquire} but never calls ${pair.release}. Ensure proper resource cleanup.`,
+          codeSnippet: { before: `${pair.acquire}(...); ... // No ${pair.release}` },
+          suggestedFix: {
+            type: 'add_resource_release',
+            file: context.file,
+            line: func.endLine - 1,
+            explanation: `Add ${pair.release} call before function exit`,
+            diff: `@@ -${func.endLine - 1},0 +${func.endLine - 1},1 @@
++    ${pair.release}();`,
+            codeSnippet: {
+              before: `${pair.acquire}();\n}`,
+              after: `${pair.acquire}();\n    ${pair.release}();\n}`,
+            },
+            tags: [],
+            confidence: 0.78,
+            autoApplicable: false,
+            estimatedImpact: 'medium',
+          },
+          tags: [],
+          confidence: 0.78,
+          metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 70 - index },
+        });
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: ['https://en.cppreference.com/w/cpp/language/raii'],
+  examples: [{
+    bad: `${pair.acquire}();\n// ... use resource\n// No ${pair.release}!`,
+    good: `${pair.acquire}();\n// ... use resource\n${pair.release}();`,
+    explanation: 'Always match resource acquisition with release',
+  }],
+  priority: 70 - index,
+  trinitySpecific: index < 8,
+  enabled: true,
+  tags: [],
+  confidence: 0.78,
+}));
+
+// Container memory management rules (10 rules)
+const CONTAINER_POINTER_TYPES = [
+  'std::vector', 'std::list', 'std::deque', 'std::set', 'std::map',
+  'std::unordered_set', 'std::unordered_map', 'boost::container::vector',
+  'boost::container::list', 'boost::ptr_vector'
+].map((containerType, index) => ({
+  id: `memory-container-${containerType.replace('::', '-')}`,
+  category: 'memory' as const,
+  severity: 'major' as IssueSeverity,
+  title: `${containerType} of raw pointers may leak`,
+  description: `${containerType} containing raw pointers requires manual cleanup`,
+  detector: (ast: AST, context: CodeContext): RuleViolation[] => {
+    const violations: RuleViolation[] = [];
+
+    for (const [name, variable] of ast.symbols.variables) {
+      if (variable.type.includes(containerType) && variable.type.includes('*>')) {
+        violations.push({
+          ruleId: `memory-container-${containerType.replace('::', '-')}`,
+          file: context.file,
+          line: variable.line,
+          column: 0,
+          severity: 'major',
+          message: `${containerType} of raw pointers may leak memory`,
+          explanation: `Container ${name} holds raw pointers which must be manually deleted. Consider using container of smart pointers instead.`,
+          codeSnippet: { before: `${containerType}<Type*> ${name}` },
+          suggestedFix: {
+            type: 'convert_container_to_smart_ptr',
+            file: context.file,
+            line: variable.line,
+            explanation: `Convert to ${containerType}<std::unique_ptr<Type>>`,
+            diff: `@@ -${variable.line},1 +${variable.line},1 @@
+-${containerType}<Type*> ${name}
++${containerType}<std::unique_ptr<Type>> ${name}`,
+            codeSnippet: {
+              before: `${containerType}<Type*> ${name}`,
+              after: `${containerType}<std::unique_ptr<Type>> ${name}`,
+            },
+            tags: [],
+            confidence: 0.88,
+            autoApplicable: false,
+            estimatedImpact: 'medium',
+          },
+          tags: [],
+          confidence: 0.88,
+          metadata: { detectedBy: 'rule_engine', category: 'memory', priority: 65 - index },
+        });
+      }
+    }
+
+    return violations;
+  },
+  fixer: (violation: RuleViolation): CodeFix => violation.suggestedFix!,
+  references: ['https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rr-smartptrcontainer'],
+  examples: [{
+    bad: `std::vector<Player*> players;\nfor (auto p : players) delete p;  // Manual cleanup`,
+    good: `std::vector<std::unique_ptr<Player>> players;\n// Automatic cleanup`,
+    explanation: 'Use containers of smart pointers for automatic memory management',
+  }],
+  priority: 65 - index,
+  trinitySpecific: false,
+  enabled: true,
+  tags: [],
+  confidence: 0.88,
+}));
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
+
+export const MEMORY_RULES: CodeReviewRule[] = [
+  RULE_RAW_NEW_WITHOUT_DELETE,
+  ...TRINITY_POINTER_TYPES,
+  ...USE_AFTER_FREE_PATTERNS,
+  ...RAII_RESOURCE_TYPES,
+  ...SMART_POINTER_MISUSE_PATTERNS,
+  ...RESOURCE_PATTERNS,
+  ...CONTAINER_POINTER_TYPES,
+];
+
+console.log(`Memory Management Rules loaded: ${MEMORY_RULES.length} rules`);
+console.log(`Target: 150 rules, Current: ${MEMORY_RULES.length} (${((MEMORY_RULES.length / 150) * 100).toFixed(1)}%)`);

@@ -1,0 +1,62 @@
+api:
+  class: CreatureBaseStats
+  method: GetBaseStats
+  signature: const CreatureBaseStats * CreatureBaseStats::GetBaseStats(uint8 level,
+    uint8 unitClass)
+documentation:
+  brief: Retrieves base statistics for a creature based on its level and class.
+  description: The GetBaseStats method fetches the base statistics for a creature
+    in World of Warcraft, specifically tailored to the creature's level and unit class.
+    This function is typically used by the game engine to determine default health,
+    mana, damage, and other combat-related attributes for creatures at different levels
+    and classes. It serves as a lookup mechanism that accesses pre-defined creature
+    stat tables within the TrinityCore database or static data structures. The returned
+    pointer points to a constant structure, ensuring that base stats cannot be modified
+    through this interface, which maintains data integrity during gameplay.
+  parameters:
+  - name: level
+    description: The level of the creature for which to retrieve base statistics.
+      Valid range is typically 1-255, though actual supported levels depend on game
+      content and expansion.
+  - name: unitClass
+    description: The unit class identifier of the creature (e.g., Warrior, Mage, Rogue).
+      This value corresponds to the UnitClass enum or similar classification system
+      used internally by TrinityCore to categorize creature types.
+  returns: A pointer to a constant CreatureBaseStats structure containing the base
+    statistics for the specified level and class. Returns nullptr if no matching stats
+    are found for the given parameters, indicating that either an invalid level or
+    unit class was provided.
+  examples:
+  - title: Basic Usage
+    code: "const CreatureBaseStats* stats = creatureBaseStats->GetBaseStats(60, CLASS_WARRIOR);\n\
+      if (stats != nullptr) {\n    // Use stats for creature initialization\n    std::cout\
+      \ << \"Base Health: \" << stats->baseHealth << std::endl;\n}"
+    language: cpp
+  - title: Error Handling
+    code: "const CreatureBaseStats* stats = creatureBaseStats->GetBaseStats(1000,\
+      \ CLASS_MAGE);\nif (stats == nullptr) {\n    // Handle invalid level or class\n\
+      \    LOG_ERROR(\"world\", \"Invalid creature stats requested for level %u and\
+      \ class %u\", 1000, CLASS_MAGE);\n} else {\n    // Proceed with valid stats\n\
+      }"
+    language: cpp
+  notes: This method is likely implemented using a lookup table or map structure that
+    maps (level, unitClass) pairs to precomputed CreatureBaseStats objects. The implementation
+    may involve caching or static initialization for performance reasons, as creature
+    base stats are frequently accessed during creature creation and gameplay. The
+    returned pointer is guaranteed to be valid only for the duration of the current
+    game tick or until the next call to GetBaseStats.
+  warnings: Do not attempt to modify the returned CreatureBaseStats structure through
+    the returned pointer, as it points to a constant object. Modifying it will result
+    in undefined behavior or compilation errors. Also, be aware that invalid combinations
+    of level and unitClass may return nullptr, so always check for null before dereferencing
+    the result.
+  related:
+  - GetBaseStatsForLevel
+  - GetCreatureStats
+  - InitializeCreatureBaseStats
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T10:08:43.904749'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

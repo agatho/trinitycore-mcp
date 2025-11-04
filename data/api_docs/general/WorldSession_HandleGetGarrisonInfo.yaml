@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: HandleGetGarrisonInfo
+  signature: void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo
+    & getGarrisonInfo)
+documentation:
+  brief: Retrieves and processes garrison information for the player's current garrison.
+  description: The HandleGetGarrisonInfo method is responsible for handling client
+    requests to retrieve detailed information about a player's garrison in World of
+    Warcraft. This includes data such as garrison type, level, location, available
+    buildings, and other related garrison-specific details. The method typically responds
+    to a client-side packet requesting garrison data and prepares the appropriate
+    response with all relevant garrison information. It is part of the garrison system
+    mechanics that allow players to manage their faction-based installations within
+    the game world.
+  parameters:
+  - name: getGarrisonInfo
+    description: A reference to a WorldPackets::Garrison::GetGarrisonInfo packet containing
+      the client's request for garrison information.
+  returns: null
+  examples:
+  - title: Basic usage in session handler
+    code: "void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo&\
+      \ getGarrisonInfo)\n{\n    // Process the request to fetch garrison data\n \
+      \   SendGarrisonInfo();\n}"
+    language: cpp
+  - title: Integration with garrison system
+    code: "void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo&\
+      \ getGarrisonInfo)\n{\n    if (Player* player = GetPlayer())\n    {\n      \
+      \  if (Garrison* garrison = player->GetGarrison())\n        {\n            //\
+      \ Populate and send garrison data packet\n            WorldPackets::Garrison::GarrisonInfo\
+      \ info;\n            info.GarrisonID = garrison->GetGarrisonID();\n        \
+      \    info.GarrisonType = garrison->GetType();\n            SendPacket(info.Write());\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is typically invoked when a player opens their garrison interface
+    or when the client requests updated garrison information. The implementation should
+    ensure that only valid garrison data is sent to the client, and it must handle
+    cases where the player may not have an active garrison. The method operates within
+    the context of a WorldSession, meaning it has access to player-specific data and
+    can send packets back to the client.
+  warnings: Care must be taken when handling garrison data to ensure that only authorized
+    players can access their own garrison information. Improper handling could lead
+    to data leakage or incorrect garrison state reporting. Additionally, this method
+    should not be called outside of a valid session context as it relies on player
+    data and session-specific packet handling.
+  related:
+  - SendGarrisonInfo
+  - HandleGarrisonStartMission
+  - HandleGarrisonUpgrade
+  - GetPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:34:38.816423'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

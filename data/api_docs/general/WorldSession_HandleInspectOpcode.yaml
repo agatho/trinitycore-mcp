@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleInspectOpcode
+  signature: void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect
+    & inspect)
+documentation:
+  brief: Handles the inspect opcode sent by a player to request detailed information
+    about another player's equipment and stats.
+  description: The HandleInspectOpcode method processes an inspect packet received
+    from a client, which allows a player to examine another player's equipped items,
+    level, class, and other relevant character statistics. This functionality is used
+    when a player right-clicks on another player in the game world and selects 'Inspect'.
+    The method validates that the target player exists and is within inspect range,
+    then constructs and sends back an Inspect packet containing the requested information.
+    It ensures proper permissions and prevents abuse by checking for valid targets
+    and appropriate distances.
+  parameters:
+  - name: inspect
+    description: The inspect packet containing the target player's GUID that the requesting
+      player wants to inspect.
+  returns: null
+  examples:
+  - title: Basic Inspect Request Handling
+    code: "void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect&\
+      \ inspect)\n{\n    Player* target = ObjectAccessor::FindPlayer(inspect.Guid);\n\
+      \    if (!target || !target->IsInWorld())\n        return;\n\n    // Send inspect\
+      \ data to the requesting player\n    SendPacket(inspect.GetInspectData());\n\
+      }"
+    language: cpp
+  notes: This method is part of the core WorldSession class and is invoked automatically
+    when a client sends an inspect packet. It requires proper target validation and
+    distance checks before sending any data back to prevent exploits. The method assumes
+    that the incoming packet has already been validated for basic structure.
+  warnings: Improper handling of inspect requests can lead to information leakage
+    or denial-of-service attacks if target validation is bypassed. Always verify that
+    the inspected player is within range and that the requesting player has proper
+    permissions before sending any sensitive data.
+  related:
+  - SendInspectData
+  - HandleInspectRequest
+  - ValidateInspectTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:51:28.875479'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

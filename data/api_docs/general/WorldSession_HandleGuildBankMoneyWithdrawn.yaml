@@ -1,0 +1,46 @@
+api:
+  class: WorldSession
+  method: HandleGuildBankMoneyWithdrawn
+  signature: void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery
+    & packet)
+documentation:
+  brief: Handles the client request to query remaining guild bank money withdrawal
+    amount.
+  description: This method processes a packet sent by the client when a player requests
+    to check how much money they can still withdraw from the guild bank. It is part
+    of the guild bank system functionality in TrinityCore, allowing players with appropriate
+    permissions to monitor their guild's financial status and withdrawal limits. The
+    method typically validates the player's guild membership and permissions before
+    responding with the current remaining withdrawable amount.
+  parameters:
+  - name: packet
+    description: The packet containing the guild bank money withdrawal query request
+      from the client. This includes information about the guild and the requesting
+      player's session state.
+  returns: null
+  examples:
+  - title: Basic Usage in Guild Bank Context
+    code: "void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery&\
+      \ packet)\n{\n    if (!GetPlayer() || !GetPlayer()->GetGuild())\n        return;\n\
+      \    \n    // Validate guild bank access permissions\n    if (!GetPlayer()->GetGuild()->HasMemberPermission(GetPlayer()->GetGUID(),\
+      \ GUILD_PERMISSION_WITHDRAW_MONEY))\n        return;\n    \n    // Send remaining\
+      \ money amount back to client\n    WorldPackets::Guild::GuildBankRemainingWithdrawMoneyReply\
+      \ reply;\n    reply.Money = GetPlayer()->GetGuild()->GetGuildBankMoney();\n\
+      \    SendPacket(reply.Write());\n}"
+    language: cpp
+  notes: This method is typically invoked when a player opens the guild bank interface
+    and requests to see their withdrawal limits. The implementation should consider
+    thread safety as it may be called concurrently from different sessions.
+  warnings: Ensure proper permission checks are performed before sending any financial
+    data back to the client. Improper handling could lead to information leakage or
+    exploit opportunities.
+  related:
+  - HandleGuildBankQuery
+  - HandleGuildBankWithdrawMoney
+  - HandleGuildBankDepositMoney
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T22:04:02.162185'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

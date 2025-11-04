@@ -1,0 +1,58 @@
+api:
+  class: LootDistribution
+  method: CanPlayerDisenchantItem
+  signature: bool LootDistribution::CanPlayerDisenchantItem(Player * player, const
+    LootItem & item)
+documentation:
+  brief: Determines whether a player can disenchant a specific item during loot distribution.
+  description: The CanPlayerDisenchantItem method checks if a given player is eligible
+    to disenchant a particular item from the current loot distribution. This method
+    evaluates various conditions such as the player's class, the item's quality, and
+    whether the player has the disenchanting ability. It ensures that only appropriate
+    players can perform disenchanting actions during loot events, maintaining game
+    balance and preventing exploits. The method is typically called during loot processing
+    to validate player permissions before allowing disenchant operations.
+  parameters:
+  - name: player
+    description: Pointer to the Player object attempting to disenchant the item. Must
+      be a valid player instance with proper initialization.
+  - name: item
+    description: Reference to the LootItem structure representing the item being considered
+      for disenchanting. Contains item information including quality, class, and other
+      loot properties.
+  returns: Returns true if the player can disenchant the specified item; otherwise
+    returns false. This indicates whether the disenchant action would be permitted
+    based on game rules and player capabilities.
+  examples:
+  - title: Basic usage in loot processing
+    code: "if (lootDist->CanPlayerDisenchantItem(player, item)) {\n    // Allow disenchanting\n\
+      \    player->SendLootDisenchantQuery(item);\n} else {\n    // Deny disenchanting\n\
+      \    player->SendLootResponse(...);\n}"
+    language: cpp
+  - title: Integration with loot distribution system
+    code: "void HandleLootDisenchant(Player* player, uint32 lootId) {\n    Loot* loot\
+      \ = sLootMgr->GetLoot(player, lootId);\n    if (!loot) return;\n\n    for (uint8\
+      \ i = 0; i < loot->items.size(); ++i) {\n        LootItem& item = loot->items[i];\n\
+      \        if (item.is_looted || !item.is_under_threshold)\n            continue;\n\
+      \n        if (lootDist->CanPlayerDisenchantItem(player, item)) {\n         \
+      \   player->SendLootDisenchantQuery(item);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the loot distribution system and should only be called
+    during active loot processing. The implementation considers player class restrictions
+    (only Engineers can disenchant), item quality thresholds, and whether the player
+    has the required skill level. Performance is generally good as it performs simple
+    checks, but frequent calls during large loot events may impact performance.
+  warnings: Ensure that the player pointer and item reference are valid before calling
+    this method to prevent crashes. The method does not validate if the player is
+    in the same map or within range of the loot source - those checks should be performed
+    separately.
+  related:
+  - LootDistribution::CanPlayerRoll
+  - LootDistribution::CanPlayerNeed
+  - LootDistribution::CanPlayerGreed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:48:48.321236'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

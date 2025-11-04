@@ -1,0 +1,58 @@
+api:
+  class: QuestValidation
+  method: CanQuestBeStarted
+  signature: bool QuestValidation::CanQuestBeStarted(uint32 questId, Player * bot)
+documentation:
+  brief: Determines whether a player can start a specific quest based on quest requirements
+    and player state.
+  description: The CanQuestBeStarted method evaluates if a given quest can be initiated
+    by a specified player. It checks various conditions such as quest prerequisites,
+    player level, completed quests, required items, and other game-specific restrictions.
+    This method is typically used in quest validation logic to ensure players meet
+    all necessary criteria before they can begin a quest. The method returns true
+    if the quest can be started, false otherwise. It does not modify any game state
+    but rather performs read-only checks on player and quest data.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to check. Must be a valid quest
+      ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the player who is attempting
+      to start the quest. Cannot be null.
+  returns: Returns true if the player can start the specified quest, false if they
+    cannot. This includes cases where the player has already completed the quest,
+    does not meet level requirements, lacks required items, or fails other prerequisite
+    checks.
+  examples:
+  - title: Basic Quest Validation Check
+    code: "if (QuestValidation::CanQuestBeStarted(12345, player)) {\n    // Player\
+      \ can start quest 12345\n    player->AddQuest(12345);\n} else {\n    // Player\
+      \ cannot start quest 12345\n    player->SendNotification(\"You cannot start\
+      \ this quest.\");\n}"
+    language: cpp
+  - title: Integration with AI Quest Logic
+    code: "class QuestBot {\npublic:\n    bool TryStartQuest(uint32 questId, Player*\
+      \ bot) {\n        if (QuestValidation::CanQuestBeStarted(questId, bot)) {\n\
+      \            // Proceed with quest initiation logic\n            return bot->AddQuest(questId);\n\
+      \        }\n        return false;\n    }\n};"
+    language: cpp
+  notes: This method performs multiple database lookups and checks against player
+    data, so it should not be called excessively in performance-critical code paths.
+    The implementation likely caches certain values to improve performance for repeated
+    checks. It is part of the core quest validation system used by both player interactions
+    and AI quest bots.
+  warnings: Ensure that the Player pointer passed is valid and not null before calling
+    this method, as passing a null pointer will result in undefined behavior. Also,
+    note that this method only validates if the quest can be started; it does not
+    actually start the quest or modify the player's quest log.
+  related:
+  - Player::CanTakeQuest
+  - Player::AddQuest
+  - Quest::GetQuestLevel
+  - Quest::GetMinLevel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T19:58:11.336255'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

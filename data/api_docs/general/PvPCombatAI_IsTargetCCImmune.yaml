@@ -1,0 +1,54 @@
+api:
+  class: PvPCombatAI
+  method: IsTargetCCImmune
+  signature: bool PvPCombatAI::IsTargetCCImmune(int * target, CCType ccType) const
+documentation:
+  brief: Checks if a target is immune to a specific type of crowd control effect.
+  description: The IsTargetCCImmune method determines whether a given target unit
+    is resistant to or immune against a specified type of crowd control (CC) effect.
+    This functionality is typically used within AI logic to avoid applying CC spells
+    or abilities that would be ineffective on certain targets, such as bosses with
+    immunity or specific NPC types. The method evaluates the target's state and CC
+    resistance flags to make this determination. It is commonly called before attempting
+    to apply a CC effect to prevent wasted resources or invalid actions.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the target unit's identifier or
+      index within the AI system. This value is used to retrieve the target's properties
+      for immunity checks.
+  - name: ccType
+    description: An enumeration value specifying the type of crowd control effect
+      being checked for immunity, such as stun, fear, silence, root, etc. The exact
+      values depend on the CCType enum definition within TrinityCore.
+  returns: Returns true if the target is immune to the specified type of crowd control
+    effect; otherwise returns false. A return value of true indicates that applying
+    the CC would have no effect on the target.
+  examples:
+  - title: Basic Usage in AI Logic
+    code: "if (!pvpCombatAI->IsTargetCCImmune(&targetId, CC_STUN)) {\n    // Apply\
+      \ stun effect\n    DoCast(target, SPELL_STUN);\n} else {\n    // Target is immune\
+      \ to stun; try another ability\n    DoCast(target, SPELL_FEAR);\n}"
+    language: cpp
+  - title: Checking Multiple CC Types
+    code: "CCType ccTypes[] = {CC_STUN, CC_ROOT, CC_SILENCE};\nfor (auto type : ccTypes)\
+      \ {\n    if (!pvpCombatAI->IsTargetCCImmune(&targetId, type)) {\n        //\
+      \ Apply the first non-immune CC\n        DoCast(target, GetSpellForCCType(type));\n\
+      \        break;\n    }\n}"
+    language: cpp
+  notes: This method likely relies on internal flags or a lookup table that defines
+    which units are immune to various CC types. It may also consider target faction,
+    level, and special AI flags. The method assumes the target pointer is valid and
+    points to an active unit in the game world.
+  warnings: Ensure that the target parameter refers to a valid unit; passing an invalid
+    or null pointer could lead to undefined behavior. Also, be aware that CC immunity
+    can change dynamically during combat due to buffs, debuffs, or temporary conditions.
+  related:
+  - IsTargetImmune
+  - GetCCImmunityMask
+  - ApplyCrowdControl
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T20:35:32.806723'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

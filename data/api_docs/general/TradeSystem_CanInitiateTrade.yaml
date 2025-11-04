@@ -1,0 +1,57 @@
+api:
+  class: TradeSystem
+  method: CanInitiateTrade
+  signature: bool TradeSystem::CanInitiateTrade(Player * initiator, Player * target)
+documentation:
+  brief: Determines whether two players can initiate a trade with each other
+  description: The CanInitiateTrade method evaluates whether the conditions for initiating
+    a trade between two players are met. It checks various game rules and restrictions
+    such as distance, player states (e.g., dead, flagged for PvP), and whether the
+    players are in the same faction or are hostile to each other. This method is typically
+    called before allowing a trade request to be sent or accepted. The result of this
+    check determines if the trade system should proceed with the trade initiation
+    process.
+  parameters:
+  - name: initiator
+    description: Pointer to the Player object who is attempting to initiate the trade
+  - name: target
+    description: Pointer to the Player object who is being invited to trade
+  returns: Returns true if both players meet all requirements for initiating a trade,
+    false otherwise. This includes checking that players are within trading distance,
+    not in combat, not flagged for PvP, and that they are not in conflicting states
+    such as being enemies or dead.
+  examples:
+  - title: Basic Trade Initiation Check
+    code: "if (TradeSystem::CanInitiateTrade(player1, player2)) {\n    // Proceed\
+      \ with trade initiation\n    player1->GetSession()->SendTradeRequest(player2);\n\
+      } else {\n    // Inform players that trade cannot be initiated\n    player1->SendNotification(\"\
+      You cannot trade with this player.\");\n}"
+    language: cpp
+  - title: Checking Trade Eligibility in a Custom Command
+    code: "void HandleTradeCheckCommand(ChatHandler* handler) {\n    Player* player\
+      \ = handler->GetSession()->GetPlayer();\n    Player* target = handler->getSelectedPlayer();\n\
+      \    \n    if (!target || !player) return;\n    \n    if (TradeSystem::CanInitiateTrade(player,\
+      \ target)) {\n        handler->PSendSysMessage(\"Trade can be initiated between\
+      \ %s and %s.\", player->GetName().c_str(), target->GetName().c_str());\n   \
+      \ } else {\n        handler->PSendSysMessage(\"Trade cannot be initiated between\
+      \ %s and %s.\", player->GetName().c_str(), target->GetName().c_str());\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method is part of the core trade system logic in TrinityCore. It's important
+    to note that this check does not validate the contents of the trade itself, but
+    only whether the players are eligible to begin a trade session. The actual trade
+    window and item validation happen separately after this check passes.
+  warnings: Ensure that both Player pointers are valid before calling this method,
+    as passing null pointers may lead to undefined behavior or crashes. Also, be aware
+    that this method does not account for custom server rules or modifications that
+    might affect trade eligibility beyond the standard game mechanics.
+  related:
+  - TradeSystem::InitiateTrade
+  - TradeSystem::AcceptTrade
+  - Player::GetTradeData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:12:00.751372'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

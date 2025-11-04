@@ -1,0 +1,51 @@
+api:
+  class: InstanceLock
+  method: IsInUse
+  signature: bool InstanceLock::IsInUse() const
+documentation:
+  brief: Determines whether the instance lock is currently active or in use by checking
+    its internal state flags.
+  description: The IsInUse method evaluates the current state of an InstanceLock object
+    to determine if it is actively being used. This typically occurs when a player
+    or group has entered the locked instance and the lock remains engaged until all
+    participants have left or the instance is properly released. The method checks
+    internal flags or counters that track usage status, returning true if any active
+    players or groups are associated with the lock, and false otherwise. In World
+    of Warcraft's TrinityCore implementation, this functionality supports dungeon
+    and raid locking mechanisms to prevent unauthorized access during ongoing encounters.
+  parameters: []
+  returns: Returns true if the instance lock is currently in use by at least one player
+    or group; returns false if no players are present in the locked instance or if
+    the lock has been released.
+  examples:
+  - title: Check if Instance Lock is Active Before Entering
+    code: "if (!instanceLock.IsInUse()) {\n    // Allow player to enter the instance\n\
+      \    instanceLock.LockForPlayer(player);\n} else {\n    // Inform player that\
+      \ instance is already in use\n    player->SendNotification(\"Instance is currently\
+      \ in use.\");\n}"
+    language: cpp
+  - title: Use IsInUse to Prevent Duplicate Instance Entry
+    code: "class InstanceManager {\npublic:\n    bool TryEnterInstance(Player* player,\
+      \ uint32 instanceId) {\n        if (auto lock = GetInstanceLock(instanceId))\
+      \ {\n            if (!lock->IsInUse()) {\n                lock->LockForPlayer(player);\n\
+      \                return true;\n            }\n        }\n        return false;\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is typically used in conjunction with instance locking systems
+    to manage player access. It does not perform any locking or unlocking operations
+    itself, but rather reports the current lock status. The implementation likely
+    relies on internal reference counting or session tracking to determine usage state.
+  warnings: Do not rely solely on this method for security purposes; always combine
+    it with proper authentication and authorization checks. The return value may be
+    stale if accessed outside of a thread-safe context, especially in multi-threaded
+    server environments.
+  related:
+  - InstanceLock::LockForPlayer
+  - InstanceLock::Release
+  - InstanceLock::IsLocked
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:15:34.934514'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

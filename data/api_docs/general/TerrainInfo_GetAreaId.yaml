@@ -1,0 +1,67 @@
+api:
+  class: TerrainInfo
+  method: GetAreaId
+  signature: uint32 TerrainInfo::GetAreaId(const PhaseShift & phaseShift, uint32 mapId,
+    const int & pos, const DynamicMapTree * dynamicMapTree)
+documentation:
+  brief: Retrieves the area ID for a given map position using phase shift and dynamic
+    map tree data.
+  description: The GetAreaId method determines the area identifier associated with
+    a specific location on a map by utilizing phase shift information, map ID, position
+    coordinates, and optional dynamic map tree data. This functionality is essential
+    for World of Warcraft's terrain and area-based systems, allowing the game to correctly
+    identify zones, instances, and area-specific mechanics. The method considers the
+    player's current phase state and map geometry to accurately return the appropriate
+    area identifier. It plays a crucial role in determining zone-based events, quest
+    triggers, and instance boundaries within TrinityCore's architecture.
+  parameters:
+  - name: phaseShift
+    description: Reference to the PhaseShift object that defines the current phase
+      state of the player or entity. This affects which areas are visible and accessible
+      based on game phases.
+  - name: mapId
+    description: Unique identifier for the map where the area ID is being queried.
+      Must correspond to a valid map in the game world.
+  - name: pos
+    description: Position coordinate (typically x or y) used to determine the specific
+      location within the map for area identification.
+  - name: dynamicMapTree
+    description: Pointer to a DynamicMapTree object that provides additional geometric
+      data for terrain queries. Can be null if no dynamic tree is available.
+  returns: Returns a uint32 value representing the area ID at the specified map position.
+    A return value of 0 typically indicates an invalid or unknown area, while non-zero
+    values correspond to valid area identifiers defined in the game's area table.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 areaId = terrainInfo->GetAreaId(phaseShift, 1234, 500, nullptr);\n\
+      if (areaId != 0)\n{\n    // Process area-specific logic\n    printf(\"Area ID:\
+      \ %u\\n\", areaId);\n}"
+    language: cpp
+  - title: Advanced Usage with Dynamic Map Tree
+    code: "DynamicMapTree* dynamicTree = GetDynamicMapTreeForMap(1234);\nuint32 areaId\
+      \ = terrainInfo->GetAreaId(phaseShift, 1234, 500, dynamicTree);\nif (areaId\
+      \ != 0)\n{\n    // Use area ID for zone-based event handling\n    AreaTableEntry\
+      \ const* areaEntry = sAreaTableStore.LookupEntry(areaId);\n    if (areaEntry)\n\
+      \    {\n        // Handle specific area behavior\n        printf(\"Entering\
+      \ area: %s\\n\", areaEntry->area_name[0]);\n    }\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's terrain system and relies on accurate
+    phase shift data to correctly identify areas. The dynamicMapTree parameter allows
+    for more precise terrain queries when available, particularly in complex or instance-based
+    environments. Performance may be impacted when using dynamic map trees due to
+    additional geometric calculations.
+  warnings: Ensure that the phaseShift object is properly initialized before calling
+    this method, as incorrect phase data can lead to invalid area IDs. The pos parameter
+    should represent valid coordinates within the specified map bounds; otherwise,
+    results may be unpredictable or return zero.
+  related:
+  - GetAreaId
+  - GetZoneId
+  - GetMapId
+  - GetPhaseShift
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T17:00:33.695338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

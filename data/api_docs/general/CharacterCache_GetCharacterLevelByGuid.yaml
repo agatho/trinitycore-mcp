@@ -1,0 +1,52 @@
+api:
+  class: CharacterCache
+  method: GetCharacterLevelByGuid
+  signature: uint8 CharacterCache::GetCharacterLevelByGuid(int guid) const
+documentation:
+  brief: Retrieves the level of a character given their unique identifier (GUID) from
+    the character cache.
+  description: The GetCharacterLevelByGuid method fetches the current level of a player
+    character using their globally unique identifier (GUID). This method operates
+    on cached character data, which is typically populated during server startup or
+    when a character logs in. The method assumes that the GUID corresponds to an existing
+    character in the cache and will return 0 if the character is not found. It's commonly
+    used in game logic where character level information is needed without performing
+    expensive database queries. This method is thread-safe as it operates on cached
+    data and does not modify any persistent state.
+  parameters: []
+  returns: Returns a uint8 value representing the character's level. If the GUID is
+    not found in the cache, it returns 0, indicating an invalid or non-existent character.
+  examples:
+  - title: Basic Usage to Check Character Level
+    code: "uint8 level = CharacterCache::GetCharacterLevelByGuid(12345);\nif (level\
+      \ > 0)\n{\n    std::cout << \"Character is at level \" << static_cast<int>(level)\
+      \ << std::endl;\n}\nelse\n{\n    std::cout << \"Character not found in cache\"\
+      \ << std::endl;\n}"
+    language: cpp
+  - title: Using Level for Game Logic Decision
+    code: "int playerGuid = 54321;\nuint8 playerLevel = CharacterCache::GetCharacterLevelByGuid(playerGuid);\n\
+      if (playerLevel >= 10)\n{\n    // Allow access to higher-level content\n   \
+      \ player->SendPacket(SendHighLevelContent());\n}\nelse\n{\n    // Restrict access\
+      \ or show level-up message\n    player->SendSystemMessage(\"You must reach level\
+      \ 10 to access this area.\");\n}"
+    language: cpp
+  notes: This method relies on the character cache being properly populated. If called
+    before characters are loaded into the cache, it will return 0 for all GUIDs. The
+    cache is typically updated when players log in or when data is refreshed from
+    the database. This method does not perform any database queries and should be
+    fast to execute.
+  warnings: Be aware that this method only works with cached character data. If a
+    character has logged in recently but hasn't been added to the cache yet, this
+    method will return 0 for their GUID. Also, using this method on invalid or non-existent
+    GUIDs will always return 0, so callers should validate GUIDs before calling if
+    necessary.
+  related:
+  - GetCharacterNameByGuid
+  - GetCharacterClassByGuid
+  - GetCharacterRaceByGuid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:56:58.479919'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

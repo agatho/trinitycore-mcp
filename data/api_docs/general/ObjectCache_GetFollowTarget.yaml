@@ -1,0 +1,52 @@
+api:
+  class: ObjectCache
+  method: GetFollowTarget
+  signature: ::Unit * ObjectCache::GetFollowTarget() const
+documentation:
+  brief: Retrieves the current unit target that this object is following in its AI
+    behavior.
+  description: The GetFollowTarget method returns a pointer to the Unit object that
+    the current ObjectCache instance is following as part of its AI follow behavior.
+    This is typically used by creatures or NPCs that have been commanded to follow
+    a specific target, such as players or other units. The returned Unit pointer may
+    be null if no follow target has been set or if the target has become invalid (e.g.,
+    died or went out of scope). This method is commonly used in AI scripts and behavior
+    trees to determine the current follow target for movement or combat decisions.
+  parameters: []
+  returns: A pointer to the Unit object that is currently being followed, or nullptr
+    if no valid follow target exists.
+  examples:
+  - title: Basic usage to check follow target
+    code: "Unit* target = objectCache->GetFollowTarget();\nif (target)\n{\n    //\
+      \ Perform actions based on the follow target\n    TC_LOG_DEBUG(\"ai\", \"Following\
+      \ target: %s\", target->GetName().c_str());\n}\nelse\n{\n    TC_LOG_DEBUG(\"\
+      ai\", \"No follow target set\");\n}"
+    language: cpp
+  - title: Using follow target in movement logic
+    code: "Unit* followTarget = objectCache->GetFollowTarget();\nif (followTarget\
+      \ && !followTarget->IsInWorld())\n{\n    // Target is no longer valid, stop\
+      \ following\n    objectCache->SetFollowTarget(nullptr);\n    TC_LOG_DEBUG(\"\
+      ai\", \"Stopped following invalid target\");\n}\nelse if (followTarget)\n{\n\
+      \    // Move towards the follow target\n    Movement::MoveSplineInit init(movement->GetUnit());\n\
+      \    init.MoveTo(followTarget->GetPosition());\n    init.SetWalk(false);\n \
+      \   init.Launch();\n}"
+    language: cpp
+  notes: This method does not perform any validation on the returned Unit pointer
+    beyond checking if it's null. The caller should ensure that the returned Unit
+    is still valid before attempting to use it. In a multithreaded environment, access
+    to this method should be synchronized if the follow target can be modified from
+    other threads.
+  warnings: The returned Unit pointer may become invalid if the target unit is destroyed
+    or removed from the world. Always check for null returns and validate that the
+    target is still alive and in the same map before using it in any operations that
+    might cause crashes or undefined behavior.
+  related:
+  - SetFollowTarget
+  - HasFollowTarget
+  - ClearFollowTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T22:56:01.904193'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

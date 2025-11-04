@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandleEmoteOpcode
+  signature: void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient
+    & packet)
+documentation:
+  brief: Processes incoming emote commands from clients and broadcasts them to nearby
+    players.
+  description: The HandleEmoteOpcode method is responsible for handling emote requests
+    sent by players in World of Warcraft. When a player performs an emote (such as
+    waving, laughing, or standing), the client sends an EmoteClient packet which this
+    method receives and processes. The method validates the emote ID, checks for any
+    restrictions or cooldowns, and then broadcasts the emote to nearby players within
+    the same map instance. This ensures that emotes are properly synchronized across
+    the game world and follow the rules defined by the server's configuration.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Emote Handling
+    code: "void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet)\n\
+      {\n    // Validate emote ID\n    if (!sEmotesStore.LookupEntry(packet.EmoteID))\n\
+      \        return;\n    \n    // Broadcast emote to nearby players\n    Player*\
+      \ player = GetPlayer();\n    if (player)\n    {\n        WorldPackets::Chat::EmoteServer\
+      \ emotePacket;\n        emotePacket.SourceGUID = player->GetGUID();\n      \
+      \  emotePacket.EmoteID = packet.EmoteID;\n        player->SendMessageToSet(emotePacket,\
+      \ true);\n    }\n}"
+    language: cpp
+  notes: This method operates within the context of a WorldSession and relies on the
+    TrinityCore's emote system to validate emote IDs. It is typically called from
+    the packet handling system when an EmoteClient packet is received. The method
+    does not perform any direct validation of player permissions or cooldowns beyond
+    basic emote ID lookup.
+  warnings: Improper handling of emote IDs could lead to invalid emotes being broadcast,
+    potentially causing client-side issues or exploits. Developers should ensure that
+    all emote IDs are validated against the server's emote database before broadcasting.
+  related:
+  - HandleChatMessage
+  - SendEmote
+  - GetPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:13:43.144062'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleGameObjectQueryOpcode
+  signature: void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject
+    & packet)
+documentation:
+  brief: Processes a client request to query information about a game object by its
+    entry ID
+  description: The HandleGameObjectQueryOpcode method handles incoming queries from
+    clients requesting detailed information about a specific game object. This method
+    is typically invoked when a player interacts with or examines a game object in
+    the World of Warcraft client. It retrieves the game object's template data from
+    the database and sends it back to the requesting client as a response packet.
+    The method ensures that only valid, existing game objects are queried and responds
+    appropriately to invalid requests. This functionality supports features like object
+    inspection, quest item identification, and general object metadata retrieval within
+    the game world.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic GameObject Query Handling
+    code: "void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject&\
+      \ packet)\n{\n    if (!packet.Entry)\n        return;\n\n    GameObjectTemplate\
+      \ const* goInfo = sObjectMgr->GetGameObjectTemplate(packet.Entry);\n    if (!goInfo)\n\
+      \        return;\n\n    WorldPackets::Query::GameObjectQueryResponse response;\n\
+      \    response.Entry = packet.Entry;\n    response.Name = goInfo->name;\n   \
+      \ response.DisplayID = goInfo->displayId;\n    // ... populate other fields\n\
+      \    SendPacket(response.Write());\n}"
+    language: cpp
+  notes: This method is part of the WorldSession's packet handling system and operates
+    on the main game thread. It performs database lookups which may impact performance
+    if called excessively with many simultaneous queries. The method assumes that
+    the client has already validated basic input parameters before sending the request.
+  warnings: Improper handling of invalid entry IDs could lead to crashes or inconsistent
+    behavior. Ensure proper bounds checking and null pointer validation when accessing
+    GameObjectTemplate data. This method should not be used for frequent real-time
+    queries as it may cause performance degradation.
+  related:
+  - HandleGameObjectQueryOpcode
+  - SendGameObjectQueryResponse
+  - GetGameObjectTemplate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:10:40.446384'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

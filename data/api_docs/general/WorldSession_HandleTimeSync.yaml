@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: HandleTimeSync
+  signature: void WorldSession::HandleTimeSync(uint32 counter, int64 clientTime, int
+    responseReceiveTime)
+documentation:
+  brief: Handles time synchronization requests from clients to maintain accurate server-client
+    time alignment.
+  description: The HandleTimeSync method processes time synchronization messages sent
+    by client sessions to ensure that the server and client maintain consistent time
+    references. This is crucial for gameplay mechanics that depend on precise timing,
+    such as spell casting, movement synchronization, and event triggers. The method
+    receives a counter value, client-side timestamp, and response receive time to
+    calculate and adjust for any time discrepancies between the client and server.
+    It typically updates internal time tracking mechanisms and may send back adjusted
+    time data to maintain synchronization across the network.
+  parameters:
+  - name: counter
+    description: A sequential counter value that helps track the order of time sync
+      requests and prevent replay attacks. This value is usually incremented with
+      each sync request.
+  - name: clientTime
+    description: The timestamp reported by the client's system clock when the time
+      sync request was sent. Used to calculate time differences between client and
+      server.
+  - name: responseReceiveTime
+    description: The time at which the server received the response from the client,
+      used to compute round-trip latency for accurate time adjustment calculations.
+  returns: null
+  examples:
+  - title: Basic Time Sync Handling
+    code: "void WorldSession::HandleTimeSync(uint32 counter, int64 clientTime, int64\
+      \ responseReceiveTime)\n{\n    // Calculate round-trip time\n    int64 roundTripTime\
+      \ = getMSTime() - responseReceiveTime;\n    \n    // Adjust server time based\
+      \ on client timestamp and latency\n    int64 adjustedServerTime = clientTime\
+      \ + (roundTripTime / 2);\n    \n    // Update internal time tracking\n    SetServerTime(adjustedServerTime);\n\
+      }"
+    language: cpp
+  notes: This method is typically invoked automatically by the TrinityCore network
+    layer when a client sends a time synchronization packet. It's important to note
+    that excessive or malformed time sync requests could be used as a vector for DoS
+    attacks, so proper validation and rate limiting should be implemented at the session
+    level.
+  warnings: Improper handling of time synchronization can lead to desynchronization
+    issues in gameplay mechanics, affecting spell timing, movement prediction, and
+    other time-sensitive features. Always validate that client timestamps are within
+    reasonable bounds before processing.
+  related:
+  - GetServerTime
+  - SetServerTime
+  - SendTimeSync
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T20:14:27.416006'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

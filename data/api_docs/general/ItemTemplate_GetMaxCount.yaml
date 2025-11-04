@@ -1,0 +1,51 @@
+api:
+  class: ItemTemplate
+  method: GetMaxCount
+  signature: uint32 ItemTemplate::GetMaxCount() const
+documentation:
+  brief: Returns the maximum stack count allowed for this item type.
+  description: The GetMaxCount method retrieves the maximum number of items that can
+    be stacked in a single inventory slot for the given item template. This value
+    is defined in the item's database entry and determines how many copies of the
+    item can coexist in one stack. For items that are not stackable, this value is
+    typically 1. The returned value represents the upper limit for stacking behavior
+    in World of Warcraft's inventory system.
+  parameters: []
+  returns: A uint32 value representing the maximum stack count allowed for this item
+    type. Returns 1 for non-stackable items, or higher values for items that can be
+    stacked (e.g., 20 for a typical potion, 999 for quest items).
+  examples:
+  - title: Check if an item is stackable
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ maxCount = itemTemplate->GetMaxCount();\nif (maxCount > 1)\n{\n    // Item\
+      \ can be stacked\n    printf(\"This item supports stacking up to %u items per\
+      \ stack.\\n\", maxCount);\n}\nelse\n{\n    // Item is not stackable\n    printf(\"\
+      This item cannot be stacked.\\n\");\n}"
+    language: cpp
+  - title: Determine maximum possible quantity in inventory
+    code: "ItemTemplate* template = sObjectMgr->GetItemTemplate(12345);\nuint32 maxStackCount\
+      \ = template->GetMaxCount();\nuint32 totalItems = 1000;\nuint32 maxPossibleStacks\
+      \ = totalItems / maxStackCount;\nuint32 remainingItems = totalItems % maxStackCount;\n\
+      printf(\"With %u items, you can have %u full stacks of %u and %u remaining.\\\
+      n\", \n       totalItems, maxPossibleStacks, maxStackCount, remainingItems);"
+    language: cpp
+  notes: This method directly accesses the item template's MaxCount field which is
+    loaded from the database at server startup. The value is cached and does not change
+    during runtime for a given item type. For items with MaxCount = 0, it typically
+    means the item has special stacking behavior or is handled differently by the
+    game engine.
+  warnings: Be aware that some items may have MaxCount = 0 in the database but are
+    still stackable through other mechanisms (like quest items). Always validate the
+    returned value if your code depends on specific stacking behavior. Also note that
+    this method does not account for temporary modifications to item properties during
+    runtime.
+  related:
+  - GetItemId
+  - GetStackable
+  - GetMaxStackSize
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T02:26:31.549377'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

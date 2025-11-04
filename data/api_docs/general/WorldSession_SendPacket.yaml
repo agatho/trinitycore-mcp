@@ -1,0 +1,61 @@
+api:
+  class: WorldSession
+  method: SendPacket
+  signature: void WorldSession::SendPacket(const WorldPacket * packet, bool forced)
+documentation:
+  brief: Sends a WorldPacket to the client associated with this session, optionally
+    forcing immediate delivery.
+  description: The SendPacket method is responsible for transmitting a WorldPacket
+    object to the connected client through the network layer. It handles the serialization
+    and sending of game data such as player actions, server responses, or updates.
+    The 'forced' parameter determines whether the packet should be sent immediately
+    without being queued for batch transmission. This method is crucial for maintaining
+    real-time communication between the server and clients in World of Warcraft. The
+    method does not validate the packet's contents beyond ensuring it's a valid WorldPacket
+    pointer, so developers must ensure proper packet construction before calling this
+    function.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket object containing the data to be sent
+      to the client. Must not be null. The packet should already be properly constructed
+      with appropriate opcode and data.
+  - name: forced
+    description: Boolean flag indicating whether to force immediate transmission of
+      the packet. If true, the packet is sent immediately regardless of batching policies.
+      If false, the packet may be queued for batch sending to improve network efficiency.
+  returns: null
+  examples:
+  - title: Basic Packet Sending
+    code: 'WorldPacket packet(SMSG_LOGIN_VERIFY_WORLD, 4);
+
+      packet << uint32(12345);
+
+      session->SendPacket(&packet, false);'
+    language: cpp
+  - title: Forced Immediate Packet Transmission
+    code: 'WorldPacket packet(SMSG_UPDATE_OBJECT, 0);
+
+      // ... populate packet with object updates ...
+
+      session->SendPacket(&packet, true);'
+    language: cpp
+  notes: This method operates on the network thread context and should not be called
+    from arbitrary threads without proper synchronization. The forced parameter can
+    impact performance if used excessively as it bypasses batching optimizations.
+    Packet data is copied during transmission, so modifying the original packet after
+    calling SendPacket is safe.
+  warnings: Never pass a null pointer to the 'packet' parameter as this will likely
+    cause a crash. Be cautious with the 'forced' parameter - excessive use can degrade
+    network performance due to increased packet overhead. Ensure that all packets
+    sent are properly constructed with valid opcodes and data before calling this
+    method.
+  related:
+  - SendPacket
+  - ReadPacket
+  - QueuePacket
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:16:59.308591'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

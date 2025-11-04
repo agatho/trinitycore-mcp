@@ -1,0 +1,51 @@
+api:
+  class: SpellHistory
+  method: CancelGlobalCooldown
+  signature: void SpellHistory::CancelGlobalCooldown(const SpellInfo * spellInfo)
+documentation:
+  brief: Cancels the global cooldown for a specified spell.
+  description: The CancelGlobalCooldown method removes the global cooldown effect
+    that is typically applied to spells after casting. This allows the affected player
+    or unit to immediately cast another spell without waiting for the cooldown period
+    to expire. The method operates on the provided SpellInfo object to determine which
+    global cooldown should be canceled, if any. It's commonly used in scenarios where
+    a spell or ability should not trigger the standard global cooldown, such as when
+    using certain talents, items, or special abilities that bypass normal cooldown
+    restrictions.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure representing the spell whose global
+      cooldown should be canceled. This parameter must not be null and should point
+      to a valid spell definition within the game's spell database.
+  returns: null
+  examples:
+  - title: Canceling Global Cooldown for a Specific Spell
+    code: "void ApplyInstantSpell(SpellInfo* spellInfo)\n{\n    // Cancel any global\
+      \ cooldown before casting\n    player->GetSpellHistory()->CancelGlobalCooldown(spellInfo);\n\
+      \    \n    // Proceed with spell casting logic\n    player->CastSpell(target,\
+      \ spellInfo->Id, true);\n}"
+    language: cpp
+  - title: Using in Custom Talent Implementation
+    code: "void HandleTalentEffect(Unit* caster, SpellInfo* spellInfo)\n{\n    //\
+      \ Some talents allow immediate re-casting without GCD\n    if (caster->HasAura(12345))\
+      \ // Example aura ID\n    {\n        caster->GetSpellHistory()->CancelGlobalCooldown(spellInfo);\n\
+      \    }\n    \n    caster->CastSpell(target, spellInfo->Id, true);\n}"
+    language: cpp
+  notes: This method modifies the internal cooldown state of the unit's spell history.
+    It should only be called when the global cooldown is actually supposed to be canceled,
+    not just for general spell execution. The SpellInfo parameter must represent a
+    valid spell that can have its GCD canceled; otherwise, the behavior may be undefined.
+  warnings: Do not call this method without verifying that the spell actually has
+    a global cooldown or that canceling it is intended. Improper usage could lead
+    to unexpected behavior in spell timing or player experience. Ensure that spellInfo
+    is valid and not null before calling to prevent crashes.
+  related:
+  - GetGlobalCooldown
+  - SetGlobalCooldown
+  - HasGlobalCooldown
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T18:04:50.872241'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

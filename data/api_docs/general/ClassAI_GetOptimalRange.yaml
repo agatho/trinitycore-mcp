@@ -1,0 +1,51 @@
+api:
+  class: ClassAI
+  method: GetOptimalRange
+  signature: float ClassAI::GetOptimalRange(int * target)
+documentation:
+  brief: Calculates and returns the optimal attack range for the AI-controlled unit
+    based on its current target.
+  description: The GetOptimalRange method determines the ideal distance at which the
+    AI-controlled creature should engage its target for maximum effectiveness. This
+    calculation takes into account various factors such as the creature's attack type,
+    weapon range, and target mobility. The returned float value represents the squared
+    distance (to avoid expensive square root operations) at which the AI will consider
+    an attack to be optimal. This method is typically used internally by the AI system
+    to make decisions about when to move closer to or maintain distance from a target.
+  parameters:
+  - name: target
+    description: Pointer to the target unit for which to calculate the optimal range.
+      Must not be null and should point to a valid GameObject or Creature instance.
+  returns: Returns a float value representing the squared optimal distance to the
+    target. A value of 0.0f indicates an error or invalid target state, while positive
+    values indicate the calculated optimal engagement range.
+  examples:
+  - title: Basic usage in AI decision making
+    code: "if (me->GetDistance(target) <= GetOptimalRange(&target))\n{\n    // Attack\
+      \ target\n    me->CastSpell(target, SPELL_ATTACK, true);\n}"
+    language: cpp
+  - title: Using optimal range for movement decisions
+    code: "float optimalRange = GetOptimalRange(&target);\nfloat currentDistance =\
+      \ me->GetDistance(target);\n\nif (currentDistance > optimalRange)\n{\n    //\
+      \ Move closer to target\n    me->GetMotionMaster()->MoveChase(target);\n}\n\
+      else if (currentDistance < optimalRange * 0.7f)\n{\n    // Move away from target\n\
+      \    me->GetMotionMaster()->MoveBackward(target, optimalRange * 0.3f);\n}"
+    language: cpp
+  notes: This method is part of the core AI decision-making system and should only
+    be called when a valid target exists. The returned value is squared to optimize
+    performance by avoiding sqrt() calculations during frequent AI updates. The optimal
+    range calculation may vary based on creature type, spell casting requirements,
+    or weapon characteristics.
+  warnings: Do not call this method with a null target pointer as it will likely cause
+    undefined behavior or crashes. Ensure the target remains valid throughout the
+    duration of the method call and any subsequent operations using the returned value.
+  related:
+  - GetAttackDistance
+  - GetMaxRange
+  - GetMinRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T11:33:46.132225'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

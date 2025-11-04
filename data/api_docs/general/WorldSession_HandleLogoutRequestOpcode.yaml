@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandleLogoutRequestOpcode
+  signature: void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest
+    & logoutRequest)
+documentation:
+  brief: Handles the client's logout request opcode by processing the logout sequence
+    and preparing the player for disconnection.
+  description: The HandleLogoutRequestOpcode method is invoked when a player initiates
+    a logout from the game world. It processes the logout request packet sent by the
+    client, validates the player's state, and begins the logout sequence which includes
+    saving the player's data, removing the player from the world, and preparing the
+    session for disconnection. This method ensures that all necessary cleanup operations
+    are performed before the player is disconnected from the server. The method does
+    not immediately disconnect the player but rather starts the logout process that
+    may involve additional steps such as saving character data and updating the database.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Logout Request Handling
+    code: "void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest&\
+      \ logoutRequest)\n{\n    // Process logout request\n    if (GetPlayer() && GetPlayer()->IsInWorld())\n\
+      \    {\n        GetPlayer()->SaveToDB();\n        GetPlayer()->RemoveFromWorld();\n\
+      \    }\n    // Send logout response to client\n    WorldPacket data(SMSG_LOGOUT_RESPONSE,\
+      \ 1);\n    data << uint8(0);\n    SendPacket(&data);\n}"
+    language: cpp
+  notes: This method is typically called from the opcode handler system when a SMSG_LOGOUT_REQUEST
+    packet is received. The actual disconnection of the session occurs after this
+    method completes, often in a subsequent call or during the next update cycle.
+    It's important to note that this method should not be called directly by other
+    systems as it's designed to be invoked through the packet handling mechanism.
+  warnings: Do not call this method directly from outside the opcode handling context
+    as it assumes certain preconditions such as a valid player object and proper session
+    state. Improper usage may lead to inconsistent game state or crashes. The logout
+    process should always be initiated through the proper network packet flow.
+  related:
+  - HandleLogoutCancelOpcode
+  - HandlePlayerLoginOpcode
+  - SendLogoutResponse
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:44:16.179338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: CooldownEventBus
+  method: GetQueueSnapshot
+  signature: int CooldownEventBus::GetQueueSnapshot() const
+documentation:
+  brief: Retrieves the current number of cooldown events queued for processing in
+    the CooldownEventBus.
+  description: The GetQueueSnapshot method provides a snapshot of the current size
+    of the internal queue used by the CooldownEventBus to manage cooldown-related
+    events. This method is typically used for debugging, performance monitoring, or
+    to determine if the system is under heavy load from cooldown events. The returned
+    integer represents the count of pending cooldown events that have not yet been
+    processed. It's important to note that this value is a snapshot at the moment
+    of calling and may change immediately after the method returns. This method does
+    not modify any internal state and is safe to call from any thread, assuming proper
+    synchronization mechanisms are in place for the CooldownEventBus itself.
+  parameters: []
+  returns: An integer representing the number of cooldown events currently queued
+    for processing. A return value of zero indicates no pending cooldown events, while
+    a positive integer indicates the count of queued events.
+  examples:
+  - title: Basic Usage to Check Queue Size
+    code: "int queueSize = cooldownEventBus.GetQueueSnapshot();\nif (queueSize > 100)\n\
+      {\n    // Log warning about high queue load\n    sLog->outString(\"Cooldown\
+      \ event queue is high: %d events\", queueSize);\n}"
+    language: cpp
+  - title: Monitoring Queue Size for Performance Tuning
+    code: "void MonitorCooldownQueue()\n{\n    static uint32 lastLogged = 0;\n   \
+      \ uint32 now = getMSTime();\n    if (now - lastLogged > 5000) // Log every 5\
+      \ seconds\n    {\n        int snapshot = sCooldownEventBus->GetQueueSnapshot();\n\
+      \        if (snapshot > 500)\n        {\n            sLog->outString(\"High\
+      \ cooldown queue load detected: %d events\", snapshot);\n        }\n       \
+      \ lastLogged = now;\n    }\n}"
+    language: cpp
+  notes: This method provides a non-blocking read of the queue size and should not
+    be used for synchronization purposes. The CooldownEventBus may internally use
+    thread-safe data structures, but calling this method does not guarantee atomicity
+    with other operations on the same bus. For performance-critical applications,
+    consider caching this value or using it sparingly to avoid overhead.
+  warnings: This method returns a snapshot and is not guaranteed to reflect real-time
+    queue status after the call. If you are using this for decision-making logic,
+    be aware that the actual queue size may have changed by the time your code processes
+    the result. Also, in high-frequency scenarios, frequent calls to this method might
+    introduce unnecessary overhead.
+  related:
+  - CooldownEventBus::EnqueueEvent
+  - CooldownEventBus::ProcessQueue
+  - CooldownEventBus::ClearQueue
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T10:34:11.813004'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

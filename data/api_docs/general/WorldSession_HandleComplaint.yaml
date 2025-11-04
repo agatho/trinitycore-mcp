@@ -1,0 +1,52 @@
+api:
+  class: WorldSession
+  method: HandleComplaint
+  signature: void WorldSession::HandleComplaint(WorldPackets::Ticket::Complaint &
+    packet)
+documentation:
+  brief: Processes a player's complaint ticket submission from the in-game ticket
+    system
+  description: The HandleComplaint method handles incoming complaint packets from
+    players within the World of Warcraft client. This method is part of the ticketing
+    system that allows players to report issues, bugs, or other concerns to game administrators.
+    When a player submits a complaint through the in-game interface, this method receives
+    and processes the data, typically creating or updating a complaint ticket in the
+    database. The method likely validates the packet contents, ensures proper authentication,
+    and forwards the complaint details to the appropriate backend systems for administrative
+    review. It operates within the WorldSession context, meaning it's tied to a specific
+    player's connection session.
+  parameters:
+  - name: packet
+    description: The incoming complaint packet containing player-reported issue details
+      including category, description, and related game data
+  returns: null
+  examples:
+  - title: Basic complaint handling example
+    code: "void WorldSession::HandleComplaint(WorldPackets::Ticket::Complaint& packet)\n\
+      {\n    // Validate packet contents\n    if (packet.Description.empty() || packet.Category\
+      \ >= MAX_COMPLAINT_CATEGORY)\n        return;\n    \n    // Create complaint\
+      \ ticket in database\n    TicketMgr::CreateComplaintTicket(this, packet);\n\
+      \    \n    // Send confirmation to player\n    WorldPackets::Ticket::ComplaintStatusUpdate\
+      \ statusUpdate;\n    statusUpdate.Status = COMPLAINT_STATUS_CREATED;\n    SendPacket(statusUpdate.Write());\n\
+      }"
+    language: cpp
+  notes: This method is typically invoked automatically by the TrinityCore network
+    handler when a client sends a complaint packet. The implementation likely performs
+    basic validation on incoming data to prevent malformed packets from causing issues.
+    It's part of the broader ticket management system and may interact with database
+    operations for storing complaint details.
+  warnings: Improper handling of packet data could lead to security vulnerabilities
+    or database corruption. Ensure proper input validation and sanitization before
+    processing complaint content, especially since players might attempt to inject
+    malicious data through the description field.
+  related:
+  - HandleTicketGetTicket
+  - HandleTicketUpdateTicket
+  - HandleTicketDeleteTicket
+  - TicketMgr::CreateComplaintTicket
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T22:24:10.712262'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

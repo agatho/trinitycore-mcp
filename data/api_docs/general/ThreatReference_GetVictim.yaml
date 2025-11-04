@@ -1,0 +1,54 @@
+api:
+  class: ThreatReference
+  method: GetVictim
+  signature: Unit * ThreatReference::GetVictim() const
+documentation:
+  brief: Returns the Unit that is currently the threat target of this ThreatReference.
+  description: The GetVictim method retrieves the Unit object that represents the
+    current target of threat for this ThreatReference. In the context of World of
+    Warcraft's AI system, a ThreatReference typically corresponds to an NPC or mob's
+    current aggro target. This method is commonly used in AI scripts and combat logic
+    to determine which unit is currently being targeted by a creature for attack.
+    The returned Unit pointer may be null if no valid threat target exists, such as
+    when the creature is not in combat or has lost its target. This method provides
+    access to the current combat state of the entity without requiring manual tracking
+    of threat tables.
+  parameters: []
+  returns: A pointer to the Unit object that is currently the threat victim/target
+    of this ThreatReference, or nullptr if no valid victim exists.
+  examples:
+  - title: Basic Usage in AI Script
+    code: "class MyAI : public CreatureAI\n{\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override\n    {\n        if (Unit* victim = me->GetThreatManager().GetVictim())\n\
+      \        {\n            // Perform actions based on current threat target\n\
+      \            DoMeleeAttackIfReady();\n        }\n        else\n        {\n \
+      \           // No target, return to idle state\n            Reset();\n     \
+      \   }\n    }\n};"
+    language: cpp
+  - title: Checking for Valid Victim Before Attack
+    code: "void DoCombatAction(Creature* creature)\n{\n    ThreatReference& threatRef\
+      \ = creature->GetThreatManager();\n    Unit* victim = threatRef.GetVictim();\n\
+      \    \n    if (victim && victim->IsAlive())\n    {\n        // Ensure the victim\
+      \ is still valid before attacking\n        creature->Attack(victim, true);\n\
+      \    }\n    else\n    {\n        // Clear threat or find new target\n      \
+      \  threatRef.ClearThreat();\n    }\n}"
+    language: cpp
+  notes: This method provides a direct reference to the current threat target without
+    requiring additional lookups in threat tables. The returned Unit pointer is valid
+    only for the duration of the current update cycle and should not be cached for
+    extended periods. In multi-threaded environments, ensure thread safety when accessing
+    this value as it may change during execution.
+  warnings: Be cautious when using the returned Unit pointer beyond the immediate
+    scope of the function call, as the threat target may change between calls. Always
+    verify that the returned Unit is valid (not null) and alive before performing
+    operations on it to prevent potential crashes or undefined behavior.
+  related:
+  - GetThreatManager
+  - ClearThreat
+  - AddThreat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:30:16.108913'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: PlayerMenu
+  method: GetGossipMenu
+  signature: GossipMenu & PlayerMenu::GetGossipMenu()
+documentation:
+  brief: Returns a reference to the player's current gossip menu instance for interaction
+    handling.
+  description: The GetGossipMenu method retrieves a reference to the GossipMenu object
+    associated with the PlayerMenu. This menu is used to manage and display the interactive
+    options presented to players during NPC conversations or quest interactions. The
+    returned reference allows direct manipulation of the gossip menu's content, such
+    as adding new options, removing existing ones, or modifying their behavior. The
+    method is typically called during gossip initialization events when building the
+    menu structure before presenting it to the player.
+  parameters: []
+  returns: A non-const reference to the GossipMenu object associated with this PlayerMenu
+    instance. This allows direct modification of the gossip menu's contents and properties
+    without requiring additional copies or temporary objects.
+  examples:
+  - title: Adding a custom gossip option
+    code: "void OnGossipHello(Player* player, Creature* creature)\n{\n    GossipMenu&\
+      \ menu = player->PlayerMenu->GetGossipMenu();\n    menu.AddMenuItem(0, 1, \"\
+      Buy items\", GOSSIP_SENDER_MAIN, 1001);\n    menu.SendGossipMenu(1, creature->GetGUID());\n\
+      }"
+    language: cpp
+  - title: Clearing and rebuilding gossip menu
+    code: "void OnGossipSelect(Player* player, uint32 sender, uint32 action)\n{\n\
+      \    if (sender == GOSSIP_SENDER_MAIN)\n    {\n        GossipMenu& menu = player->PlayerMenu->GetGossipMenu();\n\
+      \        menu.ClearMenu(); // Clear existing options\n        menu.AddMenuItem(0,\
+      \ 1, \"New option\", GOSSIP_SENDER_MAIN, 2001);\n        menu.SendGossipMenu(1,\
+      \ player->GetNPCIfCanInteractWith());\n    }\n}"
+    language: cpp
+  notes: The returned GossipMenu reference is valid only while the PlayerMenu instance
+    remains alive and properly initialized. Modifications to the gossip menu through
+    this reference are immediately reflected in the player's interaction interface.
+    This method should not be called outside of appropriate gossip handler contexts,
+    as it may lead to undefined behavior if the menu state isn't properly managed.
+  warnings: Do not store references to the returned GossipMenu object beyond the scope
+    of the current gossip handler function. The PlayerMenu instance may be reset or
+    destroyed between gossip events, invalidating any stored references. Always ensure
+    proper synchronization when modifying gossip menus from multiple threads.
+  related:
+  - PlayerMenu::SendGossipMenu
+  - PlayerMenu::ClearMenus
+  - PlayerMenu::GetGossipTextId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:43:36.948835'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

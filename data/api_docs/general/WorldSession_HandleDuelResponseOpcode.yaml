@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: HandleDuelResponseOpcode
+  signature: void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse
+    & duelResponse)
+documentation:
+  brief: Processes a duel response from a player, handling acceptance or decline of
+    a duel challenge.
+  description: The HandleDuelResponseOpcode method is responsible for processing incoming
+    duel response packets from players. When a player accepts or declines a duel invitation,
+    this method handles the logic to either initiate the duel or cancel it. The method
+    checks if the duel is valid, ensures both players are in the same zone, and verifies
+    that neither player is already engaged in another duel. It also manages the necessary
+    game state changes including sending appropriate packets back to clients and updating
+    internal duel tracking structures.
+  parameters:
+  - name: duelResponse
+    description: A reference to a WorldPackets::Duel::DuelResponse packet containing
+      the player's response to a duel invitation. This packet includes information
+      about whether the player accepted or declined the duel, along with relevant
+      identifiers for the requesting and responding players.
+  returns: null
+  examples:
+  - title: Processing a Duel Acceptance
+    code: "void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse\
+      \ & duelResponse)\n{\n    if (duelResponse.Accepted)\n    {\n        // Process\
+      \ accepted duel\n        Player* player = GetPlayer();\n        Player* opponent\
+      \ = ObjectAccessor::FindPlayer(duelResponse.InitiatorGuid);\n        if (player\
+      \ && opponent && player->IsInWorld() && opponent->IsInWorld())\n        {\n\
+      \            // Start the duel logic\n            player->StartDuel(opponent);\n\
+      \        }\n    }\n    else\n    {\n        // Handle declined duel\n      \
+      \  Player* player = GetPlayer();\n        if (player)\n        {\n         \
+      \   player->CancelDuel();\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the core duel system in TrinityCore and must be called
+    from within a valid session context. The method assumes that the packet has already
+    been validated by the network layer. It's important to note that this function
+    should only be invoked when handling actual duel response packets, not during
+    other game operations.
+  warnings: Improper handling of duel responses can lead to players being stuck in
+    invalid duel states or experiencing client-side desynchronization. Ensure proper
+    validation of player states before processing any duel responses to prevent exploits
+    or game state corruption.
+  related:
+  - HandleDuelInitiateOpcode
+  - Player::StartDuel
+  - Player::CancelDuel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T22:14:45.766025'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

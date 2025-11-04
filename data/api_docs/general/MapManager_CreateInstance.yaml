@@ -1,0 +1,73 @@
+api:
+  class: MapManager
+  method: CreateInstance
+  signature: InstanceMap * MapManager::CreateInstance(uint32 mapId, uint32 instanceId,
+    InstanceLock * instanceLock, Difficulty difficulty, int team, Group * group, int
+    lfgDungeonsId)
+documentation:
+  brief: Creates a new instance map for the specified map ID and instance ID, associating
+    it with the given lock, difficulty, and group.
+  description: The CreateInstance method is responsible for generating a new InstanceMap
+    object within the TrinityCore framework. It initializes an instance of a specific
+    map (identified by mapId) with a unique instance identifier (instanceId). This
+    method integrates various parameters including instanceLock to manage access control,
+    difficulty level, player team, group information, and LFG dungeon ID. The created
+    instance map is typically used for dungeons, raids, or other content that requires
+    separate instances for different groups of players. It ensures proper synchronization
+    and management of player instances within the game world.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the base map (e.g., dungeon or raid) to
+      create an instance of. Valid values are map IDs defined in the game database.
+  - name: instanceId
+    description: A unique identifier for this specific instance of the map. Used to
+      distinguish between multiple copies of the same map content.
+  - name: instanceLock
+    description: Pointer to an InstanceLock object that manages access permissions
+      and lock states for this instance. Can be null if no locking is required.
+  - name: difficulty
+    description: The difficulty level of the instance (normal, heroic, mythic, etc.).
+      Determines content scaling and rewards.
+  - name: team
+    description: The player team identifier (ALLIANCE or HORDE) for this instance.
+      Used to determine faction-specific content and mechanics.
+  - name: group
+    description: Pointer to the Group object that owns this instance. Used for group-based
+      instance management and player tracking.
+  - name: lfgDungeonsId
+    description: The LFG (Looking For Group) dungeon ID associated with this instance,
+      used for queue and group matching systems.
+  returns: Returns a pointer to the newly created InstanceMap object if successful.
+    Returns nullptr if the instance creation fails due to invalid parameters or resource
+    constraints.
+  examples:
+  - title: Basic Instance Creation
+    code: "InstanceMap* instance = sMapMgr->CreateInstance(1234, 5678, nullptr, DIFFICULTY_NORMAL,\
+      \ ALLIANCE, playerGroup, 90);\nif (instance)\n{\n    // Successfully created\
+      \ instance\n    instance->LoadGrids();\n}"
+    language: cpp
+  - title: Instance Creation with Lock and Group
+    code: "InstanceLock* lock = new InstanceLock(mapId, difficulty);\nGroup* group\
+      \ = player->GetGroup();\nInstanceMap* instance = sMapMgr->CreateInstance(\n\
+      \    1234,\n    5678,\n    lock,\n    DIFFICULTY_HEROIC,\n    player->GetTeam(),\n\
+      \    group,\n    90\n);\nif (instance && group)\n{\n    // Add players to the\
+      \ instance\n    group->AddInstance(instance);\n}"
+    language: cpp
+  notes: This method should only be called from within the game's main thread. The
+    returned InstanceMap object must be properly managed and cleaned up when no longer
+    needed. Instance creation may fail if the map ID is invalid or if there are insufficient
+    resources to create a new instance.
+  warnings: Calling this method with invalid parameters (such as an invalid mapId
+    or null group) can result in undefined behavior or crashes. Always validate input
+    before calling this method. The returned pointer should be checked for null before
+    use.
+  related:
+  - MapManager::FindInstance
+  - MapManager::GetMap
+  - MapManager::RemoveInstance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T00:15:05.142500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

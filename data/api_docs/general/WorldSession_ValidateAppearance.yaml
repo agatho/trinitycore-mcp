@@ -1,0 +1,66 @@
+api:
+  class: WorldSession
+  method: ValidateAppearance
+  signature: bool WorldSession::ValidateAppearance(int race, int playerClass, int
+    gender, int customizations)
+documentation:
+  brief: Validates if the provided character appearance settings are acceptable for
+    the specified race, class, and gender.
+  description: The ValidateAppearance method checks whether a given combination of
+    race, class, gender, and customizations is valid for character creation or appearance
+    modification in World of Warcraft. This method ensures that players cannot select
+    invalid combinations such as a Night Elf warrior or a Human with certain racial
+    customizations. It performs internal validation against game rules and database
+    constraints to maintain game integrity and prevent exploits. The method typically
+    gets called during character creation, appearance updates, or when applying cosmetic
+    changes to ensure compliance with Blizzard's character design restrictions.
+  parameters:
+  - name: race
+    description: The race ID of the character (e.g., 1 for Human, 2 for Orc, etc.).
+      Must correspond to valid race IDs in the game database.
+  - name: playerClass
+    description: The class ID of the character (e.g., 1 for Warrior, 2 for Paladin,
+      etc.). Must correspond to valid class IDs in the game database.
+  - name: gender
+    description: The gender of the character (0 for Male, 1 for Female). Invalid values
+      will cause validation to fail.
+  - name: customizations
+    description: A bitmask or integer value representing various appearance customizations
+      such as facial features, hair style, and skin tone. The exact format depends
+      on the game client version and internal implementation.
+  returns: Returns true if the provided combination of race, class, gender, and customizations
+    is valid for character creation or appearance modification; otherwise returns
+    false.
+  examples:
+  - title: Basic validation check
+    code: "if (session->ValidateAppearance(1, 1, 0, 0x12345678)) {\n    // Valid appearance\
+      \ combination\n    SendCharacterCreateSuccess();\n} else {\n    // Invalid appearance\
+      \ combination\n    SendCharacterCreateFailed();\n}"
+    language: cpp
+  - title: Checking appearance validity before applying changes
+    code: "void ApplyAppearanceChange(WorldSession* session, int newRace, int newClass,\
+      \ int newGender, int newCustomizations) {\n    if (session->ValidateAppearance(newRace,\
+      \ newClass, newGender, newCustomizations)) {\n        // Update character appearance\n\
+      \        UpdateCharacterAppearance(newRace, newClass, newGender, newCustomizations);\n\
+      \        SendAppearanceUpdate();\n    } else {\n        // Reject invalid appearance\
+      \ change\n        SendInvalidAppearanceError();\n    }\n}"
+    language: cpp
+  notes: This method likely relies on internal lookup tables or database queries to
+    verify valid race-class combinations. It may also perform checks against known
+    forbidden combinations or deprecated appearances. The customizations parameter
+    might be a packed structure or bitmask that encodes multiple appearance attributes.
+  warnings: Do not call this method without proper validation of input parameters,
+    as invalid inputs could lead to unexpected behavior or crashes. This method should
+    only be used in contexts where character creation or appearance changes are being
+    processed, and it's crucial to ensure the session is valid before calling.
+  related:
+  - GetPlayer()
+  - SendCharacterCreateSuccess()
+  - SendCharacterCreateFailed()
+  - UpdateCharacterAppearance()
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T19:04:08.235528'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

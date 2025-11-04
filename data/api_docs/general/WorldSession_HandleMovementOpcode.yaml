@@ -1,0 +1,65 @@
+api:
+  class: WorldSession
+  method: HandleMovementOpcode
+  signature: void WorldSession::HandleMovementOpcode(int opcode, MovementInfo & movementInfo)
+documentation:
+  brief: Processes incoming movement-related opcodes from players and updates their
+    movement state accordingly
+  description: The HandleMovementOpcode method is a core component of TrinityCore's
+    networking system that handles all movement-related client-to-server communication.
+    It receives movement data from players, validates it against game rules, and applies
+    the updated position, orientation, and movement flags to the player's session.
+    This method is responsible for maintaining synchronization between the client's
+    perceived player position and the server's authoritative state. The method processes
+    various movement types including walking, running, swimming, flying, and jumping,
+    while also handling special cases like taxi rides, vehicle movement, and combat-based
+    movement restrictions.
+  parameters:
+  - name: opcode
+    description: The network opcode identifying the specific type of movement message
+      being processed. This determines how the movement data should be interpreted
+      and validated.
+  - name: movementInfo
+    description: Structure containing detailed movement information including position
+      coordinates, orientation, speed, movement flags, and other relevant movement
+      state data from the client.
+  returns: null
+  examples:
+  - title: Basic Movement Processing
+    code: "void WorldSession::HandleMovementOpcode(int opcode, MovementInfo& movementInfo)\n\
+      {\n    // Process movement data\n    _player->UpdatePosition(movementInfo.pos);\n\
+      \    _player->SetOrientation(movementInfo.orientation);\n    // Apply movement\
+      \ flags and validate\n    if (movementInfo.flags & MOVEFLAG_JUMPING)\n     \
+      \   _player->SetInFlight(true);\n}"
+    language: cpp
+  - title: Movement Validation with Speed Check
+    code: "void WorldSession::HandleMovementOpcode(int opcode, MovementInfo& movementInfo)\n\
+      {\n    // Validate movement speed\n    float maxSpeed = _player->GetMaxSpeed();\n\
+      \    if (movementInfo.speed > maxSpeed)\n    {\n        // Send correction packet\n\
+      \        SendMoveSpline(movementInfo);\n        return;\n    }\n    \n    //\
+      \ Apply movement to player\n    _player->SetPosition(movementInfo.pos);\n  \
+      \  _player->SetOrientation(movementInfo.orientation);\n}"
+    language: cpp
+  notes: This method is called from the main network processing loop and must be efficient
+    as it handles every movement packet from every connected player. The method performs
+    several validation checks including speed limits, terrain collision detection,
+    and combat state restrictions. It's important to note that this method does not
+    directly update the player's position in the world; instead, it updates the session's
+    movement state which is later synchronized with the actual world object.
+  warnings: Improper handling of movement data can lead to desynchronization between
+    client and server, causing issues like teleportation bugs or players getting stuck.
+    The method assumes that movementInfo contains valid data from a trusted source
+    (the client), so malicious clients could potentially send invalid movement data
+    that needs proper validation. Always ensure movement flags are properly sanitized
+    before applying them to player state.
+  related:
+  - HandleMoveWorldportAck
+  - HandleMoveTeleportAck
+  - SendMovementInfo
+  - UpdatePlayerPosition
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:25:39.586189'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

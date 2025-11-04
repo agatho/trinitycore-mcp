@@ -1,0 +1,61 @@
+api:
+  class: LoSUtils
+  method: IsLoSBlocked
+  signature: bool LoSUtils::IsLoSBlocked(Player * source, Unit * target, std::string
+    & reason)
+documentation:
+  brief: Determines whether line-of-sight is blocked between a player and a target
+    unit.
+  description: The IsLoSBlocked method evaluates whether there is an obstruction preventing
+    direct line-of-sight between a source Player and a target Unit in the game world.
+    This utility function is commonly used for spell casting, ability targeting, and
+    gameplay mechanics that require visual or functional line-of-sight validation.
+    The method performs collision detection using the game's navigation mesh and object
+    placement to determine if any solid objects, terrain features, or other entities
+    block the direct path between the two units. It returns true if line-of-sight
+    is blocked and false otherwise. The reason for blocking may be provided in the
+    output string parameter.
+  parameters:
+  - name: source
+    description: Pointer to the Player object from which the line-of-sight check originates.
+      Must not be null.
+  - name: target
+    description: Pointer to the Unit object being targeted. Must not be null.
+  - name: reason
+    description: Reference to a string that will be populated with a descriptive reason
+      if line-of-sight is blocked. May be empty if no blocking occurs or if the reason
+      cannot be determined.
+  returns: Returns true if line-of-sight between source and target is blocked by any
+    game object, terrain, or entity; returns false if there is a clear path between
+    them.
+  examples:
+  - title: Basic usage to check line-of-sight
+    code: "std::string reason;\nif (LoSUtils::IsLoSBlocked(player, target, reason))\
+      \ {\n    // Handle blocked line-of-sight\n    sLog->outString(\"Line of sight\
+      \ blocked: %s\", reason.c_str());\n} else {\n    // Proceed with spell or action\n\
+      \    sLog->outString(\"Clear line of sight.\");\n}"
+    language: cpp
+  - title: Using in spell targeting logic
+    code: "void CastSpellOnTarget(Player* player, Unit* target) {\n    std::string\
+      \ reason;\n    if (LoSUtils::IsLoSBlocked(player, target, reason)) {\n     \
+      \   player->SendSpellFailed(0, SPELL_FAILED_LINE_OF_SIGHT);\n        return;\n\
+      \    }\n    // Proceed with spell casting\n    player->CastSpell(target, 12345,\
+      \ true);\n}"
+    language: cpp
+  notes: This method relies on the TrinityCore's navigation system and may be computationally
+    expensive in complex environments with many obstacles. It should not be called
+    excessively in performance-critical code paths such as movement updates or frequent
+    targeting checks.
+  warnings: Ensure that both source and target pointers are valid before calling this
+    function, as passing null pointers will likely result in undefined behavior or
+    crashes. The reason string may be left unmodified if no blocking occurs, so always
+    check its contents before using it.
+  related:
+  - IsInLineOfSight
+  - GetLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T01:07:52.864014'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: LogoutPlayer
+  signature: void WorldSession::LogoutPlayer(bool save)
+documentation:
+  brief: Initiates the player logout process, optionally saving character data to
+    the database.
+  description: The LogoutPlayer method handles the complete logout sequence for a
+    player session in TrinityCore. It manages the cleanup of player-related resources,
+    sends necessary network packets to inform the client of the logout, and optionally
+    saves the player's current state to the database if the 'save' parameter is true.
+    This method ensures proper disconnection handling and maintains game state consistency
+    during player logout. The method typically gets called when a player chooses to
+    log out or when the server needs to forcibly disconnect a player.
+  parameters:
+  - name: save
+    description: When true, saves the player's character data including inventory,
+      stats, and position to the database before logging out. When false, skips the
+      save operation and performs a quick logout without persisting changes.
+  returns: null
+  examples:
+  - title: Basic Logout Usage
+    code: "WorldSession* session = player->GetSession();\nif (session)\n{\n    session->LogoutPlayer(true);\
+      \ // Save character data before logout\n}"
+    language: cpp
+  - title: Quick Logout Without Saving
+    code: "WorldSession* session = player->GetSession();\nif (session)\n{\n    session->LogoutPlayer(false);\
+      \ // Immediate logout without saving\n}"
+    language: cpp
+  notes: This method internally calls several cleanup functions including removing
+    the player from the world, sending logout confirmation packets, and triggering
+    any associated event handlers. It is important to note that calling this method
+    does not immediately destroy the session object; it merely initiates the logout
+    sequence which may take a few moments to complete depending on server load and
+    pending operations.
+  warnings: Calling LogoutPlayer while the player is in combat or performing critical
+    actions (such as casting spells, looting, or interacting with NPCs) can result
+    in unexpected behavior or data loss. Additionally, calling this method from within
+    a packet handler may lead to undefined behavior due to potential session invalidation
+    during the logout process.
+  related:
+  - WorldSession::HandleLogoutRequest
+  - WorldSession::SendLogoutComplete
+  - Player::SaveToDB
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:58:28.860969'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: HealInfo
+  method: GetHealer
+  signature: int * HealInfo::GetHealer() const
+documentation:
+  brief: Returns a pointer to the healer's unique identifier (GUID) associated with
+    the heal information.
+  description: The GetHealer method retrieves a pointer to the unique identifier (GUID)
+    of the entity that performed the healing action. This GUID is typically used in
+    World of Warcraft's TrinityCore framework to identify players, NPCs, or other
+    game objects involved in healing events. The returned pointer may be null if no
+    healer is associated with the heal information, which can occur in certain special
+    cases such as environment-based heals or self-heals without a specific source.
+    This method is commonly used in combat log processing and damage/heal event handling
+    within the TrinityCore server architecture.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the healer, or nullptr
+    if no healer is associated with the heal information.
+  examples:
+  - title: Basic usage in heal event processing
+    code: "void HandleHealEvent(HealInfo* info) {\n    int* healerGuid = info->GetHealer();\n\
+      \    if (healerGuid != nullptr) {\n        // Process the healing event with\
+      \ a valid healer\n        uint64 healerId = *healerGuid;\n        // ... additional\
+      \ logic\n    } else {\n        // Handle case where no healer is specified\n\
+      \        // This might be a self-heal or environment heal\n    }\n}"
+    language: cpp
+  - title: Checking healer type in combat log
+    code: "void ProcessHealLog(HealInfo* info) {\n    int* healerGuid = info->GetHealer();\n\
+      \    if (healerGuid != nullptr && *healerGuid != 0) {\n        uint64 guid =\
+      \ *healerGuid;\n        if (ObjectGuid::IsPlayer(guid)) {\n            // This\
+      \ was a player heal\n            Player* healer = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ guid));\n            // ... process player heal\n        } else if (ObjectGuid::IsCreature(guid))\
+      \ {\n            // This was an NPC heal\n            Creature* healer = ObjectAccessor::GetCreature(*m_session,\
+      \ ObjectGuid(HighGuid::Unit, guid));\n            // ... process NPC heal\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer points to an internal member variable of the HealInfo
+    class. Modifying the value pointed to by this pointer directly may affect the
+    internal state of the HealInfo object. The method is marked as const, so it does
+    not modify the HealInfo object's state. In TrinityCore, heal events are typically
+    processed through combat log systems where healer identification is crucial for
+    proper event tracking and reporting.
+  warnings: Be sure to check if the returned pointer is null before dereferencing
+    it. Dereferencing a null pointer will cause undefined behavior. Also note that
+    while this method returns an int*, the actual value stored is typically a uint64
+    GUID, so be careful when casting or comparing values.
+  related:
+  - GetHealAmount
+  - GetTarget
+  - GetSpellInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:30:51.504459'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

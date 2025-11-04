@@ -1,0 +1,50 @@
+api:
+  class: GroupStateMachine
+  method: IsInInstance
+  signature: bool GroupStateMachine::IsInInstance() const
+documentation:
+  brief: Determines whether the group is currently inside an instance map.
+  description: The IsInInstance method checks if the group associated with the GroupStateMachine
+    is currently located within an instance map, such as a dungeon, raid, or battleground.
+    This method returns true if the group's current location is an instance map and
+    false if the group is in a non-instance area like a capital city or outdoor zone.
+    The check considers the group's leader's current map context to determine instance
+    status, which is essential for managing group-based content such as instance locks,
+    loot distribution, and quest progression that may be restricted to instance environments.
+  parameters: []
+  returns: Returns true if the group is currently inside an instance map; otherwise
+    returns false if the group is in a non-instance area.
+  examples:
+  - title: Basic usage to check group instance status
+    code: "if (groupStateMachine->IsInInstance()) {\n    // Group is in an instance,\
+      \ proceed with instance-specific logic\n    SendInstanceMessage(\"Group is inside\
+      \ an instance.\");\n} else {\n    // Group is not in an instance\n    SendOutdoorMessage(\"\
+      Group is outside of any instance.\");\n}"
+    language: cpp
+  - title: Using IsInInstance for conditional quest progression
+    code: "void HandleQuestProgress(Player* player) {\n    Group* group = player->GetGroup();\n\
+      \    if (!group) return;\n\n    GroupStateMachine* gsm = sGroupMgr->GetGroupStateMachine(group);\n\
+      \    if (gsm && gsm->IsInInstance()) {\n        // Only allow instance-specific\
+      \ quest progression in instances\n        player->CompleteQuest(questId);\n\
+      \    } else {\n        player->SendNotification(\"Quest can only be completed\
+      \ in an instance.\");\n    }\n}"
+    language: cpp
+  notes: This method relies on the group's current map context and may not reflect
+    real-time changes if the group is transitioning between maps. The implementation
+    checks the leader's current map ID against a list of instance map IDs to determine
+    the result. This check is lightweight but depends on accurate map state tracking
+    within the TrinityCore framework.
+  warnings: This method does not account for temporary map transitions or teleportation
+    events that might occur during group movement. In scenarios involving complex
+    group mechanics such as battlegrounds or world PvP, additional checks may be required
+    to ensure accurate instance status determination.
+  related:
+  - GetGroup
+  - IsLeader
+  - GetMapId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:53:45.417320'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

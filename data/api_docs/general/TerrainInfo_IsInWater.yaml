@@ -1,0 +1,61 @@
+api:
+  class: TerrainInfo
+  method: IsInWater
+  signature: bool TerrainInfo::IsInWater(const PhaseShift & phaseShift, uint32 mapId,
+    float x, float y, float z, int * data)
+documentation:
+  brief: Determines whether a given world position is located inside a water tile.
+  description: The IsInWater method checks if a specified 3D coordinate (x, y, z)
+    on a particular map is currently within a water area. It uses the provided PhaseShift
+    to determine the correct phase context for the check and optionally returns detailed
+    water data through the 'data' parameter. This functionality is essential for game
+    mechanics such as swimming behavior, water-based spell effects, and visual rendering
+    of water surfaces. The method performs a lookup in the terrain data structures
+    to identify if the specified point intersects with any water tile.
+  parameters:
+  - name: phaseShift
+    description: The PhaseShift object that defines the current phase context for
+      the check. This is necessary because different phases may have different water
+      levels or areas.
+  - name: mapId
+    description: The unique identifier of the map where the position is located. Used
+      to determine which terrain data should be checked.
+  - name: x
+    description: The X coordinate of the world position to check.
+  - name: y
+    description: The Y coordinate of the world position to check.
+  - name: z
+    description: The Z coordinate (height) of the world position to check.
+  - name: data
+    description: Optional pointer to an integer that will receive detailed water data
+      if the position is inside water. Can be null if this information is not needed.
+  returns: True if the specified position is inside a water tile; false otherwise.
+  examples:
+  - title: Basic usage to check if player is in water
+    code: "PhaseShift phase;\nfloat x = player->GetPositionX();\nfloat y = player->GetPositionY();\n\
+      float z = player->GetPositionZ();\nif (TerrainInfo::IsInWater(phase, player->GetMapId(),\
+      \ x, y, z, nullptr)) {\n    // Player is in water\n}"
+    language: cpp
+  - title: Check position and retrieve water data
+    code: "int waterData = 0;\nPhaseShift phase;\nif (TerrainInfo::IsInWater(phase,\
+      \ mapId, x, y, z, &waterData)) {\n    // Position is in water, use waterData\
+      \ for further processing\n    printf(\"Water level: %d\\n\", waterData);\n}"
+    language: cpp
+  notes: This method relies on precomputed terrain data including heightmaps and liquid
+    maps. The PhaseShift ensures that the check respects current phase-specific conditions
+    such as world states or instance phases. For performance reasons, this function
+    should not be called excessively in tight loops.
+  warnings: The z-coordinate must be within a valid range for the map to ensure accurate
+    results. Using invalid coordinates may lead to incorrect return values or undefined
+    behavior. Also, if the data parameter is non-null and the position is not in water,
+    the value pointed to by data will remain unchanged.
+  related:
+  - GetWaterLevel
+  - IsUnderWater
+  - GetTerrain
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T16:47:18.773468'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

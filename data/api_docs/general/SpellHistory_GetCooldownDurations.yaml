@@ -1,0 +1,81 @@
+api:
+  class: SpellHistory
+  method: GetCooldownDurations
+  signature: void SpellHistory::GetCooldownDurations(const SpellInfo * spellInfo,
+    int itemId, int * cooldown, int * categoryId, int * categoryCooldown)
+documentation:
+  brief: Retrieves cooldown durations for a specified spell or item, including spell-specific
+    and category-based cooldowns.
+  description: The GetCooldownDurations method retrieves the cooldown information
+    for a given spell or item. It populates three output parameters with the base
+    cooldown duration, the cooldown category ID, and the category cooldown duration.
+    This is used in TrinityCore to enforce cooldown mechanics for spells and items,
+    ensuring that abilities cannot be used too frequently. The method checks both
+    individual spell cooldowns and category-based cooldowns which are shared among
+    multiple spells or items. It's commonly used during spell casting validation and
+    cooldown display logic.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure containing spell data. Can be
+      NULL if only item cooldowns are being checked.
+  - name: itemId
+    description: The item ID for which to retrieve cooldown information. Zero or invalid
+      IDs will result in no item-based cooldowns being returned.
+  - name: cooldown
+    description: Pointer to an integer that will be filled with the base spell/item
+      cooldown duration in milliseconds.
+  - name: categoryId
+    description: Pointer to an integer that will be filled with the cooldown category
+      ID, or zero if no category is associated.
+  - name: categoryCooldown
+    description: Pointer to an integer that will be filled with the category-based
+      cooldown duration in milliseconds.
+  returns: null
+  examples:
+  - title: Basic Usage for Spell Cooldown Retrieval
+    code: 'SpellInfo* spell = sSpellMgr->GetSpellInfo(12345);
+
+      int cooldown = 0;
+
+      int categoryId = 0;
+
+      int categoryCooldown = 0;
+
+      player->GetSpellHistory()->GetCooldownDurations(spell, 0, &cooldown, &categoryId,
+      &categoryCooldown);
+
+      // cooldown now contains the base spell cooldown
+
+      // categoryId contains the spell''s cooldown category ID
+
+      // categoryCooldown contains the category-based cooldown duration'
+    language: cpp
+  - title: Item Cooldown Retrieval with Category Check
+    code: "uint32 itemId = 67890;\nint cooldown = 0;\nint categoryId = 0;\nint categoryCooldown\
+      \ = 0;\nplayer->GetSpellHistory()->GetCooldownDurations(nullptr, itemId, &cooldown,\
+      \ &categoryId, &categoryCooldown);\nif (categoryId > 0)\n{\n    // Handle category-based\
+      \ cooldown logic\n    sLog->outString(\"Item %u has category cooldown of %d\
+      \ ms\", itemId, categoryCooldown);\n}\nelse\n{\n    // Handle direct item cooldown\n\
+      \    sLog->outString(\"Item %u has direct cooldown of %d ms\", itemId, cooldown);\n\
+      }"
+    language: cpp
+  notes: This method is typically used in conjunction with spell casting validation
+    and cooldown display systems. The cooldown durations returned are in milliseconds.
+    Category-based cooldowns are shared among multiple spells or items that belong
+    to the same category. The method does not perform any actual cooldown enforcement;
+    it only retrieves the stored values.
+  warnings: The pointers for cooldown, categoryId, and categoryCooldown must be valid
+    and allocated before calling this method. Failure to do so will result in undefined
+    behavior or crashes. This method should not be called during spell casting or
+    cooldown application logic as it may interfere with active cooldown tracking.
+  related:
+  - GetSpellCooldown
+  - GetItemCooldown
+  - AddSpellCooldown
+  - ResetCooldown
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-03T18:03:47.213060'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

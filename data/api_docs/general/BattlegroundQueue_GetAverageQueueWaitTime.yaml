@@ -1,0 +1,58 @@
+api:
+  class: BattlegroundQueue
+  method: GetAverageQueueWaitTime
+  signature: uint32 BattlegroundQueue::GetAverageQueueWaitTime(GroupQueueInfo * ginfo,
+    int bracket_id) const
+documentation:
+  brief: Calculates and returns the average wait time for a battleground queue group.
+  description: The GetAverageQueueWaitTime method computes the average time a group
+    has spent waiting in the battleground queue. It takes a GroupQueueInfo pointer
+    and a bracket ID to determine the specific queue context. This value is typically
+    used for queue statistics, player experience optimization, and balancing server
+    load across different battleground brackets. The method aggregates wait times
+    from multiple queued groups and calculates an average based on current queue state.
+  parameters:
+  - name: ginfo
+    description: Pointer to the GroupQueueInfo structure containing queue information
+      for a specific group. This parameter is used to identify which group's wait
+      time should be considered in the calculation.
+  - name: bracket_id
+    description: Integer identifier representing the battleground bracket. This determines
+      which specific queue bracket's average wait time should be calculated, allowing
+      for different wait times per battleground type or difficulty level.
+  returns: Returns a uint32 value representing the average wait time in milliseconds.
+    A return value of 0 typically indicates no data is available or an error occurred
+    during calculation.
+  examples:
+  - title: Calculate Average Wait Time for a Group
+    code: "GroupQueueInfo* groupInfo = sBattlegroundQueue->GetGroupQueueInfo(player->GetGroup());\n\
+      uint32 avgWaitTime = sBattlegroundQueue->GetAverageQueueWaitTime(groupInfo,\
+      \ 0);\nif (avgWaitTime > 0)\n{\n    // Use the average wait time for UI display\
+      \ or logging\n    sLog->outString(\"Average queue wait time: %u ms\", avgWaitTime);\n\
+      }"
+    language: cpp
+  - title: Use Average Wait Time in Queue Statistics
+    code: "uint32 totalWait = 0;\nuint32 groupCount = 0;\nfor (int i = 0; i < MAX_BATTLEGROUND_BRACKETS;\
+      \ ++i)\n{\n    GroupQueueInfo* ginfo = sBattlegroundQueue->GetGroupQueueInfo(player->GetGroup());\n\
+      \    uint32 avgWait = sBattlegroundQueue->GetAverageQueueWaitTime(ginfo, i);\n\
+      \    if (avgWait > 0)\n    {\n        totalWait += avgWait;\n        groupCount++;\n\
+      \    }\n}\nuint32 overallAvgWait = groupCount > 0 ? totalWait / groupCount :\
+      \ 0;"
+    language: cpp
+  notes: This method is typically called during queue status updates or when displaying
+    queue information to players. It may involve calculations based on timestamps
+    stored in the GroupQueueInfo structure and should be used carefully in performance-critical
+    sections of code.
+  warnings: Ensure that the GroupQueueInfo pointer passed is valid and not null, as
+    passing an invalid pointer could lead to undefined behavior. Also note that this
+    method might return 0 if no queue data exists for the given bracket or group.
+  related:
+  - GetGroupQueueInfo
+  - UpdateBattlegroundQueue
+  - AddGroup
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T15:22:10.049959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: TargetSelectionUtils
+  method: GetNearestEnemy
+  signature: Unit * TargetSelectionUtils::GetNearestEnemy(Player * bot, float maxRange)
+documentation:
+  brief: Finds and returns the nearest enemy Unit within a specified range for the
+    given Player bot.
+  description: The GetNearestEnemy method is designed to locate the closest hostile
+    unit (enemy) within a defined maximum range from the provided Player bot. It evaluates
+    all valid targets in the bot's vicinity, considering factors such as hostility,
+    visibility, and distance. This utility function is commonly used in AI decision-making
+    processes for combat behavior, where selecting an appropriate target is crucial.
+    The method returns a pointer to the nearest eligible enemy Unit or NULL if no
+    suitable target exists within the specified range. It assumes that the bot has
+    valid access to its surroundings and target information through the TrinityCore
+    framework's unit and player systems.
+  parameters:
+  - name: bot
+    description: A pointer to the Player object for which to find the nearest enemy.
+      This parameter must be a valid Player instance; otherwise, the behavior is undefined.
+  - name: maxRange
+    description: The maximum distance (in yards) within which to search for an enemy
+      Unit. Must be a positive floating-point value; negative or zero values may lead
+      to unexpected results.
+  returns: A pointer to the nearest eligible enemy Unit within the specified range,
+    or NULL if no valid enemy is found. The returned Unit pointer should be checked
+    for null before use to prevent runtime errors.
+  examples:
+  - title: Basic Usage in Combat AI
+    code: "Unit* target = TargetSelectionUtils::GetNearestEnemy(playerBot, 30.0f);\n\
+      if (target && target->IsHostileTo(playerBot)) {\n    // Initiate combat with\
+      \ the nearest enemy\n    playerBot->Attack(target, true);\n} else {\n    //\
+      \ No nearby enemies found\n    playerBot->GetAI()->DoAction(AI_ACTION_IDLE);\n\
+      }"
+    language: cpp
+  - title: Using with Distance Validation
+    code: "float range = 25.0f;\nUnit* nearestEnemy = TargetSelectionUtils::GetNearestEnemy(playerBot,\
+      \ range);\nif (nearestEnemy != nullptr) {\n    float distance = playerBot->GetDistance(nearestEnemy);\n\
+      \    if (distance <= range) {\n        // Proceed with targeting logic\n   \
+      \     playerBot->SetTarget(nearestEnemy->GetGUID());\n    }\n}"
+    language: cpp
+  notes: This method relies on the TrinityCore's internal target selection logic and
+    may consider factors like line of sight, threat level, and unit visibility. Performance-wise,
+    it performs a search across nearby units, so using large ranges can impact efficiency
+    in high-density environments. The function is typically safe for use in AI update
+    loops but should be called with care to avoid excessive iteration over the world.
+  warnings: Ensure that the 'bot' parameter is not null before calling this method,
+    as passing a null pointer will likely result in a crash or undefined behavior.
+    Also, note that the returned Unit pointer may become invalid if the target dies
+    or leaves the area before being used. Always validate the return value and handle
+    potential NULL cases appropriately.
+  related:
+  - GetNearestFriend
+  - GetNearestTarget
+  - GetNearbyUnits
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-03T17:25:15.871171'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

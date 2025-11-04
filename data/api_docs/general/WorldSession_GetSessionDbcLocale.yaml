@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: GetSessionDbcLocale
+  signature: LocaleConstant WorldSession::GetSessionDbcLocale() const
+documentation:
+  brief: Returns the locale constant associated with the session's DBC locale settings.
+  description: The GetSessionDbcLocale method retrieves the LocaleConstant that represents
+    the client's locale setting for database content (DBC files). This locale is used
+    to determine which localized strings, textures, and other game data should be
+    served to the player based on their language preference. The returned value corresponds
+    to the standard TrinityCore locale constants such as LOCALE_en, LOCALE_ko, LOCALE_fr,
+    etc., and is typically set during the login process when the client's language
+    settings are detected. This method does not perform any validation or conversion
+    of the locale; it simply returns the cached locale value for this session.
+  parameters: []
+  returns: A LocaleConstant enum value representing the DBC locale setting for this
+    session. Possible values include LOCALE_en, LOCALE_ko, LOCALE_fr, LOCALE_de, LOCALE_zh,
+    LOCALE_tw, LOCALE_es, LOCALE_ru, and LOCALE_none if no valid locale is set.
+  examples:
+  - title: Basic usage to determine session locale
+    code: "void HandlePlayerLogin(Player* player)\n{\n    WorldSession* session =\
+      \ player->GetSession();\n    LocaleConstant locale = session->GetSessionDbcLocale();\n\
+      \    \n    switch (locale)\n    {\n        case LOCALE_en:\n            // Handle\
+      \ English\n            break;\n        case LOCALE_fr:\n            // Handle\
+      \ French\n            break;\n        default:\n            // Default handling\n\
+      \            break;\n    }\n}"
+    language: cpp
+  - title: Using locale to fetch localized data
+    code: "void SendLocalizedGossipText(Player* player, uint32 textId)\n{\n    WorldSession*\
+      \ session = player->GetSession();\n    LocaleConstant locale = session->GetSessionDbcLocale();\n\
+      \    \n    // Use locale to determine which localized version of the text to\
+      \ send\n    std::string localizedText = GetLocalizedGossipText(textId, locale);\n\
+      \    \n    // Send gossip text using the determined locale\n    player->PlayerTalkClass->SendGossipMenu(textId,\
+      \ player->GetGUID());\n}"
+    language: cpp
+  notes: This method returns a cached value that is typically set during the initial
+    connection handshake. The locale value may not reflect real-time changes to client
+    language settings after login. For performance reasons, this method performs no
+    additional processing and simply returns an internal member variable.
+  warnings: Be aware that this locale setting might not match the actual in-game language
+    preferences if the client has changed its language post-login without reconnecting.
+    Also, some DBC data may not be fully localized for all locales, so fallback behavior
+    should be implemented where appropriate.
+  related:
+  - GetSessionLocale
+  - SetSessionDbcLocale
+  - GetPlayer()->GetSession()->GetSessionDbcLocale()
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:51:42.427773'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,46 @@
+api:
+  class: WorldSession
+  method: isLogingOut
+  signature: bool WorldSession::isLogingOut() const
+documentation:
+  brief: Checks if the player session is in the process of logging out.
+  description: The isLogingOut method determines whether a WorldSession is currently
+    in the process of logging out. This flag is typically set when a player initiates
+    the logout sequence, and it remains true until the logout process is fully completed.
+    The method is commonly used to prevent certain operations during logout, such
+    as sending packets or modifying player state. It's an essential utility for maintaining
+    session integrity and preventing race conditions during player disconnection.
+  parameters: []
+  returns: Returns true if the session is in the process of logging out, false otherwise.
+    This boolean value indicates the current logout state of the player's session.
+  examples:
+  - title: Basic usage to prevent operations during logout
+    code: "if (!session->isLogingOut()) {\n    // Safe to send packets or modify player\
+      \ state\n    session->SendPacket(packet);\n} else {\n    // Skip sending packets\
+      \ during logout\n    sLog->outDebug(LOG_FILTER_NETWORKIO, \"Skipping packet\
+      \ send during logout\");\n}"
+    language: cpp
+  - title: Using in a logout guard condition
+    code: "void Player::HandleLogout() {\n    if (GetSession() && !GetSession()->isLogingOut())\
+      \ {\n        GetSession()->SetLogoutTimer(10000); // 10 seconds\n        //\
+      \ Proceed with logout logic\n    }\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread context. The
+    logout flag is managed internally by the session management system, and developers
+    should not manually set or clear it. This method provides a reliable way to check
+    the session state without needing to access internal session flags directly.
+  warnings: Do not use this method as a replacement for proper session lifecycle management.
+    While useful for preventing operations during logout, it should not be used to
+    determine if a session is valid for other purposes. Also, be aware that the logout
+    process may involve multiple steps and the flag may be set before all cleanup
+    operations are complete.
+  related:
+  - WorldSession::SetLogoutTimer
+  - WorldSession::GetPlayer
+  - WorldSession::IsConnected
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:03:00.325557'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

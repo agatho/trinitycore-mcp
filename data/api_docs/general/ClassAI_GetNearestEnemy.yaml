@@ -1,0 +1,47 @@
+api:
+  class: ClassAI
+  method: GetNearestEnemy
+  signature: int * ClassAI::GetNearestEnemy(float maxRange)
+documentation:
+  brief: Returns the unique identifier (GUID) of the nearest enemy within the specified
+    range.
+  description: The GetNearestEnemy method is used by AI-controlled creatures to identify
+    and return the GUID of the closest hostile target within a given maximum range.
+    This method is typically employed in combat decision-making logic, where the AI
+    needs to determine which enemy to prioritize for attack or targeting. The method
+    performs a search through the creature's current threat list or nearby units,
+    filtering based on hostility and distance. It returns a pointer to an integer
+    representing the GUID of the nearest valid enemy, or nullptr if no suitable target
+    is found within range.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the nearest enemy within
+    maxRange. Returns nullptr if no enemy is found within range.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = GetNearestEnemy(30.0f))\n\
+      \    {\n        AttackStart(target);\n    }\n}"
+    language: cpp
+  - title: Using returned GUID to perform actions
+    code: "void BossAI::ExecuteEvent()\n{\n    if (int* enemyGuid = GetNearestEnemy(50.0f))\n\
+      \    {\n        if (Unit* target = ObjectAccessor::GetUnit(*me, *enemyGuid))\n\
+      \        {\n            DoMeleeAttackIfReady();\n        }\n    }\n}"
+    language: cpp
+  notes: This method is commonly used in creature AI implementations to make tactical
+    decisions. The returned GUID should be validated before use, as the target may
+    have been destroyed or moved out of range since the call. Performance-wise, this
+    method may iterate through nearby units, so using a reasonable maxRange value
+    is recommended.
+  warnings: The returned pointer may be null if no valid enemy is found within range.
+    Always check for null before dereferencing the returned value. Additionally, the
+    GUID returned might not remain valid if the target dies or is removed from the
+    world between the time of call and when it's used.
+  related:
+  - GetNearestTarget
+  - GetClosestEnemy
+  - GetThreatList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:34:44.628232'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

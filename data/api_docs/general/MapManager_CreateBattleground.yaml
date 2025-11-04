@@ -1,0 +1,65 @@
+api:
+  class: MapManager
+  method: CreateBattleground
+  signature: BattlegroundMap * MapManager::CreateBattleground(uint32 mapId, uint32
+    instanceId, Battleground * bg)
+documentation:
+  brief: Creates a new battleground map instance for the specified battleground type
+    and instance ID.
+  description: The CreateBattleground method initializes and returns a new BattlegroundMap
+    instance for a specific battleground type identified by mapId and instanceId.
+    This method is typically invoked during battleground creation or when a new battleground
+    instance needs to be set up in the game world. The method handles the allocation
+    and setup of the battleground map environment, including terrain, objectives,
+    and initial game state. It ensures that each battleground instance is properly
+    isolated and managed within the MapManager's collection of active maps.
+  parameters:
+  - name: mapId
+    description: The unique identifier for the battleground map type. This corresponds
+      to the Map ID defined in the game's map database, such as 30 for Alterac Valley
+      or 905 for Eye of the Storm.
+  - name: instanceId
+    description: The instance identifier for this specific battleground instance.
+      Each new battleground instance should have a unique instance ID to prevent conflicts
+      and ensure proper isolation between different battleground games.
+  - name: bg
+    description: Pointer to the Battleground object that represents the current battleground
+      game state. This parameter provides the battleground's configuration, rules,
+      and state information needed for map initialization.
+  returns: Returns a pointer to the newly created BattlegroundMap instance if successful,
+    or nullptr if the creation fails due to invalid parameters, resource constraints,
+    or other initialization errors.
+  examples:
+  - title: Basic battleground map creation
+    code: "Battleground *bg = sBattlegroundMgr->GetBattlegroundTemplate(905); // Eye\
+      \ of the Storm\nif (bg)\n{\n    BattlegroundMap *map = sMapMgr->CreateBattleground(905,\
+      \ 12345, bg);\n    if (map)\n    {\n        // Successfully created battleground\
+      \ map\n        sObjectAccessor->AddObject(map);\n    }\n}"
+    language: cpp
+  - title: Creating multiple battleground instances
+    code: "uint32 instanceId = 1000;\nfor (int i = 0; i < 5; ++i)\n{\n    Battleground\
+      \ *bg = sBattlegroundMgr->GetBattlegroundTemplate(30); // Alterac Valley\n \
+      \   if (bg)\n    {\n        BattlegroundMap *map = sMapMgr->CreateBattleground(30,\
+      \ instanceId + i, bg);\n        if (map)\n        {\n            // Initialize\
+      \ map for this battleground instance\n            map->InitBattleground();\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the core MapManager system and should only be called
+    during battleground initialization or when a new battleground instance needs to
+    be created. The returned BattlegroundMap must be properly initialized with game
+    state information before being added to the world. The method assumes that the
+    provided Battleground object has valid configuration data.
+  warnings: Calling this method without proper validation of parameters may result
+    in memory leaks or invalid map states. The instanceId should be unique per battleground
+    instance to avoid conflicts. Do not call this method from within a game loop or
+    high-frequency update context as it may cause performance issues.
+  related:
+  - MapManager::CreateInstance
+  - MapManager::GetBattlegroundMap
+  - Battleground::InitBattleground
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T00:16:15.233722'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

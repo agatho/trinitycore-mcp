@@ -1,0 +1,58 @@
+api:
+  class: WorldSession
+  method: HandleChatMessageWhisperOpcode
+  signature: void WorldSession::HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper
+    & chatMessageWhisper)
+documentation:
+  brief: Processes incoming whisper chat messages from players in the World of Warcraft
+    client.
+  description: The HandleChatMessageWhisperOpcode method is responsible for handling
+    whisper chat messages sent by a player to another player within the TrinityCore
+    server. This method decodes the incoming packet, validates the target player's
+    existence and online status, checks for any messaging restrictions or cooldowns,
+    and then delivers the whisper message to the intended recipient. It ensures proper
+    communication between players while enforcing game rules such as ignoring self-messages,
+    preventing spam, and respecting player privacy settings like being offline or
+    having whispers disabled.
+  parameters:
+  - name: chatMessageWhisper
+    description: A reference to a WorldPackets::Chat::ChatMessageWhisper packet object
+      containing the whisper message data including target player name, message content,
+      and associated metadata.
+  returns: null
+  examples:
+  - title: Basic Whisper Message Handling
+    code: "void WorldSession::HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper\
+      \ & chatMessageWhisper)\n{\n    if (!chatMessageWhisper.Target.empty() && !chatMessageWhisper.Message.empty())\n\
+      \    {\n        // Validate target player exists and is online\n        Player*\
+      \ targetPlayer = sObjectAccessor->FindPlayerByName(chatMessageWhisper.Target);\n\
+      \        if (targetPlayer && targetPlayer->IsInWorld())\n        {\n       \
+      \     // Send whisper to target\n            WorldPacket data(SMSG_MESSAGECHAT,\
+      \ 200);\n            data << uint8(CHAT_MSG_WHISPER);\n            data << uint32(LANG_UNIVERSAL);\n\
+      \            data << uint64(_player->GetGUID());\n            data << uint32(0);\
+      \ // Flags\n            data << uint64(targetPlayer->GetGUID());\n         \
+      \   data << chatMessageWhisper.Message;\n            targetPlayer->SendDirectMessage(&data);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method operates within the context of a WorldSession, which represents
+    an active connection between a client and the server. The implementation assumes
+    that the packet has already been validated for basic structure and content length
+    before this method is invoked. It's important to note that whisper messages are
+    not stored in chat logs or broadcasted to other players unless they are part of
+    a group or guild channel.
+  warnings: Improper handling of player GUIDs or message validation can lead to security
+    vulnerabilities or denial-of-service attacks. Always verify that the target player
+    exists and is online before attempting to send the whisper. Additionally, be cautious
+    about implementing custom anti-spam logic that might interfere with legitimate
+    gameplay or user experience.
+  related:
+  - HandleChatMessageSayOpcode
+  - HandleChatMessageYellOpcode
+  - HandleChatMessageEmoteOpcode
+  - SendPlayerNotFoundNotice
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T22:27:29.041110'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

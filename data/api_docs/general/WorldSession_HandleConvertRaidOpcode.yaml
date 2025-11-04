@@ -1,0 +1,42 @@
+api:
+  class: WorldSession
+  method: HandleConvertRaidOpcode
+  signature: void WorldSession::HandleConvertRaidOpcode(WorldPackets::Party::ConvertRaid
+    & packet)
+documentation:
+  brief: Converts a party to a raid if the player is eligible and has sufficient permissions.
+  description: The HandleConvertRaidOpcode method processes a client request to convert
+    the current party into a raid. This operation is only allowed if the player is
+    the party leader and the party meets the requirements for raid conversion, such
+    as having at least one other member besides the leader. The method validates these
+    conditions and sends appropriate responses back to the client. It does not directly
+    modify the party structure but triggers internal logic that may result in a full
+    raid formation with proper raid permissions and group management.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: "void WorldSession::HandleConvertRaidOpcode(WorldPackets::Party::ConvertRaid&\
+      \ packet)\n{\n    if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->IsLeader(GetPlayer()->GetGUID()))\n\
+      \    {\n        if (GetPlayer()->GetGroup()->GetMembersCount() > 1)\n      \
+      \  {\n            GetPlayer()->GetGroup()->ConvertToRaid();\n        }\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method assumes that the player is currently in a party and acts as the
+    leader. It does not perform any validation on the packet contents since it's expected
+    to be properly formed by the client. The actual conversion logic resides within
+    the Group class.
+  warnings: Invoking this method without proper checks may lead to undefined behavior
+    or server-side errors if the player is not a party leader or if the group size
+    is insufficient. Ensure that all preconditions are validated before calling this
+    function.
+  related:
+  - WorldSession::HandlePartyCommand
+  - Group::ConvertToRaid
+  - Group::IsLeader
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:20:03.509423'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

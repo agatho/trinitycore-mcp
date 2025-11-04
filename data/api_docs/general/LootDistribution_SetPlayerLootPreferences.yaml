@@ -1,0 +1,64 @@
+api:
+  class: LootDistribution
+  method: SetPlayerLootPreferences
+  signature: void LootDistribution::SetPlayerLootPreferences(uint32 playerGuid, const
+    PlayerLootProfile & profile)
+documentation:
+  brief: Sets the loot preferences for a specific player within the loot distribution
+    system.
+  description: The SetPlayerLootPreferences method configures the loot distribution
+    behavior for a given player by associating their unique identifier (GUID) with
+    a specified PlayerLootProfile. This profile defines how the player should receive
+    loot items during group looting scenarios, such as whether they prefer need-before-greed
+    or specific loot rules. The method updates internal tracking structures to ensure
+    that future loot distributions respect these preferences. It is typically invoked
+    when a player modifies their loot settings in the game interface or when system
+    events require preference synchronization.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player whose loot preferences
+      are being set. Must be a valid player GUID within the TrinityCore database.
+  - name: profile
+    description: A constant reference to a PlayerLootProfile object containing the
+      desired loot distribution settings for the specified player. This includes rules
+      like need-before-greed, loot thresholds, and other personal loot preferences.
+  returns: null
+  examples:
+  - title: Setting Basic Loot Preferences
+    code: 'PlayerLootProfile profile;
+
+      profile.needBeforeGreed = true;
+
+      profile.lootThreshold = ITEM_QUALITY_RARE;
+
+      lootDistribution->SetPlayerLootPreferences(12345, profile);'
+    language: cpp
+  - title: Updating Player's Loot Settings with Custom Profile
+    code: 'uint32 playerId = player->GetGUID().GetCounter();
+
+      PlayerLootProfile customProfile;
+
+      customProfile.needBeforeGreed = false;
+
+      customProfile.lootThreshold = ITEM_QUALITY_UNCOMMON;
+
+      customProfile.autoLoot = true;
+
+      lootDistribution->SetPlayerLootPreferences(playerId, customProfile);'
+    language: cpp
+  notes: This method modifies internal state that affects loot distribution logic
+    across the server. It should be called only when necessary to avoid unnecessary
+    overhead. The PlayerLootProfile object is copied into internal storage and changes
+    to the original after calling this function will not affect the stored settings.
+  warnings: Ensure that playerGuid corresponds to an active player in the world; otherwise,
+    behavior may be undefined. Avoid frequent calls to this method as it can impact
+    performance if used excessively during high-frequency loot events.
+  related:
+  - GetPlayerLootPreferences
+  - UpdatePlayerLootSettings
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:42:05.071688'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

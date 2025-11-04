@@ -1,0 +1,55 @@
+api:
+  class: ProcEventInfo
+  method: GetSpellTypeMask
+  signature: ProcFlagsSpellType ProcEventInfo::GetSpellTypeMask() const
+documentation:
+  brief: Retrieves the spell type mask associated with the proc event, indicating
+    the category of spell that triggered the proc.
+  description: The GetSpellTypeMask method returns a ProcFlagsSpellType value that
+    represents the type of spell that caused the proc event to occur. This mask is
+    used internally by TrinityCore's spell system to determine how a spell should
+    be processed during proccing, such as whether it's a damage spell, heal spell,
+    or aura spell. The returned value can be used to filter or conditionally process
+    different types of spells in custom spell scripts or aura effects. This method
+    is typically called within the context of spell proc handlers where the specific
+    type of triggering spell needs to be identified for proper behavior implementation.
+  parameters: []
+  returns: A ProcFlagsSpellType value representing the mask indicating the category
+    of spell that triggered the proc event. Common values include SPELL_TYPE_NONE,
+    SPELL_TYPE_DAMAGE, SPELL_TYPE_HEAL, and SPELL_TYPE_AURA, which can be combined
+    using bitwise operations to represent multiple spell types.
+  examples:
+  - title: Basic usage in a proc handler
+    code: "class MySpellScript : public SpellScript\n{\n    void HandleProc()\n  \
+      \  {\n        ProcEventInfo* eventInfo = GetProcEvent();\n        ProcFlagsSpellType\
+      \ spellType = eventInfo->GetSpellTypeMask();\n        \n        if (spellType\
+      \ & SPELL_TYPE_DAMAGE)\n        {\n            // Process damage spell proc\n\
+      \        }\n        else if (spellType & SPELL_TYPE_HEAL)\n        {\n     \
+      \       // Process heal spell proc\n        }\n    }\n};"
+    language: cpp
+  - title: Checking for specific spell types in custom aura
+    code: "bool AuraScript::CheckProc(ProcEventInfo& eventInfo)\n{\n    ProcFlagsSpellType\
+      \ spellType = eventInfo.GetSpellTypeMask();\n    \n    // Only proc on damage\
+      \ or healing spells\n    if (spellType & (SPELL_TYPE_DAMAGE | SPELL_TYPE_HEAL))\n\
+      \    {\n        return true;\n    }\n    \n    return false;\n}"
+    language: cpp
+  notes: This method is part of the proc event information system in TrinityCore,
+    which provides detailed context about how a spell proc occurred. The returned
+    ProcFlagsSpellType value is constructed from various spell type flags defined
+    in the core's spell system. Developers should be aware that this mask may contain
+    multiple flags set simultaneously if a spell belongs to multiple categories.
+  warnings: When checking for specific spell types, ensure proper bitwise operations
+    are used rather than direct equality comparisons. The spell type mask can contain
+    combinations of flags, so using '==' instead of '&' operators might lead to incorrect
+    behavior when multiple spell types are involved.
+  related:
+  - GetSpell()
+  - GetProcEvent()
+  - GetActor()
+  - GetActionTarget()
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T20:58:24.118363'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

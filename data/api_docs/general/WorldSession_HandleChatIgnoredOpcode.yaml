@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: HandleChatIgnoredOpcode
+  signature: void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored
+    & chatReportIgnored)
+documentation:
+  brief: Processes incoming chat ignored opcode from client to handle reported ignored
+    players
+  description: This method handles the ChatReportIgnored opcode sent by the client
+    when a player reports another player for ignoring them in chat. It processes the
+    report and updates the ignore list state accordingly. The method is part of the
+    WorldSession's chat handling system and integrates with the game's messaging infrastructure
+    to manage player interactions and communication preferences. This functionality
+    supports the core chat system mechanics that allow players to block or ignore
+    other players within the game environment.
+  parameters:
+  - name: chatReportIgnored
+    description: The packet containing information about the ignored player report,
+      including the target player's GUID and reason for reporting
+  returns: null
+  examples:
+  - title: Basic usage in session handling
+    code: "void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored\
+      \ & chatReportIgnored)\n{\n    // Process the ignored player report\n    Player*\
+      \ player = GetPlayer();\n    if (!player)\n        return;\n    \n    // Validate\
+      \ target player exists\n    ObjectGuid targetGuid = chatReportIgnored.Target;\n\
+      \    Player* targetPlayer = ObjectAccessor::FindPlayer(targetGuid);\n    if\
+      \ (!targetPlayer)\n        return;\n    \n    // Add to ignore list or update\
+      \ existing entry\n    player->GetSocial()->AddToIgnoreList(targetPlayer->GetGUID(),\
+      \ true);\n}"
+    language: cpp
+  notes: This method is typically called from the main session packet handling loop.
+    The implementation should validate that both players exist and are in the same
+    world instance before processing the ignore report. The method may trigger additional
+    network messages to inform other clients about the updated ignore status.
+  warnings: Improper handling of this opcode could lead to security vulnerabilities
+    or abuse where players might spam ignore reports. Ensure proper rate limiting
+    and validation of player relationships before adding entries to ignore lists.
+  related:
+  - HandleChatMessage
+  - HandleIgnorePlayer
+  - GetPlayer
+  - SendChatMessage
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T22:31:55.276814'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

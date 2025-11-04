@@ -1,0 +1,48 @@
+api:
+  class: WorldSession
+  method: HandleInitiateTradeOpcode
+  signature: void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade
+    & initiateTrade)
+documentation:
+  brief: Handles the client-initiated trade request packet by validating and starting
+    a trade session with another player.
+  description: The HandleInitiateTradeOpcode method processes an incoming trade initiation
+    request from a client. It validates that the target player is within trading range,
+    not in a combat state, and that both players are in a valid state to begin trading.
+    The method sets up the initial trade state for the session and sends the appropriate
+    response packets to both parties involved in the trade. This function is part
+    of the core trading mechanics in TrinityCore, ensuring proper game balance and
+    preventing exploits related to trade initiation.
+  parameters:
+  - name: initiateTrade
+    description: The packet containing the trade initiation request data including
+      the target player's GUID and other relevant trade parameters.
+  returns: null
+  examples:
+  - title: Basic Trade Initiation Handling
+    code: "void WorldSession::HandleInitiateTradeOpcode(WorldPackets::Trade::InitiateTrade\
+      \ & initiateTrade)\n{\n    Player* player = GetPlayer();\n    if (!player)\n\
+      \        return;\n\n    // Validate target player exists and is in range\n \
+      \   Player* targetPlayer = ObjectAccessor::FindPlayer(initiateTrade.TargetGuid);\n\
+      \    if (!targetPlayer || !player->IsInMap(targetPlayer) || !player->IsWithinDistInMap(targetPlayer,\
+      \ TRADE_DISTANCE))\n    {\n        SendTradeStatus(TRADE_STATUS_PLAYER_NOT_FOUND);\n\
+      \        return;\n    }\n\n    // Start the trade session\n    player->BeginTrade(targetPlayer);\n\
+      }"
+    language: cpp
+  notes: This method assumes that the packet has already been validated for basic
+    structure and contains valid GUIDs. The actual trade initiation logic is handled
+    by the Player class's BeginTrade function. This method should only be called from
+    the network handler thread.
+  warnings: Improper validation of player state or target range can lead to exploits
+    where players trade while in combat or out of range. Always verify that both players
+    are in a valid trading state before proceeding with trade setup.
+  related:
+  - Player::BeginTrade
+  - WorldSession::SendTradeStatus
+  - WorldSession::HandleTradeStatusOpcode
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:51:59.013120'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: GroupStateMachine
+  method: IsInGroup
+  signature: bool GroupStateMachine::IsInGroup() const
+documentation:
+  brief: Determines whether the player is currently a member of a group
+  description: The IsInGroup method checks if the player associated with this GroupStateMachine
+    instance is currently part of a valid group or raid. This method returns true
+    if the player has joined a group and false otherwise. The check considers both
+    party groups and raid groups, as TrinityCore treats them as unified group types
+    internally. This functionality is commonly used in game mechanics to determine
+    eligibility for group-based content, loot distribution, or quest progression that
+    requires group participation.
+  parameters: []
+  returns: Returns true if the player is currently a member of a group (party or raid),
+    false otherwise.
+  examples:
+  - title: Basic Group Membership Check
+    code: "if (groupStateMachine->IsInGroup()) {\n    // Player is in a group, proceed\
+      \ with group-specific logic\n    SendGroupMessage(\"You are currently in a group.\"\
+      );\n} else {\n    // Player is not in a group\n    SendErrorMessage(\"You must\
+      \ be in a group to perform this action.\");\n}"
+    language: cpp
+  - title: Using IsInGroup for Quest Progression
+    code: "void CheckQuestRequirements(Player* player) {\n    GroupStateMachine* gsm\
+      \ = player->GetGroupStateMachine();\n    if (gsm && gsm->IsInGroup()) {\n  \
+      \      // Player is in group, allow quest progression\n        player->CompleteQuest(QUEST_ID);\n\
+      \    } else {\n        // Prevent quest completion outside of group context\n\
+      \        player->SendSystemMessage(\"This quest requires you to be in a group.\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method relies on the internal group state tracking within TrinityCore's
+    GroupStateMachine. It does not validate whether the group is still valid or active,
+    but simply checks if a group reference exists. The method is thread-safe as it
+    only reads from internal state variables that are protected by appropriate locking
+    mechanisms in the core.
+  warnings: This method should not be used to determine if a player can perform actions
+    requiring group membership without also checking for valid group members or leader
+    status. A player may be marked as 'in group' even if they are the only member
+    of an empty group, which might not be the intended behavior for certain game mechanics.
+  related:
+  - GetGroup
+  - IsLeader
+  - IsMember
+  - JoinGroup
+  - LeaveGroup
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T03:54:14.584062'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

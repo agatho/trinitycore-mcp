@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: SendLfgTeleportError
+  signature: void WorldSession::SendLfgTeleportError(lfg::LfgTeleportResult err)
+documentation:
+  brief: Sends a LFG teleport error message to the player's client
+  description: This method sends a LFG (Looking for Group) teleport error result to
+    the connected player's client. It is used within the TrinityCore framework to
+    communicate teleportation failures during group matching or dungeon finding operations.
+    The method takes a teleport result code that indicates the specific reason for
+    the teleport failure, such as being in an invalid location, already in a group,
+    or lacking required permissions. This functionality is part of the game's LFG
+    system which helps manage player movement and group formation within World of
+    Warcraft content.
+  parameters:
+  - name: err
+    description: The LFG teleport result error code indicating the reason for teleport
+      failure. Valid values are defined in the lfg::LfgTeleportResult enum, including
+      codes like LFG_TELEPORT_ERROR_NONE, LFG_TELEPORT_ERROR_INVALID_LOCATION, LFG_TELEPORT_ERROR_NOT_IN_GROUP,
+      etc.
+  returns: null
+  examples:
+  - title: Sending a teleport error when player is in invalid location
+    code: "WorldSession* session = player->GetSession();\nif (player->IsInCombat())\n\
+      {\n    session->SendLfgTeleportError(lfg::LFG_TELEPORT_ERROR_INVALID_LOCATION);\n\
+      }"
+    language: cpp
+  - title: Sending teleport error based on group state
+    code: "WorldSession* session = player->GetSession();\nif (!player->GetGroup())\n\
+      {\n    session->SendLfgTeleportError(lfg::LFG_TELEPORT_ERROR_NOT_IN_GROUP);\n\
+      }\nelse if (player->GetGroup()->IsFull())\n{\n    session->SendLfgTeleportError(lfg::LFG_TELEPORT_ERROR_GROUP_FULL);\n\
+      }"
+    language: cpp
+  notes: This method is part of the LFG system and should only be called when a teleport
+    operation fails during group matching. The error codes are defined in the lfg
+    namespace and correspond to specific client-side messages. This method does not
+    perform any validation on the input parameter - it directly sends the provided
+    error code to the client.
+  warnings: Ensure that this method is only called when appropriate teleportation
+    conditions fail, as calling it incorrectly may confuse players with invalid error
+    messages. The method assumes proper session state and does not validate if the
+    player actually has an active session before sending the message.
+  related:
+  - SendLfgUpdate
+  - SendLfgPlayerInfo
+  - SendLfgJoinResult
+  - SendLfgRoleCheckUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:23:37.557560'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

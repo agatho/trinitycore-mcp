@@ -1,0 +1,49 @@
+api:
+  class: CalendarEvent
+  method: GetDate
+  signature: time_t CalendarEvent::GetDate() const
+documentation:
+  brief: Retrieves the date and time when the calendar event is scheduled to occur.
+  description: The GetDate method returns the Unix timestamp representing the date
+    and time of the calendar event. This value is stored internally as a time_t type
+    and corresponds to the moment in time when the event is set to take place. The
+    returned value can be used to determine if an event has passed, is upcoming, or
+    is currently active. In World of Warcraft's context, this method allows addons
+    or core systems to query when a specific calendar event is scheduled for execution.
+  parameters: []
+  returns: A time_t value representing the Unix timestamp of the calendar event's
+    scheduled date and time. This value is typically in UTC and can be converted to
+    local time using standard C++ time functions such as localtime() or gmtime().
+  examples:
+  - title: Basic Usage to Check Event Time
+    code: "CalendarEvent* event = sCalendarMgr->GetEvent(12345);\nif (event)\n{\n\
+      \    time_t eventTime = event->GetDate();\n    time_t currentTime = time(nullptr);\n\
+      \    if (eventTime > currentTime)\n        printf(\"Event is in the future.\\\
+      n\");\n    else if (eventTime < currentTime)\n        printf(\"Event has already\
+      \ passed.\\n\");\n    else\n        printf(\"Event is happening now.\\n\");\n\
+      }"
+    language: cpp
+  - title: Convert Timestamp to Readable Format
+    code: "CalendarEvent* event = sCalendarMgr->GetEvent(12345);\nif (event)\n{\n\
+      \    time_t eventTime = event->GetDate();\n    struct tm* timeInfo = localtime(&eventTime);\n\
+      \    char buffer[80];\n    strftime(buffer, sizeof(buffer), \"%Y-%m-%d %H:%M:%S\"\
+      , timeInfo);\n    printf(\"Event scheduled for: %s\\n\", buffer);\n}"
+    language: cpp
+  notes: The returned time_t value represents UTC time. When displaying times to players,
+    it's recommended to convert this to the player's local timezone using appropriate
+    time conversion functions. The method does not perform any validation on the internal
+    date value and assumes it is correctly initialized.
+  warnings: Ensure that the CalendarEvent object is valid before calling GetDate(),
+    as calling it on a null or improperly initialized event may result in undefined
+    behavior. Be cautious when comparing timestamps across different time zones without
+    proper conversion.
+  related:
+  - SetDate
+  - GetEventType
+  - GetTitle
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T12:41:47.244514'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

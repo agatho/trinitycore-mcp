@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: HandleChatMessageAFKOpcode
+  signature: void WorldSession::HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK
+    & chatMessageAFK)
+documentation:
+  brief: Processes incoming AFK chat messages from players
+  description: Handles the WorldPackets::Chat::ChatMessageAFK packet sent by clients
+    when a player sends an AFK (Away From Keyboard) message. This method processes
+    the AFK status update and broadcasts the message to nearby players in the same
+    zone. The function typically updates the player's AFK status flag and may trigger
+    additional game mechanics such as sending notifications or updating the player's
+    visibility state. It is part of the core chat system handling for AFK-related
+    communications.
+  parameters:
+  - name: chatMessageAFK
+    description: The incoming AFK chat message packet containing the player's AFK
+      status and message content
+  returns: null
+  examples:
+  - title: Basic AFK Message Handling
+    code: "void WorldSession::HandleChatMessageAFKOpcode(WorldPackets::Chat::ChatMessageAFK\
+      \ & chatMessageAFK)\n{\n    Player* player = GetPlayer();\n    if (!player)\n\
+      \        return;\n\n    // Update player's AFK status\n    player->SetAFK(true);\n\
+      \    player->SetAFKMessage(chatMessageAFK.Text);\n\n    // Broadcast AFK message\
+      \ to nearby players\n    WorldPacket data(SMSG_CHAT_PLAYER_AFK, 100);\n    data\
+      \ << uint32(chatMessageAFK.ChatType);\n    data << uint32(chatMessageAFK.Language);\n\
+      \    data << uint64(player->GetGUID());\n    data << chatMessageAFK.Text;\n\
+      \    player->SendMessageToSet(data, true);\n}"
+    language: cpp
+  notes: This method is typically called from the main packet handling loop when an
+    AFK chat message is received. The implementation should ensure proper synchronization
+    with player state updates and avoid race conditions when accessing shared player
+    data structures.
+  warnings: Improper handling of AFK messages may cause desynchronization between
+    client and server AFK states, leading to incorrect visibility or messaging behavior
+    for players who are actually AFK.
+  related:
+  - HandleChatMessageSayOpcode
+  - HandleChatMessageYellOpcode
+  - HandleChatMessageEmoteOpcode
+  - SetAFK
+  - GetAFK
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T22:30:39.802899'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

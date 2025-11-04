@@ -1,0 +1,54 @@
+api:
+  class: BotScheduler
+  method: GetBotScheduleState
+  signature: const BotScheduleState * BotScheduler::GetBotScheduleState(int guid)
+    const
+documentation:
+  brief: Retrieves the schedule state for a bot identified by its GUID.
+  description: The GetBotScheduleState method retrieves a constant pointer to the
+    BotScheduleState object associated with a specific bot identified by its global
+    unique identifier (GUID). This method is used within the TrinityCore AI system
+    to access scheduling information for individual bots, which determines their behavior
+    patterns and activity states. The returned pointer provides read-only access to
+    the schedule state, ensuring that external code cannot modify internal scheduling
+    data directly. The method assumes that a valid bot with the specified GUID exists
+    in the scheduler's tracking system.
+  parameters:
+  - name: guid
+    description: The global unique identifier (GUID) of the bot whose schedule state
+      is to be retrieved. This value uniquely identifies each bot instance within
+      the TrinityCore world.
+  returns: A constant pointer to the BotScheduleState object associated with the specified
+    bot GUID, or nullptr if no bot with the given GUID exists in the scheduler.
+  examples:
+  - title: Basic Usage
+    code: "const BotScheduleState* state = scheduler->GetBotScheduleState(12345);\n\
+      if (state != nullptr) {\n    // Use the schedule state\n    std::cout << \"\
+      Bot is in state: \" << state->GetStateName() << std::endl;\n} else {\n    std::cout\
+      \ << \"No bot found with GUID 12345\" << std::endl;\n}"
+    language: cpp
+  - title: Checking Bot Activity
+    code: "uint32 botGuid = player->GetSession()->GetPlayer()->GetGUID().GetCounter();\n\
+      const BotScheduleState* schedule = scheduler->GetBotScheduleState(botGuid);\n\
+      if (schedule && schedule->IsScheduledForActivity()) {\n    // Bot is scheduled\
+      \ to perform an action\n    DoBotAction(schedule);\n}"
+    language: cpp
+  notes: This method performs a lookup operation in an internal data structure, so
+    performance may vary depending on the number of tracked bots. The returned pointer
+    remains valid only as long as the bot exists and has not been removed from the
+    scheduler. This method is typically used in AI decision-making loops where current
+    scheduling state affects bot behavior.
+  warnings: Ensure that the GUID passed to this method corresponds to an actual bot
+    instance, otherwise a null pointer will be returned. Avoid storing the returned
+    pointer for extended periods as it may become invalid if the bot is removed from
+    the scheduler or its schedule changes.
+  related:
+  - BotScheduler::AddBotScheduleState
+  - BotScheduler::RemoveBotScheduleState
+  - BotScheduler::UpdateBotSchedule
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T13:24:56.332209'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: HealInfo
+  method: GetSpellInfo
+  signature: const SpellInfo * HealInfo::GetSpellInfo() const
+documentation:
+  brief: Retrieves the SpellInfo structure associated with the heal operation.
+  description: The GetSpellInfo method returns a pointer to the SpellInfo structure
+    that defines the properties and behavior of the spell being used for healing.
+    This method is typically called during the processing of heal events within the
+    TrinityCore framework, allowing access to detailed spell data such as spell effects,
+    damage types, mana costs, and other relevant attributes. The returned SpellInfo
+    pointer remains valid for the lifetime of the HealInfo object and should not be
+    modified directly. This method is essential for implementing custom healing logic
+    or retrieving spell-specific parameters during heal calculations.
+  parameters: []
+  returns: A constant pointer to the SpellInfo structure that describes the healing
+    spell, or nullptr if no spell information is available.
+  examples:
+  - title: Basic Usage in Heal Event Handler
+    code: "void OnHeal(Unit* healer, Unit* target, uint32 spellId)\n{\n    SpellInfo\
+      \ const* spellInfo = sSpellMgr->GetSpellInfo(spellId);\n    if (spellInfo &&\
+      \ spellInfo->IsHealingSpell())\n    {\n        // Process healing logic using\
+      \ spellInfo\n        uint32 healAmount = spellInfo->Effects[0].BasePoints;\n\
+      \        target->ModifyHealth(healAmount);\n    }\n}"
+    language: cpp
+  - title: Accessing Spell Effects in HealInfo Context
+    code: "void ProcessHealInfo(HealInfo* healInfo)\n{\n    const SpellInfo* spellInfo\
+      \ = healInfo->GetSpellInfo();\n    if (spellInfo)\n    {\n        // Access\
+      \ spell effect data\n        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)\n\
+      \        {\n            if (spellInfo->Effects[i].Effect == SPELL_EFFECT_HEAL)\n\
+      \            {\n                uint32 basePoints = spellInfo->Effects[i].BasePoints;\n\
+      \                // Apply healing calculation\n                break;\n    \
+      \        }\n        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used internally by the TrinityCore healing system.
+    The returned SpellInfo pointer should be treated as read-only and must not be
+    deleted or modified. It's important to verify that the HealInfo object has valid
+    spell data before calling this method, as it may return nullptr in certain edge
+    cases.
+  warnings: Calling GetSpellInfo on a HealInfo object that was not properly initialized
+    with spell data will result in a nullptr return value. Always check for null before
+    dereferencing the returned pointer to avoid segmentation faults.
+  related:
+  - HealInfo::GetHealAmount
+  - HealInfo::GetTarget
+  - HealInfo::GetSpellId
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T03:29:00.688892'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

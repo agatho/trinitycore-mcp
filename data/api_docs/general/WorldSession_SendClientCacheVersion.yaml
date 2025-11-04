@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: SendClientCacheVersion
+  signature: void WorldSession::SendClientCacheVersion(uint32 version)
+documentation:
+  brief: Sends the client cache version to the connected player's client.
+  description: The SendClientCacheVersion method transmits a specific cache version
+    number to the player's client, informing it of the current data cache version
+    used by the server. This is crucial for maintaining synchronization between the
+    client and server data, particularly when handling game assets, patches, or localization
+    files. The method typically gets invoked during the login process or when cache
+    updates occur, ensuring that the client loads the appropriate cached resources.
+    It directly affects how the client handles asset loading and can prevent issues
+    related to outdated or mismatched data.
+  parameters:
+  - name: version
+    description: The cache version number to send to the client. This value typically
+      corresponds to a build or patch version of the game assets stored on the server.
+  returns: null
+  examples:
+  - title: Sending Cache Version During Login
+    code: "void PlayerLoginHandler(WorldSession* session)\n{\n    uint32 cacheVersion\
+      \ = sWorld->GetCacheVersion();\n    session->SendClientCacheVersion(cacheVersion);\n\
+      }"
+    language: cpp
+  - title: Updating Client Cache Version on Patch
+    code: "void UpdateCacheVersion(uint32 newVersion)\n{\n    sWorld->SetCacheVersion(newVersion);\n\
+      \    for (auto& session : sWorld->GetAllSessions())\n    {\n        if (session\
+      \ && session->GetPlayer())\n            session->SendClientCacheVersion(newVersion);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the WorldSession's communication interface and relies
+    on the underlying network layer to deliver the message. The client uses this version
+    number to determine whether it needs to download updated assets or can use its
+    local cache. It's essential that this value is consistent across all connected
+    sessions for accurate synchronization.
+  warnings: Incorrectly setting or sending an outdated cache version may cause clients
+    to load incorrect or stale data, potentially leading to visual glitches, missing
+    content, or even crashes. Always ensure the version number reflects actual server-side
+    cache state.
+  related:
+  - GetClientCacheVersion
+  - SendServerSideCacheVersion
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:32:35.382087'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

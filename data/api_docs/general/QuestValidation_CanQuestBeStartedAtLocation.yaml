@@ -1,0 +1,60 @@
+api:
+  class: QuestValidation
+  method: CanQuestBeStartedAtLocation
+  signature: bool QuestValidation::CanQuestBeStartedAtLocation(uint32 questId, const
+    int & location)
+documentation:
+  brief: Determines whether a player can start a specific quest at a given location.
+  description: The CanQuestBeStartedAtLocation method evaluates if a player is eligible
+    to begin a specified quest based on their current location. This validation checks
+    various location-based requirements such as zone restrictions, area triggers,
+    and quest gating mechanics that prevent players from starting quests outside of
+    appropriate environments. The method typically integrates with the game's quest
+    system to ensure logical progression and prevent exploits related to quest initiation
+    in invalid locations.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate for starting at the
+      specified location. Must correspond to a valid quest entry in the database.
+  - name: location
+    description: The location identifier where the quest attempt is being made. This
+      typically represents a zone, area, or specific map coordinate that determines
+      eligibility.
+  returns: Returns true if the player can start the specified quest at the given location,
+    false otherwise. The method returns false when location restrictions prevent quest
+    initiation, such as attempting to start a zone-specific quest outside of its designated
+    area.
+  examples:
+  - title: Basic Quest Validation Check
+    code: "if (QuestValidation::CanQuestBeStartedAtLocation(12345, player->GetZoneId()))\
+      \ {\n    // Player can start the quest\n    player->AddQuest(12345);\n} else\
+      \ {\n    // Quest cannot be started at current location\n    player->SendNotification(\"\
+      You cannot start this quest here.\");\n}"
+    language: cpp
+  - title: Advanced Location-Based Validation
+    code: "uint32 currentZone = player->GetZoneId();\nuint32 questId = 67890;\nif\
+      \ (QuestValidation::CanQuestBeStartedAtLocation(questId, currentZone)) {\n \
+      \   if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE) {\n        player->PlayerTalkClass->SendGossipMenu(12345,\
+      \ player->GetGUID());\n    }\n} else {\n    // Handle invalid location case\n\
+      \    player->SendAreaTriggerMessage(\"This quest is not available in your current\
+      \ area.\");\n}"
+    language: cpp
+  notes: The method likely performs database lookups to verify quest location requirements
+    and may cache results for performance. It's commonly used during gossip interactions
+    or quest acceptance events to validate player eligibility before allowing quest
+    initiation.
+  warnings: Ensure that the location parameter corresponds to a valid zone or area
+    identifier; invalid identifiers may cause unexpected behavior or database errors.
+    This method should not be used as a sole validation mechanism for quest progression,
+    as additional checks like quest state and player level requirements are typically
+    needed.
+  related:
+  - CanQuestBeTaken
+  - IsQuestValidForPlayer
+  - GetQuestLocationRequirements
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T19:57:07.762309'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

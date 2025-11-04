@@ -1,0 +1,55 @@
+api:
+  class: QuestValidation
+  method: IsQuestLogFull
+  signature: bool QuestValidation::IsQuestLogFull(Player * bot)
+documentation:
+  brief: Checks whether the player's quest log is full and cannot accept additional
+    quests.
+  description: The IsQuestLogFull method determines if a player has reached the maximum
+    number of active quests allowed in their quest log. In World of Warcraft, players
+    can only carry a limited number of active quests at any given time, typically
+    25 quests. This method evaluates the current state of the player's quest log and
+    returns true if no more quests can be accepted, or false if there is still space
+    available. The check considers all active quests including those that are completed
+    but not turned in yet. This functionality is crucial for quest management systems
+    and botting logic to prevent attempting to accept quests when the log is full.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object whose quest log status is being checked.
+      Must be a valid player instance, otherwise behavior is undefined.
+  returns: Returns true if the player's quest log is full and cannot accept additional
+    quests, false otherwise.
+  examples:
+  - title: Basic usage to check quest log capacity
+    code: "Player* player = ...; // Get player reference\nif (QuestValidation::IsQuestLogFull(player))\
+      \ {\n    // Handle case when quest log is full\n    player->GetSession()->SendNotification(\"\
+      Your quest log is full.\");\n} else {\n    // Proceed with accepting new quests\n\
+      \    // ... quest acceptance logic\n}"
+    language: cpp
+  - title: Integration in bot quest acceptance logic
+    code: "class QuestBot {\npublic:\n    void AcceptNextAvailableQuest(Player* bot)\
+      \ {\n        if (!QuestValidation::IsQuestLogFull(bot)) {\n            // Proceed\
+      \ with quest acceptance\n            // ... logic to find and accept quest\n\
+      \        } else {\n            // Log warning or handle full quest log\n   \
+      \         sLog->outString(\"[QuestBot] Quest log is full for player %s\", bot->GetName().c_str());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method likely interacts with the internal quest log tracking system
+    in TrinityCore. The maximum number of quests allowed may vary depending on game
+    version or server configuration. Performance is generally low as it only involves
+    checking a simple counter or list size, but could be called frequently in automated
+    systems.
+  warnings: Ensure that the Player pointer passed to this method is valid and not
+    null, otherwise undefined behavior will occur. This method should not be used
+    to determine if a specific quest can be accepted without first verifying that
+    the quest is available and meets other prerequisites.
+  related:
+  - Player::GetQuestSlot
+  - Player::AddQuest
+  - Player::CanTakeQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:48:24.548074'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: SpawnCircuitBreaker
+  method: GetState
+  signature: CircuitState SpawnCircuitBreaker::GetState() const
+documentation:
+  brief: Retrieves the current operational state of the circuit breaker.
+  description: The GetState method returns the CircuitState enum value that represents
+    the current operational status of the SpawnCircuitBreaker instance. This state
+    indicates whether the circuit breaker is currently open, closed, or half-open,
+    which determines how it handles incoming requests or events. The circuit breaker
+    pattern is commonly used in distributed systems to prevent cascading failures
+    when a service is unresponsive. In the context of TrinityCore, this method allows
+    subsystems to query the health and operational readiness of spawn-related components
+    that may be protected by circuit breaking logic.
+  parameters: []
+  returns: 'A CircuitState enum value indicating the current state of the circuit
+    breaker. Possible values typically include OPEN, CLOSED, and HALF_OPEN, each representing
+    different failure handling behaviors: CLOSED allows normal operations, OPEN blocks
+    all requests to prevent further strain, and HALF_OPEN permits a limited number
+    of test requests to determine if the service has recovered.'
+  examples:
+  - title: Basic State Check
+    code: "SpawnCircuitBreaker breaker;\nCircuitState state = breaker.GetState();\n\
+      if (state == CircuitState::CLOSED) {\n    // Proceed with normal spawn operations\n\
+      }"
+    language: cpp
+  - title: Handling Different Circuit States
+    code: "SpawnCircuitBreaker* breaker = GetSpawnBreaker();\nswitch (breaker->GetState())\
+      \ {\n    case CircuitState::OPEN:\n        // Log failure and skip spawn attempt\n\
+      \        break;\n    case CircuitState::HALF_OPEN:\n        // Allow one test\
+      \ spawn to verify service health\n        break;\n    case CircuitState::CLOSED:\n\
+      \        // Proceed with normal spawn logic\n        break;\n}"
+    language: cpp
+  notes: This method is typically thread-safe and should not block execution. The
+    circuit breaker state may change asynchronously based on failure detection mechanisms,
+    so callers should be prepared to handle state transitions between calls. The implementation
+    likely uses atomic operations or mutexes to ensure consistency in multi-threaded
+    environments.
+  warnings: Do not assume the circuit breaker state remains constant between multiple
+    calls to GetState(). State changes can occur rapidly due to failure detection
+    and recovery mechanisms. Always check the current state before making decisions
+    about spawn behavior.
+  related:
+  - SetState
+  - IsOpen
+  - IsClosed
+  - IsHalfOpen
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T18:37:13.791513'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

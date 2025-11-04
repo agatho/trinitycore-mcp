@@ -1,0 +1,48 @@
+api:
+  class: BotResourcePool
+  method: GetAvailableSessionCount
+  signature: uint32 BotResourcePool::GetAvailableSessionCount() const
+documentation:
+  brief: Returns the count of available bot sessions in the resource pool
+  description: The GetAvailableSessionCount method retrieves the number of bot sessions
+    that are currently free and ready to be assigned to players. This method is typically
+    used by the bot management system to determine how many additional bots can be
+    spawned or allocated. The returned value represents the current capacity of the
+    resource pool for bot sessions, which may be limited by server configuration or
+    available system resources. This count is essential for maintaining optimal performance
+    and preventing resource exhaustion when managing multiple bot instances.
+  parameters: []
+  returns: A uint32 value representing the number of available bot sessions in the
+    pool. Returns zero if no sessions are available or if the pool has not been initialized.
+  examples:
+  - title: Basic Usage to Check Available Sessions
+    code: "uint32 availableCount = botResourcePool->GetAvailableSessionCount();\n\
+      if (availableCount > 0)\n{\n    // Proceed with allocating a bot session\n \
+      \   LOG_INFO(\"bot\", \"Available bot sessions: {}\", availableCount);\n}"
+    language: cpp
+  - title: Using Available Count for Session Management
+    code: "uint32 maxBots = sWorld->getIntConfig(CONFIG_MAX_BOT_COUNT);\nuint32 available\
+      \ = botResourcePool->GetAvailableSessionCount();\n\nif (available > 0 && totalActiveBots\
+      \ < maxBots)\n{\n    // Allocate a new bot session\n    BotSession* session\
+      \ = botResourcePool->AllocateSession();\n    if (session)\n    {\n        //\
+      \ Assign the session to a player\n        session->AssignToPlayer(player);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method performs a thread-safe read operation on the internal session
+    counter. The value returned may change between calls if other threads are allocating
+    or deallocating bot sessions concurrently. The resource pool maintains an internal
+    lock to ensure consistency of this count.
+  warnings: Do not assume that the returned count will remain constant between multiple
+    calls. Concurrent modifications by other threads can cause the available count
+    to fluctuate. Always verify the current availability before attempting to allocate
+    a session.
+  related:
+  - BotResourcePool::AllocateSession
+  - BotResourcePool::DeallocateSession
+  - BotResourcePool::GetTotalSessionCount
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T13:28:20.916033'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

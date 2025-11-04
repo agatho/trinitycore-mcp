@@ -1,0 +1,56 @@
+api:
+  class: PlayerSocial
+  method: HasIgnore
+  signature: bool PlayerSocial::HasIgnore(const int & ignoreGuid, const int & ignoreAccountGuid)
+documentation:
+  brief: Checks if a player has another player ignored by GUID
+  description: The HasIgnore method determines whether a specific player is on the
+    calling player's ignore list. It takes two GUID parameters representing the ignored
+    player and their account, and returns true if the player is currently ignored,
+    false otherwise. This functionality is part of the social system in TrinityCore
+    that manages player relationships and communication restrictions. The method performs
+    a lookup in the player's social list to verify the ignore status.
+  parameters:
+  - name: ignoreGuid
+    description: The global unique identifier (GUID) of the player being checked for
+      ignore status
+  - name: ignoreAccountGuid
+    description: The account global unique identifier (GUID) associated with the ignored
+      player
+  returns: Returns true if the specified player is on the current player's ignore
+    list, false otherwise. The method will return false if either GUID is invalid
+    or if no ignore relationship exists.
+  examples:
+  - title: Basic usage to check if a player is ignored
+    code: "Player* player = ...; // Get player instance\nuint32 targetGuid = 12345;\n\
+      uint32 targetAccountGuid = 67890;\nbool isIgnored = player->GetSocial()->HasIgnore(targetGuid,\
+      \ targetAccountGuid);\nif (isIgnored)\n{\n    // Player is ignored\n    sLog->outString(\"\
+      Player is currently ignored\");\n}"
+    language: cpp
+  - title: Using HasIgnore in a social command implementation
+    code: "void HandleIgnoreCheckCommand(ChatHandler* handler, const char* args)\n\
+      {\n    Player* target = handler->getSelectedPlayer();\n    if (!target)\n  \
+      \      return;\n\n    PlayerSocial* social = handler->GetSession()->GetPlayer()->GetSocial();\n\
+      \    if (social->HasIgnore(target->GetGUID().GetCounter(), target->GetSession()->GetAccountId()))\n\
+      \    {\n        handler->PSendSysMessage(\"Player %s is currently ignored.\"\
+      , target->GetName().c_str());\n    }\n    else\n    {\n        handler->PSendSysMessage(\"\
+      Player %s is not ignored.\", target->GetName().c_str());\n    }\n}"
+    language: cpp
+  notes: This method operates on the player's social list data structure which is
+    typically loaded from the database at login. The implementation uses efficient
+    lookup mechanisms to quickly determine ignore status without requiring additional
+    database queries for each check.
+  warnings: Ensure that both GUID parameters are valid before calling this method,
+    as invalid GUIDs may cause undefined behavior or incorrect results. This method
+    should not be used in performance-critical code paths where multiple checks are
+    performed frequently.
+  related:
+  - PlayerSocial::AddIgnore
+  - PlayerSocial::RemoveIgnore
+  - PlayerSocial::GetIgnoreList
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:30:49.671156'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

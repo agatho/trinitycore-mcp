@@ -1,0 +1,57 @@
+api:
+  class: CharacterCache
+  method: HasCharacterCacheEntry
+  signature: bool CharacterCache::HasCharacterCacheEntry(const int & guid) const
+documentation:
+  brief: Checks if a character cache entry exists for the specified GUID.
+  description: The HasCharacterCacheEntry method determines whether a cached character
+    entry is present in the CharacterCache for a given global unique identifier (GUID).
+    This method is typically used to verify the existence of character data before
+    attempting to access or retrieve it from the cache. The cache stores character
+    information to avoid repeated database queries, improving performance during player
+    interactions such as login, logout, and character-related operations. This check
+    ensures that subsequent cache access operations are valid and prevents potential
+    errors when accessing non-existent entries.
+  parameters:
+  - name: guid
+    description: The global unique identifier (GUID) of the character to check for
+      in the cache. This value represents the unique identifier assigned to each character
+      in the World of Warcraft database.
+  returns: Returns true if a character cache entry exists for the specified GUID;
+    otherwise, returns false. A return value of false indicates that either no character
+    with the given GUID exists or the entry has not yet been cached.
+  examples:
+  - title: Basic Usage Example
+    code: "if (CharacterCache::Instance()->HasCharacterCacheEntry(12345)) {\n    //\
+      \ Character data is cached, safe to access\n    // ... perform cache-based operations\n\
+      } else {\n    // Character not in cache, may need to load from database\n  \
+      \  // ... handle uncached character\n}"
+    language: cpp
+  - title: Integration with Character Loading Logic
+    code: "uint32 playerGuid = 54321;\nif (!sCharacterCache->HasCharacterCacheEntry(playerGuid))\
+      \ {\n    // Load character from database and populate cache\n    CharacterCacheEntry*\
+      \ entry = new CharacterCacheEntry();\n    // ... populate entry with data from\
+      \ DB\n    sCharacterCache->AddCharacterCacheEntry(playerGuid, entry);\n} else\
+      \ {\n    // Use existing cached data\n    CharacterCacheEntry* entry = sCharacterCache->GetCharacterCacheEntry(playerGuid);\n\
+      \    // ... process cached character data\n}"
+    language: cpp
+  notes: This method performs a fast lookup in an internal cache structure, typically
+    implemented as a hash map or similar data structure for O(1) average-case performance.
+    The cache is managed by the TrinityCore server and automatically populated when
+    character data is first accessed. Developers should be aware that cached entries
+    may be evicted due to memory pressure or cache expiration policies.
+  warnings: Be cautious when relying on this method for critical game logic, as cache
+    consistency can be affected by concurrent access or cache invalidation events.
+    Always validate the existence of cached data before attempting to retrieve it,
+    especially in multi-threaded environments where cache state might change between
+    checks and actual access.
+  related:
+  - GetCharacterCacheEntry
+  - AddCharacterCacheEntry
+  - RemoveCharacterCacheEntry
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:54:41.589163'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

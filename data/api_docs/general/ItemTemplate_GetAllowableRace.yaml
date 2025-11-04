@@ -1,0 +1,48 @@
+api:
+  class: ItemTemplate
+  method: GetAllowableRace
+  signature: int ItemTemplate::GetAllowableRace() const
+documentation:
+  brief: Returns the allowable race mask for the item template.
+  description: The GetAllowableRace method retrieves the bitmask representing which
+    races are allowed to equip or use this item. In World of Warcraft, items can have
+    restrictions based on player race, and this method returns the combined race flags
+    that determine eligibility. The returned value is a bitfield where each bit corresponds
+    to a specific race, allowing for multiple races to be permitted simultaneously.
+    This method is commonly used during item validation and character creation checks
+    to ensure players can only use items appropriate to their race.
+  parameters: []
+  returns: An integer representing the allowable race bitmask. Each bit in the integer
+    corresponds to a specific race in the game, with set bits indicating that the
+    associated race is allowed to use this item. A value of 0 typically means no restrictions
+    or all races are allowed.
+  examples:
+  - title: Check if Alliance races can use an item
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nif (itemTemplate->GetAllowableRace()\
+      \ & RACE_MASK_ALLIANCE)\n{\n    // This item is usable by Alliance races\n}"
+    language: cpp
+  - title: Validate player race against item restrictions
+    code: "Player* player = session->GetPlayer();\nItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(67890);\n\
+      uint32 allowableRaceMask = itemTemplate->GetAllowableRace();\nif (allowableRaceMask\
+      \ != 0 && !(allowableRaceMask & (1 << player->getRace())))\n{\n    // Player's\
+      \ race is not allowed to use this item\n    SendItemNotAllowedException(player);\n\
+      }"
+    language: cpp
+  notes: The method returns a raw bitmask value. Developers should be aware that race
+    flags are typically defined as bit positions (e.g., RACE_HUMAN = 1, RACE_ORC =
+    2, etc.), so bitwise operations are required to check specific races. The returned
+    value may be 0 if no race restrictions are set on the item.
+  warnings: Be cautious when using this method without proper validation of the item
+    template. If an invalid item ID is used, the method might return unexpected results
+    or cause undefined behavior. Always ensure that the ItemTemplate pointer is valid
+    before calling this method.
+  related:
+  - GetAllowableClass
+  - GetRequiredSkill
+  - GetFlags
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T02:39:34.850029'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: GroupStateMachine
+  method: CanTransition
+  signature: bool GroupStateMachine::CanTransition(GroupStateTransition transition,
+    Group * group) const
+documentation:
+  brief: Determines whether a group can transition to a specified state based on current
+    group conditions
+  description: The CanTransition method evaluates if a GroupStateMachine can perform
+    a given state transition for a specific group. It checks various preconditions
+    and group states to determine validity of the proposed transition. This method
+    is crucial for maintaining proper group state management in TrinityCore's group
+    system, ensuring that groups can only move between valid states according to game
+    rules and logic. The method typically examines factors such as group composition,
+    member online status, leadership structure, and other relevant group properties
+    before making a determination.
+  parameters:
+  - name: transition
+    description: The GroupStateTransition enum value representing the desired state
+      transition to evaluate
+  - name: group
+    description: Pointer to the Group object whose current state and properties are
+      evaluated for the transition
+  returns: Returns true if the group can successfully transition to the specified
+    state, false otherwise. A return value of false indicates that one or more conditions
+    prevent the transition from occurring.
+  examples:
+  - title: Basic Transition Check
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nif (myGroup && groupStateMachine.CanTransition(GROUP_STATE_RAID,\
+      \ myGroup)) {\n    // Proceed with raid transition logic\n}"
+    language: cpp
+  - title: Conditional State Management
+    code: "GroupStateTransition transitionType = GROUP_STATE_PARTY;\nGroup* playerGroup\
+      \ = player->GetGroup();\nif (playerGroup && groupStateMachine.CanTransition(transitionType,\
+      \ playerGroup)) {\n    // Perform the group state change\n    playerGroup->ChangeToState(transitionType);\n\
+      } else {\n    // Handle invalid transition attempt\n    player->SendSystemMessage(\"\
+      Cannot change group state at this time.\");\n}"
+    language: cpp
+  notes: This method is typically called before attempting to perform a group state
+    transition to prevent invalid operations. The implementation may involve checking
+    group member counts, leadership status, online presence of members, and other
+    game-specific constraints. It's important to note that this method doesn't actually
+    perform the transition - it only evaluates if it's allowed.
+  warnings: Attempting to perform a transition when CanTransition returns false may
+    result in undefined behavior or game state inconsistencies. Always verify transitions
+    before executing them. The group parameter should never be null when calling this
+    method, as it will likely cause crashes or assertion failures.
+  related:
+  - GroupStateMachine::Transition
+  - GroupStateMachine::GetCurrentState
+  - Group::ChangeToState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:59:07.504005'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

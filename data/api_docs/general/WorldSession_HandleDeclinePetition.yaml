@@ -1,0 +1,41 @@
+api:
+  class: WorldSession
+  method: HandleDeclinePetition
+  signature: void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition
+    & packet)
+documentation:
+  brief: Processes a player's decline of a petition signature request
+  description: Handles the client-side packet sent when a player chooses to decline
+    signing a petition. This method validates the petition state and removes the player's
+    signature from the petition if it exists. The method ensures that only valid petition
+    signatures can be declined, preventing abuse of the petition system. It updates
+    the petition's signature count and notifies other players who may be watching
+    the petition.
+  parameters: []
+  returns: null
+  examples:
+  - title: Decline Petition Signature
+    code: "void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition&\
+      \ packet)\n{\n    if (!packet.PetitionGuid)\n        return;\n\n    if (Petition*\
+      \ petition = sObjectAccessor->GetPetition(packet.PetitionGuid))\n    {\n   \
+      \     petition->RemoveSignature(this);\n        SendPetitionSignResult(petition,\
+      \ PETITION_SIGN_ALREADY_SIGNED);\n    }\n}"
+    language: cpp
+  notes: This method is part of the petition system in TrinityCore and relies on proper
+    packet validation. The petition must be in a state where signatures can be removed
+    for this operation to succeed. It's important that the session has proper access
+    rights to the petition being declined.
+  warnings: This method should only be called after verifying that the petition exists
+    and is in a valid state for signature removal. Attempting to decline a signature
+    on an invalid petition or one that has already been processed may lead to inconsistent
+    state.
+  related:
+  - HandlePetitionDecline
+  - HandlePetitionSign
+  - SendPetitionSignResult
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:17:24.389149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

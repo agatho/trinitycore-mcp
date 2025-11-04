@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandlePetCastSpellOpcode
+  signature: void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell
+    & petCastSpell)
+documentation:
+  brief: Processes a pet casting spell opcode received from the client.
+  description: The HandlePetCastSpellOpcode method is responsible for handling spell
+    casting requests initiated by a player's pet. This method processes incoming packet
+    data containing information about which spell the pet is attempting to cast, validates
+    the request, and triggers the appropriate spell effect on the target. It ensures
+    that only valid spells can be cast by pets, checking conditions such as spell
+    availability, pet ownership, and target validity. The method integrates with the
+    core spell system to execute the actual spell mechanics, including handling cooldowns,
+    mana costs, and effects.
+  parameters:
+  - name: petCastSpell
+    description: A reference to a PetCastSpell packet structure containing the spell
+      ID, target information, and other relevant data for pet spell casting.
+  returns: null
+  examples:
+  - title: Basic pet spell casting handling
+    code: "void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell\
+      \ & petCastSpell)\n{\n    if (!GetPlayer() || !GetPlayer()->GetPet())\n    \
+      \    return;\n\n    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petCastSpell.SpellID);\n\
+      \    if (!spellInfo)\n        return;\n\n    // Validate pet ownership and spell\
+      \ validity\n    if (GetPlayer()->GetPet()->GetEntry() != petCastSpell.PetGUID.GetEntry())\n\
+      \        return;\n\n    // Execute the spell cast\n    GetPlayer()->GetPet()->CastSpell(petCastSpell.Target,\
+      \ spellInfo);\n}"
+    language: cpp
+  notes: This method is part of the core packet handling system and should not be
+    called directly. It is automatically invoked when a client sends a pet cast spell
+    packet. The method assumes that all necessary validation has been performed by
+    lower-level systems before reaching this point.
+  warnings: Improper handling of this method can lead to exploits where pets cast
+    invalid spells or bypass normal gameplay restrictions. Always validate spell IDs
+    and target information before executing any spell effects.
+  related:
+  - HandleSpellCastLog
+  - HandleCastSpellOpcode
+  - WorldSession::SendSpellFailed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:15:56.618812'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

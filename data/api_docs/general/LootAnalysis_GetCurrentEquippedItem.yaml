@@ -1,0 +1,54 @@
+api:
+  class: LootAnalysis
+  method: GetCurrentEquippedItem
+  signature: Item * LootAnalysis::GetCurrentEquippedItem(Player * player, uint32 slot)
+documentation:
+  brief: Retrieves the currently equipped item in the specified slot for a given player
+  description: The GetCurrentEquippedItem method fetches the Item object currently
+    equipped by the specified player in the given inventory slot. This method is commonly
+    used in loot analysis systems to determine what items a player has equipped, particularly
+    when evaluating loot distribution or analyzing gear choices. The method performs
+    validation on the slot parameter to ensure it represents a valid equipment slot,
+    and returns NULL if no item is equipped in that slot or if the slot is invalid.
+    This function is essential for maintaining accurate character state information
+    within the game's loot management systems.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose equipped item is being retrieved.
+      Must be a valid player instance, otherwise behavior is undefined.
+  - name: slot
+    description: The inventory slot index to check for an equipped item. Valid values
+      correspond to standard equipment slots (e.g., 0-18 for typical WoW equipment
+      slots). Values outside the valid range will return NULL.
+  returns: Pointer to the Item object currently equipped in the specified slot, or
+    NULL if no item is equipped or if the slot is invalid.
+  examples:
+  - title: Basic usage to check main hand weapon
+    code: "Player* player = ...; // valid player instance\nItem* mainHandItem = LootAnalysis::GetCurrentEquippedItem(player,\
+      \ EQUIPMENT_SLOT_MAINHAND);\nif (mainHandItem)\n{\n    // Process equipped weapon\n\
+      \    sLog->outString(\"Player has %s equipped in main hand\", mainHandItem->GetTemplate()->GetName().c_str());\n\
+      }"
+    language: cpp
+  - title: Iterating through all equipment slots
+    code: "Player* player = ...; // valid player instance\nfor (uint32 slot = EQUIPMENT_SLOT_START;\
+      \ slot < EQUIPMENT_SLOT_END; ++slot)\n{\n    Item* item = LootAnalysis::GetCurrentEquippedItem(player,\
+      \ slot);\n    if (item)\n    {\n        sLog->outString(\"Slot %u: %s\", slot,\
+      \ item->GetTemplate()->GetName().c_str());\n    }\n}"
+    language: cpp
+  notes: This method relies on the player's current equipment state and will reflect
+    any changes made during the current game session. The returned Item pointer is
+    valid only as long as the item remains equipped and the player object is alive.
+    Performance impact is minimal since it simply accesses cached equipment data.
+  warnings: Do not assume that a non-NULL return value means the item has been modified
+    or requires updating - it only indicates the item is currently equipped. Always
+    validate the returned pointer before dereferencing to avoid crashes.
+  related:
+  - GetEquippedItem
+  - IsEquippedItem
+  - GetCurrentEquippedItemBySlot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:57:57.682821'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

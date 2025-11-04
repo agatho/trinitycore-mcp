@@ -1,0 +1,65 @@
+api:
+  class: WorldSession
+  method: SendUndeleteCharacterResponse
+  signature: void WorldSession::SendUndeleteCharacterResponse(int result, const WorldPackets::Character::CharacterUndeleteInfo
+    * undeleteInfo)
+documentation:
+  brief: Sends a response packet to the client indicating the result of a character
+    undelete operation.
+  description: The SendUndeleteCharacterResponse method is used by the WorldSession
+    class to communicate the outcome of a character undelete request back to the connected
+    client. This method sends a specific packet containing the result code and optional
+    character information related to the undelete operation. The result parameter
+    indicates whether the operation was successful, failed due to various reasons
+    (such as cooldowns or invalid state), or if there were no pending deletions to
+    undelete. When the operation succeeds, an optional CharacterUndeleteInfo structure
+    may be included with details about the character being undeleted. This method
+    is typically invoked in response to a client-initiated character undelete request,
+    ensuring proper synchronization between server and client regarding character
+    deletion states.
+  parameters:
+  - name: result
+    description: An integer value indicating the outcome of the undelete operation.
+      Possible values include success (0), failure due to cooldown (1), invalid character
+      state (2), or other error conditions. The exact meaning of each value depends
+      on the implementation in TrinityCore's character deletion system.
+  - name: undeleteInfo
+    description: A pointer to a WorldPackets::Character::CharacterUndeleteInfo structure
+      containing detailed information about the character being undeleted. This parameter
+      may be null if no additional information is available or if the operation failed.
+      The structure typically includes character GUID, name, and other metadata relevant
+      to the undelete process.
+  returns: null
+  examples:
+  - title: Successful Character Undelete Response
+    code: 'WorldPackets::Character::CharacterUndeleteInfo info;
+
+      info.Guid = playerGuid;
+
+      info.Name = "ExamplePlayer";
+
+      this->SendUndeleteCharacterResponse(0, &info);'
+    language: cpp
+  - title: Failed Character Undelete Response Due to Cooldown
+    code: this->SendUndeleteCharacterResponse(1, nullptr);
+    language: cpp
+  notes: This method is part of the character management system in TrinityCore and
+    relies on proper session state handling. The packet sent by this method is specifically
+    designed for the character undelete functionality and should only be called after
+    validating the request conditions. It's important to note that the actual character
+    undeletion logic must have already been processed before calling this method.
+  warnings: Ensure that the result parameter accurately reflects the outcome of the
+    undelete operation, as incorrect values may confuse the client or cause unexpected
+    behavior. The undeleteInfo pointer should be validated for null before use, though
+    it's expected to be null when the operation fails. Improper handling of this method
+    can lead to client-side errors or inconsistent character state.
+  related:
+  - SendCharacterDeleteResponse
+  - HandleUndeleteCharacter
+  - SendCharacterList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:05:08.846849'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

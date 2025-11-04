@@ -1,0 +1,51 @@
+api:
+  class: SpawnCircuitBreaker
+  method: GetFailureRate
+  signature: float SpawnCircuitBreaker::GetFailureRate() const
+documentation:
+  brief: Calculates and returns the current failure rate of the spawn circuit breaker.
+  description: The GetFailureRate method computes the ratio of failed spawns to total
+    spawn attempts within the circuit breaker's tracking window. This value represents
+    the proportion of spawn operations that have failed, which is used by the circuit
+    breaker to determine whether to allow or block further spawn attempts. The failure
+    rate is typically expressed as a decimal between 0.0 and 1.0, where 0.0 indicates
+    no failures and 1.0 indicates all spawns have failed. This method is part of the
+    spawn management system in TrinityCore, which helps prevent server instability
+    during high-load or problematic spawn scenarios.
+  parameters: []
+  returns: A float value representing the current failure rate of spawn operations.
+    The value ranges from 0.0 (no failures) to 1.0 (all spawns failed). Returns 0.0
+    if no spawn attempts have been recorded.
+  examples:
+  - title: Basic Usage
+    code: "SpawnCircuitBreaker breaker;\nfloat failureRate = breaker.GetFailureRate();\n\
+      if (failureRate > 0.5f) {\n    // Handle high failure rate\n    sLog->outString(\"\
+      High spawn failure rate detected: %.2f\", failureRate);\n}"
+    language: cpp
+  - title: Monitoring Spawn Stability
+    code: "void CheckSpawnStability() {\n    SpawnCircuitBreaker* breaker = sSpawnMgr->GetCircuitBreakerForMap(1234);\n\
+      \    if (breaker) {\n        float rate = breaker->GetFailureRate();\n     \
+      \   if (rate > 0.8f) {\n            sLog->outError(\"Critical spawn failure\
+      \ rate on map 1234: %.2f\", rate);\n            // Potentially disable spawns\
+      \ or alert administrators\n        }\n    }\n}"
+    language: cpp
+  notes: The method performs no locking internally, so concurrent access from multiple
+    threads should be handled by the caller. The failure rate is calculated based
+    on recent spawn attempts and may reset or decay over time depending on the circuit
+    breaker's configuration. This method is typically called during spawn management
+    checks to make decisions about whether to allow new spawns.
+  warnings: This method does not validate input parameters as it has no parameters,
+    but developers should ensure that the SpawnCircuitBreaker instance is properly
+    initialized before calling this method. Calling GetFailureRate on a destroyed
+    or uninitialized circuit breaker may result in undefined behavior.
+  related:
+  - SetFailureRate
+  - IsCircuitOpen
+  - RecordSpawnFailure
+  - RecordSpawnSuccess
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T18:38:15.902550'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

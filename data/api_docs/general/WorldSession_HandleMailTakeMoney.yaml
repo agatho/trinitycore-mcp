@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleMailTakeMoney
+  signature: void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney
+    & takeMoney)
+documentation:
+  brief: Processes a request to take money from a mail message in the player's mailbox.
+  description: The HandleMailTakeMoney method handles the client's request to withdraw
+    gold from a mail item. When a player clicks on the 'Take Money' button for a mail
+    message that contains gold, this method is invoked. It validates that the mail
+    exists, the player has permission to access it, and that the mail actually contains
+    money. The method then transfers the gold from the mail to the player's inventory
+    and updates the mail state accordingly. This method is part of the mail system's
+    functionality within TrinityCore's WorldSession handling.
+  parameters:
+  - name: takeMoney
+    description: A reference to a MailTakeMoney packet containing the mail ID from
+      which money should be taken.
+  returns: null
+  examples:
+  - title: Basic usage in a mail handling context
+    code: "void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney&\
+      \ takeMoney)\n{\n    if (Player* player = GetPlayer())\n    {\n        // Validate\
+      \ mail ID and ownership\n        if (Mail* mail = sMailStore.GetMail(takeMoney.MailID))\n\
+      \        {\n            if (mail->IsMoneyAttached() && mail->GetMoney() > 0)\n\
+      \            {\n                player->ModifyMoney(mail->GetMoney());\n   \
+      \             mail->SetMoney(0);\n                mail->SetMailState(MAIL_STATE_READ);\n\
+      \                // Send updated mail to client\n                SendMailResult(takeMoney.MailID,\
+      \ MAIL_RESULT_MONEY_TAKEN);\n            }\n        }\n    }\n}"
+    language: cpp
+  notes: This method assumes the packet has already been validated by the network
+    layer. It does not perform additional checks on the packet data itself, relying
+    on the client to send valid requests. The method modifies both the player's money
+    and the mail state, so it should be called within a transactional context if consistency
+    is required.
+  warnings: Improper handling of this method can lead to gold duplication or loss.
+    Ensure that all preconditions (mail exists, player owns mail, money is attached)
+    are strictly checked before modifying player or mail data. Also, make sure to
+    update the client's mail UI after processing to reflect the changes.
+  related:
+  - HandleMailGetList
+  - HandleMailTakeItem
+  - HandleMailDelete
+  - SendMailResult
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:38:57.011336'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

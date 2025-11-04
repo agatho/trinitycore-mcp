@@ -1,0 +1,50 @@
+api:
+  class: PlayerTaxi
+  method: GetTaxiSource
+  signature: uint32 PlayerTaxi::GetTaxiSource() const
+documentation:
+  brief: Retrieves the unique identifier of the taxi node from which the player is
+    currently boarding or has boarded.
+  description: The GetTaxiSource method returns the unique identifier (GUID) of the
+    taxi node that serves as the source for the player's current taxi path. This value
+    corresponds to the entry in the `taxi_nodes` database table and represents the
+    starting location of a flight path. The method is typically used during taxi travel
+    to determine where the player originated before initiating a flight. It may return
+    0 if no valid taxi source is set or if the player is not currently on a taxi path.
+    This identifier can be used for various game mechanics such as validating flight
+    paths, tracking player movement, or triggering events based on departure locations.
+  parameters: []
+  returns: A uint32 value representing the GUID of the taxi node that serves as the
+    source for the current taxi path. Returns 0 if no valid taxi source is set or
+    if the player is not currently in a taxi travel state.
+  examples:
+  - title: Basic Usage to Get Taxi Source
+    code: "uint32 sourceNode = player->GetTaxi().GetTaxiSource();\nif (sourceNode\
+      \ != 0)\n{\n    // Process the taxi source node\n    sLog->outString(\"Player's\
+      \ taxi source is: %u\", sourceNode);\n}"
+    language: cpp
+  - title: Validate Taxi Source Before Flight
+    code: "PlayerTaxi& taxi = player->GetTaxi();\nuint32 source = taxi.GetTaxiSource();\n\
+      if (source == 0)\n{\n    // Player is not currently on a taxi path\n    player->SendTaxiMenu();\n\
+      }\nelse\n{\n    // Proceed with flight logic using the source node\n    sLog->outString(\"\
+      Valid taxi source found: %u\", source);\n}"
+    language: cpp
+  notes: This method is part of the PlayerTaxi class and should only be called when
+    the player is in a valid taxi travel state. The returned value corresponds directly
+    to entries in the `taxi_nodes` database table. If this method is called outside
+    of a taxi path context, it will return 0, which may indicate either no active
+    flight or an invalid state.
+  warnings: Calling this method when the player is not on a taxi path will return
+    0, which could be mistaken for a valid node ID if not properly checked. Always
+    validate that the player is actually in transit before relying on the returned
+    value.
+  related:
+  - GetTaxiDestination
+  - SetTaxiSource
+  - IsOnTaxi
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:26:46.708882'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

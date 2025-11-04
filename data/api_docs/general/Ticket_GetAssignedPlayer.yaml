@@ -1,0 +1,43 @@
+api:
+  class: Ticket
+  method: GetAssignedPlayer
+  signature: Player * Ticket::GetAssignedPlayer() const
+documentation:
+  brief: Retrieves the Player object assigned to handle this ticket.
+  description: The GetAssignedPlayer method returns a pointer to the Player object
+    that is currently assigned to process and manage this support ticket. In the context
+    of TrinityCore's ticketing system, tickets are created by players to report issues
+    or request assistance, and they can be assigned to specific staff members (Players)
+    for resolution. This method allows code to access the assigned staff member's
+    data directly, which may be useful for checking availability, logging actions,
+    or determining if a ticket is still being handled. The returned pointer may be
+    null if no player has been assigned to the ticket yet.
+  parameters: []
+  returns: A pointer to the Player object assigned to this ticket, or nullptr if no
+    player is currently assigned.
+  examples:
+  - title: Check Assigned Player Before Processing
+    code: "if (Ticket* ticket = sTicketMgr->GetTicketByGuid(ticketGuid)) {\n    Player*\
+      \ assignedPlayer = ticket->GetAssignedPlayer();\n    if (assignedPlayer) {\n\
+      \        // Ticket is assigned, proceed with handling\n        sLog->outString(\"\
+      Ticket %u is assigned to %s.\", ticketGuid, assignedPlayer->GetName());\n  \
+      \  } else {\n        // No assignment yet, assign this player\n        ticket->SetAssignedPlayer(this);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method does not perform any locking or thread safety checks internally.
+    If used in a multi-threaded environment where tickets might be modified concurrently,
+    external synchronization should be considered. The returned Player pointer is
+    valid only as long as the assigned player object exists and has not been deleted.
+  warnings: The returned Player pointer can be null, so always check for nullptr before
+    dereferencing it. Failing to do so will result in a crash if no player is assigned
+    to the ticket.
+  related:
+  - SetAssignedPlayer
+  - GetTicketId
+  - GetPlayerName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:26:58.986834'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

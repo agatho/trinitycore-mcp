@@ -1,0 +1,53 @@
+api:
+  class: Conversation
+  method: GetLastLineEndTime
+  signature: int Conversation::GetLastLineEndTime(int locale) const
+documentation:
+  brief: Retrieves the end time of the last line in the conversation for the specified
+    locale.
+  description: The GetLastLineEndTime method returns the timestamp indicating when
+    the last line of dialogue in a conversation finished playing for a given locale.
+    This is typically used to determine timing for subsequent actions or to synchronize
+    other game events with the completion of conversation sequences. The method takes
+    a locale parameter to specify which language version's end time should be returned,
+    allowing for proper localization handling. It is commonly used in quest systems
+    and scripted NPC interactions where dialogue timing is critical for gameplay flow.
+  parameters:
+  - name: locale
+    description: The locale index specifying which language version's end time to
+      retrieve. Valid values typically correspond to the client's supported locales
+      (e.g., 0 = enUS, 1 = koKR, 2 = frFR, etc.). This parameter determines which
+      localized version of the conversation timing is returned.
+  returns: Returns an integer representing the end time of the last line in milliseconds
+    since epoch. A value of 0 typically indicates that no conversation data exists
+    for the specified locale or that the conversation has not yet completed.
+  examples:
+  - title: Basic usage to check conversation completion
+    code: "int endTime = conversation->GetLastLineEndTime(0);\nif (endTime > 0) {\n\
+      \    // Conversation has completed for enUS locale\n    // Proceed with next\
+      \ quest step or event\n}"
+    language: cpp
+  - title: Using locale-specific end time for synchronization
+    code: "uint32 currentTime = getMSTime();\nint lastEndTime = conversation->GetLastLineEndTime(GetSession()->GetSessionDbcLocale());\n\
+      if (lastEndTime > 0 && currentTime >= lastEndTime) {\n    // Proceed with next\
+      \ event after dialogue completion\n    HandleNextConversationStep();\n}"
+    language: cpp
+  notes: This method is primarily used in the context of World of Warcraft's quest
+    and NPC interaction systems. The returned time value represents a Unix timestamp
+    in milliseconds, which can be compared against current system time to determine
+    if conversation events have completed. The locale parameter allows for handling
+    different language versions of the same conversation.
+  warnings: Ensure that the locale index passed is valid for the client's supported
+    locales, as invalid indices may return unexpected results or zero values. This
+    method should not be called on conversations that are still in progress, as it
+    may return inaccurate timing information.
+  related:
+  - GetLastLineStartTime
+  - GetConversationId
+  - GetActiveLocale
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T10:41:54.425319'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

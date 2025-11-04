@@ -1,0 +1,59 @@
+api:
+  class: WorldSession
+  method: QueuePacket
+  signature: void WorldSession::QueuePacket(WorldPacket * new_packet)
+documentation:
+  brief: Queues a WorldPacket for sending to the client
+  description: The QueuePacket method adds a WorldPacket to the session's outgoing
+    packet queue, ensuring that the packet will be sent to the connected client at
+    the next available opportunity. This method is typically used by the server to
+    asynchronously send data to players, such as game state updates, chat messages,
+    or action results. The packet is not sent immediately but is placed in a queue
+    for later transmission. The method does not validate the packet content or ensure
+    that it's properly formatted before queuing.
+  parameters:
+  - name: new_packet
+    description: Pointer to the WorldPacket object to be queued for sending. The packet
+      must be allocated on the heap and will be managed by the session's queue system.
+      Must not be null.
+  returns: null
+  examples:
+  - title: Basic usage of QueuePacket
+    code: 'WorldPacket packet(SMSG_MESSAGECHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(0);
+
+      packet << "Hello, World!";
+
+      this->QueuePacket(&packet);'
+    language: cpp
+  - title: Queuing a packet with dynamic content
+    code: 'WorldPacket* packet = new WorldPacket(SMSG_UPDATE_WORLD_STATE, 8);
+
+      *packet << uint32(1234); // world state ID
+
+      *packet << uint32(5678); // world state value
+
+      this->QueuePacket(packet);'
+    language: cpp
+  notes: The method assumes ownership of the packet pointer and will manage its lifecycle.
+    It is important to ensure that packets are properly constructed before queuing
+    them, as any malformed packet could cause client-side issues or disconnections.
+    The queue is processed during the session's update cycle, so there may be a delay
+    between when the packet is queued and when it's actually sent.
+  warnings: Never pass stack-allocated WorldPacket objects to this method, as they
+    will be destroyed after the function returns. Always ensure that the packet pointer
+    remains valid until it has been sent by the session. Improper use of this method
+    can lead to memory corruption or undefined behavior.
+  related:
+  - SendPacket
+  - AddPacketToQueue
+  - ProcessPackets
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:55:58.388066'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleIgnoreTradeOpcode
+  signature: void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade
+    & ignoreTrade)
+documentation:
+  brief: Processes the client's request to ignore trade requests from a specific player.
+  description: The HandleIgnoreTradeOpcode method handles incoming trade ignore requests
+    from players in the World of Warcraft client. When a player chooses to ignore
+    another player's trade requests, this method updates the internal ignore list
+    for that session. The method is part of the trading system and ensures that trade
+    invitations from ignored players are not processed or displayed to the user. It
+    operates within the context of a WorldSession, which represents a connected client
+    session. This functionality supports the game's social mechanics by allowing players
+    to control their trading interactions with others.
+  parameters:
+  - name: ignoreTrade
+    description: A packet containing information about the player to be ignored in
+      trade requests. This typically includes the target player's GUID or name.
+  returns: null
+  examples:
+  - title: Basic usage of ignore trade functionality
+    code: "void WorldSession::HandleIgnoreTradeOpcode(WorldPackets::Trade::IgnoreTrade&\
+      \ ignoreTrade)\n{\n    // Extract the ignored player's GUID from the packet\n\
+      \    ObjectGuid ignoredPlayerGuid = ignoreTrade.PlayerGuid;\n    \n    // Add\
+      \ the player to the ignore list for trade requests\n    _ignoreList.insert(ignoredPlayerGuid);\n\
+      \    \n    // Send confirmation back to client (optional)\n    WorldPackets::Trade::IgnoreTradeResponse\
+      \ response;\n    response.PlayerGuid = ignoredPlayerGuid;\n    response.Result\
+      \ = TRADE_IGNORE_RESULT_SUCCESS;\n    SendPacket(response.Write());\n}"
+    language: cpp
+  notes: This method is typically called when a player uses the 'Ignore Trade' option
+    in their interface. The ignore list is maintained per session and does not persist
+    across server restarts unless explicitly saved to the database. It's important
+    that this method properly validates the GUID of the ignored player to prevent
+    invalid entries.
+  warnings: Improper handling of the ignore list could lead to security issues or
+    unintended behavior in trade interactions. Ensure that only valid players can
+    be added to the ignore list, and that the client is properly notified of any errors
+    during the ignore process.
+  related:
+  - HandleTradeRequest
+  - HandleTradeAccept
+  - HandleTradeCancel
+  - SendTradeStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:53:37.438430'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

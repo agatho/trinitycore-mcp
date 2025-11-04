@@ -1,0 +1,49 @@
+api:
+  class: SpellCastTargets
+  method: GetObjectTarget
+  signature: WorldObject * SpellCastTargets::GetObjectTarget() const
+documentation:
+  brief: Retrieves the target object associated with the spell cast.
+  description: The GetObjectTarget method returns a pointer to the WorldObject that
+    serves as the primary target for the spell being cast. This target object could
+    be a player, creature, game object, or any other type of world entity. The method
+    is typically used during spell execution to determine which object the spell should
+    affect. It's important to note that this method may return nullptr if no valid
+    target has been set or if the target has been removed from the world. In the context
+    of TrinityCore's spell system, this target is often set during the spell's preparation
+    phase and is crucial for determining spell effects and targeting mechanics.
+  parameters: []
+  returns: A pointer to the WorldObject that represents the spell's target. Returns
+    nullptr if no valid target exists or if the target has been destroyed.
+  examples:
+  - title: Basic Usage in Spell Effect
+    code: "void Spell::EffectDummy(SpellEffIndex effIndex)\n{\n    WorldObject* target\
+      \ = m_targets.GetObjectTarget();\n    if (target && target->IsPlayer())\n  \
+      \  {\n        Player* player = target->ToPlayer();\n        // Apply effect\
+      \ to the player target\n        player->AddItem(ItemTemplate, 1);\n    }\n}"
+    language: cpp
+  - title: Checking Target Validity Before Use
+    code: "void Spell::CastSpell()\n{\n    WorldObject* target = m_targets.GetObjectTarget();\n\
+      \    if (!target)\n    {\n        // Handle case where no target is set\n  \
+      \      SendCastResult(SPELL_FAILED_BAD_TARGETS);\n        return;\n    }\n \
+      \   \n    // Proceed with spell casting logic using the target\n    DoSpellEffect(target);\n\
+      }"
+    language: cpp
+  notes: This method should be used carefully as it returns a raw pointer to a WorldObject
+    that might be deleted at any time. Always check for null before dereferencing
+    the returned pointer. The object returned by this method is not owned by the SpellCastTargets
+    class, so developers must ensure proper lifetime management of the target object.
+  warnings: Never assume the returned WorldObject pointer remains valid beyond the
+    current execution context. If the target is a player or creature that might be
+    removed from the world (e.g., through death or teleportation), accessing it after
+    such events can lead to crashes or undefined behavior.
+  related:
+  - SpellCastTargets::SetTarget
+  - SpellCastTargets::GetObjectTargetGuid
+  - SpellCastTargets::IsTargetValid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T18:27:03.037791'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

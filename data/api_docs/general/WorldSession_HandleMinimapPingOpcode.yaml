@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: HandleMinimapPingOpcode
+  signature: void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient
+    & packet)
+documentation:
+  brief: Processes client minimap ping requests to share location data with party
+    members
+  description: The HandleMinimapPingOpcode method handles incoming minimap ping packets
+    from players, typically triggered when a player clicks on the minimap to share
+    their current position with party members. This method processes the client's
+    ping request and broadcasts the location information to nearby party members.
+    The method is part of the WorldSession class and operates within the TrinityCore
+    framework's packet handling system. It ensures that party members can quickly
+    communicate their positions during group activities such as raids, dungeons, or
+    PvP encounters.
+  parameters:
+  - name: packet
+    description: The MinimapPingClient packet containing the player's ping coordinates
+      and associated data. This packet includes the x and y coordinate values representing
+      the clicked location on the minimap.
+  returns: null
+  examples:
+  - title: Basic usage in packet handling
+    code: "void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient\
+      \ & packet)\n{\n    if (Player* player = GetPlayer())\n    {\n        // Process\
+      \ ping coordinates\n        float x = packet.X;\n        float y = packet.Y;\n\
+      \        \n        // Broadcast to party members\n        if (Group* group =\
+      \ player->GetGroup())\n        {\n            group->BroadcastPacket(new WorldPackets::Party::MinimapPingServer(x,\
+      \ y));\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the main packet processing loop and
+    should not block for extended periods. The ping coordinates are usually normalized
+    to the player's current zone's coordinate system. Performance considerations include
+    avoiding unnecessary group broadcasts when the player is not in a party.
+  warnings: Ensure that the player has proper permissions before processing pings,
+    as malicious clients could potentially send invalid coordinates. The method assumes
+    the player is part of a valid group and may cause issues if called outside of
+    appropriate contexts.
+  related:
+  - GetPlayer
+  - HandlePartyCommand
+  - SendMinimapPing
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:35:54.384534'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

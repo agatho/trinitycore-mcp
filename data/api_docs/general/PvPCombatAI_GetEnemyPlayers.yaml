@@ -1,0 +1,66 @@
+api:
+  class: PvPCombatAI
+  method: GetEnemyPlayers
+  signature: int PvPCombatAI::GetEnemyPlayers(int * player, float range) const
+documentation:
+  brief: Retrieves a list of enemy players within a specified range.
+  description: The GetEnemyPlayers method searches for all player units that are hostile
+    to the AI's owner within the given range. It populates an array with the GUIDs
+    of these enemy players and returns the count of found players. This method is
+    typically used in PvP combat scenarios to identify nearby opponents for targeting
+    or tactical decision-making. The method performs a radius-based search using the
+    AI's current position as the center, checking against player units that are flagged
+    as hostile (PvP flag active).
+  parameters:
+  - name: player
+    description: Pointer to an array of GUIDs where found enemy players will be stored.
+      Must point to a valid memory location with sufficient capacity to hold the expected
+      number of player GUIDs.
+  - name: range
+    description: Maximum distance (in yards) within which to search for enemy players.
+      This defines the radius of the search area around the AI's current position.
+  returns: Returns the number of enemy players found within the specified range. Returns
+    zero if no enemies are found or if the input parameters are invalid.
+  examples:
+  - title: Basic usage to find nearby enemy players
+    code: "GUIDList enemyPlayers;\nfloat searchRange = 30.0f;\nint count = ai->GetEnemyPlayers(enemyPlayers,\
+      \ searchRange);\nif (count > 0)\n{\n    for (int i = 0; i < count; ++i)\n  \
+      \  {\n        // Process each found enemy player\n        Player* enemy = ObjectAccessor::FindPlayer(enemyPlayers[i]);\n\
+      \        if (enemy)\n        {\n            // Perform actions against the enemy\n\
+      \        }\n    }\n}"
+    language: cpp
+  - title: Using GetEnemyPlayers for targeting logic
+    code: "void AICombat::UpdateAI()\n{\n    GUIDList enemies;\n    float range =\
+      \ 40.0f;\n    int enemyCount = ai->GetEnemyPlayers(enemies, range);\n    \n\
+      \    if (enemyCount > 0)\n    {\n        // Select nearest enemy for attack\n\
+      \        Player* target = nullptr;\n        float nearestDist = FLT_MAX;\n \
+      \       \n        for (int i = 0; i < enemyCount; ++i)\n        {\n        \
+      \    Player* player = ObjectAccessor::FindPlayer(enemies[i]);\n            if\
+      \ (player && player->IsInWorld())\n            {\n                float dist\
+      \ = ai->GetDistance(player);\n                if (dist < nearestDist)\n    \
+      \            {\n                    nearestDist = dist;\n                  \
+      \  target = player;\n                }\n            }\n        }\n        \n\
+      \        if (target)\n        {\n            // Attack the nearest enemy\n \
+      \           ai->Attack(target);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used in PvP combat AI logic and relies on the AI's
+    current position for range calculations. The player array must be pre-allocated
+    with sufficient space to store all potential enemy GUIDs, typically up to MAX_PLAYER_COUNT
+    or a reasonable upper bound. Performance may degrade if the search range is too
+    large or if many players are within range.
+  warnings: Ensure that the 'player' parameter points to a valid memory location with
+    adequate capacity; otherwise, buffer overflows may occur. The method assumes that
+    player units are properly flagged as hostile (PvP flag) for detection. Do not
+    call this method from within critical sections without proper synchronization
+    if used in multi-threaded contexts.
+  related:
+  - GetEnemyUnits
+  - GetNearbyPlayers
+  - Attack
+  - IsHostile
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T20:39:18.569563'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: AuraApplication
+  method: GetBase
+  signature: Aura * AuraApplication::GetBase() const
+documentation:
+  brief: Returns the base Aura object associated with this AuraApplication instance
+  description: The GetBase method retrieves the underlying Aura object that this AuraApplication
+    is managing. In TrinityCore's aura system, an AuraApplication represents a specific
+    application of an aura to a target, while the Aura itself contains the core aura
+    data and properties. This method provides access to the base aura information
+    from within the application context. The returned pointer may be null if the aura
+    application has been removed or is in an invalid state. This method is commonly
+    used during aura processing, removal, or when inspecting aura properties from
+    within the application's scope.
+  parameters: []
+  returns: A pointer to the Aura object that this AuraApplication manages, or nullptr
+    if the aura application is invalid or has been removed
+  examples:
+  - title: Basic Usage to Access Aura Properties
+    code: "AuraApplication* app = unit->GetAuraApplication(12345);\nif (app)\n{\n\
+      \    Aura* baseAura = app->GetBase();\n    if (baseAura)\n    {\n        //\
+      \ Access aura properties\n        uint32 spellId = baseAura->GetSpellInfo()->Id;\n\
+      \        int32 amount = baseAura->GetEffect(0)->GetAmount();\n    }\n}"
+    language: cpp
+  - title: Checking Aura Application Validity Before Access
+    code: "AuraApplication* app = target->GetAuraApplication(spellId);\nif (app &&\
+      \ app->GetBase())\n{\n    // Safe to access base aura\n    SpellInfo const*\
+      \ spellInfo = app->GetBase()->GetSpellInfo();\n    if (spellInfo)\n    {\n \
+      \       // Process aura data\n        sLog->outString(\"Aura %u applied to target\"\
+      , spellInfo->Id);\n    }\n}\nelse\n{\n    sLog->outString(\"Invalid aura application\
+      \ or base aura\");\n}"
+    language: cpp
+  notes: This method should be used carefully as the returned Aura pointer may become
+    invalid if the aura is removed or destroyed. The AuraApplication maintains a reference
+    to its base aura, but it's not guaranteed that the aura will remain valid throughout
+    the application's lifetime. Consider checking for null returns before dereferencing.
+  warnings: Never assume the returned Aura pointer is valid without checking for nullptr.
+    If the aura has been removed or purged from the system, this method may return
+    a null pointer, leading to crashes if not properly handled. Always validate the
+    return value before accessing any aura properties.
+  related:
+  - GetAura
+  - GetTarget
+  - Remove
+  - IsRemoved
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T16:19:00.079717'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: Guild
+  method: _DeleteBankItems
+  signature: void Guild::_DeleteBankItems(int trans, bool removeItemsFromDB)
+documentation:
+  brief: Deletes bank items from a guild's inventory and optionally removes them from
+    the database.
+  description: The _DeleteBankItems method is an internal utility function used by
+    the Guild class to remove all items stored in the guild's bank. This method handles
+    the cleanup of bank item entries, including updating internal data structures
+    and optionally removing corresponding records from the database if requested.
+    It is typically invoked during guild destruction or when clearing guild bank contents.
+    The transaction parameter allows for database operations to be wrapped in a transaction
+    context, ensuring atomicity of the operation. The method does not validate the
+    existence of the guild or its bank prior to execution, so callers must ensure
+    proper preconditions are met.
+  parameters:
+  - name: trans
+    description: Transaction identifier used for database operations. Allows wrapping
+      the deletion in a database transaction for atomicity. A value of -1 indicates
+      no transaction is used.
+  - name: removeItemsFromDB
+    description: Boolean flag indicating whether to remove items from the database.
+      If true, all bank item records are deleted from the database; if false, only
+      internal data structures are cleared.
+  returns: null
+  examples:
+  - title: Delete Bank Items Without DB Removal
+    code: "Guild* guild = sObjectMgr->GetGuildById(guildId);\nif (guild)\n{\n    guild->_DeleteBankItems(-1,\
+      \ false); // Clear internal structures only\n}"
+    language: cpp
+  - title: Delete Bank Items With DB Removal Using Transaction
+    code: "Guild* guild = sObjectMgr->GetGuildById(guildId);\nif (guild)\n{\n    CharacterDatabaseTransaction\
+      \ trans = CharacterDatabase.BeginTransaction();\n    guild->_DeleteBankItems(trans,\
+      \ true); // Remove from DB with transaction\n    CharacterDatabase.CommitTransaction(trans);\n\
+      }"
+    language: cpp
+  notes: This is an internal method and should not be called directly by external
+    code. The method assumes that the guild's bank state is valid and that all necessary
+    locks are held. It is designed to be part of a larger guild management operation,
+    such as guild deletion or reset.
+  warnings: Calling this method without proper transaction handling can lead to inconsistent
+    database states. Ensure that all dependent systems are properly synchronized before
+    invoking this method. Do not call this method on a guild that is still in use
+    by players.
+  related:
+  - Guild::DeleteGuild
+  - Guild::LoadBankFromDB
+  - Guild::SaveBankToDB
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T03:49:58.608416'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

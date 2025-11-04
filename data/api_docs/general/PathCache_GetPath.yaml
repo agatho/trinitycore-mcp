@@ -1,0 +1,61 @@
+api:
+  class: PathCache
+  method: GetPath
+  signature: PathResult PathCache::GetPath(const int & src, const int & dest, const
+    int * owner)
+documentation:
+  brief: Calculates and retrieves a navigation path between two points in the game
+    world for use by AI or movement systems.
+  description: The GetPath method computes a navigational path from a source point
+    to a destination point within the TrinityCore game world. It is typically used
+    by AI-controlled creatures or NPCs to determine how to move from one location
+    to another while avoiding obstacles and following valid terrain paths. The method
+    utilizes internal pathfinding algorithms and caches results for performance. The
+    owner parameter allows associating the path with a specific entity, which can
+    be useful for path invalidation or ownership tracking. This method does not directly
+    modify game state but provides data that can be used to control movement behavior.
+  parameters:
+  - name: src
+    description: The starting point identifier (typically a waypoint index or position
+      reference) from which the path calculation begins.
+  - name: dest
+    description: The destination point identifier (typically a waypoint index or position
+      reference) to which the path is calculated.
+  - name: owner
+    description: Optional pointer to an entity that owns this path. Used for tracking
+      and invalidation purposes, such as when the owner moves or becomes invalid.
+  returns: Returns a PathResult object containing the computed path data. The result
+    includes information about whether the path was successfully calculated, along
+    with the actual waypoints forming the path. A failed path calculation may return
+    an empty or invalid path structure.
+  examples:
+  - title: Basic Path Retrieval
+    code: "PathResult result = pathCache.GetPath(100, 200, nullptr);\nif (result.IsValid())\
+      \ {\n    // Process the calculated path\n    for (auto& point : result.GetWaypoints())\
+      \ {\n        printf(\"Waypoint: (%f, %f, %f)\\n\", point.x, point.y, point.z);\n\
+      \    }\n}"
+    language: cpp
+  - title: Path Retrieval with Owner Tracking
+    code: "Unit* npc = ...; // Some NPC\nPathResult result = pathCache.GetPath(100,\
+      \ 200, &npc->GetGUID());\nif (result.IsValid()) {\n    // Use the path for movement\
+      \ logic\n    npc->SetPath(result);\n}"
+    language: cpp
+  notes: This method relies on precomputed navigation meshes and cached path data.
+    Performance can be affected by complex terrain or large numbers of concurrent
+    path requests. The PathResult object returned should be checked for validity before
+    use, as pathfinding may fail due to unreachable destinations or invalid input
+    parameters.
+  warnings: Do not assume that a valid PathResult will always contain usable waypoints;
+    always validate the result before attempting to use it. Passing an invalid owner
+    pointer can lead to undefined behavior if the system attempts to invalidate or
+    update paths associated with that entity.
+  related:
+  - GetPath
+  - IsPathValid
+  - InvalidatePath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T22:20:04.431461'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

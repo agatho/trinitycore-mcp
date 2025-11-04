@@ -1,0 +1,54 @@
+api:
+  class: CalendarEvent
+  method: SetEventId
+  signature: void CalendarEvent::SetEventId(uint64 eventId)
+documentation:
+  brief: Sets the unique identifier for a calendar event
+  description: The SetEventId method assigns a unique 64-bit identifier to a calendar
+    event object. This identifier is used internally by the TrinityCore server to
+    track and reference specific calendar events across different systems such as
+    player invitations, event scheduling, and guild communications. The method directly
+    modifies the internal state of the CalendarEvent instance, ensuring that subsequent
+    operations on the event use this ID for database persistence and network synchronization.
+    This method should typically be called during event creation or initialization,
+    before the event is added to any calendar systems.
+  parameters:
+  - name: eventId
+    description: A 64-bit unsigned integer representing the unique identifier for
+      the calendar event. This value must be globally unique across all calendar events
+      in the server instance and should typically be generated using a proper ID generation
+      mechanism or obtained from the database.
+  returns: null
+  examples:
+  - title: Setting Event ID During Creation
+    code: 'CalendarEvent event;
+
+      uint64 newEventId = sObjectMgr->GenerateCalendarEventId();
+
+      event.SetEventId(newEventId);
+
+      // Event is now ready to be saved to database'
+    language: cpp
+  - title: Updating Existing Event ID
+    code: "CalendarEvent* existingEvent = sCalendarMgr->GetEvent(eventId);\nif (existingEvent)\n\
+      {\n    uint64 newId = sObjectMgr->GenerateCalendarEventId();\n    existingEvent->SetEventId(newId);\n\
+      \    // Update database with new ID\n}"
+    language: cpp
+  notes: This method performs a direct assignment without validation of the eventId
+    value. It's recommended to use sObjectMgr->GenerateCalendarEventId() or similar
+    mechanisms to ensure uniqueness. The CalendarEvent class likely uses this ID for
+    database primary key operations and network packet serialization.
+  warnings: Calling SetEventId on an event that has already been registered with the
+    calendar system may cause inconsistencies in event tracking. Always ensure proper
+    synchronization when modifying event IDs after events have been published or invited
+    to players.
+  related:
+  - GetEventId
+  - CalendarEvent::Create
+  - CalendarEvent::SaveToDB
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T12:33:09.023393'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

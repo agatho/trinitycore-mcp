@@ -1,0 +1,53 @@
+api:
+  class: InstanceLock
+  method: GetData
+  signature: const InstanceLockData * InstanceLock::GetData() const
+documentation:
+  brief: Returns a pointer to the instance lock data structure containing lock information
+    for the current instance.
+  description: The GetData method provides access to the internal InstanceLockData
+    structure that holds all relevant information about an instance lock. This includes
+    details such as the instance ID, lock status, expiration time, and associated
+    player or group data. The returned pointer is const, ensuring that the lock data
+    cannot be modified through this interface. This method is typically used by systems
+    that need to query the current state of an instance lock without modifying it.
+    The method assumes that the InstanceLock object has been properly initialized
+    and contains valid lock data.
+  parameters: []
+  returns: A const pointer to the InstanceLockData structure, or nullptr if no valid
+    lock data exists. The returned pointer remains valid for the lifetime of the InstanceLock
+    object.
+  examples:
+  - title: Basic Usage
+    code: "InstanceLock* lock = player->GetInstanceLock();\nconst InstanceLockData*\
+      \ data = lock->GetData();\nif (data)\n{\n    // Access lock information\n  \
+      \  uint32 instanceId = data->instanceId;\n    time_t expirationTime = data->expirationTime;\n\
+      }"
+    language: cpp
+  - title: Checking Lock Status
+    code: "InstanceLock* lock = player->GetInstanceLock();\nconst InstanceLockData*\
+      \ data = lock->GetData();\nif (data && data->isLocked)\n{\n    // Instance is\
+      \ currently locked\n    sLog->outString(\"Instance %u is locked until %u\",\
+      \ data->instanceId, data->expirationTime);\n}\nelse if (data)\n{\n    // Instance\
+      \ is not locked\n    sLog->outString(\"Instance %u is not locked\", data->instanceId);\n\
+      }"
+    language: cpp
+  notes: The returned InstanceLockData pointer should never be modified directly.
+    The const qualifier ensures this contract is maintained. This method does not
+    perform any locking or synchronization internally, so callers should ensure thread
+    safety if accessing from multiple threads. The lifetime of the returned data is
+    tied to the InstanceLock object itself.
+  warnings: Do not attempt to free or delete the returned pointer as it points to
+    internal data managed by the InstanceLock object. Accessing the returned pointer
+    after the InstanceLock object has been destroyed results in undefined behavior.
+    Be aware that the data may be null if no lock information is currently available.
+  related:
+  - SetData
+  - IsLocked
+  - GetExpirationTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:19:52.483980'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,101 @@
+api:
+  class: TerrainInfo
+  method: GetFullTerrainStatusForPosition
+  signature: void TerrainInfo::GetFullTerrainStatusForPosition(const PhaseShift &
+    phaseShift, uint32 mapId, float x, float y, float z, int & data, int reqLiquidType,
+    float collisionHeight, const DynamicMapTree * dynamicMapTree)
+documentation:
+  brief: Retrieves detailed terrain and collision status information for a specified
+    position in the game world.
+  description: The GetFullTerrainStatusForPosition method computes and returns comprehensive
+    terrain data including height, liquid type, and collision details for a given
+    coordinate within a specific map. It integrates with the phase system to ensure
+    accurate positioning relative to player phases and uses dynamic map tree data
+    for precise collision detection. This method is essential for determining walkability,
+    water levels, and environmental interactions at specific locations in the game
+    world.
+  parameters:
+  - name: phaseShift
+    description: The phase shift information that defines the current phase context
+      for positioning calculations.
+  - name: mapId
+    description: The unique identifier of the map where the position is located. Must
+      correspond to a valid map in the game world.
+  - name: x
+    description: The X coordinate of the position to query within the specified map.
+  - name: y
+    description: The Y coordinate of the position to query within the specified map.
+  - name: z
+    description: The Z coordinate (height) of the position to query within the specified
+      map.
+  - name: data
+    description: Reference to an integer that will be populated with terrain status
+      information, including height, liquid type, and collision flags.
+  - name: reqLiquidType
+    description: The required liquid type to check for at the specified position.
+      A value of -1 indicates no specific liquid type requirement.
+  - name: collisionHeight
+    description: The height threshold used for collision detection calculations. Determines
+      how close an object can be to the ground before a collision is reported.
+  - name: dynamicMapTree
+    description: Pointer to the dynamic map tree structure used for advanced collision
+      detection and terrain queries. Can be null if standard terrain data is sufficient.
+  returns: None. The method modifies the 'data' parameter in place to store the computed
+    terrain status information.
+  examples:
+  - title: Basic usage to check terrain status at a position
+    code: 'PhaseShift phase;
+
+      uint32 mapId = 0;
+
+      float x = 100.0f, y = 200.0f, z = 50.0f;
+
+      int terrainData = 0;
+
+      int liquidType = -1;
+
+      float collisionHeight = 1.0f;
+
+      TerrainInfo::GetFullTerrainStatusForPosition(phase, mapId, x, y, z, terrainData,
+      liquidType, collisionHeight, nullptr);
+
+      // terrainData now contains the computed terrain status'
+    language: cpp
+  - title: Using dynamic map tree for precise collision detection
+    code: 'PhaseShift phase;
+
+      uint32 mapId = 0;
+
+      float x = 100.0f, y = 200.0f, z = 50.0f;
+
+      int terrainData = 0;
+
+      int liquidType = 1; // Water
+
+      float collisionHeight = 0.5f;
+
+      DynamicMapTree* tree = sMapMgr->GetMap(mapId)->GetDynamicMapTree();
+
+      TerrainInfo::GetFullTerrainStatusForPosition(phase, mapId, x, y, z, terrainData,
+      liquidType, collisionHeight, tree);
+
+      // Uses dynamic tree for more accurate collision detection'
+    language: cpp
+  notes: This method performs complex calculations involving height maps and collision
+    trees. It should be used sparingly in performance-critical code paths. The 'data'
+    parameter is modified in place, so ensure it's properly initialized or handled
+    to avoid unexpected behavior.
+  warnings: The dynamicMapTree parameter must not be null if advanced collision detection
+    is required. Passing an invalid mapId can lead to undefined behavior. Ensure that
+    the phaseShift is correctly initialized for accurate positioning within phased
+    environments.
+  related:
+  - GetTerrainHeightAt
+  - IsInLineOfSight
+  - GetLiquidStatus
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T16:57:50.798732'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

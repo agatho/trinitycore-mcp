@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandleSetPartyLeaderOpcode
+  signature: void WorldSession::HandleSetPartyLeaderOpcode(WorldPackets::Party::SetPartyLeader
+    & packet)
+documentation:
+  brief: Processes a client request to transfer party leadership to another player.
+  description: The HandleSetPartyLeaderOpcode method handles the SetPartyLeader packet
+    sent by the client when a player attempts to transfer party leadership to another
+    member. This method validates that the requesting player is currently the party
+    leader and that the target player is a valid party member before performing the
+    leadership transfer. The operation updates internal party data structures and
+    broadcasts the new party leader information to all party members. It ensures that
+    only legitimate party leaders can transfer leadership and prevents invalid or
+    malicious transfers.
+  parameters:
+  - name: packet
+    description: The WorldPackets::Party::SetPartyLeader packet containing the target
+      player's GUID for leadership transfer.
+  returns: null
+  examples:
+  - title: Basic Party Leader Transfer
+    code: "void WorldSession::HandleSetPartyLeaderOpcode(WorldPackets::Party::SetPartyLeader&\
+      \ packet)\n{\n    if (!GetPlayer() || !GetPlayer()->GetGroup())\n        return;\n\
+      \n    Group* group = GetPlayer()->GetGroup();\n    if (group->IsLeader(GetPlayer()->GetGUID())\
+      \ && group->IsMember(packet.TargetGuid))\n    {\n        group->ChangeLeader(packet.TargetGuid);\n\
+      \        // Broadcast updated party leader to all members\n    }\n}"
+    language: cpp
+  notes: This method assumes the player has proper permissions and that the target
+    is a valid party member. The actual leadership transfer is handled through the
+    Group class's ChangeLeader method which manages synchronization with other players.
+  warnings: Improper validation could allow unauthorized players to assume party leadership.
+    Always verify that the requesting player is the current leader before proceeding
+    with the transfer operation.
+  related:
+  - WorldSession::HandleLeavePartyOpcode
+  - Group::ChangeLeader
+  - Group::IsLeader
+  - Group::IsMember
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:16:45.853543'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

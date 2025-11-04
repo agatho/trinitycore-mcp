@@ -1,0 +1,59 @@
+api:
+  class: WorldSession
+  method: SendPetStableResult
+  signature: void WorldSession::SendPetStableResult(StableResult result)
+documentation:
+  brief: Sends a pet stable result message to the client indicating the outcome of
+    a pet stable operation.
+  description: The SendPetStableResult method is used by the WorldSession class to
+    communicate the result of a pet stable transaction to the connected client. This
+    method is typically invoked when a player attempts to store, retrieve, or abandon
+    a pet in their stable. The method sends a specific StableResult code to the client
+    which determines how the UI should respond and what message to display. The operation
+    may involve multiple steps including validation checks, database updates, and
+    inventory management. This method is part of the core pet management system in
+    TrinityCore and directly affects player character progression and pet handling
+    mechanics.
+  parameters:
+  - name: result
+    description: The StableResult enum value indicating the outcome of the pet stable
+      operation. Valid values include SUCCESS, FAILED, INVALID_SLOT, NOT_ENOUGH_MONEY,
+      and others depending on the specific error condition encountered during the
+      stable transaction.
+  returns: null
+  examples:
+  - title: Sending a successful pet stable result
+    code: 'WorldSession* session = player->GetSession();
+
+      StableResult result = STABLE_RESULT_SUCCESS;
+
+      session->SendPetStableResult(result);'
+    language: cpp
+  - title: Handling different stable results based on conditions
+    code: "if (player->HasEnoughMoney(stableCost)) {\n    // Process pet stable operation\n\
+      \    if (petStored) {\n        session->SendPetStableResult(STABLE_RESULT_SUCCESS);\n\
+      \    } else {\n        session->SendPetStableResult(STABLE_RESULT_FAILED);\n\
+      \    }\n} else {\n    session->SendPetStableResult(STABLE_RESULT_NOT_ENOUGH_MONEY);\n\
+      }"
+    language: cpp
+  notes: This method directly sends network packets to the client, so it should only
+    be called from the main game thread. The StableResult enum values are defined
+    in the TrinityCore codebase and correspond to specific client UI messages. This
+    method does not perform any validation of the input parameters - it assumes the
+    calling code has already validated the operation.
+  warnings: Calling this method without proper pre-validation may result in incorrect
+    UI behavior or client-side errors. The method does not handle database transactions
+    or player state changes - it only sends the response message. Ensure that all
+    relevant game logic (like money deduction, pet state updates) are completed before
+    calling this method.
+  related:
+  - SendPetStableList
+  - SendStableResult
+  - HandlePetStable
+  - HandlePetUnstable
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:14:40.495322'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

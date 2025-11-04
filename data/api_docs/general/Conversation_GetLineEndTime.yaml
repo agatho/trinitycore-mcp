@@ -1,0 +1,57 @@
+api:
+  class: Conversation
+  method: GetLineEndTime
+  signature: int Conversation::GetLineEndTime(int locale, int lineId) const
+documentation:
+  brief: Retrieves the end time of a specific conversation line for the given locale.
+  description: The GetLineEndTime method returns the timestamp at which a conversation
+    line is scheduled to end. This method is used in conjunction with the Conversation
+    system to manage dialogue timing and sequencing. The locale parameter determines
+    which localized version of the line's end time should be returned, allowing for
+    different durations based on language or region-specific settings. The lineId
+    parameter specifies the exact line within the conversation whose end time is being
+    queried. This functionality is essential for controlling when dialogue lines appear
+    and disappear during NPC conversations.
+  parameters:
+  - name: locale
+    description: The locale index specifying which localized version of the conversation
+      line to query. Valid values typically correspond to client language settings
+      (e.g., 0 = enUS, 1 = koKR, 2 = frFR, etc.).
+  - name: lineId
+    description: The unique identifier for a specific line within the conversation.
+      This value corresponds to the index of the line in the conversation's dialogue
+      sequence.
+  returns: An integer representing the end time of the specified conversation line
+    in milliseconds since epoch. Returns 0 if the line or locale is invalid.
+  examples:
+  - title: Retrieve end time for a specific line
+    code: "int endTime = conversation->GetLineEndTime(0, 5); // Get end time for line\
+      \ 5 in enUS locale\nif (endTime > 0) {\n    printf(\"Line ends at: %d ms\\n\"\
+      , endTime);\n} else {\n    printf(\"Invalid line or locale\\n\");\n}"
+    language: cpp
+  - title: Use end time to control dialogue flow
+    code: "int currentTime = getTickCount(); // Assume this function returns current\
+      \ time in ms\nint endTime = conversation->GetLineEndTime(0, 2);\nif (currentTime\
+      \ >= endTime) {\n    // Proceed with next line or action\n    conversation->AdvanceToNextLine();\n\
+      }"
+    language: cpp
+  notes: This method likely accesses internal conversation data structures that are
+    populated during conversation initialization. The returned time values should
+    be compared against system timestamps to determine if a line has expired. This
+    method may not be thread-safe and should be called from the main game thread or
+    within appropriate synchronization contexts.
+  warnings: Ensure that both locale and lineId parameters are valid before calling
+    this method, as invalid indices may return unexpected results or cause undefined
+    behavior. The returned time values represent absolute timestamps which must be
+    compared against current system time for proper dialogue timing control.
+  related:
+  - GetLineStartTime
+  - GetLineDuration
+  - GetConversationLines
+  - AdvanceToNextLine
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T10:40:55.576862'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

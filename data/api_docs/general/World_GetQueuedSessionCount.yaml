@@ -1,0 +1,49 @@
+api:
+  class: World
+  method: GetQueuedSessionCount
+  signature: uint32 World::GetQueuedSessionCount() const
+documentation:
+  brief: Returns the number of sessions currently queued for connection to the world
+    server.
+  description: The GetQueuedSessionCount method retrieves the count of client sessions
+    that are waiting in the queue to establish a connection to the World of Warcraft
+    server. This value represents the number of players who have initiated the login
+    process but have not yet completed authentication and session establishment. The
+    queued sessions are typically managed by the login server or authentication system
+    before being transferred to the world server. This method is useful for monitoring
+    server load, tracking player influx, and managing connection capacity during peak
+    hours.
+  parameters: []
+  returns: A uint32 value representing the total number of queued sessions waiting
+    to connect to the world server. Returns zero if no sessions are currently queued.
+  examples:
+  - title: Monitor queued connections
+    code: "uint32 queuedCount = sWorld->GetQueuedSessionCount();\nif (queuedCount\
+      \ > 100)\n{\n    sLog->outInfo(LOG_FILTER_SERVER, \"High number of queued sessions:\
+      \ %u\", queuedCount);\n}"
+    language: cpp
+  - title: Implement connection throttling logic
+    code: "void CheckConnectionCapacity()\n{\n    uint32 queued = sWorld->GetQueuedSessionCount();\n\
+      \    if (queued > MAX_QUEUED_SESSIONS)\n    {\n        // Implement temporary\
+      \ login restrictions\n        sLog->outError(LOG_FILTER_SERVER, \"Too many queued\
+      \ sessions: %u\", queued);\n    }\n}"
+    language: cpp
+  notes: This method provides a snapshot of the current queue state and is typically
+    called from server monitoring systems or connection management code. The value
+    returned reflects only the count of sessions that are in the authentication/queue
+    phase, not active player sessions. This method is thread-safe and can be safely
+    called from multiple threads.
+  warnings: The queued session count may fluctuate rapidly during high-traffic periods.
+    Applications relying on this value should account for potential race conditions
+    or rapid changes in the queue size. The return value does not include already
+    authenticated players, only those in the connection queue.
+  related:
+  - GetActiveSessionCount
+  - GetPlayerCount
+  - GetMaxQueuedSessions
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T20:17:09.174345'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,67 @@
+api:
+  class: ResourceManager
+  method: UpdateResourceRegeneration
+  signature: void ResourceManager::UpdateResourceRegeneration(ResourceInfo & resource,
+    uint32 diff)
+documentation:
+  brief: Updates the regeneration state of a resource for a player or creature based
+    on elapsed time.
+  description: The UpdateResourceRegeneration method handles the logic for regenerating
+    resource values such as mana, energy, or rage over time. It takes a reference
+    to a ResourceInfo structure and a time difference (in milliseconds) to determine
+    how much resource should be regenerated. This method is typically called during
+    game loop updates to ensure resources are properly restored according to game
+    rules and player/creature states. The regeneration process considers factors like
+    resource type, current value, maximum capacity, and any active buffs or debuffs
+    that might affect regeneration rates.
+  parameters:
+  - name: resource
+    description: Reference to a ResourceInfo structure containing the current state
+      of the resource including current value, maximum value, regeneration rate, and
+      other relevant properties.
+  - name: diff
+    description: Time difference in milliseconds since last update. This value determines
+      how much time has passed and thus how much resource should regenerate.
+  returns: null
+  examples:
+  - title: Basic Resource Regeneration Update
+    code: 'ResourceInfo manaResource;
+
+      manaResource.current = 50;
+
+      manaResource.max = 100;
+
+      manaResource.regenRate = 1.0f; // 1 point per second
+
+
+      uint32 timeDiff = 1000; // 1 second has passed
+
+      resourceManager.UpdateResourceRegeneration(manaResource, timeDiff);'
+    language: cpp
+  - title: Updating Multiple Resources in Game Loop
+    code: "void GameLoop()\n{\n    uint32 diff = GetTimeDiff(lastUpdate);\n    \n\
+      \    for (auto& player : players)\n    {\n        UpdateResourceRegeneration(player->GetManaResource(),\
+      \ diff);\n        UpdateResourceRegeneration(player->GetEnergyResource(), diff);\n\
+      \        UpdateResourceRegeneration(player->GetRageResource(), diff);\n    }\n\
+      \    \n    lastUpdate = getMSTime();\n}"
+    language: cpp
+  notes: This method is called frequently during the game loop and should be optimized
+    for performance. The regeneration calculation typically involves converting time
+    differences into resource points based on configured rates, with clamping to prevent
+    exceeding maximum values. It's important that this method properly handles edge
+    cases like negative time differences or very large time gaps that might occur
+    during server maintenance or player disconnections.
+  warnings: This method modifies the resource structure in-place and does not perform
+    any validation of input parameters. Calling it with invalid resource configurations
+    or extremely large time differences may result in unexpected behavior. Ensure
+    that resource data is properly initialized before calling this method.
+  related:
+  - GetResourceInfo
+  - SetResourceRegenRate
+  - IsResourceRegenerating
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:37:58.664643'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

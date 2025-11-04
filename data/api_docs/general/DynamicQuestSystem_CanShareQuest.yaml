@@ -1,0 +1,63 @@
+api:
+  class: DynamicQuestSystem
+  method: CanShareQuest
+  signature: bool DynamicQuestSystem::CanShareQuest(uint32 questId, Player * from,
+    Player * to)
+documentation:
+  brief: Determines whether a player can share a quest with another player in the
+    Dynamic Quest System.
+  description: The CanShareQuest method evaluates if a specified quest can be shared
+    between two players within the TrinityCore Dynamic Quest System. It checks various
+    conditions such as quest validity, player requirements, and system restrictions
+    to determine if sharing is permitted. This method is typically invoked when a
+    player attempts to share a quest with a party member or fellow player. The function
+    ensures that quests are only shared under appropriate game mechanics and rules,
+    preventing invalid or exploitative quest sharing scenarios.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being evaluated for sharing. Must
+      correspond to a valid quest in the database.
+  - name: from
+    description: Pointer to the Player object who is attempting to share the quest.
+      Must be a valid player instance.
+  - name: to
+    description: Pointer to the Player object who is being offered the quest share.
+      Must be a valid player instance.
+  returns: Returns true if the quest can be shared between the two players, false
+    otherwise. The method returns false when either player is invalid, the quest does
+    not exist, or sharing conditions are not met.
+  examples:
+  - title: Basic Quest Sharing Check
+    code: "if (dynamicQuestSystem->CanShareQuest(12345, playerFrom, playerTo)) {\n\
+      \    // Proceed with quest sharing logic\n    playerFrom->SendQuestShareResult(playerTo,\
+      \ 12345);\n} else {\n    // Handle invalid share attempt\n    playerFrom->SendNotification(\"\
+      Cannot share this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Sharing Event
+    code: "void Player::HandleQuestShare(uint32 questId, Player* targetPlayer) {\n\
+      \    if (sDynamicQuestSystem->CanShareQuest(questId, this, targetPlayer)) {\n\
+      \        // Validate that both players are in the same group or faction\n  \
+      \      if (IsInSameGroup(targetPlayer) || IsFriendlyTo(targetPlayer)) {\n  \
+      \          sDynamicQuestSystem->ShareQuest(questId, this, targetPlayer);\n \
+      \       } else {\n            SendNotification(\"You cannot share quests with\
+      \ that player.\");\n        }\n    } else {\n        SendNotification(\"This\
+      \ quest cannot be shared at this time.\");\n    }\n}"
+    language: cpp
+  notes: This method is part of the core Dynamic Quest System and should only be called
+    when a player attempts to share a quest. The implementation checks for quest state,
+    player conditions, and system-defined restrictions. It's recommended to cache
+    results where possible for performance in high-frequency scenarios.
+  warnings: Ensure that both Player pointers are valid before calling this method;
+    passing null pointers will result in undefined behavior. This function does not
+    perform any automatic validation of player states or quest progress - those checks
+    should be performed by the caller.
+  related:
+  - ShareQuest
+  - GetQuestStatus
+  - IsQuestValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T09:15:41.456327'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: SetLatency
+  signature: void WorldSession::SetLatency(uint32 latency)
+documentation:
+  brief: Sets the latency value for the current WorldSession, typically used to track
+    network ping times.
+  description: The SetLatency method updates the internal latency tracking value associated
+    with a WorldSession. This value represents the round-trip time (in milliseconds)
+    between the client and server, which is crucial for game mechanics such as spell
+    casting delays, movement synchronization, and player performance monitoring. The
+    method directly assigns the provided latency value to an internal session variable
+    without performing any validation or calculations. It's commonly called by the
+    server when it receives latency information from the client during heartbeat or
+    ping operations.
+  parameters:
+  - name: latency
+    description: The latency value in milliseconds to set for this session. This represents
+      the round-trip network delay between client and server.
+  returns: null
+  examples:
+  - title: Setting session latency after receiving ping response
+    code: "void HandlePing(WorldPacket& recvData)\n{\n    uint32 pingTime = GetMSTime();\n\
+      \    // ... process ping logic ...\n    SetLatency(pingTime - lastPingTime);\n\
+      }"
+    language: cpp
+  - title: Updating latency during heartbeat processing
+    code: "void WorldSession::UpdateLatency(uint32 newLatency)\n{\n    if (newLatency\
+      \ > 0 && newLatency < 10000) // reasonable bounds\n    {\n        SetLatency(newLatency);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method directly modifies an internal session variable and should only
+    be called when valid latency data is available. The latency value is used by various
+    subsystems including combat timing, movement prediction, and player performance
+    metrics. This method is typically invoked from network handling code when ping
+    responses are received.
+  warnings: Setting invalid latency values (e.g., negative numbers or extremely large
+    values) may cause incorrect behavior in game mechanics that rely on accurate latency
+    measurements. Ensure the value represents actual network round-trip time before
+    calling this method.
+  related:
+  - GetLatency
+  - SendPing
+  - HandlePing
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:04:01.307722'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

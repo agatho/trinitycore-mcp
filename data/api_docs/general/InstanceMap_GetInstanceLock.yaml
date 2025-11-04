@@ -1,0 +1,51 @@
+api:
+  class: InstanceMap
+  method: GetInstanceLock
+  signature: const InstanceLock * InstanceMap::GetInstanceLock() const
+documentation:
+  brief: Retrieves the instance lock object associated with this map instance.
+  description: The GetInstanceLock method returns a constant pointer to the InstanceLock
+    object that represents the current locking state of this instance map. This lock
+    typically contains information about which players or groups have access to the
+    instance, including expiration times and lock status. The returned pointer is
+    valid only as long as the map instance exists and should not be modified directly.
+    In World of Warcraft's TrinityCore implementation, instance locks are used to
+    manage group access to dungeons, raids, and other instanced content, ensuring
+    proper locking and unlocking behavior when players enter or leave instances.
+  parameters: []
+  returns: A constant pointer to the InstanceLock object associated with this map
+    instance. Returns nullptr if no instance lock is currently active or available
+    for this map.
+  examples:
+  - title: Check if an instance is locked
+    code: "const InstanceLock* lock = instanceMap->GetInstanceLock();\nif (lock &&\
+      \ lock->IsLocked()) {\n    // Instance is currently locked\n    printf(\"Instance\
+      \ is locked for group: %u\\n\", lock->GetGroupId());\n} else {\n    // Instance\
+      \ is not locked or no lock exists\n    printf(\"Instance is accessible\\n\"\
+      );\n}"
+    language: cpp
+  - title: Access lock information for debugging
+    code: "const InstanceLock* lock = instanceMap->GetInstanceLock();\nif (lock) {\n\
+      \    uint32 groupId = lock->GetGroupId();\n    time_t lockTime = lock->GetLockTime();\n\
+      \    printf(\"Group %u locked instance at %ld\\n\", groupId, lockTime);\n} else\
+      \ {\n    printf(\"No active lock on this instance\\n\");\n}"
+    language: cpp
+  notes: The InstanceLock object returned by this method is managed internally by
+    the map system and should not be deleted or modified directly. The pointer remains
+    valid only during the lifetime of the InstanceMap object. This method does not
+    perform any locking or synchronization itself, so callers should ensure thread
+    safety if accessing from multiple threads.
+  warnings: Do not assume that a non-null return value means the instance is currently
+    accessible - always check the lock status via InstanceLock methods. Be cautious
+    when storing references to the returned pointer as it may become invalid if the
+    map instance is destroyed or the lock is removed.
+  related:
+  - GetInstanceId
+  - IsInstanceLocked
+  - SetInstanceLock
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T03:11:44.977771'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: PlayerTaxi
+  method: GetCurrentTaxiPath
+  signature: uint32 PlayerTaxi::GetCurrentTaxiPath() const
+documentation:
+  brief: Retrieves the unique identifier of the current taxi path the player is using.
+  description: The GetCurrentTaxiPath method returns the unique identifier (GUID)
+    of the active taxi path that the player is currently traveling on. This value
+    corresponds to the entry in the `taxi_path` table within the TrinityCore database,
+    and it's used internally by the game engine to manage taxi route states, such
+    as tracking progress along a path, determining destination nodes, and handling
+    path completion events. The method does not perform any validation or state checks;
+    it simply returns the stored path GUID from the player's internal taxi state.
+    This identifier is essential for maintaining synchronization between client and
+    server regarding taxi travel progress.
+  parameters: []
+  returns: A uint32 value representing the unique identifier of the current taxi path.
+    If the player is not currently on a taxi path, this will return 0, indicating
+    no active taxi route.
+  examples:
+  - title: Check if Player is on Taxi Path
+    code: "uint32 currentPath = player->GetTaxi().GetCurrentTaxiPath();\nif (currentPath\
+      \ != 0)\n{\n    // Player is currently traveling on a taxi path\n    sLog->outString(\"\
+      Player is on taxi path ID: %u\", currentPath);\n}\nelse\n{\n    // Player is\
+      \ not on any taxi path\n    sLog->outString(\"Player is not on a taxi path.\"\
+      );\n}"
+    language: cpp
+  - title: Use Path ID for Conditional Logic
+    code: "uint32 pathId = player->GetTaxi().GetCurrentTaxiPath();\nswitch (pathId)\n\
+      {\n    case 1001:\n        // Special handling for path to Stormwind\n     \
+      \   sLog->outString(\"Player is traveling to Stormwind.\");\n        break;\n\
+      \    case 1002:\n        // Special handling for path to Orgrimmar\n       \
+      \ sLog->outString(\"Player is traveling to Orgrimmar.\");\n        break;\n\
+      \    default:\n        sLog->outString(\"Player is on a standard taxi route.\"\
+      );\n        break;\n}"
+    language: cpp
+  notes: This method accesses internal player state related to taxi travel and should
+    only be called when the player object is valid. The returned path ID directly
+    maps to entries in the `taxi_path` database table, making it useful for custom
+    logic or debugging purposes. Note that this value may change during flight transitions
+    or upon reaching destinations.
+  warnings: Do not assume that a non-zero return value means the player has completed
+    their taxi journey; it only indicates they are currently traveling on a path.
+    Also, be cautious when modifying taxi state externally, as this can lead to inconsistent
+    client-server states if not handled properly.
+  related:
+  - PlayerTaxi::AddTaxiPath
+  - PlayerTaxi::ClearTaxiDestinations
+  - PlayerTaxi::SetTaxiDestination
+  - PlayerTaxi::HasTaxiPath
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:28:59.274625'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

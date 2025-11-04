@@ -1,0 +1,57 @@
+api:
+  class: Action
+  method: SetRelevance
+  signature: void Action::SetRelevance(float relevance)
+documentation:
+  brief: Sets the relevance value for this action, determining its priority in AI
+    decision-making.
+  description: The SetRelevance method assigns a relevance score to an Action object,
+    which is used by the AI system to determine the priority and likelihood of executing
+    that action. This score typically ranges from 0.0 (not relevant) to 1.0 (highly
+    relevant), though values outside this range may be accepted depending on implementation.
+    The relevance value influences how often or under what conditions an action will
+    be considered during AI evaluation cycles. This method is commonly used in custom
+    AI behaviors where actions need to be weighted based on situational context, such
+    as threat level, distance to target, or available resources.
+  parameters:
+  - name: relevance
+    description: A floating-point value representing the relevance of this action.
+      Values typically range from 0.0 (not relevant) to 1.0 (highly relevant), but
+      may accept other numeric values depending on AI implementation.
+  returns: null
+  examples:
+  - title: Setting Action Relevance in Custom AI
+    code: "class MyAI : public CreatureAI {\npublic:\n    void JustEngagedWith(Unit*\
+      \ target) override {\n        // Create a new action\n        Action* attackAction\
+      \ = new Action();\n        \n        // Set relevance based on distance to target\n\
+      \        float distance = me->GetDistance(target);\n        float relevance\
+      \ = 1.0f - (distance / 50.0f); // Closer = more relevant\n        attackAction->SetRelevance(relevance);\n\
+      \        \n        // Add action to AI decision tree\n        AddAction(attackAction);\n\
+      \    }\n};"
+    language: cpp
+  - title: Dynamic Relevance Adjustment Based on Combat State
+    code: "void UpdateAI(uint32 diff) override {\n    if (me->GetVictim()) {\n   \
+      \     float threatLevel = me->GetThreatManager().GetThreat(me->GetVictim());\n\
+      \        float relevance = threatLevel > 1000.0f ? 1.0f : 0.5f;\n        \n\
+      \        // Adjust relevance of attack action\n        if (attackAction) {\n\
+      \            attackAction->SetRelevance(relevance);\n        }\n    }\n}"
+    language: cpp
+  notes: The relevance value is typically used in conjunction with other AI decision-making
+    components such as action weights, cooldowns, and target priorities. It's important
+    to note that setting a relevance of 0.0 does not necessarily prevent execution;
+    it simply indicates low priority. The actual behavior depends on how the AI system
+    interprets and uses these relevance scores.
+  warnings: Setting extremely high or low relevance values (e.g., > 1000.0 or < -1000.0)
+    may cause unexpected behavior in some AI implementations. Ensure that relevance
+    values are within expected ranges for your specific AI framework to avoid unintended
+    consequences.
+  related:
+  - GetRelevance
+  - Action::SetEnabled
+  - Action::SetCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T17:54:42.965534'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

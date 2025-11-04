@@ -1,0 +1,44 @@
+api:
+  class: WorldSession
+  method: HandleCancelChanneling
+  signature: void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling
+    & cancelChanneling)
+documentation:
+  brief: Cancels an ongoing channeling spell for the player
+  description: The HandleCancelChanneling method processes a client request to cancel
+    an active channeled spell. When invoked, it interrupts the current channeling
+    effect, preventing further spell effects from being applied. This typically occurs
+    when a player manually cancels a channel (e.g., by pressing the escape key or
+    switching to another action), or when the channel is interrupted by external factors
+    such as damage or movement. The method ensures that any ongoing channeling state
+    is properly reset and that the player's spell casting state is updated accordingly.
+  parameters:
+  - name: cancelChanneling
+    description: A packet containing information about the channeling cancellation
+      request, including the spell ID being canceled.
+  returns: null
+  examples:
+  - title: Basic usage in a session handler
+    code: "void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling&\
+      \ cancelChanneling)\n{\n    Player* player = GetPlayer();\n    if (!player ||\
+      \ !player->HasChannelSpell(cancelChanneling.SpellID))\n        return;\n\n \
+      \   player->InterruptChannel();\n}"
+    language: cpp
+  notes: This method is typically invoked from the client-side input handling system
+    when a player attempts to cancel a channel. It should be called only when a valid
+    channeled spell is active on the player. The method does not directly send any
+    response packet back to the client; it simply processes the cancellation request.
+  warnings: Improper handling of this method may lead to inconsistent spell states,
+    where the client believes a spell is still channeling while the server has already
+    canceled it. Always verify that a spell is actually channeling before attempting
+    to cancel it.
+  related:
+  - Player::InterruptChannel
+  - Player::HasChannelSpell
+  - WorldSession::HandleCastSpell
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:43:14.100970'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

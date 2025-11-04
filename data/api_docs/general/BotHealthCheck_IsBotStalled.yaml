@@ -1,0 +1,53 @@
+api:
+  class: BotHealthCheck
+  method: IsBotStalled
+  signature: bool BotHealthCheck::IsBotStalled(int botGuid) const
+documentation:
+  brief: Checks if a bot is stalled or stuck in its current position
+  description: The IsBotStalled method determines whether a specific bot, identified
+    by its GUID, is currently stalled or unable to make progress. This check typically
+    evaluates the bot's movement state, position changes over time, and other relevant
+    factors to detect if the bot has become stuck. The method returns true when the
+    bot is determined to be stalled, which may trigger corrective actions such as
+    repositioning or path recalculation. This functionality is crucial for maintaining
+    bot behavior quality in World of Warcraft environments where bots must navigate
+    complex terrain and avoid getting trapped.
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot to check for stalling status.
+      This should be a valid GUID representing a bot entity within the TrinityCore
+      framework.
+  returns: Returns true if the specified bot is detected as stalled or stuck, false
+    otherwise. A stalled bot typically cannot make progress in its movement path and
+    may require intervention.
+  examples:
+  - title: Basic usage to check if a bot is stalled
+    code: "if (botHealthCheck->IsBotStalled(botGuid)) {\n    // Handle the stalled\
+      \ bot case\n    LOG_DEBUG(\"AI\", \"Bot with GUID {} is stalled.\", botGuid);\n\
+      }"
+    language: cpp
+  - title: Using IsBotStalled in a periodic health check loop
+    code: "void BotHealthCheck::UpdateBotStatus() {\n    for (auto& bot : activeBots)\
+      \ {\n        if (IsBotStalled(bot->GetGUID().GetCounter())) {\n            //\
+      \ Trigger recovery mechanism\n            bot->ResetMovement();\n        }\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely relies on internal tracking of bot movement deltas, time
+    intervals, and possibly collision detection to determine stalling. It may be called
+    frequently during AI update cycles, so performance is important. The implementation
+    might use a threshold-based approach where if no significant position change occurs
+    over multiple updates, the bot is considered stalled.
+  warnings: Ensure that the botGuid parameter corresponds to an actual active bot
+    entity; passing invalid or non-existent GUIDs may lead to undefined behavior.
+    This method should not be used as the sole indicator for bot recovery since false
+    positives might occur due to network latency or temporary pathfinding issues.
+  related:
+  - GetBotStatus
+  - ResetBotMovement
+  - IsBotDead
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T14:14:55.903602'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,49 @@
+api:
+  class: Ticket
+  method: GetPlayer
+  signature: Player * Ticket::GetPlayer() const
+documentation:
+  brief: Retrieves the Player object associated with this ticket.
+  description: The GetPlayer method returns a pointer to the Player object that created
+    or is associated with this ticket. This method provides access to player-specific
+    information and data within the context of a support ticket. The returned pointer
+    may be null if the player has disconnected or if the ticket is not properly initialized.
+    In World of Warcraft's TrinityCore implementation, tickets are used for player
+    support and communication between players and game masters, making this method
+    essential for retrieving relevant player context when handling support requests.
+  parameters: []
+  returns: A pointer to the Player object associated with this ticket, or nullptr
+    if no player is associated or the player has disconnected.
+  examples:
+  - title: Basic Usage
+    code: "Ticket* ticket = sTicketMgr->GetTicketByPlayerGUID(playerGuid);\nif (ticket)\n\
+      {\n    Player* player = ticket->GetPlayer();\n    if (player)\n    {\n     \
+      \   // Access player information\n        sLog->outString(\"Ticket owner: %s\"\
+      , player->GetName().c_str());\n    }\n}"
+    language: cpp
+  - title: Safe Access with Null Check
+    code: "Player* player = ticket->GetPlayer();\nif (player && player->IsInWorld())\n\
+      {\n    // Player is online and in the world\n    WorldSession* session = player->GetSession();\n\
+      \    if (session)\n    {\n        // Send a message to the player\n        player->SendNotification(\"\
+      Your ticket has been reviewed.\");\n    }\n}\nelse\n{\n    // Player is offline\
+      \ or not found\n    sLog->outString(\"Player not available for ticket %u\",\
+      \ ticket->GetId());\n}"
+    language: cpp
+  notes: This method does not perform any validation on the returned Player pointer.
+    Developers should always check for null before using the returned pointer. The
+    player object may become invalid if the player disconnects from the server, so
+    additional checks might be needed in long-running operations.
+  warnings: Never assume that the returned Player pointer is valid without checking
+    for null. If the player has disconnected or the ticket was created with a stale
+    reference, this method will return nullptr. Using an invalid pointer can cause
+    crashes or undefined behavior.
+  related:
+  - Ticket::GetPlayerGUID
+  - Ticket::SetPlayer
+  - Ticket::IsPlayerOnline
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:24:30.314135'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

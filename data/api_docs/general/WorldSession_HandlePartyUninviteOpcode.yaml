@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandlePartyUninviteOpcode
+  signature: void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite
+    & packet)
+documentation:
+  brief: Processes a party uninvite request from a player to remove another player
+    from their party
+  description: The HandlePartyUninviteOpcode method handles the client-side packet
+    sent when a player attempts to remove another player from their current party
+    or raid group. This method validates the requesting player's permissions, checks
+    if the target player exists in the party, and ensures proper party mechanics are
+    maintained. The method performs necessary cleanup operations such as updating
+    party member lists, sending notifications to affected players, and maintaining
+    group integrity. It also handles edge cases like attempting to uninvite players
+    who are not in the party or when the requesting player lacks sufficient permissions.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Party Uninvite Usage
+    code: "void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&\
+      \ packet)\n{\n    Player* player = GetPlayer();\n    if (!player || !player->GetGroup())\n\
+      \        return;\n    \n    // Validate that the player is in a group and has\
+      \ permission to remove members\n    if (player->GetGroup()->IsLeader(player->GetGUID()))\n\
+      \    {\n        // Proceed with uninviting target player from party\n      \
+      \  player->GetGroup()->RemoveMember(packet.TargetGuid);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet handling system and operates
+    within the context of WorldSession. The implementation assumes that proper authentication
+    and authorization checks have already been performed before this method is invoked.
+    It relies on the Group class to manage party state and member management.
+  warnings: Improper handling of party uninvites can lead to inconsistent group states,
+    potential crashes if invalid GUIDs are passed, or security vulnerabilities if
+    permission checks are bypassed. Always validate that the requesting player has
+    sufficient permissions before proceeding with the uninvite operation.
+  related:
+  - HandlePartyInviteOpcode
+  - HandlePartyLeaveOpcode
+  - HandlePartySetLeaderOpcode
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:18:57.914200'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

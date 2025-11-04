@@ -1,0 +1,54 @@
+api:
+  class: WorldSession
+  method: HandleSplitItemOpcode
+  signature: void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem
+    & splitItem)
+documentation:
+  brief: Processes the split item opcode to divide stackable items between two slots
+    in a player's inventory.
+  description: The HandleSplitItemOpcode method handles the client-side request to
+    split a stack of items from one inventory slot into another. This operation is
+    typically initiated when a player drags an item stack or uses a specific key combination
+    (like Ctrl+Click) to move a portion of an item stack to another location. The
+    method validates the source and destination slots, checks if the split amount
+    is valid, and performs the necessary updates to both inventory containers. It
+    ensures that the item stack is properly divided, with the original stack reduced
+    by the split amount and a new stack created in the destination slot.
+  parameters:
+  - name: splitItem
+    description: A reference to the WorldPackets::Item::SplitItem packet containing
+      source and destination slot information along with the quantity to be split.
+  returns: null
+  examples:
+  - title: Basic item splitting example
+    code: "void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem&\
+      \ splitItem)\n{\n    // Validate source and destination slots\n    if (!ValidateInventorySlot(splitItem.SourceBag,\
+      \ splitItem.SourceSlot) ||\n        !ValidateInventorySlot(splitItem.DestBag,\
+      \ splitItem.DestSlot))\n        return;\n\n    // Get item from source slot\n\
+      \    Item* sourceItem = GetPlayer()->GetItemByPos(splitItem.SourceBag, splitItem.SourceSlot);\n\
+      \    if (!sourceItem)\n        return;\n\n    // Validate split amount\n   \
+      \ if (splitItem.SplitAmount <= 0 || splitItem.SplitAmount > sourceItem->GetCount())\n\
+      \        return;\n\n    // Perform the split operation\n    Item* newItem =\
+      \ sourceItem->SplitItem(splitItem.SplitAmount);\n    if (!newItem)\n       \
+      \ return;\n\n    // Add new item to destination slot\n    GetPlayer()->AddItemToInventory(splitItem.DestBag,\
+      \ splitItem.DestSlot, newItem);\n}"
+    language: cpp
+  notes: This method is part of the core inventory management system and directly
+    interacts with the player's item stacks. It must ensure that item stacking rules
+    are respected and that no items are lost during the operation. The method also
+    handles client-server synchronization for inventory updates.
+  warnings: Improper validation of slot positions or split amounts can lead to crashes
+    or item corruption. Always validate that source and destination slots are valid
+    before attempting any item manipulation. Be cautious when splitting items in containers
+    with limited capacity.
+  related:
+  - HandleItemMoveOpcode
+  - HandleAutoStoreLootItem
+  - GetPlayer
+  - ValidateInventorySlot
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T20:26:22.539464'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

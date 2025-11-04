@@ -1,0 +1,75 @@
+api:
+  class: ObjectMgr
+  method: LoadQuestRelationsHelper
+  signature: void ObjectMgr::LoadQuestRelationsHelper(QuestRelations & map, QuestRelationsReverse
+    * reverseMap, const std::string & table)
+documentation:
+  brief: Loads quest relations from a specified database table into memory maps for
+    fast lookup.
+  description: 'The LoadQuestRelationsHelper method is responsible for loading quest-related
+    data from a specified database table into internal memory structures. It populates
+    two data structures: a forward map (QuestRelations) that maps quest IDs to related
+    entries, and an optional reverse map (QuestRelationsReverse) that allows looking
+    up quests by the related entry. This method is typically called during server
+    startup or database reload operations to ensure all quest relationships are properly
+    indexed in memory for efficient runtime access. The method does not validate data
+    integrity beyond basic loading; it assumes the database table structure matches
+    expected formats.'
+  parameters:
+  - name: map
+    description: Reference to a QuestRelations map that will be populated with quest
+      ID to related entry mappings. This is used for fast lookup of entries associated
+      with a specific quest.
+  - name: reverseMap
+    description: Pointer to an optional QuestRelationsReverse map that will be populated
+      with reverse lookups from related entries back to quests. Can be null if reverse
+      mapping is not required.
+  - name: table
+    description: String identifier for the database table containing quest relation
+      data. This determines which SQL table is queried for loading relations.
+  returns: null
+  examples:
+  - title: Basic usage during server initialization
+    code: 'QuestRelations questAreaMap;
+
+      QuestRelationsReverse questAreaReverseMap;
+
+      ObjectMgr::instance()->LoadQuestRelationsHelper(questAreaMap, &questAreaReverseMap,
+      "quest_area_trigger");'
+    language: cpp
+  - title: Loading multiple relation types with separate maps
+    code: 'QuestRelations questItemMap;
+
+      QuestRelationsReverse questItemReverseMap;
+
+      QuestRelations questNpcMap;
+
+      QuestRelationsReverse questNpcReverseMap;
+
+
+      ObjectMgr::instance()->LoadQuestRelationsHelper(questItemMap, &questItemReverseMap,
+      "quest_item");
+
+      ObjectMgr::instance()->LoadQuestRelationsHelper(questNpcMap, &questNpcReverseMap,
+      "quest_npc");'
+    language: cpp
+  notes: This method is typically invoked during server startup or database reloads.
+    It performs a single database query per call to fetch all entries from the specified
+    table. The method assumes that the database schema matches expected column structures
+    (typically quest_id and entry columns). Performance can be impacted by large datasets
+    in the source tables, especially if reverse maps are enabled.
+  warnings: This method should only be called during initialization or reload phases
+    when no concurrent access to quest data is occurring. Modifying the underlying
+    database while this method is running may lead to inconsistent state. Ensure that
+    the table name passed matches an existing database table with correct column structure.
+  related:
+  - LoadQuests
+  - LoadQuestTemplates
+  - GetQuestForEntry
+  - GetQuestRelations
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T22:32:49.401173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

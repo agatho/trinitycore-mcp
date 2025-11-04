@@ -1,0 +1,53 @@
+api:
+  class: ObjectCache
+  method: GetTarget
+  signature: ::Unit * ObjectCache::GetTarget() const
+documentation:
+  brief: Retrieves the target unit associated with this object cache instance.
+  description: The GetTarget method returns a pointer to the Unit object that represents
+    the current target of the object cache. This is typically used in AI scripts or
+    combat-related logic where an entity needs to reference its current target. The
+    returned Unit pointer may be null if no target has been set or if the target has
+    been destroyed. In World of Warcraft's TrinityCore framework, this method is commonly
+    utilized by AI behaviors to determine which unit to attack or interact with. The
+    method performs no validation on the target's existence, so callers should verify
+    the returned pointer before dereferencing it.
+  parameters: []
+  returns: A pointer to the Unit object representing the current target, or nullptr
+    if no target is set or the target has been destroyed.
+  examples:
+  - title: Basic Usage in AI Script
+    code: "class MyAI : public CreatureAI\n{\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override\n    {\n        Unit* target = me->GetObjectCache()->GetTarget();\n\
+      \        if (target && target->IsInWorld())\n        {\n            // Perform\
+      \ actions based on the target\n            DoMeleeAttackIfReady();\n       \
+      \ }\n    }\n};"
+    language: cpp
+  - title: Checking Target Validity Before Use
+    code: "Unit* target = objectCache->GetTarget();\nif (target && target->IsAlive()\
+      \ && target->IsInWorld())\n{\n    // Safe to use target for combat actions\n\
+      \    if (me->CanSeeOrDetect(target))\n    {\n        me->CastSpell(target, SPELL_FIREBALL,\
+      \ true);\n    }\n}\nelse\n{\n    // Handle case where target is invalid or unavailable\n\
+      \    objectCache->SetTarget(nullptr);\n}"
+    language: cpp
+  notes: The returned Unit pointer should never be deleted or modified directly. The
+    target reference is managed by the ObjectCache system and may change during runtime.
+    This method does not perform any thread synchronization, so access should be protected
+    in multi-threaded contexts. Performance is generally good as it's a simple getter
+    operation, but frequent calls without caching may impact performance in high-frequency
+    AI updates.
+  warnings: Always check if the returned Unit pointer is not null before using it
+    to prevent segmentation faults. The target unit might become invalid (e.g., dead
+    or removed from world) after retrieval, so additional validation is recommended.
+    Be cautious when storing the returned pointer for extended periods as the target
+    may be destroyed or replaced.
+  related:
+  - SetTarget
+  - HasTarget
+  - ClearTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T22:52:51.809506'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

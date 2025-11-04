@@ -1,0 +1,49 @@
+api:
+  class: Battlefield
+  method: GetGameObject
+  signature: GameObject * Battlefield::GetGameObject(int guid)
+documentation:
+  brief: Retrieves a GameObject instance from the battlefield using its unique identifier.
+  description: The GetGameObject method fetches a GameObject object from the Battlefield's
+    internal collection based on the provided GUID. This method is commonly used during
+    battleground or battlefield events to access specific game objects such as doors,
+    banners, or capture points. The returned pointer can be null if no GameObject
+    with the specified GUID exists in the current battlefield context. It is important
+    to validate the returned pointer before using it to avoid dereferencing a null
+    pointer, which could lead to crashes or undefined behavior.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the GameObject to retrieve. This
+      value must correspond to an existing GameObject within the battlefield's scope.
+  returns: A pointer to the GameObject if found, or nullptr if no GameObject with
+    the specified GUID exists in the battlefield.
+  examples:
+  - title: Basic Usage
+    code: "GameObject* go = battlefield->GetGameObject(12345);\nif (go != nullptr)\n\
+      {\n    // Use the GameObject\n    go->SetGoState(GO_STATE_ACTIVE);\n}"
+    language: cpp
+  - title: Checking for Null Before Use
+    code: "uint32 gameObjectGuid = 67890;\nGameObject* go = battlefield->GetGameObject(gameObjectGuid);\n\
+      if (go && go->GetGOInfo())\n{\n    // Safe to use the GameObject\n    sWorld->SendZoneText(go->GetMapId(),\
+      \ \"GameObject found!\");\n}\nelse\n{\n    sLog->outError(\"Failed to retrieve\
+      \ GameObject with GUID %u\", gameObjectGuid);\n}"
+    language: cpp
+  notes: This method operates within the context of a specific battlefield instance,
+    meaning it only searches for GameObjects that are part of that particular battlefield's
+    data structures. The method does not perform any caching or lazy loading; it directly
+    accesses the internal container holding GameObject references.
+  warnings: Always check if the returned pointer is null before using it. Dereferencing
+    a null pointer will result in a crash. Also, be aware that GameObjects may be
+    destroyed during battleground events, so even if a valid pointer is returned initially,
+    it might become invalid later in the event lifecycle.
+  related:
+  - GetCreature
+  - GetPlayer
+  - AddGameObject
+  - RemoveGameObject
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T15:42:29.065737'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

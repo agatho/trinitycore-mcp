@@ -1,0 +1,70 @@
+api:
+  class: WorldSession
+  method: HandleChatMessage
+  signature: int WorldSession::HandleChatMessage(int type, int lang, std::string msg,
+    std::string target, int targetGuid)
+documentation:
+  brief: Processes incoming chat messages from players and routes them to appropriate
+    recipients based on message type and target.
+  description: The HandleChatMessage method is responsible for processing chat messages
+    sent by players in the World of Warcraft client. It validates the message parameters,
+    checks for proper permissions or restrictions (such as language restrictions or
+    spam filters), and then routes the message to the intended recipient(s) or channel.
+    This includes handling different chat types like say, yell, whisper, guild, party,
+    etc., and ensures that messages are properly formatted and delivered according
+    to game rules and player settings. The method also performs necessary security
+    checks to prevent abuse such as spamming or inappropriate content.
+  parameters:
+  - name: type
+    description: The type of chat message being sent. Valid values include CHAT_TYPE_SAY,
+      CHAT_TYPE_YELL, CHAT_TYPE_WHISPER, CHAT_TYPE_GUILD, CHAT_TYPE_PARTY, etc., which
+      determine how the message is processed and where it is delivered.
+  - name: lang
+    description: The language identifier used for the message. This determines how
+      the message is translated or displayed to other players based on their language
+      settings. Common values include LANG_UNIVERSAL, LANG_ORCISH, LANG_COMMON, etc.
+  - name: msg
+    description: The actual text content of the chat message being sent by the player.
+      This string may be subject to filtering or validation before delivery.
+  - name: target
+    description: The target name or identifier for the message, such as a player's
+      name in case of whispers or group names for group chats. For broadcast messages,
+      this might be empty or contain a channel name.
+  - name: targetGuid
+    description: The globally unique identifier (GUID) of the intended recipient when
+      sending private messages like whispers. This helps identify the exact player
+      to receive the message and is used for validation purposes.
+  returns: Returns an integer value indicating the success or failure status of the
+    chat handling operation. Typically, 0 indicates successful processing, while non-zero
+    values may indicate errors such as invalid parameters, insufficient permissions,
+    or delivery failures.
+  examples:
+  - title: Sending a whisper to another player
+    code: 'WorldSession* session = ...;
+
+      int result = session->HandleChatMessage(CHAT_TYPE_WHISPER, LANG_COMMON, "Hello
+      there!", "PlayerName", 123456);'
+    language: cpp
+  - title: Broadcasting a message to the guild channel
+    code: 'WorldSession* session = ...;
+
+      int result = session->HandleChatMessage(CHAT_TYPE_GUILD, LANG_COMMON, "Meeting
+      at 7 PM", "", 0);'
+    language: cpp
+  notes: This method is typically called internally by the server's network handler
+    when a chat message packet is received from a client. It assumes that basic authentication
+    and session validation have already occurred. The method may perform additional
+    checks like cooldowns, spam detection, or character state validation before processing.
+  warnings: Improper handling of message types or target GUIDs can lead to incorrect
+    routing or security vulnerabilities. Always validate incoming parameters carefully
+    and ensure proper error handling in case of invalid inputs.
+  related:
+  - HandleChatMessageNotify
+  - SendChatMessage
+  - ValidateChatMessage
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:31:25.216100'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

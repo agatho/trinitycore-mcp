@@ -1,0 +1,68 @@
+api:
+  class: QuestPickup
+  method: GetEligibilityIssues
+  signature: int QuestPickup::GetEligibilityIssues(uint32 questId, Player * bot)
+documentation:
+  brief: Checks if a player is eligible to pick up a quest and returns an eligibility
+    status code.
+  description: The GetEligibilityIssues method evaluates whether a given player meets
+    all prerequisites to accept a specific quest. It performs checks such as quest
+    level requirements, previous quest completion, faction alignment, and other game-specific
+    conditions that determine if the player can begin the quest. The method returns
+    an integer status code indicating the result of these checks, which can be used
+    by the quest system to provide appropriate feedback or prevent quest initiation.
+    This method is typically invoked during quest interaction events before allowing
+    a player to start a new quest.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to check eligibility for. Must
+      correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player attempting to
+      pick up the quest. Cannot be null.
+  returns: 'Returns an integer status code indicating the eligibility result:
+
+    - 0: Player is eligible to pick up the quest
+
+    - Non-zero: Indicates a specific issue preventing quest pickup (e.g., level too
+    low, quest already completed, faction mismatch, etc.)
+
+
+    The exact meaning of non-zero values depends on internal implementation and may
+    vary based on game mechanics.'
+  examples:
+  - title: Basic usage to check quest eligibility
+    code: "uint32 questId = 12345;\nPlayer* player = ...; // obtained from some context\n\
+      int result = QuestPickup::GetEligibilityIssues(questId, player);\nif (result\
+      \ == 0)\n{\n    // Player can pick up the quest\n    // Proceed with quest acceptance\
+      \ logic\n}\nelse\n{\n    // Handle eligibility issue based on result value\n\
+      \    // e.g., send error message to player\n}"
+    language: cpp
+  - title: Using eligibility check in quest interaction
+    code: "void HandleQuestAccept(Player* player, uint32 questId)\n{\n    int issue\
+      \ = QuestPickup::GetEligibilityIssues(questId, player);\n    switch (issue)\n\
+      \    {\n        case 0:\n            // Accept the quest\n            player->AddQuest(questId);\n\
+      \            break;\n        case 1:\n            player->SendNotification(\"\
+      You are not at the correct level for this quest.\");\n            break;\n \
+      \       case 2:\n            player->SendNotification(\"You have already completed\
+      \ this quest.\");\n            break;\n        default:\n            player->SendNotification(\"\
+      You cannot pick up this quest.\");\n            break;\n    }\n}"
+    language: cpp
+  notes: This method likely performs database queries or cached checks to determine
+    eligibility. It may be called frequently during quest interactions, so performance
+    optimization is important. The exact set of checks performed might depend on the
+    specific implementation and version of TrinityCore being used.
+  warnings: Ensure that the player pointer is valid before calling this method; passing
+    a null pointer could lead to undefined behavior. The return codes are not standardized
+    across all TrinityCore versions, so custom logic may be needed to interpret different
+    non-zero values correctly.
+  related:
+  - QuestPickup::AcceptQuest
+  - Player::CanTakeQuest
+  - Player::GetQuestStatus
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T20:16:37.628836'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

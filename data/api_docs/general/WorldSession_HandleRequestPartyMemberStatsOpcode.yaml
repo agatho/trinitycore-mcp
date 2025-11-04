@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleRequestPartyMemberStatsOpcode
+  signature: void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats
+    & packet)
+documentation:
+  brief: Processes a request from a player to retrieve statistics and status information
+    for a party member.
+  description: The HandleRequestPartyMemberStatsOpcode method is responsible for handling
+    incoming packets from players requesting detailed statistics and status information
+    about a specific party member. This typically occurs when a player opens the party
+    interface or hovers over a party member in the UI, triggering a request to fetch
+    health, mana, level, class, and other relevant status data. The method validates
+    that the requesting player is in a party and that the target player is a valid
+    party member before proceeding with the information retrieval and packet sending
+    process.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage in party context
+    code: "void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats&\
+      \ packet)\n{\n    if (!GetPlayer()->GetGroup())\n        return;\n\n    Player*\
+      \ target = ObjectAccessor::FindPlayer(packet.MemberGUID);\n    if (!target ||\
+      \ !GetPlayer()->GetGroup()->IsMember(target->GetGUID()))\n        return;\n\n\
+      \    // Send party member stats packet\n    WorldPackets::Party::PartyMemberStats\
+      \ stats;\n    stats.MemberGUID = target->GetGUID();\n    stats.Health = target->GetHealth();\n\
+      \    stats.MaxHealth = target->GetMaxHealth();\n    stats.Mana = target->GetPower(POWER_MANA);\n\
+      \    stats.MaxMana = target->GetMaxPower(POWER_MANA);\n    stats.Level = target->GetLevel();\n\
+      \    stats.Class = target->getClass();\n    SendPacket(stats.Write());\n}"
+    language: cpp
+  notes: This method is part of the party management system and relies on proper group
+    membership validation. It's typically called in response to UI interactions where
+    players want to see detailed information about their party members. The implementation
+    assumes that the packet contains a valid GUID for a party member, and it performs
+    necessary checks before sending back the requested data.
+  warnings: Improper handling of party member GUIDs can lead to security vulnerabilities
+    or crashes if invalid targets are processed. Ensure that all party membership
+    checks are performed before accessing target player data. Also, be aware that
+    frequent calls to this method may impact performance in large parties.
+  related:
+  - HandlePartyMemberStatsOpcode
+  - GetPlayer
+  - GetGroup
+  - SendPacket
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T20:46:54.026061'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

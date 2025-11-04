@@ -1,0 +1,61 @@
+api:
+  class: CharacterCache
+  method: GetCharacterAccountIdByName
+  signature: uint32 CharacterCache::GetCharacterAccountIdByName(const std::string
+    & name) const
+documentation:
+  brief: Retrieves the account identifier associated with a given character name from
+    the cache.
+  description: The GetCharacterAccountIdByName method looks up and returns the unique
+    account identifier (AccountID) for a specified character name stored within the
+    CharacterCache. This method is typically used to determine which account owns
+    a particular character, enabling operations such as account-specific permissions
+    checks or player-related data retrieval. The method operates on cached data, meaning
+    it will only return results for characters that have been previously loaded into
+    memory and cached by the system. If the character name does not exist in the cache,
+    the behavior is undefined and may result in a zero or invalid ID being returned.
+    This function is part of the TrinityCore's character management infrastructure
+    and is essential for maintaining player session integrity and access control.
+  parameters:
+  - name: name
+    description: The exact name of the character to look up. Must be a valid, non-empty
+      string matching an existing character in the database.
+  returns: Returns a 32-bit unsigned integer representing the account identifier (AccountID)
+    associated with the specified character name. If the character is not found in
+    the cache, it returns zero, indicating either no match or an invalid lookup result.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 accountId = CharacterCache::GetCharacterAccountIdByName(\"PlayerName\"\
+      );\nif (accountId != 0)\n{\n    // Proceed with account-based operations\n \
+      \   printf(\"Account ID for PlayerName is: %u\\n\", accountId);\n}\nelse\n{\n\
+      \    // Handle case where character was not found in cache\n    printf(\"Character\
+      \ 'PlayerName' not found in cache.\\n\");\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "uint32 GetAccountIdForCharacter(const std::string& charName)\n{\n    uint32\
+      \ accountId = CharacterCache::GetCharacterAccountIdByName(charName);\n    if\
+      \ (accountId == 0)\n    {\n        // Optionally trigger a database lookup if\
+      \ not in cache\n        // This is an example of how you might extend functionality\n\
+      \        sLog->outError(\"Character '%s' not found in character cache.\", charName.c_str());\n\
+      \        return 0;\n    }\n    return accountId;\n}"
+    language: cpp
+  notes: This method relies on the internal CharacterCache being populated with valid
+    character data. It's important to ensure that the cache is properly initialized
+    and updated before calling this function. The method performs a fast lookup in
+    memory, so performance is generally good, but it will fail if the character name
+    is not present in the cache.
+  warnings: This method assumes the character exists in the cache. If used without
+    verifying that the character has been cached first, it may return an invalid or
+    zero AccountID. Additionally, this function should not be called during database
+    operations that modify character data, as it could lead to inconsistent results
+    due to race conditions.
+  related:
+  - GetCharacterByName
+  - GetCharacterGuidByName
+  - UpdateCharacterCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T12:01:25.307115'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

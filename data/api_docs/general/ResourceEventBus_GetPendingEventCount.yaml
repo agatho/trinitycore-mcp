@@ -1,0 +1,46 @@
+api:
+  class: ResourceEventBus
+  method: GetPendingEventCount
+  signature: uint32 ResourceEventBus::GetPendingEventCount() const
+documentation:
+  brief: Retrieves the number of pending resource events currently queued for processing.
+  description: The GetPendingEventCount method returns the total count of resource
+    events that are currently waiting in the event bus queue and have not yet been
+    processed. This is useful for monitoring system load, debugging event flow, or
+    determining when to trigger batch processing operations. The returned value represents
+    a snapshot of the current state at the time of the call and may change immediately
+    after the method returns. This method is typically used in resource management
+    systems where events such as item pickups, currency changes, or quest progress
+    updates are queued for asynchronous handling.
+  parameters: []
+  returns: A uint32 value representing the number of pending events currently queued
+    in the ResourceEventBus. Returns zero if there are no pending events.
+  examples:
+  - title: Monitor Pending Events
+    code: "uint32 pendingCount = sResourceEventBus->GetPendingEventCount();\nif (pendingCount\
+      \ > 100)\n{\n    TC_LOG_DEBUG(\"resource\", \"High event queue load: {} pending\
+      \ events\", pendingCount);\n}"
+    language: cpp
+  - title: Batch Processing Trigger
+    code: "uint32 pending = sResourceEventBus->GetPendingEventCount();\nif (pending\
+      \ >= 50)\n{\n    // Process all pending events immediately\n    sResourceEventBus->ProcessAllPendingEvents();\n\
+      }"
+    language: cpp
+  notes: This method performs a thread-safe read operation on the event queue count.
+    The returned value is only valid at the moment of the call and may not reflect
+    real-time changes in the queue size. It's recommended to use this method for monitoring
+    purposes rather than making critical decisions based on its return value.
+  warnings: Do not rely on the return value for synchronization or decision-making
+    in performance-critical code paths, as the count can change immediately after
+    the call. Avoid calling this method excessively in tight loops as it may impact
+    performance.
+  related:
+  - ProcessAllPendingEvents
+  - QueueEvent
+  - IsEventQueueEmpty
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:40:11.352138'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

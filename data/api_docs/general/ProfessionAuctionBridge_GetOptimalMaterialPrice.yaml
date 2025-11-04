@@ -1,0 +1,65 @@
+api:
+  class: ProfessionAuctionBridge
+  method: GetOptimalMaterialPrice
+  signature: uint32 ProfessionAuctionBridge::GetOptimalMaterialPrice(int * player,
+    uint32 itemId, uint32 stackSize) const
+documentation:
+  brief: Calculates and returns the optimal price for a specified material item based
+    on player data and stack size.
+  description: The GetOptimalMaterialPrice method determines the most efficient pricing
+    for a given auction item, taking into account player-specific factors such as
+    skill level, market conditions, and inventory status. This function is typically
+    used within the context of profession-based auctions to ensure that players are
+    offered fair and competitive pricing for materials they wish to sell or purchase.
+    The method considers various internal auction house mechanisms and player-related
+    data to compute an optimal price point. It requires valid player data and a valid
+    item identifier to operate correctly.
+  parameters:
+  - name: player
+    description: Pointer to an integer array representing the player's profession
+      data, including skill levels, reputation, and other relevant attributes that
+      influence pricing.
+  - name: itemId
+    description: Unique identifier of the item for which the optimal price is being
+      calculated. Must correspond to a valid item in the game database.
+  - name: stackSize
+    description: The quantity of items in the stack for which the optimal price is
+      calculated. This affects pricing due to bulk discounts or market saturation
+      effects.
+  returns: Returns a uint32 value representing the calculated optimal price in copper
+    coins. A return value of zero may indicate an error or invalid input parameters.
+  examples:
+  - title: Basic Usage Example
+    code: 'int playerData[10] = {50, 60, 70, 80, 90, 100, 110, 120, 130, 140};
+
+      uint32 optimalPrice = bridge.GetOptimalMaterialPrice(playerData, 12345, 10);
+
+      // Returns the optimal price for 10 units of item ID 12345'
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "int* playerPtr = GetPlayerProfessionData(playerGuid);\nif (playerPtr !=\
+      \ nullptr)\n{\n    uint32 price = bridge.GetOptimalMaterialPrice(playerPtr,\
+      \ 67890, 50);\n    if (price > 0)\n    {\n        // Proceed with auction creation\
+      \ using calculated price\n        CreateAuction(itemGuid, price, 50);\n    }\n\
+      \    else\n    {\n        // Handle invalid pricing scenario\n        LOG_ERROR(\"\
+      auction\", \"Invalid price returned for item ID: %u\", 67890);\n    }\n}"
+    language: cpp
+  notes: This method relies on internal auction house algorithms and may vary based
+    on server configuration and patch updates. The player data array must contain
+    valid profession information; otherwise, the result will be unpredictable. Performance
+    is generally fast but depends on the complexity of the pricing algorithm implemented
+    within the TrinityCore codebase.
+  warnings: Ensure that the player data pointer is not null before calling this method.
+    Passing invalid item IDs or negative stack sizes may lead to undefined behavior
+    or incorrect pricing calculations. This function should only be called during
+    appropriate game states where auction house operations are active.
+  related:
+  - GetAuctionItemPrice
+  - CalculateProfessionSkillBonus
+  - UpdatePlayerAuctionData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T20:54:36.822796'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

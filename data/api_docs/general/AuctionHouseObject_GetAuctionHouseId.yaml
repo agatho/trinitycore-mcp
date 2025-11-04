@@ -1,0 +1,54 @@
+api:
+  class: AuctionHouseObject
+  method: GetAuctionHouseId
+  signature: uint32 AuctionHouseObject::GetAuctionHouseId() const
+documentation:
+  brief: Returns the unique identifier of the auction house associated with this object
+  description: The GetAuctionHouseId method retrieves the internal identifier that
+    uniquely identifies the auction house instance to which this AuctionHouseObject
+    belongs. This ID is used internally by the TrinityCore server to distinguish between
+    different auction houses, such as those in different cities or for different factions.
+    The returned value corresponds to the ID field in the auctionhouse table within
+    the database, and it's essential for linking auction items to their respective
+    auction houses during operations like listing, browsing, and purchasing. This
+    method is typically called when processing auction-related actions that require
+    knowledge of which auction house an item belongs to or where it should be processed.
+  parameters: []
+  returns: A uint32 value representing the unique identifier of the auction house.
+    This ID maps directly to entries in the `auctionhouse` database table and is used
+    internally by the server for routing auction operations.
+  examples:
+  - title: Basic Usage to Identify Auction House
+    code: 'AuctionHouseObject* ah = ...; // Assume this is initialized
+
+      uint32 houseId = ah->GetAuctionHouseId();
+
+      TC_LOG_INFO("auction", "Current auction house ID: %u", houseId);'
+    language: cpp
+  - title: Using Auction House ID for Filtering Auctions
+    code: 'AuctionHouseObject* ah = ...;
+
+      uint32 currentHouseId = ah->GetAuctionHouseId();
+
+      // Filter auctions by house ID
+
+      QueryResult result = CharacterDatabase.Query("SELECT item_template, item_guid
+      FROM auctionhouse WHERE auctionhouse_id = {}", currentHouseId);'
+    language: cpp
+  notes: This method is a simple getter and does not perform any computation or database
+    lookups. It returns a cached value that was set during object initialization.
+    The AuctionHouseObject should be properly initialized with a valid auction house
+    ID before calling this method.
+  warnings: Calling this method on an uninitialized or improperly constructed AuctionHouseObject
+    may return an invalid or zero ID, which could lead to incorrect behavior in auction
+    processing logic if not checked for validity.
+  related:
+  - GetAuctionHouseFaction
+  - SetAuctionHouseId
+  - GetAuctionHouseName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T16:21:16.086969'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

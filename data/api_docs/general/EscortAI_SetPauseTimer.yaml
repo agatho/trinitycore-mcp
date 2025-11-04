@@ -1,0 +1,54 @@
+api:
+  class: EscortAI
+  method: SetPauseTimer
+  signature: void EscortAI::SetPauseTimer(int timer)
+documentation:
+  brief: Sets the pause timer for the EscortAI to control movement timing during escort
+    quests.
+  description: The SetPauseTimer method configures the internal pause timer used by
+    the EscortAI class to manage delays in NPC movement during escort quests. This
+    timer controls how long an escorted creature will pause before continuing its
+    path, which is essential for creating realistic quest experiences where NPCs might
+    stop to interact with environment objects or wait for player input. The timer
+    value is specified in milliseconds and affects subsequent movement behavior until
+    explicitly reset or overridden by another call.
+  parameters:
+  - name: timer
+    description: The pause duration in milliseconds to set for the escort AI. A value
+      of 0 disables the pause, while positive values create a delay before continuing
+      movement.
+  returns: null
+  examples:
+  - title: Basic Pause Timer Usage
+    code: "void OnQuestAccept(Player* player, Quest const* quest)\n{\n    if (quest->GetQuestId()\
+      \ == 12345)\n    {\n        // Pause for 2 seconds before continuing\n     \
+      \   me->GetAI()->SetPauseTimer(2000);\n    }\n}"
+    language: cpp
+  - title: Conditional Pause Timer Based on Quest State
+    code: "void UpdateAI(uint32 diff)\n{\n    if (HasEscortState(STATE_ESCORT_PAUSED))\n\
+      \    {\n        // Resume movement after 1.5 seconds\n        if (m_pauseTimer\
+      \ <= diff)\n        {\n            StartNextWaypoint();\n            SetPauseTimer(0);\
+      \ // Reset pause timer\n        }\n        else\n        {\n            m_pauseTimer\
+      \ -= diff;\n        }\n    }\n}"
+    language: cpp
+  notes: This method directly influences the EscortAI's internal state machine and
+    should be called when transitioning between different phases of an escort quest.
+    The pause timer is typically used in conjunction with other EscortAI methods like
+    StartWaypointMovement() and SetEscortPaused(). It's recommended to use this method
+    sparingly to avoid disrupting the natural flow of quest progression.
+  warnings: Setting a very large timer value may cause noticeable delays in quest
+    progression, potentially frustrating players. Additionally, calling this method
+    during active movement without proper state management can lead to unexpected
+    behavior or movement glitches. Always ensure that any pause timer is properly
+    reset when the escort completes or is interrupted.
+  related:
+  - StartWaypointMovement
+  - SetEscortPaused
+  - HasEscortState
+  - GetPauseTimer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T08:48:10.851845'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

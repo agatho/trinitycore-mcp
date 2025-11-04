@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleScenePlaybackCanceled
+  signature: void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled
+    & scenePlaybackCanceled)
+documentation:
+  brief: Handles the client's cancellation of a scene playback sequence
+  description: This method processes the client-side notification when a player cancels
+    an ongoing scene playback. Scene playbacks are used in World of Warcraft for cinematic
+    sequences, quest cutscenes, and other scripted events. When a player cancels a
+    scene (e.g., by pressing Escape or interacting with the UI), this handler is invoked
+    to clean up associated resources and notify relevant systems. The method ensures
+    proper state management and prevents lingering scene-related data from persisting
+    in memory. It typically updates internal session state and may trigger cleanup
+    routines for active scenes.
+  parameters:
+  - name: scenePlaybackCanceled
+    description: A packet object containing information about the cancelled scene
+      playback, including scene ID and player context
+  returns: null
+  examples:
+  - title: Basic usage in session handler
+    code: "void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scenes::ScenePlaybackCanceled\
+      \ & scenePlaybackCanceled)\n{\n    // Log the cancellation\n    sLog->outDebug(LOG_FILTER_NETWORKIO,\
+      \ \"Player %u cancelled scene playback %u\", GetPlayer()->GetGUID().GetCounter(),\
+      \ scenePlaybackCanceled.SceneID);\n    \n    // Cleanup any active scene state\n\
+      \    if (auto* player = GetPlayer())\n    {\n        player->CancelScene(scenePlaybackCanceled.SceneID);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically invoked from the network packet processing pipeline
+    when a ScenePlaybackCanceled packet is received. The implementation should be
+    lightweight and avoid heavy operations that could block the main game loop. It's
+    important to ensure that any scene-related state is properly cleaned up to prevent
+    memory leaks or inconsistent UI states.
+  warnings: Improper handling of scene cancellations may lead to lingering UI elements,
+    stuck animations, or incorrect quest progression states. Ensure all scene-related
+    resources are properly released when this method is called.
+  related:
+  - HandleScenePlaybackComplete
+  - HandleSceneTriggerEvent
+  - Player::CancelScene
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:25:37.654440'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

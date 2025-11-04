@@ -1,0 +1,59 @@
+api:
+  class: CharacterCache
+  method: GetCharacterNameByGuid
+  signature: bool CharacterCache::GetCharacterNameByGuid(int guid, std::string & name)
+    const
+documentation:
+  brief: Retrieves the name of a character associated with the given GUID from the
+    cache.
+  description: The GetCharacterNameByGuid method attempts to find and return the name
+    of a character using its unique identifier (GUID) from the internal character
+    cache. This method is typically used in TrinityCore's server environment to efficiently
+    retrieve character names without performing expensive database queries. The method
+    returns true if the character GUID exists in the cache and the name was successfully
+    retrieved, otherwise it returns false. It's important to note that this function
+    only works with characters already present in the cache, which may be populated
+    through various game events or initial loading processes.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the character to look up. This is
+      typically a positive integer representing the character's database ID.
+  - name: name
+    description: Reference to a std::string where the character name will be stored
+      upon successful lookup. The string will be empty if the lookup fails.
+  returns: Returns true if the character with the specified GUID was found in the
+    cache and the name was successfully retrieved; otherwise returns false.
+  examples:
+  - title: Basic Usage Example
+    code: "int playerGuid = 12345;\nstd::string playerName;\nif (CharacterCache::GetCharacterNameByGuid(playerGuid,\
+      \ playerName)) {\n    std::cout << \"Character name: \" << playerName << std::endl;\n\
+      } else {\n    std::cout << \"Character not found in cache.\" << std::endl;\n\
+      }"
+    language: cpp
+  - title: Using in a Game Command
+    code: "void HandleGetNameCommand(ChatHandler* handler, const char* args) {\n \
+      \   if (!args || !strlen(args))\n        return false;\n    \n    uint32 guid\
+      \ = atoi(args);\n    std::string name;\n    if (sCharacterCache->GetCharacterNameByGuid(guid,\
+      \ name)) {\n        handler->PSendSysMessage(\"Character name for GUID %u is:\
+      \ %s\", guid, name.c_str());\n    } else {\n        handler->PSendSysMessage(\"\
+      No character found with GUID %u\", guid);\n    }\n    return true;\n}"
+    language: cpp
+  notes: This method operates on cached data only and does not perform database lookups.
+    The cache must be populated beforehand for this method to succeed. Performance
+    is optimized as it uses fast lookup mechanisms such as hash tables or maps internally.
+    This function should be used primarily in scenarios where character names are
+    needed frequently but database access is undesirable.
+  warnings: This function will return false if the GUID does not exist in the cache,
+    which may happen if the character has never been loaded into memory or was recently
+    deleted from the cache. It's crucial to validate that the cache contains the character
+    data before calling this method for reliable results.
+  related:
+  - GetCharacterGuidByName
+  - LoadCharacterCache
+  - IsCharacterInCache
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T11:55:51.679775'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

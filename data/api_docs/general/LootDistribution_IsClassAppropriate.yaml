@@ -1,0 +1,60 @@
+api:
+  class: LootDistribution
+  method: IsClassAppropriate
+  signature: bool LootDistribution::IsClassAppropriate(Player * player, const LootItem
+    & item)
+documentation:
+  brief: Determines if a player's class is appropriate for looting a specific item.
+  description: The IsClassAppropriate method evaluates whether a given player's class
+    allows them to loot a specific item from a loot distribution. This check is typically
+    performed during the loot distribution process to ensure that players only receive
+    items they are permitted to use based on their class restrictions. The method
+    considers class-specific item requirements such as weapon types, armor classes,
+    and other gameplay mechanics that restrict certain items to specific character
+    classes. It returns true if the player's class meets the item's class requirements,
+    or false otherwise.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose class will be checked against
+      the item's restrictions. Must not be null.
+  - name: item
+    description: Reference to the LootItem structure containing information about
+      the item being evaluated for loot eligibility. The item must have valid class
+      restriction data.
+  returns: Boolean value indicating whether the player's class is appropriate for
+    looting the specified item. Returns true if the player can loot the item, false
+    otherwise.
+  examples:
+  - title: Basic usage in loot distribution
+    code: "if (lootDist->IsClassAppropriate(player, item)) {\n    // Player can loot\
+      \ this item\n    player->AddItem(item.itemid, item.count);\n} else {\n    //\
+      \ Player cannot loot this item\n    SendLootError(player, LOOT_ERROR_ITEM_NOT_ALLOWED);\n\
+      }"
+    language: cpp
+  - title: Checking class appropriateness before adding to player's loot
+    code: "void ProcessLootDistribution(Player* player, LootItem& item) {\n    if\
+      \ (lootDist->IsClassAppropriate(player, item)) {\n        // Add item to player's\
+      \ loot\n        player->AddItem(item.itemid, item.count);\n        // Mark as\
+      \ looted\n        item.looted = true;\n    } else {\n        // Item not appropriate\
+      \ for this class\n        sLog->outDebug(LOG_FILTER_LOOT, \"Player %s cannot\
+      \ loot item %u due to class restrictions.\",\n                       player->GetName().c_str(),\
+      \ item.itemid);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core loot distribution system in TrinityCore.
+    It's commonly called during the loot rolling process to filter out items that
+    don't match a player's class restrictions. The implementation likely checks against
+    item flags, class restrictions stored in the item template, and potentially other
+    game-specific rules.
+  warnings: Ensure that both player and item parameters are valid before calling this
+    method, as null pointers can cause crashes. This method should not be used outside
+    of the loot distribution context without proper validation.
+  related:
+  - LootDistribution::Roll
+  - LootDistribution::SendLoot
+  - Player::AddItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:45:00.512845'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

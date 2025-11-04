@@ -1,0 +1,58 @@
+api:
+  class: KitingUtils
+  method: CanCompleteActionBeforeContact
+  signature: bool KitingUtils::CanCompleteActionBeforeContact(Player * bot, Unit *
+    threat, float actionDuration)
+documentation:
+  brief: Determines whether a bot can complete an action before making contact with
+    a threat unit.
+  description: The CanCompleteActionBeforeContact method evaluates if a player bot
+    has sufficient time to perform a specified action, such as casting a spell or
+    moving, before coming into melee range with a threat unit. This utility is primarily
+    used in kiting behaviors where the bot must balance offensive or defensive actions
+    with maintaining distance from enemies. The method calculates based on the action's
+    duration and the bot's movement capabilities relative to the threat's proximity.
+    It helps prevent bots from initiating actions that would result in immediate combat
+    engagement, which could be detrimental to their survival or quest completion.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is evaluating
+      the action. Must not be null.
+  - name: threat
+    description: Pointer to the Unit object representing the threat unit (enemy) that
+      the bot is considering. Must not be null.
+  - name: actionDuration
+    description: Float value representing the duration in seconds required to complete
+      the action. Must be non-negative.
+  returns: Returns true if the bot can complete the specified action before coming
+    into contact with the threat unit; otherwise, returns false.
+  examples:
+  - title: Basic usage in kiting logic
+    code: "if (KitingUtils::CanCompleteActionBeforeContact(bot, threat, 2.0f)) {\n\
+      \    bot->CastSpell(threat, SPELL_SHOOT, true);\n} else {\n    bot->GetMotionMaster()->MoveFleeing(threat,\
+      \ 10.0f);\n}"
+    language: cpp
+  - title: Using with spell casting check
+    code: "float castTime = bot->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_castTime;\n\
+      if (KitingUtils::CanCompleteActionBeforeContact(bot, threat, castTime)) {\n\
+      \    bot->CastSpell(threat, SPELL_FIREBALL, true);\n} else {\n    // Avoid casting\
+      \ to prevent melee contact\n    bot->SetReactState(REACT_AGGRESSIVE);\n}"
+    language: cpp
+  notes: This method assumes the bot and threat are in the same map and that movement
+    calculations consider standard game mechanics such as speed, distance, and combat
+    reach. The action duration parameter should include any necessary channeling or
+    casting time for spells.
+  warnings: Ensure that the 'bot' and 'threat' parameters are valid pointers before
+    calling this method to avoid undefined behavior. Also note that this function
+    does not account for dynamic changes in threat position during the action execution
+    window.
+  related:
+  - KitingUtils::GetDistanceToThreat
+  - KitingUtils::IsInMeleeRange
+  - KitingUtils::CalculateMovementTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T02:05:22.171214'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

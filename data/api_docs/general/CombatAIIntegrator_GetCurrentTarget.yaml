@@ -1,0 +1,53 @@
+api:
+  class: CombatAIIntegrator
+  method: GetCurrentTarget
+  signature: int * CombatAIIntegrator::GetCurrentTarget() const
+documentation:
+  brief: Returns a pointer to the current target identifier of the combat AI integrator.
+  description: The GetCurrentTarget method retrieves the unique identifier (GUID)
+    of the current target that the CombatAIIntegrator is engaged with. This identifier
+    typically represents a unit such as a player or creature in the game world. The
+    returned pointer may be null if no target is currently selected, which can happen
+    when the AI is idle or has finished its combat routine. The method provides access
+    to the target's identity without exposing the full target object, allowing for
+    efficient reference checking and interaction with the target through other API
+    methods. This functionality is essential for maintaining proper targeting logic
+    in AI-driven combat systems.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the current target. Returns
+    nullptr if no target is currently selected or if the AI is not actively engaged
+    in combat.
+  examples:
+  - title: Basic usage to check current target
+    code: "int* targetGuid = integrator->GetCurrentTarget();\nif (targetGuid != nullptr)\n\
+      {\n    // Target exists, proceed with combat logic\n    printf(\"Current target\
+      \ GUID: %d\\n\", *targetGuid);\n}\nelse\n{\n    // No active target\n    printf(\"\
+      No current target\\n\");\n}"
+    language: cpp
+  - title: Using target GUID to verify combat state
+    code: "CombatAIIntegrator* ai = GetCombatAIIntegrator();\nint* currentTarget =\
+      \ ai->GetCurrentTarget();\nif (currentTarget != nullptr && *currentTarget >\
+      \ 0)\n{\n    // Valid target exists, check if it's still in combat range\n \
+      \   Unit* targetUnit = ObjectAccessor::GetUnit(*currentTarget);\n    if (targetUnit\
+      \ && targetUnit->IsInWorld())\n    {\n        // Target is valid and accessible\n\
+      \        DoCombatAction(targetUnit);\n    }\n}"
+    language: cpp
+  notes: The returned pointer points to an internal value managed by the CombatAIIntegrator.
+    It should not be modified directly, as doing so may corrupt the AI's target tracking
+    state. The value pointed to is only valid during the lifetime of the current combat
+    cycle and may change after each AI update tick. This method is typically called
+    within combat update loops where targeting decisions are made.
+  warnings: Do not store the returned pointer beyond the scope of a single AI update
+    cycle, as it may become invalid. The pointer should never be dereferenced without
+    checking for null first. Modifying the value pointed to by this method can cause
+    undefined behavior and disrupt AI targeting logic.
+  related:
+  - SetCurrentTarget
+  - HasCurrentTarget
+  - ClearCurrentTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:26:49.826515'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

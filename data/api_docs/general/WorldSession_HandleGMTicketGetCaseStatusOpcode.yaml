@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleGMTicketGetCaseStatusOpcode
+  signature: void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus
+    & packet)
+documentation:
+  brief: Retrieves the status of a GMTicket case for the requesting player.
+  description: The HandleGMTicketGetCaseStatusOpcode method processes incoming client
+    requests to check the current status of a specific game master ticket (GMTicket)
+    that was previously submitted by the player. This function retrieves the ticket's
+    status from the database and sends it back to the client in a formatted packet.
+    It is typically invoked when a player wants to know if their ticket has been received,
+    is being reviewed, or has been resolved. The method ensures that only the ticket
+    owner or a game master with appropriate permissions can access the ticket status
+    information.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage in client-server communication
+    code: "void WorldSession::HandleGMTicketGetCaseStatusOpcode(WorldPackets::Ticket::GMTicketGetCaseStatus&\
+      \ packet)\n{\n    // Extract ticket ID from the packet\n    uint32 ticketId\
+      \ = packet.TicketId;\n    \n    // Retrieve ticket status from database\n  \
+      \  GMTicket* ticket = sTicketMgr->GetTicket(ticketId);\n    \n    if (ticket\
+      \ && (ticket->GetPlayerGuid() == GetPlayer()->GetGUID() || HasPermission(RBAC_PERM_TICKET_VIEW)))\n\
+      \    {\n        WorldPackets::Ticket::GMTicketGetCaseStatusResponse response;\n\
+      \        response.TicketId = ticketId;\n        response.Status = ticket->GetStatus();\n\
+      \        SendPacket(response.Write());\n    }\n}"
+    language: cpp
+  notes: This method interacts with the GMTicket system which is part of TrinityCore's
+    ticketing infrastructure for handling player support requests. The implementation
+    assumes that the packet contains valid ticket data and that appropriate permission
+    checks are performed before accessing sensitive ticket information.
+  warnings: Ensure proper access control is enforced to prevent unauthorized users
+    from viewing other players' tickets. This method should not be called without
+    verifying that the requesting player has either submitted the ticket or holds
+    sufficient permissions.
+  related:
+  - HandleGMTicketCreateOpcode
+  - HandleGMTicketUpdateOpcode
+  - HandleGMTicketDeleteOpcode
+  - HandleGMTicketGetTicketOpcode
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:35:44.798078'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

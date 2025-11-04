@@ -1,0 +1,49 @@
+api:
+  class: SocialEventBus
+  method: GetQueueSnapshot
+  signature: int SocialEventBus::GetQueueSnapshot() const
+documentation:
+  brief: Retrieves the current snapshot of the social event queue size
+  description: The GetQueueSnapshot method returns the number of pending social events
+    currently queued for processing. This method provides a read-only view of the
+    internal queue state without modifying it. The returned value represents the count
+    of events waiting to be handled by the social event bus system. This is useful
+    for monitoring system load, debugging queue behavior, or implementing queue-based
+    throttling mechanisms. The method does not perform any side effects and is safe
+    to call from any thread context.
+  parameters: []
+  returns: An integer representing the current number of events in the social event
+    queue. A return value of zero indicates no pending events, while positive values
+    indicate the count of queued events waiting for processing.
+  examples:
+  - title: Basic Queue Size Check
+    code: "int queueSize = socialEventBus.GetQueueSnapshot();\nif (queueSize > 100)\n\
+      {\n    // Log warning about high queue load\n    sLog->outString(\"Warning:\
+      \ Social event queue has %d items\", queueSize);\n}"
+    language: cpp
+  - title: Monitoring Queue Health
+    code: "class SocialEventMonitor\n{\npublic:\n    void CheckQueueStatus()\n   \
+      \ {\n        int snapshot = sSocialEventBus->GetQueueSnapshot();\n        if\
+      \ (snapshot > 500)\n        {\n            // Trigger performance alert\n  \
+      \          sWorld->SendWorldText(LANG_SOCIAL_QUEUE_OVERLOAD, snapshot);\n  \
+      \      }\n        else if (snapshot < 10)\n        {\n            // Log low\
+      \ queue activity\n            sLog->outDebug(LOG_FILTER_GENERAL, \"Social event\
+      \ queue healthy with %d items\", snapshot);\n        }\n    }\n};"
+    language: cpp
+  notes: This method provides a consistent snapshot of the queue size at the time
+    of call. The actual queue size may change immediately after the method returns
+    due to concurrent event processing or new events being added. The implementation
+    is thread-safe and does not require external synchronization.
+  warnings: The returned value represents only a snapshot and may become stale quickly
+    in high-throughput scenarios. For real-time monitoring, consider implementing
+    periodic sampling rather than continuous polling which could impact performance.
+  related:
+  - SocialEventBus::EnqueueEvent
+  - SocialEventBus::ProcessQueue
+  - SocialEventBus::GetQueueSize
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T18:44:02.319146'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: Guild
+  method: _DoItemsMove
+  signature: InventoryResult Guild::_DoItemsMove(MoveItemData * pSrc, MoveItemData
+    * pDest, bool sendError, uint32 splitedAmount)
+documentation:
+  brief: Moves items between guild bank slots and player inventory or between guild
+    bank slots.
+  description: The _DoItemsMove method handles the core logic for moving items within
+    the guild bank system. It manages transfers of items between a source and destination,
+    which can be either player inventory or guild bank slots. The method performs
+    necessary validation checks including item existence, stack limits, and slot availability.
+    It also handles splitting stacks when required and sends appropriate error messages
+    to players if moves are invalid. This method is typically called internally by
+    other guild banking functions and should not be invoked directly by external code.
+  parameters:
+  - name: pSrc
+    description: Pointer to the source MoveItemData structure containing information
+      about the item being moved, including source container and slot.
+  - name: pDest
+    description: Pointer to the destination MoveItemData structure containing information
+      about where the item is being moved, including destination container and slot.
+  - name: sendError
+    description: Boolean flag indicating whether to send error messages to the player
+      if the move operation fails.
+  - name: splitedAmount
+    description: The number of items to split from the source stack when moving part
+      of a stack, or 0 if moving entire stack.
+  returns: Returns an InventoryResult enum value indicating success or failure of
+    the move operation. Possible values include EQUIP_ERR_OK for success, and various
+    error codes such as EQUIP_ERR_INVENTORY_FULL, EQUIP_ERR_ITEM_NOT_FOUND, etc.
+  examples:
+  - title: Moving an item from guild bank to player inventory
+    code: "MoveItemData src;\nMoveItemData dest;\n// Setup source and destination\
+      \ data\nInventoryResult result = guild->_DoItemsMove(&src, &dest, true, 0);\n\
+      if (result != EQUIP_ERR_OK)\n{\n    // Handle error\n}"
+    language: cpp
+  - title: Splitting a stack when moving partial amount
+    code: "MoveItemData src;\nMoveItemData dest;\n// Setup source and destination\
+      \ data for partial move\nuint32 splitAmount = 5;\nInventoryResult result = guild->_DoItemsMove(&src,\
+      \ &dest, true, splitAmount);\nif (result != EQUIP_ERR_OK)\n{\n    // Handle\
+      \ error\n}"
+    language: cpp
+  notes: This method is an internal helper function used by the guild banking system.
+    It assumes that all parameters are properly validated before calling. The method
+    handles both single item moves and stack splitting operations. Performance-wise,
+    it performs necessary checks but should be called judiciously as it may involve
+    database operations for inventory updates.
+  warnings: This method should not be called directly by external code as it bypasses
+    higher-level validation and error handling. Improper use can lead to inconsistent
+    inventory states or data corruption. Always ensure source and destination MoveItemData
+    structures are properly initialized before calling.
+  related:
+  - Guild::MoveItem
+  - Guild::StoreItem
+  - Guild::RemoveItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T03:49:02.000884'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

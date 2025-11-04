@@ -1,0 +1,61 @@
+api:
+  class: AuctionHouseObject
+  method: SendAuctionCancelledToBidder
+  signature: void AuctionHouseObject::SendAuctionCancelledToBidder(const AuctionPosting
+    * auction, int trans) const
+documentation:
+  brief: Sends an auction cancellation notification to the bidder when an auction
+    they bid on is cancelled.
+  description: The SendAuctionCancelledToBidder method is responsible for notifying
+    a player who placed a bid on a specific auction that their bid has been invalidated
+    due to the auction being cancelled. This typically occurs when an auction owner
+    removes their item from the auction house or when the auction expires without
+    any bids. The method ensures proper communication between the server and client,
+    updating the bidder's UI to reflect the cancellation and potentially refunding
+    their bid amount depending on the auction house rules. It is part of the auction
+    house system's internal logic that maintains consistency between the game state
+    and player notifications.
+  parameters:
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the cancelled auction.
+      This parameter must be a valid pointer to an existing auction entry in the auction
+      house database.
+  - name: trans
+    description: Transaction identifier used for tracking the cancellation process.
+      This value is typically used internally by TrinityCore's transaction system
+      to ensure proper handling of database operations related to the auction cancellation
+      and refund process.
+  returns: null
+  examples:
+  - title: Basic Usage in Auction House Logic
+    code: "void AuctionHouseObject::HandleAuctionCancel(AuctionPosting* auction)\n\
+      {\n    // Cancel the auction\n    // ...\n    \n    // Notify the bidder if\
+      \ there was one\n    if (auction->bidder_guid != 0)\n    {\n        SendAuctionCancelledToBidder(auction,\
+      \ 12345);\n    }\n}"
+    language: cpp
+  - title: Integration with Auction Removal Process
+    code: "void AuctionHouseObject::RemoveAuction(AuctionPosting* auction)\n{\n  \
+      \  // Remove from database\n    // ...\n    \n    // Notify all bidders of cancellation\n\
+      \    if (auction->bidder_guid != 0)\n    {\n        SendAuctionCancelledToBidder(auction,\
+      \ GetTransactionId());\n    }\n    \n    // Additional cleanup logic\n    //\
+      \ ...\n}"
+    language: cpp
+  notes: This method is typically called internally by the auction house system when
+    an auction is removed or expires. The 'trans' parameter should be a valid transaction
+    ID that matches the current database transaction context to ensure proper rollback
+    behavior in case of errors. The method assumes that the auction object passed
+    contains valid bidder information and that the bidder is currently online.
+  warnings: Ensure that the auction pointer is not null before calling this method,
+    as passing an invalid pointer may cause undefined behavior or crashes. Also, verify
+    that the bidder_guid field in the auction object is properly set before invoking
+    this method to avoid sending notifications to non-existent players.
+  related:
+  - SendAuctionOutbidNotification
+  - SendAuctionWonNotification
+  - SendAuctionExpiredNotification
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T16:20:03.435103'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

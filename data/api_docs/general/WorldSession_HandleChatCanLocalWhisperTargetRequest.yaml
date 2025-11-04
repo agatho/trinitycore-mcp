@@ -1,0 +1,48 @@
+api:
+  class: WorldSession
+  method: HandleChatCanLocalWhisperTargetRequest
+  signature: void WorldSession::HandleChatCanLocalWhisperTargetRequest(const WorldPackets::Chat::CanLocalWhisperTargetRequest
+    & canLocalWhisperTargetRequest)
+documentation:
+  brief: Processes a client request to check if a local whisper target is valid and
+    accessible.
+  description: This method handles the client-side request to verify whether a specified
+    player can receive a local whisper. It checks various conditions such as the target
+    player's online status, whether they are ignoring the requesting player, and if
+    the whisper is allowed within the current game context. The method ensures that
+    whispers are only permitted when both players meet the necessary criteria for
+    communication. This functionality supports the core messaging system in TrinityCore
+    by enforcing whisper rules and maintaining player privacy and game balance.
+  parameters:
+  - name: canLocalWhisperTargetRequest
+    description: A packet containing the target player's name or GUID to validate
+      for local whisper capability.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void WorldSession::HandleChatCanLocalWhisperTargetRequest(const WorldPackets::Chat::CanLocalWhisperTargetRequest\
+      \ & canLocalWhisperTargetRequest)\n{\n    // Validate target player\n    Player*\
+      \ target = ObjectAccessor::FindPlayerByName(canLocalWhisperTargetRequest.TargetName);\n\
+      \    if (!target || !target->IsInWorld())\n    {\n        // Send error response\n\
+      \        return;\n    }\n    \n    // Check whisper permissions\n    if (target->HasFlag(PLAYER_FLAGS,\
+      \ PLAYER_FLAG_GM_INVISIBLE))\n    {\n        // GM is invisible, cannot whisper\n\
+      \        return;\n    }\n    \n    // Allow whisper\n    WorldPackets::Chat::CanLocalWhisperTargetResponse\
+      \ response;\n    response.TargetName = canLocalWhisperTargetRequest.TargetName;\n\
+      \    SendPacket(response.Write());\n}"
+    language: cpp
+  notes: This method is part of the chat system and interacts with player flags, online
+    status, and ignore lists. It must be called from within a valid session context
+    where the requesting player is authenticated.
+  warnings: Improper handling of this request may lead to unintended whisper access
+    or denial of legitimate communication between players. Ensure all checks are performed
+    before sending any response packets.
+  related:
+  - HandleChatMessageWhisper
+  - HandleChatMessageSay
+  - HandleChatMessageYell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:40:36.719678'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

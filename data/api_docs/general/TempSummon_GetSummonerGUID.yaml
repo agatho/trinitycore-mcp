@@ -1,0 +1,51 @@
+api:
+  class: TempSummon
+  method: GetSummonerGUID
+  signature: int TempSummon::GetSummonerGUID() const
+documentation:
+  brief: Returns the unique identifier (GUID) of the summoner who created this temporary
+    summon.
+  description: The GetSummonerGUID method retrieves the globally unique identifier
+    of the entity that summoned this TempSummon instance. In World of Warcraft's TrinityCore
+    framework, summons are typically created by players or creatures using spell effects,
+    and this method allows access to the original summoner's GUID for tracking purposes.
+    The returned value represents a 32-bit integer identifier that uniquely identifies
+    the summoner within the game world. This method is commonly used in AI scripts
+    and summon-related logic to determine which entity is responsible for creating
+    a particular summoned creature.
+  parameters: []
+  returns: An integer representing the GUID of the summoner who created this temporary
+    summon. Returns 0 if no summoner exists or if the summon was not created through
+    normal summoning mechanics.
+  examples:
+  - title: Basic usage to check summoner
+    code: "void MySummonAI::UpdateAI(uint32 diff)\n{\n    if (Unit* summoner = ObjectAccessor::GetUnit(*me,\
+      \ m_summonerGUID))\n    {\n        // Perform actions based on summoner\n  \
+      \      DoCast(summoner, SPELL_SUMMON_AURA);\n    }\n}"
+    language: cpp
+  - title: Using GetSummonerGUID in summon cleanup
+    code: "void TemporarySummon::JustDied()\n{\n    uint32 summonerGUID = GetSummonerGUID();\n\
+      \    if (summonerGUID)\n    {\n        // Notify the summoner that their summon\
+      \ has died\n        if (Player* player = ObjectAccessor::FindPlayer(summonerGUID))\n\
+      \        {\n            player->SendNotification(\"Your summon has been destroyed.\"\
+      );\n        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the TempSummon was created through standard summoning
+    mechanics. The GUID returned is a 32-bit integer value used internally by TrinityCore's
+    object management system. It's important to note that some summoned creatures
+    might not have a valid summoner, particularly if they were spawned directly rather
+    than summoned via spell effects.
+  warnings: The method returns 0 when no summoner exists, which could lead to unexpected
+    behavior if not properly checked. Always validate the returned GUID before using
+    it for object lookups, as invalid GUIDs can cause crashes or undefined behavior
+    in TrinityCore's object accessor system.
+  related:
+  - GetSummoner
+  - SetSummonerGUID
+  - GetSummonerGUID
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T17:06:16.496265'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

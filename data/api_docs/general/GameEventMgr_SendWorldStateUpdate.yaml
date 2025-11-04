@@ -1,0 +1,59 @@
+api:
+  class: GameEventMgr
+  method: SendWorldStateUpdate
+  signature: void GameEventMgr::SendWorldStateUpdate(Player * player, uint16 event_id)
+documentation:
+  brief: Sends a world state update to the specified player for the given game event.
+  description: The SendWorldStateUpdate method is responsible for transmitting updated
+    world state information to a specific player client regarding a particular game
+    event. This functionality is commonly used during game events such as holidays,
+    seasonal celebrations, or special in-game occurrences where dynamic UI elements
+    need to be refreshed or modified for individual players. The method ensures that
+    each player receives the correct visual representation of event-related data,
+    such as countdown timers, score displays, or decorative elements. It operates
+    within the context of TrinityCore's event management system and is typically invoked
+    when event states change or when a player logs in during an active event.
+  parameters:
+  - name: player
+    description: A pointer to the Player object for whom the world state update should
+      be sent. This parameter must be a valid, non-null player instance.
+  - name: event_id
+    description: The unique identifier of the game event for which the world state
+      update is being sent. This value corresponds to an active event in the GameEventMgr
+      system.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'Player* targetPlayer = ...; // Get player reference
+
+      uint16 eventId = 42; // Example event ID
+
+      GameEventMgr::SendWorldStateUpdate(targetPlayer, eventId);'
+    language: cpp
+  - title: Usage During Event Activation
+    code: "void OnGameEventStart(uint16 eventId)\n{\n    // Notify all players about\
+      \ the new event state\n    for (auto& pair : sObjectAccessor->GetAllPlayers())\n\
+      \    {\n        Player* player = pair.second;\n        if (player && player->IsInWorld())\n\
+      \        {\n            GameEventMgr::SendWorldStateUpdate(player, eventId);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method directly interacts with the client-side world state system and
+    may trigger UI updates on the player's screen. It is important to ensure that
+    event_id corresponds to an actual active event in the GameEventMgr system, otherwise
+    no meaningful update will be sent. The function does not perform any validation
+    of the player object beyond checking for null, so it should only be called with
+    valid player references.
+  warnings: Calling this method with a null player pointer will result in undefined
+    behavior or potential crashes. Ensure that the event_id parameter maps to an existing
+    game event; otherwise, no client-side updates will occur. Avoid calling this function
+    excessively during high-frequency events as it may impact performance.
+  related:
+  - GetEventStatus
+  - IsActiveEvent
+  - UpdateWorldState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T05:03:10.894475'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

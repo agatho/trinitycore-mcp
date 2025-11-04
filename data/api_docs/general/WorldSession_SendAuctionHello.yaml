@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: SendAuctionHello
+  signature: void WorldSession::SendAuctionHello(int guid, const Unit * unit)
+documentation:
+  brief: Sends an auction hello packet to the player, initiating communication with
+    an auctioneer NPC.
+  description: The SendAuctionHello method is used by the WorldSession class to send
+    an auction hello packet to a connected player. This packet notifies the client
+    that the player has interacted with an auctioneer NPC and allows the client to
+    display the auction house interface. The method takes a GUID identifier for the
+    auctioneer and a pointer to the Unit representing that auctioneer. It is typically
+    called when a player interacts with an auction house NPC to open the auction interface.
+    This method does not return any value but directly sends data over the network
+    to the client.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the auctioneer NPC that the player
+      is interacting with. This GUID identifies which specific auction house NPC the
+      player has approached.
+  - name: unit
+    description: A pointer to the Unit object representing the auctioneer NPC. This
+      parameter provides additional context about the auctioneer, such as its type
+      and state, though it may not be directly used in the packet construction.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void HandleAuctionInteraction(WorldSession* session, int auctioneerGuid,\
+      \ const Unit* auctioneerUnit)\n{\n    session->SendAuctionHello(auctioneerGuid,\
+      \ auctioneerUnit);\n}"
+    language: cpp
+  - title: Usage in Auction Interaction Handler
+    code: "void Player::OnAuctionHouseInteract(int auctioneerGuid)\n{\n    if (GetSession())\n\
+      \    {\n        Unit* auctioneer = GetMap()->GetUnit(ObjectGuid(HighGuid::Unit,\
+      \ auctioneerGuid));\n        if (auctioneer)\n        {\n            GetSession()->SendAuctionHello(auctioneerGuid,\
+      \ auctioneer);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the auction house system in TrinityCore and is typically
+    invoked automatically when a player interacts with an auction house NPC. The packet
+    sent by this method enables the client to properly display the auction interface.
+    It's important to ensure that the GUID and Unit parameters are valid before calling
+    this method, as invalid data could cause client-side issues or disconnects.
+  warnings: Calling this method without proper validation of the GUID and Unit parameters
+    may result in undefined behavior or client disconnection. Ensure that the auctioneer
+    NPC exists and is properly initialized before sending the hello packet. This method
+    should only be called when a player is actually interacting with an auction house
+    NPC, not during other types of interactions.
+  related:
+  - SendAuctionBidderNotification
+  - SendAuctionOwnerNotification
+  - SendAuctionList
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:49:50.846761'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: LootAnalysis
+  method: GetEquipmentSlot
+  signature: uint32 LootAnalysis::GetEquipmentSlot(const LootItem & item)
+documentation:
+  brief: Determines the equipment slot type for a given loot item.
+  description: The GetEquipmentSlot method analyzes a LootItem object and returns
+    the corresponding equipment slot identifier. This is used in World of Warcraft's
+    loot system to categorize items by where they can be equipped on a character.
+    The method evaluates the item's properties such as class, subclass, and inventory
+    type to determine its appropriate slot. It serves as a core component in loot
+    distribution logic, enabling proper item assignment during loot rolling and itemization
+    processes.
+  parameters:
+  - name: item
+    description: A const reference to a LootItem object representing the item being
+      analyzed for equipment slot assignment.
+  returns: Returns a uint32 value representing the equipment slot type. This corresponds
+    to the EquipmentSlots enumeration values used internally by TrinityCore's item
+    system.
+  examples:
+  - title: Basic Usage in Loot Processing
+    code: "LootItem* lootItem = player->GetLoot()->GetLootItem(0);\nuint32 slotType\
+      \ = lootAnalysis->GetEquipmentSlot(*lootItem);\nif (slotType != EQUIPMENT_SLOT_END)\n\
+      {\n    // Process item based on its equipment slot\n    switch (slotType)\n\
+      \    {\n        case EQUIPMENT_SLOT_HEAD:\n            // Handle head slot items\n\
+      \            break;\n        case EQUIPMENT_SLOT_CHEST:\n            // Handle\
+      \ chest slot items\n            break;\n    }\n}"
+    language: cpp
+  - title: Determining Item Slot for Inventory Management
+    code: "void ProcessLootItem(LootAnalysis* lootAnalyzer, LootItem& item)\n{\n \
+      \   uint32 slot = lootAnalyzer->GetEquipmentSlot(item);\n    if (slot < EQUIPMENT_SLOT_END)\n\
+      \    {\n        // Assign item to appropriate inventory slot\n        Player*\
+      \ player = item.GetOwner();\n        if (player)\n        {\n            player->AddItemToInventory(slot,\
+      \ item.itemid);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the loot analysis system and relies on internal item
+    database lookups to determine slot assignments. The returned slot values match
+    standard World of Warcraft equipment slot constants. Performance is generally
+    good as it operates on cached item data, but repeated calls for many items may
+    impact performance during large loot events.
+  warnings: Ensure that the LootItem object passed to this method is valid and properly
+    initialized before calling. Passing a null or uninitialized reference could lead
+    to undefined behavior or crashes. The method assumes proper item metadata exists
+    in the database.
+  related:
+  - GetLootItem
+  - GetLootSlotType
+  - IsEquipmentSlot
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T00:57:25.014609'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

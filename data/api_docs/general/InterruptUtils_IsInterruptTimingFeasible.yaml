@@ -1,0 +1,61 @@
+api:
+  class: InterruptUtils
+  method: IsInterruptTimingFeasible
+  signature: bool InterruptUtils::IsInterruptTimingFeasible(float castTimeRemaining,
+    float executionTime, float marginError)
+documentation:
+  brief: Determines if an interrupt is feasible based on cast time remaining, execution
+    time, and margin of error.
+  description: The IsInterruptTimingFeasible method evaluates whether a spell or ability
+    can be successfully interrupted given the current state of the casting process.
+    It compares the remaining time until the cast completes against the time required
+    to execute the interrupt action, including a configurable margin for timing accuracy.
+    This utility is commonly used in combat systems to validate interrupt attempts
+    and ensure realistic gameplay mechanics. The method assumes that all input values
+    are non-negative and that executionTime represents the duration of the interrupt
+    ability itself.
+  parameters:
+  - name: castTimeRemaining
+    description: The amount of time (in seconds) left before the current cast completes.
+      Must be a non-negative floating-point value representing real-time seconds.
+  - name: executionTime
+    description: The time (in seconds) required to execute the interrupt ability.
+      Must be a non-negative floating-point value representing real-time seconds.
+  - name: marginError
+    description: An acceptable tolerance or error margin (in seconds) for timing precision.
+      Must be a non-negative floating-point value that accounts for network latency
+      or client-side prediction differences.
+  returns: Returns true if the interrupt can be executed within the remaining cast
+    time, considering the execution time and margin of error; otherwise returns false.
+  examples:
+  - title: Basic Interrupt Timing Check
+    code: "if (InterruptUtils::IsInterruptTimingFeasible(2.0f, 0.5f, 0.1f)) {\n  \
+      \  // Proceed with interrupt logic\n    player->InterruptSpell();\n}"
+    language: cpp
+  - title: Advanced Interrupt Timing with Dynamic Margin
+    code: "float remainingTime = target->GetSpellHistory()->GetCastTimeRemaining(spellId);\n\
+      float execTime = GetInterruptAbilityDuration(player);\nfloat margin = CalculateTimingMargin(player,\
+      \ target);\n\nif (InterruptUtils::IsInterruptTimingFeasible(remainingTime, execTime,\
+      \ margin)) {\n    // Apply interrupt effect\n    ApplyInterruptEffect(player,\
+      \ target);\n} else {\n    // Notify player that interrupt failed due to timing\n\
+      \    player->SendSpellFailed(SPELL_FAILED_INTERRUPTED);\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with spell casting state validation.
+    It does not account for movement or other dynamic factors during the interrupt
+    process, so additional checks may be needed for complex scenarios. The method
+    assumes consistent time units across all parameters and should only be called
+    when a valid spell cast is in progress.
+  warnings: Do not use this method without verifying that a spell is actually being
+    cast, as it will return false if remaining time is zero or negative. Also, ensure
+    that the executionTime and marginError values are properly normalized to match
+    the game's time system (e.g., seconds vs milliseconds).
+  related:
+  - GetSpellCastTime
+  - IsCasting
+  - InterruptSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T02:44:43.248656'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

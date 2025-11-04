@@ -1,0 +1,72 @@
+api:
+  class: WorldSession
+  method: MeetsChrCustomizationReq
+  signature: bool WorldSession::MeetsChrCustomizationReq(const ChrCustomizationReqEntry
+    * req, int race, int playerClass, bool checkRequiredDependentChoices, int selectedChoices)
+    const
+documentation:
+  brief: Checks if a player meets the requirements for character customization based
+    on race, class, and selected choices.
+  description: The MeetsChrCustomizationReq method evaluates whether a player's current
+    race, class, and selected customization choices satisfy the constraints defined
+    by a given ChrCustomizationReqEntry. This method is used during character creation
+    and customization to ensure that players cannot select invalid combinations of
+    appearance options. It considers both direct requirements and dependent choices
+    that may be required based on other selections. The check can optionally include
+    validation of required dependent choices, making it useful for comprehensive validation
+    scenarios.
+  parameters:
+  - name: req
+    description: Pointer to the ChrCustomizationReqEntry that defines the customization
+      requirements to validate against. This entry contains rules about which races,
+      classes, and choice combinations are allowed.
+  - name: race
+    description: The race ID of the player being validated. Must correspond to a valid
+      race in the game's database.
+  - name: playerClass
+    description: The class ID of the player being validated. Must correspond to a
+      valid class in the game's database.
+  - name: checkRequiredDependentChoices
+    description: Boolean flag indicating whether dependent choices that are required
+      by other selections should also be validated. If true, ensures all required
+      dependencies are met.
+  - name: selectedChoices
+    description: Bitmask representing the currently selected customization choices
+      for the player. Each bit corresponds to a specific choice option.
+  returns: Returns true if all requirements defined in the ChrCustomizationReqEntry
+    are satisfied by the provided race, class, and selected choices; otherwise returns
+    false.
+  examples:
+  - title: Basic validation check
+    code: 'ChrCustomizationReqEntry* req = sChrCustomizationReqStore.LookupEntry(12345);
+
+      bool isValid = session->MeetsChrCustomizationReq(req, RACE_HUMAN, CLASS_WARRIOR,
+      false, 0x00000001);'
+    language: cpp
+  - title: Full validation with dependent choices
+    code: 'ChrCustomizationReqEntry* req = sChrCustomizationReqStore.LookupEntry(54321);
+
+      uint32 selectedChoices = 0x0000000F; // Example bitmask
+
+      bool isValid = session->MeetsChrCustomizationReq(req, RACE_ORC, CLASS_MAGE,
+      true, selectedChoices);'
+    language: cpp
+  notes: This method is primarily used during character creation and customization
+    to enforce game rules. The selectedChoices parameter uses a bitmask system where
+    each bit represents an enabled customization option. Performance-wise, this method
+    may involve database lookups or complex bitwise operations depending on the complexity
+    of the requirements.
+  warnings: Ensure that the ChrCustomizationReqEntry pointer is valid before calling
+    this method, as passing null will likely cause undefined behavior. Also note that
+    race and class IDs must be valid values from the game's internal databases to
+    avoid incorrect validation results.
+  related:
+  - GetPlayer
+  - GetAccountId
+  - HasPermission
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T19:57:56.844156'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: QuestValidation
+  method: IsInCorrectZone
+  signature: bool QuestValidation::IsInCorrectZone(uint32 questId, Player * bot)
+documentation:
+  brief: Checks whether the player is in the correct zone to accept or interact with
+    the specified quest
+  description: The IsInCorrectZone method validates if a player character is located
+    within the appropriate geographical area required to engage with a specific quest.
+    This validation ensures that players cannot prematurely start or complete quests
+    outside of their designated zones, maintaining game balance and quest progression
+    logic. The method typically checks against zone restrictions defined in the quest's
+    database entries, verifying that the player's current zone matches or is allowed
+    for the given quest. It may also consider related zone groups or parent zones
+    as part of the validation process.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate zone requirements
+      for. Must correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the character being validated.
+      Cannot be null and must represent an active player in the game world.
+  returns: Returns true if the player is in a zone that allows them to interact with
+    the specified quest, false otherwise. This includes cases where the player's current
+    zone matches the quest's required zone or falls within an allowed zone group.
+  examples:
+  - title: Basic Zone Validation Check
+    code: "if (QuestValidation::IsInCorrectZone(12345, player)) {\n    // Player can\
+      \ proceed with quest\n    player->CompleteQuest(12345);\n} else {\n    // Player\
+      \ is in wrong zone\n    player->SendNotification(\"You are not in the correct\
+      \ zone for this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (!QuestValidation::IsInCorrectZone(quest->GetQuestId(),\
+      \ this)) {\n        SendQuestInvalidReason(QUEST_INVALID_REASON_NOT_IN_ZONE);\n\
+      \        return;\n    }\n    // Proceed with normal quest acceptance\n    Player::OnQuestAccept(quest);\n\
+      }"
+    language: cpp
+  notes: This method likely performs database lookups or cached zone validation checks.
+    It's recommended to cache results for frequently accessed quests to improve performance.
+    The implementation may also consider faction-specific zone restrictions and quest
+    gating mechanics.
+  warnings: Ensure that the player pointer is valid before calling this method, as
+    passing a null pointer will result in undefined behavior. Zone validation might
+    not account for temporary zone changes or teleportation effects during quest progression.
+  related:
+  - IsQuestAvailable
+  - CanPlayerStartQuest
+  - GetQuestZoneRequirement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T19:49:55.096766'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: ItemTemplate
+  method: GetGemProperties
+  signature: uint32 ItemTemplate::GetGemProperties() const
+documentation:
+  brief: Retrieves the gem properties identifier associated with the item template.
+  description: The GetGemProperties method returns a unique identifier that represents
+    the properties of a gem socketed in the item. This value is used by the game engine
+    to determine how the gem affects the item's stats and abilities. The returned
+    value typically corresponds to an entry in the GemProperties table within the
+    database, which defines the gem's visual appearance, stat bonuses, and other gameplay
+    effects. This method is commonly used during item processing, socket validation,
+    and stat calculation routines in TrinityCore's item system.
+  parameters: []
+  returns: A uint32 value representing the gem properties identifier. This ID maps
+    to an entry in the GemProperties database table which contains information about
+    the gem's bonuses, visual effects, and gameplay mechanics.
+  examples:
+  - title: Basic Usage Example
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ gemPropertiesId = itemTemplate->GetGemProperties();\nif (gemPropertiesId >\
+      \ 0)\n{\n    // Process gem properties\n    sLog->outString(\"Item has gem properties\
+      \ ID: %u\", gemPropertiesId);\n}"
+    language: cpp
+  - title: Checking for Gem Properties Before Applying Bonuses
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(player->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ slot)->GetTemplate());\nuint32 gemProps = itemTemplate->GetGemProperties();\n\
+      if (gemProps > 0)\n{\n    // Retrieve gem properties from database\n    GemPropertiesEntry\
+      \ const* gemProp = sGemPropertiesStore.LookupEntry(gemProps);\n    if (gemProp)\n\
+      \    {\n        // Apply stat bonuses based on gem properties\n        player->ApplyModInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,\
+      \ gemProp->BonusDamage, true);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during item instantiation and stat calculation.
+    The returned value may be zero if the item does not have any gem properties assigned.
+    Performance-wise, this is a simple getter method with no computational overhead.
+    It's thread-safe as it only reads from const member variables.
+  warnings: Be cautious when using this method on items that might not have gem sockets
+    defined. Always validate that the returned ID corresponds to an existing entry
+    in the GemProperties database table to avoid accessing invalid memory or incorrect
+    data. Do not assume all items with gems will return a non-zero value; some items
+    may have empty gem slots.
+  related:
+  - GetSocketCount
+  - GetGemEnchantmentId
+  - GetItemLevel
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T02:31:21.943456'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

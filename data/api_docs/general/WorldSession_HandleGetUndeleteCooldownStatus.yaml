@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: HandleGetUndeleteCooldownStatus
+  signature: void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus
+    & param0)
+documentation:
+  brief: Sends the cooldown status for character undeletion to the client.
+  description: This method handles the client request to retrieve the current cooldown
+    status for character undeletion. It checks whether the player is allowed to undelete
+    a character based on game rules and cooldown timers, then sends an appropriate
+    response packet back to the client. The method is part of the character management
+    system in TrinityCore and relates to the game's character deletion and undeletion
+    mechanics. This functionality typically prevents players from immediately undeleting
+    characters they just deleted, enforcing a cooldown period for balance purposes.
+  parameters:
+  - name: param0
+    description: The incoming packet containing the client's request for undelete
+      cooldown status. This parameter is of type WorldPackets::Character::GetUndeleteCharacterCooldownStatus
+      and includes information about which character the player is attempting to undelete.
+  returns: null
+  examples:
+  - title: Basic usage in session handler
+    code: "void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus\
+      \ & packet)\n{\n    // Process the cooldown status request\n    SendUndeleteCooldownStatus();\n\
+      }"
+    language: cpp
+  - title: Complete implementation with cooldown check
+    code: "void WorldSession::HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus\
+      \ & packet)\n{\n    // Validate character GUID\n    if (!packet.CharacterGuid)\n\
+      \        return;\n    \n    // Check if undeletion is allowed based on cooldown\n\
+      \    uint32 cooldown = GetPlayer()->GetUnDeleteCooldown();\n    \n    // Send\
+      \ response to client\n    WorldPackets::Character::UndeleteCooldownStatus response;\n\
+      \    response.Cooldown = cooldown;\n    response.CharacterGuid = packet.CharacterGuid;\n\
+      \    SendPacket(response.Write());\n}"
+    language: cpp
+  notes: This method is typically invoked when a player attempts to undelete a character.
+    The actual cooldown logic may be implemented elsewhere in the codebase, and this
+    method simply retrieves and sends the current state. It's important to note that
+    this functionality is part of the character management system and should only
+    be called from within the WorldSession context.
+  warnings: Ensure proper validation of the character GUID before processing the request.
+    Improper handling could lead to exploits where players bypass cooldown restrictions
+    or access characters they shouldn't have access to.
+  related:
+  - SendUndeleteCooldownStatus
+  - GetUnDeleteCooldown
+  - HandleUndeleteCharacter
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-02T19:33:00.715948'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

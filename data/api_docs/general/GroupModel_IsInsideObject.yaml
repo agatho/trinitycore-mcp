@@ -1,0 +1,62 @@
+api:
+  class: GroupModel
+  method: IsInsideObject
+  signature: InsideResult GroupModel::IsInsideObject(const int & ray, float & z_dist)
+    const
+documentation:
+  brief: Determines whether a ray cast intersects with an object in the GroupModel.
+  description: The IsInsideObject method performs a ray intersection test against
+    the GroupModel's collision geometry to determine if a specified ray intersects
+    with any object within the model. This method is typically used for determining
+    if a player or object is inside a specific area or structure, such as checking
+    if a character is standing inside a building or cave. The method returns an InsideResult
+    enum indicating the outcome of the intersection test, and optionally provides
+    the distance from the ray origin to the point of intersection (z_dist). This functionality
+    is essential for game mechanics involving spatial awareness, collision detection,
+    and area-based triggers.
+  parameters:
+  - name: ray
+    description: An integer identifier representing the ray cast to test against the
+      GroupModel. The value typically corresponds to a specific ray or direction used
+      in the spatial query.
+  - name: z_dist
+    description: A reference to a float that will be updated with the distance along
+      the z-axis from the ray origin to the intersection point if an object is hit.
+      This parameter is only modified when the method returns a positive intersection
+      result.
+  returns: An InsideResult enum indicating whether the ray intersects with an object
+    in the GroupModel. Possible values include INSIDE_OBJECT, OUTSIDE_OBJECT, or INTERSECTING_OBJECT
+    depending on the outcome of the spatial query.
+  examples:
+  - title: Basic usage to check if a ray intersects with a GroupModel
+    code: "GroupModel model;\nint rayId = 12345;\nfloat distance;\nInsideResult result\
+      \ = model.IsInsideObject(rayId, distance);\nif (result == INSIDE_OBJECT) {\n\
+      \    // The ray intersects with an object in the model\n    std::cout << \"\
+      Distance to intersection: \" << distance << std::endl;\n}"
+    language: cpp
+  - title: Using IsInsideObject for area-based trigger detection
+    code: "void CheckPlayerPosition(GroupModel& areaModel, float playerX, float playerY,\
+      \ float playerZ) {\n    int rayId = GetRayIdFromPosition(playerX, playerY);\n\
+      \    float zDistance;\n    InsideResult result = areaModel.IsInsideObject(rayId,\
+      \ zDistance);\n    if (result == INTERSECTING_OBJECT) {\n        // Player is\
+      \ inside a specific area or structure\n        HandlePlayerEnterArea(playerZ\
+      \ - zDistance);\n    }\n}"
+    language: cpp
+  notes: This method likely uses internal ray casting algorithms optimized for TrinityCore's
+    collision system. It may be computationally expensive when used frequently, especially
+    on large GroupModels with complex geometry. The ray parameter should be precomputed
+    or derived from a consistent coordinate system to ensure accurate results.
+  warnings: Ensure that the ray identifier is valid and corresponds to an actual ray
+    in the model's internal structure. Incorrect ray IDs may lead to undefined behavior
+    or false positives. The z_dist parameter will only be updated if the method returns
+    a positive intersection result; otherwise, its value remains unchanged.
+  related:
+  - GetRayIdFromPosition
+  - IsInsideObjectBounds
+  - GetIntersectionDistance
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T04:00:54.673427'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

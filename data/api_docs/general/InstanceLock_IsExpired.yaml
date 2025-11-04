@@ -1,0 +1,45 @@
+api:
+  class: InstanceLock
+  method: IsExpired
+  signature: bool InstanceLock::IsExpired() const
+documentation:
+  brief: Checks whether an instance lock has expired based on its expiration time.
+  description: The IsExpired method determines if an instance lock is no longer valid
+    by comparing its internal expiration timestamp against the current system time.
+    This method is typically used in World of Warcraft's TrinityCore server to manage
+    dungeon and raid instance locking mechanics, ensuring that players cannot access
+    locked instances after their designated time window has passed. The check is performed
+    using a simple time comparison without modifying the lock state.
+  parameters: []
+  returns: Returns true if the instance lock's expiration time has passed or is invalid;
+    otherwise returns false if the lock is still active and valid.
+  examples:
+  - title: Basic Usage in Instance Management
+    code: "if (instanceLock.IsExpired()) {\n    // Handle expired instance lock\n\
+      \    LOG_DEBUG(\"world\", \"Instance lock has expired for map {}\", instanceLock.GetMapId());\n\
+      }"
+    language: cpp
+  - title: Checking Lock Status Before Player Entry
+    code: "Player* player = ...;\nif (!instanceLock.IsExpired() && instanceLock.CanEnter(player))\
+      \ {\n    // Allow player to enter the instance\n    player->SendInstanceLockResult(LOCK_RESULT_OK);\n\
+      } else {\n    // Deny access due to expired lock or insufficient permissions\n\
+      \    player->SendInstanceLockResult(LOCK_RESULT_EXPIRED);\n}"
+    language: cpp
+  notes: This method performs a read-only check and does not modify any internal state
+    of the InstanceLock object. It relies on accurate system time synchronization
+    for correct behavior. The expiration time is typically set when the lock is created
+    or updated, often based on instance reset timers or player activity timeouts.
+  warnings: Do not assume that an expired lock means the instance is immediately available
+    for new players; additional checks may be required to determine if a new lock
+    can be established. Also, be aware that time-based comparisons are sensitive to
+    system clock adjustments which could affect behavior in edge cases.
+  related:
+  - InstanceLock::GetExpirationTime
+  - InstanceLock::SetExpirationTime
+  - InstanceLock::IsLocked
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T03:16:14.890228'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

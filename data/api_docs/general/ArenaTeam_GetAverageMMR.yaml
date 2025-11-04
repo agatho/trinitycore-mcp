@@ -1,0 +1,59 @@
+api:
+  class: ArenaTeam
+  method: GetAverageMMR
+  signature: uint32 ArenaTeam::GetAverageMMR(Group * group) const
+documentation:
+  brief: Calculates and returns the average Matchmaking Rating (MMR) of all members
+    in the specified group.
+  description: The GetAverageMMR method computes the average Matchmaking Rating for
+    all players currently in the provided group. This value is typically used in arena
+    team matchmaking systems to balance teams based on player skill levels. The method
+    iterates through each member of the group, retrieves their individual MMR, sums
+    these values, and divides by the total number of members. It's important to note
+    that this calculation assumes all group members are eligible for arena play and
+    have valid MMR data. If the group is empty or contains no valid players with MMR
+    data, the method may return 0 or an undefined value depending on implementation
+    details.
+  parameters:
+  - name: group
+    description: A pointer to a Group object containing the members whose average
+      MMR will be calculated. This parameter must not be null and should represent
+      a valid group with active arena team members.
+  returns: Returns a uint32 value representing the calculated average Matchmaking
+    Rating of all players in the specified group. If no valid players are found or
+    if the group is empty, returns 0.
+  examples:
+  - title: Calculate Average MMR for a Group
+    code: 'ArenaTeam* team = sObjectMgr->GetArenaTeamById(12345);
+
+      Group* group = team->GetMembers();
+
+      uint32 avgMMR = team->GetAverageMMR(group);
+
+      TC_LOG_INFO(LOG_FILTER_GENERAL, "Average MMR of team members: %u", avgMMR);'
+    language: cpp
+  - title: Using Average MMR for Team Balancing
+    code: "ArenaTeam* team1 = sObjectMgr->GetArenaTeamById(1001);\nArenaTeam* team2\
+      \ = sObjectMgr->GetArenaTeamById(1002);\nGroup* group1 = team1->GetMembers();\n\
+      Group* group2 = team2->GetMembers();\nuint32 avgMMR1 = team1->GetAverageMMR(group1);\n\
+      uint32 avgMMR2 = team2->GetAverageMMR(group2);\nif (abs((int32)(avgMMR1 - avgMMR2))\
+      \ > 100) {\n    // Teams are too unbalanced, consider reassigning players\n}"
+    language: cpp
+  notes: This method requires that all group members have valid MMR data stored in
+    their player records. The calculation is performed at the time of method call
+    and does not cache results. Performance may be impacted when dealing with large
+    groups or frequent calls, especially during high-traffic server periods.
+  warnings: Ensure that the Group pointer passed to this method is valid and contains
+    members before calling to avoid potential crashes or undefined behavior. The method
+    assumes all players in the group are active arena team members; otherwise, results
+    may be inaccurate.
+  related:
+  - GetMembers
+  - GetMMR
+  - GetMemberCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T16:58:06.472311'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

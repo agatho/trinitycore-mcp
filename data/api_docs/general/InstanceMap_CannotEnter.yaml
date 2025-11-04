@@ -1,0 +1,45 @@
+api:
+  class: InstanceMap
+  method: CannotEnter
+  signature: TransferAbortParams InstanceMap::CannotEnter(Player * player)
+documentation:
+  brief: Determines if a player cannot enter the instance map and returns the appropriate
+    transfer abort parameters.
+  description: The CannotEnter method evaluates whether a given player is permitted
+    to enter the instance map. It checks various conditions such as level requirements,
+    quest progress, raid/group restrictions, and other game mechanics that might prevent
+    a player from entering. The method returns a TransferAbortParams structure that
+    contains information about why the transfer was aborted, if applicable. This is
+    typically called during the player transfer process before allowing entry into
+    an instance map.
+  parameters: []
+  returns: A TransferAbortParams structure containing the reason for transfer abort,
+    or indicating successful entry if no restrictions apply. The structure may contain
+    values such as TRANSFER_ABORT_INVALID_MAP, TRANSFER_ABORT_MAX_PLAYERS, or TRANSFER_ABORT_ZONE_IN_COMBAT
+    depending on the specific restriction encountered.
+  examples:
+  - title: Checking player entry permissions
+    code: "void CheckPlayerEntry(Player* player)\n{\n    TransferAbortParams abortParams\
+      \ = instanceMap->CannotEnter(player);\n    if (abortParams != TRANSFER_ABORT_NONE)\n\
+      \    {\n        // Handle transfer abort\n        player->SendTransferAborted(player->GetMapId(),\
+      \ abortParams);\n    }\n    else\n    {\n        // Allow entry\n        player->TeleportTo(instanceMap->GetId(),\
+      \ 0, 0, 0, 0);\n    }\n}"
+    language: cpp
+  notes: This method is part of the instance map's access control system and should
+    be called before attempting to transfer players into instances. The implementation
+    likely checks player level, quest completion status, group membership requirements,
+    and other instance-specific restrictions.
+  warnings: Do not call this method directly for teleportation logic; it's meant to
+    be used as part of the broader transfer validation process. Incorrect handling
+    of the returned TransferAbortParams can lead to inconsistent game state or improper
+    error messages for players.
+  related:
+  - IsPlayerInMap
+  - CanEnter
+  - Player::TeleportTo
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T03:12:24.786728'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

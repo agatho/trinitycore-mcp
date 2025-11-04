@@ -1,0 +1,55 @@
+api:
+  class: QuestValidation
+  method: GetCachedValidation
+  signature: ValidationResult QuestValidation::GetCachedValidation(uint32 questId,
+    uint32 botGuid)
+documentation:
+  brief: Retrieves cached quest validation results for a specific quest and bot GUID.
+  description: The GetCachedValidation method fetches precomputed validation data
+    for a given quest ID and bot GUID from an internal cache. This method is used
+    to avoid recomputing validation logic repeatedly for the same quest-bot combination,
+    improving performance in scenarios where quests are validated multiple times.
+    The cached results typically include information about whether the quest can be
+    accepted, completed, or if there are any restrictions based on the bot's state
+    or progress. This caching mechanism is particularly useful in automated questing
+    systems or botting frameworks within TrinityCore-based servers.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate. Must be a valid quest
+      entry from the database.
+  - name: botGuid
+    description: The global unique identifier of the bot instance performing the validation.
+      Used to distinguish between different bots and their individual quest states.
+  returns: A ValidationResult object containing the cached validation result for the
+    specified quest and bot GUID. The result includes flags indicating if the quest
+    is valid, can be accepted, completed, or has any restrictions.
+  examples:
+  - title: Basic Usage
+    code: "QuestValidation validation;\nuint32 questId = 12345;\nuint32 botGuid =\
+      \ 67890;\nValidationResult result = validation.GetCachedValidation(questId,\
+      \ botGuid);\nif (result.IsValid()) {\n    // Proceed with quest logic\n}"
+    language: cpp
+  - title: Checking Quest Acceptance
+    code: "QuestValidation validation;\nuint32 questId = 12345;\nuint32 botGuid =\
+      \ 67890;\nValidationResult result = validation.GetCachedValidation(questId,\
+      \ botGuid);\nif (result.CanBeAccepted()) {\n    // Logic to accept the quest\n\
+      } else if (result.IsCompleted()) {\n    // Logic to turn in the quest\n}"
+    language: cpp
+  notes: This method assumes that validation data has already been computed and cached
+    previously. If no cache entry exists for the given parameters, behavior may vary
+    depending on implementation - it could return a default invalid result or trigger
+    a new computation. The cache is likely thread-safe but should be used with caution
+    in multi-threaded environments.
+  warnings: Ensure that quest IDs and bot GUIDs are valid before calling this method
+    to avoid undefined behavior. Cache invalidation must be handled properly when
+    quest data changes to prevent stale results from being returned.
+  related:
+  - CacheValidation
+  - ValidateQuest
+  - ClearCache
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T19:56:33.320773'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,67 @@
+api:
+  class: GridMap
+  method: GetLiquidStatus
+  signature: ZLiquidStatus GridMap::GetLiquidStatus(float x, float y, float z, int
+    ReqLiquidType, LiquidData * data, float collisionHeight) const
+documentation:
+  brief: Checks the liquid status at a given location in the grid map, returning whether
+    the position is above, below, or inside a liquid.
+  description: The GetLiquidStatus method determines the relationship between a specified
+    3D point and any liquid (water, lava, etc.) present in the grid map. It evaluates
+    if the point is above the liquid surface, below it, or within the liquid volume.
+    The method supports filtering by required liquid type and can optionally provide
+    detailed liquid data through the output parameter. This functionality is crucial
+    for game mechanics such as movement restrictions, collision detection, and visual
+    effects related to liquids in World of Warcraft environments.
+  parameters:
+  - name: x
+    description: The X coordinate of the point to check in map coordinates.
+  - name: y
+    description: The Y coordinate of the point to check in map coordinates.
+  - name: z
+    description: The Z coordinate (height) of the point to check.
+  - name: ReqLiquidType
+    description: Specifies the required liquid type to check for. A value of -1 means
+      any liquid; otherwise, it should match a specific liquid type ID defined in
+      the game's liquid data tables.
+  - name: data
+    description: Pointer to a LiquidData structure that will be filled with detailed
+      information about the liquid at the specified point if a liquid is found. Can
+      be null if detailed data is not needed.
+  - name: collisionHeight
+    description: Optional parameter representing the height used for collision detection
+      purposes, typically used to determine how deep an object is submerged in the
+      liquid.
+  returns: Returns a ZLiquidStatus enum value indicating the status of the point relative
+    to the liquid. Possible values include LIQUID_MAP_NO_WATER, LIQUID_MAP_ABOVE_WATER,
+    LIQUID_MAP_UNDER_WATER, and others depending on implementation details.
+  examples:
+  - title: Basic usage to check if a point is above or under water
+    code: "float x = 100.0f, y = 200.0f, z = 50.0f;\nZLiquidStatus status = gridMap->GetLiquidStatus(x,\
+      \ y, z, -1, nullptr, 0.0f);\nif (status == LIQUID_MAP_UNDER_WATER)\n    printf(\"\
+      Point is underwater\\n\");"
+    language: cpp
+  - title: Check for specific liquid type and retrieve data
+    code: "LiquidData liquidData;\nZLiquidStatus status = gridMap->GetLiquidStatus(100.0f,\
+      \ 200.0f, 50.0f, LIQUID_TYPE_WATER, &liquidData, 1.0f);\nif (status == LIQUID_MAP_UNDER_WATER)\n\
+      {\n    printf(\"Water depth: %f\\n\", liquidData.depth);\n    printf(\"Liquid\
+      \ type ID: %d\\n\", liquidData.type);\n}"
+    language: cpp
+  notes: This method relies on precomputed grid map data and assumes that the coordinates
+    are valid for the current map. The LiquidData structure may contain additional
+    fields like depth, type, and flags depending on the implementation. Performance
+    is optimized through spatial indexing of liquid data within the grid.
+  warnings: Ensure that the input coordinates are within the bounds of the grid map
+    to avoid undefined behavior or incorrect results. Passing null for 'data' when
+    detailed information is required may lead to missing important liquid properties
+    during gameplay logic.
+  related:
+  - GetLiquidLevel
+  - IsInLiquid
+  - GetWaterLevel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T04:37:31.371677'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

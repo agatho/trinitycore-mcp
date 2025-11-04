@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: SendTrainerList
+  signature: void WorldSession::SendTrainerList(Creature * npc, uint32 trainerId)
+documentation:
+  brief: Sends a trainer list packet to the client for the specified NPC and trainer
+    ID.
+  description: The SendTrainerList method constructs and sends a packet containing
+    the training information for a specific NPC (creature) to the player's client.
+    This method is typically invoked when a player interacts with a trainer NPC to
+    view available skills, spells, or abilities that can be learned. The method uses
+    the provided Creature pointer to determine the trainer's type and the trainerId
+    parameter to identify which specific training list should be displayed. It handles
+    the serialization of trainer data including trainable skills, required items,
+    costs, and prerequisite conditions. This functionality is integral to World of
+    Warcraft's class and profession training system within TrinityCore.
+  parameters:
+  - name: npc
+    description: Pointer to the Creature object representing the trainer NPC. Must
+      be a valid creature with trainer data attached.
+  - name: trainerId
+    description: Unique identifier for the specific trainer list to display. Used
+      to determine which skills and abilities are available for training.
+  returns: null
+  examples:
+  - title: Basic Usage in Trainer Interaction
+    code: "void Player::OnTrainerInteract(Creature* trainer)\n{\n    if (trainer &&\
+      \ trainer->IsTrainer())\n    {\n        SendTrainerList(trainer, trainer->GetCreatureTemplate()->trainer_id);\n\
+      \    }\n}"
+    language: cpp
+  - title: Sending Custom Trainer List
+    code: "void WorldSession::HandleCustomTrainerRequest(uint32 trainerId)\n{\n  \
+      \  Creature* npc = GetPlayer()->GetMap()->GetCreature(ObjectGuid(HighGuid::Unit,\
+      \ 12345));\n    if (npc)\n    {\n        SendTrainerList(npc, trainerId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method internally handles packet construction and sending. It relies
+    on the Creature's trainer data being properly initialized. The method does not
+    validate if the player can actually learn the skills - that validation occurs
+    in the client-side UI logic. Performance-wise, this method should be called only
+    when necessary to avoid unnecessary network traffic.
+  warnings: Ensure that the Creature pointer is valid and points to a creature with
+    trainer data before calling this method. Passing an invalid or null pointer will
+    likely cause a crash or undefined behavior. The trainerId must correspond to a
+    valid trainer entry in the database, otherwise the client may display empty or
+    incorrect training lists.
+  related:
+  - SendTrainerList
+  - GetPlayer
+  - GetMap
+  - IsTrainer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:06:44.573788'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: ClassAI
+  method: GetSpellRange
+  signature: float ClassAI::GetSpellRange(int spellId)
+documentation:
+  brief: Retrieves the maximum range of a specified spell for the AI-controlled unit.
+  description: The GetSpellRange method returns the maximum casting range of a given
+    spell as defined in the spell database. This value is used by the ClassAI system
+    to determine whether an enemy target is within acceptable range for spell casting.
+    The method accesses the spell's range information from the game's internal spell
+    database and applies any relevant modifiers based on the AI unit's current state
+    or configuration. It does not perform any dynamic range calculations or consider
+    environmental factors such as line of sight or terrain. This method is typically
+    called during AI decision-making processes to evaluate spell viability before
+    attempting to cast.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell for which to retrieve the range.
+      Must correspond to a valid spell entry in the game's database.
+  returns: Returns a float value representing the maximum casting range of the specified
+    spell in yards. A return value of 0.0 indicates either an invalid spell ID or
+    a spell with no defined range. Negative values should not occur under normal circumstances.
+  examples:
+  - title: Basic Usage to Check Spell Range
+    code: "float range = ai->GetSpellRange(12345);\nif (range > 0.0f)\n{\n    // Spell\
+      \ has a valid range, proceed with AI logic\n    if (target->GetDistance2d(me)\
+      \ <= range)\n    {\n        // Target is within range\n    }\n}"
+    language: cpp
+  - title: Using Spell Range in AI Decision Making
+    code: "class MyAI : public ClassAI\n{\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override\n    {\n        if (!UpdateVictim())\n            return;\n     \
+      \   \n        // Check if we can cast Fireball (spell ID 133)\n        float\
+      \ fireballRange = GetSpellRange(133);\n        if (fireballRange > 0.0f && me->GetDistance2d(victim)\
+      \ <= fireballRange)\n        {\n            DoCastVictim(133);\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method relies on the spell's range data from the database and does not
+    account for dynamic factors like movement speed or spell modifiers that might
+    affect actual casting distance. The returned value is static and corresponds to
+    the base range defined in the spell entry. For creatures with multiple spell ranges
+    (e.g., melee vs. ranged spells), this method should be called with appropriate
+    spell IDs.
+  warnings: Do not assume that a non-zero return value guarantees successful spell
+    casting, as other factors like line of sight, target validity, and cooldowns may
+    prevent execution. Calling this method with an invalid spell ID will likely return
+    0.0, which could lead to incorrect AI behavior if not properly validated.
+  related:
+  - GetSpellDuration
+  - GetSpellPowerCost
+  - IsSpellReady
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:32:46.097943'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: LootDistribution
+  method: ShouldPlayerGreedItem
+  signature: bool LootDistribution::ShouldPlayerGreedItem(Player * player, const LootItem
+    & item)
+documentation:
+  brief: Determines whether a player should greed on a loot item based on their loot
+    rules and item properties.
+  description: The ShouldPlayerGreedItem method evaluates if a given player should
+    select 'Greed' when rolling on a loot item during a group loot session. This decision
+    is made based on the player's current loot settings, the item's quality, and whether
+    the item meets the criteria for greed (typically items with a quality higher than
+    poor or items that are not bind-on-pickup). The method checks against the player's
+    loot rules such as 'Loot Threshold' and 'Greed Roll' settings to determine if
+    the item qualifies for a greed roll. It is used internally by the loot distribution
+    system to decide which players should be offered the option to greed on an item.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose loot rules and settings are evaluated.
+      Must not be null.
+  - name: item
+    description: Reference to the LootItem structure containing information about
+      the item being considered for greed. Must represent a valid item in the current
+      loot context.
+  returns: Returns true if the player should greed on the item, false otherwise. The
+    decision is based on item quality, player's loot threshold settings, and whether
+    the item meets the criteria for greed.
+  examples:
+  - title: Basic usage in loot processing
+    code: "if (lootDist->ShouldPlayerGreedItem(player, item)) {\n    player->SendLootRoll(lootId,\
+      \ item.itemIndex, ROLL_GREED);\n} else {\n    player->SendLootRoll(lootId, item.itemIndex,\
+      \ ROLL_PASS);\n}"
+    language: cpp
+  - title: Checking greed eligibility before rolling
+    code: "LootItem& lootItem = loot->items[itemIndex];\nif (lootDist->ShouldPlayerGreedItem(player,\
+      \ lootItem)) {\n    // Player should greed on this item\n    player->AddLootItem(lootItem,\
+      \ true);\n} else {\n    // Player passes on the item\n    player->AddLootItem(lootItem,\
+      \ false);\n}"
+    language: cpp
+  notes: This method is typically called during the loot distribution process when
+    a player is deciding whether to greed or pass on an item. It does not directly
+    modify any state but rather evaluates conditions based on existing player and
+    item data. The implementation considers both the item's quality (e.g., rare, epic)
+    and the player's configured loot threshold.
+  warnings: Ensure that the player pointer and item reference are valid before calling
+    this method to avoid undefined behavior. This function should only be called during
+    an active loot session where items are being distributed to players.
+  related:
+  - LootDistribution::RollForItem
+  - LootDistribution::DistributeLoot
+  - Player::GetLootThreshold
+  - LootItem::IsNeedBeforeGreed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:41:10.487412'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

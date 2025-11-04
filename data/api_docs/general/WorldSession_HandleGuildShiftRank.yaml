@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleGuildShiftRank
+  signature: void WorldSession::HandleGuildShiftRank(WorldPackets::Guild::GuildShiftRank
+    & shiftRank)
+documentation:
+  brief: Processes a guild member rank shift request from a player
+  description: The HandleGuildShiftRank method handles incoming packets from players
+    attempting to change another guild member's rank. This method validates the requesting
+    player's permissions, ensures the target player exists in the guild, and performs
+    the rank adjustment if all conditions are met. The method is part of the guild
+    management system in TrinityCore, allowing guild leaders and officers to reassign
+    ranks within their guild structure. It typically follows a packet-based communication
+    pattern where the client sends a GuildShiftRank packet containing the target member's
+    information and desired rank.
+  parameters:
+  - name: shiftRank
+    description: A reference to a GuildShiftRank packet object containing the target
+      player's GUID, new rank ID, and other relevant guild membership data for the
+      rank change operation.
+  returns: null
+  examples:
+  - title: Basic Rank Shift Handling
+    code: "void WorldSession::HandleGuildShiftRank(WorldPackets::Guild::GuildShiftRank\
+      \ & shiftRank)\n{\n    // Validate guild membership and permissions\n    if\
+      \ (!CanChangeRank(shiftRank.TargetGuid))\n        return;\n    \n    // Perform\
+      \ the rank shift operation\n    Guild* guild = GetPlayer()->GetGuild();\n  \
+      \  if (guild)\n        guild->ShiftRank(shiftRank.TargetGuid, shiftRank.NewRank);\n\
+      }"
+    language: cpp
+  notes: This method assumes that the player has already been validated for guild
+    membership and appropriate permissions. The actual rank shifting logic is delegated
+    to the Guild class. This handler may be called from multiple threads depending
+    on server configuration, so thread safety considerations should be taken into
+    account when implementing related functionality.
+  warnings: Improper validation of rank changes can lead to privilege escalation or
+    unauthorized modifications. Always verify that the requesting player has sufficient
+    guild permissions before allowing any rank adjustments. Ensure proper error handling
+    for cases where the target player is not found in the guild.
+  related:
+  - HandleGuildCreate
+  - HandleGuildInvite
+  - HandleGuildLeave
+  - HandleGuildSetLeader
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:54:58.050266'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

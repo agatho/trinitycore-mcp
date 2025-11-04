@@ -1,0 +1,51 @@
+api:
+  class: ClassAI
+  method: GetBestHealTarget
+  signature: int * ClassAI::GetBestHealTarget()
+documentation:
+  brief: Returns the GUID of the most beneficial target for healing within the AI's
+    current threat list
+  description: The GetBestHealTarget method identifies and returns the GameObject
+    or Unit GUID of the target that should be prioritized for healing by the AI-controlled
+    healer. This method evaluates the current health status, threat level, and proximity
+    of potential targets to determine the optimal healing priority. The returned value
+    represents a unique identifier (GUID) which can be used to reference the specific
+    target in subsequent AI actions or game logic. The method is typically called
+    during the AI's decision-making cycle when healing abilities are available and
+    appropriate.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the best healing target,
+    or nullptr if no suitable target exists within the AI's current scope
+  examples:
+  - title: Basic Usage in Heal Logic
+    code: "if (int* targetGuid = ai->GetBestHealTarget()) {\n    Unit* target = ObjectAccessor::GetUnit(*me,\
+      \ *targetGuid);\n    if (target && target->IsAlive()) {\n        // Execute\
+      \ healing ability on target\n        DoHeal(target);\n    }\n}"
+    language: cpp
+  - title: Integration with AI Decision Making
+    code: "void ClassAI::UpdateAI(uint32 diff) {\n    if (me->GetVictim() && me->IsInCombat())\
+      \ {\n        if (int* healTarget = GetBestHealTarget()) {\n            // Prioritize\
+      \ healing over attacking\n            if (DoCastSpellIfCan(*healTarget, SPELL_HEALING_TOUCH)\
+      \ == CAST_OK) {\n                return;\n            }\n        }\n    }\n\
+      \    // Continue with normal AI behavior\n}"
+    language: cpp
+  notes: This method is part of the core AI decision-making framework and should be
+    called only when the AI has sufficient context about its current combat state.
+    The returned GUID may become invalid if the target dies or leaves the AI's detection
+    range. The implementation considers factors such as health percentage, distance,
+    and threat level to determine priority.
+  warnings: The method returns a pointer to an internal value that should not be modified
+    directly. Always validate the returned GUID against object existence before using
+    it in operations. If multiple heal targets are equally valid, the AI may return
+    any one of them based on internal priority logic.
+  related:
+  - GetNextTarget
+  - GetBestMeleeTarget
+  - GetBestRangedTarget
+  - IsHealer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T11:39:25.198863'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

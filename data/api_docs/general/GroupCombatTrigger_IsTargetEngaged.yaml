@@ -1,0 +1,58 @@
+api:
+  class: GroupCombatTrigger
+  method: IsTargetEngaged
+  signature: bool GroupCombatTrigger::IsTargetEngaged(Group * group, Unit * target)
+    const
+documentation:
+  brief: Determines whether a target unit is currently engaged in combat within the
+    specified group.
+  description: The IsTargetEngaged method checks if a given target unit is actively
+    involved in combat with any member of the provided group. This method evaluates
+    the combat state of both the target and all group members to determine if there
+    is an active engagement. It's commonly used in AI logic for group-based combat
+    decisions, such as determining when to initiate or cease attacks, or when to reposition
+    during encounters. The method considers factors like threat levels, aggro status,
+    and whether the target has been flagged as engaged by any group member. This functionality
+    is essential for maintaining proper group combat behavior and ensuring that units
+    respond appropriately to dynamic battlefield conditions.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group whose members'
+      combat status will be evaluated against the target. Must not be null.
+  - name: target
+    description: Pointer to the Unit object representing the target unit being checked
+      for combat engagement. Must not be null.
+  returns: Returns true if the target is currently engaged in combat with any member
+    of the group, false otherwise. Engagement is determined by checking if the target
+    has threat from any group member or if the group members are actively attacking
+    the target.
+  examples:
+  - title: Basic usage to check if a target is engaged
+    code: "if (groupCombatTrigger.IsTargetEngaged(playerGroup, targetUnit)) {\n  \
+      \  // Target is currently in combat with the group\n    // Proceed with group-based\
+      \ combat actions\n}"
+    language: cpp
+  - title: Using IsTargetEngaged to conditionally trigger group behavior
+    code: "if (!groupCombatTrigger.IsTargetEngaged(playerGroup, targetUnit)) {\n \
+      \   // Target is not engaged, so we can safely move in for attack\n    playerGroup->GetLeader()->AI()->AttackStart(targetUnit);\n\
+      } else {\n    // Target is already engaged, avoid interrupting ongoing combat\n\
+      \    playerGroup->GetLeader()->AI()->DoNothing();\n}"
+    language: cpp
+  notes: This method relies on the internal threat and aggro systems of TrinityCore.
+    It may not accurately reflect engagement status if units are in stealth or if
+    combat state updates are delayed. The implementation assumes that group members
+    have valid AI behavior set up to properly track threats.
+  warnings: Ensure that both 'group' and 'target' parameters are valid pointers before
+    calling this method, as passing null values can lead to undefined behavior. This
+    method should not be used in performance-critical code paths without considering
+    its internal checks against group member states.
+  related:
+  - Group::GetMembers
+  - Unit::IsInCombat
+  - Group::IsMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T04:32:32.703085'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

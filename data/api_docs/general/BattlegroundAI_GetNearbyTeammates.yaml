@@ -1,0 +1,65 @@
+api:
+  class: BattlegroundAI
+  method: GetNearbyTeammates
+  signature: int BattlegroundAI::GetNearbyTeammates(int * player, float range) const
+documentation:
+  brief: Finds and returns the number of nearby teammates within a specified range.
+  description: The GetNearbyTeammates method searches for all player teammates within
+    a given range and stores their GUIDs in the provided array. This method is typically
+    used by battleground AI systems to identify nearby allies for strategic decision-making
+    or targeting purposes. The method performs a spatial search using the battleground's
+    internal data structures to efficiently locate players based on their current
+    positions. It returns the count of found teammates, which can be zero if no teammates
+    are within range. The player array must be pre-allocated with sufficient space
+    to hold all potential teammates, typically up to the maximum number of players
+    in a battleground team.
+  parameters:
+  - name: player
+    description: Pointer to an integer array where the GUIDs of nearby teammates will
+      be stored. Must be pre-allocated with sufficient capacity to hold all possible
+      teammates.
+  - name: range
+    description: The maximum distance (in yards) within which to search for teammates.
+      Players beyond this range will not be included in the results.
+  returns: Returns the number of nearby teammates found within the specified range.
+    Returns zero if no teammates are found or if the input parameters are invalid.
+  examples:
+  - title: Basic usage to find nearby teammates
+    code: "int teammates[40]; // Maximum possible teammates in a battleground\nfloat\
+      \ range = 30.0f; // 30 yard range\nint count = bgAI->GetNearbyTeammates(teammates,\
+      \ range);\nif (count > 0)\n{\n    for (int i = 0; i < count; ++i)\n    {\n \
+      \       // Process each teammate GUID in teammates[i]\n        TC_LOG_DEBUG(\"\
+      bg.battleground\", \"Found teammate with GUID: %u\", teammates[i]);\n    }\n\
+      }"
+    language: cpp
+  - title: Using nearby teammates for AI decision making
+    code: "int nearbyTeammates[20];\nfloat searchRange = 25.0f;\nint teammateCount\
+      \ = bgAI->GetNearbyTeammates(nearbyTeammates, searchRange);\n\nif (teammateCount\
+      \ >= 3)\n{\n    // AI logic for coordinated attack when multiple teammates are\
+      \ nearby\n    TC_LOG_DEBUG(\"bg.battleground\", \"Coordinated attack initiated\
+      \ with %d nearby teammates\", teammateCount);\n}\nelse if (teammateCount ==\
+      \ 0)\n{\n    // AI logic for solo play or seeking help\n    TC_LOG_DEBUG(\"\
+      bg.battleground\", \"No nearby teammates found, seeking assistance\");\n}"
+    language: cpp
+  notes: This method relies on the battleground's internal spatial indexing system
+    for performance. The player array should be sized appropriately to avoid buffer
+    overflows. The range parameter is measured in yards and represents a spherical
+    search area. This method should only be called from within a battleground context
+    where player positions are actively tracked.
+  warnings: Ensure that the player array passed as parameter has sufficient capacity
+    to hold all possible teammates, otherwise memory corruption may occur. The method
+    does not validate input parameters beyond basic bounds checking, so invalid range
+    values or null pointers will likely cause undefined behavior. This function should
+    not be called outside of battleground contexts where player positions are not
+    tracked.
+  related:
+  - GetNearbyEnemies
+  - GetPlayerCount
+  - GetTeam
+  - IsPlayerInBattleground
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T15:32:20.373243'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

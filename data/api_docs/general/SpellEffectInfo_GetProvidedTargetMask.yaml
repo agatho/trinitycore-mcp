@@ -1,0 +1,53 @@
+api:
+  class: SpellEffectInfo
+  method: GetProvidedTargetMask
+  signature: uint32 SpellEffectInfo::GetProvidedTargetMask() const
+documentation:
+  brief: Calculates and returns the bitmask of target types provided by this spell
+    effect.
+  description: The GetProvidedTargetMask method computes a bitmask that represents
+    the types of targets that this spell effect is capable of affecting. This mask
+    is used internally by the TrinityCore spell system to determine which target types
+    are valid for the effect and to enforce targeting restrictions. The returned value
+    combines multiple target type flags using bitwise operations, allowing the system
+    to efficiently check whether a given target matches the requirements of this effect.
+    This method is typically called during spell validation and target resolution
+    phases of spell execution.
+  parameters: []
+  returns: A uint32 bitmask where each bit represents a specific target type. The
+    bits correspond to predefined target type constants (e.g., TARGET_FLAG_UNIT, TARGET_FLAG_PLAYER,
+    etc.) that define what kinds of objects this effect can target. A value of 0 indicates
+    no targets are provided by this effect.
+  examples:
+  - title: Basic Usage in Spell Targeting
+    code: "SpellEffectInfo const* effect = spellInfo->GetEffect(0);\nuint32 targetMask\
+      \ = effect->GetProvidedTargetMask();\nif (targetMask & TARGET_FLAG_UNIT)\n{\n\
+      \    // This effect can target units\n}"
+    language: cpp
+  - title: Checking Target Compatibility
+    code: "SpellEffectInfo const* effect = spellInfo->GetEffect(0);\nuint32 providedMask\
+      \ = effect->GetProvidedTargetMask();\nuint32 requiredMask = TARGET_FLAG_UNIT\
+      \ | TARGET_FLAG_PLAYER;\n\n// Check if this effect can provide the required\
+      \ targets\nif ((providedMask & requiredMask) == requiredMask)\n{\n    // Effect\
+      \ supports all required target types\n}"
+    language: cpp
+  notes: This method is part of the spell effect metadata and does not perform runtime
+    target validation. The returned mask is computed at spell loading time based on
+    effect parameters and cannot be modified during runtime. Developers should be
+    aware that different bits in the mask may represent mutually exclusive or overlapping
+    target types depending on the spell effect implementation.
+  warnings: The returned bitmask values are defined by internal constants and may
+    change between TrinityCore versions. Relying on specific bit positions rather
+    than using provided macros or helper functions might lead to compatibility issues.
+    Also, this method should not be used for actual target filtering during spell
+    execution; it's primarily for validation and metadata purposes.
+  related:
+  - SpellInfo::GetEffect
+  - SpellEffectInfo::GetTargetMask
+  - SpellEffectInfo::IsTargetTypeAllowed
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-03T18:09:39.257073'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,75 @@
+api:
+  class: InstanceLock
+  method: SetExpiryTime
+  signature: void InstanceLock::SetExpiryTime(int expiryTime)
+documentation:
+  brief: Sets the expiry time for an instance lock
+  description: The SetExpiryTime method configures the time at which an instance lock
+    will expire. This is typically used in World of Warcraft's instance management
+    system to control how long players can remain in a specific dungeon or raid instance.
+    The method accepts an integer value representing the expiry time, likely in seconds
+    since epoch or as a relative offset from current time. Once the expiry time is
+    reached, the instance lock becomes invalid and players may be removed from the
+    instance. This mechanism helps manage instance availability and prevents indefinite
+    player retention in instances.
+  parameters:
+  - name: expiryTime
+    description: The expiry time for the instance lock, typically represented as a
+      Unix timestamp or relative time value. This determines when the lock will become
+      invalid and the instance will be cleared.
+  returns: null
+  examples:
+  - title: Setting instance lock expiry to 30 minutes from now
+    code: '#include <ctime>
+
+
+      // Get current time and add 30 minutes (1800 seconds)
+
+      uint32 currentTime = time(nullptr);
+
+      uint32 expiryTime = currentTime + 1800;
+
+
+      instanceLock->SetExpiryTime(expiryTime);'
+    language: cpp
+  - title: Setting absolute expiry time for instance lock
+    code: '// Set expiry to a specific future timestamp (e.g., 2 hours from now)
+
+      uint32 futureTimestamp = time(nullptr) + 7200;
+
+      instanceLock->SetExpiryTime(futureTimestamp);
+
+
+      // Or set to a fixed point in time (e.g., midnight tomorrow)
+
+      std::time_t now = std::time(nullptr);
+
+      std::tm* tm = std::localtime(&now);
+
+      tm->tm_hour = 0; tm->tm_min = 0; tm->tm_sec = 0;
+
+      tm->tm_mday += 1; // Tomorrow
+
+      uint32 midnightTomorrow = std::mktime(tm);
+
+      instanceLock->SetExpiryTime(midnightTomorrow);'
+    language: cpp
+  notes: This method likely interacts with TrinityCore's instance management system
+    and may trigger internal events or cleanup procedures when the expiry time is
+    reached. The actual implementation might involve updating database records or
+    in-memory state tracking for the instance lock.
+  warnings: Setting an expiry time that is in the past will immediately invalidate
+    the instance lock. Ensure proper time handling to avoid unintended early expirations.
+    This method should be called carefully as it affects player instance access and
+    may impact game balance if misused.
+  related:
+  - GetInstanceId
+  - GetExpiryTime
+  - IsExpired
+  - ResetExpiryTime
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T03:14:47.373407'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

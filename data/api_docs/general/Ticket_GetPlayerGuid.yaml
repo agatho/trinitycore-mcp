@@ -1,0 +1,50 @@
+api:
+  class: Ticket
+  method: GetPlayerGuid
+  signature: int Ticket::GetPlayerGuid() const
+documentation:
+  brief: Returns the unique identifier (GUID) of the player associated with this ticket
+  description: The GetPlayerGuid method retrieves the globally unique identifier of
+    the player who submitted the support ticket. This GUID is used internally by TrinityCore
+    to uniquely identify players across the game world and is essential for linking
+    ticket data to specific user accounts. The method performs no validation or lookup
+    operations; it simply returns the stored GUID value from the ticket's internal
+    data structure. This identifier can be used to retrieve player information, verify
+    ownership, or perform administrative actions related to the ticket.
+  parameters: []
+  returns: An integer representing the player's unique identifier (GUID) associated
+    with this ticket. Returns 0 if no player is associated with the ticket or if the
+    ticket is invalid.
+  examples:
+  - title: Basic Usage
+    code: "Ticket* ticket = sTicketMgr->GetTicketByGuid(ticketGuid);\nif (ticket)\n\
+      {\n    int playerGuid = ticket->GetPlayerGuid();\n    printf(\"Player GUID:\
+      \ %d\\n\", playerGuid);\n}"
+    language: cpp
+  - title: Checking Player Ownership
+    code: "void HandleTicketCommand(ChatHandler* handler, uint64 ticketGuid)\n{\n\
+      \    Ticket* ticket = sTicketMgr->GetTicketByGuid(ticketGuid);\n    if (!ticket)\n\
+      \        return;\n    \n    int playerGuid = ticket->GetPlayerGuid();\n    if\
+      \ (playerGuid == handler->GetSession()->GetPlayer()->GetGUID().GetCounter())\n\
+      \    {\n        // User owns this ticket\n        handler->PSendSysMessage(\"\
+      You own this ticket.\");\n    }\n}"
+    language: cpp
+  notes: The returned GUID is typically a 32-bit integer in TrinityCore's implementation,
+    though the exact size may vary depending on the server configuration. This method
+    does not perform any database queries or network operations; it returns cached
+    data only. The method is thread-safe as long as the ticket object itself is not
+    being modified concurrently.
+  warnings: Be cautious when using this GUID for direct database access without proper
+    validation, as invalid or stale GUIDs could lead to incorrect behavior. Always
+    verify that the returned GUID corresponds to an actual player before performing
+    operations based on it.
+  related:
+  - SetPlayerGuid
+  - GetTicketId
+  - GetPlayerName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:24:03.122055'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

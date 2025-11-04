@@ -1,0 +1,42 @@
+api:
+  class: WorldSession
+  method: SendAuthWaitQueue
+  signature: void WorldSession::SendAuthWaitQueue(uint32 position)
+documentation:
+  brief: Sends an authentication wait queue position message to the client.
+  description: The SendAuthWaitQueue method is used to communicate the player's position
+    in the authentication queue to the connected client. This method is typically
+    invoked when a player attempts to log in but must wait due to server capacity
+    or authentication system limitations. The client uses this information to display
+    a waiting screen with the estimated time until login can proceed. The method sends
+    a specific packet containing the queue position number, allowing the UI to update
+    accordingly.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Login Handler
+    code: "void HandlePlayerLogin(Player* player)\n{\n    WorldSession* session =\
+      \ player->GetSession();\n    if (IsAuthenticationQueueFull())\n    {\n     \
+      \   uint32 queuePosition = GetPlayerQueuePosition(player);\n        session->SendAuthWaitQueue(queuePosition);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method should only be called when a player is actually in the authentication
+    queue. The position parameter represents the player's place in line, where 1 indicates
+    they are next to be authenticated. It is important that this method is not called
+    repeatedly without updating the position value, as it may cause client-side UI
+    flickering or incorrect queue status display.
+  warnings: Calling this method outside of authentication context can lead to client-side
+    errors or unexpected behavior. Ensure that the position value passed is valid
+    and represents a realistic queue position (typically starting from 1). Do not
+    call this method if the player has already been authenticated or if they are already
+    in the world.
+  related:
+  - SendAuthResponse
+  - SendLoginSetTimeSpeed
+  - WorldSession::SendPacket
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:47:20.803775'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

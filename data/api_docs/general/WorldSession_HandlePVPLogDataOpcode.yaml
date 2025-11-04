@@ -1,0 +1,61 @@
+api:
+  class: WorldSession
+  method: HandlePVPLogDataOpcode
+  signature: void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest
+    & pvpLogDataRequest)
+documentation:
+  brief: Handles the PvP log data request opcode sent by the client to retrieve battleground
+    statistics and player performance metrics.
+  description: The HandlePVPLogDataOpcode method processes incoming PvP log data requests
+    from players in battlegrounds. This function is invoked when a client sends a
+    PVPLogDataRequest packet, typically after a match ends or when a player requests
+    detailed combat statistics. The method retrieves and formats relevant battleground
+    performance data including kills, deaths, honorable kills, and other PvP-related
+    metrics for the requesting player. It ensures that only authorized players can
+    access their own battleground logs and maintains proper synchronization between
+    client and server state. This functionality supports the game's competitive ranking
+    system and provides players with detailed feedback on their performance in battlegrounds.
+  parameters:
+  - name: pvpLogDataRequest
+    description: The PvP log data request packet containing information about which
+      battleground log data the player is requesting, including match ID and player
+      context.
+  returns: null
+  examples:
+  - title: Basic usage in battleground context
+    code: "void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest\
+      \ & pvpLogDataRequest)\n{\n    if (!GetPlayer() || !GetPlayer()->InBattleground())\n\
+      \        return;\n\n    // Process the PvP log data request\n    SendPVPLogData();\n\
+      }"
+    language: cpp
+  - title: Complete implementation with validation
+    code: "void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest\
+      \ & pvpLogDataRequest)\n{\n    Player* player = GetPlayer();\n    if (!player\
+      \ || !player->InBattleground())\n        return;\n\n    Battleground* bg = player->GetBattleground();\n\
+      \    if (!bg)\n        return;\n\n    // Validate request and send appropriate\
+      \ data\n    WorldPackets::Battleground::PVPLogData pvpLogData;\n    pvpLogData.BattlefieldID\
+      \ = bg->GetBgTypeID();\n    pvpLogData.MatchTime = bg->GetStartTime();\n   \
+      \ \n    // Populate with player stats\n    pvpLogData.HonorableKills = player->GetUInt32Value(PLAYER_FIELD_HONORABLE_KILLS);\n\
+      \    pvpLogData.Deaths = player->GetUInt32Value(PLAYER_FIELD_DEATHS);\n    \n\
+      \    SendPacket(pvpLogData.Write());\n}"
+    language: cpp
+  notes: This method is part of the battleground system and requires the player to
+    be in a valid battleground context. The implementation should ensure proper synchronization
+    with the battleground's internal state management. Performance considerations
+    include avoiding excessive data processing for large battlegrounds or frequent
+    requests.
+  warnings: Improper handling of this opcode can lead to data inconsistency between
+    client and server, potentially affecting player rankings or match statistics.
+    Ensure that only authenticated players can access their own battleground logs
+    to prevent unauthorized data access.
+  related:
+  - SendPVPLogData
+  - GetPlayer
+  - InBattleground
+  - GetBattleground
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:20:33.187873'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

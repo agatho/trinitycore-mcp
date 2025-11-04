@@ -1,0 +1,70 @@
+api:
+  class: LFGMgr
+  method: SendLfgUpdateStatus
+  signature: void LFGMgr::SendLfgUpdateStatus(int guid, const LfgUpdateData & data,
+    bool party)
+documentation:
+  brief: Sends an LFG status update message to the specified player or party
+  description: The SendLfgUpdateStatus method is responsible for transmitting LFG
+    (Looking For Group) status information to either a specific player or an entire
+    group/raid. This method is typically invoked when there are changes in a player's
+    LFG state, such as joining or leaving a group, or when the LFG queue status updates.
+    The method handles both individual player notifications and party-wide updates
+    depending on the 'party' parameter. It integrates with TrinityCore's LFG system
+    to maintain synchronization of group finding states across clients.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player or party to receive the
+      LFG update. For individual players, this is typically a player GUID. For parties,
+      this represents the party's GUID.
+  - name: data
+    description: An LfgUpdateData object containing the specific LFG status information
+      to be sent. This includes details such as current queue state, role preferences,
+      dungeon eligibility, and other group finding parameters.
+  - name: party
+    description: Boolean flag indicating whether the update should be sent to a party
+      (true) or individual player (false). When true, the message is broadcast to
+      all members of the specified party/group.
+  returns: null
+  examples:
+  - title: Send LFG update to a single player
+    code: 'LfgUpdateData updateData;
+
+      updateData.state = LFG_STATE_DUNGEON;
+
+      updateData.dungeonId = 1234;
+
+      // Send update to player with GUID 5678
+
+      sLFGMgr->SendLfgUpdateStatus(5678, updateData, false);'
+    language: cpp
+  - title: Send LFG update to a party
+    code: 'LfgUpdateData updateData;
+
+      updateData.state = LFG_STATE_FINISHED;
+
+      updateData.dungeonId = 5678;
+
+      // Send update to party with GUID 9012
+
+      sLFGMgr->SendLfgUpdateStatus(9012, updateData, true);'
+    language: cpp
+  notes: This method operates within the TrinityCore LFG subsystem and relies on proper
+    initialization of LFG data structures. The LfgUpdateData object must be properly
+    populated before calling this method to ensure correct client-side behavior. Performance
+    considerations include avoiding frequent calls for rapid state changes, as each
+    call may trigger network transmission.
+  warnings: Improperly configured LfgUpdateData objects can cause client-side LFG
+    UI glitches or incorrect group states. The 'party' parameter must be correctly
+    set to avoid sending messages to unintended recipients. Do not call this method
+    without ensuring that the LFG subsystem is properly initialized.
+  related:
+  - LFGMgr::SendLfgUpdateParty
+  - LFGMgr::SendLfgUpdatePlayer
+  - LFGMgr::GetLfgUpdateData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T01:53:19.755084'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

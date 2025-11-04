@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: GetAccountData
+  signature: const AccountData * WorldSession::GetAccountData(AccountDataType type)
+    const
+documentation:
+  brief: Retrieves account data of the specified type for the current session.
+  description: The GetAccountData method retrieves a pointer to the AccountData object
+    associated with the specified AccountDataType for the current WorldSession. This
+    method is used to access various types of account-specific data such as global
+    config settings, tutorial progress, or mailbox information. The returned pointer
+    is const, meaning it should not be modified directly. If no data exists for the
+    specified type, the method returns a null pointer. Account data is typically managed
+    and cached per session to optimize performance and ensure consistency across player
+    interactions within the same session.
+  parameters: []
+  returns: A const pointer to an AccountData object if data of the specified type
+    exists for this session; otherwise, returns nullptr.
+  examples:
+  - title: Retrieve Tutorial Progress Data
+    code: "AccountData const* tutorialData = session->GetAccountData(AccountDataType::TUTORIALS);\n\
+      if (tutorialData)\n{\n    // Process tutorial data\n    uint32 const* tutorialFlags\
+      \ = tutorialData->GetTutorialFlags();\n    // Use tutorial flags...\n}"
+    language: cpp
+  - title: Check for Mailbox Data Existence
+    code: "AccountData const* mailboxData = session->GetAccountData(AccountDataType::MAILBOX);\n\
+      if (mailboxData != nullptr)\n{\n    // Mailbox data is available\n    uint32\
+      \ mailCount = mailboxData->GetMailCount();\n    // Process mail count...\n}\n\
+      else\n{\n    // No mailbox data exists for this account\n}"
+    language: cpp
+  notes: This method accesses session-local cached account data. Modifications to
+    the returned AccountData object should be made through dedicated setter methods
+    rather than direct manipulation. The method performs a lookup in an internal map
+    of account data types, so repeated calls for the same type may benefit from caching
+    the returned pointer locally.
+  warnings: Do not modify the returned AccountData object directly as it may cause
+    inconsistencies in session state. Always use appropriate setter methods to update
+    account data. Be aware that some account data types might not be initialized until
+    accessed or modified by the player, resulting in null returns for those types.
+  related:
+  - SetAccountData
+  - GetAccountId
+  - GetPlayer
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-02T20:05:06.912783'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

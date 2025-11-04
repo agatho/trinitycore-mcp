@@ -1,0 +1,54 @@
+api:
+  class: WorldSession
+  method: SendActivateTaxiReply
+  signature: void WorldSession::SendActivateTaxiReply(int reply)
+documentation:
+  brief: Sends a taxi activation reply message to the client with the specified reply
+    code.
+  description: The SendActivateTaxiReply method is used by the WorldSession class
+    to communicate taxi service activation results back to the connected client. This
+    method sends a specific reply code that indicates whether the player's taxi route
+    activation was successful or if an error occurred. The reply codes are typically
+    defined in the game's protocol and may indicate success, invalid destination,
+    insufficient funds, or other taxi-related issues. This method is part of the core
+    taxi system implementation in TrinityCore, allowing for proper client-server communication
+    during flight path interactions.
+  parameters:
+  - name: reply
+    description: 'The reply code to send to the client. Valid values typically include:
+      0 (success), 1 (invalid destination), 2 (insufficient funds), 3 (no flight path
+      available). The exact meaning of each code depends on the game''s implementation
+      and protocol definitions.'
+  returns: null
+  examples:
+  - title: Send successful taxi activation reply
+    code: "WorldSession* session = player->GetSession();\nif (session)\n{\n    session->SendActivateTaxiReply(0);\
+      \ // Success\n}"
+    language: cpp
+  - title: Send taxi activation error reply based on condition
+    code: "WorldSession* session = player->GetSession();\nif (session)\n{\n    if\
+      \ (!player->HasEnoughMoney(taxiCost))\n        session->SendActivateTaxiReply(2);\
+      \ // Insufficient funds\n    else if (!isValidDestination)\n        session->SendActivateTaxiReply(1);\
+      \ // Invalid destination\n    else\n        session->SendActivateTaxiReply(0);\
+      \ // Success\n}"
+    language: cpp
+  notes: This method directly sends a network packet to the client, so it should only
+    be called when appropriate for the current game state. The reply codes must match
+    those expected by the client's taxi system implementation. This method is typically
+    invoked during flight path activation attempts and should be used carefully to
+    maintain proper game flow.
+  warnings: Calling this method without a valid session or player context may result
+    in undefined behavior. Ensure that the reply parameter contains a valid code as
+    defined by the game protocol, otherwise the client may display incorrect messages
+    or behave unexpectedly. This method should not be called during critical sections
+    where network packet handling is already in progress.
+  related:
+  - SendActivateTaxi
+  - SendTaxiPath
+  - SendTaxiStatus
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T19:52:47.364838'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

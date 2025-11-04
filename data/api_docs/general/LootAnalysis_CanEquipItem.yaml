@@ -1,0 +1,62 @@
+api:
+  class: LootAnalysis
+  method: CanEquipItem
+  signature: bool LootAnalysis::CanEquipItem(Player * player, const LootItem & item)
+documentation:
+  brief: Determines whether a player can equip a specific loot item based on class,
+    level, and other restrictions.
+  description: The CanEquipItem method evaluates if a given player is eligible to
+    equip a particular loot item. It checks various conditions such as the player's
+    class restrictions, required level, inventory space, and item type limitations.
+    This method is typically used during loot distribution to ensure that items are
+    only offered to players who can actually use them. The function considers both
+    explicit requirements (like class-specific items) and implicit constraints (such
+    as inventory capacity). It does not modify any state but rather performs a read-only
+    check to determine equip eligibility.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is being evaluated for item equip
+      eligibility. Must be a valid player instance; null pointers will result in undefined
+      behavior.
+  - name: item
+    description: Reference to the LootItem structure containing information about
+      the item being evaluated for equipping. This includes item template data, required
+      level, class restrictions, and other relevant properties.
+  returns: Returns true if the player can equip the item according to all applicable
+    game rules and restrictions; false otherwise. The method returns false when the
+    player's class is incompatible with the item, when the player's level is insufficient,
+    or when there are no available inventory slots for the item.
+  examples:
+  - title: Basic Usage in Loot Distribution
+    code: "if (LootAnalysis::CanEquipItem(player, lootItem)) {\n    // Proceed with\
+      \ equipping or offering the item\n    player->AddItem(lootItem.itemTemplate);\n\
+      } else {\n    // Item cannot be equipped, send message or place in loot bag\n\
+      \    player->SendEquipError(EQUIP_ERR_ITEM_NOT_READY, NULL, NULL);\n}"
+    language: cpp
+  - title: Checking Multiple Items for Equip Eligibility
+    code: "for (auto& lootItem : playerLootItems) {\n    if (!LootAnalysis::CanEquipItem(player,\
+      \ lootItem)) {\n        // Log item that cannot be equipped\n        sLog->outString(\"\
+      Player %s cannot equip item %u\", player->GetName(), lootItem.itemTemplate->ItemId);\n\
+      \        continue;\n    }\n    // Process eligible items\n    player->AddItem(lootItem.itemTemplate);\n\
+      }"
+    language: cpp
+  notes: This method is part of the loot analysis system and relies on internal item
+    and player data structures. It performs checks against item templates, player
+    stats, and game rules defined in TrinityCore's configuration files. The function
+    may be called frequently during loot processing, so performance is optimized for
+    quick evaluation.
+  warnings: Ensure that both player and item parameters are valid before calling this
+    method. Passing null pointers will likely cause crashes or undefined behavior.
+    This function does not account for temporary buffs or debuffs that might affect
+    equip eligibility in some edge cases.
+  related:
+  - LootAnalysis::CanLootItem
+  - Player::CanEquipItem
+  - Player::IsEquipmentPos
+  - Item::IsEquippable
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T01:01:20.044851'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

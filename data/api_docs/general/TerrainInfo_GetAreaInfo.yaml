@@ -1,0 +1,76 @@
+api:
+  class: TerrainInfo
+  method: GetAreaInfo
+  signature: bool TerrainInfo::GetAreaInfo(const PhaseShift & phaseShift, uint32 mapId,
+    float x, float y, float z, uint32 & mogpflags, int32 & adtId, int32 & rootId,
+    int32 & groupId, const DynamicMapTree * dynamicMapTree)
+documentation:
+  brief: Retrieves area information for a given position within a specific map and
+    phase shift.
+  description: The GetAreaInfo method determines the area properties associated with
+    a specified 3D coordinate on a map, taking into account the current phase shift.
+    It populates flags and identifiers related to the area's structure, such as mogpflags
+    (map object group flags), adtId (ADT tile identifier), rootId (root chunk identifier),
+    and groupId (group identifier). This method is essential for determining zone-based
+    mechanics, such as area triggers, phasing logic, and map-specific behaviors. The
+    method requires a valid dynamicMapTree for accurate terrain queries and returns
+    false if the position is invalid or outside of known map boundaries.
+  parameters:
+  - name: phaseShift
+    description: The current phase shift affecting the player or object, determining
+      which areas are visible or active in the world.
+  - name: mapId
+    description: The unique identifier of the map where the position is located. Must
+      be a valid map ID within the game world.
+  - name: x
+    description: The X coordinate of the position to query, in world coordinates.
+  - name: y
+    description: The Y coordinate of the position to query, in world coordinates.
+  - name: z
+    description: The Z coordinate of the position to query, in world coordinates.
+  - name: mogpflags
+    description: Output parameter that receives flags related to map object groups.
+      These flags indicate properties like water, terrain type, or special area modifiers.
+  - name: adtId
+    description: Output parameter that receives the ADT (Area Data Tile) identifier
+      for the tile containing the position.
+  - name: rootId
+    description: Output parameter that receives the root chunk ID within the ADT for
+      the given position.
+  - name: groupId
+    description: Output parameter that receives the group ID of the area or object
+      at the specified position.
+  - name: dynamicMapTree
+    description: Pointer to a DynamicMapTree instance used for terrain queries. Must
+      be valid and correspond to the mapId provided.
+  returns: True if the area information was successfully retrieved for the given coordinates;
+    false otherwise, which may occur if the position is invalid or outside of known
+    map boundaries.
+  examples:
+  - title: Basic usage example
+    code: "PhaseShift phase;\nuint32 mapId = 0;\nfloat x = 100.0f, y = 200.0f, z =\
+      \ 50.0f;\nuint32 mogpflags = 0;\nint32 adtId = -1, rootId = -1, groupId = -1;\n\
+      const DynamicMapTree* tree = sMapMgr->GetMap(mapId)->GetDynamicMapTree();\n\n\
+      if (terrainInfo.GetAreaInfo(phase, mapId, x, y, z, mogpflags, adtId, rootId,\
+      \ groupId, tree)) {\n    // Area info successfully retrieved\n    printf(\"\
+      ADT ID: %d, Root ID: %d, Group ID: %d\\n\", adtId, rootId, groupId);\n} else\
+      \ {\n    // Failed to retrieve area info\n    printf(\"Failed to get area info\
+      \ at (%.2f, %.2f, %.2f)\\n\", x, y, z);\n}"
+    language: cpp
+  notes: This method relies on the DynamicMapTree for accurate terrain and area data.
+    Ensure that the provided dynamicMapTree is valid and corresponds to the mapId.
+    The method may be performance-sensitive when called frequently in loops or during
+    high-frequency updates.
+  warnings: Do not pass null pointers for phaseShift or dynamicMapTree; doing so will
+    likely result in undefined behavior or crashes. Also, ensure that x, y, z coordinates
+    are within valid world bounds to avoid incorrect results.
+  related:
+  - GetAreaId
+  - GetHeight
+  - IsInLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T16:59:11.884289'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

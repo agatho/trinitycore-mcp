@@ -1,0 +1,51 @@
+api:
+  class: BotActionQueue
+  method: GetTotalFailed
+  signature: uint64 BotActionQueue::GetTotalFailed() const
+documentation:
+  brief: Returns the total count of failed bot actions in the queue
+  description: The GetTotalFailed method retrieves the cumulative number of bot actions
+    that have failed execution within the BotActionQueue. This counter tracks all
+    unsuccessful operations performed by the bot, including but not limited to movement
+    failures, spell casting errors, or target acquisition issues. The value is typically
+    used for debugging, performance monitoring, and statistical analysis of bot behavior.
+    This method is thread-safe and does not modify any internal state of the queue.
+  parameters: []
+  returns: A uint64 value representing the total number of failed actions in the queue
+    since its initialization or last reset. Returns zero if no failures have occurred.
+  examples:
+  - title: Basic Usage to Monitor Bot Performance
+    code: "uint64 failedCount = botQueue->GetTotalFailed();\nif (failedCount > 100)\n\
+      {\n    sLog->outString(\"Warning: Bot has %llu failed actions\", failedCount);\n\
+      }"
+    language: cpp
+  - title: Tracking Failure Rate Over Time
+    code: 'uint64 initialFailed = botQueue->GetTotalFailed();
+
+      // ... perform some bot actions ...
+
+      uint64 currentFailed = botQueue->GetTotalFailed();
+
+      float failureRate = (currentFailed - initialFailed) / static_cast<float>(totalActions);
+
+      sLog->outString("Bot failure rate: %.2f%%", failureRate * 100);'
+    language: cpp
+  notes: This method provides a cumulative count and is not reset automatically. The
+    counter may be incremented by various internal bot subsystems including movement,
+    combat, and interaction handlers. The return value is consistent across all threads
+    accessing the same queue instance.
+  warnings: The returned value represents only failed actions from the current queue
+    instance. If multiple queues exist for different bots or contexts, each must be
+    queried separately to get complete failure statistics. This method does not distinguish
+    between different types of failures, so additional filtering may be required for
+    detailed analysis.
+  related:
+  - GetTotalProcessed
+  - GetTotalSuccess
+  - Reset
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T14:34:00.885802'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

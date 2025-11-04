@@ -1,0 +1,51 @@
+api:
+  class: SpellCastTargets
+  method: GetGOTarget
+  signature: GameObject * SpellCastTargets::GetGOTarget() const
+documentation:
+  brief: Retrieves the GameObject target associated with the spell cast.
+  description: The GetGOTarget method returns a pointer to the GameObject that serves
+    as the target for a spell being cast. This target is typically set during the
+    spell casting process when a player or creature casts a spell on a game object
+    such as a door, chest, or quest objective. The returned GameObject pointer can
+    be used to access properties and methods of the target object, enabling actions
+    like opening doors, interacting with quest items, or triggering events based on
+    the target's state. This method is commonly used in spell handlers and AI logic
+    where spell effects need to be applied to specific game objects.
+  parameters: []
+  returns: A pointer to the GameObject that was targeted by the spell cast, or nullptr
+    if no GameObject target was specified during the casting process.
+  examples:
+  - title: Basic Usage in Spell Handler
+    code: "void SpellHandler::HandleSpellEffect(Spell* spell)\n{\n    SpellCastTargets\
+      \ targets = spell->GetSpellCastTargets();\n    GameObject* goTarget = targets.GetGOTarget();\n\
+      \    \n    if (goTarget != nullptr)\n    {\n        // Perform action on the\
+      \ target game object\n        goTarget->Use(spell->GetCaster());\n    }\n}"
+    language: cpp
+  - title: Checking Target Validity Before Use
+    code: "void SpellAI::OnSpellCast(Spell* spell)\n{\n    SpellCastTargets targets\
+      \ = spell->GetSpellCastTargets();\n    GameObject* goTarget = targets.GetGOTarget();\n\
+      \    \n    if (goTarget && goTarget->IsInWorld())\n    {\n        // Safe to\
+      \ interact with the game object\n        if (goTarget->GetGOInfo()->type ==\
+      \ GAMEOBJECT_TYPE_DOOR)\n        {\n            goTarget->SetGoState(GO_STATE_ACTIVE);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: The returned GameObject pointer is only valid during the spell's execution
+    context. If the target GameObject is destroyed or removed from the world before
+    the spell completes, the pointer may become invalid. Developers should always
+    check for null returns and ensure the object remains valid before using it.
+  warnings: Never assume the returned GameObject pointer is valid without checking
+    for nullptr. Additionally, be cautious when modifying the target GameObject's
+    state directly, as this might interfere with the spell's intended behavior or
+    cause unexpected side effects in the game world.
+  related:
+  - GetUnitTarget
+  - GetItemTarget
+  - GetCorpseTarget
+  - SetGOTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T18:29:25.044602'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

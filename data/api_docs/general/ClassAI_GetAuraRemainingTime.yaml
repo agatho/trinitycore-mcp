@@ -1,0 +1,54 @@
+api:
+  class: ClassAI
+  method: GetAuraRemainingTime
+  signature: int ClassAI::GetAuraRemainingTime(int spellId, int * target)
+documentation:
+  brief: Retrieves the remaining time in milliseconds for a specified aura on the
+    target.
+  description: The GetAuraRemainingTime method is used to determine how much time
+    remains before a specific aura effect expires on a target. This method is typically
+    employed by AI scripts to make decisions based on the duration of buffs, debuffs,
+    or other spell effects. The method takes a spell ID and an optional target reference,
+    returning the remaining time in milliseconds. If the aura is not found on the
+    target, it may return 0 or a negative value depending on implementation details.
+    This functionality is essential for AI behavior that relies on timing-based actions
+    such as reapplying spells or preparing for incoming threats.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell aura to check. Must correspond
+      to a valid spell in the game database.
+  - name: target
+    description: Pointer to the target unit whose aura duration is being checked.
+      Can be NULL, indicating the current AI's target.
+  returns: Returns the remaining time in milliseconds for the specified aura on the
+    target. A return value of 0 or negative indicates that the aura is not active
+    or has expired.
+  examples:
+  - title: Check if a debuff is about to expire
+    code: "if (int remaining = ai->GetAuraRemainingTime(12345, nullptr) < 5000)\n\
+      {\n    // Reapply the aura if less than 5 seconds remain\n    ai->CastSpell(12345);\n\
+      }"
+    language: cpp
+  - title: Use target-specific aura check
+    code: "Unit* target = ai->GetTarget();\nif (target && ai->GetAuraRemainingTime(67890,\
+      \ &target) > 10000)\n{\n    // Proceed with action only if aura has more than\
+      \ 10 seconds left\n    ai->DoAction(ACTION_USE_ABILITY);\n}"
+    language: cpp
+  notes: This method relies on the internal aura tracking system of TrinityCore. It
+    may not return accurate results for auras that are applied through external mechanisms
+    or custom scripts unless properly registered in the core's aura system. The target
+    parameter can be NULL, which implies checking the current AI's target.
+  warnings: Be cautious when using this method with spells that have very short durations
+    as the returned value may fluctuate rapidly. Also, ensure that spell IDs are valid
+    and exist in the game database to avoid unexpected behavior or crashes.
+  related:
+  - GetAuraDuration
+  - HasAura
+  - RemoveAura
+  - CastSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:40:56.943096'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

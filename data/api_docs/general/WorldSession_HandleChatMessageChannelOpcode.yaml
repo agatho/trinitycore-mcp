@@ -1,0 +1,57 @@
+api:
+  class: WorldSession
+  method: HandleChatMessageChannelOpcode
+  signature: void WorldSession::HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel
+    & chatMessageChannel)
+documentation:
+  brief: Processes incoming chat messages directed to a specific channel from a player.
+  description: The HandleChatMessageChannelOpcode method is responsible for handling
+    chat messages sent by players to specific in-game channels such as guild, raid,
+    or party chat. This method receives the packet containing the chat message data
+    and processes it according to the player's permissions, channel membership, and
+    game rules. It validates the message content, checks for spam or inappropriate
+    language, and then broadcasts the message to all members of the specified channel.
+    The method integrates with TrinityCore's chat system to ensure proper message
+    routing and adherence to server configuration settings.
+  parameters:
+  - name: chatMessageChannel
+    description: A reference to a WorldPackets::Chat::ChatMessageChannel packet containing
+      the chat message data, including the channel name, message text, and player's
+      authentication information.
+  returns: null
+  examples:
+  - title: Basic usage in packet handling
+    code: "void WorldSession::HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel\
+      \ & chatMessageChannel)\n{\n    // Validate channel access\n    if (!CanChatInChannel(chatMessageChannel.Channel))\n\
+      \        return;\n    \n    // Process and send the message\n    SendChatMessageToChannel(chatMessageChannel);\n\
+      }"
+    language: cpp
+  - title: Complete implementation with validation
+    code: "void WorldSession::HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel\
+      \ & chatMessageChannel)\n{\n    // Check if player is muted\n    if (GetPlayer()->IsMuted())\n\
+      \    {\n        SendNotification(LANG_CHAT_MUTED);\n        return;\n    }\n\
+      \    \n    // Validate message length and content\n    if (chatMessageChannel.Message.length()\
+      \ > MAX_CHAT_MESSAGE_LENGTH)\n        return;\n    \n    // Check channel permissions\n\
+      \    if (!CanSendToChannel(chatMessageChannel.Channel))\n    {\n        SendNotification(LANG_NO_PERMISSION);\n\
+      \        return;\n    }\n    \n    // Broadcast to channel\n    BroadcastChatMessage(chatMessageChannel);\n\
+      }"
+    language: cpp
+  notes: This method is part of the core chat system and runs in the context of a
+    WorldSession thread. It should not perform heavy operations that could block other
+    players. The method relies on channel-specific permissions and player status checks
+    to determine message validity.
+  warnings: Improper handling of this method can lead to spam abuse or unauthorized
+    message broadcasting. Ensure all incoming messages are properly validated against
+    server rules and player permissions before processing.
+  related:
+  - HandleChatMessageSayOpcode
+  - HandleChatMessageYellOpcode
+  - HandleChatMessageEmoteOpcode
+  - CanChatInChannel
+  - SendChatMessageToChannel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:30:09.866794'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

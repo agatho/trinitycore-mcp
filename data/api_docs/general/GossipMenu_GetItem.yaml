@@ -1,0 +1,63 @@
+api:
+  class: GossipMenu
+  method: GetItem
+  signature: const GossipMenuItem * GossipMenu::GetItem(int32 gossipOptionId) const
+documentation:
+  brief: Retrieves a specific gossip menu item by its unique identifier from the current
+    gossip menu.
+  description: The GetItem method retrieves a GossipMenuItem object from the current
+    gossip menu based on the provided gossipOptionId. This method is typically used
+    within NPC gossip interactions to access specific menu options that have been
+    previously added to the gossip menu. The method performs a lookup operation to
+    find the matching item, returning a pointer to the item if found or nullptr if
+    no matching item exists. In World of Warcraft's TrinityCore framework, this functionality
+    supports dynamic NPC dialog systems where different menu options can be conditionally
+    displayed or modified during runtime.
+  parameters:
+  - name: gossipOptionId
+    description: The unique identifier for the gossip menu option to retrieve. This
+      corresponds to the ID used when adding items to the gossip menu via AddMenuItem().
+      Valid values are typically positive integers representing the index or assigned
+      ID of the menu item.
+  returns: A pointer to the const GossipMenuItem object if an item with the specified
+    gossipOptionId exists in the menu, or nullptr if no matching item is found. The
+    returned pointer should not be modified directly as it points to internal data
+    managed by the GossipMenu class.
+  examples:
+  - title: Basic usage to retrieve a gossip menu item
+    code: "GossipMenuItem* menuItem = gossipMenu->GetItem(5);\nif (menuItem != nullptr)\n\
+      {\n    // Process the retrieved menu item\n    sLog->outString(\"Found menu\
+      \ item with text: %s\", menuItem->m_text.c_str());\n}"
+    language: cpp
+  - title: Using GetItem in a gossip handler to process selections
+    code: "void NPCGossipHello(Player* player, Creature* creature)\n{\n    ClearGossipMenuFor(player);\n\
+      \    AddMenuItem(0, 1, \"Trade\", GOSSIP_OPTION_TRADE);\n    AddMenuItem(0,\
+      \ 2, \"Quests\", GOSSIP_OPTION_QUESTGIVER);\n    SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE,\
+      \ creature->GetGUID());\n}\n\nvoid NPCGossipSelect(Player* player, Creature*\
+      \ creature, uint32 sender, uint32 action)\n{\n    GossipMenuItem* item = player->GetSession()->GetGossipMenu().GetItem(action);\n\
+      \    if (item != nullptr)\n    {\n        // Handle specific menu option based\
+      \ on retrieved item\n        switch (action)\n        {\n            case 1:\n\
+      \                player->GetSession()->SendListInventory(creature->GetGUID());\n\
+      \                break;\n            case 2:\n                // Handle quest\
+      \ selection\n                break;\n        }\n    }\n}"
+    language: cpp
+  notes: This method performs a linear search through the internal gossip menu items,
+    so performance may degrade with large numbers of menu options. The returned GossipMenuItem
+    pointer is valid only as long as the GossipMenu object remains in scope and has
+    not been modified. This method should not be used to modify menu items directly;
+    instead, use appropriate AddMenuItem or RemoveMenuItem methods.
+  warnings: Calling GetItem with an invalid gossipOptionId (e.g., one that was never
+    added) will return nullptr, which must be checked before dereferencing the returned
+    pointer. Never attempt to delete or modify the returned GossipMenuItem object
+    directly as it is managed by the internal GossipMenu system.
+  related:
+  - AddMenuItem
+  - RemoveMenuItem
+  - ClearMenus
+  - SendGossipMenuFor
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T04:43:42.897367'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

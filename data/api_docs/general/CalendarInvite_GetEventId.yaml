@@ -1,0 +1,50 @@
+api:
+  class: CalendarInvite
+  method: GetEventId
+  signature: uint64 CalendarInvite::GetEventId() const
+documentation:
+  brief: Retrieves the unique identifier of the calendar event associated with this
+    invite
+  description: The GetEventId method returns the 64-bit unique identifier (GUID) that
+    represents the calendar event to which this invite is linked. This identifier
+    is used internally by TrinityCore to track and reference specific calendar events
+    within the game's database. The method is typically called when processing calendar
+    invitations, allowing the system to determine which event a particular invite
+    corresponds to. It is a read-only accessor that does not modify any internal state
+    of the CalendarInvite object.
+  parameters: []
+  returns: A uint64 value representing the unique identifier of the associated calendar
+    event. This GUID is used throughout the TrinityCore calendar system to uniquely
+    identify each event instance.
+  examples:
+  - title: Basic Usage in Event Processing
+    code: "CalendarInvite* invite = ...; // Assume invite is initialized\nuint64 eventId\
+      \ = invite->GetEventId();\nif (eventId != 0)\n{\n    // Process the event using\
+      \ the retrieved ID\n    sCalendarMgr->GetEvent(eventId);\n}"
+    language: cpp
+  - title: Checking Invite Validity Before Processing
+    code: "CalendarInvite* invite = player->GetCalendarInvite(inviteId);\nif (invite)\n\
+      {\n    uint64 eventId = invite->GetEventId();\n    if (eventId > 0)\n    {\n\
+      \        // Proceed with event-related operations\n        sCalendarMgr->SendEventDetails(player,\
+      \ eventId);\n    }\n}"
+    language: cpp
+  notes: This method is thread-safe as it only reads from const member variables.
+    The returned value should not be modified directly as it represents a database
+    key. In cases where the invite is not properly initialized or associated with
+    an event, this method may return zero, which should be handled appropriately by
+    calling code.
+  warnings: Do not assume that a non-zero return value guarantees the existence of
+    the referenced event in the current session. The event might have been deleted
+    or modified since the invite was created. Always validate the returned GUID against
+    existing events before performing operations on them.
+  related:
+  - GetInviteId
+  - GetInviteStatus
+  - GetSenderGUID
+  - GetEvent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T12:29:08.943091'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

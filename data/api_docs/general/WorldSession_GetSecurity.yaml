@@ -1,0 +1,48 @@
+api:
+  class: WorldSession
+  method: GetSecurity
+  signature: AccountTypes WorldSession::GetSecurity() const
+documentation:
+  brief: Retrieves the security level of the account associated with this session.
+  description: The GetSecurity method returns the AccountTypes enumeration value representing
+    the security level assigned to the player's account. This security level determines
+    what administrative privileges and access rights the player has within the game
+    world. The returned value is typically used to control access to game commands,
+    GM features, and other restricted functionality based on the account's permission
+    level. The method performs no operations that would alter the session state and
+    is safe to call at any time during a player's connection.
+  parameters: []
+  returns: An AccountTypes enumeration value indicating the security level of the
+    account. Common values include SEC_PLAYER (0), SEC_MODERATOR (1), SEC_GAMEMASTER
+    (2), SEC_ADMINISTRATOR (3), and SEC_CONSOLE (4).
+  examples:
+  - title: Check Player Security Level
+    code: "if (session->GetSecurity() >= SEC_GAMEMASTER)\n{\n    // Allow access to\
+      \ GM commands\n    SendGMMessage(\"Access granted for GM commands.\");\n}"
+    language: cpp
+  - title: Conditional Command Access
+    code: "void HandleSpecialCommand(WorldPacket& data)\n{\n    AccountTypes security\
+      \ = session->GetSecurity();\n    if (security >= SEC_ADMINISTRATOR)\n    {\n\
+      \        // Execute admin-only command\n        ExecuteAdminCommand(data);\n\
+      \    }\n    else\n    {\n        // Deny access\n        SendNotification(\"\
+      Access denied.\");\n    }\n}"
+    language: cpp
+  notes: The security level is determined during account login and is cached within
+    the WorldSession object. This method does not perform any database queries or
+    network operations, making it efficient to call frequently. The returned value
+    reflects the account's current permissions and may change if the account's privileges
+    are modified through in-game GM commands or database updates.
+  warnings: Be cautious when using security checks in performance-critical code paths
+    as they may be called very frequently. Ensure that all security checks properly
+    validate against expected privilege levels to prevent unauthorized access to restricted
+    features.
+  related:
+  - SetSecurity
+  - GetPlayer
+  - IsGM
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:52:33.099313'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

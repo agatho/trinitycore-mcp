@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: GetAccountId
+  signature: uint32 WorldSession::GetAccountId() const
+documentation:
+  brief: Retrieves the unique account identifier associated with the current WorldSession.
+  description: The GetAccountId method returns the unique identifier (ID) of the account
+    that is currently logged in through this WorldSession. This ID is used throughout
+    the TrinityCore database to link various player-related data, such as characters,
+    inventory items, and account settings, to a specific user account. The method
+    is typically called during authentication checks, character management operations,
+    or when performing account-specific actions within the game world. It's important
+    to note that this method should only be called on valid sessions where a player
+    has successfully logged in; otherwise, it may return an invalid or zero ID.
+  parameters: []
+  returns: A 32-bit unsigned integer representing the unique account identifier (ID)
+    of the session's owner. Returns 0 if the session is not associated with any valid
+    account.
+  examples:
+  - title: Basic Usage to Identify Account
+    code: "uint32 accountId = session->GetAccountId();\nif (accountId != 0)\n{\n \
+      \   sLog->outString(\"Account ID: %u\", accountId);\n}\nelse\n{\n    sLog->outString(\"\
+      No valid account associated with this session.\");\n}"
+    language: cpp
+  - title: Using Account ID for Database Queries
+    code: "uint32 accountId = session->GetAccountId();\nQueryResult result = CharacterDatabase.PQuery(\"\
+      SELECT name, level FROM characters WHERE account = %u\", accountId);\nif (result)\n\
+      {\n    do\n    {\n        Field* fields = result->Fetch();\n        std::string\
+      \ characterName = fields[0].GetString();\n        uint32 characterLevel = fields[1].GetUInt32();\n\
+      \        sLog->outString(\"Character %s is level %u\", characterName.c_str(),\
+      \ characterLevel);\n    } while (result->NextRow());\n}"
+    language: cpp
+  notes: This method is thread-safe as long as the WorldSession object itself is not
+    being modified concurrently. The returned account ID is cached within the session
+    object, so subsequent calls will return the same value without additional database
+    lookups. This makes it efficient for frequent access during gameplay operations.
+  warnings: Do not assume that a non-zero return value always indicates an active
+    account; verify the session state before using the account ID in critical operations.
+    Also, be cautious when using this ID outside of secure contexts to avoid potential
+    exploits or data corruption.
+  related:
+  - GetPlayer
+  - GetSecurity
+  - IsPremium
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T20:03:44.275998'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

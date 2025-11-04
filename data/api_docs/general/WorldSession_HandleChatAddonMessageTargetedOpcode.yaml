@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleChatAddonMessageTargetedOpcode
+  signature: void WorldSession::HandleChatAddonMessageTargetedOpcode(WorldPackets::Chat::ChatAddonMessageTargeted
+    & chatAddonMessageTargeted)
+documentation:
+  brief: Processes targeted addon chat messages received from a client.
+  description: Handles incoming addon chat messages that are specifically targeted
+    to a particular recipient. This method is responsible for validating the message,
+    checking permissions, and forwarding the message to the intended target player.
+    It supports addon communication between players and ensures proper handling of
+    targeted addon messages within the TrinityCore framework. The method operates
+    on the WorldPackets::Chat::ChatAddonMessageTargeted packet structure which contains
+    the message content, sender information, and target recipient details.
+  parameters:
+  - name: chatAddonMessageTargeted
+    description: The incoming addon chat message packet containing the message content,
+      sender GUID, target GUID, and message type information.
+  returns: null
+  examples:
+  - title: Basic targeted addon message handling
+    code: "void WorldSession::HandleChatAddonMessageTargetedOpcode(WorldPackets::Chat::ChatAddonMessageTargeted\
+      \ & chatAddonMessageTargeted)\n{\n    // Validate target exists\n    if (!chatAddonMessageTargeted.TargetGuid)\n\
+      \        return;\n    \n    // Get target player\n    Player* targetPlayer =\
+      \ ObjectAccessor::FindPlayer(chatAddonMessageTargeted.TargetGuid);\n    if (!targetPlayer)\n\
+      \        return;\n    \n    // Process the message\n    WorldPacket data(SMSG_CHAT_ADDON_MESSAGE_TARGETED,\
+      \ 100);\n    data << chatAddonMessageTargeted.SenderGuid;\n    data << chatAddonMessageTargeted.Type;\n\
+      \    data << chatAddonMessageTargeted.TargetGuid;\n    data << chatAddonMessageTargeted.Message;\n\
+      \    targetPlayer->SendDirectMessage(&data);\n}"
+    language: cpp
+  notes: This method is part of the addon messaging system that allows third-party
+    addons to communicate between players. The method assumes proper authentication
+    and validation has already been performed on the session. It's important to note
+    that this method does not perform any message filtering or spam detection - these
+    are handled at higher levels in the chat system.
+  warnings: This method should only be called from within the WorldSession context
+    and must ensure that the target player exists before attempting to send messages.
+    Failure to validate the target can result in crashes or undefined behavior. Additionally,
+    this method does not verify if the sender has permission to message the target,
+    so proper access checks should be implemented by calling code.
+  related:
+  - HandleChatAddonMessageOpcode
+  - HandleChatMessageTargetedOpcode
+  - SendAddonMessage
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T22:32:27.500359'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

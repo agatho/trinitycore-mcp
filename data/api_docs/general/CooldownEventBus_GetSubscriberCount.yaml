@@ -1,0 +1,48 @@
+api:
+  class: CooldownEventBus
+  method: GetSubscriberCount
+  signature: uint32 CooldownEventBus::GetSubscriberCount() const
+documentation:
+  brief: Returns the total number of subscribers currently registered with the cooldown
+    event bus.
+  description: The GetSubscriberCount method retrieves the current count of subscribers
+    that are registered with the CooldownEventBus. This is typically used to monitor
+    or debug the event subscription system, ensuring that the correct number of listeners
+    are attached to cooldown-related events. The method performs a thread-safe read
+    operation on an internal counter that tracks subscriber registrations. It does
+    not modify any state and can be called at any time during runtime without side
+    effects. This functionality is particularly useful in systems where cooldown events
+    need to be tracked for performance optimization or event-driven behavior.
+  parameters: []
+  returns: A uint32 value representing the total number of subscribers currently registered
+    with the CooldownEventBus. Returns zero if no subscribers are registered.
+  examples:
+  - title: Basic Usage
+    code: 'uint32 subscriberCount = sCooldownEventBus->GetSubscriberCount();
+
+      TC_LOG_INFO("misc", "Current cooldown event subscribers: %u", subscriberCount);'
+    language: cpp
+  - title: Monitoring Subscriber Count
+    code: "void CheckCooldownEventBusHealth()\n{\n    uint32 count = sCooldownEventBus->GetSubscriberCount();\n\
+      \    if (count > 100)\n    {\n        TC_LOG_WARN(\"misc\", \"High subscriber\
+      \ count detected: %u\", count);\n    }\n}"
+    language: cpp
+  notes: This method is implemented as a constant function and does not modify internal
+    state. It relies on an atomic counter for thread safety, making it safe to call
+    from multiple threads concurrently. The returned value reflects the count at the
+    time of the method call and may change immediately after due to concurrent subscription/unsubscription
+    operations.
+  warnings: While this method is thread-safe, calling it in a high-frequency loop
+    could introduce performance overhead if the internal counter mechanism is not
+    optimized for frequent reads. Also, the subscriber count may be outdated immediately
+    after being retrieved, as subscriptions can change concurrently.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - GetSubscriberList
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T10:33:23.969707'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

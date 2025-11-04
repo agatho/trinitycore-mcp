@@ -1,0 +1,56 @@
+api:
+  class: TargetSelectionUtils
+  method: IsGoodDpsTarget
+  signature: bool TargetSelectionUtils::IsGoodDpsTarget(Unit * target, Player * dps)
+documentation:
+  brief: Determines whether a target unit is suitable for a player to attack as a
+    DPS character.
+  description: The IsGoodDpsTarget method evaluates if a given Unit target is appropriate
+    for a Player to engage in combat as a damage dealer. It considers factors such
+    as the target's threat level, distance from the player, target validity, and whether
+    the target is already being attacked by the player or another party member. This
+    utility function helps AI decision-making processes in TrinityCore's combat system
+    by filtering out unsuitable targets for DPS players. The method ensures that DPS
+    players do not waste attacks on invalid or already engaged targets, optimizing
+    overall group performance.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the potential target to evaluate.
+      Must be a valid Unit instance; null pointers will result in undefined behavior.
+  - name: dps
+    description: Pointer to the Player object representing the DPS character who will
+      potentially attack the target. Must be a valid Player instance; null pointers
+      will result in undefined behavior.
+  returns: Returns true if the target is suitable for the player to attack as a DPS
+    character, false otherwise. A return value of false indicates that either the
+    target is invalid, too far away, already being targeted by the player or party,
+    or otherwise inappropriate for DPS engagement.
+  examples:
+  - title: Basic usage in AI logic
+    code: "if (TargetSelectionUtils::IsGoodDpsTarget(targetUnit, player)) {\n    player->Attack(targetUnit,\
+      \ true);\n} else {\n    // Find another target\n    player->SetTarget(nullptr);\n\
+      }"
+    language: cpp
+  - title: Integration with target selection loop
+    code: "for (auto& unit : nearbyUnits) {\n    if (TargetSelectionUtils::IsGoodDpsTarget(unit,\
+      \ player)) {\n        player->SetTarget(unit);\n        break;\n    }\n}"
+    language: cpp
+  notes: This method relies on internal game state such as threat tables and target
+    locking mechanisms. It should only be called during combat situations where both
+    the player and target are valid and in the same map instance. Performance is generally
+    good, but repeated calls in tight loops may impact frame rate if not properly
+    optimized.
+  warnings: Do not pass null pointers to either parameter; doing so will likely cause
+    a crash or undefined behavior. The method assumes that both the target and player
+    are in the same world context and are valid for combat interaction.
+  related:
+  - TargetSelectionUtils::GetBestDpsTarget
+  - TargetSelectionUtils::IsGoodHealTarget
+  - Unit::IsInCombat
+  - Player::SetTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T17:21:40.480529'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

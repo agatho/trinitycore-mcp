@@ -1,0 +1,54 @@
+api:
+  class: LootItem
+  method: HasAllowedLooter
+  signature: bool LootItem::HasAllowedLooter(const int & looter) const
+documentation:
+  brief: Checks if a specific player is allowed to loot this item based on group/raid
+    rules and loot settings.
+  description: The HasAllowedLooter method determines whether a given player (identified
+    by their GUID) is permitted to receive this loot item. This check considers various
+    game mechanics such as group looting rules, need-before-greed systems, and personal
+    loot settings. The method evaluates the current loot state and the looter's permissions
+    against the item's allowed list. It returns true if the specified looter is in
+    the set of players who are allowed to take this loot item, or false otherwise.
+    This functionality is crucial for maintaining proper loot distribution in World
+    of Warcraft-style groups and raids.
+  parameters:
+  - name: looter
+    description: The GUID of the player attempting to loot this item. This represents
+      the unique identifier of the potential looter within the TrinityCore system.
+  returns: Returns true if the specified looter is allowed to take this loot item,
+    false otherwise. The method will return false if the looter is not in the allowed
+    list or if there are no restrictions preventing them from looting.
+  examples:
+  - title: Basic usage to check if a player can loot an item
+    code: "LootItem* lootItem = ...;\nuint64 looterGuid = player->GetGUID();\nif (lootItem->HasAllowedLooter(looterGuid))\
+      \ {\n    // Player is allowed to loot this item\n    lootItem->AutoStoreLoot(player);\n\
+      } else {\n    // Player cannot loot this item\n    player->SendLootError(LOOT_ERROR_NOT_ALLOWED);\n\
+      }"
+    language: cpp
+  - title: Using in a loot distribution context
+    code: "void DistributeLoot(Player* player, LootItem* lootItem) {\n    if (lootItem->HasAllowedLooter(player->GetGUID()))\
+      \ {\n        // Check if item is already looted\n        if (!lootItem->is_looted)\
+      \ {\n            lootItem->AutoStoreLoot(player);\n            lootItem->is_looted\
+      \ = true;\n        }\n    } else {\n        // Item not allowed for this player\n\
+      \        player->SendLootError(LOOT_ERROR_NOT_ALLOWED);\n    }\n}"
+    language: cpp
+  notes: This method is typically used during loot distribution to validate that a
+    player has the appropriate permissions before allowing them to take an item. It's
+    part of the core loot management system in TrinityCore and interacts with group
+    loot settings, personal loot rules, and need-before-greed mechanics.
+  warnings: Be aware that this method only checks if the looter is in the allowed
+    list; it does not verify if the item has already been looted or if other conditions
+    (like need/greed) have been properly handled. Always ensure proper synchronization
+    when checking loot permissions in multi-threaded environments.
+  related:
+  - LootItem::AutoStoreLoot
+  - LootItem::is_looted
+  - LootItem::GetAllowedLooters
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T00:37:15.538976'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

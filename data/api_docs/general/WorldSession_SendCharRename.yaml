@@ -1,0 +1,61 @@
+api:
+  class: WorldSession
+  method: SendCharRename
+  signature: void WorldSession::SendCharRename(int result, const WorldPackets::Character::CharacterRenameInfo
+    * renameInfo)
+documentation:
+  brief: Sends a character rename result packet to the client.
+  description: The SendCharRename method is responsible for transmitting the outcome
+    of a character rename operation back to the connected client. It takes a result
+    code indicating success or failure and optional rename information, then formats
+    and sends the appropriate packet through the session's network connection. This
+    method is typically invoked after a player attempts to rename their character
+    via the UI or command interface, providing immediate feedback on whether the operation
+    was successful.
+  parameters:
+  - name: result
+    description: An integer value indicating the result of the rename operation. Common
+      values include 0 for success, and various error codes such as 1 for invalid
+      name, 2 for name already taken, etc.
+  - name: renameInfo
+    description: A pointer to a CharacterRenameInfo packet structure containing detailed
+      information about the character being renamed, including the old and new names.
+      Can be null if only sending result status without additional data.
+  returns: null
+  examples:
+  - title: Successful Character Rename
+    code: 'WorldSession* session = player->GetSession();
+
+      WorldPackets::Character::CharacterRenameInfo renameInfo;
+
+      renameInfo.OldName = "OldPlayer";
+
+      renameInfo.NewName = "NewPlayer";
+
+      session->SendCharRename(0, &renameInfo);'
+    language: cpp
+  - title: Failed Character Rename - Name Already Taken
+    code: 'WorldSession* session = player->GetSession();
+
+      // Assume rename failed due to name conflict
+
+      session->SendCharRename(2, nullptr);'
+    language: cpp
+  notes: This method directly interacts with the network layer to send packets. The
+    renameInfo parameter should be properly initialized before calling this function.
+    It is typically called from within character management or command handling code
+    paths.
+  warnings: Ensure that the result parameter accurately reflects the outcome of the
+    rename operation, as incorrect values may confuse players. The renameInfo pointer
+    must not be accessed after the call if it's a local variable, since the method
+    might store or copy its contents.
+  related:
+  - SendCharDelete
+  - SendCharCreate
+  - HandleCharRename
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:35:08.591903'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: WorldSession
+  method: IsAddonRegistered
+  signature: bool WorldSession::IsAddonRegistered(std::string_view prefix) const
+documentation:
+  brief: Checks if a specific addon prefix is registered for the session.
+  description: The IsAddonRegistered method determines whether a particular addon
+    prefix has been registered with the current WorldSession. This functionality is
+    used to manage and verify addon communication within the TrinityCore framework,
+    ensuring that only authorized addons can interact with the game server. The method
+    performs a lookup in the session's internal addon registry to confirm the presence
+    of the specified prefix. It is commonly used during addon initialization or communication
+    handling to validate addon authenticity and prevent unauthorized access.
+  parameters:
+  - name: prefix
+    description: The string prefix identifying the addon to check for registration.
+      This should be a unique identifier that matches the format expected by the addon
+      system.
+  returns: Returns true if the specified addon prefix is registered with this session;
+    otherwise, returns false.
+  examples:
+  - title: Basic usage to check addon registration
+    code: "if (session->IsAddonRegistered(\"MyAddon\")) {\n    // Proceed with addon-specific\
+      \ logic\n    SendAddonMessage(session, \"Addon is registered\");\n} else {\n\
+      \    // Handle unregistered addon case\n    SendAddonMessage(session, \"Addon\
+      \ not registered\");\n}"
+    language: cpp
+  - title: Using in addon communication validation
+    code: "void HandleAddonPacket(WorldSession* session, const std::string& prefix)\
+      \ {\n    if (!session->IsAddonRegistered(prefix)) {\n        // Log unauthorized\
+      \ addon attempt\n        sLog->outError(\"Unauthorized addon attempt: %s\",\
+      \ prefix.c_str());\n        return;\n    }\n    // Process valid addon packet\n\
+      \    ProcessAddonPacket(session, prefix);\n}"
+    language: cpp
+  notes: This method performs a simple lookup operation and is generally fast. The
+    prefix parameter should match exactly with the format used during addon registration.
+    This check is typically performed in high-frequency code paths such as packet
+    handling, so performance is important.
+  warnings: Ensure that the prefix string passed to this method matches exactly with
+    the one used during registration. Case sensitivity matters and mismatched prefixes
+    will result in false negatives.
+  related:
+  - RegisterAddon
+  - UnregisterAddon
+  - GetRegisteredAddons
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:07:49.976789'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

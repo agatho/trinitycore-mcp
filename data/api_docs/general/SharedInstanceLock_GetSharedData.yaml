@@ -1,0 +1,51 @@
+api:
+  class: SharedInstanceLock
+  method: GetSharedData
+  signature: const SharedInstanceLockData * SharedInstanceLock::GetSharedData() const
+documentation:
+  brief: Retrieves the shared instance lock data structure associated with this lock.
+  description: The GetSharedData method provides access to the underlying SharedInstanceLockData
+    object that contains metadata and state information for a shared instance lock.
+    This data typically includes details such as the lock's identifier, owner information,
+    expiration time, and other synchronization-related attributes. The returned pointer
+    is const, ensuring that the internal state of the lock data cannot be modified
+    through this interface. This method is commonly used in TrinityCore's instance
+    management system to query the current status and properties of shared instance
+    locks, which are essential for coordinating access to shared game world resources
+    among multiple players or game objects.
+  parameters: []
+  returns: A constant pointer to the SharedInstanceLockData object associated with
+    this lock. Returns nullptr if the lock has not been properly initialized or if
+    no data is available.
+  examples:
+  - title: Basic Usage
+    code: "const SharedInstanceLockData* data = instanceLock->GetSharedData();\nif\
+      \ (data != nullptr)\n{\n    // Access lock properties\n    uint32 lockId = data->GetLockId();\n\
+      \    time_t expirationTime = data->GetExpirationTime();\n}"
+    language: cpp
+  - title: Checking Lock Validity
+    code: "const SharedInstanceLockData* data = sharedLock->GetSharedData();\nif (data\
+      \ && data->IsValid())\n{\n    // Proceed with operations that require valid\
+      \ lock data\n    std::cout << \"Lock is active for instance: \" << data->GetInstanceId()\
+      \ << std::endl;\n}\nelse\n{\n    // Handle invalid or expired lock\n    std::cout\
+      \ << \"Lock is not valid\" << std::endl;\n}"
+    language: cpp
+  notes: The returned pointer is valid only as long as the SharedInstanceLock object
+    remains in scope and has not been destroyed. This method does not perform any
+    locking or synchronization internally, so callers should ensure thread safety
+    if accessing from multiple threads. The data pointed to should be treated as read-only.
+  warnings: Do not attempt to modify the returned data through the const pointer.
+    Accessing the data after the parent SharedInstanceLock object has been destroyed
+    results in undefined behavior. Always check for null return values before dereferencing
+    the pointer.
+  related:
+  - SetSharedData
+  - IsLocked
+  - GetLockId
+  - GetInstanceId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:04:16.048228'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

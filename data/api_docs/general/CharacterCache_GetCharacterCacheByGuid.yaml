@@ -1,0 +1,56 @@
+api:
+  class: CharacterCache
+  method: GetCharacterCacheByGuid
+  signature: const CharacterCacheEntry * CharacterCache::GetCharacterCacheByGuid(const
+    int & guid) const
+documentation:
+  brief: Retrieves a character cache entry by its unique identifier (GUID) from the
+    character cache.
+  description: The GetCharacterCacheByGuid method fetches a cached character entry
+    using the provided GUID. This method is typically used to access pre-loaded character
+    data without performing expensive database queries. The returned pointer points
+    to an immutable cache entry that should not be modified directly. The method performs
+    a lookup in an internal hash map or similar data structure indexed by GUID, making
+    it efficient for frequent lookups during gameplay operations such as player interactions,
+    guild management, or zone-based events.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the character to retrieve from cache.
+      This value is typically obtained from player objects or database records and
+      uniquely identifies a specific character within the game world.
+  returns: A pointer to a const CharacterCacheEntry object if the character with the
+    specified GUID exists in the cache; otherwise, returns nullptr if no matching
+    entry is found.
+  examples:
+  - title: Basic Usage
+    code: "const CharacterCacheEntry* entry = CharacterCache::GetCharacterCacheByGuid(playerGuid);\n\
+      if (entry != nullptr)\n{\n    // Use the cached character data\n    std::string\
+      \ name = entry->name;\n    uint32_t level = entry->level;\n}"
+    language: cpp
+  - title: Safe Access with Null Check
+    code: "int32_t playerGuid = 123456;\nconst CharacterCacheEntry* cacheEntry = CharacterCache::GetCharacterCacheByGuid(playerGuid);\n\
+      if (cacheEntry != nullptr)\n{\n    // Process character data safely\n    sLog->outString(\"\
+      Player %s is level %u\", cacheEntry->name.c_str(), cacheEntry->level);\n}\n\
+      else\n{\n    sLog->outError(\"Character with GUID %d not found in cache.\",\
+      \ playerGuid);\n}"
+    language: cpp
+  notes: This method assumes that the character cache has been properly populated
+    with data, usually during server startup or when a character logs in. Accessing
+    this method from multiple threads may require synchronization if the underlying
+    cache structure is not thread-safe. The returned pointer remains valid only as
+    long as the cache entry exists and is not invalidated by cache updates or evictions.
+  warnings: Do not modify the returned CharacterCacheEntry object directly, as it's
+    const. Modifying cached data can lead to inconsistencies between in-memory state
+    and database records. Also, be aware that if a character is deleted from the database
+    but still cached, this method will continue returning the old cached entry until
+    cache invalidation occurs.
+  related:
+  - GetCharacterCacheByName
+  - AddCharacterToCache
+  - RemoveCharacterFromCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:59:13.077207'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

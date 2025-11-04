@@ -1,0 +1,50 @@
+api:
+  class: EscortAI
+  method: SetEscortPaused
+  signature: void EscortAI::SetEscortPaused(bool on)
+documentation:
+  brief: Pauses or resumes the escort AI behavior for a creature.
+  description: The SetEscortPaused method controls whether an EscortAI instance is
+    actively managing the movement and behavior of a creature during an escort quest.
+    When paused, the AI will halt all escort-related actions such as waypoint following,
+    combat engagement, and quest progress updates. When resumed, the AI continues
+    from its last state. This method is typically used to temporarily disable escort
+    behavior during cutscenes, player interaction delays, or when the escort needs
+    to be manually controlled.
+  parameters:
+  - name: 'on'
+    description: Boolean value determining the pause state. If true, the escort AI
+      will be paused; if false, it will resume normal operation.
+  returns: null
+  examples:
+  - title: Pause Escort During Cutscene
+    code: "void OnPlayerEnterCombat(Player* player)\n{\n    // Pause the escort during\
+      \ a cutscene\n    if (EscortAI* escort = GetEscortAI())\n        escort->SetEscortPaused(true);\n\
+      \    \n    // Perform cutscene logic here\n    \n    // Resume after cutscene\n\
+      \    escort->SetEscortPaused(false);\n}"
+    language: cpp
+  - title: Conditional Pause Based on Quest State
+    code: "void UpdateAI(uint32 diff) override\n{\n    if (Player* player = GetPlayerForEscort())\n\
+      \    {\n        // Pause escort when player is in a specific area\n        if\
+      \ (player->GetPositionX() > 1000.0f)\n            SetEscortPaused(true);\n \
+      \       else\n            SetEscortPaused(false);\n    }\n    \n    // Continue\
+      \ with normal AI updates\n    EscortAI::UpdateAI(diff);\n}"
+    language: cpp
+  notes: This method directly affects the internal state machine of the EscortAI.
+    It's important to ensure that any pause/resume logic doesn't create deadlocks
+    or inconsistent states, especially when used in conjunction with other AI behaviors
+    or quest events.
+  warnings: Calling SetEscortPaused(true) while the escort is in combat may cause
+    unexpected behavior if not properly handled. The method does not validate whether
+    the creature is currently in a valid state for pausing, so it's recommended to
+    check the current state before calling this method.
+  related:
+  - GetEscortPaused
+  - StartEscort
+  - UpdateAI
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T08:49:05.955694'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

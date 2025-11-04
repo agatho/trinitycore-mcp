@@ -1,0 +1,51 @@
+api:
+  class: WorldSession
+  method: SendCalendarRaidLockoutAdded
+  signature: void WorldSession::SendCalendarRaidLockoutAdded(const InstanceLock *
+    lock)
+documentation:
+  brief: Sends a calendar raid lockout notification to the player's client when a
+    new raid instance lockout is added.
+  description: The SendCalendarRaidLockoutAdded method is responsible for transmitting
+    information about a newly acquired raid lockout to the player's client through
+    the World of Warcraft calendar system. This method is typically invoked when a
+    player completes a raid encounter and gains access to a new lockout period, which
+    prevents them from entering the same raid instance for a specified duration. The
+    method sends a structured packet containing details about the lockout, including
+    the instance ID, duration, and any relevant flags or identifiers. This functionality
+    is crucial for maintaining the integrity of raid progression mechanics and ensuring
+    players are properly notified of their lockout status within the game's calendar
+    interface.
+  parameters:
+  - name: lock
+    description: A pointer to an InstanceLock object containing the details of the
+      raid lockout being added. This includes instance identifier, expiration time,
+      and lockout duration information.
+  returns: null
+  examples:
+  - title: Basic Usage in Raid Completion Handler
+    code: "void OnRaidComplete(Player* player, uint32 instanceId)\n{\n    InstanceLock*\
+      \ lock = new InstanceLock(instanceId, time(nullptr) + 7200); // 2 hour lockout\n\
+      \    player->GetSession()->SendCalendarRaidLockoutAdded(lock);\n    delete lock;\n\
+      }"
+    language: cpp
+  notes: This method directly interacts with the client's calendar system and should
+    only be called when a legitimate raid lockout has been established. The InstanceLock
+    object must be properly initialized before being passed to this method. The method
+    does not validate the lockout duration or instance ID, so callers must ensure
+    these values are correct.
+  warnings: Calling this method without proper initialization of the InstanceLock
+    parameter may result in client-side errors or malformed calendar entries. The
+    method assumes that the provided lock pointer is valid and will not be deleted
+    during transmission. Do not call this method from within a packet processing context
+    where the session might be invalidated.
+  related:
+  - SendCalendarRaidLockoutRemoved
+  - SendCalendarEventInvite
+  - SendCalendarUpdateEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:38:14.207352'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

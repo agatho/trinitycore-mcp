@@ -1,0 +1,56 @@
+api:
+  class: VendorInteraction
+  method: GetVendorStock
+  signature: uint32 VendorInteraction::GetVendorStock(uint32 vendorGuid, uint32 itemId)
+documentation:
+  brief: Retrieves the available stock quantity of a specific item from a vendor.
+  description: The GetVendorStock method queries the vendor's inventory to determine
+    how many units of a specified item are currently available for purchase. This
+    method is typically used in vendor interaction systems to check item availability
+    before allowing a player to buy an item. The method takes a vendor's GUID and
+    an item ID as parameters, and returns the quantity of that item the vendor has
+    in stock. If the vendor does not carry the item or if there are no items available,
+    it may return zero or an error code depending on implementation details.
+  parameters:
+  - name: vendorGuid
+    description: The unique identifier (GUID) of the vendor NPC whose inventory is
+      being queried. This value should correspond to a valid NPC in the game world.
+  - name: itemId
+    description: The unique identifier of the item for which stock information is
+      requested. This ID must match an existing item in the game database.
+  returns: Returns a uint32 representing the number of items available in the vendor's
+    stock. A return value of 0 indicates either that the vendor does not carry the
+    item or that the item is out of stock.
+  examples:
+  - title: Check Item Availability
+    code: "uint32 stock = vendorInteraction->GetVendorStock(12345, 67890);\nif (stock\
+      \ > 0)\n{\n    // Proceed with purchase logic\n    printf(\"Item is available.\
+      \ Stock: %u\\n\", stock);\n}\nelse\n{\n    // Item not available or out of stock\n\
+      \    printf(\"Item is currently unavailable.\\n\");\n}"
+    language: cpp
+  - title: Prevent Purchase of Out-of-Stock Items
+    code: "uint32 vendorGuid = player->GetNPC()->GetGUID();\nuint32 itemId = 45678;\n\
+      uint32 availableStock = vendorInteraction->GetVendorStock(vendorGuid, itemId);\n\
+      \nif (availableStock == 0)\n{\n    player->SendBuyError(BUY_ERR_ITEM_SOLD_OUT,\
+      \ nullptr, itemId, 0);\n    return false;\n}\nelse if (availableStock < quantityRequested)\n\
+      {\n    player->SendBuyError(BUY_ERR_ITEM_SOLD_OUT, nullptr, itemId, availableStock);\n\
+      \    return false;\n}\n// Proceed with normal purchase logic\n"
+    language: cpp
+  notes: This method likely interacts with the vendor's item list stored in the database
+    or a cached inventory system. It may perform database lookups or use internal
+    caches depending on how the TrinityCore server is configured. The method should
+    be used carefully in performance-sensitive contexts such as frequent vendor interactions.
+  warnings: Ensure that both vendorGuid and itemId are valid before calling this method
+    to avoid unexpected behavior. Invalid GUIDs or item IDs might lead to undefined
+    results or database errors. Also, note that stock levels can change rapidly during
+    high-traffic times, so the result may not reflect real-time availability.
+  related:
+  - GetVendorItems
+  - UpdateVendorStock
+  - BuyItemFromVendor
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T15:44:27.837027'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

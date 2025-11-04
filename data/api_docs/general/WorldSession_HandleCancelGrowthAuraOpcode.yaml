@@ -1,0 +1,44 @@
+api:
+  class: WorldSession
+  method: HandleCancelGrowthAuraOpcode
+  signature: void WorldSession::HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura
+    & cancelGrowthAura)
+documentation:
+  brief: Cancels a growth aura effect on the player's pet or minion.
+  description: The HandleCancelGrowthAuraOpcode method processes incoming client packets
+    to cancel a growth aura that has been applied to a player's pet or minion. This
+    opcode is typically sent when the player explicitly cancels the aura through UI
+    interaction or when certain game conditions trigger an automatic cancellation.
+    The method validates the target of the aura and ensures proper cleanup of the
+    aura effect on the affected unit. It handles both direct pet targets and minion
+    units that may have growth auras applied to them.
+  parameters:
+  - name: cancelGrowthAura
+    description: A packet containing information about which aura to cancel, including
+      the target unit's GUID and aura ID.
+  returns: null
+  examples:
+  - title: Basic usage of cancel growth aura
+    code: "void WorldSession::HandleCancelGrowthAuraOpcode(WorldPackets::Spells::CancelGrowthAura&\
+      \ cancelGrowthAura)\n{\n    if (Player* player = GetPlayer())\n    {\n     \
+      \   if (Unit* target = ObjectAccessor::GetUnit(*player, cancelGrowthAura.TargetGUID))\n\
+      \        {\n            if (target->HasAura(cancelGrowthAura.AuraId))\n    \
+      \        {\n                target->RemoveAura(cancelGrowthAura.AuraId);\n \
+      \           }\n        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the client packet contains valid GUIDs and aura
+    IDs. The actual aura removal is delegated to the target unit's aura system, which
+    handles proper visual and mechanical cleanup.
+  warnings: Ensure that the target unit exists and has the specified aura before attempting
+    to remove it. Failure to validate these conditions may result in undefined behavior
+    or crashes.
+  related:
+  - HandleCastSpellOpcode
+  - HandleCancelAura
+  - RemoveAura
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T19:42:50.186151'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

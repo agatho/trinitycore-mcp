@@ -1,0 +1,48 @@
+api:
+  class: WorldSession
+  method: GetRecruiterId
+  signature: uint32 WorldSession::GetRecruiterId() const
+documentation:
+  brief: Returns the recruiter ID of the player associated with this session.
+  description: The GetRecruiterId method retrieves the unique identifier (GUID) of
+    the player who recruited the current player. This is used in the World of Warcraft
+    'Recruit a Friend' system, where players can invite others to join the game and
+    earn rewards for successful recruitment. The method returns zero if the player
+    has no recruiter or if the recruiter information is not yet loaded. This value
+    is typically set during player creation or when a player accepts an invitation
+    from another player.
+  parameters: []
+  returns: A uint32 value representing the GUID of the recruiting player. Returns
+    0 if no recruiter exists or the recruiter data is unavailable.
+  examples:
+  - title: Basic Usage
+    code: "uint32 recruiterId = session->GetRecruiterId();\nif (recruiterId != 0)\n\
+      {\n    // Player was recruited by another player\n    sLog->outString(\"Player\
+      \ recruited by: %u\", recruiterId);\n}\nelse\n{\n    // Player has no recruiter\n\
+      \    sLog->outString(\"Player has no recruiter\");\n}"
+    language: cpp
+  - title: Checking Recruitment Status
+    code: "void HandleRecruitmentStatus(WorldPacket& data)\n{\n    uint32 recruiterId\
+      \ = session->GetRecruiterId();\n    if (recruiterId != 0)\n    {\n        //\
+      \ Send recruitment status to client\n        WorldPacket response(SMSG_RECruit_A_Friend_Response,\
+      \ 4);\n        response << uint32(1); // Success\n        session->SendPacket(&response);\n\
+      \    }\n    else\n    {\n        WorldPacket response(SMSG_RECruit_A_Friend_Response,\
+      \ 4);\n        response << uint32(0); // No recruiter\n        session->SendPacket(&response);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with player recruitment mechanics
+    and may return zero if the recruiter data has not been fully initialized. The
+    returned ID corresponds to the GUID of another player in the database, which can
+    be used to query additional information about the recruiter.
+  warnings: Be cautious when using this value for direct database queries without
+    proper validation, as it may be zero or invalid during certain session states.
+    Ensure that any logic depending on this value handles the zero case appropriately.
+  related:
+  - SetRecruiterId
+  - GetPlayer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:53:58.807673'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

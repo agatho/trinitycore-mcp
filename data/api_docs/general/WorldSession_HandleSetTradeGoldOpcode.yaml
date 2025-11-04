@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: HandleSetTradeGoldOpcode
+  signature: void WorldSession::HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold
+    & setTradeGold)
+documentation:
+  brief: Processes a client's request to set the gold amount in a trade window
+  description: The HandleSetTradeGoldOpcode method handles the packet sent by the
+    client when a player sets or modifies the amount of gold being offered in a trade.
+    This method validates the gold amount against the player's available inventory
+    and updates the trade state accordingly. The method is part of the trading system
+    mechanics in TrinityCore, ensuring that players cannot set invalid gold amounts
+    during trades. It typically occurs during active trade sessions where both parties
+    are negotiating the exchange of items and gold.
+  parameters:
+  - name: setTradeGold
+    description: A reference to a WorldPackets::Trade::SetTradeGold packet containing
+      the gold amount the player wishes to offer in the current trade session.
+  returns: null
+  examples:
+  - title: Setting Trade Gold Amount
+    code: "void WorldSession::HandleSetTradeGoldOpcode(WorldPackets::Trade::SetTradeGold&\
+      \ setTradeGold)\n{\n    if (!GetPlayer() || !GetPlayer()->GetTrader())\n   \
+      \     return;\n\n    uint64 gold = setTradeGold.Gold;\n    Player* player =\
+      \ GetPlayer();\n    Player* trader = player->GetTrader();\n\n    // Validate\
+      \ that the gold amount is within acceptable limits\n    if (gold > player->GetMoney())\n\
+      \        return;\n\n    // Update the trade window with new gold amount\n  \
+      \  player->GetTradeData()->SetGold(gold);\n    trader->GetTradeData()->SetGold(gold);\n\
+      \n    // Send updated trade status to both players\n    WorldPackets::Trade::TradeStatus\
+      \ tradeStatus;\n    tradeStatus.Player = player->GetGUID();\n    tradeStatus.Status\
+      \ = TRADE_STATUS_TRADE_ACCEPTED;\n    player->SendDirectMessage(tradeStatus.Write());\n\
+      }"
+    language: cpp
+  notes: This method is invoked only during active trading sessions. It assumes that
+    the player has already initiated a trade with another player and that the trade
+    window is open. The method does not perform any network communication directly
+    but rather updates internal game state which may be synchronized to clients through
+    other mechanisms.
+  warnings: Improper handling of gold amounts can lead to invalid trades or exploits.
+    Ensure that all gold values are validated against the player's current money before
+    applying changes to trade data. This method should never be called outside an
+    active trade session as it may cause undefined behavior.
+  related:
+  - HandleTradeStatusOpcode
+  - HandleAcceptTradeOpcode
+  - HandleCancelTradeOpcode
+  - GetTradeData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:11:55.753500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

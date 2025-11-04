@@ -1,0 +1,58 @@
+api:
+  class: MarketAnalysis
+  method: IsPriceAnomaly
+  signature: bool MarketAnalysis::IsPriceAnomaly(uint32 itemId, uint32 price)
+documentation:
+  brief: Determines whether a given item price is an anomaly compared to market trends
+  description: The IsPriceAnomaly method evaluates whether a specified item's price
+    deviates significantly from expected market values. It analyzes pricing data against
+    historical trends and current market conditions to identify potentially inflated
+    or deflated prices. This functionality is crucial for detecting fraudulent listings,
+    exploiting market inefficiencies, or identifying items that may be mispriced due
+    to game mechanics such as auction house taxes or item rarity. The method returns
+    true when the price falls outside normal variance thresholds, indicating an anomaly
+    that might require further investigation or special handling.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item being analyzed for pricing anomalies.
+      This corresponds to the item's entry in the game's database and must reference
+      a valid item template.
+  - name: price
+    description: The current price of the item being evaluated. This represents the
+      actual listing price in copper coins as it appears in the auction house or vendor
+      system.
+  returns: Returns true if the specified item price is considered an anomaly based
+    on market analysis criteria, false otherwise. An anomaly typically indicates a
+    price that significantly deviates from expected values within normal market fluctuations.
+  examples:
+  - title: Basic Price Anomaly Check
+    code: "uint32 itemId = 18732; // Arcanite Rod\nuint32 price = 5000000; // 500\
+      \ gold\nif (marketAnalysis.IsPriceAnomaly(itemId, price)) {\n    // Handle potential\
+      \ anomaly - log or flag for review\n    sLog->outString(\"Potential price anomaly\
+      \ detected for item %u at %u copper\", itemId, price);\n}"
+    language: cpp
+  - title: Integration with Auction House System
+    code: "void AuctionHouseMgr::CheckForAnomalies(uint32 itemId, uint32 price) {\n\
+      \    MarketAnalysis analysis;\n    if (analysis.IsPriceAnomaly(itemId, price))\
+      \ {\n        // Flag suspicious auction for admin review\n        sLog->outString(\"\
+      Anomalous auction detected: Item %u priced at %u copper\", itemId, price);\n\
+      \        // Additional logic to notify GMs or restrict listing\n    }\n}"
+    language: cpp
+  notes: This method likely relies on cached market data and historical pricing information
+    stored in the database. Performance may be affected by the size of the market
+    data cache. The exact threshold values for what constitutes an 'anomaly' are implementation-specific
+    and may be configurable through server settings or database entries.
+  warnings: The method assumes valid input parameters; passing invalid item IDs may
+    result in undefined behavior or incorrect analysis. The anomaly detection algorithm
+    may produce false positives during periods of high market volatility or when new
+    items are introduced with limited historical data.
+  related:
+  - GetMarketTrend
+  - CalculatePriceVariance
+  - GetHistoricalPriceData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T00:02:11.951993'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

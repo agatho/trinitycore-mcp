@@ -1,0 +1,61 @@
+api:
+  class: BotHealthCheck
+  method: GetSystemHealth
+  signature: HealthStatus BotHealthCheck::GetSystemHealth() const
+documentation:
+  brief: Evaluates and returns the current health status of the system
+  description: The GetSystemHealth method performs a comprehensive assessment of the
+    system's operational state, checking various critical components such as memory
+    usage, CPU load, network connectivity, and core service availability. It aggregates
+    these metrics to determine an overall health status that reflects the stability
+    and performance of the TrinityCore server environment. This method is typically
+    used by monitoring systems, automated failover mechanisms, or administrative tools
+    to make informed decisions about system maintenance or resource allocation. The
+    returned HealthStatus enum provides a standardized way to interpret the system's
+    condition without requiring detailed metric inspection.
+  parameters: []
+  returns: Returns a HealthStatus enumeration value indicating the current system
+    health state. Possible values include HEALTH_OK, HEALTH_WARNING, HEALTH_CRITICAL,
+    or HEALTH_UNKNOWN depending on the severity of detected issues. The method will
+    never return null or undefined states.
+  examples:
+  - title: Basic Health Check Usage
+    code: "BotHealthCheck healthChecker;\nHealthStatus status = healthChecker.GetSystemHealth();\n\
+      if (status == HEALTH_OK) {\n    // System is operating normally\n    LOG_INFO(\"\
+      server\", \"System health is optimal\");\n} else if (status == HEALTH_CRITICAL)\
+      \ {\n    // Immediate action required\n    LOG_ERROR(\"server\", \"Critical\
+      \ system failure detected\");\n}"
+    language: cpp
+  - title: Health Monitoring in Game Loop
+    code: "void UpdateSystemMonitoring() {\n    static uint32 lastCheck = 0;\n   \
+      \ uint32 currentTime = getMSTime();\n    \n    if (currentTime - lastCheck >\
+      \ 30000) { // Check every 30 seconds\n        BotHealthCheck healthCheck;\n\
+      \        HealthStatus status = healthCheck.GetSystemHealth();\n        \n  \
+      \      switch (status) {\n            case HEALTH_OK:\n                // Continue\
+      \ normal operations\n                break;\n            case HEALTH_WARNING:\n\
+      \                // Log warning and potentially reduce load\n              \
+      \  LOG_WARN(\"server\", \"System health is degraded\");\n                break;\n\
+      \            case HEALTH_CRITICAL:\n                // Initiate emergency procedures\n\
+      \                LOG_ERROR(\"server\", \"Critical system failure - initiating\
+      \ shutdown\");\n                sWorld->SetActiveShutdown();\n             \
+      \   break;\n        }\n        lastCheck = currentTime;\n    }\n}"
+    language: cpp
+  notes: This method performs a non-blocking check of system resources and should
+    not introduce significant latency to the calling thread. The implementation may
+    cache results for a short period to avoid excessive resource polling. The exact
+    thresholds for health status determination are configurable through TrinityCore's
+    configuration files or runtime settings.
+  warnings: The returned HealthStatus value should not be used as the sole indicator
+    for critical system decisions without proper context. Some warning conditions
+    might be temporary and resolve automatically. Additionally, this method does not
+    perform any corrective actions - it only reports the current state.
+  related:
+  - GetSystemHealth
+  - IsSystemHealthy
+  - GetSystemMetrics
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T14:16:13.651053'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: ThreatCoordinator
+  method: GetHighestThreatTarget
+  signature: Unit * ThreatCoordinator::GetHighestThreatTarget() const
+documentation:
+  brief: Returns the Unit target with the highest threat value from the ThreatCoordinator's
+    threat list.
+  description: The GetHighestThreatTarget method retrieves the Unit object that currently
+    holds the highest threat level within the ThreatCoordinator's internal threat
+    management system. This is typically used by AI-controlled creatures to determine
+    which player or unit they should prioritize attacking next based on threat generation.
+    The method does not modify any threat values or trigger combat actions; it simply
+    returns a pointer to the target with the maximum threat. The returned Unit pointer
+    may be null if no valid targets exist in the threat list, such as when the creature
+    is not engaged in combat or all targets have been removed from the threat list.
+  parameters: []
+  returns: A pointer to the Unit object with the highest threat level, or nullptr
+    if no valid threats exist in the coordinator's internal threat list.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "class MyAI : public CreatureAI {\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override {\n        if (Unit* target = me->GetThreatManager().GetHighestThreatTarget())\
+      \ {\n            // Attack the highest threat target\n            me->Attack(target,\
+      \ true);\n        }\n    }\n};"
+    language: cpp
+  - title: Checking for valid threat target before action
+    code: "Unit* highestTarget = creature->GetThreatManager().GetHighestThreatTarget();\n\
+      if (highestTarget && highestTarget->IsAlive()) {\n    // Ensure the target is\
+      \ still valid and alive\n    if (me->CanSeeOrDetect(highestTarget)) {\n    \
+      \    me->CastSpell(highestTarget, SPELL_FROST_NOVA, true);\n    }\n} else {\n\
+      \    // No valid threat target, reset or find new target\n    me->SetTarget(nullptr);\n\
+      }"
+    language: cpp
+  notes: This method is part of the threat management system in TrinityCore's AI framework.
+    It operates on a cached version of threat data and may not reflect real-time changes
+    immediately. The returned Unit pointer should be validated for null before use,
+    as it can be nullptr when no threats exist. Performance is generally good since
+    it's optimized to quickly find the maximum threat entry.
+  warnings: The method returns a raw pointer that could become invalid if the target
+    dies or is removed from combat. Always validate the returned Unit pointer and
+    check its lifetime before using it in actions like casting spells or performing
+    attacks. Avoid storing references to the returned Unit beyond the scope of a single
+    AI update cycle unless you have proper lifecycle management.
+  related:
+  - GetThreatList
+  - AddThreat
+  - RemoveThreat
+  - GetThreat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T16:39:51.078803'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

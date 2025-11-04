@@ -1,0 +1,57 @@
+api:
+  class: MapManager
+  method: DestroyMap
+  signature: bool MapManager::DestroyMap(Map * map)
+documentation:
+  brief: Destroys a specified map instance and releases its resources.
+  description: The DestroyMap method is responsible for safely removing and cleaning
+    up a Map object from memory. It ensures that all associated resources, including
+    game objects, players, and other entities within the map are properly disposed
+    of before the map itself is destroyed. This method is typically called when a
+    map needs to be unloaded or removed from the active game world, such as during
+    server shutdown, map transitions, or when a dynamic map instance is no longer
+    needed. The method returns true if the destruction was successful and false if
+    it failed for any reason, such as the map being in use or already destroyed.
+  parameters:
+  - name: map
+    description: Pointer to the Map object that needs to be destroyed. This parameter
+      must not be null and should point to a valid Map instance that has been previously
+      created and is currently managed by the MapManager.
+  returns: Returns true if the map was successfully destroyed, false otherwise. A
+    return value of false may indicate that the map was already destroyed, is in use,
+    or could not be properly released due to internal errors.
+  examples:
+  - title: Basic Map Destruction
+    code: "Map* myMap = sMapMgr->FindMap(1001, 0);\nif (myMap)\n{\n    bool success\
+      \ = sMapMgr->DestroyMap(myMap);\n    if (success)\n        TC_LOG_INFO(\"maps\"\
+      , \"Map destroyed successfully.\");\n    else\n        TC_LOG_ERROR(\"maps\"\
+      , \"Failed to destroy map.\");\n}"
+    language: cpp
+  - title: Safe Map Destruction with Null Check
+    code: "Map* mapToDestroy = sMapMgr->GetMap(1002, 0);\nif (mapToDestroy != nullptr)\n\
+      {\n    if (sMapMgr->DestroyMap(mapToDestroy))\n    {\n        TC_LOG_INFO(\"\
+      maps\", \"Map 1002 destroyed successfully.\");\n    }\n    else\n    {\n   \
+      \     TC_LOG_ERROR(\"maps\", \"Failed to destroy map 1002.\");\n    }\n}\nelse\n\
+      {\n    TC_LOG_WARNING(\"maps\", \"Map 1002 not found for destruction.\");\n}"
+    language: cpp
+  notes: This method performs cleanup operations and should only be called on maps
+    that are no longer referenced elsewhere in the system. It is important to ensure
+    that all references to the map are removed before calling this method to prevent
+    dangling pointers or memory access violations. The destruction process may involve
+    notifying other systems about the map's removal, so it should not be called from
+    within a critical section or during active map operations.
+  warnings: Calling DestroyMap on a map that is currently in use or referenced by
+    other systems can lead to undefined behavior or crashes. Always verify that the
+    map is no longer needed and has no active players or game objects before calling
+    this method. Additionally, do not call this method directly on maps returned from
+    FindMap without ensuring they are valid and managed by the MapManager.
+  related:
+  - FindMap
+  - CreateMap
+  - GetMap
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T00:13:51.726876'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

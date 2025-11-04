@@ -1,0 +1,46 @@
+api:
+  class: AreaTrigger
+  method: IsRemoved
+  signature: bool AreaTrigger::IsRemoved() const
+documentation:
+  brief: Checks whether the area trigger has been removed from the world.
+  description: The IsRemoved method determines if an AreaTrigger object has been marked
+    for removal from the game world. This typically occurs when the trigger's duration
+    expires, its conditions are no longer met, or it is explicitly removed by the
+    server logic. The method returns true if the area trigger is in a removed state
+    and false otherwise. In TrinityCore, area triggers are used for various game mechanics
+    such as quest objectives, spell effects, and environmental interactions. This
+    check is essential for preventing operations on invalid or expired triggers.
+  parameters: []
+  returns: Returns true if the area trigger has been removed from the world and false
+    if it is still active and valid.
+  examples:
+  - title: Checking if an area trigger is removed before processing
+    code: "if (!areaTrigger->IsRemoved()) {\n    // Process the area trigger logic\n\
+      \    areaTrigger->HandlePlayerEnter(player);\n} else {\n    // Skip processing\
+      \ for removed triggers\n    sLog->outDebug(LOG_FILTER_GENERAL, \"Area trigger\
+      \ %u is already removed\", areaTrigger->GetEntry());\n}"
+    language: cpp
+  - title: Using IsRemoved in a loop to clean up expired triggers
+    code: "for (auto& itr : m_areaTriggers) {\n    if (itr.second && itr.second->IsRemoved())\
+      \ {\n        // Remove from container and delete\n        m_areaTriggers.erase(itr.first);\n\
+      \        delete itr.second;\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with area trigger lifecycle
+    management. The removal state may be set asynchronously by the server, so it's
+    important to check this flag before performing operations that might cause undefined
+    behavior. Performance-wise, this is a simple boolean check and should not impact
+    performance significantly.
+  warnings: Avoid performing operations on area triggers that return true from IsRemoved()
+    as they may have been freed or are in an invalid state. Always ensure proper cleanup
+    of removed triggers to prevent memory leaks.
+  related:
+  - AreaTrigger::SetRemoved
+  - AreaTrigger::IsExpired
+  - AreaTrigger::IsActive
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T17:24:18.175778'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

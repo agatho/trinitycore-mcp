@@ -1,0 +1,60 @@
+api:
+  class: CombatSpecializationBase
+  method: IsValidTarget
+  signature: bool CombatSpecializationBase::IsValidTarget(::Unit * target) const
+documentation:
+  brief: Determines whether a given unit is a valid target for combat specialization
+    abilities
+  description: The IsValidTarget method checks if a specified Unit object meets the
+    criteria for being a valid target within the context of combat specializations.
+    This method evaluates various conditions such as target visibility, hostility,
+    health status, and other game-specific constraints to ensure that the target is
+    appropriate for specialization-based attacks or abilities. It's typically used
+    by combat AI systems and spell handlers to validate targets before executing specialized
+    combat moves. The method considers factors like whether the target is alive, visible
+    to the caster, within range, and not protected by certain game mechanics such
+    as divine shielding or invulnerability.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that is being validated as a potential
+      combat specialization target. Must not be null for valid evaluation.
+  returns: Returns true if the target meets all criteria for being a valid combat
+    specialization target, false otherwise. A return value of false typically indicates
+    that the target is either dead, invisible, out of range, or otherwise invalid
+    for the current specialization's requirements.
+  examples:
+  - title: Basic Target Validation
+    code: "if (player->GetCombatSpecialization()->IsValidTarget(targetUnit)) {\n \
+      \   // Execute specialization ability\n    player->CastSpell(targetUnit, SPECIALIZATION_SPELL_ID,\
+      \ true);\n} else {\n    // Find a new target or abort\n    player->SetTarget(nullptr);\n\
+      }"
+    language: cpp
+  - title: Integration with Combat AI
+    code: "class MyCombatAI : public CombatSpecializationBase {\npublic:\n    bool\
+      \ IsValidTarget(Unit* target) const override {\n        if (!target || !target->IsAlive())\n\
+      \            return false;\n        \n        // Check if target is hostile\n\
+      \        if (target->GetTypeId() == TYPEID_PLAYER && \n            target->ToPlayer()->IsPvPFlagged())\n\
+      \            return true;\n        \n        // Allow targeting of hostile creatures\n\
+      \        if (target->GetTypeId() == TYPEID_UNIT && \n            target->ToCreature()->IsHostileTo(GetOwner()))\n\
+      \            return true;\n        \n        return false;\n    }\n};"
+    language: cpp
+  notes: This method is commonly called during spell casting and combat decision-making
+    processes. It's important to note that the implementation may vary between different
+    specialization types, as each specialization might have unique targeting requirements.
+    The method should be lightweight since it's often called in performance-critical
+    combat situations.
+  warnings: Never assume a target is valid without calling this method first. Using
+    invalid targets can cause undefined behavior or crashes in the TrinityCore engine.
+    Be cautious when overriding this method in custom specializations to ensure proper
+    validation logic that aligns with game balance requirements.
+  related:
+  - GetTarget
+  - SetTarget
+  - CanCastSpecializationSpell
+  - IsInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:00:21.758579'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

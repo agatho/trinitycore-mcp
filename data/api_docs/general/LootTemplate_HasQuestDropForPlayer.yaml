@@ -1,0 +1,64 @@
+api:
+  class: LootTemplate
+  method: HasQuestDropForPlayer
+  signature: bool LootTemplate::HasQuestDropForPlayer(const LootTemplateMap & store,
+    const Player * player, uint8 groupId) const
+documentation:
+  brief: Checks if a loot template contains items that are quest drops for a specific
+    player within a given group.
+  description: The HasQuestDropForPlayer method determines whether the current loot
+    template includes any items that are designated as quest rewards and are eligible
+    for a specified player. This check is performed within a particular group ID,
+    allowing for fine-grained control over which quest-related drops should be considered.
+    The method evaluates the loot template's entries against the player's active quests
+    to identify potential quest item drops. It is commonly used during loot distribution
+    logic to ensure that players only receive quest items they are eligible for based
+    on their current quest state and group membership.
+  parameters:
+  - name: store
+    description: A reference to a LootTemplateMap containing the loot template entries
+      to be checked. This map holds all possible loot items and their associated properties
+      including quest requirements.
+  - name: player
+    description: A pointer to the Player object for whom the quest drop eligibility
+      is being evaluated. The method uses this player's quest data to determine if
+      any template items qualify as quest rewards.
+  - name: groupId
+    description: An unsigned 8-bit integer representing the group ID within the loot
+      template to check. This allows filtering of loot entries by specific groups,
+      such as different quest reward tiers or categories.
+  returns: Returns true if at least one item in the specified group of the loot template
+    is a quest drop eligible for the given player; otherwise returns false.
+  examples:
+  - title: Basic usage to check for quest drops
+    code: "LootTemplate* lootTemplate = sLootMgr->GetLootTemplate(12345);\nPlayer*\
+      \ player = ...;\nbool hasQuestDrop = lootTemplate->HasQuestDropForPlayer(sLootMgr->GetLootTemplateStore(),\
+      \ player, 0);\nif (hasQuestDrop)\n{\n    // Player can receive quest drops from\
+      \ this template\n}"
+    language: cpp
+  - title: Checking multiple groups for quest eligibility
+    code: "LootTemplate* lootTemplate = sLootMgr->GetLootTemplate(12345);\nPlayer*\
+      \ player = ...;\nfor (uint8 i = 0; i < lootTemplate->GetMaxGroupId(); ++i)\n\
+      {\n    if (lootTemplate->HasQuestDropForPlayer(sLootMgr->GetLootTemplateStore(),\
+      \ player, i))\n    {\n        // Process quest drops for group i\n        break;\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on the player's current quest state and active quests
+    to make eligibility decisions. It does not perform any direct database queries
+    but instead uses cached quest data from the player object. The group ID parameter
+    allows for hierarchical loot distribution where different groups may represent
+    different types of quest rewards or tiers.
+  warnings: Ensure that the player pointer is valid before calling this method, as
+    passing a null pointer will result in undefined behavior. Also note that this
+    method only evaluates current quest state and does not account for future quest
+    completion or dynamic quest changes during runtime.
+  related:
+  - LootTemplate::GetLootForPlayer
+  - LootTemplate::FillLoot
+  - Player::IsActiveQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:32:05.937858'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: BotLevelDistribution
+  method: GetBracketForLevel
+  signature: const LevelBracket * BotLevelDistribution::GetBracketForLevel(uint32
+    level, int faction) const
+documentation:
+  brief: Retrieves the level bracket corresponding to a specified player level and
+    faction.
+  description: The GetBracketForLevel method determines and returns the appropriate
+    LevelBracket structure for a given player level and faction. This is used internally
+    by the bot system to assign correct behavior, loot distribution, and difficulty
+    scaling based on the player's level and faction. The method performs a lookup
+    within the internal distribution tables and returns a pointer to the matching
+    bracket. If no matching bracket is found, it may return a default or null value
+    depending on implementation details. This method is essential for ensuring bots
+    behave appropriately according to the player's progression and faction alignment.
+  parameters:
+  - name: level
+    description: The player's current level (1-80). Used to determine which bracket
+      applies based on predefined level ranges.
+  - name: faction
+    description: The player's faction ID (e.g., 35, 469 for Alliance and Horde respectively).
+      Determines faction-specific bracket behavior if applicable.
+  returns: A pointer to a const LevelBracket structure that matches the provided level
+    and faction. Returns nullptr if no matching bracket is found.
+  examples:
+  - title: Basic usage to get a level bracket for an Alliance player at level 30
+    code: "const LevelBracket* bracket = botLevelDistribution->GetBracketForLevel(30,\
+      \ 469);\nif (bracket)\n{\n    // Use the bracket data\n    printf(\"Bracket\
+      \ min level: %u\\n\", bracket->minLevel);\n}"
+    language: cpp
+  - title: Using the returned bracket to determine bot behavior
+    code: "uint32 playerLevel = 45;\nint playerFaction = 35; // Horde\nconst LevelBracket*\
+      \ bracket = botLevelDistribution->GetBracketForLevel(playerLevel, playerFaction);\n\
+      if (bracket)\n{\n    // Adjust bot difficulty based on bracket\n    bot->SetDifficulty(bracket->difficulty);\n\
+      \    bot->SetLootThreshold(bracket->lootThreshold);\n}"
+    language: cpp
+  notes: This method assumes that the internal LevelBracket data structures are properly
+    initialized and populated. The returned pointer is valid only as long as the BotLevelDistribution
+    object remains alive. It's recommended to check for null returns before using
+    the result.
+  warnings: Do not modify the returned LevelBracket structure directly, as it may
+    be shared or cached. Always treat the returned pointer as read-only. Improper
+    handling of null returns can lead to crashes or undefined behavior.
+  related:
+  - GetBracketForLevel
+  - GetAllBrackets
+  - InitializeDistribution
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T14:11:21.632659'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

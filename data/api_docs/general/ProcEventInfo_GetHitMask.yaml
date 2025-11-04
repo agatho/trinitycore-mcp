@@ -1,0 +1,54 @@
+api:
+  class: ProcEventInfo
+  method: GetHitMask
+  signature: ProcFlagsHit ProcEventInfo::GetHitMask() const
+documentation:
+  brief: Retrieves the hit mask associated with the proc event, indicating which specific
+    hit types triggered the proc.
+  description: The GetHitMask method returns a ProcFlagsHit value that represents
+    the combination of hit flags that caused a proc to occur. This is commonly used
+    in spell and ability trigger logic within TrinityCore's combat system. The returned
+    value contains bitwise flags that describe the nature of the hit, such as whether
+    it was a critical strike, glancing blow, or normal hit. Understanding these flags
+    is essential for implementing accurate proc mechanics and ensuring proper behavior
+    in custom spells or abilities.
+  parameters: []
+  returns: A ProcFlagsHit enum value representing the combination of hit types that
+    triggered the proc. This value is typically a bitwise OR of various hit flag constants,
+    such as PROC_FLAG_SUCCESSFUL_MELEE_HIT, PROC_FLAG_SUCCESSFUL_RANGED_HIT, PROC_FLAG_CRIT,
+    etc.
+  examples:
+  - title: Basic usage in spell proc handler
+    code: "void MySpell::HandleProc(ProcEventInfo& eventInfo)\n{\n    ProcFlagsHit\
+      \ hitMask = eventInfo.GetHitMask();\n    if (hitMask & PROC_FLAG_CRIT)\n   \
+      \ {\n        // Apply critical strike effects\n        DoCriticalEffect();\n\
+      \    }\n    else if (hitMask & PROC_FLAG_SUCCESSFUL_MELEE_HIT)\n    {\n    \
+      \    // Apply normal melee proc effects\n        DoNormalEffect();\n    }\n}"
+    language: cpp
+  - title: Checking for specific hit types
+    code: "bool IsGlancingHit(const ProcEventInfo& eventInfo)\n{\n    ProcFlagsHit\
+      \ hitMask = eventInfo.GetHitMask();\n    return (hitMask & PROC_FLAG_GLANCING)\
+      \ != 0;\n}\n\nbool IsSuccessfulHit(const ProcEventInfo& eventInfo)\n{\n    ProcFlagsHit\
+      \ hitMask = eventInfo.GetHitMask();\n    return (hitMask & PROC_FLAG_SUCCESSFUL_MELEE_HIT)\
+      \ || \n           (hitMask & PROC_FLAG_SUCCESSFUL_RANGED_HIT);\n}"
+    language: cpp
+  notes: The returned ProcFlagsHit value is constructed from the original hit information
+    that occurred during the spell or ability execution. This method should only be
+    called within the context of a proc event handler where the hit information is
+    available and valid. The flags returned may vary depending on the type of attack
+    (melee, ranged, spell) and the outcome of the hit calculation.
+  warnings: Do not use the return value for determining damage calculations or hit
+    outcomes directly; it only indicates which types of hits occurred. The hit mask
+    should be used purely for proc triggering logic and conditional effects. Be aware
+    that some combinations of flags may be mutually exclusive in certain game contexts.
+  related:
+  - GetSpellInfo
+  - GetProcEvent
+  - GetActor
+  - GetActionTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:01:54.337122'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

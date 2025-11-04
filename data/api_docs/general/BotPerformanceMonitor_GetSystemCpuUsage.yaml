@@ -1,0 +1,53 @@
+api:
+  class: BotPerformanceMonitor
+  method: GetSystemCpuUsage
+  signature: double BotPerformanceMonitor::GetSystemCpuUsage() const
+documentation:
+  brief: Calculates and returns the current system-wide CPU usage percentage.
+  description: The GetSystemCpuUsage method retrieves the overall CPU utilization
+    of the system where the TrinityCore server is running. This value represents the
+    percentage of time that the CPU cores are busy executing threads, excluding idle
+    time. The measurement is typically updated periodically to provide a meaningful
+    average over a short interval. This functionality is useful for performance monitoring
+    and optimization within the game server environment, particularly when evaluating
+    bot behavior or overall server load. The method does not require any parameters
+    and returns a double value between 0.0 and 100.0, where 0.0 indicates no CPU usage
+    and 100.0 represents full utilization.
+  parameters: []
+  returns: A double value representing the system-wide CPU usage as a percentage.
+    Values range from 0.0 (no usage) to 100.0 (full utilization). Returns 0.0 if measurement
+    fails or is unavailable.
+  examples:
+  - title: Basic Usage for Performance Monitoring
+    code: 'BotPerformanceMonitor monitor;
+
+      float cpuUsage = static_cast<float>(monitor.GetSystemCpuUsage());
+
+      TC_LOG_INFO("performance", "Current system CPU usage: %.2f%%", cpuUsage);'
+    language: cpp
+  - title: Using CPU Usage to Adjust Bot Behavior
+    code: "BotPerformanceMonitor monitor;\ndouble cpu = monitor.GetSystemCpuUsage();\n\
+      if (cpu > 80.0) {\n    // Reduce bot activity when system is under high load\n\
+      \    sBotAI->SetBotActivityLevel(BotActivityLevel::Low);\n} else if (cpu < 30.0)\
+      \ {\n    // Increase bot activity when system has spare capacity\n    sBotAI->SetBotActivityLevel(BotActivityLevel::High);\n\
+      }"
+    language: cpp
+  notes: This method may rely on platform-specific APIs for CPU measurement, such
+    as Windows Performance Counters or Linux /proc/stat. The accuracy of the returned
+    value depends on the frequency of updates and the underlying system's ability
+    to track CPU utilization accurately. It is recommended to call this method at
+    regular intervals rather than continuously to avoid performance overhead.
+  warnings: The returned CPU usage percentage may not reflect actual game server load
+    if the system is running other applications or services that consume significant
+    CPU resources. Additionally, some platforms might provide only approximate values,
+    especially under high load conditions.
+  related:
+  - GetSystemMemoryUsage
+  - GetBotCount
+  - GetActiveBotCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T13:45:23.858308'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

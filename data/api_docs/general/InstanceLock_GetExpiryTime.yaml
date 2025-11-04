@@ -1,0 +1,45 @@
+api:
+  class: InstanceLock
+  method: GetExpiryTime
+  signature: int InstanceLock::GetExpiryTime() const
+documentation:
+  brief: Retrieves the expiration time of an instance lock in seconds since epoch.
+  description: The GetExpiryTime method returns the Unix timestamp indicating when
+    the instance lock will expire. This is used to manage dungeon and raid instance
+    durations, ensuring players cannot access locked instances beyond their allowed
+    time window. The returned value represents seconds since January 1, 1970 (UTC),
+    which is the standard Unix epoch format. This method does not modify any internal
+    state and can be called safely during gameplay operations.
+  parameters: []
+  returns: An integer representing the Unix timestamp when the instance lock expires.
+    Returns 0 if no lock exists or has already expired.
+  examples:
+  - title: Check Instance Lock Expiry
+    code: "InstanceLock* lock = player->GetInstanceLock();\nif (lock)\n{\n    int\
+      \ expiryTime = lock->GetExpiryTime();\n    if (expiryTime > 0)\n    {\n    \
+      \    time_t currentTime = time(nullptr);\n        if (currentTime < expiryTime)\n\
+      \        {\n            // Instance is still locked\n            int remainingSeconds\
+      \ = expiryTime - currentTime;\n            printf(\"Instance lock expires in\
+      \ %d seconds\\n\", remainingSeconds);\n        }\n        else\n        {\n\
+      \            // Instance lock has expired\n            printf(\"Instance lock\
+      \ has expired\\n\");\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with time-based checks to enforce
+    instance duration limits. The returned value should be compared against the current
+    system time using standard Unix timestamp functions. Instance locks are automatically
+    managed by the server and may be extended or reset based on player actions or
+    server configuration.
+  warnings: Be aware that the return value is a Unix timestamp, not a relative time.
+    Always convert to local time or use appropriate time comparison functions when
+    displaying remaining time to players. Calling this method on a null InstanceLock
+    pointer will result in undefined behavior.
+  related:
+  - GetInstanceLock
+  - SetExpiryTime
+  - IsExpired
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:17:45.897401'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: WorldSession
+  method: SetAccountData
+  signature: void WorldSession::SetAccountData(AccountDataType type, time_t time,
+    const std::string & data)
+documentation:
+  brief: Stores account-specific data with a specified type, timestamp, and content
+    for the current session's account.
+  description: The SetAccountData method is used to save account-wide data associated
+    with a specific data type. This data is typically persisted in the database and
+    can be retrieved later using GetAccountData. The method accepts an AccountDataType
+    enum value that categorizes the data, a timestamp indicating when the data was
+    last updated, and the actual data string which may contain serialized information
+    such as UI settings, quest progress, or other persistent account state. This functionality
+    is essential for maintaining player preferences and game state across sessions
+    in World of Warcraft's TrinityCore implementation.
+  parameters:
+  - name: type
+    description: An enum value of type AccountDataType that specifies the category
+      or purpose of the data being stored. Common types include UI settings, mail
+      information, character bindings, and other persistent account data.
+  - name: time
+    description: A time_t value representing the Unix timestamp when this data was
+      last modified. This is used for synchronization and expiration logic in the
+      account data system.
+  - name: data
+    description: A std::string containing the actual data payload to be stored. This
+      can be any serialized format (e.g., JSON, XML, or custom binary) depending on
+      the data type being saved.
+  returns: null
+  examples:
+  - title: Saving UI Settings
+    code: 'WorldSession* session = ...;
+
+      std::string uiSettings = "{\"minimap\":true,\"chat\":false}";
+
+      session->SetAccountData(ACCOUNT_DATA_UI_SETTINGS, time(nullptr), uiSettings);'
+    language: cpp
+  - title: Updating Mail Information
+    code: 'WorldSession* session = ...;
+
+      std::string mailData = "[\"mail123\", \"mail456\"]"; // Example serialized list
+      of mail IDs
+
+      session->SetAccountData(ACCOUNT_DATA_MAIL, time(nullptr), mailData);'
+    language: cpp
+  notes: This method typically triggers an asynchronous database write operation to
+    persist the data. It is important to ensure that the data string is properly formatted
+    and does not exceed database field limits. The timestamp parameter helps with
+    data integrity checks and ensures that newer data overwrites older entries correctly.
+  warnings: Incorrect AccountDataType values may lead to data being stored under unexpected
+    categories, potentially causing issues during retrieval or display. Avoid storing
+    large amounts of data in this method as it could impact performance and database
+    size. Also, be cautious about thread safety if calling this from non-session threads.
+  related:
+  - GetAccountData
+  - LoadAccountData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:05:21.752823'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

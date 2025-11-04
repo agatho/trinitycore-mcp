@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: SendCharDelete
+  signature: void WorldSession::SendCharDelete(int result)
+documentation:
+  brief: Sends a character deletion result message to the client.
+  description: The SendCharDelete method is used by the WorldSession class to communicate
+    the outcome of a character deletion request back to the connected client. This
+    method sends a specific packet that informs the player's client whether the character
+    deletion was successful or if an error occurred. The result parameter determines
+    the exact message and behavior sent to the client, which may include success,
+    failure due to account restrictions, or other game-specific constraints. This
+    method is typically called as part of the character management flow in TrinityCore's
+    server implementation.
+  parameters:
+  - name: result
+    description: An integer value indicating the outcome of the character deletion
+      operation. Valid values typically include 0 for success, and various error codes
+      such as 1 for invalid character, 2 for account restrictions, or other game-specific
+      failure conditions.
+  returns: null
+  examples:
+  - title: Basic Character Deletion Result
+    code: "void HandleCharacterDelete(WorldSession* session, uint64 guid)\n{\n   \
+      \ // Validate character ownership and account restrictions\n    if (!CanDeleteCharacter(session,\
+      \ guid))\n    {\n        session->SendCharDelete(2); // Account restriction\
+      \ error\n        return;\n    }\n    \n    // Perform actual deletion logic\
+      \ here\n    if (DeleteCharacterFromDB(guid))\n    {\n        session->SendCharDelete(0);\
+      \ // Success\n    }\n    else\n    {\n        session->SendCharDelete(1); //\
+      \ Generic failure\n    }\n}"
+    language: cpp
+  notes: This method directly sends a network packet to the client, so it should only
+    be called from the main game thread. The result codes are typically defined in
+    the client's protocol and must match expected values for proper client behavior.
+    The method does not perform any validation or deletion logic itself - it merely
+    communicates the outcome of previous operations.
+  warnings: Calling this method without proper prior validation may lead to inconsistent
+    state between server and client. Ensure that all preconditions for character deletion
+    are checked before calling this method. Also, be aware that sending incorrect
+    result codes can cause client-side errors or unexpected behavior.
+  related:
+  - SendCharCreate
+  - SendCharList
+  - SendAuthResponse
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T19:36:25.654797'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

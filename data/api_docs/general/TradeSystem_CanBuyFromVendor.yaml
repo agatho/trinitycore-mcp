@@ -1,0 +1,61 @@
+api:
+  class: TradeSystem
+  method: CanBuyFromVendor
+  signature: bool TradeSystem::CanBuyFromVendor(Player * player, uint32 vendorGuid,
+    uint32 itemId)
+documentation:
+  brief: Determines whether a player can purchase an item from a vendor.
+  description: The CanBuyFromVendor method evaluates if a given player is eligible
+    to buy a specific item from a vendor. It checks various conditions such as item
+    availability, player's reputation with the vendor, required quest completion,
+    and player's inventory space. This method is typically used internally by the
+    trading system to validate transactions before allowing them to proceed. The check
+    ensures that players cannot purchase items they are not permitted to buy based
+    on game rules and progression requirements.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the character attempting
+      to make the purchase. Must be a valid player instance.
+  - name: vendorGuid
+    description: The unique identifier (GUID) of the vendor NPC from whom the item
+      is being purchased. Used to identify which vendor's inventory and rules apply.
+  - name: itemId
+    description: The entry ID of the item the player wishes to purchase. Must correspond
+      to a valid item in the game database.
+  returns: Returns true if the player can successfully buy the item from the vendor,
+    considering all relevant conditions such as reputation, quest requirements, and
+    inventory space. Returns false if any condition prevents the purchase.
+  examples:
+  - title: Basic Usage Check
+    code: "Player* player = ...; // Get player instance\nuint32 vendorGuid = 12345;\
+      \ // Vendor GUID\nuint32 itemId = 67890; // Item to buy\nif (TradeSystem::CanBuyFromVendor(player,\
+      \ vendorGuid, itemId)) {\n    // Proceed with purchase logic\n    player->AddItem(itemId,\
+      \ 1);\n} else {\n    // Handle invalid purchase attempt\n    player->SendNotification(\"\
+      You cannot buy this item.\");\n}"
+    language: cpp
+  - title: Integration in Vendor Interaction
+    code: "void HandleVendorBuyItem(Player* player, uint32 vendorGuid, uint32 itemId)\
+      \ {\n    if (!TradeSystem::CanBuyFromVendor(player, vendorGuid, itemId)) {\n\
+      \        ChatHandler(player->GetSession()).SendSysMessage(\"You cannot purchase\
+      \ this item.\");\n        return;\n    }\n    // Proceed with actual transaction\n\
+      \    // ... rest of buy logic\n}"
+    language: cpp
+  notes: This method performs multiple database lookups and checks, including reputation
+    levels, quest status, and item availability. It may be called frequently during
+    vendor interactions, so performance optimization is important in high-traffic
+    scenarios. The method assumes that the player and vendor GUIDs are valid and that
+    the items exist in the game database.
+  warnings: Do not call this method without verifying that both the player and vendor
+    pointers are valid to prevent crashes. Ensure that itemId corresponds to an actual
+    item in the database, otherwise behavior may be undefined. This method does not
+    perform currency validation; it only checks eligibility for purchase.
+  related:
+  - CanSellToVendor
+  - GetVendorItem
+  - ProcessVendorTransaction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T16:12:36.429843'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

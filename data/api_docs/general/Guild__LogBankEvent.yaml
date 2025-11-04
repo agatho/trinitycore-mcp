@@ -1,0 +1,65 @@
+api:
+  class: Guild
+  method: _LogBankEvent
+  signature: void Guild::_LogBankEvent(int trans, GuildBankEventLogTypes eventType,
+    uint8 tabId, int playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8
+    destTabId)
+documentation:
+  brief: Logs a guild bank transaction event to the guild's event log.
+  description: The _LogBankEvent method records transactions occurring within the
+    guild bank, such as item deposits, withdrawals, or money transfers. It stores
+    these events in the guild's event log for audit purposes and is typically invoked
+    when a player interacts with the guild bank tab. The method handles various event
+    types including item movements between tabs, monetary transactions, and other
+    banking actions. This function ensures that all guild bank activities are tracked
+    and can be reviewed by guild officers.
+  parameters:
+  - name: trans
+    description: Transaction identifier or type code used to categorize the event
+      in the log.
+  - name: eventType
+    description: Enumeration value indicating the specific type of bank event (e.g.,
+      item deposit, withdrawal, money transfer).
+  - name: tabId
+    description: The source tab ID from which the item or money originated.
+  - name: playerGuid
+    description: Unique identifier of the player who initiated the transaction.
+  - name: itemOrMoney
+    description: Either the item entry ID (if event involves items) or the amount
+      of money (in copper) involved in the transaction.
+  - name: itemStackCount
+    description: Number of items stacked in the transaction, applicable when dealing
+      with item events.
+  - name: destTabId
+    description: Destination tab ID where the item or money was moved to (0 if not
+      applicable).
+  returns: null
+  examples:
+  - title: Logging an Item Withdrawal from Guild Bank
+    code: 'Guild* guild = ...;
+
+      guild->_LogBankEvent(1, GUILD_BANK_EVENT_WITHDRAW_ITEM, 0, playerGuid, itemEntry,
+      itemCount, 2);'
+    language: cpp
+  - title: Recording a Money Transfer Between Tabs
+    code: 'Guild* guild = ...;
+
+      guild->_LogBankEvent(5, GUILD_BANK_EVENT_MONEY_TRANSFER, 1, playerGuid, moneyAmount,
+      0, 3);'
+    language: cpp
+  notes: This method is an internal helper function and should not be called directly
+    from external code. It updates the guild bank event log in the database and may
+    trigger additional notifications or synchronization mechanisms within TrinityCore's
+    guild system.
+  warnings: Incorrect parameter values, especially for eventType or tabId, can result
+    in invalid entries in the guild bank log. Ensure that all parameters are validated
+    before calling this method to prevent data corruption.
+  related:
+  - Guild::GetBankEventLog
+  - Guild::SendBankEventLog
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T03:48:25.965421'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

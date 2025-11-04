@@ -1,0 +1,75 @@
+api:
+  class: TerrainInfo
+  method: GetStaticHeight
+  signature: float TerrainInfo::GetStaticHeight(const PhaseShift & phaseShift, uint32
+    mapId, const int & pos, bool checkVMap, float maxSearchDist)
+documentation:
+  brief: Retrieves the static height value at a specified position on a given map,
+    considering phase shifts and optional VMap checks.
+  description: The GetStaticHeight method calculates and returns the height of the
+    terrain at a specific location within a defined map. It accounts for phase shifts
+    which are used in TrinityCore to manage different game states or zones that may
+    affect visibility or gameplay elements. The method can optionally check for VMaps
+    (navigation meshes) to ensure accurate height data, particularly useful when dealing
+    with complex terrain features such as cliffs or buildings. This function is essential
+    for maintaining proper player positioning, collision detection, and environmental
+    interactions in the game world.
+  parameters:
+  - name: phaseShift
+    description: A reference to a PhaseShift object that defines the current phase
+      state of the map. This affects which parts of the terrain are visible or active
+      during gameplay.
+  - name: mapId
+    description: The unique identifier of the map where the height is being queried.
+      Must correspond to a valid map in the game world.
+  - name: pos
+    description: An integer representing the position coordinate (typically x or y)
+      on the map. The exact interpretation depends on context, but usually refers
+      to a grid-based coordinate system.
+  - name: checkVMap
+    description: A boolean flag indicating whether VMap data should be considered
+      when calculating height. If true, the method will perform additional checks
+      using navigation mesh data for more accurate results.
+  - name: maxSearchDist
+    description: The maximum distance to search for a valid height value if the direct
+      position does not yield one. Used as a fallback mechanism to prevent invalid
+      or undefined heights from being returned.
+  returns: Returns a float value representing the static height at the specified map
+    position. If no valid height is found within the given parameters, it may return
+    an undefined or default value (e.g., 0.0f), depending on internal logic and error
+    handling.
+  examples:
+  - title: Basic Usage Example
+    code: 'PhaseShift phase;
+
+      float height = terrainInfo->GetStaticHeight(phase, 1234, 5678, true, 5.0f);
+
+      // Returns the static height at position (5678) on map 1234 with VMap checks
+      enabled'
+    language: cpp
+  - title: Advanced Usage with Phase Handling
+    code: 'PhaseShift phase;
+
+      phase.AddPhase(10);
+
+      float height = terrainInfo->GetStaticHeight(phase, 500, 1000, false, 10.0f);
+
+      // Queries height in a specific phase state without VMap checks, allowing for
+      broader search range'
+    language: cpp
+  notes: This method relies heavily on map data structures and may involve significant
+    computational overhead if VMap checks are enabled. It's recommended to cache results
+    where possible to avoid repeated calls in performance-critical sections of code.
+  warnings: Improper use of phaseShift can lead to incorrect height values or unexpected
+    behavior. Always validate the mapId and ensure that the position coordinates are
+    within valid ranges for the target map.
+  related:
+  - GetHeight
+  - IsInLineOfSight
+  - GetWaterLevel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T16:53:36.234230'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

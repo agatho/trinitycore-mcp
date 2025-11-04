@@ -1,0 +1,52 @@
+api:
+  class: WorldSession
+  method: HandleEnableTaxiNodeOpcode
+  signature: void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode
+    & enableTaxiNode)
+documentation:
+  brief: Processes a client packet to enable or disable a taxi node for the player.
+  description: The HandleEnableTaxiNodeOpcode method handles incoming client packets
+    that inform the server about which taxi nodes should be enabled or disabled for
+    the player's map. This functionality is used in World of Warcraft to control which
+    taxi routes are available to players, typically based on quest progress, faction
+    status, or other game conditions. The method updates internal state tracking whether
+    a specific taxi node is accessible to the player. It does not directly modify
+    the player's position or trigger any immediate travel actions; instead, it manages
+    the visibility and availability of taxi destinations in the UI.
+  parameters:
+  - name: enableTaxiNode
+    description: A packet object containing data about which taxi node to enable or
+      disable. The packet includes the node ID and a boolean flag indicating whether
+      the node should be enabled (true) or disabled (false).
+  returns: null
+  examples:
+  - title: Basic usage in server logic
+    code: "void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode&\
+      \ enableTaxiNode)\n{\n    // Process the packet to update taxi node availability\n\
+      \    Player* player = GetPlayer();\n    if (!player)\n        return;\n\n  \
+      \  uint32 nodeId = enableTaxiNode.NodeID;\n    bool isEnabled = enableTaxiNode.IsEnabled;\n\
+      \n    // Update internal tracking of taxi node state\n    if (isEnabled)\n \
+      \       player->GetTaxi().EnableNode(nodeId);\n    else\n        player->GetTaxi().DisableNode(nodeId);\n\
+      }"
+    language: cpp
+  notes: This method is part of the WorldSession's packet handling system and is invoked
+    when a client sends an EnableTaxiNode opcode. The actual implementation may vary
+    depending on how TrinityCore tracks taxi node states internally, but generally
+    involves updating flags or database entries related to player access to specific
+    nodes.
+  warnings: Incorrectly processing this packet could result in players seeing unavailable
+    taxi routes or missing access to valid ones. Ensure that the node IDs and enable/disable
+    flags are validated against known taxi node definitions to prevent exploitation
+    or UI inconsistencies.
+  related:
+  - HandleTaxiNodeStatusQuery
+  - HandleActivateTaxiExpressOpcode
+  - Player::GetTaxi()
+  - Taxi::EnableNode()
+  - Taxi::DisableNode()
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:13:10.457148'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

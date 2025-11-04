@@ -1,0 +1,53 @@
+api:
+  class: WorldSession
+  method: GetRBACData
+  signature: rbac::RBACData * WorldSession::GetRBACData()
+documentation:
+  brief: Returns the RBAC data associated with this session for permission management.
+  description: The GetRBACData method retrieves the Role-Based Access Control (RBAC)
+    data structure that contains permission information for the currently logged-in
+    player session. This data is used by TrinityCore's authentication and authorization
+    system to determine what actions a player can perform within the game world. The
+    returned RBACData object holds role assignments, permissions, and other access
+    control information relevant to the session. This method is typically called during
+    gameplay operations that require checking player privileges or enforcing access
+    restrictions.
+  parameters: []
+  returns: A pointer to the rbac::RBACData object associated with this WorldSession.
+    Returns nullptr if the session has not been properly initialized with RBAC data
+    or if no permissions are assigned.
+  examples:
+  - title: Basic usage to check player permissions
+    code: "if (WorldSession* session = player->GetSession())\n{\n    rbac::RBACData*\
+      \ rbacData = session->GetRBACData();\n    if (rbacData && rbacData->HasPermission(rbac::RBAC_PERM_ACCOUNT_GM))\n\
+      \    {\n        // Player has GM permissions\n        SendGMMessage(\"You are\
+      \ a Game Master.\");\n    }\n}"
+    language: cpp
+  - title: Using RBAC data for command access control
+    code: "void HandleTestCommand(WorldSession* session, const char* args)\n{\n  \
+      \  rbac::RBACData* rbac = session->GetRBACData();\n    if (!rbac || !rbac->HasPermission(rbac::RBAC_PERM_COMMAND_TEST))\n\
+      \    {\n        session->SendNotification(\"You do not have permission to use\
+      \ this command.\");\n        return;\n    }\n    \n    // Execute command logic\
+      \ here\n    session->SendNotification(\"Test command executed successfully.\"\
+      );\n}"
+    language: cpp
+  notes: This method returns a direct pointer to internal RBAC data managed by the
+    session. The returned pointer should not be deleted or modified directly as it's
+    owned by the WorldSession object. The RBAC data is populated during login and
+    may be updated dynamically through administrative commands or server configuration
+    changes.
+  warnings: Do not assume that a non-null return value means the player has any specific
+    permissions - always check individual permission flags using methods like HasPermission().
+    Be cautious when accessing RBAC data from multiple threads as WorldSession objects
+    are typically accessed per-player connection and may not be thread-safe in all
+    contexts.
+  related:
+  - GetPlayer
+  - HasPermission
+  - SetRBACData
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T19:55:12.413664'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

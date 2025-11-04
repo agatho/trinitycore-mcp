@@ -1,0 +1,56 @@
+api:
+  class: HealInfo
+  method: GetEffectiveHeal
+  signature: uint32 HealInfo::GetEffectiveHeal() const
+documentation:
+  brief: Calculates and returns the effective heal amount after applying all applicable
+    modifiers, buffs, and reductions.
+  description: The GetEffectiveHeal method computes the final healing value that will
+    be applied to a target, taking into account various game mechanics such as spell
+    modifiers, critical heals, healing bonuses, and any diminishing returns or mitigation
+    effects. This method is typically used within the context of heal application
+    logic to determine how much actual healing is delivered to a unit. The returned
+    value represents the post-modification heal amount that contributes to the target's
+    health pool. It is important to note that this value may differ from the base
+    heal amount due to factors like overhealing prevention, target state (e.g., full
+    health), and class-specific abilities.
+  parameters: []
+  returns: Returns a uint32 representing the effective healing amount that will be
+    applied to the target. This value is always non-negative and reflects all applicable
+    modifiers and reductions.
+  examples:
+  - title: Basic Usage in Heal Application
+    code: "void ApplyHeal(Unit* target, SpellInfo const* spellInfo)\n{\n    HealInfo\
+      \ healInfo(target, spellInfo, baseHealAmount);\n    uint32 effectiveHeal = healInfo.GetEffectiveHeal();\n\
+      \    target->ModifyHealth(effectiveHeal);\n}"
+    language: cpp
+  - title: Checking Effective Heal Before Application
+    code: "uint32 CalculateAndLogHeal(Unit* target, SpellInfo const* spellInfo)\n\
+      {\n    HealInfo healInfo(target, spellInfo, baseHealAmount);\n    uint32 effectiveHeal\
+      \ = healInfo.GetEffectiveHeal();\n    \n    if (effectiveHeal > 0)\n    {\n\
+      \        // Log or process the effective heal amount\n        sLog->outString(\"\
+      Effective heal applied: %u\", effectiveHeal);\n    }\n    \n    return effectiveHeal;\n\
+      }"
+    language: cpp
+  notes: This method should only be called after a HealInfo object has been properly
+    initialized with all relevant parameters including target, spell information,
+    and base heal amount. The calculation may involve multiple internal steps including
+    critical hit checks, healing modifiers, and potential overhealing adjustments.
+    Performance-wise, this method is lightweight but depends on the complexity of
+    the spell's modifiers and target state.
+  warnings: Do not assume that GetEffectiveHeal() will always return a value equal
+    to or greater than the base heal amount. The effective heal may be reduced due
+    to various game mechanics such as overhealing prevention, target health state,
+    or specific spell effects. Also, calling this method before initializing all required
+    fields in HealInfo may lead to undefined behavior.
+  related:
+  - HealInfo::GetHeal
+  - HealInfo::SetHeal
+  - HealInfo::GetSpellInfo
+  - HealInfo::GetTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T03:31:56.408987'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

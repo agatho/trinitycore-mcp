@@ -1,0 +1,56 @@
+api:
+  class: ObjectCache
+  method: GetGroupMember
+  signature: Player * ObjectCache::GetGroupMember(int guid) const
+documentation:
+  brief: Retrieves a Player object from the ObjectCache using the specified group
+    member's GUID.
+  description: The GetGroupMember method retrieves a Player object from the internal
+    ObjectCache based on the provided GUID. This method is typically used within group
+    or raid contexts to access specific player instances. The method performs a lookup
+    in the cache and returns a pointer to the Player object if found, or nullptr if
+    no matching player exists. It's important to note that this method assumes the
+    GUID corresponds to a valid group member and does not perform validation checks
+    on the input. The returned Player pointer should be used carefully as it may become
+    invalid if the player leaves the group or disconnects from the server.
+  parameters:
+  - name: guid
+    description: The global unique identifier (GUID) of the group member to retrieve.
+      This should be a valid player GUID that corresponds to an active group member
+      in the current context.
+  returns: A pointer to the Player object if a matching group member is found in the
+    cache, or nullptr if no such member exists. The returned pointer is valid only
+    as long as the player remains in the group and has not been removed from the cache.
+  examples:
+  - title: Basic usage of GetGroupMember
+    code: "Player* player = ObjectCache::GetGroupMember(123456);\nif (player != nullptr)\n\
+      {\n    // Player found, safe to use\n    player->SendPacket(...);\n}\nelse\n\
+      {\n    // Player not found in cache\n}"
+    language: cpp
+  - title: Using GetGroupMember in a group context
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n         itr != group->GetMemberSlots().end();\
+      \ ++itr)\n    {\n        Player* member = ObjectCache::GetGroupMember(itr->guid);\n\
+      \        if (member && member->IsInWorld())\n        {\n            // Process\
+      \ group member\n            member->SendAreaTriggerMessage(\"You are in a group!\"\
+      );\n        }\n    }\n}"
+    language: cpp
+  notes: This method relies on the internal ObjectCache to maintain valid references
+    to players. The cache may not contain all players at all times, especially if
+    they are not actively in the same map or zone. Developers should always check
+    for null return values before using the returned Player pointer. Performance-wise,
+    this lookup is generally fast as it uses hash-based lookups within the ObjectCache.
+  warnings: Never assume that a non-null return value means the player is still valid
+    or connected to the server. The player may have left the group, disconnected,
+    or been removed from the cache. Always validate the returned pointer against nullptr
+    and consider checking if the player is still in the world before using it.
+  related:
+  - ObjectCache::GetPlayer
+  - ObjectCache::AddGroupMember
+  - ObjectCache::RemoveGroupMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T22:55:10.073120'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

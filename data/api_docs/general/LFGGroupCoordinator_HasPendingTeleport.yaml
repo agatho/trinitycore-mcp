@@ -1,0 +1,52 @@
+api:
+  class: LFGGroupCoordinator
+  method: HasPendingTeleport
+  signature: bool LFGGroupCoordinator::HasPendingTeleport(int playerGuid) const
+documentation:
+  brief: Checks whether a player has a pending teleportation request in the LFG system
+  description: The HasPendingTeleport method determines if a specific player currently
+    has an active teleportation request within the Looking For Group (LFG) coordination
+    system. This method is typically used to prevent duplicate teleportation attempts
+    or to manage the state of players who are about to be teleported to a dungeon
+    or instance. The check is performed based on the player's GUID and evaluates whether
+    their teleportation status is pending in the LFG group coordinator's internal
+    tracking mechanism.
+  parameters:
+  - name: playerGuid
+    description: The globally unique identifier (GUID) of the player to check for
+      pending teleport status. This should be a valid player GUID from the TrinityCore
+      database.
+  returns: Returns true if the specified player has a pending teleportation request;
+    otherwise, returns false. A pending teleport typically means the player is scheduled
+    to be teleported but has not yet been moved.
+  examples:
+  - title: Basic usage to check for pending teleport
+    code: "if (LFGGroupCoordinator* coordinator = sLFGMgr->GetGroupCoordinator(playerGuid))\
+      \ {\n    bool hasPendingTeleport = coordinator->HasPendingTeleport(playerGuid);\n\
+      \    if (hasPendingTeleport) {\n        // Handle case where player is already\
+      \ pending teleport\n        sLog->outDebug(LOG_FILTER_GENERAL, \"Player %u has\
+      \ pending teleport\", playerGuid);\n    }\n}"
+    language: cpp
+  - title: Using in LFG state management
+    code: "void HandleLFGTeleport(Player* player) {\n    if (sLFGMgr->GetGroupCoordinator(player->GetGUID())\
+      \ && \n        sLFGMgr->GetGroupCoordinator(player->GetGUID())->HasPendingTeleport(player->GetGUID()))\
+      \ {\n        // Prevent multiple teleport attempts\n        player->SendAreaTriggerMessage(\"\
+      Teleport already in progress.\");\n        return;\n    }\n    // Proceed with\
+      \ teleport logic\n}"
+    language: cpp
+  notes: This method relies on internal LFG group coordinator state tracking. It should
+    only be called after ensuring the player is part of an active LFG group. The implementation
+    may involve thread-safe access to shared coordinator data structures.
+  warnings: Calling this method without verifying that a valid coordinator exists
+    for the player may lead to undefined behavior or crashes. Always ensure proper
+    LFG group membership before invoking this check.
+  related:
+  - LFGGroupCoordinator::AddPendingTeleport
+  - LFGGroupCoordinator::RemovePendingTeleport
+  - LFGGroupCoordinator::IsPlayerInLFGGroup
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T01:56:33.285390'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,46 @@
+api:
+  class: WorldSession
+  method: HandleSellItemOpcode
+  signature: void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem
+    & packet)
+documentation:
+  brief: Processes a client packet to sell an item from the player's inventory to
+    a vendor.
+  description: The HandleSellItemOpcode method is responsible for handling the SellItem
+    opcode sent by the client when a player attempts to sell an item to a vendor.
+    This method validates the transaction, calculates the item's sell value, updates
+    the player's inventory and gold balance, and sends appropriate responses back
+    to the client. It ensures that only valid items can be sold and that the vendor
+    has sufficient capacity to accept the item. The method performs checks such as
+    verifying that the item exists in the player's inventory, confirming that the
+    target is a valid vendor, and ensuring the item is sellable.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)\n\
+      {\n    // Validate vendor and item\n    if (!packet.VendorGUID || !packet.ItemGUID)\n\
+      \        return;\n    \n    // Process the sell transaction\n    Player* player\
+      \ = GetPlayer();\n    if (player && player->HasItemCount(packet.ItemGUID.GetEntry(),\
+      \ 1))\n    {\n        // Perform sell logic here\n        player->ModifyMoney(packet.SellPrice);\n\
+      \        player->DestroyItem(packet.ItemGUID);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core item transaction system in TrinityCore. It
+    must be called from within a valid session context where the player object exists
+    and is authenticated. The method relies on proper packet validation before processing
+    any monetary or inventory changes.
+  warnings: Improper handling of this method can lead to gold duplication exploits
+    or inventory desynchronization. Always validate that the vendor is actually a
+    vendor NPC, and that the item being sold is valid before performing any modifications
+    to player data.
+  related:
+  - HandleBuyItemOpcode
+  - HandleBuybackItemOpcode
+  - Player::ModifyMoney
+  - Player::DestroyItem
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T20:37:10.872218'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

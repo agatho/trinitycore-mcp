@@ -1,0 +1,51 @@
+api:
+  class: GroupStateMachine
+  method: GetTimeInState
+  signature: uint32 GroupStateMachine::GetTimeInState() const
+documentation:
+  brief: Returns the elapsed time in milliseconds since the group state was last changed.
+  description: The GetTimeInState method calculates and returns the number of milliseconds
+    that have passed since the GroupStateMachine's current state was last modified.
+    This timing mechanism is crucial for managing group-based game mechanics such
+    as cooldowns, state transitions, and event scheduling within World of Warcraft's
+    TrinityCore framework. The returned value represents a monotonic time measurement
+    that increases steadily until the state changes, at which point it resets to zero.
+    This method is commonly used in group management systems to enforce timing constraints
+    on group actions, such as preventing rapid state transitions or ensuring minimum
+    durations for certain group states.
+  parameters: []
+  returns: A uint32 value representing the number of milliseconds elapsed since the
+    last state change. Returns 0 if the state has just been changed or if the GroupStateMachine
+    object is in an invalid state.
+  examples:
+  - title: Checking group state duration before allowing a new action
+    code: "if (group->GetGroupStateMachine()->GetTimeInState() > 5000)\n{\n    //\
+      \ Allow the group to perform an action after 5 seconds in current state\n  \
+      \  group->PerformAction();\n}"
+    language: cpp
+  - title: Implementing a cooldown system based on group state time
+    code: "uint32 timeInState = group->GetGroupStateMachine()->GetTimeInState();\n\
+      if (timeInState >= 10000) // 10 seconds\n{\n    // Reset the cooldown timer\
+      \ and allow new group activity\n    group->ResetCooldownTimer();\n    group->SetNewState(GROUP_STATE_READY);\n\
+      }"
+    language: cpp
+  notes: This method relies on a monotonic clock source for accurate time measurement.
+    The implementation internally tracks state change timestamps and computes the
+    elapsed time on each call, making it efficient for frequent polling. The returned
+    value is always in milliseconds and represents wall-clock time since the last
+    state transition.
+  warnings: Be aware that this method returns zero immediately after a state change
+    occurs, which can lead to unexpected behavior if not properly accounted for in
+    conditional logic. Additionally, this method should not be used as a timing mechanism
+    for precise real-time events, as it's designed for coarse-grained state management
+    rather than high-precision timing.
+  related:
+  - SetState
+  - GetState
+  - UpdateState
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T03:56:14.272460'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

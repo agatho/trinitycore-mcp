@@ -1,0 +1,65 @@
+api:
+  class: QuestValidation
+  method: HasCompletedPrerequisiteQuests
+  signature: bool QuestValidation::HasCompletedPrerequisiteQuests(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Checks whether a player has completed all prerequisite quests required for
+    a specified quest.
+  description: The HasCompletedPrerequisiteQuests method evaluates if a given player
+    has fulfilled all the prerequisite quest requirements necessary to begin or progress
+    with a specific quest. This validation is crucial in World of Warcraft's quest
+    system, ensuring that players follow the intended questing order and do not bypass
+    required steps. The method typically checks for completed quests in the player's
+    quest log and verifies that their completion status meets the prerequisites defined
+    in the quest template. It returns true if all prerequisites are satisfied, false
+    otherwise. This function is commonly used during quest acceptance, quest progression,
+    or when determining if a player can interact with certain quest-related NPCs or
+    objects.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest for which prerequisite completion
+      is being checked. Must be a valid quest ID present in the game's quest database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose quest
+      prerequisites are being validated. This parameter must not be null and should
+      reference an active player character.
+  returns: Returns true if all prerequisite quests for the specified questId have
+    been completed by the player, false otherwise. If the questId does not exist or
+    has no prerequisites defined, it returns true as there are no requirements to
+    fulfill.
+  examples:
+  - title: Basic Usage
+    code: "if (sQuestValidation->HasCompletedPrerequisiteQuests(12345, player)) {\n\
+      \    // Player can proceed with quest 12345\n    player->AddQuest(12345);\n\
+      } else {\n    // Player lacks required prerequisites\n    player->SendNotification(\"\
+      You must complete the prerequisite quests first.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void OnQuestAccept(Player* player, uint32 questId) {\n    if (!sQuestValidation->HasCompletedPrerequisiteQuests(questId,\
+      \ player)) {\n        player->SendQuestInvalidReason(questId, QUEST_INVALID_REASON_MISSING_PREREQUISITES);\n\
+      \        return;\n    }\n    // Proceed with normal quest acceptance logic\n\
+      \    player->AddQuest(questId);\n}"
+    language: cpp
+  notes: This method relies on the player's current quest log and completion status.
+    It may not account for quests that are marked as complete but not yet saved to
+    the database. The implementation likely caches prerequisite data for performance
+    reasons, so changes to quest prerequisites during runtime might not be immediately
+    reflected. This function is typically used in conjunction with other quest validation
+    methods to ensure proper quest progression.
+  warnings: Ensure that the player pointer is valid and the questId exists before
+    calling this method, as invalid parameters can lead to undefined behavior or crashes.
+    Be cautious when using this method in high-frequency operations, as it may involve
+    database queries or complex checks that could impact performance if called excessively
+    without proper caching.
+  related:
+  - GetQuestStatus
+  - CanPlayerStartQuest
+  - IsQuestFlaggedAsComplete
+  - HasQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:50:30.155499'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

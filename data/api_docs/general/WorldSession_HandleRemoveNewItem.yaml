@@ -1,0 +1,52 @@
+api:
+  class: WorldSession
+  method: HandleRemoveNewItem
+  signature: void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem
+    & removeNewItem)
+documentation:
+  brief: Removes a new item from the player's inventory upon receiving a RemoveNewItem
+    packet.
+  description: The HandleRemoveNewItem method processes a client-initiated request
+    to remove an item that was recently added to the player's inventory. This typically
+    occurs when the client sends a RemoveNewItem packet, often in response to an item
+    being rejected or removed from a trade, loot window, or other interactive UI elements.
+    The method validates the request and performs the necessary cleanup to ensure
+    the item is properly removed from the player's inventory and any associated state
+    is updated accordingly. This method is part of the WorldSession's packet handling
+    system and operates within the context of the game's item management and transaction
+    logic.
+  parameters:
+  - name: removeNewItem
+    description: A reference to a RemoveNewItem packet structure containing information
+      about which item should be removed, including its inventory location and slot
+      details.
+  returns: null
+  examples:
+  - title: Basic usage in packet handling
+    code: "void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem&\
+      \ removeNewItem)\n{\n    // Validate the item removal request\n    if (!CanRemoveItem(removeNewItem.ContainerBag,\
+      \ removeNewItem.ContainerSlot))\n        return;\n    \n    // Remove the item\
+      \ from inventory\n    Player* player = GetPlayer();\n    if (Item* item = player->GetItemByPos(removeNewItem.ContainerBag,\
+      \ removeNewItem.ContainerSlot))\n    {\n        player->RemoveItem(removeNewItem.ContainerBag,\
+      \ removeNewItem.ContainerSlot);\n        SendItemRemoved(item);\n    }\n}"
+    language: cpp
+  notes: This method is typically invoked as part of the WorldSession's packet processing
+    pipeline. It assumes that proper validation has already been performed on the
+    incoming packet data before this method is called. The method directly interacts
+    with the player's inventory system and may trigger additional network updates
+    to synchronize the client state.
+  warnings: Improper handling of item removal requests can lead to inventory desynchronization
+    between client and server, potentially causing items to appear incorrectly in
+    the UI or leading to item loss. Always validate that the requested item exists
+    and is accessible before attempting removal.
+  related:
+  - HandleItemQuerySingle
+  - HandleSellItem
+  - HandleBuyItemInSlot
+  - HandleLootItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T20:51:48.483421'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

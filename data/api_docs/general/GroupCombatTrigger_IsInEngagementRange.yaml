@@ -1,0 +1,60 @@
+api:
+  class: GroupCombatTrigger
+  method: IsInEngagementRange
+  signature: bool GroupCombatTrigger::IsInEngagementRange(Player * bot, Unit * target)
+    const
+documentation:
+  brief: Determines whether a player is within engagement range of a target unit.
+  description: The IsInEngagementRange method checks if the specified player is within
+    the defined engagement distance of the given target unit. This functionality is
+    typically used in group-based AI logic to determine when a bot should engage or
+    disengage from combat with a target. The method evaluates the current distance
+    between the player and the target, comparing it against the predefined engagement
+    range threshold set for the group or individual bot. It returns true if the target
+    is within range and false otherwise. This check is essential for maintaining proper
+    group combat behavior and preventing bots from engaging targets that are too far
+    away.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is being checked
+      for engagement range.
+  - name: target
+    description: Pointer to the Unit object representing the target unit against which
+      the engagement range is evaluated.
+  returns: Returns true if the player (bot) is within the defined engagement range
+    of the target unit, false otherwise.
+  examples:
+  - title: Basic usage in combat logic
+    code: "if (groupCombatTrigger->IsInEngagementRange(playerBot, targetUnit)) {\n\
+      \    // Proceed with attack or engage\n    playerBot->Attack(targetUnit);\n\
+      } else {\n    // Move closer to target\n    playerBot->MoveTowards(targetUnit);\n\
+      }"
+    language: cpp
+  - title: Using in group AI decision making
+    code: "Group* group = playerBot->GetGroup();\nif (group && group->IsLeader(playerBot))\
+      \ {\n    for (Group::MemberSlotList::const_iterator itr = group->GetMemberSlots().begin();\n\
+      \         itr != group->GetMemberSlots().end(); ++itr)\n    {\n        Player*\
+      \ member = ObjectAccessor::FindPlayer(itr->guid);\n        if (member && member\
+      \ != playerBot && !member->IsDead()) {\n            if (groupCombatTrigger->IsInEngagementRange(member,\
+      \ targetUnit)) {\n                // Member is in range, continue combat\n \
+      \           } else {\n                // Member needs to move closer\n     \
+      \           member->MoveTowards(targetUnit);\n            }\n        }\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method likely uses the bot's current position and the target's position
+    to calculate distance, and compares it against a configurable engagement range
+    value. The implementation may consider factors such as line of sight or terrain
+    when determining if a unit is truly within engagement range.
+  warnings: Ensure that both player and target pointers are valid before calling this
+    method to prevent crashes. This method should not be used in high-frequency loops
+    without proper optimization, as it involves distance calculations.
+  related:
+  - GetEngagementRange
+  - SetEngagementRange
+  - IsWithinCombatRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T04:33:36.187767'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

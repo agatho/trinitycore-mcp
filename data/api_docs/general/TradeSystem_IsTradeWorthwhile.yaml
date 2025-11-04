@@ -1,0 +1,56 @@
+api:
+  class: TradeSystem
+  method: IsTradeWorthwhile
+  signature: bool TradeSystem::IsTradeWorthwhile(Player * player, const TradeSession
+    & session)
+documentation:
+  brief: Determines whether a trade session is economically beneficial for the player.
+  description: The IsTradeWorthwhile method evaluates the economic value of a pending
+    trade session from the perspective of the specified player. It analyzes the items
+    being offered and received in the trade, comparing their relative worth to determine
+    if the trade results in a net gain or loss for the player. This method is typically
+    invoked during trade processing to provide feedback on whether accepting a trade
+    would be advantageous. The evaluation considers item values, enchantments, gemming,
+    and other factors that contribute to an item's overall market value.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the trade worthiness is being
+      evaluated. Must not be null.
+  - name: session
+    description: Reference to the TradeSession object containing the details of the
+      proposed trade. This includes both the items offered by the player and the items
+      offered by the trading partner.
+  returns: Returns true if the trade results in a net economic benefit for the player,
+    false otherwise. A return value of false indicates that the player would lose
+    value by accepting the trade.
+  examples:
+  - title: Basic Trade Worthiness Check
+    code: "if (TradeSystem::IsTradeWorthwhile(player, session)) {\n    // Proceed\
+      \ with trade acceptance\n    player->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED);\n\
+      } else {\n    // Notify player that trade is not worthwhile\n    player->SendNotification(\"\
+      This trade is not economically beneficial.\");\n}"
+    language: cpp
+  - title: Integration with Trade Logic
+    code: "void Player::HandleTradeAccept() {\n    if (TradeSystem::IsTradeWorthwhile(this,\
+      \ *GetTradeSession())) {\n        // Complete the trade\n        GetTradeSession()->CompleteTrade();\n\
+      \    } else {\n        // Cancel and inform player\n        GetTradeSession()->CancelTrade();\n\
+      \        SendNotification(\"Trade cancelled: Not worthwhile.\");\n    }\n}"
+    language: cpp
+  notes: This method relies on accurate item valuation systems within TrinityCore.
+    It may perform calculations involving item quality, vendor prices, and market-based
+    values. The method assumes that the TradeSession has been properly initialized
+    with valid trade data before being passed to it.
+  warnings: Ensure that the player and session parameters are valid and not null before
+    calling this method. Improper handling of these parameters can lead to undefined
+    behavior or crashes. This method should only be called during active trade sessions
+    when both parties have made their offers.
+  related:
+  - TradeSession::GetOfferedItems
+  - Player::GetTradeSession
+  - TradeSystem::EvaluateTradeValue
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T16:07:27.408037'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

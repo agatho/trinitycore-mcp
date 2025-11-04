@@ -1,0 +1,65 @@
+api:
+  class: SpellEffectInfo
+  method: GetMissingTargetMask
+  signature: uint32 SpellEffectInfo::GetMissingTargetMask(bool srcSet, bool dstSet,
+    uint32 mask) const
+documentation:
+  brief: Calculates and returns the bitmask of missing target types for a spell effect
+    based on source and destination set flags.
+  description: The GetMissingTargetMask method computes which target types are missing
+    from a spell effect's target mask, given the state of source and destination sets.
+    This is used internally by the TrinityCore spell system to determine what targets
+    need to be validated or processed during spell execution. The method takes into
+    account whether the source and destination sets have been initialized and applies
+    a provided mask to filter the results. It's particularly useful for identifying
+    incomplete target specifications in spell effects, ensuring proper targeting behavior
+    according to WoW mechanics.
+  parameters:
+  - name: srcSet
+    description: Boolean flag indicating if the source set has been initialized or
+      populated. When true, source targets are considered valid and will be excluded
+      from the missing mask calculation.
+  - name: dstSet
+    description: Boolean flag indicating if the destination set has been initialized
+      or populated. When true, destination targets are considered valid and will be
+      excluded from the missing mask calculation.
+  - name: mask
+    description: A 32-bit bitmask representing the target types that should be checked
+      for presence. Only bits set in this mask will be evaluated against the source/destination
+      sets to determine what's missing.
+  returns: Returns a uint32 bitmask indicating which target types are missing from
+    the spell effect based on the provided flags and mask. Each bit corresponds to
+    a specific target type, where a set bit indicates that particular target type
+    is not present in either source or destination sets.
+  examples:
+  - title: Basic Usage for Target Validation
+    code: "SpellEffectInfo effect;\nuint32 missingMask = effect.GetMissingTargetMask(true,\
+      \ false, TARGET_FLAG_UNIT);\nif (missingMask & TARGET_FLAG_UNIT)\n{\n    //\
+      \ Handle case where unit target is missing\n}"
+    language: cpp
+  - title: Checking Multiple Target Types
+    code: "SpellEffectInfo effect;\nuint32 mask = TARGET_FLAG_UNIT | TARGET_FLAG_PLAYER\
+      \ | TARGET_FLAG_GAMEOBJECT;\nuint32 missing = effect.GetMissingTargetMask(false,\
+      \ true, mask);\n// Check if any of the specified target types are missing\n\
+      if (missing != 0)\n{\n    // Process missing targets\n}"
+    language: cpp
+  notes: This method is primarily used within spell targeting logic and should be
+    called during spell validation or execution phases. The mask parameter allows
+    filtering of target types to avoid unnecessary checks. The implementation relies
+    on internal target type definitions and bit positions that align with World of
+    Warcraft's target flag system.
+  warnings: The method assumes proper initialization of source and destination sets
+    before calling. Incorrect usage of the mask parameter can lead to unexpected results.
+    This function should not be used in performance-critical code paths without prior
+    optimization, as it may involve bitwise operations on potentially large target
+    type enumerations.
+  related:
+  - GetTargetMask
+  - IsTargetValid
+  - ValidateTargets
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T18:10:14.753136'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

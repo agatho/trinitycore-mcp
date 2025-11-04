@@ -1,0 +1,51 @@
+api:
+  class: DamageInfo
+  method: GetBlock
+  signature: uint32 DamageInfo::GetBlock() const
+documentation:
+  brief: Returns the amount of damage blocked by the target during a physical attack.
+  description: The GetBlock method retrieves the total amount of physical damage that
+    was successfully blocked by the target unit during a melee or ranged attack. This
+    value represents the portion of the damage that was absorbed by the target's blocking
+    mechanism, such as a shield or defensive stance. The returned value is typically
+    used in combat calculations to determine the final damage dealt after blocking
+    is applied. This method is commonly called within damage processing routines and
+    combat log systems to accurately track blocked damage contributions.
+  parameters: []
+  returns: Returns a uint32 value representing the amount of physical damage that
+    was blocked by the target. A return value of 0 indicates no damage was blocked,
+    while any positive value represents the actual blocked damage amount.
+  examples:
+  - title: Basic usage in combat processing
+    code: "void HandleDamageCalculation(DamageInfo* damageInfo)\n{\n    uint32 blockedAmount\
+      \ = damageInfo->GetBlock();\n    if (blockedAmount > 0)\n    {\n        // Apply\
+      \ blocked damage to combat log\n        sLog->outString(\"Target blocked %u\
+      \ damage.\", blockedAmount);\n    }\n}"
+    language: cpp
+  - title: Checking block effectiveness in damage calculation
+    code: "uint32 CalculateFinalDamage(DamageInfo* damageInfo)\n{\n    uint32 totalDamage\
+      \ = damageInfo->GetDamage();\n    uint32 blockedDamage = damageInfo->GetBlock();\n\
+      \    \n    // Ensure we don't go below zero\n    uint32 finalDamage = (totalDamage\
+      \ > blockedDamage) ? (totalDamage - blockedDamage) : 0;\n    \n    return finalDamage;\n\
+      }"
+    language: cpp
+  notes: This method should only be called after damage processing has been completed
+    and block calculations have been applied. The returned value is typically set
+    during the attack's damage application phase when blocking mechanics are evaluated.
+    In some cases, this value may be zero if the target did not have a blocking ability
+    active or if the attack was not subject to blocking.
+  warnings: Do not use this method before damage has been fully processed, as it may
+    return incorrect or uninitialized values. The block amount returned represents
+    only physical damage and does not account for other damage reduction mechanisms
+    such as armor or spell resistance.
+  related:
+  - GetDamage
+  - GetAbsorb
+  - GetResist
+  - SetBlock
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T09:50:16.683830'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

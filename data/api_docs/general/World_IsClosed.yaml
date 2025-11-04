@@ -1,0 +1,45 @@
+api:
+  class: World
+  method: IsClosed
+  signature: bool World::IsClosed() const
+documentation:
+  brief: Checks whether the world server is in a closed state, preventing new player
+    connections.
+  description: The IsClosed method determines if the world server has entered a closed
+    state, typically during maintenance, shutdown, or when the maximum number of players
+    has been reached. When the world is closed, new players cannot log in, although
+    existing players may continue to play until their session ends. This method is
+    commonly used by login systems and connection handlers to enforce server access
+    policies. The state can be toggled through administrative commands or automatically
+    during server shutdown sequences.
+  parameters: []
+  returns: Returns true if the world server is currently closed and rejecting new
+    connections; returns false if the server is open and accepting new player logins.
+  examples:
+  - title: Check Server Status Before Login
+    code: "if (!sWorld->IsClosed()) {\n    // Allow player to proceed with login\n\
+      \    player->SendLoginSettime();\n} else {\n    // Reject login attempt\n  \
+      \  player->GetSession()->SendNotification(\"Server is currently closed.\");\n\
+      \    player->GetSession()->KickPlayer();\n}"
+    language: cpp
+  - title: Prevent New Connections During Maintenance
+    code: "void HandleServerShutdown() {\n    sWorld->SetClosed(true); // Close the\
+      \ server\n    if (sWorld->IsClosed()) {\n        sLog->outString(\"Server is\
+      \ now closed for maintenance.\");\n        // Notify all players\n        sWorld->SendServerMessage(SERVER_MSG_SHUTDOWN_TIME,\
+      \ \"Maintenance in progress. Please log out.\");\n    }\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread context. The
+    closed state is typically managed by the World object itself through administrative
+    commands or server shutdown procedures.
+  warnings: Be cautious when checking this flag in high-frequency loops as it may
+    affect performance if used excessively. Also, ensure that existing player sessions
+    are properly handled when closing the world to avoid abrupt disconnections.
+  related:
+  - World::SetClosed
+  - World::IsStopped
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-02T20:14:40.146112'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

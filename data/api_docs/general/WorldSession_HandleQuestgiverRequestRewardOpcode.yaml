@@ -1,0 +1,50 @@
+api:
+  class: WorldSession
+  method: HandleQuestgiverRequestRewardOpcode
+  signature: void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::QuestGiverRequestReward
+    & packet)
+documentation:
+  brief: Processes a quest reward request from the quest giver, validating and rewarding
+    the player for completing the quest.
+  description: The HandleQuestgiverRequestRewardOpcode method is responsible for handling
+    the client's request to receive rewards for completing a quest. When a player
+    interacts with a quest giver and selects to turn in the quest, this method is
+    invoked to validate the quest completion conditions, check if the player meets
+    the requirements, and then distribute the appropriate rewards such as experience
+    points, gold, items, and reputation. The method ensures that the player has fulfilled
+    all necessary quest objectives before granting any rewards. It also handles potential
+    errors or restrictions that might prevent reward distribution, such as insufficient
+    inventory space or unmet quest prerequisites.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Quest Reward Request
+    code: "void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::QuestGiverRequestReward&\
+      \ packet)\n{\n    // Validate quest completion\n    if (!player->GetQuestStatus(packet.QuestID)\
+      \ == QUEST_STATUS_COMPLETE)\n        return;\n    \n    // Distribute rewards\n\
+      \    player->RewardQuest(packet.QuestID);\n    \n    // Send reward confirmation\
+      \ to client\n    WorldPackets::Quest::QuestGiverQuestComplete completePacket;\n\
+      \    completePacket.QuestID = packet.QuestID;\n    SendPacket(completePacket.Write());\n\
+      }"
+    language: cpp
+  notes: This method is typically called when a player clicks the 'Turn in Quest'
+    button after completing quest objectives. It's important to note that this method
+    does not directly send packets back to the client - it performs validation and
+    reward logic, while other methods handle packet sending. The method assumes that
+    all prerequisite checks have been performed by earlier stages of the quest system.
+  warnings: Improper handling of this method can lead to quest reward exploits where
+    players receive rewards without completing required objectives. Always ensure
+    that quest completion status is properly validated before distributing rewards.
+    Additionally, be careful with inventory space checks as failing to account for
+    them may cause items to be lost or client-side errors.
+  related:
+  - HandleQuestGiverHelloOpcode
+  - HandleQuestGiverAcceptQuestOpcode
+  - HandleQuestGiverCancel
+  - RewardQuest
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T20:56:32.824789'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

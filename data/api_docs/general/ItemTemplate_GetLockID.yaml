@@ -1,0 +1,56 @@
+api:
+  class: ItemTemplate
+  method: GetLockID
+  signature: uint32 ItemTemplate::GetLockID() const
+documentation:
+  brief: Returns the lock identifier associated with the item template, used for determining
+    lock requirements.
+  description: The GetLockID method retrieves the lock ID value stored in the ItemTemplate
+    structure. This ID corresponds to a specific lock entry in the game's database,
+    which defines the conditions required to unlock or interact with the item. In
+    World of Warcraft's context, this is commonly used for items that require a key
+    or have specific lock mechanics such as chests, doors, or containers. The returned
+    value typically maps to an entry in the 'lock' table within the game database,
+    where lock properties like required skill, level, or key item are defined. This
+    method is essential for implementing proper item interaction logic and ensuring
+    that players can only access locked items when meeting the necessary requirements.
+  parameters: []
+  returns: A uint32 value representing the lock ID associated with this item template.
+    If the item has no lock requirements, this value will typically be 0. Otherwise,
+    it corresponds to an entry in the game's lock database table that defines the
+    specific lock properties.
+  examples:
+  - title: Basic Usage to Check Lock Requirements
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ lockId = itemTemplate->GetLockID();\nif (lockId != 0)\n{\n    // Item has\
+      \ a lock, check if player can unlock it\n    LockEntry const* lockEntry = sLockStore.LookupEntry(lockId);\n\
+      \    if (lockEntry)\n    {\n        // Process lock requirements\n    }\n}"
+    language: cpp
+  - title: Determining if an Item is Lockable
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(player->GetSelectedGO()->GetGOInfo()->id);\n\
+      uint32 lockId = itemTemplate->GetLockID();\nif (lockId > 0)\n{\n    // This\
+      \ container requires a key or has lock mechanics\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      This container is locked and requires a key.\");\n}\nelse\n{\n    // No lock,\
+      \ can be opened directly\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      This container can be opened without a key.\");\n}"
+    language: cpp
+  notes: The lock ID returned by this method is directly tied to the 'lock' table
+    in the TrinityCore database. Developers should ensure that any lock-related logic
+    properly validates against the corresponding LockEntry from the game's data store.
+    This method does not perform any validation or checks itself; it simply returns
+    the stored value from the item template.
+  warnings: Be aware that a returned lock ID of 0 does not necessarily mean the item
+    is unlocked - it may indicate no lock entry exists for this item. Always validate
+    against the actual LockEntry structure to determine true lock behavior. Also,
+    some items might have complex lock requirements involving multiple conditions
+    or dynamic locks that cannot be fully determined from just the static lock ID.
+  related:
+  - GetItemId
+  - GetClass
+  - GetSubClass
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T02:27:26.758082'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

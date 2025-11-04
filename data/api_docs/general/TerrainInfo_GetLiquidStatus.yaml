@@ -1,0 +1,78 @@
+api:
+  class: TerrainInfo
+  method: GetLiquidStatus
+  signature: int TerrainInfo::GetLiquidStatus(const PhaseShift & phaseShift, uint32
+    mapId, float x, float y, float z, int ReqLiquidType, int * data, float collisionHeight)
+documentation:
+  brief: Checks the liquid status at a given location in the world terrain
+  description: The GetLiquidStatus method determines whether a specified point in
+    the game world is covered by liquid (such as water or lava) and returns relevant
+    information about that liquid. It takes into account the phase shift for proper
+    zone visibility, map ID for terrain context, and coordinates to check. The method
+    can filter results based on required liquid type and provides collision height
+    data for movement calculations. This functionality is essential for character
+    movement validation, spell targeting, and environmental interaction in World of
+    Warcraft.
+  parameters:
+  - name: phaseShift
+    description: The phase shift information that determines which parts of the world
+      are currently visible to the player or object
+  - name: mapId
+    description: The unique identifier of the map where the location is situated
+  - name: x
+    description: The X coordinate of the position to check for liquid status
+  - name: y
+    description: The Y coordinate of the position to check for liquid status
+  - name: z
+    description: The Z coordinate (height) of the position to check for liquid status
+  - name: ReqLiquidType
+    description: The required type of liquid to check for; negative value means any
+      liquid, zero means no liquid, positive values specify specific liquid types
+  - name: data
+    description: Pointer to an integer where additional liquid data will be stored
+      (e.g., liquid level, type index)
+  - name: collisionHeight
+    description: Reference to a float that will receive the collision height at the
+      specified point
+  returns: 'Returns an integer representing the liquid status: 0 for no liquid, positive
+    values indicate specific liquid types (like water or lava), negative values may
+    indicate errors or special conditions. The exact meaning of positive return values
+    depends on the game''s liquid type definitions.'
+  examples:
+  - title: Basic usage to check if a point is underwater
+    code: "PhaseShift phase;\nuint32 mapId = 0;\nfloat x = 100.0f, y = 200.0f, z =\
+      \ 50.0f;\nint liquidType = -1; // Any liquid\nint data = 0;\nfloat collisionHeight\
+      \ = 0.0f;\nint result = terrainInfo->GetLiquidStatus(phase, mapId, x, y, z,\
+      \ liquidType, &data, collisionHeight);\nif (result > 0) {\n    // Point is covered\
+      \ by a liquid\n    printf(\"Found liquid type: %d\\n\", result);\n}"
+    language: cpp
+  - title: Check for specific water type at player position
+    code: "Player* player = ...;\nPhaseShift phase = player->GetPhaseShift();\nuint32\
+      \ mapId = player->GetMapId();\nfloat x = player->GetPositionX();\nfloat y =\
+      \ player->GetPositionY();\nfloat z = player->GetPositionZ();\nint liquidType\
+      \ = 1; // Water type\nint data = 0;\nfloat collisionHeight = 0.0f;\nint result\
+      \ = terrainInfo->GetLiquidStatus(phase, mapId, x, y, z, liquidType, &data, collisionHeight);\n\
+      if (result == 1) {\n    // Player is standing in water\n    player->AddAura(12345,\
+      \ player); // Apply wet effect\n}"
+    language: cpp
+  notes: This method relies heavily on the underlying terrain and liquid data structures
+    of TrinityCore. It performs coordinate transformations and checks against map-specific
+    liquid definitions. The 'data' parameter can be used to retrieve additional properties
+    like liquid level or type index, which are useful for advanced gameplay mechanics
+    such as swimming physics or spell effects.
+  warnings: Ensure that the phaseShift is correctly initialized before calling this
+    method, otherwise visibility issues may occur. The 'collisionHeight' value should
+    be checked for validity after the call, as it might not always be updated properly
+    in edge cases. Be cautious when using negative ReqLiquidType values as they may
+    return unexpected results if multiple liquid types exist at the same location.
+  related:
+  - GetTerrain
+  - GetWaterLevel
+  - IsInWater
+  - IsUnderWater
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T16:55:29.187614'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

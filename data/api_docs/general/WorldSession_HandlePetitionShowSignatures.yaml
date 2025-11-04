@@ -1,0 +1,43 @@
+api:
+  class: WorldSession
+  method: HandlePetitionShowSignatures
+  signature: void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures
+    & packet)
+documentation:
+  brief: Processes a petition signature display request from a player.
+  description: Handles the client-initiated request to show signatures on a guild
+    petition. This method is invoked when a player clicks on a petition in the game
+    interface to view who has signed it. The server validates the petition's existence
+    and ownership, then sends back a packet containing all signature data for the
+    petition. It ensures that only authorized players can view signatures and enforces
+    game rules regarding petition visibility.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic petition signature display
+    code: "void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures&\
+      \ packet)\n{\n    // Client sends petition ID in packet\n    uint32 petitionId\
+      \ = packet.PetitionID;\n    \n    // Validate petition exists and is accessible\n\
+      \    if (Petition* petition = sObjectAccessor->GetPetition(petitionId))\n  \
+      \  {\n        // Send signature data back to client\n        WorldPackets::Petition::PetitionShowSignaturesResponse\
+      \ response;\n        response.PetitionID = petitionId;\n        response.Signatures\
+      \ = petition->GetSignatures();\n        SendPacket(response.Write());\n    }\n\
+      }"
+    language: cpp
+  notes: This method is part of the guild petition system in TrinityCore. It assumes
+    that the packet contains a valid petition ID and that proper authentication has
+    already been performed by the session. The method does not perform direct database
+    access but relies on existing petition objects managed by the ObjectAccessor.
+  warnings: Improper handling of petition IDs could lead to security vulnerabilities
+    or data corruption. Ensure all petition access checks are properly validated before
+    sending signature data to clients.
+  related:
+  - HandlePetitionDecline
+  - HandlePetitionSign
+  - HandlePetitionCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:12:21.600730'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: GuildEventCoordinator
+  method: CancelGuildEvent
+  signature: bool GuildEventCoordinator::CancelGuildEvent(int * organizer, uint32
+    eventId)
+documentation:
+  brief: Cancels a guild event identified by its event ID if the organizer matches
+    the provided pointer.
+  description: The CancelGuildEvent method attempts to cancel a guild event within
+    the GuildEventCoordinator system. It takes an optional organizer pointer and a
+    unique event identifier to locate and remove the specified guild event from the
+    coordinator's active events list. The method ensures that only the organizer of
+    the event can cancel it, providing a safety mechanism against unauthorized cancellations.
+    This function is typically used when a guild leader or organizer wishes to abort
+    a planned guild activity such as a raid, social gathering, or other coordinated
+    events. If successful, the event will be removed from active tracking and any
+    associated notifications or reminders will be cleared.
+  parameters:
+  - name: organizer
+    description: Pointer to the organizer object (likely a Player or GuildMember)
+      that must match the event's organizer for cancellation to succeed. Can be null
+      to bypass organizer validation.
+  - name: eventId
+    description: Unique identifier of the guild event to be canceled. Must correspond
+      to an existing active event in the coordinator's tracking system.
+  returns: Returns true if the guild event was successfully canceled and removed from
+    the coordinator, false otherwise. Failure may occur if the event does not exist,
+    the organizer is invalid, or the event has already been completed.
+  examples:
+  - title: Basic Guild Event Cancellation
+    code: "Player* player = ...; // Assume valid player object\nuint32 eventId = 12345;\n\
+      if (guildEventCoordinator->CancelGuildEvent(&player, eventId)) {\n    // Event\
+      \ successfully canceled\n    sWorld->SendGlobalText(\"Guild event has been canceled.\"\
+      );\n} else {\n    // Failed to cancel event\n    player->GetSession()->SendNotification(\"\
+      Failed to cancel guild event.\");\n}"
+    language: cpp
+  - title: Cancellation with Null Organizer Check
+    code: "uint32 eventId = 12345;\n// Cancel event without organizer verification\n\
+      if (guildEventCoordinator->CancelGuildEvent(nullptr, eventId)) {\n    // Event\
+      \ canceled regardless of organizer\n    sWorld->SendGlobalText(\"Guild event\
+      \ has been forcefully canceled.\");\n}"
+    language: cpp
+  notes: This method assumes that the GuildEventCoordinator maintains a registry of
+    active guild events and their associated organizers. It is designed to prevent
+    unauthorized cancellation attempts by verifying the organizer's identity before
+    proceeding with the operation.
+  warnings: Ensure that the eventId parameter corresponds to an actual active event,
+    otherwise the method will return false without performing any action. Also, be
+    cautious when passing a null organizer pointer as it may allow for unintended
+    cancellations if not handled carefully in the underlying implementation.
+  related:
+  - CreateGuildEvent
+  - GetGuildEvent
+  - UpdateGuildEvent
+  - SendGuildEventNotification
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T03:43:09.553951'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

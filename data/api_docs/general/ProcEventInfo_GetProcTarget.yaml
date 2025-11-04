@@ -1,0 +1,49 @@
+api:
+  class: ProcEventInfo
+  method: GetProcTarget
+  signature: int * ProcEventInfo::GetProcTarget() const
+documentation:
+  brief: Returns a pointer to the target unit's health value for proc events
+  description: The GetProcTarget method retrieves a pointer to the health value of
+    the target unit involved in a proc event. This is commonly used in spell and ability
+    trigger conditions where the proc system needs to evaluate the target's current
+    health state. The returned pointer allows direct access to the target's health
+    data, enabling conditional logic based on health thresholds or percentages. This
+    method is typically invoked within the context of combat proc handlers to determine
+    if certain effects should be triggered based on the target's health status.
+  parameters: []
+  returns: A pointer to an integer representing the target unit's current health value.
+    Returns NULL if no valid target exists or the target has been destroyed/invalidated.
+  examples:
+  - title: Basic usage in proc condition
+    code: "void MySpell::HandleProc(ProcEventInfo& event)\n{\n    int* targetHealth\
+      \ = event.GetProcTarget();\n    if (targetHealth && *targetHealth < 1000)\n\
+      \    {\n        // Trigger effect when target health is below 1000\n       \
+      \ DoSpecialEffect();\n    }\n}"
+    language: cpp
+  - title: Using target health for percentage-based proc
+    code: "void MyAbility::CheckProc(ProcEventInfo& event)\n{\n    int* targetHealth\
+      \ = event.GetProcTarget();\n    if (targetHealth)\n    {\n        int maxHealth\
+      \ = GetMaxHealth(); // Assume this method exists\n        float healthPercent\
+      \ = (*targetHealth * 100.0f) / maxHealth;\n        \n        if (healthPercent\
+      \ <= 25.0f)\n        {\n            // Trigger effect when target is at or below\
+      \ 25% health\n            ApplyDebuff();\n        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer is only valid during the scope of the proc event and
+    should not be stored for later use. The method assumes that a valid target exists
+    in the proc context, otherwise it returns NULL. This method is part of TrinityCore's
+    combat system and relies on proper event handling to ensure target validity.
+  warnings: Do not dereference the returned pointer without checking for NULL first,
+    as it may be invalid if no target exists or if the target has been destroyed.
+    The health value pointed to may change during the execution of the proc handler,
+    so consider caching the value if multiple checks are needed.
+  related:
+  - GetProcTrigger
+  - GetProcSpell
+  - GetProcTargetGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T21:00:24.271410'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

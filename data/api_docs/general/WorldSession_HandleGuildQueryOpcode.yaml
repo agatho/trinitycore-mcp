@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: HandleGuildQueryOpcode
+  signature: void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo
+    & query)
+documentation:
+  brief: Handles incoming guild query opcodes from clients to retrieve guild information.
+  description: The HandleGuildQueryOpcode method processes incoming WorldPackets::Guild::QueryGuildInfo
+    packets sent by players to request detailed information about a specific guild.
+    This method serves as the core handler for guild lookup functionality within the
+    TrinityCore server, validating the requested guild ID and retrieving associated
+    data such as guild name, leader, member count, and other metadata. The method
+    ensures proper authentication and authorization checks before responding with
+    the requested guild details to the requesting client.
+  parameters:
+  - name: query
+    description: A reference to the WorldPackets::Guild::QueryGuildInfo packet containing
+      the guild identifier requested by the player.
+  returns: null
+  examples:
+  - title: Basic Guild Query Handling
+    code: "void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo&\
+      \ query)\n{\n    if (!query.GuildGUID)\n        return;\n\n    // Retrieve guild\
+      \ information from database or cache\n    if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGUID))\n\
+      \    {\n        WorldPackets::Guild::GuildQueryResponse response;\n        response.GuildGUID\
+      \ = query.GuildGUID;\n        response.GuildName = guild->GetName();\n     \
+      \   // ... populate other fields\n        SendPacket(response.Write());\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method is typically invoked from the main packet handling loop when
+    a client sends a guild query request. It's important to note that this method
+    does not perform any direct database access but rather delegates to the GuildMgr
+    singleton for data retrieval, which may involve caching mechanisms. The method
+    assumes proper client authentication has already occurred.
+  warnings: Improper handling of invalid guild GUIDs can lead to crashes or security
+    vulnerabilities. Always validate input parameters before processing. Additionally,
+    ensure that the response packet is properly constructed and sent back to avoid
+    client-side errors or disconnects.
+  related:
+  - HandleGuildQueryOpcode
+  - SendGuildQueryResponse
+  - GetPlayer
+  - IsInWorld
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:56:10.930880'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

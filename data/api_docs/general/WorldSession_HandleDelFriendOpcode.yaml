@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleDelFriendOpcode
+  signature: void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend
+    & packet)
+documentation:
+  brief: Removes a friend from the player's friend list upon receiving a delete friend
+    packet from the client.
+  description: The HandleDelFriendOpcode method processes an incoming packet from
+    the client that requests the removal of a specified friend from the player's friend
+    list. This method is part of the social system in TrinityCore and handles the
+    logic for removing a friend relationship, including updating the database and
+    notifying other connected sessions about the change. The method ensures that only
+    valid friend relationships are removed and performs necessary validation before
+    executing the deletion. It is typically invoked as part of the general social
+    interaction handling within the WorldSession class.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage in packet handling context
+    code: "void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend&\
+      \ packet)\n{\n    if (Player* player = GetPlayer())\n    {\n        // Validate\
+      \ that the friend exists and is in the friend list\n        if (player->GetFriendList().Contains(packet.FriendGUID))\n\
+      \        {\n            player->RemoveFriend(packet.FriendGUID);\n         \
+      \   // Send confirmation packet back to client\n            WorldPackets::Social::FriendStatus\
+      \ status;\n            status.FriendGUID = packet.FriendGUID;\n            status.Status\
+      \ = FRIEND_REMOVED;\n            SendPacket(status.Write());\n        }\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method assumes that the packet has already been validated by the network
+    layer. The actual removal of the friend relationship is handled through the player's
+    internal friend list management system, which may involve database updates and
+    synchronization with other sessions.
+  warnings: Ensure that the FriendGUID provided in the packet is valid and corresponds
+    to an existing friend before attempting removal. Failure to validate this could
+    lead to inconsistent state or errors in the social system.
+  related:
+  - HandleAddFriendOpcode
+  - HandleGetFriendListOpcode
+  - Player::RemoveFriend
+  - Player::GetFriendList
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T22:16:57.908119'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

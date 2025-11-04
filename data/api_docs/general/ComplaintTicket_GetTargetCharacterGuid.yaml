@@ -1,0 +1,52 @@
+api:
+  class: ComplaintTicket
+  method: GetTargetCharacterGuid
+  signature: int ComplaintTicket::GetTargetCharacterGuid() const
+documentation:
+  brief: Retrieves the unique identifier of the target character associated with a
+    complaint ticket.
+  description: The GetTargetCharacterGuid method returns the globally unique identifier
+    (GUID) of the player character that is the subject of a complaint ticket. This
+    GUID is used internally by TrinityCore to uniquely identify players across the
+    game world and is essential for linking complaints to specific user accounts.
+    The method does not perform any validation on whether the target character actually
+    exists or is online, as it simply retrieves the stored GUID value from the ticket's
+    internal data structure. This identifier can be used in conjunction with other
+    APIs to fetch detailed character information or to verify permissions when handling
+    complaints.
+  parameters: []
+  returns: An integer representing the GUID of the target character. This value is
+    typically a positive integer that uniquely identifies the player character within
+    the game world's database. A return value of zero may indicate an invalid or unset
+    target character GUID, though this behavior depends on the implementation details
+    of the ticket system.
+  examples:
+  - title: Basic Usage
+    code: "ComplaintTicket* ticket = sComplaintsMgr->GetTicketByGuid(ticketGuid);\n\
+      if (ticket)\n{\n    int targetGuid = ticket->GetTargetCharacterGuid();\n   \
+      \ if (targetGuid > 0)\n    {\n        // Use the GUID to retrieve character\
+      \ information\n        Player* targetPlayer = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(targetGuid,\
+      \ 0, HIGHGUID_PLAYER));\n        if (targetPlayer)\n        {\n            //\
+      \ Process the complaint against this player\n        }\n    }\n}"
+    language: cpp
+  notes: The method is marked as const, indicating it does not modify the state of
+    the ComplaintTicket object. The returned GUID should be used carefully with appropriate
+    validation checks to ensure it corresponds to a valid character in the game world.
+    In TrinityCore's architecture, GUIDs are typically managed through the ObjectAccessor
+    system and follow specific high GUID types for different object categories.
+  warnings: This method only returns the stored GUID without verifying its validity
+    or existence. Using the returned GUID directly in operations that require active
+    players may result in null pointers if the character is not currently logged in
+    or has been deleted. Always validate the GUID against actual game objects before
+    performing operations on them.
+  related:
+  - GetTicketGuid
+  - GetComplaintType
+  - GetReportedPlayerGuid
+  - SetTargetCharacterGuid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T10:49:03.186411'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

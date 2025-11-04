@@ -1,0 +1,48 @@
+api:
+  class: ProcEventInfo
+  method: GetProcSpell
+  signature: const Spell * ProcEventInfo::GetProcSpell() const
+documentation:
+  brief: Retrieves the spell instance that triggered the proc event.
+  description: The GetProcSpell method returns a pointer to the Spell object that
+    caused the current proc event to occur. This is typically used in spell proc handlers
+    to access details about the spell that initiated the proc, such as its ID, effects,
+    or properties. The returned Spell pointer remains valid for the duration of the
+    proc event handling and should not be modified. This method is commonly called
+    within custom spell scripts or aura effects that respond to specific spell procs.
+  parameters: []
+  returns: A const pointer to the Spell object that triggered the proc event. Returns
+    nullptr if no spell is associated with the proc event or if the event was not
+    triggered by a spell.
+  examples:
+  - title: Basic Usage in Proc Handler
+    code: "class MySpellScript : public SpellScript\n{\npublic:\n    void HandleProc()\n\
+      \    {\n        ProcEventInfo* eventInfo = GetProcEvent();\n        const Spell*\
+      \ procSpell = eventInfo->GetProcSpell();\n        if (procSpell)\n        {\n\
+      \            uint32 spellId = procSpell->m_spellInfo->Id;\n            // Process\
+      \ the proc based on the triggering spell\n        }\n    }\n};"
+    language: cpp
+  - title: Checking Proc Spell for Specific Effects
+    code: "void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)\n{\n  \
+      \  const Spell* procSpell = eventInfo.GetProcSpell();\n    if (procSpell &&\
+      \ procSpell->m_spellInfo->HasAttribute(SPELL_ATTR0_CHANNELED))\n    {\n    \
+      \    // Apply special logic for channeled spells\n        PreventDefaultAction();\n\
+      \        // Custom proc behavior\n    }\n}"
+    language: cpp
+  notes: The returned Spell pointer is only valid during the execution of the proc
+    handler. Do not store this pointer for later use outside the scope of the proc
+    event handling. The method may return nullptr if the proc was triggered by non-spell
+    sources such as melee attacks or periodic effects.
+  warnings: Be cautious when dereferencing the returned Spell pointer; always check
+    for null before accessing its members to avoid crashes. Some proc events may not
+    be associated with a spell, so always validate the return value before using it.
+  related:
+  - GetProcTarget
+  - GetSpellInfo
+  - GetTriggeringSpell
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T21:00:52.427329'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

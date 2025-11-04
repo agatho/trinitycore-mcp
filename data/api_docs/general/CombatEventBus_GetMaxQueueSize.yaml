@@ -1,0 +1,50 @@
+api:
+  class: CombatEventBus
+  method: GetMaxQueueSize
+  signature: uint32 CombatEventBus::GetMaxQueueSize() const
+documentation:
+  brief: Retrieves the maximum queue size allowed for combat events in the CombatEventBus.
+  description: The GetMaxQueueSize method returns the maximum number of combat events
+    that can be queued within the CombatEventBus before it begins dropping new events.
+    This value is typically set during initialization and defines the upper limit
+    of event buffering capacity for combat-related actions such as damage calculations,
+    spell casts, and player interactions. The method provides a read-only view of
+    this configuration parameter, allowing subsystems to understand queue constraints
+    and potentially adjust their behavior accordingly. This is particularly important
+    in high-frequency combat scenarios where event overflow could lead to lost combat
+    data or performance degradation.
+  parameters: []
+  returns: A uint32 value representing the maximum number of combat events that can
+    be queued within the CombatEventBus. This value defines the buffer capacity limit
+    for combat-related events.
+  examples:
+  - title: Check Combat Event Queue Limit
+    code: "uint32 maxQueueSize = combatEventBus->GetMaxQueueSize();\nif (maxQueueSize\
+      \ < 1000)\n{\n    // Log warning about low queue capacity\n    sLog->outString(\"\
+      Warning: Combat event queue size is low (%u)\", maxQueueSize);\n}"
+    language: cpp
+  - title: Dynamic Queue Size Monitoring
+    code: "void MonitorCombatEventBus()\n{\n    uint32 maxSize = sCombatEventBus->GetMaxQueueSize();\n\
+      \    uint32 currentSize = sCombatEventBus->GetQueueSize();\n    float utilization\
+      \ = (float)currentSize / maxSize;\n    \n    if (utilization > 0.9f)\n    {\n\
+      \        sLog->outString(\"High combat event queue utilization: %.2f%%\", utilization\
+      \ * 100);\n    }\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread context. The
+    returned value represents a static configuration parameter that should not change
+    during runtime. The CombatEventBus may use this value to implement backpressure
+    mechanisms when the queue approaches capacity.
+  warnings: Calling this method repeatedly in performance-critical code paths may
+    introduce unnecessary overhead. Consider caching the result if it's accessed frequently.
+    Also, be aware that exceeding the maximum queue size will cause events to be dropped,
+    potentially leading to incomplete combat logs or missed interactions.
+  related:
+  - GetQueueSize
+  - IsQueueFull
+  - EnqueueCombatEvent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T11:18:18.281723'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

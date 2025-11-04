@@ -1,0 +1,61 @@
+api:
+  class: PositionUtils
+  method: IsGroupTooSpread
+  signature: bool PositionUtils::IsGroupTooSpread(const int & players, float maxDistance)
+documentation:
+  brief: Determines whether a group of players is too spread out based on maximum
+    allowed distance between members.
+  description: The IsGroupTooSpread method evaluates if the spatial distribution of
+    players in a group exceeds a specified maximum distance threshold. This utility
+    function is commonly used in World of Warcraft's TrinityCore to enforce grouping
+    mechanics, such as preventing players from straying too far apart during dungeon
+    or raid encounters. It calculates the distances between all pairs of players and
+    returns true if any pair exceeds the provided maxDistance parameter. The method
+    assumes that player positions are available and properly initialized within the
+    game world context.
+  parameters:
+  - name: players
+    description: Reference to an integer representing the number of players in the
+      group to evaluate for spread.
+  - name: maxDistance
+    description: Float value specifying the maximum allowed distance between any two
+      players in the group. If any pair of players exceeds this distance, the method
+      returns true.
+  returns: Boolean value indicating whether the group is considered too spread out.
+    Returns true if any player pair exceeds maxDistance; otherwise returns false.
+  examples:
+  - title: Basic Usage
+    code: "int playerCount = 5;\nfloat maxAllowedDistance = 30.0f;\nbool isTooSpread\
+      \ = PositionUtils::IsGroupTooSpread(playerCount, maxAllowedDistance);\nif (isTooSpread)\n\
+      {\n    // Handle group being too spread out\n    sLog->outString(\"Group is\
+      \ too spread out!\");\n}"
+    language: cpp
+  - title: Integration with Group Management
+    code: "void CheckAndWarnGroupSpread(Group* group)\n{\n    if (!group) return;\n\
+      \    \n    int playerCount = group->GetMembersCount();\n    float maxDistance\
+      \ = 25.0f;\n    \n    if (PositionUtils::IsGroupTooSpread(playerCount, maxDistance))\n\
+      \    {\n        // Send warning to all group members\n        for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n             itr != group->GetMemberSlots().end();\
+      \ ++itr)\n        {\n            Player* player = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \            if (player)\n                ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Warning: Group is too spread out!\");\n        }\n    }\n}"
+    language: cpp
+  notes: This method requires that player positions are accurately tracked and accessible
+    for proper distance calculations. Performance may be impacted when evaluating
+    large groups due to O(n^2) complexity of pairwise distance checks. The method
+    does not account for terrain or obstacles in distance calculations, relying purely
+    on Euclidean distance.
+  warnings: Ensure that the players parameter reflects the actual number of valid
+    players in the group, as invalid counts can lead to incorrect results. Be cautious
+    when using this function in performance-critical code paths due to its quadratic
+    time complexity with respect to player count.
+  related:
+  - GetPosition
+  - GetDistance
+  - CalculateGroupSpread
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T21:09:07.400801'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

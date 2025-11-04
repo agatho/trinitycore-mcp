@@ -1,0 +1,50 @@
+api:
+  class: ProcEventInfo
+  method: GetActor
+  signature: int * ProcEventInfo::GetActor() const
+documentation:
+  brief: Returns a pointer to the actor's unique identifier (GUID) involved in the
+    proc event
+  description: The GetActor method retrieves a pointer to the integer representation
+    of the GUID associated with the actor who triggered the proc event. This is commonly
+    used in spell and ability trigger conditions where the system needs to identify
+    which unit or player initiated the event. The returned pointer points to an internal
+    data member of the ProcEventInfo object, so it should not be modified directly.
+    The method is typically called within event handlers or trigger conditions to
+    access information about the entity that caused a proc to occur.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the actor involved in
+    the proc event. This value can be used to identify the specific unit or player
+    that triggered the proc, which is essential for determining eligibility, applying
+    effects, or checking conditions based on the actor's properties.
+  examples:
+  - title: Basic usage in a spell trigger
+    code: "void MySpell::HandleProc(ProcEventInfo& eventInfo)\n{\n    int* actorGUID\
+      \ = eventInfo.GetActor();\n    if (actorGUID && *actorGUID != 0)\n    {\n  \
+      \      // Process the proc based on the actor\n        Unit* actor = ObjectAccessor::GetUnit(*actorGUID);\n\
+      \        // ... perform actions based on actor\n    }\n}"
+    language: cpp
+  - title: Checking if actor is a player
+    code: "void MyAbility::OnProc(ProcEventInfo& eventInfo)\n{\n    int* actorGUID\
+      \ = eventInfo.GetActor();\n    if (actorGUID && *actorGUID != 0)\n    {\n  \
+      \      Player* player = ObjectAccessor::GetPlayer(*actorGUID);\n        if (player)\n\
+      \        {\n            // Apply special effects for player triggers\n     \
+      \       player->AddItem(ITEM_ID, 1);\n        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer is valid only during the lifetime of the ProcEventInfo
+    object. Do not store this pointer for later use as it may become invalid. The
+    method returns a pointer to an internal member, so modifying the value through
+    this pointer will affect the ProcEventInfo's internal state.
+  warnings: Never modify the value pointed to by the returned pointer as it directly
+    affects the internal state of the ProcEventInfo object. Be sure to check for null
+    or zero values before dereferencing the pointer to avoid undefined behavior.
+  related:
+  - GetActionTarget
+  - GetProcTarget
+  - GetSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T21:03:23.485553'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

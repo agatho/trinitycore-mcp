@@ -1,0 +1,46 @@
+api:
+  class: AuraEventBus
+  method: GetPendingEventCount
+  signature: uint32 AuraEventBus::GetPendingEventCount() const
+documentation:
+  brief: Returns the number of pending aura events in the event bus.
+  description: The GetPendingEventCount method retrieves the current count of aura
+    events that are queued for processing within the AuraEventBus. This count represents
+    events that have been scheduled but not yet executed, typically used for debugging,
+    performance monitoring, or ensuring proper event handling during aura application
+    and removal. The method is thread-safe and provides a snapshot of the pending
+    event queue at the time of invocation. It does not modify any internal state and
+    can be called at any point during the game loop or aura lifecycle.
+  parameters: []
+  returns: A uint32 value representing the total number of pending aura events currently
+    queued in the AuraEventBus. Returns zero if no events are pending.
+  examples:
+  - title: Basic Usage to Monitor Pending Events
+    code: "uint32 pendingCount = auraEventBus.GetPendingEventCount();\nif (pendingCount\
+      \ > 0)\n{\n    TC_LOG_DEBUG(\"aura\", \"Pending aura events: {}\", pendingCount);\n\
+      }"
+    language: cpp
+  - title: Performance Debugging with Event Count
+    code: "uint32 initialCount = auraEventBus.GetPendingEventCount();\n// ... perform\
+      \ some aura operations ...\nuint32 finalCount = auraEventBus.GetPendingEventCount();\n\
+      if (finalCount > initialCount)\n{\n    TC_LOG_WARN(\"aura\", \"Event queue grew\
+      \ from {} to {}\", initialCount, finalCount);\n}"
+    language: cpp
+  notes: This method provides a read-only snapshot of the event queue and should not
+    be used for control flow decisions. The returned count may change immediately
+    after the call if other threads are processing events concurrently. For high-frequency
+    monitoring, consider caching results or using a dedicated event logging system.
+  warnings: Do not assume that a zero return value means no events will occur in the
+    future; events can be added to the queue immediately after this method returns.
+    Avoid calling this method excessively in performance-critical code paths as it
+    may involve locking mechanisms internally.
+  related:
+  - AuraEventBus::AddEvent
+  - AuraEventBus::ProcessEvents
+  - AuraEventBus::ClearPendingEvents
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T16:08:04.935716'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

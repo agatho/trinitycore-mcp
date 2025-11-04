@@ -1,0 +1,54 @@
+api:
+  class: DynamicObject
+  method: GetOwnerGUID
+  signature: int DynamicObject::GetOwnerGUID() const
+documentation:
+  brief: Retrieves the unique identifier (GUID) of the object's owner.
+  description: The GetOwnerGUID method returns the globally unique identifier of the
+    entity that owns this dynamic object. In World of Warcraft's TrinityCore framework,
+    dynamic objects are temporary game entities such as area effects, traps, or spell
+    visualizations that are associated with a specific caster or owner. This GUID
+    is used to track ownership for various gameplay mechanics including spell effects,
+    targeting restrictions, and object cleanup. The method does not perform any validation
+    on the returned GUID and assumes the object has been properly initialized with
+    an owner.
+  parameters: []
+  returns: An integer value representing the GUID of the dynamic object's owner. This
+    is typically a 32-bit or 64-bit identifier depending on the internal implementation,
+    but is returned as an int for compatibility. Returns 0 if no owner has been set
+    or if the owner is invalid.
+  examples:
+  - title: Basic usage to check ownership
+    code: "DynamicObject* dynObj = ...; // Assume this is a valid dynamic object\n\
+      uint32 ownerGuid = dynObj->GetOwnerGUID();\nif (ownerGuid != 0)\n{\n    // Object\
+      \ has an owner, proceed with logic\n    Player* owner = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ ownerGuid));\n    if (owner)\n    {\n        // Use the owner player object\n\
+      \    }\n}"
+    language: cpp
+  - title: Using owner GUID in spell effect handling
+    code: "void HandleAreaEffectSpell(Spell* spell)\n{\n    DynamicObject* dynObj\
+      \ = spell->GetCaster()->GetDynObj();\n    if (dynObj)\n    {\n        uint32\
+      \ ownerGuid = dynObj->GetOwnerGUID();\n        // Prevent effects from targeting\
+      \ the owner or their pets\n        if (ownerGuid == target->GetGUID().GetCounter())\n\
+      \        {\n            // Skip processing for owner\n            return;\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: The returned GUID may be zero if the dynamic object was not properly initialized
+    with an owner. This method is commonly used in spell effect handling and area
+    of effect logic where the caster needs to be identified or excluded from certain
+    interactions. The method is thread-safe as it only reads from a stored member
+    variable.
+  warnings: Be cautious when using the returned GUID without proper validation. If
+    the owner has been destroyed or despawned, the GUID may no longer refer to a valid
+    object. Always verify that the GUID corresponds to an active entity before attempting
+    to access it.
+  related:
+  - SetOwnerGUID
+  - GetCaster
+  - GetObjectGuid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T09:20:49.939135'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

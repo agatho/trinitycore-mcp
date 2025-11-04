@@ -1,0 +1,49 @@
+api:
+  class: DamageInfo
+  method: GetAttacker
+  signature: int * DamageInfo::GetAttacker() const
+documentation:
+  brief: Returns a pointer to the attacker's unique identifier (GUID) associated with
+    the damage information.
+  description: The GetAttacker method retrieves a pointer to the unique identifier
+    of the creature or player who initiated the damage. This identifier is typically
+    used in combat calculations and event handling within the TrinityCore framework.
+    The returned pointer may be null if no attacker is set, which can occur in certain
+    special cases such as environment-based damage or self-inflicted harm. This method
+    is commonly used during damage processing to determine the source of an attack
+    for effects, loot distribution, or combat log generation.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the attacker. Returns
+    nullptr if no attacker is associated with this DamageInfo instance.
+  examples:
+  - title: Basic usage to check attacker GUID
+    code: "DamageInfo* damageInfo = ...;\nint* attackerGUID = damageInfo->GetAttacker();\n\
+      if (attackerGUID != nullptr)\n{\n    // Use the attacker GUID for further processing\n\
+      \    uint64 guid = *attackerGUID;\n    // Process combat logic using the GUID\n\
+      }"
+    language: cpp
+  - title: Using attacker GUID to identify the source of damage
+    code: "void HandleDamageEvent(DamageInfo* dmgInfo)\n{\n    int* attacker = dmgInfo->GetAttacker();\n\
+      \    if (attacker != nullptr && *attacker > 0)\n    {\n        // Log or process\
+      \ damage from a specific attacker\n        Creature* creature = sObjectAccessor->GetCreature(*attacker);\n\
+      \        if (creature)\n        {\n            // Perform actions based on the\
+      \ attacking creature\n            creature->AI()->ReceiveDamage(dmgInfo);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer points to an internal member variable, so it should
+    not be modified directly. The value pointed to may change during the lifetime
+    of the DamageInfo object if the attacker is updated. This method is thread-safe
+    as long as the DamageInfo object itself is not being concurrently modified.
+  warnings: Be sure to check for null returns before dereferencing the pointer, as
+    it can be nullptr when no attacker is set. Dereferencing a null pointer will cause
+    undefined behavior and likely crash the server.
+  related:
+  - GetVictim
+  - GetDamage
+  - GetSchoolMask
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T09:50:45.581301'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: BotSpawnEventBus
+  method: SetMaxQueueSize
+  signature: void BotSpawnEventBus::SetMaxQueueSize(uint32 maxSize)
+documentation:
+  brief: Sets the maximum queue size for bot spawn events in the event bus.
+  description: The SetMaxQueueSize method configures the maximum number of bot spawn
+    events that can be queued within the BotSpawnEventBus. This limit helps manage
+    memory usage and processing load by preventing unlimited growth of the event queue.
+    When the queue reaches its maximum capacity, additional bot spawn events may be
+    dropped or handled according to the bus's overflow policy. The method accepts
+    a single parameter representing the desired maximum size and updates the internal
+    queue limit accordingly. This functionality is crucial for maintaining performance
+    stability in environments with high bot activity or frequent spawn events.
+  parameters:
+  - name: maxSize
+    description: The maximum number of bot spawn events that can be queued. Must be
+      a positive integer value. Values of zero will typically result in no events
+      being queued, while larger values allow more events to accumulate before processing.
+  returns: null
+  examples:
+  - title: Setting Maximum Queue Size
+    code: 'BotSpawnEventBus* eventBus = BotSpawnEventBus::Instance();
+
+      eventBus->SetMaxQueueSize(1000);'
+    language: cpp
+  - title: Configuring Queue for High-Load Environment
+    code: 'BotSpawnEventBus* eventBus = BotSpawnEventBus::Instance();
+
+      // Configure for high bot activity with larger queue
+
+      uint32 maxQueueSize = sWorld->getIntConfig(CONFIG_BOT_SPAWN_MAX_QUEUE_SIZE);
+
+      eventBus->SetMaxQueueSize(maxQueueSize);'
+    language: cpp
+  notes: This method directly affects the internal queue management of the BotSpawnEventBus.
+    It should be called during initialization or configuration phases, not during
+    active event processing to avoid race conditions. The implementation likely involves
+    thread-safe operations to ensure concurrent access safety when modifying the queue
+    size.
+  warnings: Setting the maximum queue size too high may lead to memory exhaustion
+    under heavy bot spawn loads. Conversely, setting it too low might cause important
+    spawn events to be dropped during peak activity periods. This method should not
+    be called concurrently with event processing operations.
+  related:
+  - GetMaxQueueSize
+  - EnqueueBotSpawnEvent
+  - ProcessBotSpawnEvents
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T13:11:49.349690'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

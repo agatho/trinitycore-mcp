@@ -1,0 +1,54 @@
+api:
+  class: FarmingCoordinator
+  method: GetActiveFarmingSession
+  signature: const FarmingSession * FarmingCoordinator::GetActiveFarmingSession(uint32
+    playerGuid) const
+documentation:
+  brief: Retrieves the active farming session associated with a specified player GUID.
+  description: The GetActiveFarmingSession method retrieves a pointer to the currently
+    active FarmingSession for a given player identified by their unique identifier
+    (GUID). This method is typically used within the context of World of Warcraft's
+    farming mechanics, where players engage in activities such as tending to crops
+    or managing resources. The returned session may be null if no active farming activity
+    exists for the specified player. It is important to note that this method does
+    not modify any state; it only retrieves existing data. This function is thread-safe
+    and can be called from multiple threads concurrently without risk of data corruption.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player whose active farming session
+      is to be retrieved. Must be a valid player GUID within the game world.
+  returns: A constant pointer to a FarmingSession object if an active session exists
+    for the specified player; otherwise, returns nullptr indicating no active farming
+    session.
+  examples:
+  - title: Basic Usage
+    code: "const FarmingSession* session = coordinator->GetActiveFarmingSession(playerGuid);\n\
+      if (session != nullptr) {\n    // Process the active farming session\n    session->Update();\n\
+      } else {\n    // Handle case where no active session exists\n    LOG_DEBUG(\"\
+      farming\", \"No active farming session for player {}\", playerGuid);\n}"
+    language: cpp
+  - title: Checking Session Validity Before Use
+    code: "uint32 playerId = 12345;\nconst FarmingSession* activeSession = coordinator->GetActiveFarmingSession(playerId);\n\
+      if (activeSession && activeSession->IsInProgress()) {\n    // Proceed with farming\
+      \ logic\n    activeSession->ProcessGrowth();\n} else {\n    LOG_INFO(\"farming\"\
+      , \"Player {} has no valid active farming session.\", playerId);\n}"
+    language: cpp
+  notes: This method assumes that the FarmingCoordinator maintains an internal mapping
+    or registry of player GUIDs to their respective active FarmingSession objects.
+    The returned pointer should not be modified directly, as it points to managed
+    data within the coordinator. Performance-wise, this lookup is expected to be O(1)
+    assuming proper indexing.
+  warnings: Do not assume that a non-null return value implies the session is valid
+    for immediate use. Always verify the session's state before performing operations
+    on it. Also, since this method returns a const pointer, attempting to modify the
+    session through it will result in compile-time errors.
+  related:
+  - FarmingCoordinator::SetActiveFarmingSession
+  - FarmingCoordinator::ClearActiveFarmingSession
+  - FarmingSession::IsInProgress
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T08:40:03.476607'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

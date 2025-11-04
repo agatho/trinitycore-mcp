@@ -1,0 +1,63 @@
+api:
+  class: QuestValidation
+  method: GetMissingPrerequisites
+  signature: int QuestValidation::GetMissingPrerequisites(uint32 questId, Player *
+    bot)
+documentation:
+  brief: Checks for missing quest prerequisites for a given quest and player
+  description: The GetMissingPrerequisites method evaluates whether a player has met
+    all the prerequisite requirements for a specified quest. It returns an integer
+    value indicating the number of missing prerequisites, or zero if all prerequisites
+    are satisfied. This method is commonly used in quest validation systems to determine
+    if a player can accept or proceed with a quest. The method checks various conditions
+    such as completed prerequisite quests, required level, faction standing, and other
+    conditional requirements defined in the quest template.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate prerequisites for.
+      Must be a valid quest ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose prerequisites
+      are being checked. Must not be null and must represent an active player character.
+  returns: Returns an integer representing the count of missing prerequisites. A return
+    value of 0 indicates all prerequisites are met. Positive integers indicate the
+    number of unmet prerequisites. Negative values may indicate error conditions or
+    invalid inputs.
+  examples:
+  - title: Basic usage to check quest prerequisites
+    code: "uint32 questId = 12345;\nPlayer* player = ...; // Valid player pointer\n\
+      int missingPrereqs = QuestValidation::GetMissingPrerequisites(questId, player);\n\
+      if (missingPrereqs == 0)\n{\n    // All prerequisites met, can accept quest\n\
+      \    player->AddQuest(questId);\n}\nelse\n{\n    // Inform player about missing\
+      \ prerequisites\n    player->SendNotification(\"You are missing %d prerequisite(s)\
+      \ for this quest.\", missingPrereqs);\n}"
+    language: cpp
+  - title: Using result to conditionally offer quests
+    code: "uint32 questId = 12345;\nPlayer* player = ...; // Valid player pointer\n\
+      int missing = QuestValidation::GetMissingPrerequisites(questId, player);\nif\
+      \ (missing > 0)\n{\n    // Quest cannot be offered due to missing prerequisites\n\
+      \    player->SendNotification(\"This quest requires %d more prerequisite(s)\
+      \ to be completed.\", missing);\n}\nelse if (missing == 0)\n{\n    // Quest\
+      \ can be offered\n    player->AddQuest(questId);\n    player->SendNotification(\"\
+      Quest '%s' added to your quest log.\", sObjectMgr->GetQuestNameForId(questId));\n\
+      }"
+    language: cpp
+  notes: This method performs database lookups and validation checks, so it should
+    not be called excessively in performance-critical code paths. The implementation
+    likely caches prerequisite data to improve performance for repeated checks. The
+    method may also consider player faction, reputation levels, and other character-specific
+    factors when evaluating prerequisites.
+  warnings: Ensure the Player pointer is valid and the questId exists in the database
+    before calling this method. Passing null pointers or invalid quest IDs may lead
+    to undefined behavior or crashes. The return value should always be checked for
+    negative values which might indicate errors in validation logic.
+  related:
+  - QuestValidation::IsQuestValid
+  - QuestValidation::HasPrerequisites
+  - Player::GetQuestStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:53:32.569140'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

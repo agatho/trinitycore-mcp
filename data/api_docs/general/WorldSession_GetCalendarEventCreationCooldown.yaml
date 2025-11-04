@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: GetCalendarEventCreationCooldown
+  signature: time_t WorldSession::GetCalendarEventCreationCooldown() const
+documentation:
+  brief: Returns the cooldown timestamp for creating calendar events for this session.
+  description: This method retrieves the cooldown time stamp that determines when
+    a player can next create a calendar event. In World of Warcraft, players are subject
+    to a cooldown period after creating calendar events to prevent spamming. The returned
+    value represents a Unix timestamp indicating the earliest time at which the player
+    can create another event. If the current time is earlier than this timestamp,
+    the player must wait before creating a new event. This mechanism helps maintain
+    game balance and prevents excessive use of the calendar system.
+  parameters: []
+  returns: A time_t value representing the Unix timestamp when the player will be
+    allowed to create another calendar event. If zero or in the past, the player can
+    create an event immediately.
+  examples:
+  - title: Check if player can create a calendar event
+    code: "time_t cooldown = session->GetCalendarEventCreationCooldown();\nif (time(nullptr)\
+      \ >= cooldown)\n{\n    // Player can create an event\n    // Proceed with event\
+      \ creation logic\n}\nelse\n{\n    // Player must wait until cooldown time\n\
+      \    uint32 secondsToWait = static_cast<uint32>(cooldown - time(nullptr));\n\
+      \    // Send cooldown message to player\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with the calendar event creation
+    logic to enforce rate limiting. The actual cooldown duration is determined by
+    the game's internal configuration and may vary based on player level or other
+    factors. This value is usually cached per session and updated when events are
+    created.
+  warnings: Be aware that this method returns a Unix timestamp, not a duration. Always
+    compare against current time using time(nullptr) to determine if the cooldown
+    has expired. Do not assume the returned value is always in the future - it may
+    be in the past if the cooldown has already expired.
+  related:
+  - GetPlayer
+  - SendCalendarEventInvite
+  - SendCalendarEvent
+  - AddCalendarEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-02T20:00:52.209073'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

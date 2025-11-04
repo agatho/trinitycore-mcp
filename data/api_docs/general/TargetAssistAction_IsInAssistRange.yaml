@@ -1,0 +1,57 @@
+api:
+  class: TargetAssistAction
+  method: IsInAssistRange
+  signature: bool TargetAssistAction::IsInAssistRange(Player * bot, Unit * target)
+    const
+documentation:
+  brief: Checks if a target unit is within the assist range of a player bot
+  description: The IsInAssistRange method determines whether a specified target unit
+    is within the valid assist range for a given player bot. This functionality is
+    crucial for AI behavior in TrinityCore's bot system, ensuring that bots only engage
+    or assist with targets that are close enough to be effectively supported. The
+    method evaluates the distance between the bot and the target unit using game-defined
+    assist range parameters, which may vary based on the bot's class, level, or other
+    factors. This check is typically used in conjunction with targeting logic to prevent
+    bots from attempting to assist or attack targets that are too far away.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is checking
+      assist range. Must not be null.
+  - name: target
+    description: Pointer to the Unit object representing the target being checked
+      for assist range validity. Must not be null.
+  returns: Returns true if the target unit is within the assist range of the bot,
+    false otherwise. The method returns false if either parameter is invalid or if
+    the distance exceeds the defined assist range threshold.
+  examples:
+  - title: Basic usage in AI logic
+    code: "if (TargetAssistAction::IsInAssistRange(bot, target)) {\n    // Proceed\
+      \ with assist actions\n    bot->CastSpell(target, SPELL_ASSIST, true);\n} else\
+      \ {\n    // Move closer or select a different target\n    bot->MoveTowards(target);\n\
+      }"
+    language: cpp
+  - title: Integration with bot decision making
+    code: "class MyBotAI : public PlayerbotAI {\npublic:\n    void UpdateAI(uint32\
+      \ diff) override {\n        if (GetTarget() && !TargetAssistAction::IsInAssistRange(GetBot(),\
+      \ GetTarget())) {\n            // Target is out of assist range, reposition\n\
+      \            SetNextAction(new MoveToAction(GetBot(), GetTarget()));\n     \
+      \   }\n    }\n};"
+    language: cpp
+  notes: This method relies on the internal game mechanics for determining assist
+    range, which may include factors such as spell range, bot class abilities, and
+    server configuration settings. The implementation likely uses distance calculations
+    based on the 3D coordinates of both units, taking into account terrain and obstacles
+    where applicable.
+  warnings: Ensure that both the bot and target pointers are valid before calling
+    this method to avoid undefined behavior. This method does not perform any null
+    pointer checks internally, so callers must validate inputs.
+  related:
+  - IsInSpellRange
+  - GetAssistRange
+  - CanAssistTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T17:32:24.795608'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

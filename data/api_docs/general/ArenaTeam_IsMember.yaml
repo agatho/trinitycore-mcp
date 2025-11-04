@@ -1,0 +1,50 @@
+api:
+  class: ArenaTeam
+  method: IsMember
+  signature: bool ArenaTeam::IsMember(int guid) const
+documentation:
+  brief: Checks whether a player with the specified GUID is a member of this arena
+    team.
+  description: The IsMember method determines if a player identified by their global
+    unique identifier (GUID) is currently a member of the arena team. This method
+    performs a lookup within the internal roster of the arena team to verify membership
+    status. It is commonly used in arena-related game mechanics such as validating
+    player participation in matches, checking eligibility for rewards, or managing
+    team composition during battleground events. The method does not perform any database
+    queries directly but relies on cached data structures representing the current
+    team members.
+  parameters: []
+  returns: Returns true if a player with the specified GUID is found in the arena
+    team's member list; otherwise returns false.
+  examples:
+  - title: Basic Usage to Check Team Membership
+    code: "ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(12345);\nif (team &&\
+      \ team->IsMember(56789)) {\n    // Player with GUID 56789 is a member of arena\
+      \ team 12345\n    sWorld->SendWorldText(LANG_ARENA_MEMBER_CHECK, 56789);\n}"
+    language: cpp
+  - title: Using IsMember in Arena Match Validation
+    code: "void ValidateArenaMatch(Player* player, uint32 arenaTeamId) {\n    ArenaTeam*\
+      \ team = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);\n    if (!team || !team->IsMember(player->GetGUID().GetCounter()))\
+      \ {\n        player->SendArenaTeamCommandResult(ERR_ARENA_TEAM_NOT_MEMBER);\n\
+      \        return;\n    }\n    // Proceed with match validation\n}"
+    language: cpp
+  notes: This method assumes that the arena team's internal data structure is up-to-date
+    and reflects the current roster. In a multi-threaded environment, it may be necessary
+    to ensure thread safety when accessing arena team data concurrently. The method
+    uses an efficient lookup mechanism, typically implemented with a hash map or similar
+    structure for O(1) average-case performance.
+  warnings: Be aware that this method only checks membership based on cached data
+    and does not account for real-time changes unless the arena team's roster has
+    been updated accordingly. If used outside of proper synchronization contexts,
+    it may return stale results.
+  related:
+  - GetMemberList
+  - AddMember
+  - RemoveMember
+  - GetMembers
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T16:47:28.196063'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

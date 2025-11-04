@@ -1,0 +1,46 @@
+api:
+  class: WorldSession
+  method: HandlePetRename
+  signature: void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename & packet)
+documentation:
+  brief: Processes a pet rename request from the client and updates the pet's name
+    in the database.
+  description: The HandlePetRename method is responsible for handling pet rename requests
+    sent by the client. When a player attempts to rename their pet, this method receives
+    the packet containing the new name and validates it before updating the pet's
+    name in the database. The method ensures that the pet belongs to the current session's
+    player and that the new name meets game requirements such as length and character
+    restrictions. It also sends appropriate responses back to the client indicating
+    success or failure of the rename operation.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic pet rename handling
+    code: "void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)\n\
+      {\n    if (!GetPlayer() || !packet.PetGUID)\n        return;\n\n    Creature*\
+      \ pet = GetPlayer()->GetCreature(packet.PetGUID);\n    if (!pet || !pet->IsPet())\n\
+      \        return;\n\n    // Validate name and update pet name in database\n \
+      \   pet->SetPetName(packet.Name);\n    // Send confirmation packet back to client\n\
+      }"
+    language: cpp
+  notes: This method assumes that the packet contains valid data and does not perform
+    extensive validation beyond basic checks. The actual name validation logic is
+    typically handled by the pet's SetPetName() method or related database functions.
+    This method should only be called when a valid pet rename packet is received from
+    the client.
+  warnings: Care must be taken to ensure that the pet GUID in the packet corresponds
+    to a pet owned by the current session's player. Improper validation could lead
+    to unauthorized renaming of other players' pets. Additionally, this method does
+    not validate the new name against server-side restrictions beyond basic length
+    checks.
+  related:
+  - GetPlayer
+  - HandlePetAction
+  - HandlePetStopAttack
+  - SetPetName
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T21:15:26.205855'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

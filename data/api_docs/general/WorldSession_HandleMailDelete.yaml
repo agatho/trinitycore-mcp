@@ -1,0 +1,47 @@
+api:
+  class: WorldSession
+  method: HandleMailDelete
+  signature: void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete &
+    mailDelete)
+documentation:
+  brief: Deletes a mail item from the player's mailbox based on the provided mail
+    ID.
+  description: The HandleMailDelete method processes a client request to delete a
+    specific mail message from the player's mailbox. It validates that the mail exists,
+    belongs to the current player, and is in a deletable state (typically not containing
+    items or money). The method removes the mail entry from the database and sends
+    an appropriate response back to the client. This functionality supports the core
+    mail system mechanics in World of Warcraft, allowing players to manage their inbox
+    by removing unwanted messages.
+  parameters:
+  - name: mailDelete
+    description: A reference to a MailDelete packet containing the ID of the mail
+      to be deleted and other relevant metadata.
+  returns: null
+  examples:
+  - title: Basic usage in a packet handler context
+    code: "void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete& mailDelete)\n\
+      {\n    // Validate mail ownership and state\n    if (MailItem* mail = sMailSystem->GetMail(mailDelete.MailID))\n\
+      \    {\n        if (mail->IsReturned() || mail->HasItems() || mail->HasMoney())\n\
+      \            return; // Cannot delete mails with items or money\n        \n\
+      \        sMailSystem->RemoveMail(mailDelete.MailID);\n        SendPacket(WorldPackets::Mail::MailRemoved(mailDelete.MailID));\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes the client has already validated that the mail ID is
+    valid and accessible. The actual deletion involves database operations and may
+    trigger cascading deletions for associated items or attachments. Thread safety
+    should be considered as this method is typically called from the main game thread.
+  warnings: Improper handling of mail deletion can lead to data inconsistency in the
+    mailbox system. Ensure that all conditions are checked before deleting, especially
+    regarding mail state (e.g., whether it contains items or money).
+  related:
+  - HandleMailGetList
+  - HandleMailTakeItem
+  - HandleMailTakeMoney
+  - HandleMailCreateTextItem
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:40:47.805619'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

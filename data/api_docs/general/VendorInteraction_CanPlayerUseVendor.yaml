@@ -1,0 +1,56 @@
+api:
+  class: VendorInteraction
+  method: CanPlayerUseVendor
+  signature: bool VendorInteraction::CanPlayerUseVendor(Player * player, uint32 vendorGuid)
+documentation:
+  brief: Determines whether a player can interact with a vendor based on game rules
+    and conditions.
+  description: The CanPlayerUseVendor method evaluates if a given player is allowed
+    to use a specific vendor NPC. This check typically includes verifying that the
+    player meets required level thresholds, faction requirements, quest prerequisites,
+    or other game-specific conditions necessary for vendor interaction. The method
+    ensures that players cannot access vendors they are not qualified to interact
+    with, maintaining game balance and progression integrity. It serves as a gatekeeping
+    function within the vendor interaction system.
+  parameters:
+  - name: player
+    description: Pointer to the Player object attempting to interact with the vendor.
+      Must be a valid player instance; null pointers will result in undefined behavior.
+  - name: vendorGuid
+    description: The unique identifier (GUID) of the vendor NPC. This value is used
+      to locate and validate the specific vendor being accessed within the game world.
+  returns: Returns true if the player can interact with the vendor, false otherwise.
+    A return value of false typically indicates that the player does not meet one
+    or more requirements such as level, faction, or quest status.
+  examples:
+  - title: Basic Vendor Access Check
+    code: "if (VendorInteraction::CanPlayerUseVendor(player, vendorGuid)) {\n    //\
+      \ Allow vendor interaction\n    player->GetSession()->SendListInventory(vendorGuid);\n\
+      } else {\n    // Deny access or send error message\n    player->SendBuyError(BUY_ERR_VENDOR_DOESNT_WORK_FOR_YOU,\
+      \ vendorGuid, 0, 0);\n}"
+    language: cpp
+  - title: Integration with Vendor Interaction Logic
+    code: "void Player::HandleVendorInteraction(uint32 vendorGuid) {\n    if (!CanPlayerUseVendor(this,\
+      \ vendorGuid)) {\n        SendBuyError(BUY_ERR_VENDOR_DOESNT_WORK_FOR_YOU, vendorGuid,\
+      \ 0, 0);\n        return;\n    }\n    // Proceed with normal vendor interaction\
+      \ logic\n    GetSession()->SendListInventory(vendorGuid);\n}"
+    language: cpp
+  notes: This method likely performs checks against player state including level requirements,
+    faction standing, quest completion status, and possibly reputation levels. It
+    may also consider whether the vendor is currently available (e.g., not in a restricted
+    zone or during a special event). The implementation might cache results for performance
+    reasons depending on how often this check is made.
+  warnings: Ensure that the player pointer is valid before calling this method to
+    avoid crashes. Also, be aware that vendors may have dynamic availability conditions
+    that could change during gameplay, so repeated checks might be necessary in some
+    scenarios.
+  related:
+  - Player::SendBuyError
+  - Player::GetSession
+  - WorldSession::SendListInventory
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T15:48:01.545547'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

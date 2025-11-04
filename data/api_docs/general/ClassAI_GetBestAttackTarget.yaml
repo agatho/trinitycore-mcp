@@ -1,0 +1,48 @@
+api:
+  class: ClassAI
+  method: GetBestAttackTarget
+  signature: int * ClassAI::GetBestAttackTarget()
+documentation:
+  brief: Returns a pointer to the GUID of the most threatening target for the AI-controlled
+    unit.
+  description: The GetBestAttackTarget method determines and returns the identifier
+    (GUID) of the highest-priority attack target for an AI-controlled creature or
+    NPC. This method evaluates all possible targets within the AI's detection range,
+    considering factors such as threat level, distance, aggro status, and target priority.
+    The returned pointer points to a unique identifier that can be used to retrieve
+    or manipulate the target entity. This function is typically called during the
+    AI's update cycle to determine who to attack next.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the best attack target,
+    or nullptr if no valid target exists within the AI's scope.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void MyAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = ObjectAccessor::GetUnit(*me,\
+      \ *me->GetAI()->GetBestAttackTarget()))\n    {\n        // Attack the target\n\
+      \        me->Attack(target, true);\n    }\n}"
+    language: cpp
+  - title: Checking for valid target before attack
+    code: "int* targetGuid = me->GetAI()->GetBestAttackTarget();\nif (targetGuid &&\
+      \ *targetGuid != 0)\n{\n    Unit* target = ObjectAccessor::GetUnit(*me, *targetGuid);\n\
+      \    if (target && target->IsAlive())\n    {\n        // Proceed with attack\
+      \ logic\n        me->Attack(target, true);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core AI system in TrinityCore and relies on internal
+    threat tables and target selection logic. The returned GUID may be invalid if
+    no suitable targets are present or if the target has been destroyed. It's recommended
+    to validate the returned value before using it for operations.
+  warnings: The returned pointer points to internal data that should not be modified
+    directly. Accessing the target through the GUID requires proper validation to
+    avoid crashes or undefined behavior. This method might return nullptr in rare
+    edge cases, such as during AI initialization or when all targets are invalid.
+  related:
+  - GetAttackTarget
+  - SetAttackTarget
+  - AddThreat
+  - ClearThreatList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T11:39:53.934458'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

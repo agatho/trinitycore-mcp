@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandleConfirmRespecWipeOpcode
+  signature: void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe
+    & confirmRespecWipe)
+documentation:
+  brief: Processes a player's confirmation to wipe their talent respec
+  description: Handles the confirmation opcode sent by a player when they agree to
+    reset their talent points, removing all currently learned talents and allowing
+    them to relearn them from scratch. This method is part of the talent system in
+    TrinityCore and is invoked after a player initiates a respec action and confirms
+    the wipe. The method validates the player's state, checks if the respec is allowed,
+    and then performs the actual talent reset operation. It ensures that players cannot
+    accidentally or maliciously wipe their talents without explicit confirmation.
+  parameters:
+  - name: confirmRespecWipe
+    description: The packet containing the confirmation data for the talent respec
+      wipe, including the target NPC and any relevant identifiers
+  returns: null
+  examples:
+  - title: Basic usage in a handler context
+    code: "void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe&\
+      \ confirmRespecWipe)\n{\n    // Validate player is in correct state\n    if\
+      \ (!GetPlayer() || !GetPlayer()->IsAlive())\n        return;\n    \n    // Process\
+      \ the respec wipe confirmation\n    GetPlayer()->ResetTalents(true);\n    SendPacket(WorldPackets::Talent::RespecWipeConfirm().Write());\n\
+      }"
+    language: cpp
+  notes: This method is typically called after a player interacts with a talent trainer
+    and confirms the respec action. It's important to note that this operation is
+    irreversible without additional server-side commands or addons. The method assumes
+    proper client-server synchronization of the respec state.
+  warnings: Improper handling of this opcode can lead to players losing their talents
+    unintentionally. Ensure all preconditions are validated before proceeding with
+    the talent reset operation. Also, make sure that the player's session is still
+    valid when this method is called.
+  related:
+  - HandleTalentWipeConfirmOpcode
+  - ResetTalents
+  - GetPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T22:21:39.336510'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

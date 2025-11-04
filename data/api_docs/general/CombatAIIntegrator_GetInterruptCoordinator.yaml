@@ -1,0 +1,54 @@
+api:
+  class: CombatAIIntegrator
+  method: GetInterruptCoordinator
+  signature: InterruptCoordinator * CombatAIIntegrator::GetInterruptCoordinator()
+    const
+documentation:
+  brief: Retrieves the interrupt coordinator instance used for managing spell interruption
+    logic within combat AI.
+  description: The GetInterruptCoordinator method returns a pointer to the InterruptCoordinator
+    object associated with this CombatAIIntegrator. This coordinator is responsible
+    for handling spell interruption mechanics during combat, including tracking which
+    spells can be interrupted and managing the conditions under which interruptions
+    occur. The returned pointer is typically valid throughout the lifetime of the
+    CombatAIIntegrator instance, but callers should verify the pointer is not null
+    before use. This method provides access to core interrupt-related functionality
+    that governs how NPCs respond to spell interruption events such as being hit by
+    damage or receiving specific abilities that break spellcasting.
+  parameters: []
+  returns: A pointer to the InterruptCoordinator instance used by this CombatAIIntegrator.
+    Returns nullptr if no coordinator has been initialized or if the object is in
+    an invalid state.
+  examples:
+  - title: Basic Usage
+    code: "InterruptCoordinator* coordinator = combatAI->GetInterruptCoordinator();\n\
+      if (coordinator != nullptr)\n{\n    // Use the interrupt coordinator for spell\
+      \ interruption logic\n    coordinator->HandleSpellInterrupt(unit, spellInfo);\n\
+      }"
+    language: cpp
+  - title: Integration with Combat AI
+    code: "class MyCombatAI : public CombatAIIntegrator\n{\npublic:\n    void OnSpellCast(Spell*\
+      \ spell) override\n    {\n        InterruptCoordinator* coord = GetInterruptCoordinator();\n\
+      \        if (coord && coord->CanInterruptSpell(spell))\n        {\n        \
+      \    // Handle interruption logic\n            coord->ProcessInterrupt(spell);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: The InterruptCoordinator returned by this method is typically initialized
+    during the CombatAIIntegrator's construction or first use. This method does not
+    perform any locking or synchronization internally, so if used from multiple threads,
+    external synchronization may be required. The pointer should be treated as read-only
+    and not modified directly.
+  warnings: Never assume the returned pointer is non-null without checking. Accessing
+    a null pointer will result in undefined behavior. Additionally, do not store the
+    returned pointer beyond the lifetime of the CombatAIIntegrator instance, as it
+    may become invalid if the integrator is destroyed or reinitialized.
+  related:
+  - SetInterruptCoordinator
+  - InitializeInterrupts
+  - CanInterruptSpell
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T11:25:12.477868'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

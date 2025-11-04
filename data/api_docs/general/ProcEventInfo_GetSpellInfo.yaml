@@ -1,0 +1,54 @@
+api:
+  class: ProcEventInfo
+  method: GetSpellInfo
+  signature: const SpellInfo * ProcEventInfo::GetSpellInfo() const
+documentation:
+  brief: Retrieves the SpellInfo structure associated with the proc event's spell.
+  description: The GetSpellInfo method returns a pointer to the SpellInfo structure
+    that contains detailed information about the spell which triggered the proc event.
+    This is commonly used in spell proc systems where developers need access to spell
+    properties such as duration, effects, cooldowns, and other spell-specific data.
+    The returned SpellInfo pointer is valid only during the scope of the proc event
+    and should not be stored or accessed after the event has completed. This method
+    is essential for implementing custom proc behaviors that depend on specific spell
+    attributes.
+  parameters: []
+  returns: A constant pointer to the SpellInfo structure representing the spell that
+    triggered this proc event. Returns nullptr if no valid spell information is available
+    or if the proc event was not initiated by a spell.
+  examples:
+  - title: Basic Usage in Proc Handler
+    code: "void MySpellScript::HandleProc(ProcEventInfo& eventInfo)\n{\n    const\
+      \ SpellInfo* spellInfo = eventInfo.GetSpellInfo();\n    if (spellInfo && spellInfo->Id\
+      \ == 12345)\n    {\n        // Apply custom logic for specific spell\n     \
+      \   eventInfo.GetActor()->AddAura(67890, eventInfo.GetActionTarget());\n   \
+      \ }\n}"
+    language: cpp
+  - title: Accessing Spell Properties
+    code: "bool MyProcHandler::CheckProcCondition(ProcEventInfo& eventInfo)\n{\n \
+      \   const SpellInfo* spellInfo = eventInfo.GetSpellInfo();\n    if (!spellInfo)\n\
+      \        return false;\n    \n    // Check if the proc spell is a harmful spell\n\
+      \    if (spellInfo->IsPositive())\n        return false;\n    \n    // Check\
+      \ spell duration\n    if (spellInfo->DurationIndex == 0)\n        return false;\n\
+      \    \n    return true;\n}"
+    language: cpp
+  notes: The SpellInfo pointer returned by this method is managed internally by the
+    TrinityCore system and should not be deleted or modified. Accessing the SpellInfo
+    structure is safe during the execution of proc handlers, but the data may become
+    invalid if accessed outside of the proper event context. This method is typically
+    called from within spell proc handlers or combat event processing functions.
+  warnings: Do not store the returned SpellInfo pointer for later use as it may become
+    invalid after the current proc event completes. Always check for null return values
+    before dereferencing the pointer to avoid segmentation faults. The SpellInfo structure
+    should be treated as read-only during proc processing.
+  related:
+  - GetSpellSchool
+  - GetProcFlags
+  - GetActor
+  - GetActionTarget
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T20:59:19.570805'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

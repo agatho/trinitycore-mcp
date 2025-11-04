@@ -1,0 +1,59 @@
+api:
+  class: QuestTurnIn
+  method: GetNextQuestInChain
+  signature: uint32 QuestTurnIn::GetNextQuestInChain(uint32 completedQuestId)
+documentation:
+  brief: Retrieves the quest ID of the next quest in the chain following a completed
+    quest.
+  description: The GetNextQuestInChain method determines and returns the unique identifier
+    (ID) of the next quest that should be offered to the player after completing the
+    specified quest. This functionality is essential for managing quest chains in
+    World of Warcraft, where quests are often linked together sequentially. The method
+    evaluates the quest relationship data stored within the game's database to identify
+    which quest should follow a given completed quest. It ensures proper progression
+    through quest lines and maintains the logical flow of story-driven content. The
+    method does not modify any quest state or player progress directly; it simply
+    retrieves the next quest ID based on predefined quest chain relationships.
+  parameters:
+  - name: completedQuestId
+    description: The unique identifier (ID) of the quest that has been completed by
+      the player. This parameter must correspond to a valid quest in the game's database,
+      otherwise the method may return zero or an invalid quest ID.
+  returns: Returns the quest ID of the next quest in the chain following the specified
+    completed quest. If no subsequent quest exists in the chain or if the input quest
+    ID is invalid, the method returns zero (0). A non-zero return value indicates
+    a valid quest that should be made available to the player.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 nextQuestId = questTurnIn->GetNextQuestInChain(12345);\nif (nextQuestId\
+      \ != 0)\n{\n    // Proceed with offering the next quest to player\n    player->AddQuest(nextQuestId);\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Chain Validation
+    code: "uint32 currentQuestId = player->GetQuestStatus(12345);\nif (currentQuestId\
+      \ == QUEST_STATUS_COMPLETE)\n{\n    uint32 nextQuestId = questTurnIn->GetNextQuestInChain(12345);\n\
+      \    if (nextQuestId != 0 && !player->HasQuest(nextQuestId))\n    {\n      \
+      \  // Offer the next quest in chain\n        player->AddQuest(nextQuestId);\n\
+      \        player->SendQuestComplete(nextQuestId);\n    }\n}"
+    language: cpp
+  notes: This method relies on internal quest relationship tables and assumes that
+    quest chains are properly defined in the database. It does not perform any validation
+    of the quest status or player progress beyond retrieving the next quest ID. The
+    method is typically used during quest completion processing to determine what
+    quest should be offered next in a sequence.
+  warnings: Ensure that the completedQuestId parameter corresponds to an actual completed
+    quest, as passing an invalid or non-existent quest ID may result in incorrect
+    behavior or return values. This method does not handle quest prerequisites or
+    conditions beyond chain relationships; additional checks may be required for full
+    quest progression validation.
+  related:
+  - GetPrevQuestInChain
+  - GetQuestStatus
+  - AddQuest
+  - HasQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T20:04:00.439585'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

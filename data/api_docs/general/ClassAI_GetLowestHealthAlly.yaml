@@ -1,0 +1,48 @@
+api:
+  class: ClassAI
+  method: GetLowestHealthAlly
+  signature: int * ClassAI::GetLowestHealthAlly(float maxRange)
+documentation:
+  brief: Returns the GUID of the lowest health ally within the specified range.
+  description: The GetLowestHealthAlly method identifies and returns the unique identifier
+    (GUID) of the ally unit with the lowest current health percentage within a given
+    maximum range. This method is typically used by AI scripts to determine which
+    friendly unit requires immediate healing or support. The method considers only
+    units that are alive and within the specified range, excluding the caster itself.
+    If no valid allies are found within range, the method may return nullptr or a
+    special invalid GUID value depending on implementation details.
+  parameters:
+  - name: maxRange
+    description: The maximum distance in yards to search for allies. Units beyond
+      this range will be ignored.
+  returns: A pointer to an integer representing the GUID of the lowest health ally
+    within the specified range, or nullptr if no valid ally is found.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "if (Unit* target = _me->GetAI()->GetLowestHealthAlly(30.0f))\n{\n    //\
+      \ Cast healing spell on the lowest health ally\n    _me->CastSpell(target, SPELL_HEALING_SPELL,\
+      \ true);\n}"
+    language: cpp
+  - title: Check for valid target before casting
+    code: "int* lowestHealthAlly = _me->GetAI()->GetLowestHealthAlly(25.0f);\nif (lowestHealthAlly\
+      \ && *lowestHealthAlly != 0)\n{\n    Unit* ally = ObjectAccessor::GetUnit(*_me,\
+      \ *lowestHealthAlly);\n    if (ally && ally->IsAlive())\n    {\n        _me->CastSpell(ally,\
+      \ SPELL_SHIELD_SPELL, true);\n    }\n}"
+    language: cpp
+  notes: This method performs a search through the AI's known targets and allies within
+    range. It is recommended to cache the result if multiple operations are needed
+    on the same target. The method may be computationally expensive in crowded environments
+    with many units.
+  warnings: Ensure that the returned GUID is validated before using it as a pointer,
+    since it might be null or invalid. Be cautious when using this method in high-frequency
+    AI loops as it could impact performance.
+  related:
+  - GetClosestEnemy
+  - GetClosestFriend
+  - GetHealthPercent
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-04T11:35:17.544144'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

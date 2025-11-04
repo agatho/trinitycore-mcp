@@ -1,0 +1,50 @@
+api:
+  class: TempSummon
+  method: GetSummoner
+  signature: int * TempSummon::GetSummoner() const
+documentation:
+  brief: Returns a pointer to the summoner's unique identifier (GUID) for this temporary
+    summon.
+  description: The GetSummoner method retrieves a pointer to the unique identifier
+    (GUID) of the creature or player that summoned this TempSummon instance. In World
+    of Warcraft's TrinityCore framework, summons are often created by players or creatures
+    and maintain a reference back to their summoner. This method allows access to
+    that reference, which can be used for various game logic purposes such as tracking
+    ownership, determining faction relationships, or managing summon-specific behavior.
+    The returned pointer is typically valid only during the lifetime of the summon
+    and should not be dereferenced beyond the summon's active state.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the summoner. Returns
+    nullptr if no summoner exists or if the summon has been destroyed.
+  examples:
+  - title: Basic usage to check summoner existence
+    code: "if (TempSummon* summon = dynamic_cast<TempSummon*>(unit)) {\n    int* summonerGuid\
+      \ = summon->GetSummoner();\n    if (summonerGuid != nullptr) {\n        // Summoner\
+      \ exists, use *summonerGuid to get the actual GUID\n        uint32 summonerId\
+      \ = *summonerGuid;\n        // Perform actions based on summoner ID\n    }\n\
+      }"
+    language: cpp
+  - title: Using summoner GUID for faction checks
+    code: "TempSummon* summon = ...; // obtained from some summon logic\nint* summonerGuid\
+      \ = summon->GetSummoner();\nif (summonerGuid != nullptr) {\n    uint32 guid\
+      \ = *summonerGuid;\n    if (Player* player = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(guid)))\
+      \ {\n        // Check if the summoner is friendly or hostile\n        if (player->IsFriendlyTo(summon))\
+      \ {\n            // Handle friendly summon logic\n        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer may be null if the summon was created without a valid
+    summoner, or if the summoner has been destroyed. The value pointed to should not
+    be modified directly as it represents an internal GUID managed by the game engine.
+    This method is commonly used in AI behavior scripts and summon management systems.
+  warnings: Do not dereference the returned pointer beyond the lifetime of the TempSummon
+    object, as this may lead to undefined behavior or crashes. Always verify that
+    the returned pointer is not null before attempting to access its value.
+  related:
+  - SetSummoner
+  - GetSummonerGUID
+  - IsSummon
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T17:07:45.204679'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: GossipMenu
+  method: SetMenuId
+  signature: void GossipMenu::SetMenuId(uint32 menu_id)
+documentation:
+  brief: Sets the menu identifier for the gossip interaction, determining which dialogue
+    options are displayed to the player.
+  description: The SetMenuId method assigns a unique identifier to a GossipMenu object,
+    which is used by the TrinityCore server to determine the specific gossip menu
+    that should be presented to a player when they interact with an NPC. This identifier
+    links the menu to predefined entries in the gossip menu database tables, allowing
+    for dynamic and context-sensitive dialogue trees. The method is typically called
+    during the construction or initialization phase of a gossip interaction, before
+    the menu is sent to the client. It's important to note that this ID must correspond
+    to a valid entry in the gossip_menu table within the TrinityCore database, otherwise
+    the player will see no options or potentially an error.
+  parameters:
+  - name: menu_id
+    description: A unique identifier (uint32) that corresponds to an entry in the
+      gossip_menu database table. This ID determines which set of gossip options and
+      dialogue will be displayed to the player when they interact with the NPC.
+  returns: null
+  examples:
+  - title: Basic Usage in Gossip Script
+    code: "void AddGossipMenuForPlayer(Player* player, Creature* creature)\n{\n  \
+      \  GossipMenu* menu = new GossipMenu();\n    menu->SetMenuId(12345);\n    //\
+      \ Add options to the menu\n    menu->AddMenuItem(0, 0, true, \"Hello\", GOSSIP_SENDER_MAIN,\
+      \ 1);\n    menu->SendGossipMenu(player, 12345, creature);\n}"
+    language: cpp
+  - title: Dynamic Menu ID Based on Player State
+    code: "void OnGossipHello(Player* player, Creature* creature)\n{\n    GossipMenu*\
+      \ menu = new GossipMenu();\n    uint32 menuId = 0;\n    \n    if (player->GetQuestStatus(12345)\
+      \ == QUEST_STATUS_COMPLETE)\n        menuId = 12346; // Completed quest menu\n\
+      \    else\n        menuId = 12345; // Incomplete quest menu\n    \n    menu->SetMenuId(menuId);\n\
+      \    menu->AddMenuItem(0, 0, true, \"Continue\", GOSSIP_SENDER_MAIN, 2);\n \
+      \   menu->SendGossipMenu(player, menuId, creature);\n}"
+    language: cpp
+  notes: The menu_id parameter must match an existing entry in the gossip_menu table.
+    If not, the client will display no options or may show a default menu. This method
+    does not validate the ID against the database at runtime; it simply sets the internal
+    identifier. It's recommended to use this method before adding any menu items to
+    ensure proper linkage.
+  warnings: Using an invalid menu_id (one that doesn't exist in the gossip_menu table)
+    will result in no options being displayed to the player, potentially breaking
+    the intended NPC interaction flow. Always verify that your menu IDs are properly
+    defined in the database before using them in code.
+  related:
+  - GetMenuId
+  - AddMenuItem
+  - SendGossipMenu
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T04:38:38.023302'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

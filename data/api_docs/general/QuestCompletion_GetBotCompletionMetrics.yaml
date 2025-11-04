@@ -1,0 +1,59 @@
+api:
+  class: QuestCompletion
+  method: GetBotCompletionMetrics
+  signature: QuestCompletionMetrics::Snapshot QuestCompletion::GetBotCompletionMetrics(uint32
+    botGuid)
+documentation:
+  brief: Retrieves quest completion metrics for a specified bot character by its GUID.
+  description: 'The GetBotCompletionMetrics method fetches detailed quest completion
+    statistics for a specific bot character identified by its unique game identifier
+    (GUID). This function is typically used in automated questing systems or bot management
+    modules within TrinityCore-based World of Warcraft servers. The returned snapshot
+    contains comprehensive data about the bot''s quest progress, including completed
+    quests, quest timers, and other relevant performance metrics. The method ensures
+    thread-safe access to bot-specific data and may cache results for performance
+    optimization. Precondition: The specified bot GUID must correspond to an active
+    bot character in the game world.'
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot character for which quest
+      completion metrics are being retrieved. Must be a valid 32-bit unsigned integer
+      representing an existing bot in the game world.
+  returns: A QuestCompletionMetrics::Snapshot object containing detailed quest completion
+    data for the specified bot, including completed quests, time spent on quests,
+    and performance statistics. Returns an empty snapshot if no matching bot is found
+    or if the bot has no recorded quest activity.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 botGuid = 12345;\nQuestCompletionMetrics::Snapshot metrics = questCompletion.GetBotCompletionMetrics(botGuid);\n\
+      if (!metrics.IsEmpty()) {\n    // Process the quest completion data\n    printf(\"\
+      Completed %u quests\\n\", metrics.CompletedQuestCount);\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "uint32 botGuid = player->GetGUID().GetCounter();\nQuestCompletionMetrics::Snapshot\
+      \ metrics = questCompletion.GetBotCompletionMetrics(botGuid);\n\nif (metrics.IsEmpty())\
+      \ {\n    sLog->outError(\"No quest data found for bot GUID: %u\", botGuid);\n\
+      } else {\n    float completionRate = static_cast<float>(metrics.CompletedQuestCount)\
+      \ / \n                          static_cast<float>(metrics.TotalQuestCount);\n\
+      \    sLog->outString(\"Bot %u completion rate: %.2f%%\", botGuid, completionRate\
+      \ * 100.0f);\n}"
+    language: cpp
+  notes: This method accesses internal quest tracking data structures and may involve
+    database queries for historical quest information. The returned snapshot object
+    is designed to be immutable after creation to ensure thread safety during concurrent
+    access. Performance considerations include potential caching mechanisms that might
+    delay real-time updates of metrics.
+  warnings: Calling this method with an invalid or non-existent bot GUID will return
+    an empty snapshot without throwing an exception. Ensure proper validation of the
+    bot GUID before calling to avoid unexpected behavior. The snapshot data may not
+    reflect real-time changes and should be refreshed periodically for accurate reporting.
+  related:
+  - GetPlayerCompletionMetrics
+  - UpdateBotQuestProgress
+  - ResetBotQuestMetrics
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T20:29:57.452035'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

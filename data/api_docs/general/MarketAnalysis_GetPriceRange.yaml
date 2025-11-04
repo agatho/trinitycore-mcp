@@ -1,0 +1,69 @@
+api:
+  class: MarketAnalysis
+  method: GetPriceRange
+  signature: std::pair<float, float> MarketAnalysis::GetPriceRange(uint32 itemId,
+    float confidence)
+documentation:
+  brief: Retrieves the minimum and maximum price range for a specified item in the
+    auction house market.
+  description: The GetPriceRange method calculates and returns the estimated minimum
+    and maximum prices for a given item based on current market data within the auction
+    house system. This method is typically used by market analysis tools or trading
+    bots to determine price trends and set competitive bids. The confidence parameter
+    allows developers to adjust how aggressively the price range is calculated, with
+    higher confidence values producing more conservative estimates. The returned pair
+    represents the lower bound (first) and upper bound (second) of the expected price
+    range for the specified item.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item to analyze. This corresponds to
+      the item's entry in the ItemTemplate database table.
+  - name: confidence
+    description: A floating-point value between 0.0 and 1.0 that determines how conservative
+      or aggressive the price range calculation should be. Higher values (closer to
+      1.0) produce wider ranges, while lower values (closer to 0.0) produce tighter
+      ranges.
+  returns: A std::pair<float, float> where the first element is the minimum estimated
+    price and the second element is the maximum estimated price for the specified
+    item. Both values are represented as gold pieces (in copper units). Returns (0.0f,
+    0.0f) if no market data is available for the item.
+  examples:
+  - title: Basic Usage
+    code: 'MarketAnalysis analysis;
+
+      std::pair<float, float> range = analysis.GetPriceRange(18732, 0.75f);
+
+      printf("Estimated price range: %f - %f gold\n", range.first / 10000.0f, range.second
+      / 10000.0f);'
+    language: cpp
+  - title: Using Different Confidence Levels
+    code: 'MarketAnalysis analysis;
+
+      std::pair<float, float> lowConfidence = analysis.GetPriceRange(18732, 0.25f);
+
+      std::pair<float, float> highConfidence = analysis.GetPriceRange(18732, 0.95f);
+
+      printf("Low confidence range: %f - %f gold\n", lowConfidence.first / 10000.0f,
+      lowConfidence.second / 10000.0f);
+
+      printf("High confidence range: %f - %f gold\n", highConfidence.first / 10000.0f,
+      highConfidence.second / 10000.0f);'
+    language: cpp
+  notes: The method relies on historical auction data and may not reflect real-time
+    market conditions. Performance is optimized for frequent calls but could be impacted
+    by large datasets of item listings. The confidence parameter should be tuned based
+    on desired risk tolerance in trading scenarios.
+  warnings: This method might return zero values if no auction house data exists for
+    the specified item, which could indicate either an invalid itemId or a very rare
+    item with no current listings. Always validate the returned values before using
+    them in price-sensitive operations.
+  related:
+  - GetItemMarketData
+  - CalculatePriceTrend
+  - GetAuctionHouseStatistics
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T00:09:42.304280'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

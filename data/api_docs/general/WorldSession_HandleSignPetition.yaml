@@ -1,0 +1,41 @@
+api:
+  class: WorldSession
+  method: HandleSignPetition
+  signature: void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition
+    & packet)
+documentation:
+  brief: Processes a player's signature of a petition, updating the petition's signature
+    count and notifying other players.
+  description: The HandleSignPetition method handles the client-side packet sent when
+    a player signs a guild or arena petition. It validates whether the player can
+    sign the petition (e.g., checking if they are in the same map, not already signed,
+    etc.), updates the petition's signature count, and broadcasts the updated signature
+    information to all players who have the petition open. This method is part of
+    the WorldSession class and is invoked as a response to a WorldPackets::Petition::SignPetition
+    packet received from the client. It ensures that petition signing respects game
+    rules such as player proximity and prevents duplicate signatures.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic petition signature handling
+    code: "void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition&\
+      \ packet)\n{\n    // Validate petition and player state\n    if (!CanSignPetition(packet.PetitionGuid))\n\
+      \        return;\n\n    // Update petition signature count\n    Petition* petition\
+      \ = sObjectAccessor->GetPetition(packet.PetitionGuid);\n    if (petition)\n\
+      \    {\n        petition->AddSignature(GetPlayer());\n        SendPetitionSignResult(petition);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on the underlying petition system to validate signatures
+    and update state. It is typically called as part of the packet handling pipeline
+    in WorldSession, where the packet data is parsed and validated before processing.
+  warnings: null
+  related:
+  - HandleQueryPetition
+  - SendPetitionSignResult
+  - CanSignPetition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T20:33:53.841193'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

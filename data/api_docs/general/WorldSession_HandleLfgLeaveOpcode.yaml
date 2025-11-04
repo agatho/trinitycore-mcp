@@ -1,0 +1,49 @@
+api:
+  class: WorldSession
+  method: HandleLfgLeaveOpcode
+  signature: void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::DFLeave &
+    dfLeave)
+documentation:
+  brief: Removes a player from the Looking for Group (LFG) system and clears their
+    LFG status.
+  description: The HandleLfgLeaveOpcode method processes a client request to leave
+    the Looking for Group (LFG) system. When invoked, this method removes the player
+    from any active LFG queues or groups they may be part of, clears their LFG status
+    flags, and updates their character's state in the LFG system. This typically occurs
+    when a player clicks the 'Leave Queue' button in the LFG interface or when they
+    are automatically removed from a group due to various conditions such as timeout
+    or group completion. The method ensures that the player is no longer considered
+    as seeking a group for dungeons, raids, or other activities within the LFG framework.
+  parameters:
+  - name: dfLeave
+    description: A packet containing the LFG leave request data from the client, including
+      the player's current LFG status and any relevant identifiers.
+  returns: null
+  examples:
+  - title: Basic usage in WorldSession context
+    code: "void WorldSession::HandleLfgLeaveOpcode(WorldPackets::LFG::DFLeave& dfLeave)\n\
+      {\n    // Remove player from LFG queues\n    sLFGMgr->RemovePlayerFromLFGQueue(GetPlayer()->GetGUID());\n\
+      \    \n    // Clear LFG status flags\n    GetPlayer()->SetLfgStatus(0);\n  \
+      \  \n    // Send confirmation to client\n    WorldPackets::LFG::DFLeaveResult\
+      \ leaveResult;\n    leaveResult.Result = 0; // Success\n    SendPacket(leaveResult.Write());\n\
+      }"
+    language: cpp
+  notes: This method is typically called as part of the LFG system's client-server
+    communication flow. It should be invoked only when a player explicitly requests
+    to leave an LFG queue or group. The implementation must ensure that all related
+    LFG state is properly cleaned up, including any pending group invitations or queued
+    searches.
+  warnings: This method should not be called directly without proper validation of
+    the player's current LFG status. Calling this method inappropriately may result
+    in inconsistent LFG state for the player, potentially causing issues with future
+    LFG operations or group matching.
+  related:
+  - HandleLfgJoinOpcode
+  - HandleLfgProposalResult
+  - HandleLfgTeleportOpcode
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:46:09.299196'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

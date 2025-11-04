@@ -1,0 +1,64 @@
+api:
+  class: QuestValidation
+  method: GetValidationErrors
+  signature: int QuestValidation::GetValidationErrors(uint32 questId, Player * bot)
+documentation:
+  brief: Validates a quest for a player and returns the number of validation errors
+    found.
+  description: The GetValidationErrors method performs a comprehensive validation
+    check on a specified quest for a given player character. It examines various aspects
+    of the quest such as prerequisites, requirements, availability, and compatibility
+    with the player's current state. The method returns an integer representing the
+    count of validation errors detected during this process. This is commonly used
+    in quest management systems to ensure quests are properly configured and accessible
+    to players before they attempt to accept or interact with them. The validation
+    may include checks for level requirements, quest completion status, item possession,
+    faction standing, and other game-specific conditions.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate. Must be a valid quest
+      ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the character for whom
+      the quest validation is performed. Cannot be null.
+  returns: Returns an integer value indicating the number of validation errors found.
+    A return value of 0 means no errors were detected, while any positive integer
+    indicates the count of validation failures.
+  examples:
+  - title: Basic Quest Validation
+    code: "uint32 questId = 12345;\nPlayer* player = ...; // Valid player pointer\n\
+      int errorCount = QuestValidation::GetValidationErrors(questId, player);\nif\
+      \ (errorCount == 0)\n{\n    // Quest is valid for this player\n    // Proceed\
+      \ with quest acceptance or interaction\n}\nelse\n{\n    // Handle validation\
+      \ errors\n    // Display appropriate error messages to the player\n}"
+    language: cpp
+  - title: Validation Error Handling
+    code: "void HandleQuestValidation(uint32 questId, Player* player)\n{\n    int\
+      \ errors = QuestValidation::GetValidationErrors(questId, player);\n    switch\
+      \ (errors)\n    {\n        case 0:\n            // Quest is fully valid\n  \
+      \          break;\n        case 1:\n            // Single validation error -\
+      \ inform player\n            player->SendNotification(\"Quest has one validation\
+      \ issue.\");\n            break;\n        default:\n            // Multiple\
+      \ validation errors - prevent quest interaction\n            player->SendNotification(\"\
+      Quest cannot be accepted due to multiple issues.\");\n            break;\n \
+      \   }\n}"
+    language: cpp
+  notes: This method likely performs database lookups and complex conditional checks,
+    so it may have performance implications when called frequently. The validation
+    process might involve checking player's quest log, inventory, reputation, level,
+    and other character state information. It is recommended to cache results when
+    performing multiple validations for the same quest and player combination.
+  warnings: Ensure that the Player pointer passed is valid and not null before calling
+    this method, as passing a null pointer could lead to undefined behavior or crashes.
+    The method assumes that the questId exists in the database and may not handle
+    invalid quest IDs gracefully.
+  related:
+  - QuestValidation::ValidateQuest
+  - QuestValidation::IsQuestValid
+  - Player::GetQuestStatus
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-03T19:51:58.188621'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

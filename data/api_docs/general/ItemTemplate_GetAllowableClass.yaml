@@ -1,0 +1,50 @@
+api:
+  class: ItemTemplate
+  method: GetAllowableClass
+  signature: int32 ItemTemplate::GetAllowableClass() const
+documentation:
+  brief: Returns the allowable class mask for the item template.
+  description: The GetAllowableClass method retrieves the bitmask that defines which
+    player classes can use the item. This value is typically read from the database
+    field 'allowableclass' in the item_template table. The returned value represents
+    a bitfield where each bit corresponds to a specific class, allowing for multiple
+    classes to be allowed simultaneously. In World of Warcraft's TrinityCore implementation,
+    this bitmask is used during item validation and character equipment checks to
+    ensure that only permitted classes can equip the item.
+  parameters: []
+  returns: A 32-bit signed integer representing the allowable class bitmask. Each
+    bit corresponds to a specific player class (Warrior = 1, Paladin = 2, Hunter =
+    4, Rogue = 8, Priest = 16, Death Knight = 32, Shaman = 64, Mage = 128, Warlock
+    = 256, Druid = 512). A value of 0 indicates all classes are allowed.
+  examples:
+  - title: Check if a specific class can use an item
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nint32\
+      \ allowableClass = itemTemplate->GetAllowableClass();\nif (allowableClass &\
+      \ (1 << CLASS_WARRIOR)) {\n    // Warrior class can use this item\n}"
+    language: cpp
+  - title: Validate if a character's class can equip an item
+    code: "Player* player = ...;\nItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\n\
+      int32 allowableClass = itemTemplate->GetAllowableClass();\nif (allowableClass\
+      \ == 0 || (allowableClass & (1 << player->getClass()))) {\n    // Item can be\
+      \ equipped by this character\n}"
+    language: cpp
+  notes: This method directly accesses the internal data member that was populated
+    from the database during server startup or item loading. The bitmask follows the
+    standard class bit positions used throughout TrinityCore's codebase, where CLASS_WARRIOR
+    = 0, CLASS_PALADIN = 1, etc. The value is cached and does not require additional
+    database queries.
+  warnings: Be aware that a return value of 0 typically means 'all classes allowed'
+    rather than 'no classes allowed', which may be counterintuitive. When checking
+    class permissions, always consider this special case. Also note that some items
+    may have complex class restrictions involving multiple bits set, so bitwise operations
+    should be used for proper evaluation.
+  related:
+  - GetAllowableRace
+  - GetRequiredClass
+  - GetRequiredRace
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T02:40:36.978105'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

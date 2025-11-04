@@ -1,0 +1,61 @@
+api:
+  class: LootDistribution
+  method: ShouldPlayerPassItem
+  signature: bool LootDistribution::ShouldPlayerPassItem(Player * player, const LootItem
+    & item)
+documentation:
+  brief: Determines whether a player should pass on a loot item based on their loot
+    distribution settings and the item's properties.
+  description: The ShouldPlayerPassItem method evaluates if a given player should
+    skip receiving a specific loot item during the loot distribution process. This
+    decision is influenced by various factors including the player's loot mode, the
+    item's quality, and whether the player has opted to pass on certain types of items.
+    The method is typically called during the loot rolling phase to determine if an
+    item should be passed to another player or if it should be awarded directly to
+    the current player. It plays a crucial role in maintaining fair and efficient
+    loot distribution among group members.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the loot pass decision is being
+      evaluated. Must not be null.
+  - name: item
+    description: Reference to the LootItem structure representing the item being considered
+      for distribution. Contains item information and distribution properties.
+  returns: Returns true if the player should pass on the item, false otherwise. A
+    return value of true indicates that the item will be passed to another eligible
+    player in the group.
+  examples:
+  - title: Basic usage in loot distribution
+    code: "if (lootDist->ShouldPlayerPassItem(player, lootItem)) {\n    // Player\
+      \ passes on this item\n    // Item will be passed to next eligible player\n\
+      \    sLog->outDebug(LOG_FILTER_LOOT, \"Player %s passes on item %u\", player->GetName().c_str(),\
+      \ lootItem.itemid);\n} else {\n    // Player takes the item\n    player->AddItem(lootItem.itemid,\
+      \ lootItem.count);\n}"
+    language: cpp
+  - title: Integration with custom loot rules
+    code: "bool ShouldPlayerPassItem(Player* player, const LootItem& item) {\n   \
+      \ // Custom logic: pass on items below certain quality\n    if (item.quality\
+      \ < ITEM_QUALITY_RARE) {\n        return true;\n    }\n    \n    // Standard\
+      \ TrinityCore behavior\n    return lootDist->ShouldPlayerPassItem(player, item);\n\
+      }"
+    language: cpp
+  notes: This method is part of the core loot distribution system and is called frequently
+    during group loot events. The implementation considers player settings such as
+    'pass on green items' or 'need before greed' modes. It's important to note that
+    this method does not directly modify the item's ownership or distribution state,
+    but rather makes a decision about whether the current player should take it.
+  warnings: Ensure that both player and item parameters are valid before calling this
+    method. Passing null pointers will result in undefined behavior. The method assumes
+    proper initialization of loot distribution context and may not behave correctly
+    if called outside of an active loot distribution scenario.
+  related:
+  - LootDistribution::DistributeItem
+  - LootDistribution::RollForItem
+  - Player::HasLootMode
+  - LootItem::IsAllowed
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-04T00:40:36.201413'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

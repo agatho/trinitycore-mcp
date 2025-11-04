@@ -1,0 +1,45 @@
+api:
+  class: WorldSession
+  method: HandleLeaveGroupOpcode
+  signature: void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup
+    & packet)
+documentation:
+  brief: Removes the player from their current group and handles the necessary cleanup
+    and notifications.
+  description: The HandleLeaveGroupOpcode method processes a client request to leave
+    the player's current party or raid group. When invoked, it removes the player
+    from the group, updates group member lists, notifies other group members of the
+    player's departure, and resets the player's group-related state such as loot settings
+    and role assignments. This method ensures that all group mechanics are properly
+    handled when a player chooses to leave a group, including updating the group's
+    leader if necessary and managing any pending group operations or loot distributions.
+  parameters:
+  - name: packet
+    description: The incoming packet containing the leave group request from the client.
+      This packet typically includes basic identification data about the player attempting
+      to leave the group.
+  returns: null
+  examples:
+  - title: Basic usage in session handler
+    code: "void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup&\
+      \ packet)\n{\n    Player* player = GetPlayer();\n    if (!player || !player->GetGroup())\n\
+      \        return;\n\n    // Remove player from group\n    player->RemoveFromGroup();\n\
+      \    // Notify other members\n    player->GetGroup()->SendUpdate();\n}"
+    language: cpp
+  notes: This method should only be called when a player explicitly requests to leave
+    a group through the client UI. The method assumes that the player is currently
+    in a valid group and handles all necessary cleanup internally, including updating
+    the database state if needed.
+  warnings: Calling this method without verifying that the player is actually in a
+    group may lead to undefined behavior or crashes. It's important to validate the
+    player's group membership before invoking this method.
+  related:
+  - HandleJoinGroupOpcode
+  - Player::RemoveFromGroup
+  - Group::SendUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-04T21:47:00.144603'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

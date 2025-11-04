@@ -1,0 +1,53 @@
+api:
+  class: ItemTemplate
+  method: GetScalingStatContentTuning
+  signature: uint32 ItemTemplate::GetScalingStatContentTuning() const
+documentation:
+  brief: Retrieves the content tuning ID associated with the item's scaling statistics.
+  description: The GetScalingStatContentTuning method returns the content tuning identifier
+    that governs how an item's scaling statistics are adjusted based on player level
+    and other game mechanics. This value is typically used in conjunction with scaling
+    stat data to dynamically modify item properties such as damage, armor, or stats
+    as players progress through different content tiers. The returned ID corresponds
+    to entries in the ContentTuning.db2 database file which defines the rules for
+    how items scale within specific content contexts. This method does not perform
+    any validation on the returned value and assumes that the item template has been
+    properly initialized with valid scaling stat data.
+  parameters: []
+  returns: A uint32 value representing the content tuning ID associated with the item's
+    scaling statistics. This ID references entries in the ContentTuning.db2 database
+    file which define scaling rules for different content tiers and difficulty levels.
+  examples:
+  - title: Basic Usage Example
+    code: "ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(12345);\nuint32\
+      \ contentTuningId = itemTemplate->GetScalingStatContentTuning();\nif (contentTuningId\
+      \ > 0)\n{\n    // Use contentTuningId to fetch scaling rules from ContentTuning.db2\n\
+      \    printf(\"Item uses content tuning ID: %u\\n\", contentTuningId);\n}"
+    language: cpp
+  - title: Scaling Stat Application Example
+    code: "void ApplyItemScaling(ItemTemplate* itemTemplate, Player* player)\n{\n\
+      \    uint32 contentTuningId = itemTemplate->GetScalingStatContentTuning();\n\
+      \    if (contentTuningId > 0)\n    {\n        // Fetch scaling stat data based\
+      \ on content tuning ID\n        ContentTuningEntry const* tuningEntry = sContentTuningStore.LookupEntry(contentTuningId);\n\
+      \        if (tuningEntry)\n        {\n            // Apply scaling rules to\
+      \ item stats\n            uint32 playerLevel = player->GetLevel();\n       \
+      \     // ... scaling logic here ...\n        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used in the context of item scaling systems within
+    World of Warcraft. The returned content tuning ID should be validated against
+    the ContentTuning.db2 database to ensure proper scaling behavior. Performance-wise,
+    this is a simple getter method with O(1) complexity and no significant overhead.
+  warnings: The method returns 0 when no scaling stat content tuning is defined for
+    an item, which may indicate either a missing or improperly configured item template.
+    Developers should always validate the returned value before using it in scaling
+    calculations to avoid incorrect stat application.
+  related:
+  - GetScalingStatDistribution
+  - GetScalingStatValue
+  - HasScalingStats
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T02:18:46.872495'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

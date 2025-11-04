@@ -1,0 +1,51 @@
+api:
+  class: TempSummon
+  method: GetTimer
+  signature: int TempSummon::GetTimer() const
+documentation:
+  brief: Returns the remaining time in milliseconds until the temporary summon expires
+  description: The GetTimer method retrieves the current timer value for a temporary
+    summon, indicating how much time remains before the summon is automatically removed
+    from the game world. This timer is typically set when the summon is created and
+    decrements over time. The returned value represents the milliseconds remaining
+    until expiration. For summons with infinite duration, this method may return a
+    very large number or zero depending on implementation details. This functionality
+    is crucial for managing temporary creatures like summoned pets, guards, or other
+    transient game entities.
+  parameters: []
+  returns: An integer representing the time in milliseconds remaining before the temporary
+    summon expires. Returns 0 if the summon has already expired or if the timer is
+    not active. Negative values may indicate special states or errors depending on
+    the implementation.
+  examples:
+  - title: Check summon expiration time
+    code: "void CheckSummonExpiry(TempSummon* summon)\n{\n    int timeLeft = summon->GetTimer();\n\
+      \    if (timeLeft <= 0)\n    {\n        // Summon has expired\n        sLog->outString(\"\
+      Summon has expired!\");\n    }\n    else\n    {\n        sLog->outString(\"\
+      Summon expires in %d milliseconds\", timeLeft);\n    }\n}"
+    language: cpp
+  - title: Implement summon timer-based behavior
+    code: "void HandleSummonTick(TempSummon* summon)\n{\n    int timeLeft = summon->GetTimer();\n\
+      \    \n    // Trigger special behavior when 10 seconds remain\n    if (timeLeft\
+      \ <= 10000 && timeLeft > 9000)\n    {\n        summon->CastSpell(summon, SPELL_SUMMON_WARNING,\
+      \ true);\n    }\n    \n    // Remove summon when timer expires\n    if (timeLeft\
+      \ <= 0)\n    {\n        summon->UnSummon();\n    }\n}"
+    language: cpp
+  notes: The timer value returned by GetTimer is updated regularly by the game's update
+    loop. This method should not be used for precise timing calculations but rather
+    for general time-based behavior. The actual implementation may vary depending
+    on whether the summon has a fixed duration or is set to expire based on other
+    conditions.
+  warnings: Be aware that calling GetTimer on a non-temporary summon (e.g., a regular
+    creature) may return unexpected values. Always verify that the object is indeed
+    a TempSummon before calling this method to avoid undefined behavior.
+  related:
+  - SetTimer
+  - IsTemporarySummon
+  - UnSummon
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-03T17:04:54.272787'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

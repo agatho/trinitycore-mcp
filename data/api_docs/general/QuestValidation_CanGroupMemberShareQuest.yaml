@@ -1,0 +1,59 @@
+api:
+  class: QuestValidation
+  method: CanGroupMemberShareQuest
+  signature: bool QuestValidation::CanGroupMemberShareQuest(uint32 questId, Player
+    * sharer, Player * receiver)
+documentation:
+  brief: Determines whether a player can share a quest with another player in a group.
+  description: The CanGroupMemberShareQuest method evaluates if a given player (sharer)
+    is allowed to share a specific quest with another player (receiver) within the
+    same group. This validation checks various conditions such as quest sharing rules,
+    player levels, quest state, and group membership. It ensures that only appropriate
+    quest sharing occurs according to World of Warcraft's game mechanics and TrinityCore's
+    implementation logic.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being shared. Must be a valid
+      quest ID present in the game database.
+  - name: sharer
+    description: Pointer to the Player object who is attempting to share the quest.
+      Must not be null and must be a valid player instance.
+  - name: receiver
+    description: Pointer to the Player object who will receive the quest. Must not
+      be null and must be a valid player instance.
+  returns: Returns true if the quest can be shared between the two players according
+    to group rules and game logic; otherwise returns false.
+  examples:
+  - title: Basic Quest Sharing Check
+    code: "if (QuestValidation::CanGroupMemberShareQuest(12345, player1, player2))\
+      \ {\n    // Proceed with quest sharing logic\n    player1->SendQuestShare(player2,\
+      \ 12345);\n} else {\n    // Inform player that quest cannot be shared\n    player1->SendNotification(\"\
+      You cannot share this quest with your group member.\");\n}"
+    language: cpp
+  - title: Integration with Group Quest Sharing Logic
+    code: "void Player::HandleQuestShare(Player* target, uint32 questId) {\n    if\
+      \ (!target || !this) return;\n    \n    if (QuestValidation::CanGroupMemberShareQuest(questId,\
+      \ this, target)) {\n        // Validate group membership\n        if (GetGroup()\
+      \ && GetGroup()->IsMember(target->GetGUID())) {\n            target->AddQuest(questId);\n\
+      \            SendNotification(\"Quest shared successfully.\");\n        }\n\
+      \    } else {\n        SendNotification(\"Quest cannot be shared at this time.\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method is typically used during quest sharing operations within a group
+    context. It respects the game's built-in quest sharing restrictions, including
+    level requirements and quest state checks. The implementation may involve database
+    lookups for quest properties and player data to make validation decisions.
+  warnings: Ensure that both Player pointers are valid before calling this method
+    to avoid crashes. This method does not perform any automatic group membership
+    verification; it assumes the caller has already validated that players are in
+    the same group.
+  related:
+  - Player::SendQuestShare
+  - Player::AddQuest
+  - Group::IsMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T19:58:50.418115'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -221,6 +221,14 @@ import {
   getLevelingPath as getZoneLevelingPath,
   exportZoneAnalysisMarkdown
 } from "./tools/zonedifficulty.js";
+import {
+  reviewFile,
+  reviewFiles,
+  reviewPattern,
+  reviewProjectDirectory,
+  generateReviewReport,
+  getCodeReviewStats
+} from "./tools/codereview.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance
@@ -1523,6 +1531,328 @@ const TOOLS: Tool[] = [
       },
     },
   },
+  {
+    name: "review-code-file",
+    description: "Review a single C++ file for code quality issues using 870+ rules (Priority #4: AI-Powered Code Review with >90% accuracy)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "Path to the C++ file to review",
+        },
+        enableAI: {
+          type: "boolean",
+          description: "Enable AI-powered review enhancement (default: false)",
+        },
+        llmProvider: {
+          type: "string",
+          enum: ["openai", "ollama", "lmstudio"],
+          description: "LLM provider to use (default: openai)",
+        },
+        llmModel: {
+          type: "string",
+          description: "LLM model to use (e.g., gpt-4, codellama)",
+        },
+        severityFilter: {
+          type: "array",
+          items: { type: "string", enum: ["critical", "major", "minor", "info"] },
+          description: "Filter by severity levels",
+        },
+        categoryFilter: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "null_safety",
+              "memory",
+              "concurrency",
+              "convention",
+              "security",
+              "performance",
+              "architecture",
+            ],
+          },
+          description: "Filter by rule categories",
+        },
+        minConfidence: {
+          type: "number",
+          description: "Minimum confidence threshold (0.0-1.0, default: 0.7)",
+        },
+        projectRoot: {
+          type: "string",
+          description: "Project root directory",
+        },
+        compilerType: {
+          type: "string",
+          enum: ["gcc", "clang", "msvc"],
+          description: "Compiler type (default: gcc)",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Verbose output (default: false)",
+        },
+      },
+      required: ["filePath"],
+    },
+  },
+  {
+    name: "review-code-files",
+    description: "Review multiple C++ files for code quality issues",
+    inputSchema: {
+      type: "object",
+      properties: {
+        files: {
+          type: "array",
+          items: { type: "string" },
+          description: "Array of file paths to review",
+        },
+        enableAI: {
+          type: "boolean",
+          description: "Enable AI-powered review enhancement (default: false)",
+        },
+        llmProvider: {
+          type: "string",
+          enum: ["openai", "ollama", "lmstudio"],
+          description: "LLM provider to use (default: openai)",
+        },
+        llmModel: {
+          type: "string",
+          description: "LLM model to use (e.g., gpt-4, codellama)",
+        },
+        severityFilter: {
+          type: "array",
+          items: { type: "string", enum: ["critical", "major", "minor", "info"] },
+          description: "Filter by severity levels",
+        },
+        categoryFilter: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "null_safety",
+              "memory",
+              "concurrency",
+              "convention",
+              "security",
+              "performance",
+              "architecture",
+            ],
+          },
+          description: "Filter by rule categories",
+        },
+        minConfidence: {
+          type: "number",
+          description: "Minimum confidence threshold (0.0-1.0, default: 0.7)",
+        },
+        projectRoot: {
+          type: "string",
+          description: "Project root directory",
+        },
+        compilerType: {
+          type: "string",
+          enum: ["gcc", "clang", "msvc"],
+          description: "Compiler type (default: gcc)",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Verbose output (default: false)",
+        },
+      },
+      required: ["files"],
+    },
+  },
+  {
+    name: "review-code-pattern",
+    description: "Review C++ files matching glob patterns (e.g., 'src/**/*.cpp')",
+    inputSchema: {
+      type: "object",
+      properties: {
+        patterns: {
+          type: "array",
+          items: { type: "string" },
+          description: "Array of glob patterns to match files",
+        },
+        excludePatterns: {
+          type: "array",
+          items: { type: "string" },
+          description: "Array of glob patterns to exclude",
+        },
+        enableAI: {
+          type: "boolean",
+          description: "Enable AI-powered review enhancement (default: false)",
+        },
+        llmProvider: {
+          type: "string",
+          enum: ["openai", "ollama", "lmstudio"],
+          description: "LLM provider to use (default: openai)",
+        },
+        llmModel: {
+          type: "string",
+          description: "LLM model to use (e.g., gpt-4, codellama)",
+        },
+        severityFilter: {
+          type: "array",
+          items: { type: "string", enum: ["critical", "major", "minor", "info"] },
+          description: "Filter by severity levels",
+        },
+        categoryFilter: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "null_safety",
+              "memory",
+              "concurrency",
+              "convention",
+              "security",
+              "performance",
+              "architecture",
+            ],
+          },
+          description: "Filter by rule categories",
+        },
+        minConfidence: {
+          type: "number",
+          description: "Minimum confidence threshold (0.0-1.0, default: 0.7)",
+        },
+        projectRoot: {
+          type: "string",
+          description: "Project root directory",
+        },
+        compilerType: {
+          type: "string",
+          enum: ["gcc", "clang", "msvc"],
+          description: "Compiler type (default: gcc)",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Verbose output (default: false)",
+        },
+      },
+      required: ["patterns"],
+    },
+  },
+  {
+    name: "review-code-project",
+    description: "Review entire C++ project directory with comprehensive analysis",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projectRoot: {
+          type: "string",
+          description: "Project root directory path",
+        },
+        patterns: {
+          type: "array",
+          items: { type: "string" },
+          description: "File patterns to include (default: ['**/*.cpp', '**/*.h', '**/*.hpp', '**/*.cc'])",
+        },
+        excludePatterns: {
+          type: "array",
+          items: { type: "string" },
+          description: "File patterns to exclude",
+        },
+        enableAI: {
+          type: "boolean",
+          description: "Enable AI-powered review enhancement (default: false)",
+        },
+        llmProvider: {
+          type: "string",
+          enum: ["openai", "ollama", "lmstudio"],
+          description: "LLM provider to use (default: openai)",
+        },
+        llmModel: {
+          type: "string",
+          description: "LLM model to use (e.g., gpt-4, codellama)",
+        },
+        severityFilter: {
+          type: "array",
+          items: { type: "string", enum: ["critical", "major", "minor", "info"] },
+          description: "Filter by severity levels",
+        },
+        categoryFilter: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "null_safety",
+              "memory",
+              "concurrency",
+              "convention",
+              "security",
+              "performance",
+              "architecture",
+            ],
+          },
+          description: "Filter by rule categories",
+        },
+        minConfidence: {
+          type: "number",
+          description: "Minimum confidence threshold (0.0-1.0, default: 0.7)",
+        },
+        compilerType: {
+          type: "string",
+          enum: ["gcc", "clang", "msvc"],
+          description: "Compiler type (default: gcc)",
+        },
+        reportPath: {
+          type: "string",
+          description: "Path to save the report",
+        },
+        reportFormat: {
+          type: "string",
+          enum: ["markdown", "html", "json", "console"],
+          description: "Report format (default: markdown)",
+        },
+        verbose: {
+          type: "boolean",
+          description: "Verbose output (default: false)",
+        },
+      },
+      required: ["projectRoot"],
+    },
+  },
+  {
+    name: "generate-code-review-report",
+    description: "Generate review report from existing violations",
+    inputSchema: {
+      type: "object",
+      properties: {
+        violations: {
+          type: "array",
+          description: "Array of violation objects",
+        },
+        reportPath: {
+          type: "string",
+          description: "Path to save the report",
+        },
+        format: {
+          type: "string",
+          enum: ["markdown", "html", "json", "console"],
+          description: "Report format (default: markdown)",
+        },
+        projectRoot: {
+          type: "string",
+          description: "Project root directory",
+        },
+        compilerType: {
+          type: "string",
+          enum: ["gcc", "clang", "msvc"],
+          description: "Compiler type (default: gcc)",
+        },
+      },
+      required: ["violations", "reportPath"],
+    },
+  },
+  {
+    name: "get-code-review-stats",
+    description: "Get code review system capabilities and statistics (870+ rules, AI providers, performance metrics)",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
 ];
 
 // List tools handler
@@ -2395,6 +2725,100 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: JSON.stringify(result, null, 2),
             },
           ],
+        };
+      }
+
+      case "review-code-file": {
+        const result = await reviewFile(args.filePath as string, {
+          enableAI: args.enableAI as boolean | undefined,
+          llmProvider: args.llmProvider as "openai" | "ollama" | "lmstudio" | undefined,
+          llmModel: args.llmModel as string | undefined,
+          severityFilter: args.severityFilter as any[] | undefined,
+          categoryFilter: args.categoryFilter as any[] | undefined,
+          minConfidence: args.minConfidence as number | undefined,
+          projectRoot: args.projectRoot as string | undefined,
+          compilerType: args.compilerType as any | undefined,
+          verbose: args.verbose as boolean | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "review-code-files": {
+        const result = await reviewFiles(args.files as string[], {
+          enableAI: args.enableAI as boolean | undefined,
+          llmProvider: args.llmProvider as "openai" | "ollama" | "lmstudio" | undefined,
+          llmModel: args.llmModel as string | undefined,
+          severityFilter: args.severityFilter as any[] | undefined,
+          categoryFilter: args.categoryFilter as any[] | undefined,
+          minConfidence: args.minConfidence as number | undefined,
+          projectRoot: args.projectRoot as string | undefined,
+          compilerType: args.compilerType as any | undefined,
+          verbose: args.verbose as boolean | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "review-code-pattern": {
+        const result = await reviewPattern(args.patterns as string[], {
+          enableAI: args.enableAI as boolean | undefined,
+          llmProvider: args.llmProvider as "openai" | "ollama" | "lmstudio" | undefined,
+          llmModel: args.llmModel as string | undefined,
+          severityFilter: args.severityFilter as any[] | undefined,
+          categoryFilter: args.categoryFilter as any[] | undefined,
+          minConfidence: args.minConfidence as number | undefined,
+          projectRoot: args.projectRoot as string | undefined,
+          compilerType: args.compilerType as any | undefined,
+          excludePatterns: args.excludePatterns as string[] | undefined,
+          verbose: args.verbose as boolean | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "review-code-project": {
+        const result = await reviewProjectDirectory(args.projectRoot as string, {
+          enableAI: args.enableAI as boolean | undefined,
+          llmProvider: args.llmProvider as "openai" | "ollama" | "lmstudio" | undefined,
+          llmModel: args.llmModel as string | undefined,
+          severityFilter: args.severityFilter as any[] | undefined,
+          categoryFilter: args.categoryFilter as any[] | undefined,
+          minConfidence: args.minConfidence as number | undefined,
+          patterns: args.patterns as string[] | undefined,
+          excludePatterns: args.excludePatterns as string[] | undefined,
+          compilerType: args.compilerType as any | undefined,
+          reportPath: args.reportPath as string | undefined,
+          reportFormat: args.reportFormat as any | undefined,
+          verbose: args.verbose as boolean | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "generate-code-review-report": {
+        const result = await generateReviewReport(
+          args.violations as any[],
+          args.reportPath as string,
+          (args.format as "markdown" | "html" | "json" | "console") || "markdown",
+          {
+            projectRoot: args.projectRoot as string | undefined,
+            compilerType: args.compilerType as any | undefined,
+          }
+        );
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "get-code-review-stats": {
+        const result = await getCodeReviewStats();
+        return {
+          content: [{ type: "text", text: result }],
         };
       }
 

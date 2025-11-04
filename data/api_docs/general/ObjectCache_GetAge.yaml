@@ -1,0 +1,47 @@
+api:
+  class: ObjectCache
+  method: GetAge
+  signature: uint32 ObjectCache::GetAge(uint32 now) const
+documentation:
+  brief: Calculates and returns the age of the object in seconds based on the provided
+    current time.
+  description: The GetAge method computes the elapsed time since the object was created
+    or last updated, using the provided 'now' timestamp. It is commonly used in TrinityCore
+    to manage object lifecycle, expiration, or caching behavior. The method takes
+    a Unix timestamp representing the current time and returns the difference in seconds
+    between that time and the object's creation or update time. This functionality
+    is essential for implementing time-based systems such as temporary buffs, item
+    expiration, or cache invalidation.
+  parameters: []
+  returns: Returns a uint32 value representing the age of the object in seconds since
+    the reference time provided in the 'now' parameter.
+  examples:
+  - title: Basic usage to check object age
+    code: "uint32 currentTime = time(nullptr);\nuint32 age = objectCache->GetAge(currentTime);\n\
+      if (age > 3600) // More than 1 hour old\n{\n    // Handle expired object\n}"
+    language: cpp
+  - title: Using GetAge for cache invalidation logic
+    code: "class MyCacheEntry\n{\npublic:\n    uint32 GetAge(uint32 now) const { return\
+      \ now - m_creationTime; }\nprivate:\n    uint32 m_creationTime;\n};\n\n// In\
+      \ usage\nuint32 now = time(nullptr);\nMyCacheEntry entry;\nif (entry.GetAge(now)\
+      \ > 1800) // 30 minutes\n{\n    // Invalidate cache entry\n}"
+    language: cpp
+  notes: The method assumes that the object's internal timestamp is properly initialized.
+    It does not perform any validation on the input 'now' parameter, so callers should
+    ensure it represents a valid Unix timestamp. The implementation likely relies
+    on an internal stored time value (e.g., creation or last update time) to compute
+    the difference.
+  warnings: Be cautious when using this method in multi-threaded environments where
+    the object's timestamp might be modified concurrently. Also, ensure that the 'now'
+    parameter is not older than the stored timestamp, as it may result in unexpected
+    negative values if interpreted as signed integers.
+  related:
+  - ObjectCache::GetCreationTime
+  - ObjectCache::SetAge
+  - ObjectCache::UpdateTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-03T22:56:43.799573'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

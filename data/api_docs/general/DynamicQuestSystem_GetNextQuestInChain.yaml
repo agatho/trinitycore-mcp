@@ -1,0 +1,55 @@
+api:
+  class: DynamicQuestSystem
+  method: GetNextQuestInChain
+  signature: uint32 DynamicQuestSystem::GetNextQuestInChain(uint32 completedQuestId)
+documentation:
+  brief: Retrieves the quest ID of the next quest in the chain following the specified
+    completed quest.
+  description: The GetNextQuestInChain method is used within the Dynamic Quest System
+    to determine the subsequent quest that a player should receive after completing
+    a specific quest. This method evaluates the quest chain structure and returns
+    the identifier of the next logical quest in the sequence. It is typically invoked
+    when a player completes a quest to automatically advance them to the next step
+    in their quest progression. The method assumes that quest dependencies and chaining
+    are properly configured within the game's quest system database. If no next quest
+    exists in the chain, it may return 0 or a special value indicating end of chain.
+  parameters:
+  - name: completedQuestId
+    description: The unique identifier (ID) of the quest that has been completed by
+      the player. This ID must correspond to a valid quest entry in the game's database.
+  returns: Returns the quest ID of the next quest in the chain following the completed
+    quest. If there is no next quest in the chain, it returns 0, indicating end of
+    progression or invalid input.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 nextQuestId = dynamicQuestSystem->GetNextQuestInChain(12345);\n\
+      if (nextQuestId != 0)\n{\n    // Proceed with starting the next quest\n    player->AddQuest(nextQuestId);\n\
+      }\nelse\n{\n    // No more quests in chain\n    player->SendNotification(\"\
+      Quest chain completed.\");\n}"
+    language: cpp
+  - title: Advanced Usage with Quest Validation
+    code: "uint32 currentQuestId = player->GetQuestStatus(12345);\nif (currentQuestId\
+      \ == QUEST_STATUS_COMPLETE)\n{\n    uint32 nextQuestId = dynamicQuestSystem->GetNextQuestInChain(12345);\n\
+      \    if (nextQuestId != 0 && !player->HasQuest(nextQuestId))\n    {\n      \
+      \  player->AddQuest(nextQuestId);\n        player->SendNotification(\"New quest\
+      \ available: %s\", GetQuestNameById(nextQuestId));\n    }\n}"
+    language: cpp
+  notes: This method relies on the internal quest chain configuration stored in the
+    database. Developers should ensure that quest dependencies are correctly set up
+    to avoid unexpected behavior. The method does not perform any validation on whether
+    the provided quest ID actually exists or has been completed.
+  warnings: Calling this method with an invalid or non-existent quest ID may result
+    in undefined behavior or incorrect quest progression. Always validate that a quest
+    is truly completed before calling this method to prevent skipping quest steps
+    or breaking quest chains.
+  related:
+  - GetQuestChainStart
+  - GetQuestChainEnd
+  - IsQuestInChain
+  - GetQuestNextInChain
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-04T09:14:10.799850'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
