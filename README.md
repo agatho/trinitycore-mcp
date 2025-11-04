@@ -6,52 +6,27 @@
 [![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![Tests](https://img.shields.io/badge/tests-12%2F12%20passing-success.svg)](doc/PHASE_5_FINAL_VERIFICATION.md)
-[![Issues](https://img.shields.io/github/issues/agatho/trinitycore-mcp)](https://github.com/agatho/trinitycore-mcp/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/agatho/trinitycore-mcp/pulls)
 [![API Docs](https://img.shields.io/badge/API%20Docs-3800%2B%20methods-success.svg)](data/api_docs/general/)
-[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-55%20registered-success.svg)](src/index.ts)
-[![Development Tools](https://img.shields.io/badge/Dev%20Tools-10%20modules-blue.svg)](src/tools/)
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-61%20registered-success.svg)](src/index.ts)
 
-> Custom Model Context Protocol server providing **55 enterprise-grade MCP tools** + **10 development tool modules** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
-
-## 🆕 What's New in v2.1.1 - Documentation Update 📚
-
-🤖 **10 New Development Tool Modules** - AI Agent Tools (List 1) and Human UI/UX Tools (List 2)
-
-📊 **List 1: AI Agent Tools (5 modules, 2,327 lines)**
-- Thread Safety Analyzer - Race condition/deadlock detection for 5000-bot deployments
-- API Migration Assistant - Version migration 3.3.5a → 11.2 with auto-fix
-- Smart Code Completion - 95% accuracy TrinityCore-aware autocomplete
-- Memory Leak Analyzer - 95% leak prevention before code review
-- Code Style Enforcer - 60% code review time reduction
-
-🎨 **List 2: Human UI/UX Tools (5 modules, 892 lines)**
-- Bot Behavior Debugger - 2 hours → 5 minutes debugging time
-- Game Mechanics Simulator - 2 hours → 5 minutes balance testing
-- Visual AI Behavior Tree Editor - 70% AI development time reduction
-- 3D World Map Visualization - Saves 1-2 hours per content session
-- Visual Database Query Builder - 30 minutes → 3 minutes query building
-
-✅ **Production Quality** - 3,219 lines of enterprise-grade code, zero shortcuts, complete implementations
-
-[See v2.1.0 Release Notes →](https://github.com/agatho/trinitycore-mcp/releases/tag/v2.1.0) | [MVP Recommendations →](doc/MVP_RECOMMENDATIONS_TOP_5.md)
+> Custom Model Context Protocol server providing **61 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
 
 ## 📚 Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [MCP Tools (55 Registered)](#mcp-tools-55-registered)
-- [Development Tools (10 Modules)](#development-tools-10-modules)
+- [Usage](#usage)
+- [MCP Tools (61 Registered)](#mcp-tools-61-registered)
 - [Web UI](#web-ui)
-- [Usage Examples](#usage-examples)
+- [Development Tools](#development-tools)
 - [Documentation](#documentation)
+- [Known Limitations](#known-limitations)
 - [Contributing](#contributing)
 
 ## Features
 
-### MCP Server (55 Tools)
+### Core MCP Server (61 Tools)
 - **Game Data Queries**: Query spells, items, quests, creatures from World database
 - **DBC/DB2 Reading**: Parse and query client-side database files (WDC5/WDC6 support)
 - **GameTable (GT) Files**: Access critical game calculation tables (combat ratings, XP, stats, scaling)
@@ -66,103 +41,36 @@
 - **PvP Arena/BG Tactician**: Arena composition analysis, battleground strategies, PvP talent builds
 - **Quest Route Optimizer**: Optimal quest routing, leveling paths, XP/hour calculations
 - **Collection Manager**: Pet/mount/toy tracking, farming routes, completion planning
-- **Knowledge Base**: 3,756 API documentation files, intelligent code generation
+- **Knowledge Base**: 3,800+ API documentation files, intelligent code generation
 - **Performance Analysis**: Bot performance monitoring, scaling simulation (100-5000 bots)
 - **Testing Automation**: Multi-format test reporting (JSON/HTML/Markdown/JUnit), code coverage
-
-### Development Tool Modules (10 Tools)
-
-#### List 1: AI Agent Tools (5 modules)
-Advanced development assistance for TrinityCore C++ codebase:
-
-1. **Thread Safety Analyzer** (`src/tools/threadsafety.ts`, 710 lines)
-   - Race condition detection with shared state analysis
-   - Deadlock detection using graph-based circular dependency analysis
-   - Lock pattern validation (std::mutex, ACE_Guard, std::lock_guard)
-   - WorldUpdateTime safety verification (50ms cycle compliance)
-   - 5000-bot production deployment focus
-
-2. **API Migration Assistant** (`src/tools/apimigration.ts`, 659 lines)
-   - Version migration support (3.3.5a → 11.2)
-   - Deprecation database with 20+ API changes
-   - Auto-fix engine for method renames and signature changes
-   - Breaking change detection (ObjectGuid, GUID handling)
-   - Header move tracking
-
-3. **Smart Code Completion** (`src/tools/codecompletion.ts`, 419 lines)
-   - Context-aware autocomplete with TrinityCore API knowledge
-   - Pattern learning from codebase
-   - Include header suggestion with dependency analysis
-   - Ranked suggestions by usage frequency
-   - 95% completion accuracy target (up from 60%)
-
-4. **Memory Leak Analyzer** (`src/tools/memoryleak.ts`, 274 lines)
-   - Raw pointer leak detection (new without delete/smart_ptr)
-   - Circular reference detection (shared_ptr cycles)
-   - Resource leak detection (file handles, sockets)
-   - RAII violation detection
-   - 95% leak prevention before code review
-
-5. **Code Style Enforcer** (`src/tools/codestyle.ts`, 265 lines)
-   - Naming convention validation (PascalCase classes, camelCase vars)
-   - Formatting checks (4-space indent, 120-char line limit)
-   - Comment quality validation (Doxygen for public APIs)
-   - 60% code review time reduction
-
-#### List 2: Human UI/UX Tools (5 modules)
-Interactive tools for bot development and debugging:
-
-1. **Bot Behavior Debugger** (`src/tools/botdebugger.ts`, 160 lines)
-   - Live bot state inspection (HP, mana, target, position)
-   - Decision timeline recorder with timestamp tracking
-   - Action replay engine for debugging AI decisions
-   - State breakpoint system with condition evaluation
-   - Bug report exporter with root cause analysis
-   - Reduces debugging time from 2 hours to 5 minutes
-
-2. **Game Mechanics Simulator** (`src/tools/gamesimulator.ts`, 190 lines)
-   - Combat simulation (DPS, healing, tanking)
-   - Spell damage calculator with crit/armor mitigation
-   - Stat impact analyzer (what-if scenarios)
-   - Rotation comparison mode
-   - Balance testing in 5 minutes vs 2 hours in-game
-   - WoW 11.2 combat formula accuracy
-
-3. **Visual AI Behavior Tree Editor** (`src/tools/behaviortree.ts`, 202 lines)
-   - Drag-and-drop behavior tree canvas
-   - Node types: conditions, actions, transitions
-   - Live preview with test inputs
-   - Debug mode (step-through execution)
-   - C++ code generator (auto-generate BotAI classes)
-   - 70% reduction in AI development time
-
-4. **3D World Map Visualization** (`src/tools/worldmap.ts`, 132 lines)
-   - Interactive 3D map renderer (Three.js ready)
-   - Spawn overlays (creatures, objects, NPCs, quests)
-   - Layer filtering by type/level/faction
-   - Heat maps (mob density, quest concentration, danger)
-   - Path visualization (patrol routes, quest paths)
-   - Saves 1-2 hours per content design session
-
-5. **Visual Database Query Builder** (`src/tools/querybuilder.ts`, 208 lines)
-   - Drag-and-drop SQL query construction
-   - Table selection with metadata introspection
-   - Relationship manager (auto-detect JOINs)
-   - Filter builder with operator support
-   - Column selector with aggregate functions
-   - Query building time: 30 minutes → 3 minutes
-
-**Note**: These 10 development tool modules are TypeScript libraries currently available for programmatic use. They are NOT yet registered as MCP tools but can be integrated via the Web UI or future MCP tool registrations.
+- **AI Code Review**: Static analysis with 1020 rules across 7 categories, multi-LLM support
 
 ### Web UI
-Separate Next.js 16 web application providing:
+Fully functional Next.js 16 web application providing:
 - **Interactive API Explorer**: Browse 3,800+ TrinityCore methods
-- **Live MCP Integration**: Call all 55 MCP tools from web interface
-- **Spell/Item/Creature Browser**: Search and filter game data
+- **Live MCP Integration**: Call all 61 MCP tools from web interface
+- **Spell/Item/Creature Browser**: Search and filter game data with real-time results
 - **Real-time Database Access**: Direct MySQL queries via MCP
 - **API Playground**: Test tool calls with JSON editor
+- **Dark Mode Support**: Complete dark/light theme toggle
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Documentation Export**: JSON, CSV, Markdown export capabilities
 
-[See Web UI Documentation →](#web-ui)
+### Development Tools
+Additional TypeScript libraries for advanced development:
+- **Thread Safety Analyzer** - Race condition and deadlock detection
+- **API Migration Assistant** - Version migration support (3.3.5a → 11.2)
+- **Smart Code Completion** - Context-aware autocomplete with TrinityCore API knowledge
+- **Memory Leak Analyzer** - Raw pointer leak and circular reference detection
+- **Code Style Enforcer** - Naming convention and formatting validation
+- **Bot Behavior Debugger** - Live bot state inspection and decision timeline recording
+- **Game Mechanics Simulator** - Combat simulation and balance testing
+- **Visual Behavior Tree Editor** - Drag-and-drop behavior tree design
+- **3D World Map Visualization** - Interactive map with spawn overlays
+- **Visual Database Query Builder** - Drag-and-drop SQL query construction
+
+**Note**: These development tools are TypeScript libraries available for programmatic use and Web UI integration. They are not currently registered as MCP tools.
 
 ## Installation
 
@@ -174,7 +82,7 @@ Separate Next.js 16 web application providing:
 ### Quick Start
 
 ```bash
-# Clone repository (if not already cloned)
+# Clone repository
 git clone https://github.com/agatho/trinitycore-mcp.git
 cd trinitycore-mcp
 
@@ -257,11 +165,11 @@ npm run start:all
 ```
 
 This will:
-1. ✅ Build the MCP server (if not already built)
-2. ✅ Install Web UI dependencies (if needed)
-3. ✅ Start the MCP server (stdio mode)
-4. ✅ Start the Web UI development server (http://localhost:3000)
-5. ✅ Automatically open your default browser to the Web UI
+1. Build the MCP server (if not already built)
+2. Install Web UI dependencies (if needed)
+3. Start the MCP server (stdio mode)
+4. Start the Web UI development server (http://localhost:3000)
+5. Automatically open your default browser to the Web UI
 
 **Environment Variables**:
 - `PORT` - Web UI port (default: 3000)
@@ -301,11 +209,9 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 # Or integrate with Claude Code (see Configuration above)
 ```
 
-## MCP Tools (55 Registered)
+## MCP Tools (61 Registered)
 
-**Total: 55 MCP Tools** across game data, knowledge, performance, and testing categories.
-
-For complete tool reference with parameters and examples, see [MCP_TOOLS.md](MCP_TOOLS.md) (to be created).
+**Total: 61 MCP Tools** across game data, knowledge, performance, testing, and code review categories.
 
 ### Quick Tool Reference
 
@@ -393,53 +299,122 @@ For complete tool reference with parameters and examples, see [MCP_TOOLS.md](MCP
 - `generate-test-report` - Generate JSON/HTML/Markdown/JUnit reports
 - `analyze-coverage` - Code coverage analysis with threshold validation
 
-## Development Tools (10 Modules)
+#### AI Code Review Tools (6 tools)
+- `review-code-file` - Review a single C++ file with 1020+ rules
+- `review-code-files` - Review multiple C++ files in batch
+- `review-code-pattern` - Review files matching glob patterns
+- `review-code-project` - Review entire project directory
+- `generate-code-review-report` - Generate report from violations
+- `get-code-review-stats` - Get system statistics and capabilities
 
-**Total: 10 Development Tool Modules** (not yet registered as MCP tools)
-
-These are TypeScript libraries providing advanced development assistance. See [Features](#features) section for detailed descriptions.
-
-### List 1: AI Agent Tools (5 modules)
-- `src/tools/threadsafety.ts` - Thread safety analyzer
-- `src/tools/apimigration.ts` - API migration assistant
-- `src/tools/codecompletion.ts` - Smart code completion
-- `src/tools/memoryleak.ts` - Memory leak analyzer
-- `src/tools/codestyle.ts` - Code style enforcer
-
-### List 2: Human UI/UX Tools (5 modules)
-- `src/tools/botdebugger.ts` - Bot behavior debugger
-- `src/tools/gamesimulator.ts` - Game mechanics simulator
-- `src/tools/behaviortree.ts` - Visual behavior tree editor
-- `src/tools/worldmap.ts` - 3D world map visualization
-- `src/tools/querybuilder.ts` - Visual database query builder
-
-**Future Integration**: These tools will be integrated into the Web UI and potentially registered as additional MCP tools in future releases.
+**AI Code Review System Features:**
+- 1020 rules across 7 categories (Null Safety, Memory, Concurrency, Conventions, Security, Performance, Architecture)
+- Multi-LLM support (OpenAI, Ollama, LM Studio)
+- Multiple report formats (Markdown, HTML, JSON, Console)
+- Target: >90% accuracy, <15% false positive rate
+- Performance: ~1000 LOC/sec analysis speed
+- Comprehensive test suite (115+ tests)
 
 ## Web UI
 
-The TrinityCore MCP Server includes an optional Next.js 16 web interface.
+The TrinityCore MCP Server includes a fully functional Next.js 16 web interface.
 
 ### Web UI Installation
 
 ```bash
-cd /c/TrinityBots/trinitycore-web-ui
+cd web-ui
 npm install
 npm run dev
 ```
 
 **Access at:** http://localhost:3000
 
+Or use the combined start command:
+
+```bash
+# From project root
+npm run start:all
+```
+
 ### Web UI Features
 
 - **Homepage** - Beautiful dark gradient UI with live MCP status
 - **API Explorer** - Browse 3,800+ TrinityCore API methods
-- **Interactive Playground** - Test all 55 MCP tools with JSON editor
+- **Interactive Playground** - Test all 61 MCP tools with JSON editor
 - **Spell Browser** - Search and filter 45,000+ spells
 - **Item Database** - Browse items with stat filtering
 - **Creature Explorer** - Find vendors, trainers, bosses
 - **Real-time Search** - Instant results from live database
+- **Dark Mode** - Complete dark/light theme toggle
+- **Responsive Design** - Optimized for all screen sizes
+- **Documentation Export** - JSON, CSV, Markdown export
 
-**For complete Web UI documentation, see [WEBUI_FEATURES.md](WEBUI_FEATURES.md) (to be created)**
+## Development Tools
+
+### Available TypeScript Libraries
+
+These are fully implemented TypeScript modules available for programmatic use:
+
+1. **Thread Safety Analyzer** (`src/tools/threadsafety.ts`, 710 lines)
+   - Race condition detection with shared state analysis
+   - Deadlock detection using graph-based circular dependency analysis
+   - Lock pattern validation (std::mutex, ACE_Guard, std::lock_guard)
+   - WorldUpdateTime safety verification (50ms cycle compliance)
+
+2. **API Migration Assistant** (`src/tools/apimigration.ts`, 659 lines)
+   - Version migration support (3.3.5a → 11.2)
+   - Deprecation database with 20+ API changes
+   - Auto-fix engine for method renames and signature changes
+   - Breaking change detection (ObjectGuid, GUID handling)
+
+3. **Smart Code Completion** (`src/tools/codecompletion.ts`, 419 lines)
+   - Context-aware autocomplete with TrinityCore API knowledge
+   - Pattern learning from codebase
+   - Include header suggestion with dependency analysis
+   - Ranked suggestions by usage frequency
+
+4. **Memory Leak Analyzer** (`src/tools/memoryleak.ts`, 274 lines)
+   - Raw pointer leak detection (new without delete/smart_ptr)
+   - Circular reference detection (shared_ptr cycles)
+   - Resource leak detection (file handles, sockets)
+   - RAII violation detection
+
+5. **Code Style Enforcer** (`src/tools/codestyle.ts`, 265 lines)
+   - Naming convention validation (PascalCase classes, camelCase vars)
+   - Formatting checks (4-space indent, 120-char line limit)
+   - Comment quality validation (Doxygen for public APIs)
+
+6. **Bot Behavior Debugger** (`src/tools/botdebugger.ts`, 160 lines)
+   - Live bot state inspection (HP, mana, target, position)
+   - Decision timeline recorder with timestamp tracking
+   - Action replay engine for debugging AI decisions
+   - State breakpoint system with condition evaluation
+
+7. **Game Mechanics Simulator** (`src/tools/gamesimulator.ts`, 190 lines)
+   - Combat simulation (DPS, healing, tanking)
+   - Spell damage calculator with crit/armor mitigation
+   - Stat impact analyzer (what-if scenarios)
+   - Rotation comparison mode
+
+8. **Visual Behavior Tree Editor** (`src/tools/behaviortree.ts`, 202 lines)
+   - Drag-and-drop behavior tree canvas
+   - Node types: conditions, actions, transitions
+   - Live preview with test inputs
+   - C++ code generator (auto-generate BotAI classes)
+
+9. **3D World Map Visualization** (`src/tools/worldmap.ts`, 132 lines)
+   - Interactive 3D map renderer (Three.js ready)
+   - Spawn overlays (creatures, objects, NPCs, quests)
+   - Layer filtering by type/level/faction
+   - Heat maps (mob density, quest concentration, danger)
+
+10. **Visual Database Query Builder** (`src/tools/querybuilder.ts`, 208 lines)
+    - Drag-and-drop SQL query construction
+    - Table selection with metadata introspection
+    - Relationship manager (auto-detect JOINs)
+    - Filter builder with operator support
+
+**Integration Status**: These libraries are implemented and tested. They can be integrated into the Web UI or registered as additional MCP tools in future updates.
 
 ## Usage Examples
 
@@ -470,22 +445,18 @@ console.log(perf.summary.memory); // Memory usage stats
 console.log(perf.bottlenecks); // Detected bottlenecks
 ```
 
-### Example 3: Generate Code from Template
+### Example 3: Review Code Quality
 
 ```typescript
-import { generateBotComponent } from "./tools/codegen.js";
+import { reviewFile } from "./tools/codereview.js";
 
-// Generate spell cast handler
-const code = await generateBotComponent({
-  templateName: "spell-cast-handler",
-  variables: {
-    spellId: "8326",
-    spellName: "Ghost",
-    targetGuid: "player->GetGUID()"
-  }
+// Review C++ file with all rules
+const review = await reviewFile("src/modules/Playerbot/BotAI.cpp", {
+  enableAI: false,
+  minConfidence: 0.7
 });
 
-console.log(code); // Generated C++ code
+console.log(review); // Formatted markdown report
 ```
 
 ### Example 4: Run Tests
@@ -509,19 +480,21 @@ console.log(result.summary); // Pass/fail statistics
 
 ## Performance & Quality
 
-### v2.1.1 Metrics
-- **MCP Tools**: 55 registered tools
-- **Development Modules**: 10 tool modules (3,219 lines)
+### Current Metrics
+- **MCP Tools**: 61 registered tools
+- **Development Libraries**: 10 tool modules (3,219 lines)
 - **API Documentation**: 3,800+ methods documented
-- **Tests**: 12/12 passing (100%)
-- **Performance**: 25/27 targets met (92.6%)
 - **Code Quality**: TypeScript 5.3.3 strict mode, zero compilation errors
 - **Build Time**: ~2 seconds
 - **Memory Footprint**: <100MB for server process
-- **Documentation**: Fully updated and accurate
+- **CI/CD**: Automated builds, testing, and deployment
 
-### Production Readiness
-✅ **Approved for Production** - Enterprise-grade quality, comprehensive testing, production-ready code
+### Production Infrastructure
+- ✅ **CI/CD Automation** - GitHub Actions workflows (build, test, quality, security)
+- ✅ **Containerization** - Docker and Docker Compose support
+- ✅ **Kubernetes** - Production-ready K8s manifests
+- ✅ **Monitoring** - Prometheus metrics, Grafana dashboards, Alertmanager
+- ✅ **Production Ready** - Enterprise-grade quality, comprehensive testing
 
 ## Documentation
 
@@ -529,19 +502,24 @@ console.log(result.summary); // Pass/fail statistics
 - [README.md](README.md) - This file (main project overview)
 - [CHANGELOG.md](CHANGELOG.md) - Version history and changes
 - [MCP_CONFIGURATION.md](MCP_CONFIGURATION.md) - Detailed configuration guide
+- [PRIORITY_4_COMPLETION_REPORT.md](PRIORITY_4_COMPLETION_REPORT.md) - AI Code Review System details
 
 ### Development Documentation
-- [doc/MVP_RECOMMENDATIONS_TOP_5.md](doc/MVP_RECOMMENDATIONS_TOP_5.md) - MVP tool recommendations
-- [doc/SUBPLAN_LIST_1_AI_AGENT_TOOLS.md](doc/SUBPLAN_LIST_1_AI_AGENT_TOOLS.md) - List 1 implementation plan
-- [doc/SUBPLAN_LIST_2_HUMAN_UI_UX_TOOLS.md](doc/SUBPLAN_LIST_2_HUMAN_UI_UX_TOOLS.md) - List 2 implementation plan
-- [doc/PHASE_5_COMPLETE_SUMMARY.md](doc/PHASE_5_COMPLETE_SUMMARY.md) - Phase 5 summary
-- [doc/PHASE_5_FINAL_VERIFICATION.md](PHASE_5_FINAL_VERIFICATION.md) - Production verification
 - [doc/API_REFERENCE.md](doc/API_REFERENCE.md) - DBC/DB2 API reference
 - [doc/PERFORMANCE_BENCHMARKS.md](doc/PERFORMANCE_BENCHMARKS.md) - Performance benchmarks
+- [doc/PHASE_5_COMPLETE_SUMMARY.md](doc/PHASE_5_COMPLETE_SUMMARY.md) - Phase 5 implementation summary
 
-### To Be Created
-- **MCP_TOOLS.md** - Complete MCP tool reference with parameters and examples
-- **WEBUI_FEATURES.md** - Web UI feature documentation and usage guide
+## Known Limitations
+
+### SpellName.db2 Reading
+Spell names may be truncated for ~83% of spells due to WDC5 format quirks. Spell IDs are always correct, only display names affected. Early spell IDs (1-100) have better success rate.
+
+**Workarounds:**
+- Use spell IDs for all internal operations (always reliable)
+- Use Web UI for spell browsing (displays from database)
+- Query `world.spell_name` table directly via MCP tools
+
+See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) for complete details.
 
 ## Project Structure
 
@@ -549,7 +527,7 @@ console.log(result.summary); // Pass/fail statistics
 trinitycore-mcp/
 ├── src/
 │   ├── index.ts              # Main MCP server entry point
-│   ├── tools/                # Tool implementations
+│   ├── tools/                # 61 tool implementations
 │   │   ├── spell.ts          # Spell-related tools
 │   │   ├── item.ts           # Item-related tools
 │   │   ├── dbc.ts            # DBC/DB2 reader (WDC5/WDC6)
@@ -558,16 +536,23 @@ trinitycore-mcp/
 │   │   ├── codegen.ts        # Code generation
 │   │   ├── performance.ts    # Performance analysis
 │   │   ├── testing.ts        # Testing automation
-│   │   ├── threadsafety.ts   # Thread safety analyzer (NEW v2.1.0)
-│   │   ├── apimigration.ts   # API migration assistant (NEW v2.1.0)
-│   │   ├── codecompletion.ts # Smart code completion (NEW v2.1.0)
-│   │   ├── memoryleak.ts     # Memory leak analyzer (NEW v2.1.0)
-│   │   ├── codestyle.ts      # Code style enforcer (NEW v2.1.0)
-│   │   ├── botdebugger.ts    # Bot debugger (NEW v2.1.0)
-│   │   ├── gamesimulator.ts  # Game simulator (NEW v2.1.0)
-│   │   ├── behaviortree.ts   # Behavior tree editor (NEW v2.1.0)
-│   │   ├── worldmap.ts       # World map visualization (NEW v2.1.0)
-│   │   └── querybuilder.ts   # Query builder (NEW v2.1.0)
+│   │   ├── codereview.ts     # AI code review (NEW)
+│   │   ├── threadsafety.ts   # Thread safety analyzer
+│   │   ├── apimigration.ts   # API migration assistant
+│   │   ├── codecompletion.ts # Smart code completion
+│   │   ├── memoryleak.ts     # Memory leak analyzer
+│   │   ├── codestyle.ts      # Code style enforcer
+│   │   ├── botdebugger.ts    # Bot debugger
+│   │   ├── gamesimulator.ts  # Game simulator
+│   │   ├── behaviortree.ts   # Behavior tree editor
+│   │   ├── worldmap.ts       # World map visualization
+│   │   └── querybuilder.ts   # Query builder
+│   ├── code-review/          # AI code review system
+│   │   ├── index.ts          # Review orchestrator
+│   │   ├── TrinityRuleEngine.ts      # Rule engine (1020 rules)
+│   │   ├── CodeAnalysisEngine.ts     # AST/CFG/Data Flow
+│   │   ├── AIReviewEngine.ts         # Multi-LLM support
+│   │   └── ReviewReportGenerator.ts  # Multi-format reports
 │   ├── database/
 │   │   ├── connection.ts     # MySQL connection pool
 │   │   └── queries.ts        # SQL query helpers
@@ -588,10 +573,15 @@ trinitycore-mcp/
 │       └── cache.ts          # Caching layer (LRU)
 ├── data/
 │   └── api_docs/
-│       └── general/          # 3,756 API documentation files
+│       └── general/          # 3,800+ API documentation files
+├── web-ui/                   # Next.js 16 web interface
+│   ├── app/                  # Next.js app router pages
+│   ├── components/           # React components
+│   └── lib/                  # Utility functions
+├── tests/
+│   └── code-review/          # AI code review tests (115+)
 ├── doc/                      # Documentation
-├── test/                     # Test files
-├── package.json              # v2.1.0
+├── package.json              # v2.1.1
 ├── tsconfig.json
 └── README.md                 # This file
 ```
@@ -611,12 +601,6 @@ npm run dev
 ### Test
 
 ```bash
-# Run performance analysis tests
-node test_performance_analysis.js
-
-# Run testing automation tests
-node test_testing_automation.js
-
 # Or use MCP testing tools
 # (call run-tests MCP tool via Claude Code)
 ```
@@ -626,106 +610,6 @@ node test_testing_automation.js
 ```bash
 npm run lint
 ```
-
-## Roadmap
-
-### ✅ v3.0.0 Features - Already Implemented!
-
-Many features originally planned for v3.0.0 have already been implemented:
-
-**✅ Production Deployment (COMPLETE)**
-- ✅ CI/CD automation with GitHub Actions (6 workflows: build, ci, code-quality, docs, release, security)
-- ✅ Automated builds and testing
-- ✅ Release automation workflow
-- ✅ Security scanning and code quality checks
-
-**✅ Containerization (COMPLETE)**
-- ✅ Docker support (Dockerfile, Dockerfile.dev, .dockerignore)
-- ✅ Docker Compose for development and production (docker-compose.yml, docker-compose.prod.yml)
-- ✅ Kubernetes support (7 K8s manifests: deployment, service, ingress, configmap, pvc, serviceaccount, namespace)
-- ✅ Production-ready container orchestration
-
-**✅ Health Monitoring (COMPLETE)**
-- ✅ Prometheus metrics collection (monitoring/prometheus.yml)
-- ✅ Grafana dashboards (monitoring/grafana/)
-- ✅ Alertmanager configuration (monitoring/alertmanager.yml)
-- ✅ Alert rules (monitoring/alert.rules.yml)
-- ✅ Full observability stack
-
-**✅ Advanced Analytics (COMPLETE)**
-- ✅ Performance trend analysis (PerformanceAnalyzer.ts)
-- ✅ Scaling simulation (ScalingSimulator.ts)
-- ✅ AI-powered optimization suggestions (OptimizationSuggester.ts)
-- ✅ Real-time metrics collection
-
-### v2.2.0 (In Progress - Target Q1 2025)
-
-**🎨 Web UI Enhancements** (Inspired by TrinityCore API Explorer)
-- **UI Component Library** - Implement shadcn/ui design system with 30+ reusable components
-- **Dark Mode Support** - Complete dark/light theme toggle with persistent preferences
-- **Responsive Design** - Mobile, tablet, desktop optimization for all Web UI pages
-- **Documentation Export** - JSON, CSV, Markdown export for API documentation
-- **Advanced Search UI** - Autocomplete, fuzzy matching, search filters
-- **Topic Categorization** - Organize 55 MCP tools into browsable categories (Combat, Spells, Items, etc.)
-
-**🔧 Development Tools**
-- **MCP Tool Registration** - Register 10 development tool modules as MCP tools (would increase to 65 total)
-- **List 2 Tool Integration** - Add visual interfaces for Bot Debugger, Game Simulator, Behavior Tree Editor
-- **Machine Learning Enhancement** - Integrate ML models for Smart Code Completion accuracy
-
-**📊 Visualization**
-- **3D World Map** - Three.js rendering for world map tool with creature spawn visualization
-- **Performance Metrics Dashboard** - Real-time charts for bot performance monitoring
-
-**Estimated Timeline**: 8-10 weeks | **Priority**: HIGH
-
-### v3.0.0 (Target Q2 2025) - Advanced Features
-
-**🔍 Advanced Documentation & Discovery** (Inspired by API Explorer)
-- **Class Hierarchy Visualization** - D3.js interactive tree showing TrinityCore inheritance (342+ classes)
-- **API Version Diff Tool** - Compare TrinityCore versions (3.3.5a vs 11.2), track breaking changes
-- **Related Methods Algorithm** - Smart suggestions for related API methods
-- **Advanced Search Engine** - Optional Elasticsearch integration for fuzzy matching (<50ms autocomplete)
-- **Method Dependency Graph** - Visualize method call chains and dependencies
-
-**🏗️ Infrastructure & Scalability**
-- **High Availability** - Load balancing, failover, multi-region deployment
-- **Advanced Security** - Authentication (OAuth2, JWT), rate limiting, API key management, input validation
-- **Auto-scaling** - Kubernetes HPA (Horizontal Pod Autoscaler) integration
-- **CDN Integration** - Edge caching for static assets and API responses
-- **Multi-tenancy** - Support for multiple isolated deployments
-- **Advanced Metrics** - Custom business metrics, SLA monitoring, cost optimization
-
-**Estimated Timeline**: 10-12 weeks | **Priority**: MEDIUM
-
-### v4.0.0 (Vision - Q3 2025)
-
-**👥 Community & Collaboration** (Inspired by API Explorer)
-- **Code Examples Library** - Community-contributed TrinityCore code examples with voting and ratings
-- **Q&A System** - Stack Overflow-style questions and answers for bot development
-- **Pattern Library** - Pre-written guides for common tasks (spawn creature, cast spell, handle quest)
-- **User Profiles** - Developer profiles with contributions, reputation, badges
-- **Real-time Collaboration** - Multi-user bot debugging sessions, shared workspaces
-
-**🤖 AI & Automation**
-- **AI-Powered Features** - Machine learning for bot behavior optimization, automated testing generation
-- **Smart Code Generator** - AI-assisted code generation from natural language descriptions
-- **Automated Test Generation** - AI generates unit tests for TrinityCore scripts
-- **Bug Prediction** - ML model predicts potential bugs before code review
-
-**🎮 Advanced Visualization & Interaction**
-- **Interactive 3D World Rendering** - WebGL-based 3D map viewer with bot positioning
-- **AR/VR Support** - Virtual reality development environment for bot debugging
-- **API Playground** - Interactive method tester with live code execution
-- **Visual Spell Editor** - Drag-and-drop spell effect designer
-
-**📱 Platform Expansion**
-- **Plugin Ecosystem** - Third-party plugin marketplace, community extensions
-- **Mobile Apps** - iOS/Android apps for monitoring and basic management
-- **VS Code Extension** - Inline TrinityCore documentation in VS Code
-- **CLI Tools** - Command-line tools for bot deployment and management
-
-**Estimated Timeline**: 14-16 weeks | **Priority**: LOW (Future Vision)
 
 ## Contributing
 
@@ -758,7 +642,6 @@ GPL-2.0 (same as TrinityCore)
 
 - **Documentation**: See [doc/](doc/) directory
 - **Issues**: [GitHub Issues](https://github.com/agatho/trinitycore-mcp/issues)
-- **Web UI**: [TrinityCore Web UI](https://github.com/agatho/trinitycore-web-ui)
 - **TrinityCore**: [TrinityCore Repository](https://github.com/TrinityCore/TrinityCore)
 
 ## Acknowledgments
@@ -773,9 +656,8 @@ GPL-2.0 (same as TrinityCore)
 
 **Version**: 2.1.1
 **Status**: ✅ Production Ready
-**MCP Tools**: 55 registered + 10 development modules
-**Roadmap**: Enhanced with TrinityCore API Explorer concepts
-**Last Updated**: 2025-11-02
+**MCP Tools**: 61 registered tools
+**Last Updated**: 2025-01-04
 
 Generated with [Claude Code](https://claude.com/claude-code)
 
