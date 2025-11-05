@@ -39,6 +39,7 @@ import EditorToolbar from './EditorToolbar';
 import ParameterEditor from './ParameterEditor';
 import ValidationPanel from './ValidationPanel';
 import TemplateLibrary from './TemplateLibrary';
+import AIGenerationPanel from './AIGenerationPanel';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -467,10 +468,11 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
         {/* Right Sidebar */}
         <div className="w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
           <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-3 rounded-none border-b">
+            <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
+              <TabsTrigger value="ai">AI</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-auto">
@@ -510,6 +512,16 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
 
               <TabsContent value="templates" className="p-4 m-0">
                 <TemplateLibrary onApplyTemplate={handleApplyTemplate} />
+              </TabsContent>
+
+              <TabsContent value="ai" className="p-4 m-0">
+                <AIGenerationPanel
+                  onGenerate={(generatedScript) => {
+                    setScript(generatedScript);
+                    convertToReactFlow(generatedScript);
+                    toast.success('AI-generated script applied');
+                  }}
+                />
               </TabsContent>
             </div>
           </Tabs>

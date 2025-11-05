@@ -766,3 +766,50 @@ export interface EventEmitter<T = any> {
   off(event: string, callback: Callback<T>): void;
   emit(event: string, data: T): void;
 }
+
+// ============================================================================
+// AI PROVIDER TYPES
+// ============================================================================
+
+/**
+ * AI model configuration
+ */
+export interface AIModel {
+  /** Model identifier */
+  id: string;
+
+  /** Display name */
+  name: string;
+
+  /** Provider (openai, ollama, lmstudio, claude) */
+  provider: 'openai' | 'ollama' | 'lmstudio' | 'claude';
+
+  /** Context window size (tokens) */
+  contextWindow: number;
+
+  /** Whether model is available locally */
+  isLocal?: boolean;
+
+  /** Cost per 1K tokens (if applicable) */
+  cost?: number;
+}
+
+/**
+ * AI provider interface
+ */
+export interface AIProvider {
+  /**
+   * Generate SAI script from prompt
+   */
+  generateScript(request: AIGenerationRequest): Promise<AIGenerationResult>;
+
+  /**
+   * Test provider connection
+   */
+  testConnection?(): Promise<boolean>;
+
+  /**
+   * Get available models
+   */
+  getAvailableModels?(): Promise<AIModel[]>;
+}
