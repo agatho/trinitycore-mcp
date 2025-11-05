@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Database, Zap, Code, BookOpen, Server } from "lucide-react";
+import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +48,41 @@ export default function HomePage() {
       description: "Complete API reference (3,812 methods)",
       href: "/docs",
       color: "text-red-500",
+    },
+    {
+      name: "Analytics Dashboard",
+      icon: BarChart3,
+      description: "Interactive data visualizations & charts",
+      href: "/dashboard",
+      color: "text-blue-400",
+    },
+    {
+      name: "Comparison Tool",
+      icon: GitCompare,
+      description: "Side-by-side batch comparison",
+      href: "/compare",
+      color: "text-orange-400",
+    },
+    {
+      name: "AI Visualizer",
+      icon: Brain,
+      description: "PlayerBot AI behavior analysis",
+      href: "/ai-visualizer",
+      color: "text-purple-400",
+    },
+    {
+      name: "Server Monitoring",
+      icon: Activity,
+      description: "Real-time health & performance",
+      href: "/monitoring",
+      color: "text-green-400",
+    },
+    {
+      name: "Code Review",
+      icon: FileCode,
+      description: "AI-powered code analysis (1020 rules)",
+      href: "/code-review",
+      color: "text-indigo-400",
     },
   ];
 
@@ -130,7 +165,10 @@ export default function HomePage() {
 
       {/* Features Grid */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold text-white text-center mb-8">
+          Explore Tools & Features
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {toolCategories.map((category) => {
             const Icon = category.icon;
             return (
@@ -161,20 +199,20 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-blue-400">{data?.count || 56}</div>
+              <div className="text-4xl font-bold text-blue-400">{data?.count || 80}</div>
               <div className="text-sm text-slate-400">MCP Tools</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-purple-400">3,812</div>
-              <div className="text-sm text-slate-400">API Methods</div>
+              <div className="text-4xl font-bold text-purple-400">10</div>
+              <div className="text-sm text-slate-400">WebUI Pages</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-green-400">45,000+</div>
-              <div className="text-sm text-slate-400">Spells</div>
+              <div className="text-4xl font-bold text-green-400">1,020</div>
+              <div className="text-sm text-slate-400">Code Review Rules</div>
             </div>
             <div className="text-center space-y-2">
               <div className="text-4xl font-bold text-orange-400">Live</div>
-              <div className="text-sm text-slate-400">Database</div>
+              <div className="text-sm text-slate-400">Monitoring</div>
             </div>
           </div>
         </div>
@@ -194,7 +232,7 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              TrinityCore MCP Server v1.4.0
+              TrinityCore MCP Server v2.5.0
             </a>
           </p>
         </div>
