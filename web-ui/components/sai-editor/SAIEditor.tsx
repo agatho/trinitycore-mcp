@@ -33,6 +33,7 @@ import { generateSQL } from '@/lib/sai-unified/sql-generator';
 import { parseSQL } from '@/lib/sai-unified/sql-parser';
 import { instantiateTemplate } from '@/lib/sai-unified/templates';
 import { getParametersForEvent, getParametersForAction, getParametersForTarget } from '@/lib/sai-unified/parameters';
+import { useDebouncedCallback, useRenderTime } from '@/lib/sai-unified/performance';
 
 import SAINodeComponent from './SAINode';
 import EditorToolbar from './EditorToolbar';
@@ -139,12 +140,17 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
     convertToReactFlow(script);
   }, []);
 
-  // Auto-validate on changes
-  useEffect(() => {
+  // Debounced validation function
+  const runValidation = useDebouncedCallback(() => {
     const currentScript = convertFromReactFlow();
     const result = validateScript(currentScript);
     setValidation(result);
-  }, [nodes, edges]);
+  }, 500); // 500ms debounce
+
+  // Auto-validate on changes (debounced)
+  useEffect(() => {
+    runValidation();
+  }, [nodes, edges, runValidation]);
 
   // Handle connection
   const onConnect = useCallback(
