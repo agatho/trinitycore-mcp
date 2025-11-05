@@ -59,6 +59,124 @@ const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 const ITEM_DB2_FILE = "Item.db2";
 const ITEM_SPARSE_DB2_FILE = "ItemSparse.db2";
 
+// Item cache (loaded from DBCD-generated JSON)
+const ITEM_CACHE_PATH = "./data/cache/item_cache.json";
+const ITEM_SPARSE_CACHE_PATH = "./data/cache/item_sparse_cache.json";
+
+interface ItemCacheEntry {
+  ID: number;
+  ClassID?: number;
+  SubclassID?: number;
+  Material?: number;
+  InventoryType?: number;
+  SheatheType?: number;
+  IconFileDataID?: number;
+  [key: string]: any;
+}
+
+interface ItemSparseCacheEntry {
+  ID: number;
+  Display_lang?: string;
+  Description_lang?: string;
+  Quality?: number;
+  Flags1?: number;
+  Flags2?: number;
+  Flags3?: number;
+  Flags4?: number;
+  MaxCount?: number;
+  ItemLevel?: number;
+  RequiredLevel?: number;
+  [key: string]: any;
+}
+
+let itemCache: Map<number, ItemCacheEntry> | null = null;
+let itemSparseCache: Map<number, ItemSparseCacheEntry> | null = null;
+
+/**
+ * Load item cache from DBCD-generated JSON
+ * @returns True if cache loaded successfully
+ */
+function loadItemCache(): boolean {
+  if (itemCache !== null) {
+    return true; // Already loaded
+  }
+
+  try {
+    if (!fs.existsSync(ITEM_CACHE_PATH)) {
+      console.warn(`Item cache not found at ${ITEM_CACHE_PATH}. Using DB2 parser or database only.`);
+      return false;
+    }
+
+    const cacheData = JSON.parse(fs.readFileSync(ITEM_CACHE_PATH, 'utf8'));
+    itemCache = new Map<number, ItemCacheEntry>();
+
+    for (const [key, value] of Object.entries(cacheData)) {
+      itemCache.set(parseInt(key), value as ItemCacheEntry);
+    }
+
+    console.log(`✅ Loaded item cache: ${itemCache.size} entries`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to load item cache: ${error}`);
+    itemCache = null;
+    return false;
+  }
+}
+
+/**
+ * Load item sparse cache from DBCD-generated JSON
+ * @returns True if cache loaded successfully
+ */
+function loadItemSparseCache(): boolean {
+  if (itemSparseCache !== null) {
+    return true; // Already loaded
+  }
+
+  try {
+    if (!fs.existsSync(ITEM_SPARSE_CACHE_PATH)) {
+      console.warn(`Item sparse cache not found at ${ITEM_SPARSE_CACHE_PATH}. Using DB2 parser or database only.`);
+      return false;
+    }
+
+    const cacheData = JSON.parse(fs.readFileSync(ITEM_SPARSE_CACHE_PATH, 'utf8'));
+    itemSparseCache = new Map<number, ItemSparseCacheEntry>();
+
+    for (const [key, value] of Object.entries(cacheData)) {
+      itemSparseCache.set(parseInt(key), value as ItemSparseCacheEntry);
+    }
+
+    console.log(`✅ Loaded item sparse cache: ${itemSparseCache.size} entries`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to load item sparse cache: ${error}`);
+    itemSparseCache = null;
+    return false;
+  }
+}
+
+/**
+ * Get item data from cache
+ * @param itemId Item ID to query
+ * @returns Item cache entries or null if not found
+ */
+function getItemFromCache(itemId: number): {
+  item: ItemCacheEntry | null;
+  itemSparse: ItemSparseCacheEntry | null;
+} {
+  // Lazy load caches on first access
+  if (itemCache === null) {
+    loadItemCache();
+  }
+  if (itemSparseCache === null) {
+    loadItemSparseCache();
+  }
+
+  const item = itemCache?.get(itemId) || null;
+  const itemSparse = itemSparseCache?.get(itemId) || null;
+
+  return { item, itemSparse };
+}
+
 /**
  * Load item data from Item.db2 + ItemSparse.db2 via cached loaders
  * ItemSchema requires both files for complete item data
@@ -70,10 +188,24 @@ async function loadItemFromDB2(itemId: number): Promise<{
   itemCacheHit: boolean;
   itemSparseCacheHit: boolean;
   loadTime: number;
+  source: "json-cache" | "db2-parser" | "none";
 }> {
   const startTime = Date.now();
 
   try {
+    // PRIORITY 1: Try JSON cache first (100% accurate, extracted via DBCD)
+    const cachedItem = getItemFromCache(itemId);
+    if (cachedItem.item && cachedItem.itemSparse) {
+      return {
+        data: cachedItem,
+        itemCacheHit: true,
+        itemSparseCacheHit: true,
+        loadTime: Date.now() - startTime,
+        source: "json-cache"
+      };
+    }
+
+    // PRIORITY 2: Fall back to DB2 parser
     const itemPath = path.join(DB2_PATH, ITEM_DB2_FILE);
     const itemSparsePath = path.join(DB2_PATH, ITEM_SPARSE_DB2_FILE);
 
@@ -84,6 +216,7 @@ async function loadItemFromDB2(itemId: number): Promise<{
         itemCacheHit: false,
         itemSparseCacheHit: false,
         loadTime: Date.now() - startTime,
+        source: "none"
       };
     }
 
@@ -136,6 +269,7 @@ async function loadItemFromDB2(itemId: number): Promise<{
       itemCacheHit,
       itemSparseCacheHit,
       loadTime: Date.now() - startTime,
+      source: "db2-parser"
     };
   } catch (error) {
     console.error("Error loading item from DB2:", error);
@@ -144,6 +278,7 @@ async function loadItemFromDB2(itemId: number): Promise<{
       itemCacheHit: false,
       itemSparseCacheHit: false,
       loadTime: Date.now() - startTime,
+      source: "none"
     };
   }
 }
@@ -154,24 +289,31 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
     const db2Result = await loadItemFromDB2(itemId);
     const db2Item = db2Result.data;
 
-    // Step 2: Query item_template for database data
-    const query = `
-      SELECT
-        entry as itemId,
-        name,
-        Quality as quality,
-        ItemLevel as itemLevel,
-        RequiredLevel as requiredLevel,
-        class as itemClass,
-        subclass as itemSubClass,
-        InventoryType as inventoryType
-      FROM item_template
-      WHERE entry = ?
-      LIMIT 1
-    `;
+    // Step 2: Query item_template for database data (with error handling)
+    let dbItem = null;
+    try {
+      const query = `
+        SELECT
+          entry as itemId,
+          name,
+          Quality as quality,
+          ItemLevel as itemLevel,
+          RequiredLevel as requiredLevel,
+          class as itemClass,
+          subclass as itemSubClass,
+          InventoryType as inventoryType
+        FROM item_template
+        WHERE entry = ?
+        LIMIT 1
+      `;
 
-    const items = await queryWorld(query, [itemId]);
-    const dbItem = items && items.length > 0 ? items[0] : null;
+      const items = await queryWorld(query, [itemId]);
+      dbItem = items && items.length > 0 ? items[0] : null;
+    } catch (dbError) {
+      console.warn(`Database query failed for item ${itemId}, using DB2 cache only:`,
+        dbError instanceof Error ? dbError.message : String(dbError));
+      // Continue with dbItem = null, will use DB2 cache data
+    }
 
     // Step 3: Determine data source
     let dataSource: "database" | "db2" | "merged" = "database";
@@ -229,14 +371,14 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
 
     return {
       itemId: item.itemId || itemId,
-      name: item.name || db2Item?.itemSparse?.display || db2Item?.itemSparse?.name || "Unknown",
-      quality: getQualityName(item.quality || db2Item?.itemSparse?.overallQualityId || 0),
-      itemLevel: item.itemLevel || db2Item?.itemSparse?.itemLevel || 0,
-      requiredLevel: item.requiredLevel || db2Item?.itemSparse?.requiredLevel || 0,
-      itemClass: getItemClassName(item.itemClass || db2Item?.item?.classId || 0),
-      itemSubClass: (item.itemSubClass || db2Item?.item?.subclassId || 0).toString(),
+      name: item.name || db2Item?.itemSparse?.Display_lang || "Unknown",
+      quality: getQualityName(item.quality || db2Item?.itemSparse?.OverallQualityID || 0),
+      itemLevel: item.itemLevel || db2Item?.itemSparse?.ItemLevel || 0,
+      requiredLevel: item.requiredLevel || db2Item?.itemSparse?.RequiredLevel || 0,
+      itemClass: getItemClassName(item.itemClass || db2Item?.item?.ClassID || 0),
+      itemSubClass: (item.itemSubClass || db2Item?.item?.SubclassID || 0).toString(),
       inventoryType: getInventoryTypeName(
-        item.inventoryType || db2Item?.itemSparse?.inventoryType || 0
+        item.inventoryType || db2Item?.itemSparse?.InventoryType || 0
       ),
       stats,
       bonuses,
@@ -255,6 +397,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
       },
     };
   } catch (error) {
+    console.error(`getItemInfo(${itemId}) failed:`, error instanceof Error ? error.message : String(error));
     return {
       itemId,
       name: "Error",

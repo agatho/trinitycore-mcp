@@ -9,6 +9,7 @@ import {
   DB2SectionHeader,
   DB2ColumnMeta,
   DB2ColumnCompression,
+  DB2FieldEntry,
   parseDB2Header,
   parseDB2SectionHeader,
   isValidDB2Signature,
@@ -16,19 +17,20 @@ import {
 import { IDB2FileSource, DB2FileSystemSource } from './DB2FileSource';
 import { DB2Record } from './DB2Record';
 import { DB2FileLoaderSparse } from './DB2FileLoaderSparse';
-import { DB2IdTable, DB2CopyTable, DB2ParentLookupTable } from './DB2Tables';
+import { DB2IdList, DB2OffsetMap, DB2CopyTable, DB2ParentLookupTable } from './DB2Tables';
+import { DB2SectionManager } from './DB2SectionManager';
 
 export class DB2FileLoader {
   private source: IDB2FileSource | null = null;
   private header: DB2Header | null = null;
   private sections: DB2SectionHeader[] = [];
   private columnMeta: DB2ColumnMeta[] = [];
+  private fieldEntries: DB2FieldEntry[] = []; // TrinityCore-style simple field metadata
   private data: Buffer | null = null;
   private stringTable: Buffer | null = null;
 
-  // Sparse loader support
-  private sparseLoader: DB2FileLoaderSparse | null = null;
-  private idTable: DB2IdTable | null = null;
+  // Multi-section support (WoWDev format)
+  private sectionManager: DB2SectionManager = new DB2SectionManager();
   private copyTable: DB2CopyTable | null = null;
   private parentLookupTable: DB2ParentLookupTable | null = null;
 
@@ -87,26 +89,12 @@ export class DB2FileLoader {
       this.loadColumnMeta(source, this.header.columnMetaSize);
     }
 
-    // Check if this is a sparse file
-    if (this.isSparseFile()) {
-      // Use sparse loader for catalog-based records
-      this.sparseLoader = new DB2FileLoaderSparse(
-        source,
-        this.header,
-        this.sections,
-        this.columnMeta
-      );
-      this.sparseLoader.loadAllCatalogData();
-    } else {
-      // Use regular dense record loading
-      if (this.sections.length > 0) {
-        this.loadSectionData(source, 0);
-      }
-    }
-
-    // Load ID table if present
+    // Load ID list and offset map for ALL sections (WoWDev format)
+    // This handles both sparse and dense files with section manager
     if (this.header.minId !== this.header.maxId) {
-      this.loadIdTable(source);
+      this.loadIdListAndOffsetMap(source);
+    } else {
+      console.warn(`⚠️  File has no ID range (minId == maxId), skipping ID list loading`);
     }
 
     // Load copy table if present
@@ -121,14 +109,13 @@ export class DB2FileLoader {
   /**
    * Load from file path
    * @param filePath Path to DB2 file
+   * NOTE: Keeps file source open for record retrieval
    */
   public loadFromFile(filePath: string): void {
     const source = new DB2FileSystemSource(filePath);
-    try {
-      this.load(source);
-    } finally {
-      source.close();
-    }
+    this.load(source);
+    // DO NOT close source - we need it for getRecord() calls!
+    // The source will be stored in this.source from load()
   }
 
   /**
@@ -163,43 +150,111 @@ export class DB2FileLoader {
   }
 
   /**
-   * Get record by index
-   * @param recordNumber Record index (0-based, across all sections)
+   * Get record by spell ID (WoWDev format with multi-section support)
+   * Uses section manager to find spell across all sections
+   * @param spellId Spell ID to retrieve
    * @returns DB2Record accessor
    */
-  public getRecord(recordNumber: number): DB2Record {
-    // Delegate to sparse loader if present
-    if (this.sparseLoader) {
-      const record = this.sparseLoader.getRecord(recordNumber);
-      if (!record) {
-        throw new Error(`Record ${recordNumber} not found in sparse loader`);
+  public getRecord(spellId: number): DB2Record {
+    // Step 1: Use section manager to find which section contains this spell
+    const mapping = this.sectionManager.findSpellId(spellId);
+    if (!mapping) {
+      throw new Error(`Spell ID ${spellId} not found in any section (searched ${this.sectionManager.getSectionCount()} sections)`);
+    }
+
+    // Step 2: Determine if this is sparse or inline (dense) format
+    const offsetEntry = this.sectionManager.getOffsetMapEntry(spellId);
+
+    let recordOffset: number;
+    let recordSize: number;
+    let isSparse: boolean;
+
+    if (offsetEntry) {
+      // SPARSE FILE: Use offset from catalog
+      recordOffset = offsetEntry.offset;
+      recordSize = offsetEntry.size;
+      isSparse = true;
+    } else {
+      // INLINE/DENSE FILE: Calculate offset from record index
+      // Based on TrinityCore's DB2FileLoaderRegularImpl::GetRawRecordData()
+      // Returns: &_data[recordNumber * _header->RecordSize]
+      const section = this.sections[mapping.sectionIndex];
+      recordOffset = section.fileOffset + (mapping.localIndex * this.header!.recordSize);
+      recordSize = this.header!.recordSize;
+      isSparse = false;
+    }
+
+    // Step 3: Load section's COMBINED buffer (like TrinityCore)
+    // Trinity allocates: _data[RecordSize * RecordCount + StringTableSize]
+    // Then sets: _stringTable = &_data[RecordSize * RecordCount]
+    //
+    // This is CRITICAL for string offset calculation to work correctly!
+    const section = this.sections[mapping.sectionIndex];
+    const recordDataSize = section.recordCount * this.header!.recordSize;
+    const combinedSize = recordDataSize + section.stringTableSize;
+
+    if (!this.source || !this.source.isOpen()) {
+      throw new Error('DB2 file source not available for reading record data');
+    }
+
+    // Seek to section start
+    if (!this.source.setPosition(section.fileOffset)) {
+      throw new Error(`Failed to seek to section ${mapping.sectionIndex} for spell ${spellId}`);
+    }
+
+    // Allocate combined buffer and read entire section
+    const combinedBuffer = Buffer.alloc(combinedSize);
+
+    // Read all records
+    if (!this.source.read(combinedBuffer.subarray(0, recordDataSize), recordDataSize)) {
+      throw new Error(`Failed to read section ${mapping.sectionIndex} records`);
+    }
+
+    // Read string table (immediately after records)
+    if (section.stringTableSize > 0) {
+      if (!this.source.read(combinedBuffer.subarray(recordDataSize, combinedSize), section.stringTableSize)) {
+        throw new Error(`Failed to read section ${mapping.sectionIndex} string table`);
       }
-      return record;
     }
 
-    // Regular dense record loading
-    if (!this.data || !this.stringTable) {
-      throw new Error('DB2 data not loaded');
+    // CRITICAL FIX: Pass FULL buffers to DB2Record, not subarray views!
+    // Trinity's formula assumes 'record' pointer is positioned at record's location in combined buffer.
+    // When we pass a subarray view, the view starts at position 0, breaking the math.
+    // Solution: Pass full combined buffer as both recordData AND stringTable.
+    // DB2Record will use recordIndex to calculate correct positions.
+
+    // Pass the ENTIRE combined buffer as recordData (DB2Record will extract the right record)
+    const recordData = combinedBuffer;
+
+    // Pass the ENTIRE combined buffer as stringTable (DB2Record will calculate string offsets correctly)
+    const stringTable = combinedBuffer;
+
+    // DEBUG: Log section file offset for spell 1
+    if (spellId === 1) {
+      console.log(`\n🔍 DEBUG Spell 1 - Section File Offset:`);
+      console.log(`  section.fileOffset: ${section.fileOffset}`);
+      console.log(`  recordIndex (localIndex): ${mapping.localIndex}`);
+      console.log(`  recordSize: ${this.header!.recordSize}`);
+      console.log(`  recordCount: ${section.recordCount}`);
     }
 
-    const header = this.getHeader();
-
-    // Find which section contains this record
-    let currentRecordIndex = 0;
-    for (let sectionIndex = 0; sectionIndex < this.sections.length; sectionIndex++) {
-      const section = this.sections[sectionIndex];
-      if (recordNumber < currentRecordIndex + section.recordCount) {
-        // Record is in this section
-        const recordInSection = recordNumber - currentRecordIndex;
-        const recordOffset = recordInSection * header.recordSize;
-        const recordData = this.data.subarray(recordOffset, recordOffset + header.recordSize);
-
-        return new DB2Record(recordData, this.stringTable, this.columnMeta, recordNumber);
-      }
-      currentRecordIndex += section.recordCount;
-    }
-
-    throw new Error(`Record ${recordNumber} not found`);
+    // Pass the spellId as the 6th parameter for both sparse and inline files
+    // The ID comes from the ID list/catalog, NOT from the record data
+    // Pass isSparse flag as 7th parameter so getString() knows how to read strings
+    // Pass recordSize, recordCount, and sectionFileOffset for inline files to calculate string offset
+    // DB2Record constructor: (recordData, stringBlock, columnMeta, recordIndex, fieldEntries?, recordId?, isSparseFile?, recordSize?, recordCount?, sectionFileOffset?)
+    return new DB2Record(
+      recordData,
+      stringTable,
+      this.columnMeta,
+      mapping.localIndex,
+      this.fieldEntries,
+      spellId,
+      isSparse,
+      this.header!.recordSize,
+      section.recordCount,
+      section.fileOffset
+    );
   }
 
   /**
@@ -235,7 +290,7 @@ export class DB2FileLoader {
   }
 
   /**
-   * Load column metadata
+   * Load column metadata (TrinityCore format)
    * @param source File source
    * @param size Size of metadata block
    */
@@ -245,43 +300,35 @@ export class DB2FileLoader {
       throw new Error('Failed to read column metadata');
     }
 
-    this.columnMeta = [];
+    this.fieldEntries = [];
+    this.columnMeta = []; // Keep for backward compatibility
     const fieldCount = this.header!.fieldCount;
 
-    // Parse each column's metadata (simplified - actual format is complex)
-    let offset = 0;
-    for (let i = 0; i < fieldCount && offset < size; i++) {
+    // TrinityCore format: 4 bytes per field (int16 unusedBits + uint16 offset)
+    let bufferOffset = 0;
+    for (let i = 0; i < fieldCount && bufferOffset + 4 <= size; i++) {
+      const fieldEntry: DB2FieldEntry = {
+        unusedBits: metaBuffer.readInt16LE(bufferOffset),
+        offset: metaBuffer.readUInt16LE(bufferOffset + 2),
+      };
+      this.fieldEntries.push(fieldEntry);
+      bufferOffset += 4;
+
+      // Create legacy DB2ColumnMeta for backward compatibility
+      const fieldSize = 4 - Math.floor(fieldEntry.unusedBits / 8);
       const meta: DB2ColumnMeta = {
-        bitOffset: metaBuffer.readUInt16LE(offset),
-        bitSize: metaBuffer.readUInt16LE(offset + 2),
-        additionalDataSize: metaBuffer.readUInt32LE(offset + 4),
-        compressionType: metaBuffer.readUInt32LE(offset + 8) as DB2ColumnCompression,
+        bitOffset: fieldEntry.offset * 8,
+        bitSize: fieldSize * 8,
+        additionalDataSize: 0,
+        compressionType: DB2ColumnCompression.None,
         compressionData: {},
       };
-
-      // Read compression-specific data based on type
-      if (meta.compressionType === DB2ColumnCompression.Immediate ||
-          meta.compressionType === DB2ColumnCompression.SignedImmediate) {
-        meta.compressionData.immediate = {
-          bitOffset: metaBuffer.readUInt32LE(offset + 12),
-          bitWidth: metaBuffer.readUInt32LE(offset + 16),
-          signed: meta.compressionType === DB2ColumnCompression.SignedImmediate,
-        };
-      } else if (meta.compressionType === DB2ColumnCompression.CommonData) {
-        meta.compressionData.commonData = {
-          value: metaBuffer.readUInt32LE(offset + 12),
-        };
-      } else if (meta.compressionType === DB2ColumnCompression.Pallet ||
-                 meta.compressionType === DB2ColumnCompression.PalletArray) {
-        meta.compressionData.pallet = {
-          bitOffset: metaBuffer.readUInt32LE(offset + 12),
-          bitWidth: metaBuffer.readUInt32LE(offset + 16),
-          arraySize: metaBuffer.readUInt32LE(offset + 20),
-        };
-      }
-
       this.columnMeta.push(meta);
-      offset += 24; // Size of each column meta entry
+    }
+
+    console.warn(`✅ Loaded ${this.fieldEntries.length} field entries (TrinityCore format)`);
+    if (this.fieldEntries.length > 0) {
+      console.warn(`📊 First field: unusedBits=${this.fieldEntries[0].unusedBits}, offset=${this.fieldEntries[0].offset}`);
     }
   }
 
@@ -299,22 +346,32 @@ export class DB2FileLoader {
       throw new Error(`Failed to seek to section ${sectionIndex}`);
     }
 
-    // Read record data
+    // CRITICAL FIX: Allocate COMBINED buffer like TrinityCore
+    // Trinity: _data = std::make_unique<uint8[]>(RecordSize * RecordCount + StringTableSize + 8);
+    //          _stringTable = &_data[RecordSize * RecordCount];
+    //
+    // This ensures formulas like "record + fieldOffset + stringOffset" work correctly
+    // because the string table is at offset (RecordSize * RecordCount) in the combined buffer
     const recordDataSize = section.recordCount * header.recordSize;
-    this.data = Buffer.alloc(recordDataSize);
-    if (!source.read(this.data, recordDataSize)) {
+    const combinedSize = recordDataSize + section.stringTableSize;
+    const combinedBuffer = Buffer.alloc(combinedSize);
+
+    // Read record data into first part of combined buffer
+    if (!source.read(combinedBuffer.subarray(0, recordDataSize), recordDataSize)) {
       throw new Error(`Failed to read section ${sectionIndex} data`);
     }
 
-    // Read string table
+    // Read string table into second part of combined buffer (immediately after records)
     if (section.stringTableSize > 0) {
-      this.stringTable = Buffer.alloc(section.stringTableSize);
-      if (!source.read(this.stringTable, section.stringTableSize)) {
+      if (!source.read(combinedBuffer.subarray(recordDataSize, combinedSize), section.stringTableSize)) {
         throw new Error(`Failed to read section ${sectionIndex} string table`);
       }
-    } else {
-      this.stringTable = Buffer.alloc(0);
     }
+
+    // Set data and stringTable to point into the combined buffer (like Trinity)
+    // NOTE: this.data contains ALL records, this.stringTable points to offset (recordDataSize) in same buffer
+    this.data = combinedBuffer.subarray(0, recordDataSize);
+    this.stringTable = combinedBuffer.subarray(recordDataSize);
   }
 
   /**
@@ -331,37 +388,119 @@ export class DB2FileLoader {
   }
 
   /**
-   * Load ID table for record ID to index mapping
+   * Load ID list and offset map for ALL sections (WoWDev Wiki format)
+   * ID list: 4 bytes per entry (just the spell ID)
+   * Offset map: 6 bytes per entry (uint32 offset + uint16 size)
    * @param source File source
    */
-  private loadIdTable(source: IDB2FileSource): void {
-    for (const section of this.sections) {
+  private loadIdListAndOffsetMap(source: IDB2FileSource): void {
+    // Clear section manager
+    this.sectionManager.clear();
+
+    console.warn(`\n📂 Loading multi-section DB2 file with ${this.sections.length} sections...`);
+
+    // Load ALL sections (not just the first one!)
+    for (let sectionIdx = 0; sectionIdx < this.sections.length; sectionIdx++) {
+      const section = this.sections[sectionIdx];
+
       if (section.idTableSize === 0) {
+        console.warn(`⚠️  Section ${sectionIdx}: No ID table (idTableSize = 0)`);
         continue;
       }
 
-      // Calculate ID table offset (after string table)
-      const idTableOffset = section.fileOffset +
-                           section.recordCount * this.header!.recordSize +
-                           section.stringTableSize;
+      console.warn(`\n📊 Processing Section ${sectionIdx}:`);
+      console.warn(`   Catalog entries: ${section.catalogDataCount}`);
+      console.warn(`   ID table size: ${section.idTableSize} bytes`);
+      console.warn(`   Record count: ${section.recordCount}`);
 
-      if (!source.setPosition(idTableOffset)) {
-        continue;
+      // CRITICAL FIX: TrinityCore reads catalog data in specific order
+      // Based on DB2FileLoaderSparseImpl::LoadCatalogData() lines 1017-1045
+      // Structure at catalogDataOffset:
+      //   1. Array of spell IDs (uint32 × catalogDataCount) - _catalogIds
+      //   2. Copy table (if copyTableCount > 0)
+      //   3. Array of catalog entries (DB2CatalogEntry × catalogDataCount) - offset + size pairs
+
+      let sectionIdList: DB2IdList | null = null;
+      let sectionOffsetMap: DB2OffsetMap | null = null;
+
+      if (section.catalogDataCount > 0 && section.catalogDataOffset > 0) {
+        // SPARSE FILE: Load catalog IDs and catalog entries from catalogDataOffset
+        console.warn(`   📂 Sparse section - loading ${section.catalogDataCount} catalog entries`);
+
+        if (!source.setPosition(section.catalogDataOffset)) {
+          console.warn(`   ❌ Failed to seek to catalog offset ${section.catalogDataOffset}`);
+          continue;
+        }
+
+        // Step 1: Read catalogIds array (spell IDs) - 4 bytes per entry
+        const catalogIdsSize = section.catalogDataCount * 4;
+        const catalogIdsBuffer = Buffer.alloc(catalogIdsSize);
+
+        if (!source.read(catalogIdsBuffer, catalogIdsSize)) {
+          console.warn(`   ❌ Failed to read ${catalogIdsSize} bytes for catalog IDs`);
+          continue;
+        }
+
+        // Parse catalog IDs into ID list
+        sectionIdList = new DB2IdList();
+        sectionIdList.loadFromBuffer(catalogIdsBuffer, this.header!.minId, this.header!.maxId);
+        console.warn(`   ✅ Loaded ${catalogIdsSize / 4} catalog spell IDs`);
+
+        // Step 2: Skip copy table if present (not needed for now)
+        if (section.copyTableCount > 0) {
+          const copyTableSize = section.copyTableCount * 8; // 8 bytes per entry
+          source.skip(copyTableSize);
+          console.warn(`   ⏭️  Skipped ${copyTableSize} bytes of copy table data`);
+        }
+
+        // Step 3: Read catalog entries array (offset + size pairs) - 6 bytes per entry
+        const catalogEntriesSize = section.catalogDataCount * 6;
+        const catalogEntriesBuffer = Buffer.alloc(catalogEntriesSize);
+
+        if (!source.read(catalogEntriesBuffer, catalogEntriesSize)) {
+          console.warn(`   ❌ Failed to read ${catalogEntriesSize} bytes for catalog entries`);
+          continue;
+        }
+
+        // Parse catalog entries into offset map
+        sectionOffsetMap = new DB2OffsetMap();
+        sectionOffsetMap.loadFromBuffer(catalogEntriesBuffer, section.catalogDataCount);
+        console.warn(`   ✅ Loaded ${section.catalogDataCount} catalog entries (offset+size pairs)`);
+
+      } else if (section.idTableSize > 0) {
+        // DENSE FILE: Load ID list from after records + string table
+        const idListOffset = section.fileOffset +
+                            section.recordCount * this.header!.recordSize +
+                            section.stringTableSize;
+
+        console.warn(`   📁 Dense section - loading ${section.idTableSize} bytes of ID list`);
+
+        if (!source.setPosition(idListOffset)) {
+          console.warn(`   ❌ Failed to seek to ID list offset ${idListOffset}`);
+          continue;
+        }
+
+        const idListBuffer = Buffer.alloc(section.idTableSize);
+        if (!source.read(idListBuffer, section.idTableSize)) {
+          console.warn(`   ❌ Failed to read ${section.idTableSize} bytes for ID list`);
+          continue;
+        }
+
+        sectionIdList = new DB2IdList();
+        sectionIdList.loadFromBuffer(idListBuffer, this.header!.minId, this.header!.maxId);
+        console.warn(`   ✅ Loaded ${section.idTableSize / 4} IDs from dense ID list`);
+
+        // Dense files don't have offset map - records are contiguous
+        sectionOffsetMap = null;
       }
 
-      // Read ID table
-      const idTableBuffer = Buffer.alloc(section.idTableSize);
-      if (!source.read(idTableBuffer, section.idTableSize)) {
-        continue;
-      }
-
-      // Parse ID table
-      if (!this.idTable) {
-        this.idTable = new DB2IdTable();
-      }
-      const entryCount = section.idTableSize / 8; // Each entry is 8 bytes (2x uint32)
-      this.idTable.loadFromBuffer(idTableBuffer, entryCount);
+      // Add section to manager
+      this.sectionManager.addSection(sectionIdx, section.fileOffset, sectionIdList, sectionOffsetMap);
+      console.warn(`   ✅ Section ${sectionIdx} loaded successfully`);
     }
+
+    // Print diagnostics
+    console.warn(this.sectionManager.getDiagnostics());
   }
 
   /**
@@ -438,11 +577,11 @@ export class DB2FileLoader {
   }
 
   /**
-   * Get ID table (if loaded)
-   * @returns ID table or null
+   * Get section manager (contains all sections, ID lists, and offset maps)
+   * @returns Section manager instance
    */
-  public getIdTable(): DB2IdTable | null {
-    return this.idTable;
+  public getSectionManager(): DB2SectionManager {
+    return this.sectionManager;
   }
 
   /**
@@ -462,10 +601,10 @@ export class DB2FileLoader {
   }
 
   /**
-   * Check if file is using sparse loader
-   * @returns True if sparse loader is active
+   * Check if file is using sparse format
+   * @returns True if any section has catalog data
    */
   public isSparse(): boolean {
-    return this.sparseLoader !== null;
+    return this.isSparseFile();
   }
 }

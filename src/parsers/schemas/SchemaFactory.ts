@@ -63,7 +63,7 @@ class SpellSchemaParser implements ISchemaParser<SpellEntry> {
   }
 
   getFileNames(): string[] {
-    return ['Spell.db2'];
+    return ['Spell.db2', 'SpellName.db2'];
   }
 
   getTableHashes(): number[] {
