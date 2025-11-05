@@ -121,13 +121,16 @@ export default function SchemaExplorerPage() {
       });
       const data = await response.json();
 
-      // Mock results for now
-      setQueryResults([
-        { id: 1, name: 'Example Result 1', value: 100 },
-        { id: 2, name: 'Example Result 2', value: 200 },
-      ]);
-    } catch (error) {
+      if (data.error) {
+        alert(`Query Error: ${data.error}`);
+        setQueryResults([]);
+      } else {
+        setQueryResults(data.results || data.rows || []);
+      }
+    } catch (error: any) {
       console.error('Failed to execute query:', error);
+      alert(`Execution Error: ${error.message}`);
+      setQueryResults([]);
     } finally {
       setLoading(false);
     }

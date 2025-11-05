@@ -133,14 +133,13 @@ export default function HomePage() {
       href: "/live-inspector",
       color: "text-emerald-400",
     },
-    // TODO: Map Coordinate Picker - React-Konva compatibility with React 19
-    // {
-    //   name: "Map Coordinate Picker",
-    //   icon: Map,
-    //   description: "Visual map editor for roads & zone transitions",
-    //   href: "/map-picker",
-    //   color: "text-sky-400",
-    // },
+    {
+      name: "Map Coordinate Picker",
+      icon: Map,
+      description: "Visual map editor with HTML5 Canvas",
+      href: "/map-picker",
+      color: "text-sky-400",
+    },
     {
       name: "SAI Editor",
       icon: Workflow,
@@ -148,14 +147,13 @@ export default function HomePage() {
       href: "/sai-editor",
       color: "text-blue-400",
     },
-    // TODO: Quest Chain Visualizer - needs @types/react-cytoscapejs
-    // {
-    //   name: "Quest Chain Visualizer",
-    //   icon: RouteIcon,
-    //   description: "Interactive quest dependency flowcharts",
-    //   href: "/quest-chains",
-    //   color: "text-purple-500",
-    // },
+    {
+      name: "Quest Chain Visualizer",
+      icon: RouteIcon,
+      description: "Interactive quest dependency flowcharts",
+      href: "/quest-chains",
+      color: "text-purple-500",
+    },
     {
       name: "Diff Compare",
       icon: GitCompare,
@@ -282,7 +280,7 @@ export default function HomePage() {
               <div className="text-sm text-slate-400">MCP Tools</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-purple-400">19</div>
+              <div className="text-4xl font-bold text-purple-400">21</div>
               <div className="text-sm text-slate-400">WebUI Pages</div>
             </div>
             <div className="text-center space-y-2">
