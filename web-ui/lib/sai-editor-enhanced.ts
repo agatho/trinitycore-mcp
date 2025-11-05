@@ -1,4 +1,27 @@
 /**
+ * ⚠️ DEPRECATED - DO NOT USE ⚠️
+ *
+ * This file is DEPRECATED and will be removed in a future version.
+ *
+ * Please migrate to the new unified SAI editor:
+ * - Location: @/lib/sai-unified/
+ * - Components: @/components/sai-editor/
+ * - Documentation: /docs/SAI_EDITOR_USER_GUIDE.md
+ * - Migration Guide: Run `npx ts-node scripts/migrate-sai-editor.ts`
+ *
+ * New features in unified editor:
+ * - AI-powered generation (GPT-4, Claude, Ollama, LM Studio)
+ * - Real-time database validation
+ * - Collaborative editing
+ * - 12+ pre-built templates
+ * - Performance optimizations
+ * - Comprehensive testing
+ *
+ * @deprecated Use @/lib/sai-unified/ instead
+ * @see /docs/SAI_EDITOR_USER_GUIDE.md
+ */
+
+/**
  * Enhanced SAI Editor with Advanced Features
  *
  * New Features:
