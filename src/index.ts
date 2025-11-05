@@ -275,13 +275,21 @@ import {
   checkCodeStyle,
   formatCode
 } from "./tools/codestyle.js";
+import {
+  analyzeBotAI,
+  formatAIAnalysisReport
+} from "./tools/botaianalyzer.js";
+import {
+  analyzeBotCombatLog,
+  formatCombatAnalysisReport
+} from "./tools/botcombatloganalyzer.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance
 const server = new Server(
   {
     name: "trinitycore-mcp-server",
-    version: "2.3.0",
+    version: "2.4.0",
   },
   {
     capabilities: {
@@ -2250,6 +2258,77 @@ const TOOLS: Tool[] = [
       required: ["filePath"],
     },
   },
+
+  // PlayerBot Development Tools (2 tools) - NEW in v2.4.0
+  {
+    name: "analyze-bot-ai",
+    description: "Analyze PlayerBot C++ AI code - parse decision trees, detect issues, generate flowcharts. Essential for understanding complex bot logic.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "Path to bot AI C++ file (e.g., PlayerbotWarriorAI.cpp)",
+        },
+        outputFormat: {
+          type: "string",
+          enum: ["json", "markdown", "flowchart"],
+          description: "Output format (default: markdown)",
+        },
+        detectIssues: {
+          type: "boolean",
+          description: "Detect issues like missing cooldown checks (default: true)",
+        },
+        generateOptimizations: {
+          type: "boolean",
+          description: "Generate optimization suggestions (default: true)",
+        },
+      },
+      required: ["filePath"],
+    },
+  },
+  {
+    name: "analyze-bot-combat-log",
+    description: "Analyze bot combat performance from TrinityCore logs - calculate DPS/HPS, detect rotation issues, compare vs theoretical max. Validates AI effectiveness.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        logFile: {
+          type: "string",
+          description: "Path to combat log file",
+        },
+        logText: {
+          type: "string",
+          description: "Combat log text (alternative to logFile)",
+        },
+        botName: {
+          type: "string",
+          description: "Filter to specific bot name",
+        },
+        encounter: {
+          type: "string",
+          description: "Encounter name for report title",
+        },
+        startTime: {
+          type: "number",
+          description: "Start timestamp (ms)",
+        },
+        endTime: {
+          type: "number",
+          description: "End timestamp (ms)",
+        },
+        compareWithTheoretical: {
+          type: "boolean",
+          description: "Compare with theoretical max DPS (default: true)",
+        },
+        outputFormat: {
+          type: "string",
+          enum: ["json", "markdown"],
+          description: "Output format (default: markdown)",
+        },
+      },
+    },
+  },
 ];
 
 // List tools handler
@@ -3464,6 +3543,46 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: JSON.stringify(result, null, 2),
             },
           ],
+        };
+      }
+
+      // PlayerBot Development Tools
+      case "analyze-bot-ai": {
+        const report = await analyzeBotAI({
+          filePath: args.filePath as string,
+          outputFormat: args.outputFormat as "json" | "markdown" | "flowchart" | undefined,
+          detectIssues: args.detectIssues as boolean | undefined,
+          generateOptimizations: args.generateOptimizations as boolean | undefined,
+        });
+
+        const formatted = await formatAIAnalysisReport(
+          report,
+          (args.outputFormat as "json" | "markdown" | "flowchart") || "markdown"
+        );
+
+        return {
+          content: [{ type: "text", text: formatted }],
+        };
+      }
+
+      case "analyze-bot-combat-log": {
+        const report = await analyzeBotCombatLog({
+          logFile: args.logFile as string | undefined,
+          logText: args.logText as string | undefined,
+          botName: args.botName as string | undefined,
+          encounter: args.encounter as string | undefined,
+          startTime: args.startTime as number | undefined,
+          endTime: args.endTime as number | undefined,
+          compareWithTheoretical: args.compareWithTheoretical as boolean | undefined,
+        });
+
+        const formatted = await formatCombatAnalysisReport(
+          report,
+          (args.outputFormat as "json" | "markdown") || "markdown"
+        );
+
+        return {
+          content: [{ type: "text", text: formatted }],
         };
       }
 

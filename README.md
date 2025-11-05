@@ -2,14 +2,14 @@
 
 [![Build](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml)
 [![Code Quality](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml)
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
 [![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![API Docs](https://img.shields.io/badge/API%20Docs-3800%2B%20methods-success.svg)](data/api_docs/general/)
-[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-78%20registered-success.svg)](src/index.ts)
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-80%20registered-success.svg)](src/index.ts)
 
-> Custom Model Context Protocol server providing **78 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
+> Custom Model Context Protocol server providing **80 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
 
 ## 📚 Table of Contents
 
@@ -26,7 +26,7 @@
 
 ## Features
 
-### Core MCP Server (78 Tools)
+### Core MCP Server (80 Tools)
 - **Game Data Queries**: Query spells, items, quests, creatures from World database
 - **DBC/DB2 Reading**: Parse and query client-side database files (WDC5/WDC6 support)
 - **GameTable (GT) Files**: Access critical game calculation tables (combat ratings, XP, stats, scaling)
@@ -209,9 +209,9 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 # Or integrate with Claude Code (see Configuration above)
 ```
 
-## MCP Tools (78 Registered)
+## MCP Tools (80 Registered)
 
-**Total: 78 MCP Tools** across game data, knowledge, performance, testing, code review, development assistance, and production operations categories.
+**Total: 80 MCP Tools** across game data, knowledge, performance, testing, code review, development assistance, production operations, and PlayerBot development categories.
 
 ### Quick Tool Reference
 
@@ -402,6 +402,29 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 - File organization checks
 - Auto-fix capabilities
 - 60% faster code review
+
+#### PlayerBot Development Tools (2 tools) - NEW in v2.4.0
+- `analyze-bot-ai` - Analyze PlayerBot C++ AI code and visualize decision logic
+- `analyze-bot-combat-log` - Analyze bot combat performance from server logs
+
+**Bot AI Analyzer Features:**
+- Parse C++ decision trees (if/else, switch statements)
+- Extract action priorities
+- Detect issues (missing cooldown checks, unreachable code, null pointer risks)
+- Generate Mermaid flowcharts of AI logic
+- Suggest optimizations (reorder priorities, combine conditions)
+- Analyze 700+ lines of bot AI in seconds
+
+**Combat Log Analyzer Features:**
+- Calculate DPS/HPS/TPS metrics
+- Analyze ability usage and rotation quality
+- Compare vs theoretical maximum DPS
+- Detect missed opportunities (unused cooldowns, wasted procs)
+- Identify suboptimal decisions
+- Reaction time analysis (avg, p50, p95, p99)
+- Group performance metrics
+- Timeline visualization
+- Actionable recommendations
 
 ## Web UI
 
@@ -742,9 +765,9 @@ GPL-2.0 (same as TrinityCore)
 
 ---
 
-**Version**: 2.3.0
+**Version**: 2.4.0
 **Status**: ✅ Production Ready
-**MCP Tools**: 78 registered tools
+**MCP Tools**: 80 registered tools
 **Last Updated**: 2025-11-05
 
 Generated with [Claude Code](https://claude.com/claude-code)
