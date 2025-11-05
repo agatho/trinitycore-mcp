@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { useMCPTools, useMCPTool } from "@/hooks/useMCP";
-import { MCPTool } from "@/lib/mcp/client";
+import { MCPTool } from "@/lib/mcp/types";
 import { ToolSelector } from "./components/ToolSelector";
 import { ParameterForm } from "./components/ParameterForm";
 import { ResponseViewer } from "./components/ResponseViewer";

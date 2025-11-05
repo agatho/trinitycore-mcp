@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Search, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MCPTool, MCPToolCategory } from "@/lib/mcp/client";
+import { MCPTool, MCPToolCategory } from "@/lib/mcp/types";
 import { Badge } from "@/components/ui/badge";
 
 interface ToolSelectorProps {
