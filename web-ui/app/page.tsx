@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode } from "lucide-react";
+import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode, Table, TrendingUp, Terminal, FileText, GitBranch, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,6 +83,55 @@ export default function HomePage() {
       description: "AI-powered code analysis (1020 rules)",
       href: "/code-review",
       color: "text-indigo-400",
+    },
+    {
+      name: "Schema Explorer",
+      icon: Table,
+      description: "Visual database explorer & query builder",
+      href: "/schema-explorer",
+      color: "text-cyan-400",
+    },
+    {
+      name: "Performance Profiler",
+      icon: TrendingUp,
+      description: "Query optimization & bottleneck detection",
+      href: "/profiler",
+      color: "text-pink-400",
+    },
+    {
+      name: "Workflow Automation",
+      icon: Terminal,
+      description: "Automate development tasks & code gen",
+      href: "/workflow",
+      color: "text-lime-400",
+    },
+    {
+      name: "Diff & Merge",
+      icon: GitCompare,
+      description: "Database schema comparison & merging",
+      href: "/diff-merge",
+      color: "text-amber-400",
+    },
+    {
+      name: "Docs Generator",
+      icon: FileText,
+      description: "Auto-generate schema documentation",
+      href: "/docs-generator",
+      color: "text-teal-400",
+    },
+    {
+      name: "Migration Manager",
+      icon: GitBranch,
+      description: "Database version control & migrations",
+      href: "/migrations",
+      color: "text-violet-400",
+    },
+    {
+      name: "Live Inspector",
+      icon: Eye,
+      description: "Real-time server data monitoring",
+      href: "/live-inspector",
+      color: "text-emerald-400",
     },
   ];
 
@@ -203,7 +252,7 @@ export default function HomePage() {
               <div className="text-sm text-slate-400">MCP Tools</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-purple-400">10</div>
+              <div className="text-4xl font-bold text-purple-400">17</div>
               <div className="text-sm text-slate-400">WebUI Pages</div>
             </div>
             <div className="text-center space-y-2">
@@ -232,7 +281,7 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              TrinityCore MCP Server v2.5.0
+              TrinityCore MCP Server v2.6.0
             </a>
           </p>
         </div>

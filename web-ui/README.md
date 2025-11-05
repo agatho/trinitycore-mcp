@@ -1,14 +1,14 @@
-# TrinityCore API Explorer - MCP-Enhanced Frontend v2.5.0
+# TrinityCore API Explorer - MCP-Enhanced Frontend v2.6.0
 
-> Enterprise-grade web interface for TrinityCore with live MCP integration, real-time database access, interactive API playground, analytics dashboards, AI-powered code review, and PlayerBot development tools.
+> Enterprise-grade web interface for TrinityCore with live MCP integration, real-time database access, interactive API playground, analytics dashboards, AI-powered code review, schema explorer, performance profiler, workflow automation, and complete developer tooling.
 
-[![Version](https://img.shields.io/badge/Version-2.5.0-brightgreen)](https://github.com/agatho/trinitycore-mcp)
+[![Version](https://img.shields.io/badge/Version-2.6.0-brightgreen)](https://github.com/agatho/trinitycore-mcp)
 [![Next.js](https://img.shields.io/badge/Next.js-16.0.1-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.0-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue)](https://www.typescriptlang.org/)
 [![MCP](https://img.shields.io/badge/MCP-Integrated-green)](https://github.com/agatho/trinitycore-mcp)
 [![Tools](https://img.shields.io/badge/MCP_Tools-80-purple)](https://github.com/agatho/trinitycore-mcp)
-[![Pages](https://img.shields.io/badge/Pages-10-orange)](https://github.com/agatho/trinitycore-mcp)
+[![Pages](https://img.shields.io/badge/Pages-17-orange)](https://github.com/agatho/trinitycore-mcp)
 
 ---
 
@@ -18,13 +18,20 @@ This is the **MCP-enhanced web frontend** for the TrinityCore MCP Server. It pro
 
 - **Live Database Access** - Real-time TrinityCore data via MCP protocol
 - **80 MCP Tools** - Direct access to all TrinityCore MCP tools (v2.4.0)
-- **10 Interactive Pages** - Comprehensive web interface for all development needs
+- **17 Interactive Pages** - Complete developer tooling ecosystem
 - **Interactive Playground** - Test and explore API methods
 - **Analytics Dashboard** - Interactive data visualizations with charts and graphs
 - **Comparison Tool** - Side-by-side batch comparison of items, spells, creatures
 - **AI Code Review** - 1,020 TrinityCore-specific rules for C++ code analysis
 - **PlayerBot AI Visualizer** - Analyze and visualize bot behavior with Mermaid flowcharts
 - **Server Monitoring** - Real-time health & performance metrics
+- **Database Schema Explorer** - Visual database exploration with ER diagrams & query builder
+- **Performance Profiler** - Query optimization, slow query analysis, N+1 detection
+- **Workflow Automation** - Automate dev tasks, code generation, server management
+- **Diff & Merge Tool** - Database schema comparison and merging
+- **Documentation Generator** - Auto-generate schema documentation
+- **Migration Manager** - Database version control and migrations
+- **Live Data Inspector** - Real-time server data monitoring (REST API)
 - **Data Export** - Export to CSV, Excel, JSON, PDF, XML formats
 - **Advanced Search** - Fuzzy search with Fuse.js, multi-criteria filtering
 - **Comprehensive Docs** - Complete reference for 3,812 API methods
