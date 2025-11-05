@@ -385,13 +385,8 @@ export class ClaudeProvider implements AIProvider {
     const startTime = Date.now();
 
     try {
-      // Handle Claude Code Max subscription (no API key)
+      // Try Claude Code Max subscription first (if enabled)
       if (this.config.useClaudeCodeMax) {
-        // When using Claude Code Max, attempt to use the backend integration
-        // NOTE: This requires a backend server that integrates with Claude Code API
-        // For direct browser usage, users should use Method 2 (API key)
-
-        // Try to call a local backend endpoint that has Claude Code integration
         const backendUrl = this.config.apiUrl || 'http://localhost:3001/api/claude-generate';
 
         try {
@@ -411,36 +406,54 @@ export class ClaudeProvider implements AIProvider {
             }),
           });
 
-          if (!response.ok) {
-            throw new Error('Backend server not available');
+          if (response.ok) {
+            const data = await response.json();
+            const content = data.content[0].text;
+            const script = this.parseScriptFromResponse(content);
+
+            return {
+              success: true,
+              script,
+              confidence: 0.95,
+              tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
+              generationTime: Date.now() - startTime,
+              provider: 'Claude Code Max',
+            };
           }
 
-          const data = await response.json();
-          const content = data.content[0].text;
-          const script = this.parseScriptFromResponse(content);
-
-          return {
-            success: true,
-            script,
-            confidence: 0.95,
-            tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
-            generationTime: Date.now() - startTime,
-          };
+          // Backend not available, fall through to API key method
+          console.log('Claude Code Max backend not available, falling back to API key method...');
         } catch (backendError) {
+          // Backend error, fall through to API key method
+          console.log('Claude Code Max backend error:', backendError, '- falling back to API key method...');
+        }
+
+        // If we have an API key as backup, fall through to use it
+        if (!this.config.apiKey) {
           return {
             success: false,
-            error: 'Claude Code Max integration requires a backend server. Please either: (1) Set up a backend server at http://localhost:3001/api/claude-generate that integrates with Claude Code API, or (2) Uncheck "I have Claude Code with Max subscription" and use your own Anthropic API key.',
+            error: 'Claude Code Max backend is not available and no API key is configured. Please either: (1) Set up a backend server at http://localhost:3001/api/claude-generate, or (2) Add your Anthropic API key as a backup.',
             generationTime: Date.now() - startTime,
           };
         }
+
+        // Continue to API key method below...
       }
 
-      // Standard Anthropic API (Method 2)
+      // Standard Anthropic API (Method 2 or fallback from Method 1)
+      if (!this.config.apiKey) {
+        return {
+          success: false,
+          error: 'No Anthropic API key provided. Please configure your API key in Settings.',
+          generationTime: Date.now() - startTime,
+        };
+      }
+
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': this.config.apiKey || '',
+          'x-api-key': this.config.apiKey,
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({

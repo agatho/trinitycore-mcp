@@ -459,20 +459,19 @@ export const AIGenerationPanel: React.FC<AIGenerationPanelProps> = ({
             {(provider === 'openai' || provider === 'claude') && (
               <div className="space-y-2">
                 <Label htmlFor="apiKey">
-                  API Key {provider === 'claude' && useClaudeCodeMax && '(Optional)'}
+                  API Key {provider === 'claude' && useClaudeCodeMax && '(Optional Backup)'}
                 </Label>
                 <Input
                   id="apiKey"
                   type="password"
-                  placeholder={`Enter your ${provider.toUpperCase()} API key`}
+                  placeholder={`Enter your ${provider.toUpperCase()} API key${provider === 'claude' && useClaudeCodeMax ? ' (optional backup)' : ''}`}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  disabled={provider === 'claude' && useClaudeCodeMax}
                 />
                 <p className="text-xs text-gray-500">
                   {provider === 'openai' && 'Get your API key from platform.openai.com'}
                   {provider === 'claude' && !useClaudeCodeMax && 'Get your API key from console.anthropic.com'}
-                  {provider === 'claude' && useClaudeCodeMax && 'Using Claude Code subscription - no API key needed'}
+                  {provider === 'claude' && useClaudeCodeMax && 'Optional: Add API key as fallback if Claude Code Max backend is unavailable'}
                 </p>
 
                 {provider === 'claude' && (
@@ -485,14 +484,14 @@ export const AIGenerationPanel: React.FC<AIGenerationPanelProps> = ({
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <Label htmlFor="useClaudeCodeMax" className="text-sm font-normal cursor-pointer">
-                      I have Claude Code with Max subscription
+                      I have Claude Code with Max subscription (try first)
                     </Label>
                   </div>
                 )}
                 {provider === 'claude' && useClaudeCodeMax && (
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg p-3">
                     <p className="text-xs text-blue-800 dark:text-blue-200">
-                      ℹ️ Claude Code Max includes Claude 3 Opus access. Your subscription will be used for generation requests.
+                      ℹ️ Will try Claude Code Max first, then fall back to API key if needed. Configure both for maximum reliability!
                     </p>
                   </div>
                 )}

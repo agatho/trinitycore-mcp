@@ -48,23 +48,41 @@ The TrinityCore SAI Unified Editor supports **4 AI providers** for intelligent s
 
 **Best for:** Complex reasoning, long context windows, safety
 
-**Setup Method 1: Claude Code Max Subscription (No API Key Required)**
+**Setup Method 1: Claude Code Max Subscription with API Key Fallback (Recommended)**
 
-If you have **Claude Code with Max subscription**, you can use Claude without a separate API key:
+If you have **Claude Code with Max subscription**, use this dual-method approach for maximum reliability:
+
+1. In SAI Editor → AI tab → Settings
+2. Select "Claude" as provider
+3. **Check** "I have Claude Code with Max subscription (try first)"
+4. **Also enter your Anthropic API key** as a backup
+5. Choose model (Claude 3 Opus recommended)
+6. Save configuration
+
+**How it works:**
+- ✅ Tries Claude Code Max backend first (FREE)
+- ✅ Automatically falls back to API key if backend unavailable
+- ✅ Maximum reliability - no single point of failure
+- ✅ Best of both worlds!
+
+**This method is ideal when:**
+- You have Claude Code Max subscription
+- You want to use it when available (free)
+- You want reliability if backend is down (API key fallback)
+- You're willing to pay for API usage as backup only
+
+**Setup Method 1a: Claude Code Max Only (No API Key)**
+
+If you only want to use Claude Code Max without an API key backup:
 
 1. In SAI Editor → AI tab → Settings
 2. Select "Claude" as provider
 3. **Check** "I have Claude Code with Max subscription"
-4. Choose model (Claude 3 Opus recommended)
-5. Save configuration
+4. Leave API key empty
+5. Choose model (Claude 3 Opus recommended)
+6. Save configuration
 
-**This method is:**
-- ✅ FREE if you have Claude Code Max
-- ✅ No separate API key needed
-- ✅ Direct integration with your subscription
-- ✅ Includes Claude 3 Opus (highest quality)
-
-**Note:** For web UI usage, this requires a backend server that integrates with the Claude Code API. The backend should listen at `http://localhost:3001/api/claude-generate`. If you're running the editor directly in the browser without a backend, use Method 2 (API key) instead.
+**Note:** This requires a backend server at `http://localhost:3001/api/claude-generate` that integrates with Claude Code API. Without the backend and without an API key, generation will fail.
 
 **Setup Method 2: Anthropic API Key (Standard)**
 
@@ -85,7 +103,18 @@ If you want to use your own Anthropic API account:
 
 **Cost (Method 2 only):** Varies by model (~$0.015 per 1K tokens for Opus)
 
-**Example Configuration (Method 1 - Claude Code Max):**
+**Example Configuration (Method 1 - Dual Setup with Fallback):**
+```json
+{
+  "provider": "claude",
+  "useClaudeCodeMax": true,
+  "apiKey": "sk-ant-...your-key...",
+  "model": "claude-3-opus-20240229",
+  "temperature": 0.7
+}
+```
+
+**Example Configuration (Method 1a - Claude Code Max Only):**
 ```json
 {
   "provider": "claude",
@@ -95,7 +124,7 @@ If you want to use your own Anthropic API account:
 }
 ```
 
-**Example Configuration (Method 2 - API Key):**
+**Example Configuration (Method 2 - API Key Only):**
 ```json
 {
   "provider": "claude",
