@@ -18,14 +18,16 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   SAIScript,
-  SAI_EVENT_TYPES,
-  SAI_ACTION_TYPES,
-  SAI_TARGET_TYPES,
   SAI_TEMPLATES,
   generateSAISQL,
   validateSAIScript,
   formatSAIScript,
 } from '@/lib/sai-editor';
+import {
+  SAI_EVENT_TYPES_COMPLETE,
+  SAI_ACTION_TYPES_COMPLETE,
+  SAI_TARGET_TYPES_COMPLETE,
+} from '@/lib/sai-editor-complete';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -49,18 +51,18 @@ export default function SAIEditorPage() {
       data: {
         label: (
           <div className="p-2">
-            <div className="font-bold">Event</div>
-            <select className="mt-2 bg-slate-700 text-white text-sm p-1 rounded">
-              {SAI_EVENT_TYPES.map(type => (
+            <div className="font-bold text-xs">Event</div>
+            <select className="mt-1 bg-slate-700 text-white text-xs p-1 rounded w-full">
+              {SAI_EVENT_TYPES_COMPLETE.map(type => (
                 <option key={type.id} value={type.id}>
-                  {type.label}
+                  [{type.id}] {type.label}
                 </option>
               ))}
             </select>
           </div>
         ),
       },
-      style: { background: '#3b82f6', color: 'white', border: '2px solid #60a5fa', width: 200 },
+      style: { background: '#3b82f6', color: 'white', border: '2px solid #60a5fa', width: 220 },
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -73,18 +75,18 @@ export default function SAIEditorPage() {
       data: {
         label: (
           <div className="p-2">
-            <div className="font-bold">Action</div>
-            <select className="mt-2 bg-slate-700 text-white text-sm p-1 rounded">
-              {SAI_ACTION_TYPES.map(type => (
+            <div className="font-bold text-xs">Action</div>
+            <select className="mt-1 bg-slate-700 text-white text-xs p-1 rounded w-full">
+              {SAI_ACTION_TYPES_COMPLETE.map(type => (
                 <option key={type.id} value={type.id}>
-                  {type.label}
+                  [{type.id}] {type.label}
                 </option>
               ))}
             </select>
           </div>
         ),
       },
-      style: { background: '#10b981', color: 'white', border: '2px solid #34d399', width: 200 },
+      style: { background: '#10b981', color: 'white', border: '2px solid #34d399', width: 220 },
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -97,18 +99,18 @@ export default function SAIEditorPage() {
       data: {
         label: (
           <div className="p-2">
-            <div className="font-bold">Target</div>
-            <select className="mt-2 bg-slate-700 text-white text-sm p-1 rounded">
-              {SAI_TARGET_TYPES.map(type => (
+            <div className="font-bold text-xs">Target</div>
+            <select className="mt-1 bg-slate-700 text-white text-xs p-1 rounded w-full">
+              {SAI_TARGET_TYPES_COMPLETE.map(type => (
                 <option key={type.id} value={type.id}>
-                  {type.label}
+                  [{type.id}] {type.label}
                 </option>
               ))}
             </select>
           </div>
         ),
       },
-      style: { background: '#f59e0b', color: 'white', border: '2px solid #fbbf24', width: 200 },
+      style: { background: '#f59e0b', color: 'white', border: '2px solid #fbbf24', width: 220 },
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -229,7 +231,7 @@ export default function SAIEditorPage() {
               <Zap className="w-8 h-8 text-blue-400" />
               <div>
                 <h1 className="text-3xl font-bold text-white">Visual SAI Editor</h1>
-                <p className="text-slate-400">Drag-and-drop Smart AI script builder</p>
+                <p className="text-slate-400">Drag-and-drop Smart AI script builder with all 91 events, 160 actions, 31 targets</p>
               </div>
             </div>
             <div className="flex gap-2">
