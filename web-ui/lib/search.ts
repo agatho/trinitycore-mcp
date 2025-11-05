@@ -3,7 +3,7 @@
  * Supports fuzzy search, multi-criteria filtering, and autocomplete
  */
 
-import Fuse from 'fuse.js';
+import Fuse, { IFuseOptions } from 'fuse.js';
 
 export interface SearchOptions<T> {
   keys: string[];
@@ -22,7 +22,7 @@ export interface FilterCriteria {
 export interface SearchResult<T> {
   item: T;
   score?: number;
-  matches?: any[];
+  matches?: readonly any[];
 }
 
 /**
@@ -33,7 +33,7 @@ export function fuzzySearch<T>(
   query: string,
   options: SearchOptions<T>
 ): SearchResult<T>[] {
-  const fuseOptions: Fuse.IFuseOptions<T> = {
+  const fuseOptions: IFuseOptions<T> = {
     keys: options.keys,
     threshold: options.threshold ?? 0.4,
     includeScore: options.includeScore ?? true,
