@@ -97,7 +97,7 @@ export default function SpellsPage() {
                   Spell Browser
                 </h1>
                 <p className="text-xl text-slate-300 mt-2">
-                  Explore <span className="text-purple-400 font-semibold">45,000+ spells</span> from World of Warcraft
+                  Explore <span className="text-purple-400 font-semibold">4,400+ server-side spells</span> from TrinityCore
                 </p>
               </div>
             </div>
@@ -126,33 +126,37 @@ export default function SpellsPage() {
             </form>
 
             <div className="mt-3 text-sm text-slate-400">
-              <p>💡 Tip: Enter a spell ID to view spell details. Popular spell IDs:</p>
+              <p>💡 Tip: Enter a spell ID to view spell details. Server-side spell examples:</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 <button
-                  onClick={() => setSearchQuery("133")}
+                  onClick={() => setSearchQuery("482")}
                   className="px-3 py-1 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors"
                 >
-                  133 - Fireball
+                  482 - Reset
                 </button>
                 <button
-                  onClick={() => setSearchQuery("2136")}
+                  onClick={() => setSearchQuery("794")}
                   className="px-3 py-1 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors"
                 >
-                  2136 - Fire Blast
+                  794 - Initialize Images
                 </button>
                 <button
-                  onClick={() => setSearchQuery("8326")}
+                  onClick={() => setSearchQuery("1177")}
                   className="px-3 py-1 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors"
                 >
-                  8326 - Ghost
+                  1177 - Twin Empathy
                 </button>
                 <button
-                  onClick={() => setSearchQuery("20473")}
+                  onClick={() => setSearchQuery("4051")}
                   className="px-3 py-1 bg-slate-700/50 hover:bg-slate-600 rounded text-slate-300 transition-colors"
                 >
-                  20473 - Holy Shock
+                  4051 - Explosive Sheep Passive
                 </button>
               </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Note: Regular player spells (Fireball, Fire Blast, etc.) are stored in client DB2 files and loaded by TrinityCore at runtime.
+                The database only contains server-side mechanic spells.
+              </p>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest',
   },
   moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',  // Strip .js extensions for TypeScript resolution
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   globals: {
@@ -22,4 +23,5 @@ module.exports = {
       },
     },
   },
+  extensionsToTreatAsEsm: ['.ts'],
 };

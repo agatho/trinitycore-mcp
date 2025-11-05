@@ -5,12 +5,21 @@
  */
 
 /**
- * ID Table Entry
- * Maps record IDs to record indices for sparse files
+ * ID List Entry (WoWDev Wiki Format)
+ * Simple array of spell IDs (4 bytes each)
+ * Position in array = index, value = spell ID
  */
-export interface DB2IdTableEntry {
-  recordId: number; // uint32 - Actual record ID
-  recordIndex: number; // uint32 - Index in record array
+export interface DB2IdListEntry {
+  id: number; // uint32 - Record ID only
+}
+
+/**
+ * Offset Map Entry (WoWDev Wiki Format)
+ * Maps ID indices to file offsets for sparse files
+ */
+export interface DB2OffsetMapEntry {
+  offset: number; // uint32 - Absolute file position
+  size: number;   // uint16 - Record size in bytes
 }
 
 /**
@@ -32,49 +41,86 @@ export interface DB2ParentLookupEntry {
 }
 
 /**
- * ID Table Manager
- * Manages mapping between record IDs and indices
+ * ID List Manager (Correct WoWDev Format)
+ * Simple array where position = index, value = spell ID
+ * Use offset_map to get file positions
  */
-export class DB2IdTable {
-  private entries: Map<number, number>; // recordId -> recordIndex
+export class DB2IdList {
+  private ids: number[] = []; // Array index = record index, value = spell ID
+  private minId: number = 0;
+  private maxId: number = 0;
 
-  constructor() {
-    this.entries = new Map();
-  }
+  constructor() {}
 
   /**
-   * Add ID table entry
-   * @param recordId Record ID
-   * @param recordIndex Record index
+   * Load ID list from buffer (4 bytes per entry)
+   * @param buffer Buffer containing ID list data (uint32 array)
+   * @param minId Minimum ID from header
+   * @param maxId Maximum ID from header
    */
-  public add(recordId: number, recordIndex: number): void {
-    this.entries.set(recordId, recordIndex);
+  public loadFromBuffer(buffer: Buffer, minId: number, maxId: number): void {
+    this.minId = minId;
+    this.maxId = maxId;
+    this.ids = [];
+
+    const count = Math.floor(buffer.length / 4);
+    let offset = 0;
+
+    for (let i = 0; i < count; i++) {
+      if (offset + 4 > buffer.length) {
+        console.warn(`ID list buffer overflow at entry ${i}/${count}`);
+        break;
+      }
+
+      const id = buffer.readUInt32LE(offset);
+      this.ids.push(id);
+      offset += 4;
+    }
+
+    console.warn(`✅ ID list loaded ${this.ids.length} entries (minId: ${minId}, maxId: ${maxId})`);
+    if (this.ids.length > 0) {
+      console.warn(`📊 First 10 IDs: ${this.ids.slice(0, Math.min(10, this.ids.length)).join(', ')}`);
+    }
   }
 
   /**
-   * Get record index by ID
-   * @param recordId Record ID to look up
-   * @returns Record index or null if not found
+   * Get index for a spell ID using minId offset
+   * @param spellId Spell ID to look up
+   * @returns Array index or null if out of range
    */
-  public getRecordIndex(recordId: number): number | null {
-    return this.entries.get(recordId) ?? null;
+  public getIndexForId(spellId: number): number | null {
+    const index = spellId - this.minId;
+
+    if (index < 0 || index >= this.ids.length) {
+      return null;
+    }
+
+    // Verify the ID at that position matches
+    if (this.ids[index] !== spellId) {
+      return null;
+    }
+
+    return index;
   }
 
   /**
-   * Check if ID exists
-   * @param recordId Record ID
-   * @returns True if ID exists in table
+   * Get spell ID at index
+   * @param index Array index
+   * @returns Spell ID or null if out of bounds
    */
-  public has(recordId: number): boolean {
-    return this.entries.has(recordId);
+  public getIdAtIndex(index: number): number | null {
+    if (index < 0 || index >= this.ids.length) {
+      return null;
+    }
+    return this.ids[index];
   }
 
   /**
-   * Get all record IDs
-   * @returns Array of all record IDs
+   * Get all IDs
+   * @returns Array of all spell IDs
    */
   public getAllIds(): number[] {
-    return Array.from(this.entries.keys()).sort((a, b) => a - b);
+    return [...this.ids];
   }
 
   /**
@@ -82,31 +128,91 @@ export class DB2IdTable {
    * @returns Number of entries
    */
   public getSize(): number {
-    return this.entries.size;
+    return this.ids.length;
   }
 
   /**
    * Clear all entries
    */
   public clear(): void {
-    this.entries.clear();
+    this.ids = [];
   }
+}
+
+/**
+ * Offset Map Manager (for sparse files)
+ * Maps array indices to file offsets
+ */
+export class DB2OffsetMap {
+  private entries: DB2OffsetMapEntry[] = [];
+
+  constructor() {}
 
   /**
-   * Load ID table from buffer
-   * @param buffer Buffer containing ID table data
-   * @param count Number of entries to read
+   * Load offset map from buffer (6 bytes per entry)
+   * @param buffer Buffer containing offset map data
+   * @param count Number of entries
    */
   public loadFromBuffer(buffer: Buffer, count: number): void {
+    this.entries = [];
     let offset = 0;
 
     for (let i = 0; i < count; i++) {
-      const recordId = buffer.readUInt32LE(offset);
-      const recordIndex = buffer.readUInt32LE(offset + 4);
+      if (offset + 6 > buffer.length) {
+        console.warn(`Offset map buffer overflow at entry ${i}/${count}`);
+        break;
+      }
 
-      this.add(recordId, recordIndex);
-      offset += 8;
+      const fileOffset = buffer.readUInt32LE(offset);
+      const recordSize = buffer.readUInt16LE(offset + 4);
+
+      this.entries.push({
+        offset: fileOffset,
+        size: recordSize,
+      });
+
+      offset += 6;
     }
+
+    console.warn(`✅ Offset map loaded ${this.entries.length} entries`);
+    if (this.entries.length > 0) {
+      console.warn(`📊 First entry: offset=${this.entries[0].offset}, size=${this.entries[0].size}`);
+    }
+  }
+
+  /**
+   * Get offset map entry at index
+   * @param index Array index
+   * @returns Offset map entry or null if out of bounds or offset is 0
+   */
+  public getEntry(index: number): DB2OffsetMapEntry | null {
+    if (index < 0 || index >= this.entries.length) {
+      return null;
+    }
+
+    const entry = this.entries[index];
+
+    // Offset of 0 means no data for this ID
+    if (entry.offset === 0) {
+      return null;
+    }
+
+    return entry;
+  }
+
+  /**
+   * Get total entries
+   * @returns Number of entries
+   */
+  public getSize(): number {
+    return this.entries.length;
+  }
+
+  /**
+   * Clear all entries
+   */
+  public clear(): void {
+    this.entries = [];
   }
 }
 

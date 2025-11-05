@@ -14,6 +14,7 @@ export interface IDB2FileSource {
   read(buffer: Buffer, numBytes: number): boolean;
   getPosition(): number;
   setPosition(position: number): boolean;
+  skip(numBytes: number): boolean;
   getFileSize(): number;
   getFileName(): string;
 }
@@ -111,6 +112,16 @@ export class DB2FileSystemSource implements IDB2FileSource {
   }
 
   /**
+   * Skip bytes (advance position without reading)
+   * @param numBytes Number of bytes to skip
+   * @returns True if skip successful
+   */
+  public skip(numBytes: number): boolean {
+    const newPosition = this.position + numBytes;
+    return this.setPosition(newPosition);
+  }
+
+  /**
    * Get total file size
    * @returns File size in bytes
    */
@@ -183,6 +194,11 @@ export class DB2MemorySource implements IDB2FileSource {
 
     this.position = position;
     return true;
+  }
+
+  public skip(numBytes: number): boolean {
+    const newPosition = this.position + numBytes;
+    return this.setPosition(newPosition);
   }
 
   public getFileSize(): number {

@@ -11,6 +11,7 @@
  * - Support incremental analysis for IDE integration
  */
 
+import * as fs from 'fs/promises';
 import type {
   AST,
   ASTNode,
@@ -324,18 +325,28 @@ export class CodeAnalysisEngine {
     // Determine language from file extension
     const language = this.detectLanguage(filepath);
 
+    // Read file content for AST root.raw (CRITICAL: Rules need this!)
+    let fileContent = '';
+    let lineCount = 1;
+    try {
+      fileContent = await fs.readFile(filepath, 'utf-8');
+      lineCount = fileContent.split('\n').length;
+    } catch (error) {
+      console.error(`Failed to read file ${filepath}:`, error);
+    }
+
     // Build symbol table from Serena symbols
     const symbolTable = await this.buildSymbolTable(overview.symbols, filepath, includeBody, depth);
 
-    // Create root AST node (placeholder for now)
+    // Create root AST node with actual file content
     const root: ASTNode = {
       type: 'TranslationUnit',
       file: filepath,
       line: 1,
       column: 1,
-      endLine: 1000, // Placeholder
+      endLine: lineCount,
       endColumn: 1,
-      raw: '',
+      raw: fileContent, // CRITICAL: Rules need this to analyze code!
       children: [],
     };
 
@@ -822,6 +833,97 @@ export class CodeAnalysisEngine {
 }
 
 // ============================================================================
+// FALLBACK FILE PARSER (when Serena unavailable)
+// ============================================================================
+
+/**
+ * Simple regex-based C++ parser for when Serena is unavailable
+ * Extracts namespaces, classes, functions, and POINTER VARIABLES
+ */
+async function parseFileWithFallback(filepath: string): Promise<SerenaFileOverview> {
+  try {
+    const content = await fs.readFile(filepath, 'utf-8');
+    const symbols: SerenaSymbol[] = [];
+    const lines = content.split('\n');
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Extract namespace declarations
+      const namespaceMatch = line.match(/namespace\s+(\w+)/);
+      if (namespaceMatch) {
+        symbols.push({
+          name: namespaceMatch[1],
+          name_path: namespaceMatch[1],
+          relative_path: filepath,
+          kind: LSPSymbolKind.Namespace,
+          line: i + 1,
+          column: 0,
+        });
+      }
+
+      // Extract class/struct declarations
+      const classMatch = line.match(/(?:class|struct)\s+(?:\w+\s+)?(\w+)/);
+      if (classMatch) {
+        symbols.push({
+          name: classMatch[1],
+          name_path: classMatch[1],
+          relative_path: filepath,
+          kind: LSPSymbolKind.Class,
+          line: i + 1,
+          column: 0,
+        });
+      }
+
+      // Extract function declarations (simplified)
+      const functionMatch = line.match(/^\s*(?:\w+(?:\s*\*|\s*&)?)\s+(\w+)\s*\(/);
+      if (functionMatch && !line.includes('if') && !line.includes('while') && !line.includes('for')) {
+        symbols.push({
+          name: functionMatch[1],
+          name_path: functionMatch[1],
+          relative_path: filepath,
+          kind: LSPSymbolKind.Function,
+          line: i + 1,
+          column: 0,
+        });
+      }
+
+      // CRITICAL: Extract pointer variable declarations (Player*, Unit*, etc.)
+      const varMatch = line.match(/\b(Player|Unit|Creature|GameObject|WorldSession|Item|Spell|Aura|Group|Guild|Map|BattleGround|InstanceScript)\s*\*\s*(\w+)\s*[;=,)]/);
+      if (varMatch) {
+        const typeName = varMatch[1];
+        const varName = varMatch[2];
+        symbols.push({
+          name: varName,
+          name_path: varName,
+          relative_path: filepath,
+          kind: LSPSymbolKind.Variable,
+          line: i + 1,
+          column: 0,
+          signature: `${typeName}* ${varName}`,
+        });
+      }
+    }
+
+    console.log(`⚠️  Fallback parser found ${symbols.length} symbols in ${filepath}`);
+    return {
+      file: filepath,
+      symbols,
+      total_symbols: symbols.length,
+      top_level_symbols: symbols.length,
+    };
+  } catch (error) {
+    console.error(`Failed to parse file ${filepath}:`, error);
+    return {
+      file: filepath,
+      symbols: [],
+      total_symbols: 0,
+      top_level_symbols: 0,
+    };
+  }
+}
+
+// ============================================================================
 // FACTORY FUNCTION
 // ============================================================================
 
@@ -842,7 +944,8 @@ export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): C
 
       // Fallback to Serena MCP if available
       if (!serenaMCPClient) {
-        throw new Error('No Serena MCP client available and no AST data provided for: ' + filepath);
+        console.log(`⚠️  Serena unavailable, using fallback parser for: ${filepath}`);
+        return await parseFileWithFallback(filepath);
       }
 
       const result = await serenaMCPClient.callTool('mcp__serena__get_symbols_overview', {
@@ -857,6 +960,10 @@ export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): C
       depth: number,
       includeBody: boolean
     ): Promise<SerenaSymbol[]> => {
+      // Return empty if Serena unavailable
+      if (!serenaMCPClient) {
+        return [];
+      }
       const result = await serenaMCPClient.callTool('mcp__serena__find_symbol', {
         name_path,
         relative_path: filepath,
@@ -867,6 +974,10 @@ export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): C
     },
 
     searchPattern: async (pattern: string, filepath: string): Promise<{ [file: string]: string[] }> => {
+      // Return empty if Serena unavailable
+      if (!serenaMCPClient) {
+        return {};
+      }
       const result = await serenaMCPClient.callTool('mcp__serena__search_for_pattern', {
         substring_pattern: pattern,
         relative_path: filepath,

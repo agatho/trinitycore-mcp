@@ -143,8 +143,26 @@ export default function CreatureDetailPage() {
                 {creatureData.subname && (
                   <p className="text-xl text-slate-300">{creatureData.subname}</p>
                 )}
-                <div className="mt-3 text-sm text-slate-500">
-                  Creature ID: {creatureId}
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-sm text-slate-500">
+                    Creature ID: {creatureId}
+                  </span>
+                  {creatureData.dataSource && (
+                    <Badge
+                      variant="outline"
+                      className={
+                        creatureData.dataSource === "database"
+                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          : creatureData.dataSource === "db2"
+                          ? "bg-green-500/20 text-green-400 border-green-500/30"
+                          : "bg-orange-500/20 text-orange-400 border-orange-500/30"
+                      }
+                    >
+                      {creatureData.dataSource === "database" && "📊 Database"}
+                      {creatureData.dataSource === "db2" && "💾 DB2 Cache"}
+                      {creatureData.dataSource === "merged" && "🔄 Merged"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

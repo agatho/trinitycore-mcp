@@ -273,6 +273,16 @@ export class CodeReviewOrchestrator {
       astData: config.astData || undefined,
     };
 
+    // FILE LOGGING for MCP debugging
+    const logPath = 'c:/TrinityBots/trinitycore-mcp/mcp-debug.log';
+    const logMsg = `\n=== CodeReviewOrchestrator constructed ===\n` +
+                   `Config projectRoot: ${config.projectRoot}\n` +
+                   `Effective projectRoot: ${this.config.projectRoot}\n` +
+                   `process.cwd(): ${process.cwd()}\n`;
+    try {
+      require('fs').appendFileSync(logPath, logMsg);
+    } catch (e) {}
+
     // Initialize components
     this.ruleEngine = new TrinityRuleEngine();
     this.codeAnalysisEngine = createCodeAnalysisEngine(this.config.serena, this.config.astData);
@@ -310,6 +320,16 @@ export class CodeReviewOrchestrator {
   async reviewFiles(filePaths: string[]): Promise<CodeReviewResult> {
     const startTime = Date.now();
 
+    // FILE LOGGING for MCP debugging
+    const logPath = 'c:/TrinityBots/trinitycore-mcp/mcp-debug.log';
+    const logMsg = `\n=== reviewFiles() called at ${new Date().toISOString()} ===\n` +
+                   `Files count: ${filePaths.length}\n` +
+                   `Project root: ${this.config.projectRoot}\n` +
+                   `First 5 files: ${filePaths.slice(0, 5).join(', ')}\n`;
+    try {
+      await fs.appendFile(logPath, logMsg);
+    } catch (e) {}
+
     if (this.config.verbose) {
       console.log(`\n🔍 Reviewing ${filePaths.length} file(s)...`);
     }
@@ -323,10 +343,24 @@ export class CodeReviewOrchestrator {
       try {
         const absolutePath = path.isAbsolute(filePath) ? filePath : path.join(this.config.projectRoot, filePath);
 
+        // FILE LOGGING
+        try {
+          await fs.appendFile(logPath, `Checking file: ${filePath}\nAbsolute path: ${absolutePath}\n`);
+        } catch (e) {}
+
         // Check if file exists
         try {
           await fs.access(absolutePath);
+          // FILE LOGGING
+          try {
+            await fs.appendFile(logPath, `  ✓ File exists\n`);
+          } catch (e) {}
         } catch {
+          // FILE LOGGING
+          try {
+            await fs.appendFile(logPath, `  ✗ File NOT found!\n`);
+          } catch (e) {}
+
           if (this.config.verbose) {
             console.warn(`⚠️  File not found: ${filePath}`);
           }
@@ -385,6 +419,11 @@ export class CodeReviewOrchestrator {
         const ruleResult = await this.ruleEngine.executeRules(ast, codeContext);
         const violations = ruleResult.violations;
 
+        // FILE LOGGING
+        try {
+          await fs.appendFile(logPath, `  Rule engine found ${violations.length} violations\n`);
+        } catch (e) {}
+
         if (violations.length > 0) {
           filesWithIssues.add(filePath);
         }
@@ -412,6 +451,17 @@ export class CodeReviewOrchestrator {
     // Filter violations
     const filteredViolations = this.filterViolations(allViolations);
 
+    // FILE LOGGING
+    try {
+      await fs.appendFile(logPath,
+        `\nBefore filtering: ${allViolations.length} violations\n` +
+        `After filtering: ${filteredViolations.length} violations\n` +
+        `Files analyzed: ${filesAnalyzed.size}\n` +
+        `Files with issues: ${filesWithIssues.size}\n` +
+        `Min confidence: ${this.config.minConfidence}\n`
+      );
+    } catch (e) {}
+
     // Calculate statistics
     const statistics = this.calculateStatistics(filteredViolations, filesAnalyzed.size, filesWithIssues.size);
 
@@ -423,6 +473,11 @@ export class CodeReviewOrchestrator {
       console.log(`   - Files analyzed: ${filesAnalyzed.size}`);
       console.log(`   - Files with issues: ${filesWithIssues.size}`);
     }
+
+    // FILE LOGGING
+    try {
+      await fs.appendFile(logPath, `Duration: ${durationMs}ms\n=== END ===\n\n`);
+    } catch (e) {}
 
     return {
       files: Array.from(filesAnalyzed),
@@ -442,26 +497,29 @@ export class CodeReviewOrchestrator {
   async reviewPattern(patterns: string | string[]): Promise<CodeReviewResult> {
     const patternArray = Array.isArray(patterns) ? patterns : [patterns];
 
-    if (this.config.verbose) {
-      console.log(`🔍 Finding files matching patterns: ${patternArray.join(', ')}`);
-    }
+    console.log(`\n🔍 reviewPattern() called`);
+    console.log(`   Patterns: ${patternArray.join(', ')}`);
+    console.log(`   Project root: ${this.config.projectRoot}`);
 
     const files: string[] = [];
     for (const pattern of patternArray) {
+      console.log(`   Searching with glob pattern: ${pattern}`);
       const matches = await glob(pattern, {
         cwd: this.config.projectRoot,
         absolute: false,
         ignore: ['**/node_modules/**', '**/build/**', '**/dist/**', '**/.git/**'],
       });
+      console.log(`   Glob found ${matches.length} matches for pattern: ${pattern}`);
+      if (matches.length > 0 && matches.length <= 5) {
+        console.log(`   Sample files: ${matches.slice(0, 5).join(', ')}`);
+      }
       files.push(...matches);
     }
 
     // Remove duplicates
     const uniqueFiles = Array.from(new Set(files));
 
-    if (this.config.verbose) {
-      console.log(`   Found ${uniqueFiles.length} file(s)`);
-    }
+    console.log(`   Total unique files after deduplication: ${uniqueFiles.length}`);
 
     return this.reviewFiles(uniqueFiles);
   }

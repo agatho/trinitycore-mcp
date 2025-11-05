@@ -42,6 +42,17 @@ export async function reviewFile(
   } = {}
 ): Promise<string> {
   try {
+    // FILE LOGGING for MCP debugging
+    const logPath = 'c:/TrinityBots/trinitycore-mcp/mcp-debug.log';
+    const logMsg = `\n=== reviewFile() called from MCP ===\n` +
+                   `filePath: ${filePath}\n` +
+                   `options.projectRoot: ${options.projectRoot}\n` +
+                   `options.minConfidence: ${options.minConfidence}\n` +
+                   `options.verbose: ${options.verbose}\n`;
+    try {
+      require('fs').appendFileSync(logPath, logMsg);
+    } catch (e) {}
+
     // Build LLM config
     const llmConfig: LLMConfig | undefined = options.enableAI
       ? {
@@ -227,6 +238,12 @@ export async function reviewProjectDirectory(
   } = {}
 ): Promise<string> {
   try {
+    console.log(`\n📦 reviewProjectDirectory() called from MCP tool`);
+    console.log(`   projectRoot: ${projectRoot}`);
+    console.log(`   patterns: ${JSON.stringify(options.patterns)}`);
+    console.log(`   excludePatterns: ${JSON.stringify(options.excludePatterns)}`);
+    console.log(`   minConfidence: ${options.minConfidence ?? 0.7}`);
+
     // Use the convenience function
     const result = await reviewProject({
       projectRoot,
@@ -246,6 +263,8 @@ export async function reviewProjectDirectory(
       format: options.reportFormat || "markdown",
       verbose: options.verbose ?? false,
     });
+
+    console.log(`   reviewProject() returned ${result.violations.length} violations`);
 
     // Format result
     return formatReviewResult(result, "project");

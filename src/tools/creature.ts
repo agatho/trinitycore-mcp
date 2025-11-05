@@ -9,6 +9,73 @@
  */
 
 import { queryWorld } from "../database/connection";
+import * as fs from "fs";
+import * as path from "path";
+
+// ============================================================================
+// CREATURE CACHE (DBCD-generated JSON from Creature.db2)
+// ============================================================================
+
+const CREATURE_CACHE_PATH = "./data/cache/creature_cache.json";
+
+interface CreatureCacheEntry {
+  ID: number;
+  Name_lang?: string;
+  NameAlt_lang?: string;
+  Title_lang?: string;
+  TitleAlt_lang?: string;
+  Classification?: number; // 0=Normal, 1=Elite, 2=Rare Elite, 3=Boss, 4=Rare
+  CreatureType?: number;
+  CreatureFamily?: number;
+  StartAnimState?: number;
+  DisplayID?: number[]; // Array of 4 display IDs
+  DisplayProbability?: number[]; // Array of 4 probabilities
+  AlwaysItem?: number[]; // Array of 3 item IDs
+  [key: string]: any;
+}
+
+let creatureCache: Map<number, CreatureCacheEntry> | null = null;
+
+/**
+ * Load creature cache from DBCD-generated JSON (lazy loading)
+ */
+function loadCreatureCache(): boolean {
+  if (creatureCache !== null) {
+    return true; // Already loaded
+  }
+
+  try {
+    if (!fs.existsSync(CREATURE_CACHE_PATH)) {
+      console.warn(`Creature cache not found at ${CREATURE_CACHE_PATH}.`);
+      return false;
+    }
+
+    const cacheData = JSON.parse(fs.readFileSync(CREATURE_CACHE_PATH, 'utf8'));
+    creatureCache = new Map<number, CreatureCacheEntry>();
+
+    for (const [key, value] of Object.entries(cacheData)) {
+      creatureCache.set(parseInt(key), value as CreatureCacheEntry);
+    }
+
+    console.log(`✅ Loaded creature cache: ${creatureCache.size} entries`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to load creature cache: ${error}`);
+    creatureCache = null;
+    return false;
+  }
+}
+
+/**
+ * Get creature from JSON cache
+ */
+function getCreatureFromCache(creatureId: number): CreatureCacheEntry | null {
+  if (!loadCreatureCache() || !creatureCache) {
+    return null;
+  }
+
+  return creatureCache.get(creatureId) || null;
+}
 
 // ============================================================================
 // TYPE DEFINITIONS - WoW 11.2 Retail
@@ -247,6 +314,13 @@ export interface CreatureFullInfo {
     estimatedHealth: number;
     estimatedDamage: number;
   };
+
+  // Data source tracking
+  dataSource: "database" | "db2" | "merged";
+  cacheStats?: {
+    creatureCacheHit: boolean;
+    loadTime?: string;
+  };
 }
 
 /**
@@ -280,36 +354,116 @@ export async function getCreatureFullInfo(
   entry: number,
   includeLoot: boolean = false
 ): Promise<CreatureFullInfo> {
-  // Query main template
-  const templateQuery = `
-    SELECT
-      entry, name, femaleName, subname, TitleAlt as titleAlt, IconName as iconName,
-      KillCredit1 as killCredit1, KillCredit2 as killCredit2,
-      RequiredExpansion as requiredExpansion, VignetteID as vignetteId,
-      faction, Classification as classification, dmgschool as dmgSchool,
-      BaseAttackTime as baseAttackTime, RangeAttackTime as rangeAttackTime,
-      BaseVariance as baseVariance, RangeVariance as rangeVariance,
-      unit_class as unitClass, unit_flags as unitFlags, unit_flags2 as unitFlags2,
-      unit_flags3 as unitFlags3, npcflag as npcFlags, flags_extra as flagsExtra,
-      type, family, trainer_class as trainerClass, VehicleId as vehicleId,
-      AIName as aiName, ScriptName as scriptName, StringId as stringId,
-      speed_walk as speedWalk, speed_run as speedRun, scale,
-      MovementType as movementType, movementId,
-      WidgetSetID as widgetSetId, WidgetSetUnitConditionID as widgetSetUnitConditionId,
-      RegenHealth as regenHealth, RacialLeader as racialLeader,
-      ExperienceModifier as experienceModifier, CreatureImmunitiesId as creatureImmunitiesId,
-      VerifiedBuild as verifiedBuild
-    FROM creature_template
-    WHERE entry = ?
-  `;
+  // Step 1: Try to get creature from JSON cache (DBCD extraction)
+  const cacheCreature = getCreatureFromCache(entry);
+  const startTime = Date.now();
 
-  const templates = await queryWorld(templateQuery, [entry]);
+  // Step 2: Query database for complete creature data (with error handling)
+  let template: CreatureTemplate | null = null;
+  let dbQuerySucceeded = false;
 
-  if (!templates || templates.length === 0) {
-    throw new Error(`Creature ${entry} not found`);
+  try {
+    const templateQuery = `
+      SELECT
+        entry, name, femaleName, subname, TitleAlt as titleAlt, IconName as iconName,
+        KillCredit1 as killCredit1, KillCredit2 as killCredit2,
+        RequiredExpansion as requiredExpansion, VignetteID as vignetteId,
+        faction, Classification as classification, dmgschool as dmgSchool,
+        BaseAttackTime as baseAttackTime, RangeAttackTime as rangeAttackTime,
+        BaseVariance as baseVariance, RangeVariance as rangeVariance,
+        unit_class as unitClass, unit_flags as unitFlags, unit_flags2 as unitFlags2,
+        unit_flags3 as unitFlags3, npcflag as npcFlags, flags_extra as flagsExtra,
+        type, family, trainer_class as trainerClass, VehicleId as vehicleId,
+        AIName as aiName, ScriptName as scriptName, StringId as stringId,
+        speed_walk as speedWalk, speed_run as speedRun, scale,
+        MovementType as movementType, movementId,
+        WidgetSetID as widgetSetId, WidgetSetUnitConditionID as widgetSetUnitConditionId,
+        RegenHealth as regenHealth, RacialLeader as racialLeader,
+        ExperienceModifier as experienceModifier, CreatureImmunitiesId as creatureImmunitiesId,
+        VerifiedBuild as verifiedBuild
+      FROM creature_template
+      WHERE entry = ?
+    `;
+
+    const templates = await queryWorld(templateQuery, [entry]);
+    template = templates && templates.length > 0 ? templates[0] as CreatureTemplate : null;
+    dbQuerySucceeded = true;
+  } catch (dbError) {
+    console.warn(`Database query failed for creature ${entry}, using DB2 cache only:`,
+      dbError instanceof Error ? dbError.message : String(dbError));
+    dbQuerySucceeded = false;
+    // Continue with template = null, will use cache data
   }
 
-  const template = templates[0] as CreatureTemplate;
+  // Step 3: If database query failed, use cache as fallback
+  if (!template && !cacheCreature) {
+    throw new Error(`Creature ${entry} not found in database or cache`);
+  }
+
+  // Merge database and cache data (database takes priority if available)
+  if (!template && cacheCreature) {
+    // Create template from cache data
+    template = {
+      entry: cacheCreature.ID,
+      name: cacheCreature.Name_lang || "Unknown Creature",
+      femaleName: cacheCreature.NameAlt_lang,
+      subname: cacheCreature.Title_lang,
+      titleAlt: cacheCreature.TitleAlt_lang,
+      iconName: undefined,
+      killCredit1: 0,
+      killCredit2: 0,
+      requiredExpansion: 0,
+      vignetteId: 0,
+      faction: 0,
+      classification: cacheCreature.Classification || 0,
+      dmgSchool: 0,
+      baseAttackTime: 2000,
+      rangeAttackTime: 2000,
+      baseVariance: 1.0,
+      rangeVariance: 1.0,
+      unitClass: 1,
+      speedWalk: 1.0,
+      speedRun: 1.14286,
+      scale: 1.0,
+      movementType: 0,
+      movementId: 0,
+      unitFlags: 0,
+      unitFlags2: 0,
+      unitFlags3: 0,
+      npcFlags: "0",
+      flagsExtra: 0,
+      type: cacheCreature.CreatureType || 0,
+      family: cacheCreature.CreatureFamily || 0,
+      trainerClass: 0,
+      vehicleId: 0,
+      aiName: "",
+      scriptName: "",
+      stringId: undefined,
+      widgetSetId: 0,
+      widgetSetUnitConditionId: 0,
+      regenHealth: true,
+      racialLeader: false,
+      experienceModifier: 1.0,
+      creatureImmunitiesId: 0,
+      verifiedBuild: 0
+    } as CreatureTemplate;
+  }
+
+  // At this point, template must be non-null (TypeScript assertion)
+  if (!template) {
+    throw new Error(`Unexpected: template is null after fallback logic`);
+  }
+
+  // Determine data source
+  let dataSource: "database" | "db2" | "merged" = "database";
+
+  if (dbQuerySucceeded && template && cacheCreature) {
+    dataSource = "merged"; // Both database and cache available
+  } else if (!dbQuerySucceeded && cacheCreature) {
+    dataSource = "db2"; // Cache was used as fallback (database failed or empty)
+  } else if (dbQuerySucceeded && template) {
+    dataSource = "database"; // Only database data available
+  }
 
   // Query difficulties
   const diffQuery = `
@@ -452,6 +606,8 @@ export async function getCreatureFullInfo(
   // Compute analysis for bot AI
   const analysis = analyzeCreature(template, difficulties);
 
+  const loadTime = Date.now() - startTime;
+
   return {
     template,
     difficulties,
@@ -460,7 +616,12 @@ export async function getCreatureFullInfo(
     vendorItems: vendorItems.length > 0 ? vendorItems : undefined,
     trainerInfo,
     lootTable,
-    analysis
+    analysis,
+    dataSource,
+    cacheStats: {
+      creatureCacheHit: cacheCreature !== null,
+      loadTime: `${loadTime}ms`
+    }
   };
 }
 
