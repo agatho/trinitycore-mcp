@@ -258,13 +258,30 @@ import {
   simulateCombat,
   analyzeWhatIf
 } from "./tools/gamesimulator.js";
+import {
+  getHealthStatus,
+  getMetricsSnapshot,
+  queryLogs,
+  getLogFileLocation,
+  getMonitoringStatus
+} from "./tools/monitoring.js";
+import {
+  triggerBackup,
+  verifyBackup,
+  getSecurityStatus,
+  listBackups
+} from "./tools/production.js";
+import {
+  checkCodeStyle,
+  formatCode
+} from "./tools/codestyle.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance
 const server = new Server(
   {
     name: "trinitycore-mcp-server",
-    version: "2.2.0",
+    version: "2.3.0",
   },
   {
     capabilities: {
@@ -2065,6 +2082,174 @@ const TOOLS: Tool[] = [
       required: ["simulationType", "playerStats"],
     },
   },
+
+  // Production Operations & Monitoring (11 tools) - NEW in v2.3.0
+  {
+    name: "get-health-status",
+    description: "Get comprehensive MCP server health status - components, metrics, uptime, and system health indicators",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "get-metrics-snapshot",
+    description: "Get current metrics snapshot - request counts, response times, error rates, cache hit rates",
+    inputSchema: {
+      type: "object",
+      properties: {
+        includeHistory: {
+          type: "boolean",
+          description: "Include historical metrics (last hour)",
+        },
+        metricTypes: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+          description: "Specific metric types to include (requests, cache, database, etc.)",
+        },
+      },
+    },
+  },
+  {
+    name: "query-logs",
+    description: "Query server logs with filtering - search by level, time range, component, or text pattern",
+    inputSchema: {
+      type: "object",
+      properties: {
+        level: {
+          type: "string",
+          enum: ["DEBUG", "INFO", "WARN", "ERROR"],
+          description: "Filter by log level",
+        },
+        component: {
+          type: "string",
+          description: "Filter by component name",
+        },
+        search: {
+          type: "string",
+          description: "Text search pattern",
+        },
+        startTime: {
+          type: "string",
+          description: "Start time (ISO 8601)",
+        },
+        endTime: {
+          type: "string",
+          description: "End time (ISO 8601)",
+        },
+        limit: {
+          type: "number",
+          description: "Maximum number of log entries (default: 100)",
+        },
+      },
+      required: ["level"],
+    },
+  },
+  {
+    name: "get-log-file-location",
+    description: "Get the location of the server log file for direct access",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "get-monitoring-status",
+    description: "Get monitoring system status - health check config, metrics collection, alerting status",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "trigger-backup",
+    description: "Manually trigger a backup operation (full or incremental) - returns backup ID and status",
+    inputSchema: {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          enum: ["full", "incremental"],
+          description: "Backup type (default: full)",
+        },
+        description: {
+          type: "string",
+          description: "Backup description",
+        },
+      },
+    },
+  },
+  {
+    name: "verify-backup",
+    description: "Verify backup integrity - checks checksum, file size, and restoration readiness",
+    inputSchema: {
+      type: "object",
+      properties: {
+        backupId: {
+          type: "string",
+          description: "Backup ID to verify",
+        },
+      },
+      required: ["backupId"],
+    },
+  },
+  {
+    name: "get-security-status",
+    description: "Get security status - rate limiting, access control, encryption, audit log status",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "list-backups",
+    description: "List all available backups with metadata - ID, type, size, timestamp, status",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
+  {
+    name: "check-code-style",
+    description: "Check C++ code style and conventions - naming, formatting, comments, organization. Auto-fixable violations marked.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "Path to C++ file to check",
+        },
+        directory: {
+          type: "string",
+          description: "Directory to check (all .cpp/.h files)",
+        },
+        autoFix: {
+          type: "boolean",
+          description: "Automatically fix violations (default: false)",
+        },
+      },
+    },
+  },
+  {
+    name: "format-code",
+    description: "Format C++ code according to TrinityCore style (.clang-format) - returns formatted code and violations fixed",
+    inputSchema: {
+      type: "object",
+      properties: {
+        filePath: {
+          type: "string",
+          description: "Path to C++ file to format",
+        },
+        autoFix: {
+          type: "boolean",
+          description: "Apply formatting to file (default: false)",
+        },
+      },
+      required: ["filePath"],
+    },
+  },
 ];
 
 // List tools handler
@@ -3163,6 +3348,115 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(`Unknown simulation type: ${simulationType}`);
         }
 
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Production Operations & Monitoring
+      case "get-health-status": {
+        const result = await getHealthStatus();
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "get-metrics-snapshot": {
+        const result = await getMetricsSnapshot({
+          format: args.format as "json" | "prometheus" | undefined,
+          include_details: args.includeHistory as boolean | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "query-logs": {
+        const result = await queryLogs({
+          level: args.level as "DEBUG" | "INFO" | "WARN" | "ERROR" | undefined,
+          search: args.search as string | undefined,
+          start_time: args.startTime as string | undefined,
+          end_time: args.endTime as string | undefined,
+          limit: args.limit as number | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "get-log-file-location": {
+        const result = await getLogFileLocation();
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "get-monitoring-status": {
+        const result = await getMonitoringStatus();
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "trigger-backup": {
+        const result = await triggerBackup({
+          type: args.type as "full" | "incremental" | undefined,
+          description: args.description as string | undefined,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "verify-backup": {
+        const result = await verifyBackup({
+          backup_id: args.backupId as string,
+        });
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "get-security-status": {
+        const result = await getSecurityStatus();
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "list-backups": {
+        const result = await listBackups();
+        return {
+          content: [{ type: "text", text: result }],
+        };
+      }
+
+      case "check-code-style": {
+        const result = await checkCodeStyle({
+          filePath: args.filePath as string | undefined,
+          directory: args.directory as string | undefined,
+          autoFix: args.autoFix as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "format-code": {
+        const result = await formatCode(
+          args.filePath as string,
+          args.autoFix as boolean || false
+        );
         return {
           content: [
             {

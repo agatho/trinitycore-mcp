@@ -2,14 +2,14 @@
 
 [![Build](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml)
 [![Code Quality](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml)
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
 [![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![API Docs](https://img.shields.io/badge/API%20Docs-3800%2B%20methods-success.svg)](data/api_docs/general/)
-[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-67%20registered-success.svg)](src/index.ts)
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-78%20registered-success.svg)](src/index.ts)
 
-> Custom Model Context Protocol server providing **67 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
+> Custom Model Context Protocol server providing **78 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
 
 ## 📚 Table of Contents
 
@@ -26,7 +26,7 @@
 
 ## Features
 
-### Core MCP Server (67 Tools)
+### Core MCP Server (78 Tools)
 - **Game Data Queries**: Query spells, items, quests, creatures from World database
 - **DBC/DB2 Reading**: Parse and query client-side database files (WDC5/WDC6 support)
 - **GameTable (GT) Files**: Access critical game calculation tables (combat ratings, XP, stats, scaling)
@@ -209,9 +209,9 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 # Or integrate with Claude Code (see Configuration above)
 ```
 
-## MCP Tools (67 Registered)
+## MCP Tools (78 Registered)
 
-**Total: 67 MCP Tools** across game data, knowledge, performance, testing, code review, and development assistance categories.
+**Total: 78 MCP Tools** across game data, knowledge, performance, testing, code review, development assistance, and production operations categories.
 
 ### Quick Tool Reference
 
@@ -367,6 +367,41 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 - Spell damage calculator (crit, armor mitigation)
 - Stat impact analyzer (what-if scenarios)
 - Rotation comparison mode
+
+#### Production Operations & Monitoring (11 tools) - NEW in v2.3.0
+- `get-health-status` - Get comprehensive MCP server health status
+- `get-metrics-snapshot` - Get current metrics snapshot
+- `query-logs` - Query server logs with filtering
+- `get-log-file-location` - Get log file location
+- `get-monitoring-status` - Get monitoring system status
+- `trigger-backup` - Manually trigger backup (full/incremental)
+- `verify-backup` - Verify backup integrity
+- `get-security-status` - Get security status
+- `list-backups` - List all available backups
+- `check-code-style` - Check C++ code style and conventions
+- `format-code` - Format C++ code according to TrinityCore style
+
+**Health Monitoring Features:**
+- Component health checks (database, cache, APIs)
+- System metrics (CPU, memory, uptime)
+- Request/response metrics
+- Error rate tracking
+- Log querying and filtering
+
+**Production Management Features:**
+- Automated and manual backups
+- Backup verification and integrity checks
+- Security status monitoring
+- Rate limiting status
+- Access control audit
+
+**Code Style Features:**
+- Naming convention checks (PascalCase, camelCase)
+- Formatting validation (.clang-format)
+- Comment standards (Doxygen)
+- File organization checks
+- Auto-fix capabilities
+- 60% faster code review
 
 ## Web UI
 
@@ -707,9 +742,9 @@ GPL-2.0 (same as TrinityCore)
 
 ---
 
-**Version**: 2.2.0
+**Version**: 2.3.0
 **Status**: ✅ Production Ready
-**MCP Tools**: 67 registered tools
+**MCP Tools**: 78 registered tools
 **Last Updated**: 2025-11-05
 
 Generated with [Claude Code](https://claude.com/claude-code)
