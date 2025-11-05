@@ -450,6 +450,185 @@ Every parameter includes:
 
 ---
 
+## 🗺️ TrinityCore Map Viewer (NEW in v2.9.0)
+
+### Features
+
+#### 1. **Binary .map File Parser**
+- Complete TrinityCore .map format parser
+- Supports map file header validation (magic numbers, version)
+- Parses area maps (zone ID data)
+- Parses height maps (V8: 128x128, V9: 129x129 grids)
+- Parses liquid maps (water, lava, slime data)
+- Parses hole data (terrain cutouts)
+- Automatic grid coordinate extraction from filename
+
+#### 2. **Map File Browser**
+- Browse all .map files from configured directory
+- Real-time file list with size and modification date
+- Quick load functionality
+- Automatic MAP_FILES_PATH validation
+- Helpful error messages with configuration instructions
+
+#### 3. **Multiple Render Modes**
+- **Heightmap**: Color-coded elevation visualization
+  - Green (low) → Yellow (mid) → Red (high)
+  - Clear visual representation of terrain elevation
+- **Contour Lines**: Topographic map visualization
+  - Configurable contour interval (5-50m)
+  - Professional cartographic appearance
+- **Wireframe**: 3D mesh grid view
+  - Shows terrain geometry structure
+  - Useful for understanding terrain complexity
+- **Shaded Relief**: Hillshade with directional lighting
+  - Simulates sun angle for realistic depth
+  - Northwest light direction by default
+
+#### 4. **Color Schemes**
+- **Grayscale**: Simple black-to-white elevation
+- **Elevation**: Green → Yellow → Red gradient
+- **Terrain**: Realistic blue (water) → green (land) → brown (mountain)
+- **Heatmap**: Blue → Cyan → Yellow → Red progression
+
+#### 5. **Interactive Controls**
+- Scale adjustment (1x - 8x)
+- Contour interval control (5m - 50m steps)
+- Real-time rendering updates
+- Canvas-based rendering for performance
+
+#### 6. **Map Information Display**
+- Map ID, Grid coordinates (X, Y)
+- Height range (min/max elevation in meters)
+- Grid dimensions (128x128 or 129x129)
+- Elevation statistics
+
+#### 7. **Export Capabilities**
+- Export rendered map as PNG
+- Filename includes map name and render mode
+- High-quality canvas-to-image conversion
+
+### Configuration
+
+#### Setting Up MAP_FILES_PATH
+
+1. **Extract Map Files** (if not already done):
+   ```bash
+   # Run TrinityCore mapextractor
+   cd /path/to/TrinityCore/bin
+   ./mapextractor
+   # This creates a 'maps' directory with .map files
+   ```
+
+2. **Configure Environment Variable**:
+   - Copy `.env.template` to `.env.local`:
+     ```bash
+     cd web-ui
+     cp .env.template .env.local
+     ```
+
+   - Edit `.env.local` and set MAP_FILES_PATH:
+     ```bash
+     # Example for Linux/Mac:
+     MAP_FILES_PATH=/path/to/TrinityCore/data/maps
+
+     # Example for Windows:
+     MAP_FILES_PATH=C:/TrinityCore/data/maps
+     ```
+
+3. **Restart Development Server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Map Viewer**:
+   - Navigate to http://localhost:3000/map-viewer
+   - Browse available maps in the "Browser" tab
+   - Click "Load" to visualize any map
+
+### Map File Format Details
+
+TrinityCore .map files use the following binary format:
+- **Filename**: `MapID_X_Y.map` (e.g., `0_32_32.map` = Eastern Kingdoms grid 32,32)
+- **Magic Number**: `0x5350414D` ('MAPS' in little-endian)
+- **Version**: `0x322E3176` ('v1.2')
+- **Data Sections**: Area map, height map, liquid map, holes
+
+The parser automatically handles:
+- Endianness conversion
+- Grid size detection (V8 vs V9)
+- Height normalization
+- Coordinate system transformations
+
+### API Endpoints
+
+#### GET `/api/map-files`
+Lists all available .map files from MAP_FILES_PATH.
+
+**Response**:
+```json
+{
+  "success": true,
+  "count": 150,
+  "basePath": "/path/to/maps",
+  "files": [
+    {
+      "name": "Map 0 (32, 32)",
+      "filename": "0_32_32.map",
+      "size": 98304,
+      "modified": "2025-01-15T10:30:00.000Z",
+      "path": "/api/map-files/0_32_32.map"
+    }
+  ]
+}
+```
+
+#### GET `/api/map-files/[filename]`
+Serves a specific .map file as binary data.
+
+**Example**: `/api/map-files/0_32_32.map`
+
+### Usage Example
+
+```typescript
+import { parseMapFile } from '@/lib/map-file-parser';
+import { MapRenderer } from '@/lib/map-renderer';
+
+// Fetch and parse map file
+const response = await fetch('/api/map-files/0_32_32.map');
+const arrayBuffer = await response.arrayBuffer();
+const parsedMap = await parseMapFile('0_32_32.map', arrayBuffer);
+
+// Render to canvas
+const canvas = document.getElementById('map-canvas') as HTMLCanvasElement;
+const renderer = new MapRenderer(canvas);
+
+await renderer.render(parsedMap, {
+  mode: 'heightmap',
+  colorScheme: 'elevation',
+  scale: 2,
+  contourInterval: 10,
+});
+
+// Export as PNG
+renderer.exportToPNG('eastern_kingdoms_32_32.png');
+```
+
+### Troubleshooting
+
+**Problem**: "MAP_FILES_PATH not configured" error
+- **Solution**: Set MAP_FILES_PATH in `.env.local` and restart dev server
+
+**Problem**: "MAP_FILES_PATH directory not found" error
+- **Solution**: Verify the path exists and contains .map files
+
+**Problem**: "No map files found"
+- **Solution**: Run TrinityCore mapextractor to generate .map files
+
+**Problem**: "Invalid map file magic" error
+- **Solution**: Ensure files are actual TrinityCore .map files (not corrupted)
+
+---
+
 ## 💡 Credits
 
 Built with:
@@ -471,7 +650,20 @@ Algorithms implemented:
 
 ## 📝 Version History
 
-### v2.8.0 (Current)
+### v2.9.0 (Current)
+- ✅ NEW: TrinityCore Map Viewer with .map file support
+- ✅ Binary .map file parser (complete format support)
+- ✅ Map File Browser component with API integration
+- ✅ 4 render modes: Heightmap, Contours, Wireframe, Shaded Relief
+- ✅ 4 color schemes: Grayscale, Elevation, Terrain, Heatmap
+- ✅ MAP_FILES_PATH environment configuration
+- ✅ RESTful API for map file listing and serving
+- ✅ Canvas-based high-performance rendering
+- ✅ PNG export functionality
+- ✅ Comprehensive documentation and troubleshooting guide
+- ✅ 1,500+ lines of additional production code
+
+### v2.8.0 (Previous)
 - ✅ Complete Map Editor enhancement with 14 major features
 - ✅ Complete SAI Editor enhancement with 16 major features
 - ✅ 6,000+ lines of new production code
@@ -494,4 +686,4 @@ Algorithms implemented:
 
 ---
 
-**🎉 Both tools are now production-ready with professional-grade features!**
+**🎉 All three tools (Map Editor, SAI Editor, Map Viewer) are now production-ready with professional-grade features!**
