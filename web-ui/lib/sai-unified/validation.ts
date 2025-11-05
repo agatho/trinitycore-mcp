@@ -20,6 +20,7 @@ import type {
 } from './types';
 import { validateParameter } from './parameters';
 import { getEventType, getActionType, getTargetType } from './constants';
+import { validateScriptDatabase } from './database-validation';
 
 // ============================================================================
 // VALIDATION ORCHESTRATOR
@@ -44,6 +45,53 @@ export function validateScript(script: SAIScript): ValidationResult {
   warnings.push(...validatePerformance(script));
 
   info.push(...validateSuggestions(script));
+
+  // Calculate validation score (0-100)
+  const score = calculateValidationScore(errors, warnings, info);
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    info,
+    score,
+    timestamp: Date.now(),
+  };
+}
+
+/**
+ * Validate entire SAI script with database validation
+ * Async version that includes real-time validation against TrinityCore database
+ */
+export async function validateScriptWithDatabase(script: SAIScript): Promise<ValidationResult> {
+  const errors: ValidationError[] = [];
+  const warnings: ValidationWarning[] = [];
+  const info: ValidationInfo[] = [];
+
+  // Run all synchronous validators
+  errors.push(...validateStructure(script));
+  errors.push(...validateNodes(script));
+  errors.push(...validateConnections(script));
+  errors.push(...validateParameters(script));
+
+  warnings.push(...validateBestPractices(script));
+  warnings.push(...validatePerformance(script));
+
+  info.push(...validateSuggestions(script));
+
+  // Run async database validation
+  try {
+    const dbErrors = await validateScriptDatabase(script);
+    errors.push(...dbErrors);
+  } catch (error) {
+    console.error('[Validation] Database validation failed:', error);
+    warnings.push({
+      nodeId: '',
+      message: 'Database validation unavailable',
+      severity: 'warning',
+      suggestion: 'Could not connect to TrinityCore database for ID validation. Script will be validated locally only.',
+    });
+  }
 
   // Calculate validation score (0-100)
   const score = calculateValidationScore(errors, warnings, info);
