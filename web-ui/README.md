@@ -31,7 +31,7 @@ This is the **MCP-enhanced web frontend** for the TrinityCore MCP Server. It pro
 - **Diff & Merge Tool** - Database schema comparison and merging
 - **Documentation Generator** - Auto-generate schema documentation
 - **Migration Manager** - Database version control and migrations
-- **Live Data Inspector** - Real-time server data monitoring (REST API)
+- **Live Data Inspector** - Real-time server data monitoring via SOAP API
 - **Data Export** - Export to CSV, Excel, JSON, PDF, XML formats
 - **Advanced Search** - Fuzzy search with Fuse.js, multi-criteria filtering
 - **Comprehensive Docs** - Complete reference for 3,812 API methods
@@ -240,17 +240,28 @@ trinitycore-web-ui/
 
 ### Environment Variables
 
-Create `.env.local` in project root:
+Create `.env.local` in project root (copy from `.env.template`):
 
 ```bash
-# MCP Server Path
-MCP_SERVER_PATH=C:\\TrinityBots\\trinitycore-mcp\\dist\\index.js
+# TrinityCore SOAP API Configuration
+# Required for Live Data Inspector to connect to worldserver
+TRINITY_SOAP_HOST=127.0.0.1
+TRINITY_SOAP_PORT=7878
+TRINITY_SOAP_USERNAME=admin
+TRINITY_SOAP_PASSWORD=admin
+TRINITY_SOAP_MOCK=true  # Set to false when worldserver SOAP is running
 
 # TrinityCore Database
 TRINITY_DB_HOST=localhost
 TRINITY_DB_PORT=3306
-TRINITY_DB_USER=trinity
-TRINITY_DB_PASSWORD=your_password
+TRINITY_DB_AUTH_DATABASE=acore_auth
+TRINITY_DB_CHARACTERS_DATABASE=acore_characters
+TRINITY_DB_WORLD_DATABASE=acore_world
+TRINITY_DB_USERNAME=acore
+TRINITY_DB_PASSWORD=acore
+
+# MCP Server Path
+MCP_SERVER_PATH=C:\\TrinityBots\\trinitycore-mcp\\dist\\index.js
 
 # TrinityCore Paths
 TRINITY_ROOT=C:\\TrinityBots\\TrinityCore
@@ -260,7 +271,40 @@ DB2_PATH=C:\\TrinityBots\\Server\\data\\db2
 # Next.js
 NEXT_PUBLIC_APP_NAME=TrinityCore API Explorer
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_VERSION=2.6.0
 ```
+
+### TrinityCore SOAP API Setup
+
+The **Live Data Inspector** requires TrinityCore's SOAP API to be enabled. Configure in `worldserver.conf`:
+
+```ini
+###################################################################################################
+# SOAP
+#
+#    SOAP.Enabled
+#        Description: Enable SOAP service for remote administration
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+#    SOAP.IP
+#        Description: Bind SOAP service to IP/hostname
+#        Default:     "127.0.0.1"
+#
+#    SOAP.Port
+#        Description: TCP port to reach the SOAP service
+#        Default:     7878
+#
+###################################################################################################
+
+SOAP.Enabled = 1
+SOAP.IP = "127.0.0.1"
+SOAP.Port = 7878
+```
+
+After enabling SOAP, restart your worldserver and update `.env.local` with `TRINITY_SOAP_MOCK=false` to connect to the real server.
+
+**Security Warning:** SOAP provides full administrative access to your server. Only expose SOAP on localhost (127.0.0.1) unless you're using a VPN or other secure network. Never expose SOAP to the public internet without proper firewall rules and strong authentication.
 
 ---
 
