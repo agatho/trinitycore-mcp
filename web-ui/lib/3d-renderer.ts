@@ -45,6 +45,7 @@ export enum RenderLayer {
   MMapOffMesh = "mmap-offmesh",
   Grid = "grid",
   Axes = "axes",
+  Interactive = "interactive", // Raycasts, paths, measurements
 }
 
 /**
@@ -101,6 +102,7 @@ export interface LayerVisibility {
   [RenderLayer.MMapOffMesh]: boolean;
   [RenderLayer.Grid]: boolean;
   [RenderLayer.Axes]: boolean;
+  [RenderLayer.Interactive]: boolean;
 }
 
 /**
@@ -130,6 +132,7 @@ export class Renderer3D {
   private mmapGroup: THREE.Group;
   private gridGroup: THREE.Group;
   private axesGroup: THREE.Group;
+  private interactiveGroup: THREE.Group;
 
   // State
   private cameraMode: CameraMode = CameraMode.Orbit;
@@ -176,6 +179,7 @@ export class Renderer3D {
       [RenderLayer.MMapOffMesh]: true,
       [RenderLayer.Grid]: true,
       [RenderLayer.Axes]: true,
+      [RenderLayer.Interactive]: true,
     };
 
     // Initialize scene
@@ -219,6 +223,10 @@ export class Renderer3D {
     this.axesGroup = new THREE.Group();
     this.axesGroup.name = "Axes";
     this.scene.add(this.axesGroup);
+
+    this.interactiveGroup = new THREE.Group();
+    this.interactiveGroup.name = "Interactive";
+    this.scene.add(this.interactiveGroup);
 
     // Setup lights
     this.setupLights();
@@ -614,7 +622,7 @@ export class Renderer3D {
     this.layerVisibility[layer] = visible;
 
     // Find and update group visibility
-    const groups = [this.vmapGroup, this.mmapGroup, this.gridGroup, this.axesGroup];
+    const groups = [this.vmapGroup, this.mmapGroup, this.gridGroup, this.axesGroup, this.interactiveGroup];
     for (const group of groups) {
       group.traverse((child) => {
         if (child.name === layer) {
@@ -719,6 +727,180 @@ export class Renderer3D {
       memory: this.renderer.info.memory.geometries + this.renderer.info.memory.textures,
       objects: this.scene.children.length,
     };
+  }
+
+  /**
+   * Visualize a raycast (line-of-sight check)
+   */
+  public visualizeRaycast(
+    start: [number, number, number],
+    end: [number, number, number],
+    hit: boolean,
+    hitPoint?: [number, number, number],
+  ): void {
+    // Clear previous raycasts
+    this.clearInteractive("raycast");
+
+    // Create line geometry
+    const points = [new THREE.Vector3(...start), new THREE.Vector3(...end)];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+    // Color: green if clear, red if hit
+    const material = new THREE.LineBasicMaterial({
+      color: hit ? 0xff0000 : 0x00ff00,
+      linewidth: 2,
+    });
+
+    const line = new THREE.Line(geometry, material);
+    line.name = "raycast";
+    this.interactiveGroup.add(line);
+
+    // If hit, show hit point marker
+    if (hit && hitPoint) {
+      const sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
+      const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      sphere.position.set(...hitPoint);
+      sphere.name = "raycast";
+      this.interactiveGroup.add(sphere);
+    }
+  }
+
+  /**
+   * Visualize a path
+   */
+  public visualizePath(path: [number, number, number][], color: number = 0x00ff00): void {
+    // Clear previous paths
+    this.clearInteractive("path");
+
+    if (path.length < 2) return;
+
+    // Create tube geometry along path
+    const points = path.map((p) => new THREE.Vector3(...p));
+    const curve = new THREE.CatmullRomCurve3(points);
+    const tubeGeometry = new THREE.TubeGeometry(curve, path.length * 2, 0.5, 8, false);
+    const tubeMaterial = new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.8,
+    });
+    const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+    tube.name = "path";
+    this.interactiveGroup.add(tube);
+
+    // Add waypoint markers
+    for (const point of path) {
+      const markerGeometry = new THREE.SphereGeometry(0.8, 16, 16);
+      const markerMaterial = new THREE.MeshBasicMaterial({ color });
+      const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+      marker.position.set(...point);
+      marker.name = "path";
+      this.interactiveGroup.add(marker);
+    }
+  }
+
+  /**
+   * Visualize a measurement
+   */
+  public visualizeMeasurement(
+    type: "distance" | "height" | "area",
+    points: [number, number, number][],
+  ): void {
+    // Clear previous measurements
+    this.clearInteractive("measurement");
+
+    if (points.length === 0) return;
+
+    switch (type) {
+      case "distance":
+      case "height":
+        if (points.length === 2) {
+          // Draw line
+          const linePoints = points.map((p) => new THREE.Vector3(...p));
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
+          const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0xffff00,
+            linewidth: 3,
+          });
+          const line = new THREE.Line(lineGeometry, lineMaterial);
+          line.name = "measurement";
+          this.interactiveGroup.add(line);
+
+          // Add endpoint markers
+          for (const point of points) {
+            const markerGeometry = new THREE.SphereGeometry(1, 16, 16);
+            const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+            marker.position.set(...point);
+            marker.name = "measurement";
+            this.interactiveGroup.add(marker);
+          }
+        }
+        break;
+
+      case "area":
+        if (points.length >= 3) {
+          // Create polygon
+          const shape = new THREE.Shape();
+          shape.moveTo(points[0][0], points[0][2]);
+          for (let i = 1; i < points.length; i++) {
+            shape.lineTo(points[i][0], points[i][2]);
+          }
+          shape.closePath();
+
+          const areaGeometry = new THREE.ShapeGeometry(shape);
+          const areaMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide,
+          });
+          const areaMesh = new THREE.Mesh(areaGeometry, areaMaterial);
+          areaMesh.rotation.x = -Math.PI / 2; // Rotate to horizontal
+          areaMesh.position.y = points[0][1];
+          areaMesh.name = "measurement";
+          this.interactiveGroup.add(areaMesh);
+
+          // Add perimeter line
+          const perimeterPoints = [...points, points[0]].map((p) => new THREE.Vector3(...p));
+          const perimeterGeometry = new THREE.BufferGeometry().setFromPoints(perimeterPoints);
+          const perimeterMaterial = new THREE.LineBasicMaterial({ color: 0xffff00 });
+          const perimeterLine = new THREE.Line(perimeterGeometry, perimeterMaterial);
+          perimeterLine.name = "measurement";
+          this.interactiveGroup.add(perimeterLine);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Clear interactive visualizations
+   */
+  public clearInteractive(type?: "raycast" | "path" | "measurement"): void {
+    const toRemove: THREE.Object3D[] = [];
+
+    this.interactiveGroup.traverse((child) => {
+      if (!type || child.name === type) {
+        toRemove.push(child);
+      }
+    });
+
+    for (const obj of toRemove) {
+      if (obj !== this.interactiveGroup) {
+        this.interactiveGroup.remove(obj);
+        if ((obj as THREE.Mesh).geometry) {
+          (obj as THREE.Mesh).geometry.dispose();
+        }
+        if ((obj as THREE.Mesh).material) {
+          const material = (obj as THREE.Mesh).material;
+          if (Array.isArray(material)) {
+            material.forEach((m) => m.dispose());
+          } else {
+            material.dispose();
+          }
+        }
+      }
+    }
   }
 
   /**
