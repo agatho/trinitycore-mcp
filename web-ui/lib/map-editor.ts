@@ -66,62 +66,237 @@ export interface WaypointPath {
 }
 
 /**
- * WoW Maps Registry
+ * WoW Coordinate System Constants
+ *
+ * Based on TrinityCore map data:
+ * - World coordinates range from -17066.66 to +17066.66 (total: 34133.32 units)
+ * - Origin (0,0) is at the map center
+ * - Positive X = North, Positive Y = West, Z = Height (0 = sea level)
+ * - Each continent map is 64x64 ADT tiles
  */
-export const WoWMaps = {
-  // Classic Maps
-  EASTERN_KINGDOMS: { id: 0, name: 'Eastern Kingdoms', expansion: 'classic' },
-  KALIMDOR: { id: 1, name: 'Kalimdor', expansion: 'classic' },
-
-  // Instances (examples)
-  DEADMINES: { id: 36, name: 'The Deadmines', expansion: 'classic', type: 'dungeon' },
-  WAILING_CAVERNS: { id: 43, name: 'Wailing Caverns', expansion: 'classic', type: 'dungeon' },
-
-  // TBC Maps
-  OUTLAND: { id: 530, name: 'Outland', expansion: 'tbc' },
-
-  // WotLK Maps
-  NORTHREND: { id: 571, name: 'Northrend', expansion: 'wotlk' },
+export const WOW_COORD_CONSTANTS = {
+  /** Maximum world coordinate value */
+  MAX_COORD: 17066.66,
+  /** Minimum world coordinate value */
+  MIN_COORD: -17066.66,
+  /** Total coordinate span */
+  COORD_SPAN: 34133.32,
+  /** Number of ADT tiles per axis */
+  ADT_TILES: 64,
+  /** Size of one ADT tile in yards */
+  ADT_SIZE: 533.33333,
 } as const;
 
 /**
- * Convert WoW coordinates to canvas coordinates
+ * WoW Maps Registry with coordinate metadata
+ */
+export const WoWMaps = {
+  // Classic Maps
+  EASTERN_KINGDOMS: {
+    id: 0,
+    name: 'Eastern Kingdoms',
+    expansion: 'classic',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/eastern_kingdoms.jpg', // Placeholder - replace with actual path
+    hasImage: false,
+  },
+  KALIMDOR: {
+    id: 1,
+    name: 'Kalimdor',
+    expansion: 'classic',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/kalimdor.jpg',
+    hasImage: false,
+  },
+
+  // Instances (examples)
+  DEADMINES: {
+    id: 36,
+    name: 'The Deadmines',
+    expansion: 'classic',
+    type: 'dungeon',
+    coordRange: { minX: -300, maxX: 300, minY: -300, maxY: 300 },
+    imageUrl: '/maps/deadmines_36.jpg',
+    hasImage: false,
+  },
+  WAILING_CAVERNS: {
+    id: 43,
+    name: 'Wailing Caverns',
+    expansion: 'classic',
+    type: 'dungeon',
+    coordRange: { minX: -300, maxX: 300, minY: -300, maxY: 300 },
+    imageUrl: '/maps/wailing_caverns_43.jpg',
+    hasImage: false,
+  },
+
+  // TBC Maps
+  OUTLAND: {
+    id: 530,
+    name: 'Outland',
+    expansion: 'tbc',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/outland.jpg',
+    hasImage: false,
+  },
+
+  // WotLK Maps
+  NORTHREND: {
+    id: 571,
+    name: 'Northrend',
+    expansion: 'wotlk',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/northrend.jpg',
+    hasImage: false,
+  },
+} as const;
+
+/**
+ * Convert WoW world coordinates to canvas pixel coordinates
+ *
+ * WoW coordinate system:
+ * - Range: -17066.66 to +17066.66 (origin at center)
+ * - Positive X = North, Positive Y = West
+ *
+ * Canvas coordinate system:
+ * - Origin at top-left (0, 0)
+ * - Positive X = Right (East), Positive Y = Down (South)
+ *
+ * @param wowX WoW X coordinate (North-South axis)
+ * @param wowY WoW Y coordinate (East-West axis)
+ * @param mapId Map ID to get coordinate ranges
+ * @param canvasWidth Canvas width in pixels
+ * @param canvasHeight Canvas height in pixels
  */
 export function wowToCanvas(
   wowX: number,
   wowY: number,
-  mapWidth: number,
-  mapHeight: number,
-  scale: number = 1
+  mapId: number,
+  canvasWidth: number,
+  canvasHeight: number
 ): { x: number; y: number } {
-  // WoW uses a coordinate system where (0,0) is typically top-left
-  // but with negative Y going up. Normalize to canvas coordinates.
-  const normalizedX = (wowX / 64) * mapWidth;
-  const normalizedY = (wowY / 64) * mapHeight;
-
-  return {
-    x: normalizedX * scale,
-    y: normalizedY * scale,
+  // Get coordinate range for this map
+  const mapData = Object.values(WoWMaps).find(m => m.id === mapId);
+  const coordRange = mapData?.coordRange || {
+    minX: WOW_COORD_CONSTANTS.MIN_COORD,
+    maxX: WOW_COORD_CONSTANTS.MAX_COORD,
+    minY: WOW_COORD_CONSTANTS.MIN_COORD,
+    maxY: WOW_COORD_CONSTANTS.MAX_COORD,
   };
+
+  // Convert WoW coords to normalized 0-1 range
+  const normalizedX = (wowX - coordRange.minX) / (coordRange.maxX - coordRange.minX);
+  const normalizedY = (wowY - coordRange.minY) / (coordRange.maxY - coordRange.minY);
+
+  // Convert to canvas coordinates
+  // Note: WoW Y (West) maps to canvas X (Right/East) - we invert it
+  // WoW X (North) maps to canvas Y (Down/South) - we invert it
+  const canvasX = (1 - normalizedY) * canvasWidth;  // Invert Y axis
+  const canvasY = (1 - normalizedX) * canvasHeight; // Invert X axis
+
+  return { x: canvasX, y: canvasY };
 }
 
 /**
- * Convert canvas coordinates to WoW coordinates
+ * Convert canvas pixel coordinates to WoW world coordinates
+ *
+ * @param canvasX Canvas X coordinate (pixels from left)
+ * @param canvasY Canvas Y coordinate (pixels from top)
+ * @param mapId Map ID to get coordinate ranges
+ * @param canvasWidth Canvas width in pixels
+ * @param canvasHeight Canvas height in pixels
  */
 export function canvasToWow(
   canvasX: number,
   canvasY: number,
-  mapWidth: number,
-  mapHeight: number,
-  scale: number = 1
+  mapId: number,
+  canvasWidth: number,
+  canvasHeight: number
 ): { x: number; y: number } {
-  const normalizedX = (canvasX / scale) / mapWidth;
-  const normalizedY = (canvasY / scale) / mapHeight;
-
-  return {
-    x: normalizedX * 64,
-    y: normalizedY * 64,
+  // Get coordinate range for this map
+  const mapData = Object.values(WoWMaps).find(m => m.id === mapId);
+  const coordRange = mapData?.coordRange || {
+    minX: WOW_COORD_CONSTANTS.MIN_COORD,
+    maxX: WOW_COORD_CONSTANTS.MAX_COORD,
+    minY: WOW_COORD_CONSTANTS.MIN_COORD,
+    maxY: WOW_COORD_CONSTANTS.MAX_COORD,
   };
+
+  // Normalize canvas coords to 0-1
+  const normalizedCanvasX = canvasX / canvasWidth;
+  const normalizedCanvasY = canvasY / canvasHeight;
+
+  // Invert back to WoW coordinate system
+  // Canvas X (Right/East) → WoW Y (West) - inverted
+  // Canvas Y (Down/South) → WoW X (North) - inverted
+  const normalizedWowX = 1 - normalizedCanvasY;
+  const normalizedWowY = 1 - normalizedCanvasX;
+
+  // Convert from normalized to actual WoW coordinates
+  const wowX = coordRange.minX + normalizedWowX * (coordRange.maxX - coordRange.minX);
+  const wowY = coordRange.minY + normalizedWowY * (coordRange.maxY - coordRange.minY);
+
+  return { x: wowX, y: wowY };
+}
+
+/**
+ * Convert zone coordinates (0-100 in-game UI) to world coordinates
+ *
+ * @param zoneX Zone X coordinate (0-100, where 0 is left, 100 is right)
+ * @param zoneY Zone Y coordinate (0-100, where 0 is top, 100 is bottom)
+ * @param zoneMinX Minimum X world coordinate for this zone
+ * @param zoneMaxX Maximum X world coordinate for this zone
+ * @param zoneMinY Minimum Y world coordinate for this zone
+ * @param zoneMaxY Maximum Y world coordinate for this zone
+ */
+export function zoneToWorld(
+  zoneX: number,
+  zoneY: number,
+  zoneMinX: number,
+  zoneMaxX: number,
+  zoneMinY: number,
+  zoneMaxY: number
+): { x: number; y: number } {
+  // Zone coords are 0-100, convert to world coords
+  const worldX = zoneMinX + (zoneX / 100) * (zoneMaxX - zoneMinX);
+  const worldY = zoneMinY + (zoneY / 100) * (zoneMaxY - zoneMinY);
+  return { x: worldX, y: worldY };
+}
+
+/**
+ * Convert world coordinates to zone coordinates (0-100 in-game UI)
+ */
+export function worldToZone(
+  worldX: number,
+  worldY: number,
+  zoneMinX: number,
+  zoneMaxX: number,
+  zoneMinY: number,
+  zoneMaxY: number
+): { x: number; y: number } {
+  const zoneX = ((worldX - zoneMinX) / (zoneMaxX - zoneMinX)) * 100;
+  const zoneY = ((worldY - zoneMinY) / (zoneMaxY - zoneMinY)) * 100;
+  return { x: zoneX, y: zoneY };
+}
+
+/**
+ * Load map image for display
+ *
+ * @param mapId Map ID
+ * @returns Promise that resolves with HTMLImageElement or null if no image
+ */
+export async function loadMapImage(mapId: number): Promise<HTMLImageElement | null> {
+  const mapData = Object.values(WoWMaps).find(m => m.id === mapId);
+
+  if (!mapData?.imageUrl || !mapData.hasImage) {
+    return null;
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null); // Return null instead of rejecting
+    img.src = mapData.imageUrl;
+  });
 }
 
 /**
