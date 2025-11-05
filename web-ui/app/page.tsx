@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { MobileNav } from "@/components/mobile-nav";
 import { useMCPTools } from "@/hooks/useMCP";
 import Link from "next/link";
 
@@ -174,16 +172,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      {/* Mobile Nav & Theme Toggle - Always Available */}
-      <div className="fixed top-4 left-4 z-50 md:hidden">
-        <MobileNav />
-      </div>
-
-      {/* Desktop: Theme Toggle & Global Search */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <div className="hidden md:flex">
-          <ThemeToggle />
-        </div>
+      {/* Global Search - Always Available */}
+      <div className="fixed top-4 right-4 z-50">
         <GlobalSearch />
       </div>
 
@@ -192,13 +182,13 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           {/* Logo and Title */}
           <div className="space-y-4">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight">
+            <h1 className="text-6xl font-bold text-white tracking-tight">
               TrinityCore
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mt-2">
                 API Explorer
               </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto px-4">
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
               Enterprise-grade documentation with{" "}
               <span className="text-blue-400 font-semibold">live MCP integration</span>,
               real-time database access, and interactive API playground
@@ -284,7 +274,7 @@ export default function HomePage() {
       {/* Stats Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center space-y-2">
               <div className="text-4xl font-bold text-blue-400">{data?.count || 80}</div>
               <div className="text-sm text-slate-400">MCP Tools</div>
