@@ -2,14 +2,14 @@
 
 [![Build](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/build.yml)
 [![Code Quality](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/agatho/trinitycore-mcp/actions/workflows/code-quality.yml)
-[![Version](https://img.shields.io/badge/version-2.1.1-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
+[![Version](https://img.shields.io/badge/version-2.4.0-blue.svg)](https://github.com/agatho/trinitycore-mcp/releases)
 [![License](https://img.shields.io/badge/license-GPL--2.0-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![API Docs](https://img.shields.io/badge/API%20Docs-3800%2B%20methods-success.svg)](data/api_docs/general/)
-[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-61%20registered-success.svg)](src/index.ts)
+[![MCP Tools](https://img.shields.io/badge/MCP%20Tools-80%20registered-success.svg)](src/index.ts)
 
-> Custom Model Context Protocol server providing **61 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
+> Custom Model Context Protocol server providing **80 enterprise-grade MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within).
 
 ## 📚 Table of Contents
 
@@ -26,7 +26,7 @@
 
 ## Features
 
-### Core MCP Server (61 Tools)
+### Core MCP Server (80 Tools)
 - **Game Data Queries**: Query spells, items, quests, creatures from World database
 - **DBC/DB2 Reading**: Parse and query client-side database files (WDC5/WDC6 support)
 - **GameTable (GT) Files**: Access critical game calculation tables (combat ratings, XP, stats, scaling)
@@ -209,9 +209,9 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 # Or integrate with Claude Code (see Configuration above)
 ```
 
-## MCP Tools (61 Registered)
+## MCP Tools (80 Registered)
 
-**Total: 61 MCP Tools** across game data, knowledge, performance, testing, and code review categories.
+**Total: 80 MCP Tools** across game data, knowledge, performance, testing, code review, development assistance, production operations, and PlayerBot development categories.
 
 ### Quick Tool Reference
 
@@ -314,6 +314,117 @@ node -e "const client = require('./dist/index.js'); console.log('MCP Server Runn
 - Target: >90% accuracy, <15% false positive rate
 - Performance: ~1000 LOC/sec analysis speed
 - Comprehensive test suite (115+ tests)
+
+#### AI Agent Development Support (2 tools) - NEW in v2.2.0
+- `analyze-thread-safety` - Detect race conditions, deadlocks, and missing locks in C++ code
+- `analyze-memory-leaks` - Detect memory leaks, dangling pointers, and RAII violations
+
+**Thread Safety Analyzer Features:**
+- Lock detection (std::mutex, ACE_Guard, lock_guard)
+- Race condition warnings (shared state without locks)
+- Deadlock pattern detection (circular dependencies)
+- Lock-free alternative suggestions
+- WorldUpdateTime safety checks (50ms cycle compliance)
+
+**Memory Leak Analyzer Features:**
+- Raw pointer leak detection (new without delete)
+- RAII violation detection (manual lock/unlock)
+- Circular reference detection (shared_ptr cycles)
+- Resource leak detection (QueryResult, file handles)
+- Leak rate estimation
+
+#### API Development Assistance (2 tools) - NEW in v2.2.0
+- `migrate-trinity-api` - Migrate code between TrinityCore versions (3.3.5a → 11.2)
+- `get-code-completion-context` - Provide intelligent code completion context for AI assistants
+
+**API Migration Assistant Features:**
+- Deprecation database (20+ API changes)
+- Auto-fix engine for method renames
+- Breaking change detection
+- C++20 modernization suggestions
+- Migration effort estimation
+
+**Code Completion Context Features:**
+- Context-aware API suggestions
+- Pattern learning from existing code
+- Include header suggestions
+- Type safety checking
+- Ranked suggestions by usage frequency
+
+#### Interactive Development Tools (2 tools) - NEW in v2.2.0
+- `debug-bot-behavior` - Debug bot AI behavior with live state inspection and replay
+- `simulate-game-mechanics` - Simulate combat, spell damage, and stat impacts
+
+**Bot Behavior Debugger Features:**
+- Live bot state inspection (HP, mana, target, position)
+- Decision timeline recording with timestamps
+- Action replay engine
+- State breakpoint system
+- Bug report export (JSON)
+
+**Game Mechanics Simulator Features:**
+- Combat simulation (DPS, healing, tanking)
+- Spell damage calculator (crit, armor mitigation)
+- Stat impact analyzer (what-if scenarios)
+- Rotation comparison mode
+
+#### Production Operations & Monitoring (11 tools) - NEW in v2.3.0
+- `get-health-status` - Get comprehensive MCP server health status
+- `get-metrics-snapshot` - Get current metrics snapshot
+- `query-logs` - Query server logs with filtering
+- `get-log-file-location` - Get log file location
+- `get-monitoring-status` - Get monitoring system status
+- `trigger-backup` - Manually trigger backup (full/incremental)
+- `verify-backup` - Verify backup integrity
+- `get-security-status` - Get security status
+- `list-backups` - List all available backups
+- `check-code-style` - Check C++ code style and conventions
+- `format-code` - Format C++ code according to TrinityCore style
+
+**Health Monitoring Features:**
+- Component health checks (database, cache, APIs)
+- System metrics (CPU, memory, uptime)
+- Request/response metrics
+- Error rate tracking
+- Log querying and filtering
+
+**Production Management Features:**
+- Automated and manual backups
+- Backup verification and integrity checks
+- Security status monitoring
+- Rate limiting status
+- Access control audit
+
+**Code Style Features:**
+- Naming convention checks (PascalCase, camelCase)
+- Formatting validation (.clang-format)
+- Comment standards (Doxygen)
+- File organization checks
+- Auto-fix capabilities
+- 60% faster code review
+
+#### PlayerBot Development Tools (2 tools) - NEW in v2.4.0
+- `analyze-bot-ai` - Analyze PlayerBot C++ AI code and visualize decision logic
+- `analyze-bot-combat-log` - Analyze bot combat performance from server logs
+
+**Bot AI Analyzer Features:**
+- Parse C++ decision trees (if/else, switch statements)
+- Extract action priorities
+- Detect issues (missing cooldown checks, unreachable code, null pointer risks)
+- Generate Mermaid flowcharts of AI logic
+- Suggest optimizations (reorder priorities, combine conditions)
+- Analyze 700+ lines of bot AI in seconds
+
+**Combat Log Analyzer Features:**
+- Calculate DPS/HPS/TPS metrics
+- Analyze ability usage and rotation quality
+- Compare vs theoretical maximum DPS
+- Detect missed opportunities (unused cooldowns, wasted procs)
+- Identify suboptimal decisions
+- Reaction time analysis (avg, p50, p95, p99)
+- Group performance metrics
+- Timeline visualization
+- Actionable recommendations
 
 ## Web UI
 
@@ -654,10 +765,10 @@ GPL-2.0 (same as TrinityCore)
 
 ---
 
-**Version**: 2.1.1
+**Version**: 2.4.0
 **Status**: ✅ Production Ready
-**MCP Tools**: 61 registered tools
-**Last Updated**: 2025-01-04
+**MCP Tools**: 80 registered tools
+**Last Updated**: 2025-11-05
 
 Generated with [Claude Code](https://claude.com/claude-code)
 

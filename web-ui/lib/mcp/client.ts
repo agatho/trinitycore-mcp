@@ -1,42 +1,19 @@
-/**
- * TrinityCore MCP Client
- * Enterprise-grade MCP client for Next.js frontend integration
- * Provides direct access to all 56 TrinityCore MCP tools
- */
+// TrinityCore MCP Client
+// Enterprise-grade MCP client for Next.js frontend integration
+// Provides direct access to all 56 TrinityCore MCP tools
+//
+// WARNING: This file contains Node.js dependencies (child_process, fs)
+// ONLY import this in API routes and Server components
+// For client components, import types from lib/mcp/types instead
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import type { MCPTool, MCPClientConfig } from "./types";
+import { MCPToolCategory } from "./types";
 
-// MCP Tool Categories
-export enum MCPToolCategory {
-  SPELL = "spell",
-  ITEM = "item",
-  CREATURE = "creature",
-  QUEST = "quest",
-  DATABASE = "database",
-  COMBAT = "combat",
-  TALENT = "talent",
-  REPUTATION = "reputation",
-  ECONOMY = "economy",
-  PVP = "pvp",
-  DUNGEON = "dungeon",
-  LEVELING = "leveling",
-  COORDINATION = "coordination",
-}
-
-// MCP Tool Interface
-export interface MCPTool {
-  name: string;
-  description: string;
-  category: MCPToolCategory;
-  inputSchema: any;
-}
-
-// MCP Client Configuration
-export interface MCPClientConfig {
-  serverPath: string;
-  env?: Record<string, string>;
-}
+// Re-export types for convenience
+export type { MCPTool, MCPClientConfig } from "./types";
+export { MCPToolCategory } from "./types";
 
 // MCP Client Class
 export class TrinityCoreMCPClient {
@@ -47,8 +24,9 @@ export class TrinityCoreMCPClient {
 
   constructor(private config: MCPClientConfig) {}
 
-  /**
-   * Connect to the TrinityCore MCP server
+  
+/*
+    Connect to the TrinityCore MCP server
    */
   async connect(): Promise<void> {
     if (this.isConnected) {
@@ -103,8 +81,9 @@ export class TrinityCoreMCPClient {
     }
   }
 
-  /**
-   * Disconnect from the MCP server
+  
+/*
+    Disconnect from the MCP server
    */
   async disconnect(): Promise<void> {
     if (!this.isConnected) {
@@ -123,8 +102,9 @@ export class TrinityCoreMCPClient {
     }
   }
 
-  /**
-   * Refresh the list of available tools
+  
+/*
+    Refresh the list of available tools
    */
   async refreshTools(): Promise<void> {
     if (!this.client || !this.isConnected) {
@@ -145,22 +125,25 @@ export class TrinityCoreMCPClient {
     }
   }
 
-  /**
-   * Get all available tools
+  
+/*
+    Get all available tools
    */
   getTools(): MCPTool[] {
     return this.tools;
   }
 
-  /**
-   * Get tools by category
+  
+/*
+    Get tools by category
    */
   getToolsByCategory(category: MCPToolCategory): MCPTool[] {
     return this.tools.filter((tool) => tool.category === category);
   }
 
-  /**
-   * Call an MCP tool
+  
+/*
+    Call an MCP tool
    */
   async callTool<T = any>(toolName: string, args: Record<string, any> = {}): Promise<T> {
     if (!this.client || !this.isConnected) {
@@ -192,8 +175,9 @@ export class TrinityCoreMCPClient {
     }
   }
 
-  /**
-   * Categorize a tool based on its name
+  
+/*
+    Categorize a tool based on its name
    */
   private categorizeTool(toolName: string): MCPToolCategory {
     const name = toolName.toLowerCase();
@@ -220,8 +204,9 @@ export class TrinityCoreMCPClient {
     return MCPToolCategory.DATABASE;
   }
 
-  /**
-   * Check if client is connected
+  
+/*
+    Check if client is connected
    */
   isClientConnected(): boolean {
     return this.isConnected;
@@ -231,8 +216,9 @@ export class TrinityCoreMCPClient {
 // Singleton instance for server-side usage
 let mcpClientInstance: TrinityCoreMCPClient | null = null;
 
-/**
- * Get the singleton MCP client instance (server-side only)
+
+/*
+  Get the singleton MCP client instance (server-side only)
  */
 export function getMCPClient(): TrinityCoreMCPClient {
   if (!mcpClientInstance) {
@@ -252,8 +238,9 @@ export function getMCPClient(): TrinityCoreMCPClient {
   return mcpClientInstance;
 }
 
-/**
- * Initialize MCP client connection (call once on server startup)
+
+/*
+  Initialize MCP client connection (call once on server startup)
  */
 export async function initializeMCPClient(): Promise<void> {
   const client = getMCPClient();
@@ -262,8 +249,9 @@ export async function initializeMCPClient(): Promise<void> {
   }
 }
 
-/**
- * Cleanup MCP client connection (call on server shutdown)
+
+/*
+  Cleanup MCP client connection (call on server shutdown)
  */
 export async function cleanupMCPClient(): Promise<void> {
   if (mcpClientInstance) {
