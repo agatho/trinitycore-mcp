@@ -5,6 +5,7 @@
 
 import * as path from 'path';
 import { CodeGenerator, GeneratedCode } from '../codegen/CodeGenerator.js';
+import { CppValidator, validateCppFile } from '../codegen/CppValidator.js';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -13,8 +14,18 @@ const execAsync = promisify(exec);
 // Initialize code generator
 const generator = new CodeGenerator();
 
+// Initialize C++ validator (Week 5 - Phase 1)
+const cppValidator = new CppValidator({
+    checkNaming: true,
+    checkTrinityAPI: true,
+    checkIncludes: true,
+    checkStyle: true,
+    checkCompilation: false, // Optional: enable for full validation
+});
+
 /**
  * Generate a bot component (AI strategy, state manager, etc.)
+ * Week 5 - Phase 1: Enhanced with C++ template system
  * Performance target: <500ms p95
  */
 export async function generateBotComponent(options: {
@@ -28,15 +39,19 @@ export async function generateBotComponent(options: {
 }): Promise<{
   generated: GeneratedCode;
   additionalFiles?: GeneratedCode[];
+  validationResult?: any;
   generationTime: number;
 }> {
   const start = performance.now();
 
-  // Determine template based on component type
+  // Week 5 Phase 1: Determine template based on component type and role
   const templateMap = {
-    ai_strategy: 'ai_strategies/combat_strategy',
-    state_manager: 'state_managers/state_manager',
-    event_handler: 'event_handlers/event_handler',
+    ai_strategy: options.role === 'tank' ? 'cpp/strategies/tank_strategy'
+                : options.role === 'healer' ? 'cpp/strategies/healer_strategy'
+                : options.role === 'dps' ? 'cpp/strategies/dps_strategy'
+                : 'cpp/strategies/base_strategy',
+    state_manager: 'cpp/strategies/state_manager',
+    event_handler: 'event_handlers/event_handler', // TODO: Create C++ template
   };
 
   const templateName = templateMap[options.componentType];
@@ -141,17 +156,29 @@ export async function generateBotComponent(options: {
     }
   }
 
+  // Week 5 Phase 1: Validate generated C++ code
+  let validationResult;
+  if (generated.filePath.endsWith('.h') || generated.filePath.endsWith('.cpp')) {
+    try {
+      validationResult = await cppValidator.validateFile(generated.filePath);
+    } catch (error) {
+      console.warn(`Validation skipped: ${error}`);
+    }
+  }
+
   const generationTime = performance.now() - start;
 
   return {
     generated,
     additionalFiles,
+    validationResult,
     generationTime,
   };
 }
 
 /**
  * Generate a packet handler
+ * Week 5 - Phase 1: Enhanced with C++ packet templates
  * Performance target: <312ms p95
  */
 export async function generatePacketHandler(options: {
@@ -172,9 +199,17 @@ export async function generatePacketHandler(options: {
   namespace?: string;
 }): Promise<{
   generated: GeneratedCode;
+  validationResult?: any;
   generationTime: number;
 }> {
   const start = performance.now();
+
+  // Week 5 Phase 1: Select appropriate C++ packet template
+  const packetTemplateMap = {
+    client: 'cpp/packets/client_packet',
+    server: 'cpp/packets/server_packet',
+    bidirectional: 'cpp/packets/packet_handler',
+  };
 
   const templateData = {
     className: options.handlerName,
@@ -230,23 +265,33 @@ export async function generatePacketHandler(options: {
     path.join(process.cwd(), 'generated', 'packet_handlers', `${options.handlerName}.h`);
 
   const generated = await generator.generate({
-    templateName: 'packet_handlers/packet_handler',
+    templateName: packetTemplateMap[options.direction],
     outputPath,
     data: templateData,
     format: true,
     overwrite: true,
   });
 
+  // Week 5 Phase 1: Validate generated packet handler
+  let validationResult;
+  try {
+    validationResult = await cppValidator.validateFile(generated.filePath);
+  } catch (error) {
+    console.warn(`Validation skipped: ${error}`);
+  }
+
   const generationTime = performance.now() - start;
 
   return {
     generated,
+    validationResult,
     generationTime,
   };
 }
 
 /**
  * Generate CMake integration files
+ * Week 5 - Phase 1: Enhanced with C++ CMake templates
  * Performance target: <200ms p95
  */
 export async function generateCMakeIntegration(options: {
@@ -264,6 +309,17 @@ export async function generateCMakeIntegration(options: {
   generationTime: number;
 }> {
   const start = performance.now();
+
+  // Week 5 Phase 1: Select appropriate CMake template
+  const cmakeTemplateMap = {
+    library: 'cpp/build/cmake_library',
+    module: 'cpp/build/cmake_module',
+    default: 'cpp/build/cmake_lists',
+  };
+
+  const templateType = options.isLibrary ? 'library'
+                     : options.isModule ? 'module'
+                     : 'default';
 
   const templateData = {
     projectName: options.projectName,
@@ -287,7 +343,7 @@ export async function generateCMakeIntegration(options: {
     path.join(process.cwd(), 'generated', options.projectName, 'CMakeLists.txt');
 
   const generated = await generator.generate({
-    templateName: 'cmake/CMakeLists',
+    templateName: cmakeTemplateMap[templateType],
     outputPath,
     data: templateData,
     format: false, // CMake doesn't need formatting
@@ -304,79 +360,56 @@ export async function generateCMakeIntegration(options: {
 
 /**
  * Validate generated code (compilation check)
+ * Week 5 - Phase 1: Enhanced with CppValidator
  * Performance target: <2000ms p95 (includes compilation)
  */
 export async function validateGeneratedCode(options: {
   filePath: string;
   checkCompilation?: boolean;
   checkStyle?: boolean;
+  checkNaming?: boolean;
+  checkTrinityAPI?: boolean;
+  checkIncludes?: boolean;
 }): Promise<{
   valid: boolean;
   errors: string[];
   warnings: string[];
+  info: string[];
   validationTime: number;
 }> {
   const start = performance.now();
 
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  // Week 5 Phase 1: Use CppValidator for comprehensive validation
+  const validator = new CppValidator({
+    checkNaming: options.checkNaming ?? true,
+    checkTrinityAPI: options.checkTrinityAPI ?? true,
+    checkIncludes: options.checkIncludes ?? true,
+    checkStyle: options.checkStyle ?? true,
+    checkCompilation: options.checkCompilation ?? false,
+  });
 
-  // Basic file validation
-  try {
-    const fs = await import('fs/promises');
-    const content = await fs.readFile(options.filePath, 'utf-8');
+  const result = await validator.validateFile(options.filePath);
 
-    // Check for common issues
-    if (!content.includes('#pragma once') && options.filePath.endsWith('.h')) {
-      warnings.push('Missing #pragma once in header file');
-    }
+  // Convert validation result to expected format
+  const errors = result.issues
+    .filter(i => i.severity === 'error')
+    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
-    if (content.includes('TODO') || content.includes('FIXME')) {
-      warnings.push('Contains TODO/FIXME comments');
-    }
+  const warnings = result.issues
+    .filter(i => i.severity === 'warning')
+    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
-    // Check for thread-safety issues
-    if (content.includes('static ') && !content.includes('thread_local')) {
-      warnings.push('Contains static variables (potential thread-safety issue)');
-    }
-
-  } catch (error) {
-    errors.push(`Failed to read file: ${error}`);
-  }
-
-  // Compilation check (if requested)
-  if (options.checkCompilation && options.filePath.endsWith('.cpp')) {
-    try {
-      // Try to compile with g++ or clang (basic syntax check)
-      const { stderr } = await execAsync(`g++ -std=c++20 -fsyntax-only ${options.filePath}`);
-
-      if (stderr) {
-        // Parse compiler errors/warnings
-        const lines = stderr.split('\n');
-        for (const line of lines) {
-          if (line.includes('error:')) {
-            errors.push(line.trim());
-          } else if (line.includes('warning:')) {
-            warnings.push(line.trim());
-          }
-        }
-      }
-    } catch (error: any) {
-      // Compiler not available or compilation failed
-      if (error.stderr) {
-        errors.push(`Compilation failed: ${error.stderr}`);
-      } else {
-        warnings.push('Compiler not available - skipping compilation check');
-      }
-    }
-  }
+  const info = result.issues
+    .filter(i => i.severity === 'info')
+    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
   const validationTime = performance.now() - start;
 
   return {
-    valid: errors.length === 0,
+    valid: result.valid,
     errors,
     warnings,
+    info,
     validationTime,
   };
 }

@@ -3205,6 +3205,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case "review-code-file": {
+        // FILE LOGGING for MCP debugging
+        const logPath = 'c:/TrinityBots/trinitycore-mcp/mcp-debug.log';
+        const logMsg = `\n=== MCP Handler: review-code-file ===\n` +
+                       `Time: ${new Date().toISOString()}\n` +
+                       `args.filePath: ${args.filePath}\n` +
+                       `args.projectRoot: ${args.projectRoot}\n` +
+                       `args.minConfidence: ${args.minConfidence}\n` +
+                       `args.verbose: ${args.verbose}\n`;
+        try {
+          require('fs').appendFileSync(logPath, logMsg);
+        } catch (e) {
+          console.error('Failed to write log:', e);
+        }
+
         const result = await reviewFile(args.filePath as string, {
           enableAI: args.enableAI as boolean | undefined,
           llmProvider: args.llmProvider as "openai" | "ollama" | "lmstudio" | undefined,
@@ -3216,6 +3230,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           compilerType: args.compilerType as any | undefined,
           verbose: args.verbose as boolean | undefined,
         });
+
+        // Log result
+        try {
+          require('fs').appendFileSync(logPath, `Result length: ${result.length} chars\n`);
+        } catch (e) {}
+
         return {
           content: [{ type: "text", text: result }],
         };

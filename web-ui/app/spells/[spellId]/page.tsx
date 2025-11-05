@@ -100,8 +100,26 @@ export default function SpellDetailPage() {
                 <p className="text-xl text-slate-300">
                   {spell.description || "No description available"}
                 </p>
-                <div className="mt-3 text-sm text-slate-500">
-                  Spell ID: {spellId}
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-sm text-slate-500">
+                    Spell ID: {spellId}
+                  </span>
+                  {spell.dataSource && (
+                    <Badge
+                      variant="outline"
+                      className={
+                        spell.dataSource === "database"
+                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          : spell.dataSource === "db2"
+                          ? "bg-green-500/20 text-green-400 border-green-500/30"
+                          : "bg-orange-500/20 text-orange-400 border-orange-500/30"
+                      }
+                    >
+                      {spell.dataSource === "database" && "📊 Database"}
+                      {spell.dataSource === "db2" && "💾 DB2 Cache"}
+                      {spell.dataSource === "merged" && "🔄 Merged"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

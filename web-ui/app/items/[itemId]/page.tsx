@@ -125,8 +125,26 @@ export default function ItemDetailPage() {
                 <p className="text-xl text-slate-300">
                   {item.description || "No description available"}
                 </p>
-                <div className="mt-3 text-sm text-slate-500">
-                  Item ID: {itemId}
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-sm text-slate-500">
+                    Item ID: {itemId}
+                  </span>
+                  {item.dataSource && (
+                    <Badge
+                      variant="outline"
+                      className={
+                        item.dataSource === "database"
+                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          : item.dataSource === "db2"
+                          ? "bg-green-500/20 text-green-400 border-green-500/30"
+                          : "bg-orange-500/20 text-orange-400 border-orange-500/30"
+                      }
+                    >
+                      {item.dataSource === "database" && "📊 Database"}
+                      {item.dataSource === "db2" && "💾 DB2 Cache"}
+                      {item.dataSource === "merged" && "🔄 Merged"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

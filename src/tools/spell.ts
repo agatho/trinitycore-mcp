@@ -79,26 +79,171 @@ export interface SpellEffect {
 
 // DB2 file paths
 const DB2_PATH = process.env.DB2_PATH || "./data/db2";
-const SPELL_DB2_FILE = "Spell.db2";
+// Use SpellName.db2 which contains actual spell names (not Spell.db2)
+// Based on TrinityCore's sSpellNameStore("SpellName.db2")
+const SPELL_DB2_FILE = "SpellName.db2";
+
+// Spell name cache (loaded from DBCD-generated JSON)
+const SPELL_NAME_CACHE_PATH = "./data/cache/spell_names_cache.json";
+let spellNameCache: Map<number, string> | null = null;
+
+// Spell data cache (loaded from DBCD-generated JSON - complete Spell.db2 data)
+const SPELL_DATA_CACHE_PATH = "./data/cache/spell_data_cache.json";
+interface SpellDataCacheEntry {
+  ID: number;
+  NameSubtext_lang?: string;
+  Description_lang?: string;
+  AuraDescription_lang?: string;
+}
+let spellDataCache: Map<number, SpellDataCacheEntry> | null = null;
+
+/**
+ * Load spell name cache from DBCD-generated JSON
+ * This provides 100% accurate spell names extracted using the proven DBCD library
+ * @returns True if cache loaded successfully
+ */
+function loadSpellNameCache(): boolean {
+  if (spellNameCache !== null) {
+    return true; // Already loaded
+  }
+
+  try {
+    if (!fs.existsSync(SPELL_NAME_CACHE_PATH)) {
+      console.warn(`Spell name cache not found at ${SPELL_NAME_CACHE_PATH}. Falling back to DB2 parsing.`);
+      return false;
+    }
+
+    const cacheData = JSON.parse(fs.readFileSync(SPELL_NAME_CACHE_PATH, 'utf8'));
+    spellNameCache = new Map<number, string>();
+
+    // Convert JSON object to Map
+    for (const [key, value] of Object.entries(cacheData)) {
+      spellNameCache.set(parseInt(key), value as string);
+    }
+
+    console.log(`✅ Loaded spell name cache: ${spellNameCache.size} entries`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to load spell name cache: ${error}`);
+    spellNameCache = null;
+    return false;
+  }
+}
+
+/**
+ * Get spell name from cache (100% accurate, O(1) lookup)
+ * Falls back to DB2 parsing if cache unavailable
+ * @param spellId Spell ID to query
+ * @returns Spell name or null if not found
+ */
+function getSpellNameFromCache(spellId: number): string | null {
+  // Lazy load cache on first access
+  if (spellNameCache === null) {
+    loadSpellNameCache();
+  }
+
+  // If cache available, use it (100% accurate)
+  if (spellNameCache !== null) {
+    return spellNameCache.get(spellId) || null;
+  }
+
+  // Cache unavailable, caller will fall back to DB2 parsing
+  return null;
+}
+
+/**
+ * Load spell data cache from DBCD-generated JSON
+ * This provides complete Spell.db2 data (descriptions, ranks, etc.) as fallback
+ * when Trinity database doesn't have the data
+ * @returns True if cache loaded successfully
+ */
+function loadSpellDataCache(): boolean {
+  if (spellDataCache !== null) {
+    return true; // Already loaded
+  }
+
+  try {
+    if (!fs.existsSync(SPELL_DATA_CACHE_PATH)) {
+      console.warn(`Spell data cache not found at ${SPELL_DATA_CACHE_PATH}. Using database only.`);
+      return false;
+    }
+
+    const cacheData = JSON.parse(fs.readFileSync(SPELL_DATA_CACHE_PATH, 'utf8'));
+    spellDataCache = new Map<number, SpellDataCacheEntry>();
+
+    // Convert JSON object to Map
+    for (const [key, value] of Object.entries(cacheData)) {
+      spellDataCache.set(parseInt(key), value as SpellDataCacheEntry);
+    }
+
+    console.log(`✅ Loaded spell data cache: ${spellDataCache.size} entries`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to load spell data cache: ${error}`);
+    spellDataCache = null;
+    return false;
+  }
+}
+
+/**
+ * Get complete spell data from cache (descriptions, ranks, etc.)
+ * This is used as fallback when Trinity database doesn't have the spell data
+ * @param spellId Spell ID to query
+ * @returns Spell data entry or null if not found
+ */
+function getSpellDataFromCache(spellId: number): SpellDataCacheEntry | null {
+  // Lazy load cache on first access
+  if (spellDataCache === null) {
+    loadSpellDataCache();
+  }
+
+  // If cache available, use it
+  if (spellDataCache !== null) {
+    return spellDataCache.get(spellId) || null;
+  }
+
+  // Cache unavailable
+  return null;
+}
 
 /**
  * Load spell data from Spell.db2 via cached loader
+ * PRIORITY 1: Use JSON cache (100% accurate, extracted via DBCD)
+ * PRIORITY 2: Fall back to DB2 parsing if cache unavailable
  * @param spellId Spell ID to query
- * @returns Parsed SpellEntry or null if not found
+ * @returns Parsed SpellEntry with spell name
  */
 async function loadSpellFromDB2(spellId: number): Promise<{
   data: any | null;
   cacheHit: boolean;
   loadTime: number;
+  source: "json-cache" | "db2-parser" | "none";
 }> {
   const startTime = Date.now();
 
   try {
+    // PRIORITY 1: Try JSON cache first (100% accurate)
+    const cachedName = getSpellNameFromCache(spellId);
+    if (cachedName !== null) {
+      return {
+        data: { Name_lang: cachedName },
+        cacheHit: true,
+        loadTime: Date.now() - startTime,
+        source: "json-cache"
+      };
+    }
+
+    // PRIORITY 2: Fall back to DB2 parsing
     const filePath = path.join(DB2_PATH, SPELL_DB2_FILE);
 
     // Check if file exists
     if (!fs.existsSync(filePath)) {
-      return { data: null, cacheHit: false, loadTime: Date.now() - startTime };
+      return {
+        data: null,
+        cacheHit: false,
+        loadTime: Date.now() - startTime,
+        source: "none"
+      };
     }
 
     // Get cached loader (singleton per file)
@@ -128,10 +273,16 @@ async function loadSpellFromDB2(spellId: number): Promise<{
       data: spellEntry,
       cacheHit,
       loadTime: Date.now() - startTime,
+      source: "db2-parser"
     };
   } catch (error) {
     console.error("Error loading spell from DB2:", error);
-    return { data: null, cacheHit: false, loadTime: Date.now() - startTime };
+    return {
+      data: null,
+      cacheHit: false,
+      loadTime: Date.now() - startTime,
+      source: "none"
+    };
   }
 }
 
@@ -141,43 +292,51 @@ async function loadSpellFromDB2(spellId: number): Promise<{
  */
 export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
   try {
-    // Step 1: Load from DB2 (with caching)
+    // Step 1: Load from DB2 (with caching - JSON cache or DB2 parser)
     const db2Result = await loadSpellFromDB2(spellId);
     const db2Spell = db2Result.data;
 
-    // Step 2: Query spell_template for database data
-    const spellQuery = `
-      SELECT
-        ID as spellId,
-        SpellName as name,
-        Rank as rank,
-        Description as description,
-        AuraDescription as tooltip,
-        Category as category,
-        Dispel as dispel,
-        Mechanic as mechanic,
-        CastTimeIndex as castTime,
-        RecoveryTime as cooldown,
-        DurationIndex as duration,
-        ManaCost as powerCost,
-        PowerType as powerType,
-        Speed as speed,
-        RangeIndex as rangeIndex
-      FROM spell_template
-      WHERE ID = ?
-      LIMIT 1
-    `;
+    // Step 2: Query serverside_spell for database data (only for server-side custom spells)
+    // Note: Most spells only exist in Spell.db2/JSON cache, not in the database
+    // Gracefully handle database connection errors since we have DB2/cache as fallback
+    let dbSpell = null;
+    try {
+      const spellQuery = `
+        SELECT
+          Id as spellId,
+          SpellName as name,
+          CategoryId as category,
+          Dispel as dispel,
+          Mechanic as mechanic,
+          CastingTimeIndex as castTime,
+          RecoveryTime as cooldown,
+          DurationIndex as duration,
+          Speed as speed,
+          RangeIndex as rangeIndex,
+          SchoolMask as schoolMask
+        FROM serverside_spell
+        WHERE Id = ? AND DifficultyID = 0
+        LIMIT 1
+      `;
 
-    const spells = await queryWorld(spellQuery, [spellId]);
-    const dbSpell = spells && spells.length > 0 ? spells[0] : null;
+      const spells = await queryWorld(spellQuery, [spellId]);
+      dbSpell = spells && spells.length > 0 ? spells[0] : null;
+    } catch (dbError) {
+      // Database unavailable - not fatal, we have DB2/cache data
+      console.warn(`Database query failed for spell ${spellId}, using DB2/cache only:`, dbError instanceof Error ? dbError.message : String(dbError));
+    }
 
-    // Step 3: Determine data source
+    // Step 3: Try Spell.db2 data cache as fallback (descriptions, ranks, etc.)
+    // This provides complete spell data when Trinity database doesn't have it
+    const cachedSpellData = getSpellDataFromCache(spellId);
+
+    // Step 4: Determine data source
     let dataSource: "database" | "db2" | "merged" = "database";
     if (db2Spell && dbSpell) {
       dataSource = "merged";
     } else if (db2Spell && !dbSpell) {
       dataSource = "db2";
-    } else if (!db2Spell && !dbSpell) {
+    } else if (!db2Spell && !dbSpell && !cachedSpellData) {
       // Neither source has data
       return {
         spellId,
@@ -199,55 +358,68 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
           db2CacheHit: db2Result.cacheHit,
           loadTime: `${db2Result.loadTime}ms`,
         },
-        error: `Spell ${spellId} not found in database or DB2`,
+        error: `Spell ${spellId} not found in database, DB2, or cache`,
       };
     }
 
     // Step 4: Merge data (prefer database for gameplay values, DB2 for names/descriptions)
     const spell = dbSpell || {};
 
-    // Query spell effects
-    const effectsQuery = `
-      SELECT
-        EffectIndex as effectIndex,
-        Effect as effect,
-        EffectBasePoints as basePoints,
-        EffectRadiusIndex as radiusIndex,
-        EffectApplyAuraName as aura,
-        EffectImplicitTargetA as targetA,
-        EffectImplicitTargetB as targetB
-      FROM spell_template
-      WHERE ID = ?
-    `;
-
-    const effectsData = await queryWorld(effectsQuery, [spellId]);
-
+    // Query spell effects from serverside_spell_effect (only for server-side custom spells)
+    // Note: Most spell effects only exist in SpellEffect.db2, not in the database
+    // Gracefully handle database connection errors
     const effects: SpellEffect[] = [];
-    if (effectsData && effectsData.length > 0) {
-      for (let i = 0; i < 3; i++) {
-        const effectKey = `Effect_${i}`;
-        if (spell[effectKey]) {
+    try {
+      const effectsQuery = `
+        SELECT
+          EffectIndex as effectIndex,
+          Effect as effect,
+          EffectBasePoints as basePoints,
+          EffectRadiusIndex1 as radiusIndex,
+          EffectAura as aura,
+          ImplicitTarget1 as targetA,
+          ImplicitTarget2 as targetB
+        FROM serverside_spell_effect
+        WHERE SpellID = ? AND DifficultyID = 0
+        ORDER BY EffectIndex
+      `;
+
+      const effectsData = await queryWorld(effectsQuery, [spellId]);
+
+      if (effectsData && effectsData.length > 0) {
+        for (const effectRow of effectsData) {
           effects.push({
-            index: i,
-            effect: spell[effectKey],
-            effectName: getEffectName(spell[effectKey]),
-            basePoints: spell[`EffectBasePoints_${i}`] || 0,
-            radiusIndex: spell[`EffectRadiusIndex_${i}`] || 0,
-            aura: spell[`EffectApplyAuraName_${i}`] || 0,
-            auraName: getAuraName(spell[`EffectApplyAuraName_${i}`]),
-            implicitTargetA: spell[`EffectImplicitTargetA_${i}`] || 0,
-            implicitTargetB: spell[`EffectImplicitTargetB_${i}`] || 0,
+            index: effectRow.effectIndex || 0,
+            effect: effectRow.effect || 0,
+            effectName: getEffectName(effectRow.effect),
+            basePoints: effectRow.basePoints || 0,
+            radiusIndex: effectRow.radiusIndex || 0,
+            aura: effectRow.aura || 0,
+            auraName: getAuraName(effectRow.aura),
+            implicitTargetA: effectRow.targetA || 0,
+            implicitTargetB: effectRow.targetB || 0,
           });
         }
       }
+    } catch (effectsError) {
+      // Database unavailable - not fatal, effects will be empty
+      console.warn(`Effects query failed for spell ${spellId}:`, effectsError instanceof Error ? effectsError.message : String(effectsError));
     }
+
+    // Extract spell name from DB2 data (JSON cache uses Name_lang field)
+    const db2SpellName = db2Spell?.Name_lang || db2Spell?.spellName;
+
+    // Use cached spell data for descriptions and rank as fallback
+    const spellDescription = spell.description || cachedSpellData?.Description_lang || db2Spell?.description;
+    const spellRank = spell.rank || cachedSpellData?.NameSubtext_lang || db2Spell?.rank;
+    const auraDescription = cachedSpellData?.AuraDescription_lang;
 
     return {
       spellId: spell.spellId || spellId,
-      name: spell.name || db2Spell?.spellName || "Unknown",
-      rank: spell.rank || db2Spell?.rank,
-      description: spell.description || db2Spell?.description,
-      tooltip: spell.tooltip,
+      name: spell.name || db2SpellName || "Unknown",
+      rank: spellRank,
+      description: spellDescription,
+      tooltip: spell.tooltip || auraDescription,
       category: spell.category || 0,
       dispel: spell.dispel || 0,
       mechanic: spell.mechanic || 0,
@@ -260,10 +432,10 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
       range: getSpellRange(spell.rangeIndex || 0),
       speed: spell.speed || 0,
       effects,
-      // Week 7: Include DB2 data
+      // Week 7: Include DB2 data (supports both JSON cache and DB2 parser formats)
       db2Data: db2Spell
         ? {
-            spellName: db2Spell.spellName,
+            spellName: db2SpellName,
             rank: db2Spell.rank,
             description: db2Spell.description,
             spellIconFileDataID: db2Spell.spellIconFileDataID,

@@ -39,6 +39,20 @@ export interface DB2SectionHeader {
   copyTableCount: number; // uint32
 }
 
+/**
+ * DB2 Field Entry (TrinityCore format)
+ * Simple 4-byte structure for field metadata
+ * Matches TrinityCore's DB2FieldEntry exactly
+ */
+export interface DB2FieldEntry {
+  unusedBits: number;  // int16 - Number of unused bits (determines field size)
+  offset: number;      // uint16 - Offset within record
+}
+
+/**
+ * Legacy complex compression enum (DEPRECATED - not used by TrinityCore)
+ * TrinityCore uses simple variable-int based on UnusedBits instead
+ */
 export enum DB2ColumnCompression {
   None = 0,
   Immediate = 1,
@@ -48,6 +62,10 @@ export enum DB2ColumnCompression {
   SignedImmediate = 5,
 }
 
+/**
+ * Legacy column metadata (DEPRECATED - use DB2FieldEntry instead)
+ * TrinityCore's actual implementation is much simpler
+ */
 export interface DB2ColumnMeta {
   bitOffset: number;
   bitSize: number;
