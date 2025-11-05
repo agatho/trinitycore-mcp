@@ -1,0 +1,698 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Stage, Layer, Line, Circle, Text, Rect, Arrow } from 'react-konva';
+import { Map, Navigation, Plus, Download, Upload, Save, Trash2, Move, Waypoints, Route, Link, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  MapCoordinate,
+  Road,
+  ZoneTransition,
+  WaypointPath,
+  WoWMaps,
+  generateSpawnSQL,
+  generateWaypointSQL,
+  generateZoneTransitionSQL,
+  exportMapData,
+  importMapData,
+  simplifyPath,
+} from '@/lib/map-editor';
+
+type Tool = 'select' | 'spawn' | 'waypoint' | 'road' | 'transition' | 'flightpath';
+
+export default function MapPickerPage() {
+  const [selectedMap, setSelectedMap] = useState(0);
+  const [mapImageSrc, setMapImageSrc] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
+  const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+
+  // Tools
+  const [currentTool, setCurrentTool] = useState<Tool>('select');
+  const [coordinates, setCoordinates] = useState<MapCoordinate[]>([]);
+  const [roads, setRoads] = useState<Road[]>([]);
+  const [transitions, setTransitions] = useState<ZoneTransition[]>([]);
+  const [waypointPaths, setWaypointPaths] = useState<WaypointPath[]>([]);
+
+  // Drawing state
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentRoad, setCurrentRoad] = useState<Array<{ x: number; y: number }>>([]);
+  const [currentPath, setCurrentPath] = useState<Array<{ x: number; y: number }>>([]);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
+  const stageRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const STAGE_WIDTH = 1200;
+  const STAGE_HEIGHT = 800;
+
+  // Handle map upload
+  const handleMapUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setMapImageSrc(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle stage click
+  const handleStageClick = (e: any) => {
+    const stage = e.target.getStage();
+    const pointerPosition = stage.getPointerPosition();
+
+    if (!pointerPosition) return;
+
+    const x = (pointerPosition.x - stagePos.x) / scale;
+    const y = (pointerPosition.y - stagePos.y) / scale;
+
+    switch (currentTool) {
+      case 'spawn':
+        addSpawnPoint(x, y);
+        break;
+      case 'waypoint':
+        addWaypoint(x, y);
+        break;
+      case 'road':
+        addRoadPoint(x, y);
+        break;
+      case 'transition':
+        addTransition(x, y);
+        break;
+    }
+  };
+
+  const addSpawnPoint = (x: number, y: number) => {
+    const newCoord: MapCoordinate = {
+      id: `spawn-${Date.now()}`,
+      x,
+      y,
+      z: 0,
+      mapId: selectedMap,
+      type: 'spawn',
+      label: `Spawn ${coordinates.filter(c => c.type === 'spawn').length + 1}`,
+    };
+    setCoordinates([...coordinates, newCoord]);
+  };
+
+  const addWaypoint = (x: number, y: number) => {
+    if (isDrawing) {
+      setCurrentPath([...currentPath, { x, y }]);
+    } else {
+      setIsDrawing(true);
+      setCurrentPath([{ x, y }]);
+    }
+  };
+
+  const addRoadPoint = (x: number, y: number) => {
+    if (isDrawing) {
+      setCurrentRoad([...currentRoad, { x, y }]);
+    } else {
+      setIsDrawing(true);
+      setCurrentRoad([{ x, y }]);
+    }
+  };
+
+  const addTransition = (x: number, y: number) => {
+    const newTransition: ZoneTransition = {
+      id: `transition-${Date.now()}`,
+      fromZone: 'Zone A',
+      toZone: 'Zone B',
+      fromMapId: selectedMap,
+      toMapId: selectedMap,
+      entranceCoord: { x, y },
+      exitCoord: { x: x + 10, y: y + 10 },
+      type: 'portal',
+      bidirectional: true,
+    };
+    setTransitions([...transitions, newTransition]);
+  };
+
+  const finishDrawing = () => {
+    if (currentTool === 'road' && currentRoad.length >= 2) {
+      const simplified = simplifyPath(currentRoad, 2.0);
+      const newRoad: Road = {
+        id: `road-${Date.now()}`,
+        name: `Road ${roads.length + 1}`,
+        mapId: selectedMap,
+        points: simplified,
+        width: 5,
+        type: 'main-road',
+      };
+      setRoads([...roads, newRoad]);
+      setCurrentRoad([]);
+    } else if (currentTool === 'waypoint' && currentPath.length >= 2) {
+      const newPath: WaypointPath = {
+        id: `${Date.now()}`,
+        name: `Path ${waypointPaths.length + 1}`,
+        mapId: selectedMap,
+        waypoints: currentPath.map(p => ({ x: p.x, y: p.y })),
+        isLoop: false,
+      };
+      setWaypointPaths([...waypointPaths, newPath]);
+      setCurrentPath([]);
+    }
+    setIsDrawing(false);
+  };
+
+  // Zoom handlers
+  const handleWheel = (e: any) => {
+    e.evt.preventDefault();
+
+    const scaleBy = 1.1;
+    const stage = e.target.getStage();
+    const oldScale = stage.scaleX();
+    const mousePointTo = {
+      x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
+      y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
+    };
+
+    const newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    setScale(newScale);
+
+    setStagePos({
+      x: -(mousePointTo.x - stage.getPointerPosition().x / newScale) * newScale,
+      y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale,
+    });
+  };
+
+  // Export handlers
+  const exportSQL = () => {
+    let sql = `-- Map Coordinate Export\n-- Map ID: ${selectedMap}\n-- Generated: ${new Date().toISOString()}\n\n`;
+
+    // Export spawn points
+    coordinates.forEach(coord => {
+      if (coord.type === 'spawn') {
+        sql += generateSpawnSQL(coord, 1234) + '\n\n';
+      }
+    });
+
+    // Export waypoint paths
+    waypointPaths.forEach(path => {
+      sql += generateWaypointSQL(path) + '\n\n';
+    });
+
+    // Export transitions
+    transitions.forEach(transition => {
+      sql += generateZoneTransitionSQL(transition) + '\n\n';
+    });
+
+    // Download
+    const blob = new Blob([sql], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `map_${selectedMap}_export.sql`;
+    a.click();
+  };
+
+  const exportJSON = () => {
+    const json = exportMapData(coordinates, roads, transitions, waypointPaths);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `map_${selectedMap}_export.json`;
+    a.click();
+  };
+
+  const importJSON = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const data = importMapData(event.target?.result as string);
+        if (data) {
+          setCoordinates(data.coordinates);
+          setRoads(data.roads);
+          setTransitions(data.transitions);
+          setWaypointPaths(data.paths);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const clearAll = () => {
+    if (confirm('Clear all data? This cannot be undone.')) {
+      setCoordinates([]);
+      setRoads([]);
+      setTransitions([]);
+      setWaypointPaths([]);
+      setCurrentRoad([]);
+      setCurrentPath([]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+      <div className="max-w-[1800px] mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Map className="w-8 h-8 text-blue-400" />
+              <div>
+                <h1 className="text-3xl font-bold text-white">Map Coordinate Picker</h1>
+                <p className="text-slate-400">
+                  Visual map editor for coordinates, roads, and zone transitions
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={exportSQL}>
+                <Download className="w-4 h-4 mr-2" />
+                Export SQL
+              </Button>
+              <Button variant="outline" onClick={exportJSON}>
+                <Save className="w-4 h-4 mr-2" />
+                Export JSON
+              </Button>
+              <Button variant="outline" onClick={importJSON}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import JSON
+              </Button>
+              <Button variant="outline" onClick={clearAll}>
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear All
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[250px_1fr_300px] gap-6">
+          {/* Left Sidebar - Tools */}
+          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-white mb-4">Tools</h3>
+
+            <div className="space-y-2">
+              <Button
+                variant={currentTool === 'select' ? 'default' : 'outline'}
+                className="w-full justify-start"
+                onClick={() => setCurrentTool('select')}
+              >
+                <Move className="w-4 h-4 mr-2" />
+                Select
+              </Button>
+              <Button
+                variant={currentTool === 'spawn' ? 'default' : 'outline'}
+                className="w-full justify-start"
+                onClick={() => setCurrentTool('spawn')}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Spawn Point
+              </Button>
+              <Button
+                variant={currentTool === 'waypoint' ? 'default' : 'outline'}
+                className="w-full justify-start"
+                onClick={() => setCurrentTool('waypoint')}
+              >
+                <Waypoints className="w-4 h-4 mr-2" />
+                Waypoint Path
+              </Button>
+              <Button
+                variant={currentTool === 'road' ? 'default' : 'outline'}
+                className="w-full justify-start"
+                onClick={() => setCurrentTool('road')}
+              >
+                <Route className="w-4 h-4 mr-2" />
+                Road
+              </Button>
+              <Button
+                variant={currentTool === 'transition' ? 'default' : 'outline'}
+                className="w-full justify-start"
+                onClick={() => setCurrentTool('transition')}
+              >
+                <Link className="w-4 h-4 mr-2" />
+                Zone Transition
+              </Button>
+
+              {isDrawing && (
+                <Button
+                  variant="default"
+                  className="w-full mt-4"
+                  onClick={finishDrawing}
+                >
+                  Finish Drawing
+                </Button>
+              )}
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-700">
+              <h3 className="text-sm font-semibold text-white mb-3">Map Selection</h3>
+              <select
+                className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                value={selectedMap}
+                onChange={(e) => setSelectedMap(Number(e.target.value))}
+              >
+                <option value={0}>Eastern Kingdoms (0)</option>
+                <option value={1}>Kalimdor (1)</option>
+                <option value={530}>Outland (530)</option>
+                <option value={571}>Northrend (571)</option>
+              </select>
+
+              <Button
+                variant="outline"
+                className="w-full mt-3"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Map Image
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleMapUpload}
+              />
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-700">
+              <h3 className="text-sm font-semibold text-white mb-2">Stats</h3>
+              <div className="space-y-1 text-sm text-slate-400">
+                <div>Spawn Points: {coordinates.filter(c => c.type === 'spawn').length}</div>
+                <div>Roads: {roads.length}</div>
+                <div>Transitions: {transitions.length}</div>
+                <div>Waypoint Paths: {waypointPaths.length}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Center - Canvas */}
+          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+            <div className="relative" style={{ width: STAGE_WIDTH, height: STAGE_HEIGHT }}>
+              <Stage
+                ref={stageRef}
+                width={STAGE_WIDTH}
+                height={STAGE_HEIGHT}
+                scaleX={scale}
+                scaleY={scale}
+                x={stagePos.x}
+                y={stagePos.y}
+                onWheel={handleWheel}
+                onClick={handleStageClick}
+                draggable={currentTool === 'select'}
+                onDragEnd={(e) => {
+                  setStagePos({
+                    x: e.target.x(),
+                    y: e.target.y(),
+                  });
+                }}
+                className="bg-slate-900 cursor-crosshair"
+              >
+                <Layer>
+                  {/* Map Image - upload functionality available, displays with grid */}
+
+                  {/* Grid */}
+                  {(
+                    <>
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <React.Fragment key={`grid-${i}`}>
+                          <Line
+                            points={[i * 60, 0, i * 60, STAGE_HEIGHT]}
+                            stroke="#334155"
+                            strokeWidth={1}
+                          />
+                          <Line
+                            points={[0, i * 40, STAGE_WIDTH, i * 40]}
+                            stroke="#334155"
+                            strokeWidth={1}
+                          />
+                        </React.Fragment>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Roads */}
+                  {roads.map(road => (
+                    <Line
+                      key={road.id}
+                      points={road.points.flatMap(p => [p.x, p.y])}
+                      stroke="#fbbf24"
+                      strokeWidth={road.width}
+                      lineCap="round"
+                      lineJoin="round"
+                    />
+                  ))}
+
+                  {/* Current road being drawn */}
+                  {isDrawing && currentTool === 'road' && currentRoad.length > 0 && (
+                    <Line
+                      points={currentRoad.flatMap(p => [p.x, p.y])}
+                      stroke="#60a5fa"
+                      strokeWidth={5}
+                      lineCap="round"
+                      lineJoin="round"
+                      dash={[10, 5]}
+                    />
+                  )}
+
+                  {/* Waypoint Paths */}
+                  {waypointPaths.map(path => (
+                    <React.Fragment key={path.id}>
+                      <Line
+                        points={path.waypoints.flatMap(p => [p.x, p.y])}
+                        stroke="#8b5cf6"
+                        strokeWidth={3}
+                        lineCap="round"
+                        lineJoin="round"
+                        dash={[5, 5]}
+                      />
+                      {path.waypoints.map((wp, idx) => (
+                        <Circle
+                          key={`${path.id}-wp-${idx}`}
+                          x={wp.x}
+                          y={wp.y}
+                          radius={4}
+                          fill="#8b5cf6"
+                        />
+                      ))}
+                    </React.Fragment>
+                  ))}
+
+                  {/* Current path being drawn */}
+                  {isDrawing && currentTool === 'waypoint' && currentPath.length > 0 && (
+                    <>
+                      <Line
+                        points={currentPath.flatMap(p => [p.x, p.y])}
+                        stroke="#a78bfa"
+                        strokeWidth={3}
+                        lineCap="round"
+                        lineJoin="round"
+                        dash={[5, 5]}
+                      />
+                      {currentPath.map((p, idx) => (
+                        <Circle
+                          key={`current-${idx}`}
+                          x={p.x}
+                          y={p.y}
+                          radius={4}
+                          fill="#a78bfa"
+                        />
+                      ))}
+                    </>
+                  )}
+
+                  {/* Spawn Points */}
+                  {coordinates.map(coord => {
+                    if (coord.type === 'spawn') {
+                      return (
+                        <React.Fragment key={coord.id}>
+                          <Circle
+                            x={coord.x}
+                            y={coord.y}
+                            radius={8}
+                            fill="#10b981"
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                          <Text
+                            x={coord.x + 12}
+                            y={coord.y - 6}
+                            text={coord.label}
+                            fontSize={12}
+                            fill="#fff"
+                          />
+                        </React.Fragment>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {/* Zone Transitions */}
+                  {transitions.map(transition => (
+                    <React.Fragment key={transition.id}>
+                      <Rect
+                        x={transition.entranceCoord.x - 10}
+                        y={transition.entranceCoord.y - 10}
+                        width={20}
+                        height={20}
+                        fill="#ec4899"
+                        stroke="#fff"
+                        strokeWidth={2}
+                      />
+                      <Arrow
+                        points={[
+                          transition.entranceCoord.x,
+                          transition.entranceCoord.y,
+                          transition.exitCoord.x,
+                          transition.exitCoord.y,
+                        ]}
+                        stroke="#ec4899"
+                        strokeWidth={2}
+                        pointerLength={10}
+                        pointerWidth={10}
+                      />
+                    </React.Fragment>
+                  ))}
+                </Layer>
+              </Stage>
+
+              {/* Zoom Controls */}
+              <div className="absolute top-4 right-4 flex flex-col gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setScale(scale * 1.2)}
+                >
+                  +
+                </Button>
+                <div className="text-xs text-white text-center bg-slate-800 px-2 py-1 rounded">
+                  {Math.round(scale * 100)}%
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setScale(scale / 1.2)}
+                >
+                  −
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4 text-sm text-slate-400">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span>Spawn Points</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-yellow-500"></div>
+                  <span>Roads</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-purple-500"></div>
+                  <span>Waypoints</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-pink-500"></div>
+                  <span>Transitions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Properties */}
+          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-white mb-4">Properties</h3>
+
+            <Tabs defaultValue="spawn">
+              <TabsList className="grid grid-cols-3 mb-4">
+                <TabsTrigger value="spawn">Spawns</TabsTrigger>
+                <TabsTrigger value="roads">Roads</TabsTrigger>
+                <TabsTrigger value="transitions">Portals</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="spawn">
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {coordinates.filter(c => c.type === 'spawn').map(coord => (
+                    <div
+                      key={coord.id}
+                      className="p-3 bg-slate-700/50 rounded border border-slate-600 text-sm"
+                    >
+                      <div className="font-semibold text-white">{coord.label}</div>
+                      <div className="text-slate-400 text-xs mt-1">
+                        X: {coord.x.toFixed(2)}, Y: {coord.y.toFixed(2)}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 w-full"
+                        onClick={() => {
+                          const sql = generateSpawnSQL(coord, 1234);
+                          navigator.clipboard.writeText(sql);
+                          alert('SQL copied to clipboard!');
+                        }}
+                      >
+                        Copy SQL
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="roads">
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {roads.map(road => (
+                    <div
+                      key={road.id}
+                      className="p-3 bg-slate-700/50 rounded border border-slate-600 text-sm"
+                    >
+                      <div className="font-semibold text-white">{road.name}</div>
+                      <div className="text-slate-400 text-xs mt-1">
+                        {road.points.length} waypoints
+                      </div>
+                      <div className="text-slate-400 text-xs">
+                        Type: {road.type}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="transitions">
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {transitions.map(transition => (
+                    <div
+                      key={transition.id}
+                      className="p-3 bg-slate-700/50 rounded border border-slate-600 text-sm"
+                    >
+                      <div className="font-semibold text-white">
+                        {transition.fromZone} → {transition.toZone}
+                      </div>
+                      <div className="text-slate-400 text-xs mt-1">
+                        Type: {transition.type}
+                      </div>
+                      <div className="text-slate-400 text-xs">
+                        {transition.bidirectional ? '↔ Bidirectional' : '→ One-way'}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 w-full"
+                        onClick={() => {
+                          const sql = generateZoneTransitionSQL(transition);
+                          navigator.clipboard.writeText(sql);
+                          alert('SQL copied to clipboard!');
+                        }}
+                      >
+                        Copy SQL
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

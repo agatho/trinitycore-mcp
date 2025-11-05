@@ -1,0 +1,330 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import CytoscapeComponent from 'react-cytoscapejs';
+import { GitBranch, Search, Download, Upload, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+interface Quest {
+  id: number;
+  title: string;
+  level: number;
+  prevQuestId?: number;
+  nextQuestId?: number;
+  zone: string;
+  faction?: string;
+}
+
+// Sample quest data
+const SAMPLE_QUESTS: Quest[] = [
+  { id: 1, title: 'The Beginning', level: 1, zone: 'Elwynn Forest' },
+  { id: 2, title: 'Wolves at the Door', level: 2, prevQuestId: 1, zone: 'Elwynn Forest' },
+  { id: 3, title: 'Investigate the Camp', level: 3, prevQuestId: 2, zone: 'Elwynn Forest' },
+  { id: 4, title: 'Report to Goldshire', level: 4, prevQuestId: 3, zone: 'Elwynn Forest' },
+  { id: 5, title: 'Kobold Candles', level: 4, prevQuestId: 4, zone: 'Elwynn Forest' },
+  { id: 6, title: 'The Fargodeep Mine', level: 5, prevQuestId: 5, zone: 'Elwynn Forest' },
+  { id: 7, title: 'The Jasperlode Mine', level: 5, prevQuestId: 5, zone: 'Elwynn Forest' },
+  { id: 8, title: 'Westbrook Garrison Needs Help!', level: 6, prevQuestId: 6, zone: 'Elwynn Forest' },
+  { id: 9, title: 'Riverpaw Gnoll Bounty', level: 6, prevQuestId: 8, zone: 'Elwynn Forest' },
+  { id: 10, title: 'Protect the Frontier', level: 7, prevQuestId: 9, zone: 'Elwynn Forest' },
+];
+
+export default function QuestChainsPage() {
+  const [quests, setQuests] = useState<Quest[]>(SAMPLE_QUESTS);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+  const [brokenChains, setBrokenChains] = useState<string[]>([]);
+  const cyRef = useRef<any>(null);
+
+  // Build cytoscape elements from quests
+  const buildGraphElements = () => {
+    const nodes = quests.map(quest => ({
+      data: {
+        id: `quest-${quest.id}`,
+        label: `[${quest.level}] ${quest.title}`,
+        quest: quest,
+      },
+    }));
+
+    const edges = quests
+      .filter(quest => quest.prevQuestId)
+      .map(quest => ({
+        data: {
+          source: `quest-${quest.prevQuestId}`,
+          target: `quest-${quest.id}`,
+        },
+      }));
+
+    return [...nodes, ...edges];
+  };
+
+  // Detect broken quest chains
+  useEffect(() => {
+    const broken: string[] = [];
+    quests.forEach(quest => {
+      if (quest.prevQuestId && !quests.find(q => q.id === quest.prevQuestId)) {
+        broken.push(`Quest ${quest.id} references missing prerequisite ${quest.prevQuestId}`);
+      }
+      if (quest.nextQuestId && !quests.find(q => q.id === quest.nextQuestId)) {
+        broken.push(`Quest ${quest.id} references missing follow-up ${quest.nextQuestId}`);
+      }
+    });
+    setBrokenChains(broken);
+  }, [quests]);
+
+  const filteredQuests = quests.filter(q =>
+    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.zone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.id.toString().includes(searchTerm)
+  );
+
+  // Cy style
+  const cyStylesheet = [
+    {
+      selector: 'node',
+      style: {
+        'background-color': '#3b82f6',
+        label: 'data(label)',
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'font-size': '10px',
+        color: '#fff',
+        'text-outline-color': '#000',
+        'text-outline-width': 1,
+        width: 180,
+        height: 50,
+        shape: 'roundrectangle',
+      },
+    },
+    {
+      selector: 'edge',
+      style: {
+        width: 3,
+        'line-color': '#64748b',
+        'target-arrow-color': '#64748b',
+        'target-arrow-shape': 'triangle',
+        'curve-style': 'bezier',
+      },
+    },
+    {
+      selector: 'node:selected',
+      style: {
+        'background-color': '#10b981',
+        'border-width': 3,
+        'border-color': '#fff',
+      },
+    },
+  ];
+
+  const cyLayout = {
+    name: 'breadthfirst',
+    directed: true,
+    padding: 50,
+    spacingFactor: 1.5,
+  };
+
+  const exportJSON = () => {
+    const json = JSON.stringify(quests, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quest_chains.json';
+    a.click();
+  };
+
+  const importJSON = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+          setQuests(data);
+        } catch (error) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  const calculateChainStats = () => {
+    const chains: Record<number, number> = {};
+    quests.forEach(quest => {
+      let length = 1;
+      let current = quest;
+      while (current.prevQuestId) {
+        length++;
+        const prev = quests.find(q => q.id === current.prevQuestId);
+        if (!prev) break;
+        current = prev;
+      }
+      chains[quest.id] = length;
+    });
+
+    const longestChain = Math.max(...Object.values(chains));
+    const avgChain = Object.values(chains).reduce((a, b) => a + b, 0) / Object.values(chains).length;
+
+    return { longestChain, avgChain: avgChain.toFixed(1) };
+  };
+
+  const stats = calculateChainStats();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+      <div className="max-w-[1800px] mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <GitBranch className="w-8 h-8 text-purple-400" />
+              <div>
+                <h1 className="text-3xl font-bold text-white">Quest Chain Visualizer</h1>
+                <p className="text-slate-400">Interactive flowchart of quest dependencies</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={exportJSON}>
+                <Download className="w-4 h-4 mr-2" />
+                Export JSON
+              </Button>
+              <Button variant="outline" onClick={importJSON}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import JSON
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Broken chains warning */}
+        {brokenChains.length > 0 && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-red-400">Broken Quest Chains Detected</div>
+                <ul className="text-sm text-red-300/80 mt-2 space-y-1">
+                  {brokenChains.map((error, i) => (
+                    <li key={i}>• {error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-[300px_1fr] gap-6">
+          {/* Left Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Search Quests</h3>
+              <Input
+                placeholder="Search by title, zone, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-4"
+              />
+
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {filteredQuests.map(quest => (
+                  <div
+                    key={quest.id}
+                    className="p-3 bg-slate-700/50 rounded border border-slate-600 cursor-pointer hover:bg-slate-700 transition-colors"
+                    onClick={() => setSelectedQuest(quest)}
+                  >
+                    <div className="font-semibold text-white text-sm">{quest.title}</div>
+                    <div className="text-xs text-slate-400 mt-1">
+                      Level {quest.level} • {quest.zone}
+                    </div>
+                    {quest.prevQuestId && (
+                      <div className="text-xs text-blue-400 mt-1">
+                        ← Requires: Quest {quest.prevQuestId}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Total Quests:</span>
+                  <span className="text-white font-semibold">{quests.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Longest Chain:</span>
+                  <span className="text-white font-semibold">{stats.longestChain} quests</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Avg Chain Length:</span>
+                  <span className="text-white font-semibold">{stats.avgChain}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Orphaned Quests:</span>
+                  <span className="text-white font-semibold">
+                    {quests.filter(q => !q.prevQuestId && !quests.find(o => o.prevQuestId === q.id)).length}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {selectedQuest && (
+              <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4">Selected Quest</h3>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-slate-400">ID:</span>
+                    <span className="text-white ml-2">{selectedQuest.id}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Title:</span>
+                    <span className="text-white ml-2">{selectedQuest.title}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Level:</span>
+                    <span className="text-white ml-2">{selectedQuest.level}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Zone:</span>
+                    <span className="text-white ml-2">{selectedQuest.zone}</span>
+                  </div>
+                  {selectedQuest.prevQuestId && (
+                    <div>
+                      <span className="text-slate-400">Prerequisite:</span>
+                      <span className="text-white ml-2">Quest {selectedQuest.prevQuestId}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Center - Graph */}
+          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
+            <CytoscapeComponent
+              elements={buildGraphElements()}
+              style={{ width: '100%', height: '700px', background: '#0f172a' }}
+              stylesheet={cyStylesheet as any}
+              layout={cyLayout}
+              cy={(cy) => {
+                cyRef.current = cy;
+                cy.on('tap', 'node', (evt: any) => {
+                  const quest = evt.target.data('quest');
+                  setSelectedQuest(quest);
+                });
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

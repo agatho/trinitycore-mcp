@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode, Table, TrendingUp, Terminal, FileText, GitBranch, Eye } from "lucide-react";
+import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode, Table, TrendingUp, Terminal, FileText, GitBranch, Eye, Map, Route as RouteIcon, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -133,6 +133,36 @@ export default function HomePage() {
       href: "/live-inspector",
       color: "text-emerald-400",
     },
+    // TODO: Map Coordinate Picker - React-Konva compatibility with React 19
+    // {
+    //   name: "Map Coordinate Picker",
+    //   icon: Map,
+    //   description: "Visual map editor for roads & zone transitions",
+    //   href: "/map-picker",
+    //   color: "text-sky-400",
+    // },
+    {
+      name: "SAI Editor",
+      icon: Workflow,
+      description: "Visual Smart AI script builder",
+      href: "/sai-editor",
+      color: "text-blue-400",
+    },
+    // TODO: Quest Chain Visualizer - needs @types/react-cytoscapejs
+    // {
+    //   name: "Quest Chain Visualizer",
+    //   icon: RouteIcon,
+    //   description: "Interactive quest dependency flowcharts",
+    //   href: "/quest-chains",
+    //   color: "text-purple-500",
+    // },
+    {
+      name: "Diff Compare",
+      icon: GitCompare,
+      description: "Visual spell/item diff with highlights",
+      href: "/diff-compare",
+      color: "text-cyan-500",
+    },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -252,7 +282,7 @@ export default function HomePage() {
               <div className="text-sm text-slate-400">MCP Tools</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-purple-400">17</div>
+              <div className="text-4xl font-bold text-purple-400">19</div>
               <div className="text-sm text-slate-400">WebUI Pages</div>
             </div>
             <div className="text-center space-y-2">
@@ -281,7 +311,7 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              TrinityCore MCP Server v2.6.0
+              TrinityCore MCP Server v2.7.0
             </a>
           </p>
         </div>
