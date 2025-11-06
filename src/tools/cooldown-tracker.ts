@@ -8,6 +8,7 @@
  */
 
 import type { CombatLogEntry, AbilityUsage, MissedOpportunity } from "./botcombatloganalyzer.js";
+import { queryWorld } from "../database/connection.js";
 
 // ============================================================================
 // TYPES
@@ -457,12 +458,83 @@ export function registerProc(spellId: number, info: ProcInfo): void {
   PROC_DATABASE.set(spellId, info);
 }
 
+// Cache configuration
+let cooldownCacheTimestamp: number = 0;
+const COOLDOWN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 /**
  * Load cooldowns from spell database
- * This should query the TrinityCore spell_template table
+ * Queries the TrinityCore spell_template table and caches results
  */
 export async function loadCooldownsFromDatabase(): Promise<void> {
-  // TODO: Implement MCP integration to query spell_template
-  // For now, we're using the hardcoded database above
-  console.log('[Cooldown Tracker] Using hardcoded cooldown database. TODO: Load from spell_template');
+  // Check if cache is still valid
+  const now = Date.now();
+  if (cooldownCacheTimestamp && (now - cooldownCacheTimestamp) < COOLDOWN_CACHE_TTL) {
+    console.log('[Cooldown Tracker] Using cached cooldown data');
+    return;
+  }
+
+  try {
+    console.log('[Cooldown Tracker] Loading cooldowns from spell_template database...');
+
+    // Query spell_template for cooldown data
+    // RecoveryTime = cooldown in milliseconds
+    // CategoryRecoveryTime = category cooldown (used by some spells)
+    const query = `
+      SELECT
+        ID as spellId,
+        SpellName as spellName,
+        RecoveryTime as cooldownDuration,
+        CategoryRecoveryTime as categoryCooldown,
+        MaxCharges as charges
+      FROM spell_template
+      WHERE RecoveryTime > 0 OR CategoryRecoveryTime > 0
+      ORDER BY ID
+    `;
+
+    const results = await queryWorld(query);
+
+    if (results && Array.isArray(results)) {
+      // Clear existing hardcoded entries (keep them as fallback)
+      const fallbackData = new Map(COOLDOWN_DATABASE);
+      COOLDOWN_DATABASE.clear();
+
+      // Populate database from live data
+      let loadedCount = 0;
+      for (const row of results) {
+        const cooldown = Math.max(row.cooldownDuration || 0, row.categoryCooldown || 0);
+
+        if (cooldown > 0) {
+          const cooldownInfo: CooldownInfo = {
+            spellId: row.spellId,
+            spellName: row.spellName || `Spell ${row.spellId}`,
+            cooldownDuration: cooldown,
+          };
+
+          // Add charge information if available
+          if (row.charges && row.charges > 1) {
+            cooldownInfo.charges = row.charges;
+            cooldownInfo.chargeRecoveryTime = cooldown;
+          }
+
+          COOLDOWN_DATABASE.set(row.spellId, cooldownInfo);
+          loadedCount++;
+        }
+      }
+
+      // Restore fallback data for any spells not in database
+      for (const [spellId, info] of fallbackData) {
+        if (!COOLDOWN_DATABASE.has(spellId)) {
+          COOLDOWN_DATABASE.set(spellId, info);
+        }
+      }
+
+      cooldownCacheTimestamp = now;
+      console.log(`[Cooldown Tracker] Loaded ${loadedCount} cooldowns from database (cache TTL: 5min)`);
+    }
+  } catch (error) {
+    console.error('[Cooldown Tracker] Failed to load cooldowns from database:', error);
+    console.log('[Cooldown Tracker] Falling back to hardcoded cooldown database');
+    // Keep hardcoded data as fallback
+  }
 }
