@@ -4,7 +4,65 @@
  * MCP server tools for working with MMap (Movement Map / Navigation Mesh) data.
  * Provides pathfinding, navmesh validation, and analysis capabilities.
  *
+ * ============================================================================
+ * IMPLEMENTATION STATUS: PLACEHOLDER / STRAIGHT-LINE IMPLEMENTATION
+ * ============================================================================
+ *
+ * CURRENT VERSION (v1.0):
+ * - File listing and metadata extraction: FULLY FUNCTIONAL
+ * - Pathfinding: PLACEHOLDER IMPLEMENTATION (straight-line interpolation)
+ * - Navmesh validation: PLACEHOLDER IMPLEMENTATION (always returns true)
+ *
+ * LIMITATIONS:
+ * 1. Pathfinding (findPath):
+ *    - Returns straight-line path with interpolated waypoints
+ *    - Does NOT parse MMap binary format (.mmap/.mmtile)
+ *    - Does NOT perform actual A* pathfinding on navigation mesh
+ *    - Does NOT avoid obstacles or unwalkable terrain
+ *    - Waypoints may pass through walls, water, or cliffs
+ *    - Useful for visualization ONLY, NOT for actual navigation
+ *
+ * 2. Navmesh validation (isOnNavMesh):
+ *    - Always returns `isValid: true` for any position
+ *    - Does NOT check if position is on walkable navmesh
+ *    - Does NOT validate Z-coordinate (height)
+ *    - Useful as placeholder, NOT for position validation
+ *
+ * ROADMAP FOR v2.0 (Estimated 6-8 weeks development):
+ * - Full MMap binary format parser (.mmap and .mmtile headers)
+ * - Integration with Recast/Detour navigation library
+ * - Actual A* pathfinding on navigation mesh polygons
+ * - Precise navmesh validation (point-in-polygon tests)
+ * - Height queries for Z-coordinate snapping
+ * - Path smoothing and corridor optimization
+ * - Support for off-mesh connections (jumps, teleports)
+ *
+ * WHY THIS APPROACH:
+ * - MMap uses Recast/Detour binary format (complex C++ library)
+ * - Full implementation requires:
+ *   * Recast/Detour library integration (C++ bindings or port)
+ *   * Navigation mesh data structures
+ *   * A* pathfinding algorithm
+ *   * Polygon traversal and edge detection
+ * - Straight-line implementation provides basic visualization NOW
+ * - Production-grade implementation coming in v2.0
+ *
+ * USAGE RECOMMENDATIONS:
+ * - Use for approximate distance/direction visualization ✅
+ * - Use for debug path rendering (with "straight line" caveat) ✅
+ * - DO NOT rely on for actual bot/NPC navigation ❌
+ * - DO NOT use for walkability validation ❌
+ * - DO NOT use for height/Z-coordinate queries ❌
+ * - For production navigation: Wait for v2.0 or use TrinityCore server API
+ *
+ * ALTERNATIVE:
+ * - For production bot navigation, use TrinityCore SOAP commands:
+ *   * .go xyz <x> <y> <z> <mapId> - Server handles pathfinding
+ *   * .npc move - Server uses Detour for NPC movement
+ *
  * @module mmap-tools
+ * @version 1.0.0-placeholder
+ * @see docs/TECHNICAL_DEBT.md for full implementation plan
  */
 
 import fs from "fs/promises";

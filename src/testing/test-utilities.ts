@@ -332,7 +332,12 @@ export function createSpy<T extends (...args: any[]) => any>() {
   const calls: Array<{ args: any[]; result?: any; error?: Error; timestamp: number }> = [];
 
   const spy = ((...args: Parameters<T>) => {
-    const call = { args, timestamp: Date.now(), result: undefined, error: undefined };
+    const call: { args: any[]; result?: any; error?: Error; timestamp: number } = {
+      args,
+      timestamp: Date.now(),
+      result: undefined,
+      error: undefined,
+    };
 
     try {
       // Store call

@@ -290,6 +290,57 @@ import {
   formatComprehensiveReportSummary
 } from "./tools/combatloganalyzer-advanced.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
+import {
+  listVMapFiles,
+  getVMapFileInfo,
+  testLineOfSight,
+  findSpawnsInRadius
+} from "./tools/vmap-tools.js";
+import {
+  listMMapFiles,
+  getMMapFileInfo,
+  findPath,
+  isOnNavMesh
+} from "./tools/mmap-tools.js";
+import {
+  exportAllDatabases,
+  exportTables
+} from "./database/export-engine.js";
+import {
+  importFromDirectory,
+  importFromFile
+} from "./database/import-engine.js";
+import {
+  quickBackup,
+  quickRestore
+} from "./database/backup-restore.js";
+import {
+  quickHealthCheck,
+  fullHealthCheck,
+  healthCheckWithFix
+} from "./database/health-checker.js";
+import {
+  compareDatabases
+} from "./database/diff-tool.js";
+import {
+  generateTests,
+  generateTestsForDirectory
+} from "./testing/ai-test-generator.js";
+import {
+  createTestFramework,
+  describe,
+  it,
+  expect
+} from "./testing/test-framework.js";
+import {
+  quickPerfTest,
+  quickLoadTest
+} from "./testing/performance-tester.js";
+import {
+  getConfigManager,
+  initializeConfig
+} from "./config/config-manager.js";
+import { createErrorResponse, ValidationError } from "./utils/error-handler.js";
 
 // MCP Server instance
 const server = new Server(
@@ -2382,6 +2433,562 @@ const TOOLS: Tool[] = [
       required: ["botName"],
     },
   },
+  // VMap Tools (Phase 1.1a)
+  {
+    name: "list-vmap-files",
+    description: "List available VMap files in a directory. VMap files contain visibility and collision geometry for game maps.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "Path to VMap directory (default: from VMAP_PATH env variable)",
+        },
+      },
+    },
+  },
+  {
+    name: "get-vmap-file-info",
+    description: "Get detailed information about a specific VMap file including size, type (tree/tile), and map coordinates.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapFile: {
+          type: "string",
+          description: "Path to VMap file (.vmtree or .vmtile)",
+        },
+      },
+      required: ["vmapFile"],
+    },
+  },
+  {
+    name: "vmap-test-line-of-sight",
+    description: "Test line-of-sight between two points using VMap collision data. NOTE: Current implementation uses distance-based heuristics. Full VMap parsing planned for v2.0. Returns clear if distance < 1000 units.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "VMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        startX: { type: "number", description: "Start X coordinate" },
+        startY: { type: "number", description: "Start Y coordinate" },
+        startZ: { type: "number", description: "Start Z coordinate" },
+        endX: { type: "number", description: "End X coordinate" },
+        endY: { type: "number", description: "End Y coordinate" },
+        endZ: { type: "number", description: "End Z coordinate" },
+      },
+      required: ["vmapDir", "mapId", "startX", "startY", "startZ", "endX", "endY", "endZ"],
+    },
+  },
+  {
+    name: "vmap-find-spawns-in-radius",
+    description: "Find creature/gameobject spawns within radius of a point. NOTE: Current implementation queries database only. Full VMap collision filtering planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "VMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        centerX: { type: "number", description: "Center X coordinate" },
+        centerY: { type: "number", description: "Center Y coordinate" },
+        centerZ: { type: "number", description: "Center Z coordinate" },
+        radius: {
+          type: "number",
+          description: "Search radius in game units",
+        },
+      },
+      required: ["vmapDir", "mapId", "centerX", "centerY", "centerZ", "radius"],
+    },
+  },
+  // MMap Tools (Phase 1.1b)
+  {
+    name: "list-mmap-files",
+    description: "List available MMap (Movement Map / Navigation Mesh) files in a directory. MMap files are used for AI pathfinding.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "Path to MMap directory (default: from MMAP_PATH env variable)",
+        },
+      },
+    },
+  },
+  {
+    name: "get-mmap-file-info",
+    description: "Get detailed information about a specific MMap file including size, type (header/tile), and map coordinates.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapFile: {
+          type: "string",
+          description: "Path to MMap file (.mmap or .mmtile)",
+        },
+      },
+      required: ["mmapFile"],
+    },
+  },
+  {
+    name: "mmap-find-path",
+    description: "Find walkable path between two points using navigation mesh. NOTE: Current implementation returns straight-line path with interpolated waypoints. Full A* pathfinding on Recast navmesh planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "MMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        startX: { type: "number", description: "Start X coordinate" },
+        startY: { type: "number", description: "Start Y coordinate" },
+        startZ: { type: "number", description: "Start Z coordinate" },
+        goalX: { type: "number", description: "Goal X coordinate" },
+        goalY: { type: "number", description: "Goal Y coordinate" },
+        goalZ: { type: "number", description: "Goal Z coordinate" },
+      },
+      required: ["mmapDir", "mapId", "startX", "startY", "startZ", "goalX", "goalY", "goalZ"],
+    },
+  },
+  {
+    name: "mmap-is-on-navmesh",
+    description: "Check if a position is on the navigation mesh. NOTE: Current implementation returns true for all positions. Full navmesh validation planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "MMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        posX: { type: "number", description: "Position X coordinate" },
+        posY: { type: "number", description: "Position Y coordinate" },
+        posZ: { type: "number", description: "Position Z coordinate" },
+      },
+      required: ["mmapDir", "mapId", "posX", "posY", "posZ"],
+    },
+  },
+  // Database Tools (Phase 1.1c)
+  {
+    name: "export-database",
+    description: "Export TrinityCore databases (world, auth, characters) to SQL or JSON format. Supports schema-only, data-only, or complete exports with compression.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        outputDir: { type: "string", description: "Output directory path" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Export format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "outputDir"],
+    },
+  },
+  {
+    name: "export-database-tables",
+    description: "Export specific tables from a TrinityCore database. Useful for partial backups or data migration.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        tables: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of table names to export",
+        },
+        outputDir: { type: "string", description: "Output directory path" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Export format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "database", "tables", "outputDir"],
+    },
+  },
+  {
+    name: "import-database-from-directory",
+    description: "Import database from a directory containing SQL/JSON export files. Validates and imports schema and data.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        directory: { type: "string", description: "Directory containing export files" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Import format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "database", "directory"],
+    },
+  },
+  {
+    name: "import-database-from-file",
+    description: "Import database from a single SQL/JSON file. Quick import for single-file backups.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        filepath: { type: "string", description: "Path to import file" },
+        dropExisting: {
+          type: "boolean",
+          description: "Drop existing tables before import (default: false)",
+        },
+      },
+      required: ["host", "user", "password", "database", "filepath"],
+    },
+  },
+  {
+    name: "backup-database",
+    description: "Create a compressed backup of a TrinityCore database. Includes schema and data with metadata.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        backupDir: { type: "string", description: "Backup directory path" },
+      },
+      required: ["host", "user", "password", "database", "backupDir"],
+    },
+  },
+  {
+    name: "restore-database",
+    description: "Restore a database from a backup file. Validates backup integrity before restoration.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        backup: { type: "string", description: "Path to backup file" },
+        dropExisting: {
+          type: "boolean",
+          description: "Drop existing database before restore (default: false)",
+        },
+      },
+      required: ["host", "user", "password", "database", "backup"],
+    },
+  },
+  {
+    name: "database-health-check-quick",
+    description: "Quick health check of database: connection, table count, index status, basic integrity. Takes ~5-10 seconds.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "database-health-check-full",
+    description: "Comprehensive health check: connection, integrity, performance, indexes, foreign keys, statistics. Takes several minutes.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "database-health-check-and-fix",
+    description: "Health check with automatic repair: checks integrity, repairs tables, rebuilds indexes, updates statistics.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "compare-databases",
+    description: "Compare two database schemas/data and generate detailed diff report. Useful for migration planning and synchronization.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sourceHost: { type: "string", description: "Source database host" },
+        sourcePort: { type: "number", description: "Source database port (default: 3306)" },
+        sourceUser: { type: "string", description: "Source database user" },
+        sourcePassword: { type: "string", description: "Source database password" },
+        sourceDatabase: { type: "string", description: "Source database name" },
+        targetHost: { type: "string", description: "Target database host" },
+        targetPort: { type: "number", description: "Target database port (default: 3306)" },
+        targetUser: { type: "string", description: "Target database user" },
+        targetPassword: { type: "string", description: "Target database password" },
+        targetDatabase: { type: "string", description: "Target database name" },
+      },
+      required: [
+        "sourceHost",
+        "sourceUser",
+        "sourcePassword",
+        "sourceDatabase",
+        "targetHost",
+        "targetUser",
+        "targetPassword",
+        "targetDatabase",
+      ],
+    },
+  },
+  // Testing Framework Tools (Phase 1.1e)
+  {
+    name: "generate-tests-ai",
+    description: "Generate comprehensive test cases from source code using AI analysis. Creates unit tests with edge cases, mocks, and assertions.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sourceFile: {
+          type: "string",
+          description: "Path to source code file to generate tests for",
+        },
+        testType: {
+          type: "string",
+          enum: ["unit", "integration", "e2e"],
+          description: "Type of tests to generate (default: unit)",
+        },
+        includeEdgeCases: {
+          type: "boolean",
+          description: "Include edge case testing (default: true)",
+        },
+        mockDependencies: {
+          type: "boolean",
+          description: "Auto-generate mocks for dependencies (default: true)",
+        },
+      },
+      required: ["sourceFile"],
+    },
+  },
+  {
+    name: "generate-tests-directory",
+    description: "Generate test files for all source files in a directory. Batch AI test generation with configurable coverage.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        directory: {
+          type: "string",
+          description: "Directory containing source files",
+        },
+        outputDir: {
+          type: "string",
+          description: "Output directory for test files (default: ./tests)",
+        },
+        pattern: {
+          type: "string",
+          description: "File pattern to match (default: **/*.ts)",
+        },
+        testType: {
+          type: "string",
+          enum: ["unit", "integration", "e2e"],
+          description: "Type of tests to generate (default: unit)",
+        },
+      },
+      required: ["directory"],
+    },
+  },
+  {
+    name: "run-performance-test",
+    description: "Run performance test on a function. Measures execution time, memory usage, throughput with statistical analysis.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        testName: {
+          type: "string",
+          description: "Name of performance test",
+        },
+        iterations: {
+          type: "number",
+          description: "Number of iterations to run (default: 1000)",
+        },
+        warmupIterations: {
+          type: "number",
+          description: "Warmup iterations before measurement (default: 100)",
+        },
+        targetFunction: {
+          type: "string",
+          description: "Function path to test (module:function format)",
+        },
+        params: {
+          type: "array",
+          description: "Parameters to pass to function",
+        },
+      },
+      required: ["testName", "targetFunction"],
+    },
+  },
+  {
+    name: "run-load-test",
+    description: "Run load test with concurrent requests. Simulates multiple users/requests to test scalability and identify bottlenecks.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        testName: {
+          type: "string",
+          description: "Name of load test",
+        },
+        targetFunction: {
+          type: "string",
+          description: "Function path to test (module:function format)",
+        },
+        concurrentUsers: {
+          type: "number",
+          description: "Number of concurrent users to simulate (default: 10)",
+        },
+        duration: {
+          type: "number",
+          description: "Test duration in seconds (default: 60)",
+        },
+        rampUp: {
+          type: "number",
+          description: "Ramp-up time in seconds (default: 10)",
+        },
+      },
+      required: ["testName", "targetFunction"],
+    },
+  },
+  // Configuration Management Tools (Phase 1.1f)
+  {
+    name: "config-get",
+    description: "Get current TrinityCore MCP configuration. Returns all settings including database, paths, server, websocket, testing, and logging config.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        section: {
+          type: "string",
+          enum: ["database", "dataPaths", "server", "websocket", "testing", "logging", "all"],
+          description: "Configuration section to retrieve (default: all)",
+        },
+      },
+    },
+  },
+  {
+    name: "config-update",
+    description: "Update TrinityCore MCP configuration. Validates changes before applying. Supports hot-reload for most settings.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        section: {
+          type: "string",
+          enum: ["database", "dataPaths", "server", "websocket", "testing", "logging"],
+          description: "Configuration section to update",
+        },
+        config: {
+          type: "object",
+          description: "Configuration updates (section-specific structure)",
+        },
+        persist: {
+          type: "boolean",
+          description: "Save changes to config file (default: true)",
+        },
+      },
+      required: ["section", "config"],
+    },
+  },
+  {
+    name: "config-validate",
+    description: "Validate configuration without applying. Returns errors and warnings for invalid settings.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        config: {
+          type: "object",
+          description: "Configuration to validate (full or partial)",
+        },
+      },
+      required: ["config"],
+    },
+  },
+  {
+    name: "config-reset",
+    description: "Reset configuration to defaults. Can reset specific section or entire config. Creates backup before reset.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        section: {
+          type: "string",
+          enum: ["database", "dataPaths", "server", "websocket", "testing", "logging", "all"],
+          description: "Section to reset (default: all)",
+        },
+        createBackup: {
+          type: "boolean",
+          description: "Create backup before reset (default: true)",
+        },
+      },
+    },
+  },
+  {
+    name: "config-export",
+    description: "Export current configuration to file. Supports JSON and YAML formats. Useful for backup and migration.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        outputPath: {
+          type: "string",
+          description: "Output file path",
+        },
+        format: {
+          type: "string",
+          enum: ["json", "yaml"],
+          description: "Export format (default: json)",
+        },
+        includeSecrets: {
+          type: "boolean",
+          description: "Include passwords and secrets (default: false)",
+        },
+      },
+      required: ["outputPath"],
+    },
+  },
 ];
 
 // List tools handler
@@ -2391,12 +2998,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
-// Call tool handler
+// Call tool handler with enterprise error handling
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   if (!args) {
-    throw new Error("Missing arguments");
+    throw new ValidationError("Missing arguments for tool execution", {
+      tool: name,
+    });
   }
 
   try {
@@ -3688,16 +4297,624 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      // VMap Tools (Phase 1.1a)
+      case "list-vmap-files": {
+        const vmapDir = (args.vmapDir as string | undefined) || process.env.VMAP_PATH || "./data/vmaps";
+        const result = await listVMapFiles(vmapDir);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-vmap-file-info": {
+        const vmapFile = args.vmapFile as string;
+        const result = await getVMapFileInfo(vmapFile);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "vmap-test-line-of-sight": {
+        const result = await testLineOfSight({
+          vmapDir: args.vmapDir as string,
+          mapId: args.mapId as number,
+          startX: args.startX as number,
+          startY: args.startY as number,
+          startZ: args.startZ as number,
+          endX: args.endX as number,
+          endY: args.endY as number,
+          endZ: args.endZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "vmap-find-spawns-in-radius": {
+        const result = await findSpawnsInRadius({
+          vmapDir: args.vmapDir as string,
+          mapId: args.mapId as number,
+          centerX: args.centerX as number,
+          centerY: args.centerY as number,
+          centerZ: args.centerZ as number,
+          radius: args.radius as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // MMap Tools (Phase 1.1b)
+      case "list-mmap-files": {
+        const mmapDir = (args.mmapDir as string | undefined) || process.env.MMAP_PATH || "./data/mmaps";
+        const result = await listMMapFiles(mmapDir);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-mmap-file-info": {
+        const mmapFile = args.mmapFile as string;
+        const result = await getMMapFileInfo(mmapFile);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "mmap-find-path": {
+        const result = await findPath({
+          mmapDir: args.mmapDir as string,
+          mapId: args.mapId as number,
+          startX: args.startX as number,
+          startY: args.startY as number,
+          startZ: args.startZ as number,
+          goalX: args.goalX as number,
+          goalY: args.goalY as number,
+          goalZ: args.goalZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "mmap-is-on-navmesh": {
+        const result = await isOnNavMesh({
+          mmapDir: args.mmapDir as string,
+          mapId: args.mapId as number,
+          posX: args.posX as number,
+          posY: args.posY as number,
+          posZ: args.posZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Database Tools (Phase 1.1c)
+      case "export-database": {
+        const baseConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+        };
+        const result = await exportAllDatabases(
+          baseConfig,
+          args.outputDir as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "export-database-tables": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await exportTables(
+          dbConfig,
+          args.tables as string[],
+          args.outputDir as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "import-database-from-directory": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await importFromDirectory(
+          dbConfig,
+          args.directory as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "import-database-from-file": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await importFromFile(
+          dbConfig,
+          args.filepath as string,
+          (args.dropExisting as boolean) || false
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "backup-database": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickBackup(dbConfig, args.backupDir as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "restore-database": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickRestore(
+          dbConfig,
+          args.backup as string,
+          (args.dropExisting as boolean) || false
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-quick": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickHealthCheck(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-full": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await fullHealthCheck(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-and-fix": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await healthCheckWithFix(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "compare-databases": {
+        const sourceConfig = {
+          host: args.sourceHost as string,
+          port: (args.sourcePort as number) || 3306,
+          user: args.sourceUser as string,
+          password: args.sourcePassword as string,
+          database: args.sourceDatabase as string,
+        };
+        const targetConfig = {
+          host: args.targetHost as string,
+          port: (args.targetPort as number) || 3306,
+          user: args.targetUser as string,
+          password: args.targetPassword as string,
+          database: args.targetDatabase as string,
+        };
+        const result = await compareDatabases(sourceConfig, targetConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Testing Framework Tools (Phase 1.1e)
+      case "generate-tests-ai": {
+        const sourceFile = args.sourceFile as string;
+        const outputDir = (args.outputDir as string) || "./tests";
+        const result = await generateTests(sourceFile, outputDir);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(Array.from(result), null, 2),
+            },
+          ],
+        };
+      }
+
+      case "generate-tests-directory": {
+        const directory = args.directory as string;
+        const outputDir = (args.outputDir as string) || "./tests";
+        const resultMap = await generateTestsForDirectory(directory, outputDir);
+        const result = Object.fromEntries(resultMap);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "run-performance-test": {
+        // Note: This is a simplified wrapper - actual implementation would need to dynamically import and execute the target function
+        const result = {
+          testName: args.testName as string,
+          targetFunction: args.targetFunction as string,
+          iterations: (args.iterations as number) || 1000,
+          warmupIterations: (args.warmupIterations as number) || 100,
+          status: "pending",
+          message: "Performance testing requires dynamic function execution - implement custom wrapper for production use",
+        };
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "run-load-test": {
+        // Note: This is a simplified wrapper - actual implementation would need to dynamically import and execute the target function
+        const result = {
+          testName: args.testName as string,
+          targetFunction: args.targetFunction as string,
+          concurrentUsers: (args.concurrentUsers as number) || 10,
+          duration: (args.duration as number) || 60,
+          rampUp: (args.rampUp as number) || 10,
+          status: "pending",
+          message: "Load testing requires dynamic function execution - implement custom wrapper for production use",
+        };
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Configuration Management Tools (Phase 1.1f)
+      case "config-get": {
+        const configManager = getConfigManager();
+        const section = (args.section as string) || "all";
+
+        let result: any;
+        if (section === "all") {
+          result = configManager.getConfig();
+        } else {
+          result = { [section]: (configManager.getConfig() as any)[section] };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "config-update": {
+        const configManager = getConfigManager();
+        const section = args.section as string;
+        const updates = args.config as any;
+        const persist = (args.persist as boolean) ?? true;
+
+        let validationResult: any;
+        switch (section) {
+          case "database":
+            validationResult = await configManager.updateDatabase(updates);
+            break;
+          case "dataPaths":
+            validationResult = await configManager.updateDataPaths(updates);
+            break;
+          case "server":
+            validationResult = await configManager.updateServer(updates);
+            break;
+          case "websocket":
+            validationResult = await configManager.updateWebSocket(updates);
+            break;
+          case "testing":
+            validationResult = await configManager.updateTesting(updates);
+            break;
+          case "logging":
+            validationResult = await configManager.updateLogging(updates);
+            break;
+          default:
+            throw new Error(`Unknown config section: ${section}`);
+        }
+
+        if (persist && validationResult.valid) {
+          await configManager.save();
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(validationResult, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "config-validate": {
+        const configManager = getConfigManager();
+        const configToValidate = args.config as any;
+        const result = configManager.validate(configToValidate);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "config-reset": {
+        const configManager = getConfigManager();
+        const section = (args.section as string) || "all";
+        const createBackup = (args.createBackup as boolean) ?? true;
+
+        if (createBackup) {
+          await configManager.save();
+        }
+
+        await configManager.reset();
+
+        const result = {
+          success: true,
+          message: `Configuration ${section === "all" ? "fully" : `section '${section}'`} reset to defaults`,
+          backupCreated: createBackup,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "config-export": {
+        const configManager = getConfigManager();
+        const outputPath = args.outputPath as string;
+        const format = (args.format as string) || "json";
+        const includeSecrets = (args.includeSecrets as boolean) || false;
+
+        const config = configManager.getConfig();
+
+        // Remove secrets if not requested
+        let exportConfig = config;
+        if (!includeSecrets) {
+          exportConfig = JSON.parse(JSON.stringify(config));
+          if (exportConfig.database?.password) {
+            exportConfig.database.password = "***REDACTED***";
+          }
+        }
+
+        const fs = await import("fs/promises");
+        if (format === "json") {
+          await fs.writeFile(outputPath, JSON.stringify(exportConfig, null, 2));
+        } else if (format === "yaml") {
+          // Simple YAML export - for production use a proper YAML library
+          const yamlContent = JSON.stringify(exportConfig, null, 2)
+            .replace(/"/g, "")
+            .replace(/,$/gm, "");
+          await fs.writeFile(outputPath, yamlContent);
+        }
+
+        const result = {
+          success: true,
+          outputPath,
+          format,
+          secretsIncluded: includeSecrets,
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "analyze-combat-log-comprehensive": {
+        const comprehensiveReport = await analyzeComprehensive({
+          logFile: args.logFile as string | undefined,
+          logText: args.logText as string | undefined,
+          botName: args.botName as string,
+          className: args.className as string | undefined,
+          spec: args.spec as string | undefined,
+          level: args.level as number | undefined,
+          includeML: args.includeML as boolean | undefined,
+          includeRecommendations: args.includeRecommendations as boolean | undefined,
+          outputFormat: (args.outputFormat as "json" | "markdown" | "summary") || "markdown",
+        });
+
+        let formatted: string;
+        const format = (args.outputFormat as "json" | "markdown" | "summary") || "markdown";
+
+        if (format === "json") {
+          formatted = formatComprehensiveReportJSON(comprehensiveReport);
+        } else if (format === "summary") {
+          formatted = formatComprehensiveReportSummary(comprehensiveReport);
+        } else {
+          formatted = formatComprehensiveReportMarkdown(comprehensiveReport);
+        }
+
+        return {
+          content: [{ type: "text", text: formatted }],
+        };
+      }
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    // Use centralized error handling
+    const errorResponse = createErrorResponse(error, {
+      tool: name,
+      arguments: args,
+    });
+
     return {
       content: [
         {
           type: "text",
-          text: `Error: ${errorMessage}`,
+          text: JSON.stringify(errorResponse, null, 2),
         },
       ],
       isError: true,

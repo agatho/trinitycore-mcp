@@ -19,7 +19,7 @@ import * as path from "path";
 
 export interface CombatLogEntry {
     timestamp: number;
-    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED";
+    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED" | "AURA_REMOVED" | "SPELL_INTERRUPT";
     source: string;
     target: string;
     spellId?: number;
@@ -27,6 +27,7 @@ export interface CombatLogEntry {
     amount?: number;
     critical?: boolean;
     overkill?: number;
+    outcome?: "success" | "failure" | "interrupted" | "resisted" | "immune";
 }
 
 export interface BotCombatMetrics {
@@ -34,6 +35,8 @@ export interface BotCombatMetrics {
     class: string;
     spec?: string;
     duration: number;  // seconds
+    startTime?: number; // Combat start timestamp
+    endTime?: number; // Combat end timestamp
 
     // DPS Metrics
     totalDamage: number;
@@ -49,6 +52,8 @@ export interface BotCombatMetrics {
 
     // Rotation Metrics
     abilitiesUsed: Map<string, AbilityUsage>;
+    abilityUsage?: Map<string, AbilityUsage>; // Alias for backward compatibility
+    totalAbilityUsage?: number; // Total number of ability casts
     rotationQuality: number;  // 0-100 score
 
     // Decision Metrics
@@ -66,7 +71,16 @@ export interface BotCombatMetrics {
     deaths: number;
     timeSpentDead: number;
     defensiveCooldownUsage: number;
+
+    // Uptime Metrics
+    combatUptime?: number; // Percentage of time in combat actively doing something
+
+    // Overall crit rate (calculated from all abilities)
+    critRate?: number;
 }
+
+// Export alias for backward compatibility
+export type CombatMetrics = BotCombatMetrics;
 
 export interface AbilityUsage {
     spellId: number;
@@ -328,6 +342,13 @@ export async function formatCombatAnalysisReport(
 
 /**
  * Parse log entries from text
+ */
+export function parseCombatLog(logContent: string): CombatLogEntry[] {
+    return parseLogEntries(logContent);
+}
+
+/**
+ * Parse log entries from text (internal implementation)
  */
 function parseLogEntries(logContent: string): CombatLogEntry[] {
     const entries: CombatLogEntry[] = [];

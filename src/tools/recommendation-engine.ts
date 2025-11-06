@@ -450,12 +450,12 @@ export class RecommendationEngine {
     }
 
     // CC efficiency issues
-    if (report.crowdControl.efficiency < 60) {
+    if (report.crowdControl.ccEfficiency < 60) {
       this.addRecommendation({
         priority: "medium",
         category: "mechanics",
         title: "Improve Crowd Control Usage",
-        description: `CC efficiency is ${report.crowdControl.efficiency.toFixed(0)}%. Many CC effects are being broken early or overlapped.`,
+        description: `CC efficiency is ${report.crowdControl.ccEfficiency.toFixed(0)}%. Many CC effects are being broken early or overlapped.`,
         impact: {
           percentageGain: 3,
           qualityImprovement: "minor",

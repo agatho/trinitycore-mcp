@@ -132,6 +132,18 @@ export class DB2IdList {
   }
 
   /**
+   * Convert to Map<spellId, localIndex> for section manager
+   * @returns Map of spellId to local index
+   */
+  public toMap(): Map<number, number> {
+    const map = new Map<number, number>();
+    for (let i = 0; i < this.ids.length; i++) {
+      map.set(this.ids[i], i);
+    }
+    return map;
+  }
+
+  /**
    * Clear all entries
    */
   public clear(): void {
@@ -206,6 +218,26 @@ export class DB2OffsetMap {
    */
   public getSize(): number {
     return this.entries.length;
+  }
+
+  /**
+   * Convert to Map<spellId, OffsetMapEntry> for section manager
+   * Note: Uses index as key since we need the spellId mapping from IdList
+   * @param idList - ID list to map indices to spell IDs
+   * @returns Map of spellId to offset entry
+   */
+  public toMap(idList: DB2IdList): Map<number, { offset: number; size: number }> {
+    const map = new Map<number, { offset: number; size: number }>();
+    for (let i = 0; i < this.entries.length; i++) {
+      const entry = this.entries[i];
+      if (entry.offset !== 0) {
+        const spellId = idList.getIdAtIndex(i);
+        if (spellId !== null) {
+          map.set(spellId, { offset: entry.offset, size: entry.size });
+        }
+      }
+    }
+    return map;
   }
 
   /**

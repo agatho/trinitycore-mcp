@@ -139,6 +139,12 @@ export interface CombatMechanicsReport {
     topIssues: string[];
     quickWins: string[];
   };
+
+  // Convenience properties for direct access
+  overallScore: number; // Same as overall.mechanicsScore
+  topIssues: string[]; // Same as overall.topIssues
+  interrupts: InterruptAnalysis; // Same as interruptAnalysis
+  crowdControl: CCAnalysis; // Same as ccAnalysis
 }
 
 // ============================================================================
@@ -432,11 +438,17 @@ export class CCAnalyzer {
 
     const recommendations = this.generateRecommendations(ccEfficiency, wastedCC, ccChains);
 
+    // Convert drTracker from Map<target, Map<ccType, drLevel>> to Map<target, drLevel[]>
+    const drTracking = new Map<string, number[]>();
+    for (const [target, ccTypes] of this.drTracker) {
+      drTracking.set(target, Array.from(ccTypes.values()));
+    }
+
     return {
       totalCCUsed,
       ccByType,
       ccEfficiency,
-      drTracking: this.drTracker,
+      drTracking,
       wastedCC,
       ccChains,
       recommendations,
@@ -657,5 +669,10 @@ export function analyzeCombatMechanics(
       topIssues,
       quickWins,
     },
+    // Convenience properties for direct access
+    overallScore: mechanicsScore,
+    topIssues,
+    interrupts: interruptAnalysis,
+    crowdControl: ccAnalysis,
   };
 }
