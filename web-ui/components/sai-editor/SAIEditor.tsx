@@ -147,8 +147,37 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
       },
     }));
 
+    // Generate link edges from node.link field (visual representation of event chains)
+    const linkEdges: Edge[] = saiScript.nodes
+      .filter((node) => node.type === 'event' && node.link && node.link > 0)
+      .map((node) => {
+        // Find target node by link ID
+        const targetNode = saiScript.nodes.find((n) => {
+          const nodeIdNum = parseInt(n.id.replace('event-', ''));
+          return n.type === 'event' && nodeIdNum === node.link;
+        });
+
+        if (targetNode) {
+          return {
+            id: `link-${node.id}-${targetNode.id}`,
+            source: node.id,
+            target: targetNode.id,
+            type: 'custom',
+            data: {
+              animated: true,
+              status: 'active' as const,
+              executionCount: 0,
+              label: 'Link',
+              isLinkEdge: true, // Mark as link edge for special styling
+            },
+          };
+        }
+        return null;
+      })
+      .filter((edge): edge is Edge => edge !== null);
+
     setNodes(flowNodes);
-    setEdges(flowEdges);
+    setEdges([...flowEdges, ...linkEdges]);
   }, [setNodes, setEdges, getNodeLock, isNodeLocked]);
 
   // Convert ReactFlow to SAI script
@@ -158,12 +187,15 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
       position: node.position,
     }));
 
-    const saiConnections: SAIConnection[] = edges.map((edge) => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      type: edge.animated ? 'link' : (edge.type === 'smoothstep' ? 'event-to-action' : 'action-to-target'),
-    }));
+    // Filter out link edges (generated automatically from node.link values)
+    const saiConnections: SAIConnection[] = edges
+      .filter((edge) => !(edge.data as any)?.isLinkEdge) // Exclude auto-generated link edges
+      .map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.animated ? 'link' : (edge.type === 'smoothstep' ? 'event-to-action' : 'action-to-target'),
+      }));
 
     return {
       ...script,
@@ -840,6 +872,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
                 {selectedNode ? (
                   <NodeEditor
                     node={selectedNode}
+                    allEventNodes={nodes.map(n => n.data as SAINodeType).filter(n => n.type === 'event')}
                     onChange={(updatedNode) => {
                       setSelectedNode(updatedNode);
                       setNodes((nds) =>

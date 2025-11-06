@@ -17,13 +17,16 @@ import CooldownEditor from './CooldownEditor';
 import CoordinateEditor from './CoordinateEditor';
 import EventFlagEditor from './EventFlagEditor';
 import PhaseEditor from './PhaseEditor';
+import LinkEditor from './LinkEditor';
 
 interface NodeEditorProps {
   node: SAINode;
   onChange: (node: SAINode) => void;
+  /** All event nodes in the script (for link target selection) */
+  allEventNodes?: SAINode[];
 }
 
-export const NodeEditor: React.FC<NodeEditorProps> = ({ node, onChange }) => {
+export const NodeEditor: React.FC<NodeEditorProps> = ({ node, onChange, allEventNodes = [] }) => {
   // Handle parameter changes
   const handleParametersChange = (parameters: typeof node.parameters) => {
     onChange({ ...node, parameters });
@@ -38,15 +41,24 @@ export const NodeEditor: React.FC<NodeEditorProps> = ({ node, onChange }) => {
   const showAdvancedTab = node.type === 'event';
   const showCoordinatesTab = node.type === 'target' || node.type === 'action';
   const showTimingTab = node.type === 'event';
+  const showLinksTab = node.type === 'event';
+
+  // Count visible tabs for grid layout
+  const tabCount = 1 + // Parameters always shown
+    (showAdvancedTab ? 1 : 0) +
+    (showCoordinatesTab ? 1 : 0) +
+    (showTimingTab ? 1 : 0) +
+    (showLinksTab ? 1 : 0);
 
   return (
     <div className="h-full flex flex-col">
       <Tabs defaultValue="basic" className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
+        <TabsList className={`grid w-full grid-cols-${tabCount} rounded-none border-b`}>
           <TabsTrigger value="basic">Parameters</TabsTrigger>
           {showAdvancedTab && <TabsTrigger value="advanced">Advanced</TabsTrigger>}
           {showCoordinatesTab && <TabsTrigger value="coordinates">Coordinates</TabsTrigger>}
           {showTimingTab && <TabsTrigger value="timing">Timing</TabsTrigger>}
+          {showLinksTab && <TabsTrigger value="links">Links</TabsTrigger>}
         </TabsList>
 
         <ScrollArea className="flex-1">
@@ -102,6 +114,18 @@ export const NodeEditor: React.FC<NodeEditorProps> = ({ node, onChange }) => {
                 onChange={(cooldownMin, cooldownMax) =>
                   updateNode({ cooldownMin, cooldownMax })
                 }
+              />
+            </TabsContent>
+          )}
+
+          {/* Links Tab (Event nodes only) */}
+          {showLinksTab && (
+            <TabsContent value="links" className="p-4 m-0">
+              <LinkEditor
+                currentNode={node}
+                allEventNodes={allEventNodes}
+                value={node.link || 0}
+                onChange={(link) => updateNode({ link })}
               />
             </TabsContent>
           )}

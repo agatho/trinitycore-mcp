@@ -23,6 +23,7 @@ interface CustomEdgeData {
   executionCount?: number;
   lastExecuted?: number;
   label?: string;
+  isLinkEdge?: boolean; // Special styling for event link chains
 }
 
 const CustomEdge: React.FC<EdgeProps<CustomEdgeData>> = ({
@@ -60,6 +61,13 @@ const CustomEdge: React.FC<EdgeProps<CustomEdgeData>> = ({
 
   // Get edge color based on status
   const getEdgeColor = () => {
+    // Link edges are always orange
+    if (data?.isLinkEdge) {
+      if (selected) return '#fb923c'; // Lighter orange for selected
+      if (isHovered) return '#fdba74'; // Even lighter orange for hover
+      return '#f97316'; // Standard orange for link edges
+    }
+
     if (selected) return '#3b82f6'; // Blue
     if (isHovered) return '#60a5fa'; // Light blue
 
@@ -114,12 +122,13 @@ const CustomEdge: React.FC<EdgeProps<CustomEdgeData>> = ({
           stroke: edgeColor,
           strokeWidth,
           strokeLinecap: 'round',
+          strokeDasharray: data?.isLinkEdge ? '8 4' : 'none', // Dashed for link edges
           transition: 'all 0.3s ease-in-out',
         }}
       />
 
       {/* Animated flow dots */}
-      {data?.animated && (
+      {data?.animated && !data?.isLinkEdge && (
         <>
           <circle r="3" fill={edgeColor}>
             <animateMotion dur="2s" repeatCount="indefinite" path={edgePath} />
@@ -128,6 +137,27 @@ const CustomEdge: React.FC<EdgeProps<CustomEdgeData>> = ({
             <animateMotion dur="2s" repeatCount="indefinite" path={edgePath} begin="0.5s" />
           </circle>
         </>
+      )}
+
+      {/* Special animated dash for link edges */}
+      {data?.isLinkEdge && data?.animated && (
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={edgeColor}
+          strokeWidth={strokeWidth}
+          strokeDasharray="8 4"
+          strokeLinecap="round"
+          opacity="0.6"
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="12"
+            to="0"
+            dur="1s"
+            repeatCount="indefinite"
+          />
+        </path>
       )}
 
       {/* Interactive hit area */}
