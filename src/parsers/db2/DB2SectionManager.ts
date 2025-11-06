@@ -42,7 +42,7 @@ interface SectionData {
   /** ID list for this section */
   idList: Map<number, number>; // spellId -> localIndex
 
-  /** Offset map for sparse files */
+  /** Offset map for sparse files (null/empty for dense files) */
   offsetMap: Map<number, OffsetMapEntry>;
 }
 
@@ -77,20 +77,20 @@ export class DB2SectionManager {
    * @param sectionIdx - Section index
    * @param fileOffset - Section file offset
    * @param sectionIdList - ID list for this section (Map<spellId, localIndex>)
-   * @param sectionOffsetMap - Offset map for sparse files
+   * @param sectionOffsetMap - Offset map for sparse files (null for dense files)
    */
   addSection(
     sectionIdx: number,
     fileOffset: number,
     sectionIdList: Map<number, number>,
-    sectionOffsetMap: Map<number, OffsetMapEntry>
+    sectionOffsetMap: Map<number, OffsetMapEntry> | null
   ): void {
-    // Create section data
+    // Create section data (use empty map for null offsetMap)
     const sectionData: SectionData = {
       index: sectionIdx,
       fileOffset,
       idList: sectionIdList,
-      offsetMap: sectionOffsetMap,
+      offsetMap: sectionOffsetMap || new Map(),
     };
 
     // Store section
@@ -107,7 +107,7 @@ export class DB2SectionManager {
     // Update diagnostics
     this.diagnostics.totalSections = this.sections.size;
     this.diagnostics.totalRecords += sectionIdList.size;
-    this.diagnostics.sparseRecords += sectionOffsetMap.size;
+    this.diagnostics.sparseRecords += (sectionOffsetMap?.size || 0);
   }
 
   /**

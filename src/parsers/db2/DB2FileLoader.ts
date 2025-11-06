@@ -494,9 +494,18 @@ export class DB2FileLoader {
         sectionOffsetMap = null;
       }
 
-      // Add section to manager
-      this.sectionManager.addSection(sectionIdx, section.fileOffset, sectionIdList, sectionOffsetMap);
-      console.warn(`   ✅ Section ${sectionIdx} loaded successfully`);
+      // Add section to manager (convert DB2IdList and DB2OffsetMap to Maps for section manager)
+      if (sectionIdList) {
+        this.sectionManager.addSection(
+          sectionIdx,
+          section.fileOffset,
+          sectionIdList.toMap(),
+          sectionOffsetMap ? sectionOffsetMap.toMap(sectionIdList) : null
+        );
+        console.warn(`   ✅ Section ${sectionIdx} loaded successfully`);
+      } else {
+        console.warn(`   ⚠️  Section ${sectionIdx} has no ID list - skipping`);
+      }
     }
 
     // Print diagnostics
