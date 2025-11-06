@@ -8,6 +8,7 @@
  */
 
 import { queryWorld } from "../database/connection";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -578,7 +579,7 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
       });
     }
   } catch (e) {
-    console.warn(`Could not load rewards for faction ${factionId}: ${e}`);
+    logger.warn(`Could not load rewards for faction ${factionId}: ${e}`);
   }
 
   // Add achievement rewards
@@ -725,7 +726,7 @@ export async function getReputationTokens(factionId: number): Promise<Reputation
       });
     }
   } catch (e) {
-    console.warn(`Could not load reputation tokens: ${e}`);
+    logger.warn(`Could not load reputation tokens: ${e}`);
   }
 
   return tokens.sort((a, b) => b.costEfficiency - a.costEfficiency);
@@ -907,7 +908,7 @@ async function parseReputationGainFromItem(itemId: number, expectedFactionId: nu
       }
     }
   } catch (error) {
-    console.warn(`Could not parse reputation gain for item ${itemId}:`, error);
+    logger.warn(`Could not parse reputation gain for item ${itemId}:`, error);
   }
 
   // Default reputation gains by item quality/level

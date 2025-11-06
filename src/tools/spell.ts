@@ -16,6 +16,7 @@ import {
   getMaxEffectiveRange,
   type SpellRangeEntry
 } from "../data/spell-ranges.js";
+import { logger } from '../utils/logger.js';
 import {
   parseAttributeBitfield,
   getAttributeFlagsByCategory,
@@ -109,7 +110,7 @@ function loadSpellNameCache(): boolean {
 
   try {
     if (!fs.existsSync(SPELL_NAME_CACHE_PATH)) {
-      console.warn(`Spell name cache not found at ${SPELL_NAME_CACHE_PATH}. Falling back to DB2 parsing.`);
+      logger.warn(`Spell name cache not found at ${SPELL_NAME_CACHE_PATH}. Falling back to DB2 parsing.`);
       return false;
     }
 
@@ -121,10 +122,10 @@ function loadSpellNameCache(): boolean {
       spellNameCache.set(parseInt(key), value as string);
     }
 
-    console.log(`✅ Loaded spell name cache: ${spellNameCache.size} entries`);
+    logger.info(`✅ Loaded spell name cache: ${spellNameCache.size} entries`);
     return true;
   } catch (error) {
-    console.error(`Failed to load spell name cache: ${error}`);
+    logger.error(`Failed to load spell name cache: ${error}`);
     spellNameCache = null;
     return false;
   }
@@ -164,7 +165,7 @@ function loadSpellDataCache(): boolean {
 
   try {
     if (!fs.existsSync(SPELL_DATA_CACHE_PATH)) {
-      console.warn(`Spell data cache not found at ${SPELL_DATA_CACHE_PATH}. Using database only.`);
+      logger.warn(`Spell data cache not found at ${SPELL_DATA_CACHE_PATH}. Using database only.`);
       return false;
     }
 
@@ -176,10 +177,10 @@ function loadSpellDataCache(): boolean {
       spellDataCache.set(parseInt(key), value as SpellDataCacheEntry);
     }
 
-    console.log(`✅ Loaded spell data cache: ${spellDataCache.size} entries`);
+    logger.info(`✅ Loaded spell data cache: ${spellDataCache.size} entries`);
     return true;
   } catch (error) {
-    console.error(`Failed to load spell data cache: ${error}`);
+    logger.error(`Failed to load spell data cache: ${error}`);
     spellDataCache = null;
     return false;
   }
@@ -276,7 +277,7 @@ async function loadSpellFromDB2(spellId: number): Promise<{
       source: "db2-parser"
     };
   } catch (error) {
-    console.error("Error loading spell from DB2:", error);
+    logger.error("Error loading spell from DB2:", error);
     return {
       data: null,
       cacheHit: false,
@@ -323,7 +324,7 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
       dbSpell = spells && spells.length > 0 ? spells[0] : null;
     } catch (dbError) {
       // Database unavailable - not fatal, we have DB2/cache data
-      console.warn(`Database query failed for spell ${spellId}, using DB2/cache only:`, dbError instanceof Error ? dbError.message : String(dbError));
+      logger.warn(`Database query failed for spell ${spellId}, using DB2/cache only:`, dbError instanceof Error ? dbError.message : String(dbError));
     }
 
     // Step 3: Try Spell.db2 data cache as fallback (descriptions, ranks, etc.)
@@ -403,7 +404,7 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
       }
     } catch (effectsError) {
       // Database unavailable - not fatal, effects will be empty
-      console.warn(`Effects query failed for spell ${spellId}:`, effectsError instanceof Error ? effectsError.message : String(effectsError));
+      logger.warn(`Effects query failed for spell ${spellId}:`, effectsError instanceof Error ? effectsError.message : String(effectsError));
     }
 
     // Extract spell name from DB2 data (JSON cache uses Name_lang field)
@@ -509,7 +510,7 @@ function parseAttributes(spell: any): string[] {
     }
   } catch (error) {
     // Graceful degradation - return empty array on error
-    console.error("Error parsing spell attributes:", error);
+    logger.error("Error parsing spell attributes:", error);
   }
 
   return attributes;

@@ -28,6 +28,7 @@ import {
   IssueSeverity,
   FixType
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -932,7 +933,7 @@ export const SECURITY_RULES: CodeReviewRule[] = [
   ...SESSION_PATTERNS,
 ];
 
-console.log(`Security Rules loaded: ${SECURITY_RULES.length} rules`);
-console.log(
+logger.info(`Security Rules loaded: ${SECURITY_RULES.length} rules`);
+logger.info(
   `Target: 150 rules, Current: ${SECURITY_RULES.length} (${((SECURITY_RULES.length / 150) * 100).toFixed(1)}%)`
 );

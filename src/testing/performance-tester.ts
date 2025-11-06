@@ -7,6 +7,7 @@
  */
 
 import { EventEmitter } from "events";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // Types
@@ -454,8 +455,8 @@ export class PerformanceTester extends EventEmitter {
    * Print benchmark comparison
    */
   private printBenchmarkComparison(results: Record<string, PerformanceResult>): void {
-    console.log("\nBenchmark Comparison:");
-    console.log("─".repeat(80));
+    logger.info("\nBenchmark Comparison:");
+    logger.info("─".repeat(80));
 
     const sorted = Object.entries(results).sort((a, b) => a[1].timing.mean - b[1].timing.mean);
 
@@ -465,12 +466,12 @@ export class PerformanceTester extends EventEmitter {
       const relative = result.timing.mean / fastest;
       const ops = (1000 / result.timing.mean).toFixed(0);
 
-      console.log(`${name}:`);
-      console.log(`  ${result.timing.mean.toFixed(2)}ms (${ops} ops/sec)`);
-      console.log(`  ${relative.toFixed(2)}x ${relative === 1 ? "(fastest)" : "slower"}`);
+      logger.info(`${name}:`);
+      logger.info(`  ${result.timing.mean.toFixed(2)}ms (${ops} ops/sec)`);
+      logger.info(`  ${relative.toFixed(2)}x ${relative === 1 ? "(fastest)" : "slower"}`);
     }
 
-    console.log("─".repeat(80));
+    logger.info("─".repeat(80));
   }
 }
 

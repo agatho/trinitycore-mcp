@@ -8,6 +8,7 @@ import { CodeGenerator, GeneratedCode } from '../codegen/CodeGenerator.js';
 import { CppValidator, validateCppFile } from '../codegen/CppValidator.js';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { logger } from '../utils/logger.js';
 
 const execAsync = promisify(exec);
 
@@ -51,7 +52,7 @@ export async function generateBotComponent(options: {
                 : options.role === 'dps' ? 'cpp/strategies/dps_strategy'
                 : 'cpp/strategies/base_strategy',
     state_manager: 'cpp/strategies/state_manager',
-    event_handler: 'event_handlers/event_handler', // TODO: Create C++ template
+    event_handler: 'event_handlers/event_handler',
   };
 
   const templateName = templateMap[options.componentType];
@@ -152,7 +153,7 @@ export async function generateBotComponent(options: {
       additionalFiles.push(testFile);
     } catch (error) {
       // Test template might not exist yet - skip silently
-      console.warn(`Test generation skipped: ${error}`);
+      logger.warn(`Test generation skipped: ${error}`);
     }
   }
 
@@ -162,7 +163,7 @@ export async function generateBotComponent(options: {
     try {
       validationResult = await cppValidator.validateFile(generated.filePath);
     } catch (error) {
-      console.warn(`Validation skipped: ${error}`);
+      logger.warn(`Validation skipped: ${error}`);
     }
   }
 
@@ -277,7 +278,7 @@ export async function generatePacketHandler(options: {
   try {
     validationResult = await cppValidator.validateFile(generated.filePath);
   } catch (error) {
-    console.warn(`Validation skipped: ${error}`);
+    logger.warn(`Validation skipped: ${error}`);
   }
 
   const generationTime = performance.now() - start;

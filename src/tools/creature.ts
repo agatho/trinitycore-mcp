@@ -11,6 +11,7 @@
 import { queryWorld } from "../database/connection";
 import * as fs from "fs";
 import * as path from "path";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // CREATURE CACHE (DBCD-generated JSON from Creature.db2)
@@ -46,7 +47,7 @@ function loadCreatureCache(): boolean {
 
   try {
     if (!fs.existsSync(CREATURE_CACHE_PATH)) {
-      console.warn(`Creature cache not found at ${CREATURE_CACHE_PATH}.`);
+      logger.warn(`Creature cache not found at ${CREATURE_CACHE_PATH}.`);
       return false;
     }
 
@@ -57,10 +58,10 @@ function loadCreatureCache(): boolean {
       creatureCache.set(parseInt(key), value as CreatureCacheEntry);
     }
 
-    console.log(`✅ Loaded creature cache: ${creatureCache.size} entries`);
+    logger.info(`✅ Loaded creature cache: ${creatureCache.size} entries`);
     return true;
   } catch (error) {
-    console.error(`Failed to load creature cache: ${error}`);
+    logger.error(`Failed to load creature cache: ${error}`);
     creatureCache = null;
     return false;
   }
@@ -389,7 +390,7 @@ export async function getCreatureFullInfo(
     template = templates && templates.length > 0 ? templates[0] as CreatureTemplate : null;
     dbQuerySucceeded = true;
   } catch (dbError) {
-    console.warn(`Database query failed for creature ${entry}, using DB2 cache only:`,
+    logger.warn(`Database query failed for creature ${entry}, using DB2 cache only:`,
       dbError instanceof Error ? dbError.message : String(dbError));
     dbQuerySucceeded = false;
     // Continue with template = null, will use cache data

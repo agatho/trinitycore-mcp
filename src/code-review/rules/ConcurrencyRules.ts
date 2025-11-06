@@ -24,6 +24,7 @@ import {
   CodeFix,
   IssueSeverity,
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -830,7 +831,7 @@ export const CONCURRENCY_RULES: CodeReviewRule[] = [
   ...ATOMIC_PATTERNS,
 ];
 
-console.log(`Concurrency Rules loaded: ${CONCURRENCY_RULES.length} rules`);
-console.log(
+logger.info(`Concurrency Rules loaded: ${CONCURRENCY_RULES.length} rules`);
+logger.info(
   `Target: 100 rules, Current: ${CONCURRENCY_RULES.length} (${((CONCURRENCY_RULES.length / 100) * 100).toFixed(1)}%)`
 );

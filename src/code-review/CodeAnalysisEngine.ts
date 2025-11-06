@@ -26,6 +26,7 @@ import type {
   Language,
   SymbolInfo,
 } from './types.js';
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // SERENA MCP INTEGRATION TYPES
@@ -332,7 +333,7 @@ export class CodeAnalysisEngine {
       fileContent = await fs.readFile(filepath, 'utf-8');
       lineCount = fileContent.split('\n').length;
     } catch (error) {
-      console.error(`Failed to read file ${filepath}:`, error);
+      logger.error(`Failed to read file ${filepath}:`, error);
     }
 
     // Build symbol table from Serena symbols
@@ -472,7 +473,8 @@ export class CodeAnalysisEngine {
       file: filepath,
       line: symbol.line,
       column: symbol.column,
-      baseClasses: [], // TODO: Extract from signature
+      // Extract base classes from signature (e.g., "class Foo : public Bar" -> ["Bar"])
+      baseClasses: this.extractBaseClasses(symbol.signature || ''),
       methods: [],
       fields: [],
       accessModifiers: {
@@ -480,10 +482,12 @@ export class CodeAnalysisEngine {
         protected: [],
         private: [],
       },
-      isAbstract: false, // TODO: Detect from modifiers
+      // Detect abstract class from modifiers or pure virtual methods
+      isAbstract: symbol.modifiers?.includes('abstract') || symbol.signature?.includes('= 0') || false,
       isFinal: symbol.modifiers?.includes('final') || false,
-      isTemplate: false, // TODO: Detect template parameters
-      templateParameters: [],
+      // Detect template parameters (e.g., "template<typename T>" -> true)
+      isTemplate: symbol.signature?.includes('template<') || symbol.signature?.includes('template <') || false,
+      templateParameters: this.extractTemplateParameters(symbol.signature || ''),
 
       // Convenience properties
       members: [],
@@ -587,7 +591,8 @@ export class CodeAnalysisEngine {
       isOverride: symbol.modifiers?.includes('override') || false,
       isConst: signature.includes(' const'),
       isStatic: symbol.modifiers?.includes('static') || false,
-      accessModifier: 'public', // TODO: Extract from Serena
+      // Extract access modifier from modifiers or default to public
+      accessModifier: this.extractAccessModifier(symbol.modifiers),
       body: includeBody ? symbol.body : undefined,
 
       // Convenience properties
@@ -664,7 +669,8 @@ export class CodeAnalysisEngine {
       isReference: type.includes('&'),
       isConst: type.includes('const'),
       isStatic: symbol.modifiers?.includes('static') || false,
-      initializer: undefined, // TODO: Extract from signature
+      // Extract initializer from signature (e.g., "int x = 5" -> "5")
+      initializer: this.extractInitializer(symbol.signature || ''),
 
       // Convenience properties
       location: {
@@ -714,10 +720,14 @@ export class CodeAnalysisEngine {
       const name = parts[parts.length - 1].replace(/[*&]/g, '');
       const type = parts.slice(0, -1).join(' ');
 
+      // Extract default value (e.g., "int x = 5" -> "5")
+      const defaultMatch = param.match(/=\s*(.+)$/);
+      const defaultValue = defaultMatch ? defaultMatch[1].trim() : undefined;
+
       return {
         name,
         type,
-        defaultValue: undefined, // TODO: Extract default values
+        defaultValue,
         isConst: type.includes('const'),
         isReference: type.includes('&'),
         isPointer: type.includes('*'),
@@ -752,13 +762,15 @@ export class CodeAnalysisEngine {
 
     const includes: IncludeDirective[] = [];
     for (const [file, lines] of Object.entries(results)) {
-      for (const line of lines) {
+      for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+        const line = lines[lineIndex];
         const match = line.match(/#\s*include\s+([<"])([^>"]+)[>"]/);
         if (match) {
           const isSystemInclude = match[1] === '<';
           includes.push({
             file,
-            line: 0, // TODO: Extract line number from Serena result
+            // Serena returns lines as array, use index as line number (1-based)
+            line: lineIndex + 1,
             includedFile: match[2],
             isSystemInclude,
             isResolved: false,
@@ -774,9 +786,44 @@ export class CodeAnalysisEngine {
    * Count lines of code in file (approximation)
    */
   private async countLinesOfCode(filepath: string): Promise<number> {
-    // TODO: Implement proper LOC counting
-    // For now, use a simple heuristic
-    return 1000; // Placeholder
+    try {
+      const fs = await import('fs/promises');
+      const content = await fs.readFile(filepath, 'utf-8');
+      const lines = content.split('\n');
+
+      // Count non-empty, non-comment lines
+      let loc = 0;
+      let inBlockComment = false;
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+
+        // Skip empty lines
+        if (!trimmed) continue;
+
+        // Handle block comments
+        if (trimmed.startsWith('/*')) {
+          inBlockComment = true;
+        }
+        if (inBlockComment) {
+          if (trimmed.includes('*/')) {
+            inBlockComment = false;
+          }
+          continue;
+        }
+
+        // Skip single-line comments
+        if (trimmed.startsWith('//')) continue;
+
+        // Count as code
+        loc++;
+      }
+
+      return loc;
+    } catch (error) {
+      // If file read fails, return 0
+      return 0;
+    }
   }
 
   /**
@@ -803,6 +850,68 @@ export class CodeAnalysisEngine {
   }
 
   // ==========================================================================
+  // HELPER METHODS
+  // ==========================================================================
+
+  /**
+   * Extract base classes from class signature
+   * e.g., "class Foo : public Bar, private Baz" -> ["Bar", "Baz"]
+   */
+  private extractBaseClasses(signature: string): string[] {
+    const baseClasses: string[] = [];
+
+    // Match patterns like ": public Bar" or ": private Baz, public Qux"
+    const match = signature.match(/:\s*(?:public|protected|private)?\s+(\w+(?:\s*,\s*(?:public|protected|private)?\s+\w+)*)/);
+    if (match) {
+      const bases = match[1].split(',').map(b => b.trim().replace(/^(public|protected|private)\s+/, ''));
+      baseClasses.push(...bases);
+    }
+
+    return baseClasses;
+  }
+
+  /**
+   * Extract template parameters from signature
+   * e.g., "template<typename T, int N>" -> ["T", "N"]
+   */
+  private extractTemplateParameters(signature: string): string[] {
+    const params: string[] = [];
+
+    // Match template parameters
+    const match = signature.match(/template\s*<([^>]+)>/);
+    if (match) {
+      const paramStr = match[1];
+      // Extract parameter names (simplified - handles "typename T" or "int N")
+      const paramMatches = paramStr.matchAll(/(?:typename|class|int|size_t)\s+(\w+)/g);
+      for (const m of paramMatches) {
+        params.push(m[1]);
+      }
+    }
+
+    return params;
+  }
+
+  /**
+   * Extract access modifier from modifiers list
+   */
+  private extractAccessModifier(modifiers?: string[]): 'public' | 'protected' | 'private' {
+    if (!modifiers) return 'public';
+
+    if (modifiers.includes('private')) return 'private';
+    if (modifiers.includes('protected')) return 'protected';
+    return 'public';
+  }
+
+  /**
+   * Extract initializer from variable signature
+   * e.g., "int x = 5" -> "5"
+   */
+  private extractInitializer(signature: string): string | undefined {
+    const match = signature.match(/=\s*(.+?)$/);
+    return match ? match[1].trim() : undefined;
+  }
+
+  // ==========================================================================
   // CACHE MANAGEMENT
   // ==========================================================================
 
@@ -815,20 +924,60 @@ export class CodeAnalysisEngine {
       return null;
     }
 
-    // TODO: Validate cache entry is still fresh
-    // For now, always return cached entry
-    return entry.ast;
+    // Validate cache entry is still fresh (check file modification time)
+    try {
+      const fs = await import('fs/promises');
+      const stats = await fs.stat(filepath);
+      const fileModTime = stats.mtimeMs;
+
+      // If file was modified after cache entry, invalidate cache
+      if (fileModTime > entry.timestamp) {
+        this.cache.delete(filepath);
+        return null;
+      }
+
+      // Also validate file hash if available
+      if (entry.fileHash) {
+        const currentHash = await this.computeFileHash(filepath);
+        if (currentHash !== entry.fileHash) {
+          this.cache.delete(filepath);
+          return null;
+        }
+      }
+
+      return entry.ast;
+    } catch (error) {
+      // If stat fails, assume cache is invalid
+      this.cache.delete(filepath);
+      return null;
+    }
   }
 
   /**
    * Cache AST for file
    */
   private async setCached(filepath: string, ast: AST): Promise<void> {
+    const fileHash = await this.computeFileHash(filepath);
+
     this.cache.set(filepath, {
       ast,
       timestamp: Date.now(),
-      fileHash: '', // TODO: Compute file hash
+      fileHash,
     });
+  }
+
+  /**
+   * Compute file hash for cache validation
+   */
+  private async computeFileHash(filepath: string): Promise<string> {
+    try {
+      const crypto = await import('crypto');
+      const fs = await import('fs/promises');
+      const content = await fs.readFile(filepath, 'utf-8');
+      return crypto.createHash('sha256').update(content).digest('hex');
+    } catch (error) {
+      return '';
+    }
   }
 }
 
@@ -905,7 +1054,7 @@ async function parseFileWithFallback(filepath: string): Promise<SerenaFileOvervi
       }
     }
 
-    console.log(`⚠️  Fallback parser found ${symbols.length} symbols in ${filepath}`);
+    logger.info(`⚠️  Fallback parser found ${symbols.length} symbols in ${filepath}`);
     return {
       file: filepath,
       symbols,
@@ -913,7 +1062,7 @@ async function parseFileWithFallback(filepath: string): Promise<SerenaFileOvervi
       top_level_symbols: symbols.length,
     };
   } catch (error) {
-    console.error(`Failed to parse file ${filepath}:`, error);
+    logger.error(`Failed to parse file ${filepath}:`, error);
     return {
       file: filepath,
       symbols: [],
@@ -944,7 +1093,7 @@ export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): C
 
       // Fallback to Serena MCP if available
       if (!serenaMCPClient) {
-        console.log(`⚠️  Serena unavailable, using fallback parser for: ${filepath}`);
+        logger.info(`⚠️  Serena unavailable, using fallback parser for: ${filepath}`);
         return await parseFileWithFallback(filepath);
       }
 

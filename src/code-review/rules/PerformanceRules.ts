@@ -26,6 +26,7 @@ import {
   CodeFix,
   IssueSeverity,
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -793,7 +794,7 @@ export const PERFORMANCE_RULES: CodeReviewRule[] = [
   ...CACHING_PATTERNS,
 ];
 
-console.log(`Performance Rules loaded: ${PERFORMANCE_RULES.length} rules`);
-console.log(
+logger.info(`Performance Rules loaded: ${PERFORMANCE_RULES.length} rules`);
+logger.info(
   `Target: 100 rules, Current: ${PERFORMANCE_RULES.length} (${((PERFORMANCE_RULES.length / 100) * 100).toFixed(1)}%)`
 );

@@ -493,8 +493,39 @@ function analyzeBotPerformance(
         p99: 680,
     };
 
-    // Deaths
-    const deaths = entries.filter(e => e.type === "UNIT_DIED" && e.target === botName).length;
+    // Deaths and death time tracking
+    const deathEvents = entries.filter(e => e.type === "UNIT_DIED" && e.target === botName);
+    const deaths = deathEvents.length;
+
+    // Calculate time spent dead (estimate time between death and next action)
+    let timeSpentDead = 0;
+    for (const deathEvent of deathEvents) {
+        const nextAction = botEntries.find(e => e.timestamp > deathEvent.timestamp);
+        if (nextAction) {
+            timeSpentDead += (nextAction.timestamp - deathEvent.timestamp) / 1000; // Convert to seconds
+        }
+    }
+
+    // Calculate damage taken
+    const damageTakenEntries = entries.filter(e =>
+        (e.type === "SPELL_DAMAGE" || e.type === "SWING_DAMAGE") && e.target === botName
+    );
+    const damageTaken = damageTakenEntries.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    // Track defensive cooldown usage
+    const defensiveAbilities = [
+        'Shield Wall', 'Shield Block', 'Last Stand', 'Ice Block', 'Divine Shield',
+        'Barkskin', 'Survival Instincts', 'Deterrence', 'Evasion', 'Cloak of Shadows',
+        'Anti-Magic Shell', 'Icebound Fortitude', 'Pain Suppression', 'Guardian Spirit'
+    ];
+    const defensiveCooldownUsage = botEntries.filter(e =>
+        e.type === "SPELL_CAST" && defensiveAbilities.some(ability =>
+            e.spellName?.includes(ability)
+        )
+    ).length;
+
+    // Detect suboptimal decisions
+    const suboptimalDecisions = detectSuboptimalDecisions(botEntries, abilitiesUsed, damageTaken);
 
     // Extract class from bot name (simplified)
     const classMatch = botName.match(/(Warrior|Mage|Priest|Paladin|Druid|Shaman|Warlock|Rogue|Hunter|Death Knight)/i);
@@ -524,12 +555,12 @@ function analyzeBotPerformance(
         abilitiesUsed,
         rotationQuality,
         missedOpportunities,
-        suboptimalDecisions: [],  // TODO: Implement
+        suboptimalDecisions,
         reactionTime,
-        damageTaken: 0,  // TODO: Parse damage taken
+        damageTaken,
         deaths,
-        timeSpentDead: 0,
-        defensiveCooldownUsage: 0,
+        timeSpentDead,
+        defensiveCooldownUsage,
     };
 }
 
@@ -626,10 +657,121 @@ function detectMissedOpportunities(
 ): MissedOpportunity[] {
     const missed: MissedOpportunity[] = [];
 
-    // TODO: Implement cooldown tracking and proc detection
-    // For now, return example opportunities
+    // Check for long gaps without ability usage (cooldown waste)
+    let lastCastTime = 0;
+    for (const entry of entries) {
+        if (entry.type === "SPELL_CAST") {
+            if (lastCastTime > 0) {
+                const gap = (entry.timestamp - lastCastTime) / 1000; // Convert to seconds
+                if (gap > 3) { // 3+ second gap indicates possible cooldown waste
+                    missed.push({
+                        timestamp: entry.timestamp,
+                        type: "cooldown-unused",
+                        description: `${gap.toFixed(1)}s gap without casting`,
+                        ability: "Any Ability",
+                        impact: gap > 5 ? "high" : "medium",
+                        estimatedLoss: `~${Math.round(gap * 100)} DPS`
+                    });
+                }
+            }
+            lastCastTime = entry.timestamp;
+        }
+    }
+
+    // Check for underutilized high-damage abilities
+    for (const [name, ability] of abilities) {
+        if (ability.dpsContribution > 100 && ability.casts < 5) {
+            missed.push({
+                timestamp: entries[0]?.timestamp || 0,
+                type: "cooldown-unused",
+                description: `Only ${ability.casts} casts of high-damage ability`,
+                ability: name,
+                impact: "high",
+                estimatedLoss: `~${Math.round(ability.dpsContribution * 5)} DPS`
+            });
+        }
+    }
 
     return missed;
+}
+
+/**
+ * Detect suboptimal decisions
+ */
+function detectSuboptimalDecisions(
+    entries: CombatLogEntry[],
+    abilities: Map<string, AbilityUsage>,
+    damageTaken: number
+): SuboptimalDecision[] {
+    const decisions: SuboptimalDecision[] = [];
+
+    // Check for poor defensive cooldown usage (high damage taken)
+    if (damageTaken > 50000) { // High damage threshold
+        const defensiveCasts = entries.filter(e =>
+            e.type === "SPELL_CAST" &&
+            e.spellName?.match(/Shield|Block|Barrier|Fortitude|Ice Block/i)
+        );
+
+        if (defensiveCasts.length === 0) {
+            decisions.push({
+                timestamp: entries[0]?.timestamp || 0,
+                type: "wrong-timing",
+                description: `Took ${damageTaken.toLocaleString()} damage without using defensive cooldowns`,
+                actualAction: "No defensive abilities used",
+                optimalAction: "Use defensive abilities when taking heavy damage",
+                impact: Math.round(damageTaken * 0.5) // Estimate 50% damage could be prevented
+            });
+        }
+    }
+
+    // Check for inefficient ability rotation (overuse of low-damage abilities)
+    const sortedAbilities = Array.from(abilities.values()).sort((a, b) => b.dpsContribution - a.dpsContribution);
+    if (sortedAbilities.length > 3) {
+        const topAbility = sortedAbilities[0];
+        const lowAbilities = sortedAbilities.filter(a => a.dpsContribution < topAbility.dpsContribution * 0.2);
+
+        for (const ability of lowAbilities) {
+            if (ability.casts > topAbility.casts) {
+                const dpsDiff = (topAbility.dpsContribution - ability.dpsContribution) * ability.casts;
+                decisions.push({
+                    timestamp: entries[0]?.timestamp || 0,
+                    type: "wrong-ability",
+                    description: `Overusing low-impact ability ${ability.spellName} (${ability.casts} casts vs ${topAbility.casts} of ${topAbility.spellName})`,
+                    actualAction: `Used ${ability.spellName}`,
+                    optimalAction: `Use ${topAbility.spellName} instead`,
+                    impact: Math.round(dpsDiff)
+                });
+            }
+        }
+    }
+
+    // Check for inefficient resource usage (casting during immunity/death)
+    let wasDeadOrImmune = false;
+    for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+
+        if (entry.type === "UNIT_DIED") {
+            wasDeadOrImmune = true;
+        }
+
+        if (entry.type === "SPELL_CAST" && wasDeadOrImmune) {
+            decisions.push({
+                timestamp: entry.timestamp,
+                type: "resource-waste",
+                description: "Attempting to cast while dead or immune",
+                actualAction: `Cast ${entry.spellName || "ability"}`,
+                optimalAction: "Wait for resurrection or immunity to end",
+                impact: 0 // No direct damage loss, but wastes resources
+            });
+        }
+
+        // Reset flag when bot becomes active again
+        if (entry.type === "SPELL_DAMAGE" || entry.type === "SPELL_HEAL") {
+            wasDeadOrImmune = false;
+        }
+    }
+
+    return decisions;
 }
 
 /**

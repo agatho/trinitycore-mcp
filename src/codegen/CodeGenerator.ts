@@ -13,6 +13,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import Handlebars from 'handlebars';
 import prettier from 'prettier';
+import { logger } from '../utils/logger.js';
 
 export interface CodeGenerationOptions {
   templateName: string;
@@ -168,7 +169,7 @@ export class CodeGenerator {
         // Note: prettier doesn't support C++, so we'll do basic formatting
         code = this.basicCppFormat(code);
       } catch (error) {
-        console.warn(`Failed to format code: ${error}`);
+        logger.warn(`Failed to format code: ${error}`);
       }
     }
 
@@ -239,7 +240,7 @@ export class CodeGenerator {
         const result = await this.generate(item);
         results.push(result);
       } catch (error) {
-        console.error(`Failed to generate ${item.outputPath}:`, error);
+        logger.error(`Failed to generate ${item.outputPath}:`, error);
         throw error;
       }
     }

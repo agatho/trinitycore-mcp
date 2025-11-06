@@ -25,6 +25,7 @@ import {
   CodeFix,
   IssueSeverity,
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -697,5 +698,5 @@ export const MEMORY_RULES: CodeReviewRule[] = [
   ...CONTAINER_POINTER_TYPES,
 ];
 
-console.log(`Memory Management Rules loaded: ${MEMORY_RULES.length} rules`);
-console.log(`Target: 150 rules, Current: ${MEMORY_RULES.length} (${((MEMORY_RULES.length / 150) * 100).toFixed(1)}%)`);
+logger.info(`Memory Management Rules loaded: ${MEMORY_RULES.length} rules`);
+logger.info(`Target: 150 rules, Current: ${MEMORY_RULES.length} (${((MEMORY_RULES.length / 150) * 100).toFixed(1)}%)`);

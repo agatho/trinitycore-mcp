@@ -4,6 +4,9 @@
  * Based on TrinityCore implementation
  */
 
+import { logger } from '../../utils/logger.js';
+
+
 /**
  * ID List Entry (WoWDev Wiki Format)
  * Simple array of spell IDs (4 bytes each)
@@ -68,7 +71,7 @@ export class DB2IdList {
 
     for (let i = 0; i < count; i++) {
       if (offset + 4 > buffer.length) {
-        console.warn(`ID list buffer overflow at entry ${i}/${count}`);
+        logger.warn(`ID list buffer overflow at entry ${i}/${count}`);
         break;
       }
 
@@ -77,9 +80,9 @@ export class DB2IdList {
       offset += 4;
     }
 
-    console.warn(`✅ ID list loaded ${this.ids.length} entries (minId: ${minId}, maxId: ${maxId})`);
+    logger.warn(`✅ ID list loaded ${this.ids.length} entries (minId: ${minId}, maxId: ${maxId})`);
     if (this.ids.length > 0) {
-      console.warn(`📊 First 10 IDs: ${this.ids.slice(0, Math.min(10, this.ids.length)).join(', ')}`);
+      logger.warn(`📊 First 10 IDs: ${this.ids.slice(0, Math.min(10, this.ids.length)).join(', ')}`);
     }
   }
 
@@ -171,7 +174,7 @@ export class DB2OffsetMap {
 
     for (let i = 0; i < count; i++) {
       if (offset + 6 > buffer.length) {
-        console.warn(`Offset map buffer overflow at entry ${i}/${count}`);
+        logger.warn(`Offset map buffer overflow at entry ${i}/${count}`);
         break;
       }
 
@@ -186,9 +189,9 @@ export class DB2OffsetMap {
       offset += 6;
     }
 
-    console.warn(`✅ Offset map loaded ${this.entries.length} entries`);
+    logger.warn(`✅ Offset map loaded ${this.entries.length} entries`);
     if (this.entries.length > 0) {
-      console.warn(`📊 First entry: offset=${this.entries[0].offset}, size=${this.entries[0].size}`);
+      logger.warn(`📊 First entry: offset=${this.entries[0].offset}, size=${this.entries[0].size}`);
     }
   }
 

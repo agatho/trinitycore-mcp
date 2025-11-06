@@ -19,6 +19,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import * as path from "path";
 import * as fs from "fs/promises";
+import { logger } from '../utils/logger.js';
 
 const execAsync = promisify(exec);
 
@@ -539,7 +540,7 @@ async function applyAutoFixes(
 
       await fs.writeFile(filePath, content, "utf-8");
     } catch (error) {
-      console.error(`Failed to apply fixes to ${file}:`, error);
+      logger.error(`Failed to apply fixes to ${file}:`, error);
     }
   }
 }

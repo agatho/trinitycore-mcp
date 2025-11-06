@@ -8,6 +8,7 @@
  */
 
 import type { CombatMetrics, AbilityUsage } from "./botcombatloganalyzer.js";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -350,7 +351,7 @@ export class PerformanceComparisonEngine {
 
     if (!baseline) {
       // Create estimated baseline
-      console.warn(`[Performance Comparison] No baseline found for ${key}, using estimated values`);
+      logger.warn(`[Performance Comparison] No baseline found for ${key}, using estimated values`);
       baseline = this.createEstimatedBaseline(className, level);
     }
 

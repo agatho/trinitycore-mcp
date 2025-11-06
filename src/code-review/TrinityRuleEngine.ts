@@ -15,6 +15,7 @@ import {
   AST,
   IssueSeverity,
 } from './types.js';
+import { logger } from '../utils/logger.js';
 
 // Import rule categories
 import { NULL_SAFETY_RULES } from './rules/NullSafetyRules.js';
@@ -166,8 +167,8 @@ export class TrinityRuleEngine {
     this.rules = options?.rules || this.loadAllRules();
     this.cache = new Map();
 
-    console.log(`Trinity Rule Engine initialized with ${this.rules.length} rules`);
-    console.log(`Rule distribution: ${this.getRuleDistribution()}`);
+    logger.info(`Trinity Rule Engine initialized with ${this.rules.length} rules`);
+    logger.info(`Rule distribution: ${this.getRuleDistribution()}`);
   }
 
   /**
@@ -215,20 +216,20 @@ export class TrinityRuleEngine {
   ): Promise<RuleEngineResult> {
     const startTime = performance.now();
 
-    console.log(`\n🔍 executeRules() CALLED for file: ${context.file}`);
-    console.log(`   Total rules loaded: ${this.rules.length}`);
-    console.log(`   AST root.raw length: ${ast.root.raw.length} chars`);
-    console.log(`   AST has ${ast.classes.length} classes, ${ast.functions.length} functions, ${ast.variables.length} variables`);
+    logger.info(`\n🔍 executeRules() CALLED for file: ${context.file}`);
+    logger.info(`   Total rules loaded: ${this.rules.length}`);
+    logger.info(`   AST root.raw length: ${ast.root.raw.length} chars`);
+    logger.info(`   AST has ${ast.classes.length} classes, ${ast.functions.length} functions, ${ast.variables.length} variables`);
 
     // Apply filters to get rules to execute
     const rulesToExecute = this.filterRules(options);
 
-    console.log(`   Rules after filtering: ${rulesToExecute.length}`);
+    logger.info(`   Rules after filtering: ${rulesToExecute.length}`);
 
     // Check cache if enabled
     const cacheKey = options?.cacheKey || this.generateCacheKey(context.file, ast);
     if (options?.enableCache !== false && this.cache.has(cacheKey)) {
-      console.log(`Cache hit for ${context.file}`);
+      logger.info(`Cache hit for ${context.file}`);
       return {
         violations: this.cache.get(cacheKey)!,
         executedRules: 0,
@@ -244,7 +245,7 @@ export class TrinityRuleEngine {
     }
 
     // Execute rules (parallel or sequential based on maxConcurrent)
-    console.log(`   Calling executeRulesInternal()...`);
+    logger.info(`   Calling executeRulesInternal()...`);
     const { violations, failed, ruleTimes } = await this.executeRulesInternal(
       rulesToExecute,
       ast,
@@ -252,14 +253,14 @@ export class TrinityRuleEngine {
       options
     );
 
-    console.log(`   Raw violations found: ${violations.length}`);
-    console.log(`   Failed rules: ${failed.length}`);
+    logger.info(`   Raw violations found: ${violations.length}`);
+    logger.info(`   Failed rules: ${failed.length}`);
 
     // Filter violations by confidence threshold
     const minConfidence = options?.minConfidence ?? 0.5;
     const filteredViolations = violations.filter((v) => v.confidence >= minConfidence);
 
-    console.log(`   After confidence filter (>=${minConfidence}): ${filteredViolations.length}`);
+    logger.info(`   After confidence filter (>=${minConfidence}): ${filteredViolations.length}`);
 
     // Cache results
     if (options?.enableCache !== false) {
@@ -329,7 +330,7 @@ export class TrinityRuleEngine {
     failed: RuleExecutionError[];
     ruleTimes: Map<string, number>;
   }> {
-    console.log(`\n   📋 executeRulesInternal() processing ${rules.length} rules`);
+    logger.info(`\n   📋 executeRulesInternal() processing ${rules.length} rules`);
 
     const violations: RuleViolation[] = [];
     const failed: RuleExecutionError[] = [];
@@ -338,31 +339,31 @@ export class TrinityRuleEngine {
     const maxConcurrent = options?.maxConcurrent ?? require('os').cpus().length;
     const timeout = options?.timeout ?? 5000;
 
-    console.log(`      Max concurrent: ${maxConcurrent}, Timeout: ${timeout}ms`);
+    logger.info(`      Max concurrent: ${maxConcurrent}, Timeout: ${timeout}ms`);
 
     if (maxConcurrent === 1) {
       // Sequential execution
-      console.log(`      Using SEQUENTIAL execution`);
+      logger.info(`      Using SEQUENTIAL execution`);
       for (const rule of rules) {
         const result = await this.executeRule(rule, ast, context, timeout);
         ruleTimes.set(rule.id, result.time);
 
         if (result.error) {
           failed.push({ ruleId: rule.id, error: result.error });
-          console.log(`      ❌ Rule ${rule.id} failed: ${result.error}`);
+          logger.info(`      ❌ Rule ${rule.id} failed: ${result.error}`);
         } else {
           violations.push(...result.violations);
           if (result.violations.length > 0) {
-            console.log(`      ✓ Rule ${rule.id} found ${result.violations.length} violation(s)`);
+            logger.info(`      ✓ Rule ${rule.id} found ${result.violations.length} violation(s)`);
           }
         }
       }
     } else {
       // Parallel execution (chunked to avoid overwhelming CPU)
-      console.log(`      Using PARALLEL execution (chunks of ${maxConcurrent})`);
+      logger.info(`      Using PARALLEL execution (chunks of ${maxConcurrent})`);
       for (let i = 0; i < rules.length; i += maxConcurrent) {
         const chunk = rules.slice(i, i + maxConcurrent);
-        console.log(`      Processing chunk ${Math.floor(i/maxConcurrent) + 1}: ${chunk.length} rules`);
+        logger.info(`      Processing chunk ${Math.floor(i/maxConcurrent) + 1}: ${chunk.length} rules`);
 
         const promises = chunk.map((rule) =>
           this.executeRule(rule, ast, context, timeout)
@@ -377,18 +378,18 @@ export class TrinityRuleEngine {
 
           if (result.error) {
             failed.push({ ruleId: rule.id, error: result.error });
-            console.log(`      ❌ Rule ${rule.id} failed: ${result.error}`);
+            logger.info(`      ❌ Rule ${rule.id} failed: ${result.error}`);
           } else {
             violations.push(...result.violations);
             if (result.violations.length > 0) {
-              console.log(`      ✓ Rule ${rule.id} found ${result.violations.length} violation(s)`);
+              logger.info(`      ✓ Rule ${rule.id} found ${result.violations.length} violation(s)`);
             }
           }
         }
       }
     }
 
-    console.log(`\n   📊 executeRulesInternal() completed: ${violations.length} violations, ${failed.length} failures`);
+    logger.info(`\n   📊 executeRulesInternal() completed: ${violations.length} violations, ${failed.length} failures`);
     return { violations, failed, ruleTimes };
   }
 

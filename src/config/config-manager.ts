@@ -14,6 +14,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { EventEmitter } from "events";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // Types
@@ -195,7 +196,7 @@ export class ConfigManager extends EventEmitter {
       await this.loadFromFile();
     } catch (error) {
       // Config file doesn't exist yet, will be created on first save
-      console.log("No config file found, using defaults from .env");
+      logger.info("No config file found, using defaults from .env");
     }
 
     this.emit("initialized", this.config);

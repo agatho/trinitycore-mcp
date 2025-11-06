@@ -8,6 +8,7 @@
  */
 
 import type { CombatLogEntry, MissedOpportunity, SuboptimalDecision } from "./botcombatloganalyzer.js";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -392,6 +393,9 @@ export class CCAnalyzer {
 
     const duration = removeEntry ? removeEntry.timestamp - entry.timestamp : 8000; // Default 8s
 
+    // Check if CC was resisted based on outcome
+    const wasResisted = entry.outcome === "resisted" || entry.outcome === "immune";
+
     this.ccEvents.push({
       timestamp: entry.timestamp,
       caster: entry.source,
@@ -401,7 +405,7 @@ export class CCAnalyzer {
       ccType,
       duration,
       drLevel: currentDR,
-      wasResisted: false, // TODO: Track resists
+      wasResisted,
       brokeEarly: duration < 4000, // Less than 4s = broke early
     });
   }
@@ -517,9 +521,36 @@ export class MovementAnalyzer {
    * This is a placeholder for when position data is available
    */
   processEntries(entries: CombatLogEntry[], botName: string): void {
-    // TODO: Parse position data from enhanced logs
-    // For now, estimate movement from spell casts
-    console.log("[Movement Analyzer] Position data not available in standard logs");
+    // Position data parsing from enhanced logs
+    // Enhanced logs would include: UNIT_POSITION,timestamp,unit,x,y,z,orientation
+    // Standard combat logs don't include position data, so we provide estimated analysis
+    logger.info("[Movement Analyzer] Position data not available in standard logs - using estimated movement from spell casts");
+
+    // Estimate movement from spell casts (moving while casting indicates movement)
+    const botEntries = entries.filter(e => e.source === botName);
+    let lastCastTime = 0;
+
+    for (const entry of botEntries) {
+      if (entry.type === "SPELL_CAST") {
+        if (lastCastTime > 0) {
+          const timeSinceLast = (entry.timestamp - lastCastTime) / 1000;
+          // If gap is very short, bot might have moved
+          if (timeSinceLast < 1.5) {
+            this.movements.push({
+              timestamp: entry.timestamp,
+              actor: botName,
+              from: { x: 0, y: 0, z: 0 }, // Position data not available
+              to: { x: 0, y: 0, z: 0 }, // Position data not available
+              distance: 5, // Estimate
+              speed: 7, // Running speed
+              duringCast: false,
+              unnecessary: false,
+            });
+          }
+        }
+        lastCastTime = entry.timestamp;
+      }
+    }
   }
 
   /**
@@ -569,8 +600,51 @@ export class ResourceAnalyzer {
    * This estimates resource usage from spell costs
    */
   processEntries(entries: CombatLogEntry[], botName: string): void {
-    // TODO: Parse resource data from enhanced logs
-    console.log("[Resource Analyzer] Resource data not available in standard logs - estimating from spell costs");
+    // Resource data parsing from enhanced logs
+    // Enhanced logs would include: UNIT_POWER,timestamp,unit,powerType,current,max
+    // Standard combat logs don't include resource data, so we estimate from spell costs
+    logger.info("[Resource Analyzer] Resource data not available in standard logs - estimating from spell costs");
+
+    const botEntries = entries.filter(e => e.source === botName);
+
+    // Estimate resource snapshots based on spell casts
+    // Assume starting resource: mana classes start at 100%, rage/energy at 0
+    let currentResource = this.resourceType === "mana" ? 100 : 0;
+    const maxResource = 100;
+
+    for (const entry of botEntries) {
+      if (entry.type === "SPELL_CAST") {
+        // Estimate spell cost based on spell type
+        const estimatedCost = entry.spellName?.includes("Strike") ? 15 :
+                             entry.spellName?.includes("Shot") ? 20 :
+                             entry.spellName?.includes("Bolt") ? 25 : 10;
+
+        // Adjust resource
+        if (this.resourceType === "mana") {
+          currentResource = Math.max(0, currentResource - estimatedCost);
+        } else {
+          // Rage/Energy generate on use
+          currentResource = Math.min(maxResource, currentResource + estimatedCost);
+        }
+
+        // Add snapshot
+        this.snapshots.push({
+          timestamp: entry.timestamp,
+          actor: botName,
+          resourceType: this.resourceType,
+          current: currentResource,
+          max: maxResource,
+          percent: (currentResource / maxResource) * 100,
+          recentSpend: estimatedCost,
+          recentGain: this.resourceType === "mana" ? 2 : estimatedCost,
+        });
+
+        // Regenerate resource over time (simplified)
+        if (this.resourceType === "mana") {
+          currentResource = Math.min(maxResource, currentResource + 2);
+        }
+      }
+    }
   }
 
   /**

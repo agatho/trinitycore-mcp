@@ -15,6 +15,7 @@ import si from 'systeminformation';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { create, all } from 'mathjs';
+import { logger } from '../utils/logger.js';
 
 const math = create(all);
 
@@ -188,7 +189,7 @@ export class PerformanceAnalyzer {
           };
         }
       } catch (error) {
-        console.warn(`Failed to get process metrics: ${error}`);
+        logger.warn(`Failed to get process metrics: ${error}`);
       }
     }
 
@@ -206,7 +207,7 @@ export class PerformanceAnalyzer {
           };
         }
       } catch (error) {
-        console.warn(`Failed to get network stats: ${error}`);
+        logger.warn(`Failed to get network stats: ${error}`);
       }
     }
 

@@ -9,6 +9,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { glob } from 'glob';
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // Type Definitions
@@ -151,7 +152,7 @@ export class TestRunner {
         }
       } catch (error: any) {
         if (!config.silent) {
-          console.warn(`Warning: Failed to load test file ${file}: ${error.message}`);
+          logger.warn(`Warning: Failed to load test file ${file}: ${error.message}`);
         }
       }
     }
@@ -184,7 +185,7 @@ export class TestRunner {
     }
 
     if (!config.silent && config.verbose) {
-      console.log(`Running ${allTests.length} tests from ${filteredSuites.length} suites...`);
+      logger.info(`Running ${allTests.length} tests from ${filteredSuites.length} suites...`);
     }
 
     // Execute tests
@@ -249,7 +250,7 @@ export class TestRunner {
         await suite.beforeAll();
       } catch (error: any) {
         if (!config.silent) {
-          console.error(`beforeAll hook failed for suite "${suite.name}": ${error.message}`);
+          logger.error(`beforeAll hook failed for suite "${suite.name}": ${error.message}`);
         }
         // Mark all tests as skipped if beforeAll fails
         return suite.tests.map(test => ({
@@ -273,7 +274,7 @@ export class TestRunner {
           await suite.beforeEach();
         } catch (error: any) {
           if (!config.silent && config.verbose) {
-            console.error(`beforeEach hook failed for test "${test.name}": ${error.message}`);
+            logger.error(`beforeEach hook failed for test "${test.name}": ${error.message}`);
           }
         }
       }
@@ -284,7 +285,7 @@ export class TestRunner {
 
       if (!config.silent && config.verbose) {
         const status = result.status === 'pass' ? '✓' : (result.status === 'fail' ? '✗' : '○');
-        console.log(`  ${status} ${result.testName} (${result.duration.toFixed(0)}ms)`);
+        logger.info(`  ${status} ${result.testName} (${result.duration.toFixed(0)}ms)`);
       }
 
       // Run afterEach hook
@@ -293,7 +294,7 @@ export class TestRunner {
           await suite.afterEach();
         } catch (error: any) {
           if (!config.silent && config.verbose) {
-            console.error(`afterEach hook failed for test "${test.name}": ${error.message}`);
+            logger.error(`afterEach hook failed for test "${test.name}": ${error.message}`);
           }
         }
       }
@@ -305,7 +306,7 @@ export class TestRunner {
         await suite.afterAll();
       } catch (error: any) {
         if (!config.silent) {
-          console.error(`afterAll hook failed for suite "${suite.name}": ${error.message}`);
+          logger.error(`afterAll hook failed for suite "${suite.name}": ${error.message}`);
         }
       }
     }
