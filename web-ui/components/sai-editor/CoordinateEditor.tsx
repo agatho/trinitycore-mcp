@@ -7,14 +7,16 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Copy, Clipboard, RotateCw, Info } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MapPin, Copy, Clipboard, RotateCw, Info, Map } from 'lucide-react';
 import { toast } from 'sonner';
+import MapCoordinatePicker from './MapCoordinatePicker';
 
 interface TargetPosition {
   x: number;
@@ -141,8 +143,18 @@ export const CoordinateEditor: React.FC<CoordinateEditorProps> = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* X, Y Coordinates */}
-        <div className="grid grid-cols-2 gap-4">
+        <Tabs defaultValue="manual" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+            <TabsTrigger value="map">
+              <Map className="w-4 h-4 mr-1" />
+              Map Picker
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="manual" className="space-y-4 mt-4">
+            {/* X, Y Coordinates */}
+            <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="coord-x" className="text-xs">
               X Coordinate
@@ -306,18 +318,24 @@ export const CoordinateEditor: React.FC<CoordinateEditorProps> = ({
           </Button>
         </div>
 
-        {/* Info Display */}
-        {hasCoordinates && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs space-y-1">
-            <p className="font-medium text-blue-900 dark:text-blue-100">
-              Position Summary:
-            </p>
-            <p className="text-blue-800 dark:text-blue-200 font-mono">
-              ({position.x.toFixed(2)}, {position.y.toFixed(2)}, {position.z.toFixed(2)})
-              facing {radToDeg(position.o).toFixed(0)}°
-            </p>
-          </div>
-        )}
+            {/* Info Display */}
+            {hasCoordinates && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-xs space-y-1">
+                <p className="font-medium text-blue-900 dark:text-blue-100">
+                  Position Summary:
+                </p>
+                <p className="text-blue-800 dark:text-blue-200 font-mono">
+                  ({position.x.toFixed(2)}, {position.y.toFixed(2)}, {position.z.toFixed(2)})
+                  facing {radToDeg(position.o).toFixed(0)}°
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="map" className="mt-4">
+            <MapCoordinatePicker value={position} onChange={onChange} />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
