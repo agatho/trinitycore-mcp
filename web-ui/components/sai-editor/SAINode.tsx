@@ -248,7 +248,7 @@ const SAINodeComponent: React.FC<SAINodeComponentProps> = memo(({ data, selected
                 <div className="text-gray-500 italic text-center pt-1 border-t border-gray-200 dark:border-gray-700">
                   +{parameters.length - 3} more parameters...
                 </div>
-              ))}
+              )}
             </div>
           )}
 

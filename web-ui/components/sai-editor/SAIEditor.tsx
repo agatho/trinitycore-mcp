@@ -41,7 +41,7 @@ import CollaborationProvider, { useCollaboration } from './CollaborationProvider
 import PresenceIndicator from './PresenceIndicator';
 import PerformanceMonitor from './PerformanceMonitor';
 import EditorToolbar from './EditorToolbar';
-import ParameterEditor from './ParameterEditor';
+import NodeEditor from './NodeEditor';
 import ValidationPanel from './ValidationPanel';
 import TemplateLibrary from './TemplateLibrary';
 import AIGenerationPanel from './AIGenerationPanel';
@@ -838,18 +838,16 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             <div className="flex-1 overflow-auto">
               <TabsContent value="properties" className="p-4 m-0">
                 {selectedNode ? (
-                  <ParameterEditor
-                    parameters={selectedNode.parameters}
-                    onChange={(params) => {
-                      const updatedNode = { ...selectedNode, parameters: params };
+                  <NodeEditor
+                    node={selectedNode}
+                    onChange={(updatedNode) => {
+                      setSelectedNode(updatedNode);
                       setNodes((nds) =>
                         nds.map((n) =>
                           n.id === selectedNode.id ? { ...n, data: updatedNode } : n
                         )
                       );
                     }}
-                    title={selectedNode.label}
-                    description={selectedNode.typeName}
                   />
                 ) : (
                   <div className="text-center text-gray-500 dark:text-gray-400 py-12">
