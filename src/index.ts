@@ -340,6 +340,7 @@ import {
   getConfigManager,
   initializeConfig
 } from "./config/config-manager.js";
+import { createErrorResponse, ValidationError } from "./utils/error-handler.js";
 
 // MCP Server instance
 const server = new Server(
@@ -2997,12 +2998,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
-// Call tool handler
+// Call tool handler with enterprise error handling
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   if (!args) {
-    throw new Error("Missing arguments");
+    throw new ValidationError("Missing arguments for tool execution", {
+      tool: name,
+    });
   }
 
   try {
@@ -4872,12 +4875,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    // Use centralized error handling
+    const errorResponse = createErrorResponse(error, {
+      tool: name,
+      arguments: args,
+    });
+
     return {
       content: [
         {
           type: "text",
-          text: `Error: ${errorMessage}`,
+          text: JSON.stringify(errorResponse, null, 2),
         },
       ],
       isError: true,

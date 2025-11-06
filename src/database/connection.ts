@@ -1,10 +1,12 @@
 /**
  * MySQL Database Connection Manager for TrinityCore
- * Enhanced with LRU caching, query timeout protection, and connection retry logic
+ * Enhanced with LRU caching, query timeout protection, and enterprise error handling
  */
 
 import mysql from "mysql2/promise";
 import { LRUCache } from "lru-cache";
+import { DatabaseError, handleError } from "../utils/error-handler.js";
+import { withRetry, DATABASE_RETRY_OPTIONS } from "../utils/retry.js";
 
 // Environment variables
 const DB_CONFIG = {
@@ -207,13 +209,13 @@ async function executeCachedQuery(
       }
     }
 
-    // Execute query with timeout and retry
-    const result = await executeWithRetry(async () => {
+    // Execute query with timeout and retry using enhanced retry utility
+    const result = await withRetry(async () => {
       return executeWithTimeout(
         pool.execute(sql, params),
         QUERY_TIMEOUT
       );
-    });
+    }, DATABASE_RETRY_OPTIONS);
 
     const [rows] = result;
     const queryTime = Date.now() - startTime;
@@ -228,32 +230,73 @@ async function executeCachedQuery(
   } catch (error) {
     const queryTime = Date.now() - startTime;
     updateStats(database, queryTime, false, true);
-    throw error;
+
+    // Use enhanced error handling
+    const errorDetails = handleError(error, {
+      database,
+      sql: sql.substring(0, 100), // First 100 chars of SQL
+      params,
+      queryTime,
+    });
+
+    throw new DatabaseError(
+      `Database query failed: ${errorDetails.message}`,
+      errorDetails.severity,
+      errorDetails.isRetryable,
+      errorDetails.context
+    );
   }
 }
 
 /**
- * Query world database
+ * Query world database with enterprise error handling
  */
 export async function queryWorld(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
-  const pool = getWorldPool();
-  return executeCachedQuery("world", pool, sql, params, useCache);
+  try {
+    const pool = getWorldPool();
+    return await executeCachedQuery("world", pool, sql, params, useCache);
+  } catch (error) {
+    throw new DatabaseError(
+      `Failed to query world database: ${error instanceof Error ? error.message : String(error)}`,
+      undefined,
+      true,
+      { database: "world", sql: sql.substring(0, 100), params }
+    );
+  }
 }
 
 /**
- * Query auth database
+ * Query auth database with enterprise error handling
  */
 export async function queryAuth(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
-  const pool = getAuthPool();
-  return executeCachedQuery("auth", pool, sql, params, useCache);
+  try {
+    const pool = getAuthPool();
+    return await executeCachedQuery("auth", pool, sql, params, useCache);
+  } catch (error) {
+    throw new DatabaseError(
+      `Failed to query auth database: ${error instanceof Error ? error.message : String(error)}`,
+      undefined,
+      true,
+      { database: "auth", sql: sql.substring(0, 100), params }
+    );
+  }
 }
 
 /**
- * Query characters database
+ * Query characters database with enterprise error handling
  */
 export async function queryCharacters(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
-  const pool = getCharactersPool();
-  return executeCachedQuery("characters", pool, sql, params, useCache);
+  try {
+    const pool = getCharactersPool();
+    return await executeCachedQuery("characters", pool, sql, params, useCache);
+  } catch (error) {
+    throw new DatabaseError(
+      `Failed to query characters database: ${error instanceof Error ? error.message : String(error)}`,
+      undefined,
+      true,
+      { database: "characters", sql: sql.substring(0, 100), params }
+    );
+  }
 }
 
 /**
