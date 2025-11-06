@@ -13,7 +13,7 @@
  */
 
 import { readFile } from "fs/promises";
-import { parseCombatLog, type CombatLogEntry, type CombatMetrics } from "./botcombatloganalyzer.js";
+import { parseCombatLog, type CombatLogEntry, type CombatMetrics, type AbilityUsage } from "./botcombatloganalyzer.js";
 import { CooldownTracker, addCooldownAnalysisToCombatMetrics } from "./cooldown-tracker.js";
 import { analyzeDecisionMaking, type DecisionTreeAnalysis } from "./decision-tree-analyzer.js";
 import { analyzeCombatMechanics, type CombatMechanicsReport } from "./combat-mechanics-analyzer.js";
@@ -231,25 +231,54 @@ function calculateBasicMetrics(entries: CombatLogEntry[], botName: string, durat
   const dps = totalDamage / duration;
   const hps = totalHealing / duration;
 
+  // Convert ability usage to proper Map<string, AbilityUsage> format
+  const abilitiesUsed = new Map<string, AbilityUsage>();
+  for (const [name, data] of abilityUsage) {
+    abilitiesUsed.set(name, {
+      spellId: 0, // Unknown from summary
+      spellName: name,
+      casts: data.casts,
+      damage: data.totalDamage,
+      healing: data.totalHealing,
+      criticalHits: 0,
+      critRate: 0,
+      averageDamage: data.casts > 0 ? data.totalDamage / data.casts : 0,
+      dpsContribution: data.totalDamage / duration,
+      percentOfTotal: totalDamage > 0 ? (data.totalDamage / totalDamage) * 100 : 0,
+      cooldown: 0,
+      expectedCasts: data.casts,
+      actualCasts: data.casts,
+      wastedCasts: 0,
+    });
+  }
+
   return {
+    botName: "Unknown",
+    class: "Unknown",
+    duration,
     startTime: entries[0].timestamp,
     endTime: entries[entries.length - 1].timestamp,
-    duration,
     totalDamage,
-    totalHealing,
     dps,
+    totalHealing,
     hps,
+    overhealing: 0,
+    overhealingPercent: 0,
+    abilitiesUsed,
     totalAbilityUsage: abilityUsage.size,
-    abilityUsage: Array.from(abilityUsage.entries()).map(([name, data]) => ({
-      abilityName: name,
-      casts: data.casts,
-      totalDamage: data.totalDamage,
-      totalHealing: data.totalHealing,
-      spellId: undefined,
-      critRate: undefined,
-    })),
-    suboptimalDecisions: [],
+    rotationQuality: 0,
     missedOpportunities: [],
+    suboptimalDecisions: [],
+    reactionTime: {
+      average: 0,
+      p50: 0,
+      p95: 0,
+      p99: 0,
+    },
+    damageTaken: 0,
+    deaths: 0,
+    timeSpentDead: 0,
+    defensiveCooldownUsage: 0,
   };
 }
 

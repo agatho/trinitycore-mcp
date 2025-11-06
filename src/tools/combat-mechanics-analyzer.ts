@@ -438,11 +438,17 @@ export class CCAnalyzer {
 
     const recommendations = this.generateRecommendations(ccEfficiency, wastedCC, ccChains);
 
+    // Convert drTracker from Map<target, Map<ccType, drLevel>> to Map<target, drLevel[]>
+    const drTracking = new Map<string, number[]>();
+    for (const [target, ccTypes] of this.drTracker) {
+      drTracking.set(target, Array.from(ccTypes.values()));
+    }
+
     return {
       totalCCUsed,
       ccByType,
       ccEfficiency,
-      drTracking: this.drTracker,
+      drTracking,
       wastedCC,
       ccChains,
       recommendations,

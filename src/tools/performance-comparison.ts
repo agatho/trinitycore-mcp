@@ -492,7 +492,7 @@ export class PerformanceComparisonEngine {
 
     // APM gap
     const duration = metrics.duration || 1;
-    const actualAPM = (metrics.totalAbilityUsage / duration) * 60;
+    const actualAPM = ((metrics.totalAbilityUsage || 0) / duration) * 60;
     const apmGap = actualAPM - baseline.expectedAPM;
     const apmGapPercent = ((actualAPM - baseline.expectedAPM) / baseline.expectedAPM) * 100;
 
@@ -538,7 +538,7 @@ export class PerformanceComparisonEngine {
 
     // Check ability usage
     const duration = metrics.duration || 1;
-    const apm = (metrics.totalAbilityUsage / duration) * 60;
+    const apm = ((metrics.totalAbilityUsage || 0) / duration) * 60;
     if (apm < baseline.expectedAPM * 0.8) {
       causes.push("Low ability usage");
     }
@@ -676,7 +676,7 @@ export class PerformanceComparisonEngine {
     metrics: CombatMetrics,
     baseline: PerformanceBaseline
   ): AbilityPerformance[] {
-    if (!metrics.abilityUsage || metrics.abilityUsage.length === 0) {
+    if (!metrics.abilityUsage || metrics.abilityUsage.size === 0) {
       return [];
     }
 
@@ -684,9 +684,10 @@ export class PerformanceComparisonEngine {
     const duration = metrics.duration || 1;
     const abilities: AbilityPerformance[] = [];
 
-    for (const ability of metrics.abilityUsage) {
-      const actualDPS = (ability.totalDamage || 0) / duration;
-      const percentOfTotal = totalDamage > 0 ? ((ability.totalDamage || 0) / totalDamage) * 100 : 0;
+    // Iterate over Map entries properly
+    for (const [abilityName, ability] of metrics.abilityUsage.entries()) {
+      const actualDPS = (ability.damage || 0) / duration;
+      const percentOfTotal = totalDamage > 0 ? ((ability.damage || 0) / totalDamage) * 100 : 0;
 
       // Estimate expected DPS for this ability (simplified)
       const expectedDPS = actualDPS * 1.2; // Assume 20% potential improvement
@@ -695,7 +696,7 @@ export class PerformanceComparisonEngine {
       // Calculate efficiency
       const efficiency = expectedDPS > 0 ? (actualDPS / expectedDPS) * 100 : 100;
 
-      const rating = this.scoreToRating(efficiency, ability.abilityName);
+      const rating = this.scoreToRating(efficiency, ability.spellName);
 
       const issues: string[] = [];
       if (efficiency < 80) {
@@ -706,7 +707,7 @@ export class PerformanceComparisonEngine {
       }
 
       abilities.push({
-        abilityName: ability.abilityName,
+        abilityName: ability.spellName,
         spellId: ability.spellId,
         actualDPS,
         expectedDPS,
