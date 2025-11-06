@@ -137,15 +137,14 @@ import {
   getAPIReference,
   listDocumentationCategories
 } from "./tools/knowledge.js";
-// DISABLED: codegen has TypeScript compilation errors - excluded for alpha
-// import {
-//   generateBotComponent,
-//   generatePacketHandler,
-//   generateCMakeIntegration,
-//   validateGeneratedCode,
-//   listCodeTemplates,
-//   getTemplateInfo
-// } from "./tools/codegen.js";
+import {
+  generateBotComponent,
+  generatePacketHandler,
+  generateCMakeIntegration,
+  validateGeneratedCode,
+  listCodeTemplates,
+  getTemplateInfo
+} from "./tools/codegen.js";
 import {
   analyzeBotPerformance,
   simulateScaling,
@@ -284,13 +283,12 @@ import {
   analyzeBotCombatLog,
   formatCombatAnalysisReport
 } from "./tools/botcombatloganalyzer.js";
-// DISABLED: combatloganalyzer-advanced has TypeScript compilation errors - excluded for alpha
-// import {
-//   analyzeComprehensive,
-//   formatComprehensiveReportMarkdown,
-//   formatComprehensiveReportJSON,
-//   formatComprehensiveReportSummary
-// } from "./tools/combatloganalyzer-advanced.js";
+import {
+  analyzeComprehensive,
+  formatComprehensiveReportMarkdown,
+  formatComprehensiveReportJSON,
+  formatComprehensiveReportSummary
+} from "./tools/combatloganalyzer-advanced.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 import {
   listVMapFiles,
@@ -3667,81 +3665,81 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      // DISABLED: Phase 5 - Week 3: Code Generation Tool Handlers (excluded for alpha)
-      // case "generate-bot-component": {
-      //   const result = await generateBotComponent({
-      //     componentType: args.componentType as any,
-      //     className: args.className as string,
-      //     description: args.description as string | undefined,
-      //     role: args.role as any,
-      //     outputPath: args.outputPath as string | undefined,
-      //     namespace: args.namespace as string | undefined,
-      //     includeTests: args.includeTests as boolean | undefined,
-      //   });
-      //   return {
-      //     content: [
-      //       {
-      //         type: "text",
-      //         text: JSON.stringify(result, null, 2),
-      //       },
-      //     ],
-      //   };
-      // }
+      // Phase 5 - Week 3: Code Generation Tool Handlers
+      case "generate-bot-component": {
+        const result = await generateBotComponent({
+          componentType: args.componentType as any,
+          className: args.className as string,
+          description: args.description as string | undefined,
+          role: args.role as any,
+          outputPath: args.outputPath as string | undefined,
+          namespace: args.namespace as string | undefined,
+          includeTests: args.includeTests as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
 
-      // case "generate-packet-handler": {
-      //   const result = await generatePacketHandler({
-      //     handlerName: args.handlerName as string,
-      //     opcode: args.opcode as string,
-      //     direction: args.direction as any,
-      //     fields: args.fields as any[],
-      //     outputPath: args.outputPath as string | undefined,
-      //     namespace: args.namespace as string | undefined,
-      //   });
-      //   return {
-      //     content: [
-      //       {
-      //         type: "text",
-      //         text: JSON.stringify(result, null, 2),
-      //       },
-      //     ],
-      //   };
-      // }
+      case "generate-packet-handler": {
+        const result = await generatePacketHandler({
+          handlerName: args.handlerName as string,
+          opcode: args.opcode as string,
+          direction: args.direction as any,
+          fields: args.fields as any[],
+          outputPath: args.outputPath as string | undefined,
+          namespace: args.namespace as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
 
-      // case "generate-cmake-integration": {
-      //   const result = await generateCMakeIntegration({
-      //     projectName: args.projectName as string,
-      //     sourceFiles: args.sourceFiles as string[],
-      //     headerFiles: args.headerFiles as string[],
-      //     testFiles: args.testFiles as string[] | undefined,
-      //     isLibrary: args.isLibrary as boolean | undefined,
-      //     dependencies: args.dependencies as string[] | undefined,
-      //     outputPath: args.outputPath as string | undefined,
-      //   });
-      //   return {
-      //     content: [
-      //       {
-      //         type: "text",
-      //         text: JSON.stringify(result, null, 2),
-      //       },
-      //     ],
-      //   };
-      // }
+      case "generate-cmake-integration": {
+        const result = await generateCMakeIntegration({
+          projectName: args.projectName as string,
+          sourceFiles: args.sourceFiles as string[],
+          headerFiles: args.headerFiles as string[],
+          testFiles: args.testFiles as string[] | undefined,
+          isLibrary: args.isLibrary as boolean | undefined,
+          dependencies: args.dependencies as string[] | undefined,
+          outputPath: args.outputPath as string | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
 
-      // case "validate-generated-code": {
-      //   const result = await validateGeneratedCode({
-      //     filePath: args.filePath as string,
-      //     checkCompilation: args.checkCompilation as boolean | undefined,
-      //     checkStyle: args.checkStyle as boolean | undefined,
-      //   });
-      //   return {
-      //     content: [
-      //       {
-      //         type: "text",
-      //         text: JSON.stringify(result, null, 2),
-      //       },
-      //     ],
-      //   };
-      // }
+      case "validate-generated-code": {
+        const result = await validateGeneratedCode({
+          filePath: args.filePath as string,
+          checkCompilation: args.checkCompilation as boolean | undefined,
+          checkStyle: args.checkStyle as boolean | undefined,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
 
       // Phase 5 Week 4: Performance Analysis Tools
       case "analyze-bot-performance": {
@@ -4270,35 +4268,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
-      // DISABLED: Advanced combat log analyzer (excluded for alpha - has compilation errors)
-      // case "analyze-combat-log-comprehensive": {
-      //   const comprehensiveReport = await analyzeComprehensive({
-      //     logFile: args.logFile as string | undefined,
-      //     logText: args.logText as string | undefined,
-      //     botName: args.botName as string,
-      //     className: args.className as string | undefined,
-      //     spec: args.spec as string | undefined,
-      //     level: args.level as number | undefined,
-      //     includeML: args.includeML as boolean | undefined,
-      //     includeRecommendations: args.includeRecommendations as boolean | undefined,
-      //     outputFormat: (args.outputFormat as "json" | "markdown" | "summary") || "markdown",
-      //   });
+      case "analyze-combat-log-comprehensive": {
+        const comprehensiveReport = await analyzeComprehensive({
+          logFile: args.logFile as string | undefined,
+          logText: args.logText as string | undefined,
+          botName: args.botName as string,
+          className: args.className as string | undefined,
+          spec: args.spec as string | undefined,
+          level: args.level as number | undefined,
+          includeML: args.includeML as boolean | undefined,
+          includeRecommendations: args.includeRecommendations as boolean | undefined,
+          outputFormat: (args.outputFormat as "json" | "markdown" | "summary") || "markdown",
+        });
 
-      //   let formatted: string;
-      //   const format = (args.outputFormat as "json" | "markdown" | "summary") || "markdown";
+        let formatted: string;
+        const format = (args.outputFormat as "json" | "markdown" | "summary") || "markdown";
 
-      //   if (format === "json") {
-      //     formatted = formatComprehensiveReportJSON(comprehensiveReport);
-      //   } else if (format === "summary") {
-      //     formatted = formatComprehensiveReportSummary(comprehensiveReport);
-      //   } else {
-      //     formatted = formatComprehensiveReportMarkdown(comprehensiveReport);
-      //   }
+        if (format === "json") {
+          formatted = formatComprehensiveReportJSON(comprehensiveReport);
+        } else if (format === "summary") {
+          formatted = formatComprehensiveReportSummary(comprehensiveReport);
+        } else {
+          formatted = formatComprehensiveReportMarkdown(comprehensiveReport);
+        }
 
-      //   return {
-      //     content: [{ type: "text", text: formatted }],
-      //   };
-      // }
+        return {
+          content: [{ type: "text", text: formatted }],
+        };
+      }
 
       // VMap Tools (Phase 1.1a)
       case "list-vmap-files": {
