@@ -10,7 +10,7 @@
  */
 
 import { getBackupManager, BackupType } from '../security/BackupManager';
-import { getSecurityManager } from '../security/SecurityManager';
+import { getSecurityManager, APIKey } from '../security/SecurityManager';
 import { getLoadBalancer} from '../security/LoadBalancer';
 import { getRateLimiter, getMultiTierRateLimiter } from '../security/RateLimiter';
 
@@ -163,7 +163,7 @@ export async function getSecurityStatus(): Promise<string> {
         // Get API key details
         const apiKeys = securityManager.listApiKeys();
         const now = Date.now();
-        const expiringSoon = apiKeys.filter(k =>
+        const expiringSoon = apiKeys.filter((k: APIKey) =>
             k.expiresAt && new Date(k.expiresAt).getTime() - now < 7 * 24 * 60 * 60 * 1000 // 7 days
         );
 
@@ -228,7 +228,7 @@ export async function getSecurityStatus(): Promise<string> {
                 })),
             },
             alerts: {
-                expiring_api_keys: expiringSoon.map(k => ({
+                expiring_api_keys: expiringSoon.map((k: APIKey) => ({
                     id: k.id,
                     name: k.name,
                     expires_at: k.expiresAt,
