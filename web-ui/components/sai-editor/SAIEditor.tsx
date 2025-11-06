@@ -118,6 +118,9 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     target?: any;
   } | null>(null);
 
+  // Execution flow visualization state
+  const [executingNodes, setExecutingNodes] = useState<Set<string>>(new Set());
+
   // ReactFlow state
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -134,6 +137,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
           ...node,
           locked: isNodeLocked(node.id),
           lockedBy: lock?.userName,
+          isExecuting: executingNodes.has(node.id), // Visual execution flow
         },
       };
     });
@@ -182,7 +186,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
     setNodes(flowNodes);
     setEdges([...flowEdges, ...linkEdges]);
-  }, [setNodes, setEdges, getNodeLock, isNodeLocked]);
+  }, [setNodes, setEdges, getNodeLock, isNodeLocked, executingNodes]);
 
   // Convert ReactFlow to SAI script
   const convertFromReactFlow = useCallback((): SAIScript => {
@@ -247,6 +251,34 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     const selectedIds = nodes.filter(n => n.selected).map(n => n.id);
     updateSelection(selectedIds);
   }, [nodes, updateSelection]);
+
+  // Update node visualization when executingNodes changes
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isExecuting: executingNodes.has(node.id),
+        },
+      }))
+    );
+  }, [executingNodes, setNodes]);
+
+  // Handle execution event from simulator
+  const handleExecutionEvent = useCallback((nodeId: string, duration: number = 300) => {
+    // Highlight node during execution
+    setExecutingNodes((prev) => new Set(prev).add(nodeId));
+
+    // Remove highlight after duration
+    setTimeout(() => {
+      setExecutingNodes((prev) => {
+        const next = new Set(prev);
+        next.delete(nodeId);
+        return next;
+      });
+    }, duration);
+  }, []);
 
   // Add event node
   const handleAddEvent = useCallback(() => {
@@ -939,7 +971,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
               </TabsContent>
 
               <TabsContent value="simulator" className="p-0 m-0 h-full">
-                <SimulatorPanel script={script} />
+                <SimulatorPanel script={script} onExecutionEvent={handleExecutionEvent} />
               </TabsContent>
 
               <TabsContent value="performance" className="p-4 m-0">

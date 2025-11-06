@@ -1,13 +1,13 @@
 /**
- * Simulator Panel Component
+ * Simulator Panel Component - Phase 3 Enhanced
  *
- * Control panel for SAI script simulation with state controls and execution history.
- * Foundation for Phase 3 full simulator with debug panel.
+ * Complete simulation environment with debugging, timeline, and performance monitoring.
+ * Integrates all Phase 3 revolutionary features.
  */
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Play,
   Pause,
@@ -26,30 +27,67 @@ import {
   Swords,
   Clock,
   Trash2,
+  Bug,
+  Film,
+  BarChart3,
 } from 'lucide-react';
 import { SAIScript } from '@/lib/sai-unified/types';
 import { SAISimulator, SimulationEvent } from '@/lib/sai-unified/simulator';
+import DebugPanel from './DebugPanel';
+import TimelineScrubber from './TimelineScrubber';
+import { PerformanceMetricsPanel } from './PerformanceMetrics';
 
 interface SimulatorPanelProps {
   /** Script to simulate */
   script: SAIScript;
+  /** Callback when node executes (for visual highlighting) */
+  onExecutionEvent?: (nodeId: string, duration?: number) => void;
 }
 
-export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
+export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script, onExecutionEvent }) => {
   const [simulator] = useState(() => new SAISimulator(script));
   const [isRunning, setIsRunning] = useState(false);
   const [state, setState] = useState(simulator.getState());
   const [history, setHistory] = useState<SimulationEvent[]>([]);
+  const [currentHistoryPosition, setCurrentHistoryPosition] = useState(0);
 
   // Update state periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setState(simulator.getState());
-      setHistory(simulator.getHistory());
+      const newHistory = simulator.getHistory();
+      setHistory(newHistory);
+
+      // Update current position to latest
+      if (isRunning && newHistory.length > 0) {
+        setCurrentHistoryPosition(newHistory.length - 1);
+      }
     }, 100);
 
     return () => clearInterval(interval);
-  }, [simulator]);
+  }, [simulator, isRunning]);
+
+  // Notify parent when nodes execute
+  useEffect(() => {
+    if (history.length > 0) {
+      const latestEvent = history[history.length - 1];
+
+      // Notify for event node
+      if (latestEvent.eventNode) {
+        onExecutionEvent?.(latestEvent.eventNode.id, 300);
+      }
+
+      // Notify for action node
+      if (latestEvent.actionNode) {
+        onExecutionEvent?.(latestEvent.actionNode.id, 300);
+      }
+
+      // Notify for target node
+      if (latestEvent.targetNode) {
+        onExecutionEvent?.(latestEvent.targetNode.id, 300);
+      }
+    }
+  }, [history, onExecutionEvent]);
 
   // Handle play/pause
   const handlePlayPause = useCallback(() => {
@@ -68,6 +106,7 @@ export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
     setIsRunning(false);
     setState(simulator.getState());
     setHistory([]);
+    setCurrentHistoryPosition(0);
   }, [simulator]);
 
   // Handle step
@@ -81,6 +120,7 @@ export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
   const handleClearHistory = useCallback(() => {
     simulator.clearHistory();
     setHistory([]);
+    setCurrentHistoryPosition(0);
   }, [simulator]);
 
   // Handle combat toggle
@@ -116,6 +156,25 @@ export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
     [simulator]
   );
 
+  // Handle timeline position change
+  const handleTimelinePositionChange = useCallback(
+    (position: number) => {
+      setCurrentHistoryPosition(position);
+    },
+    []
+  );
+
+  // Handle timeline play/pause
+  const handleTimelinePlayPause = useCallback(() => {
+    // Toggle timeline playback (future enhancement)
+    console.log('Timeline playback toggled');
+  }, []);
+
+  // Handle timeline reset
+  const handleTimelineReset = useCallback(() => {
+    setCurrentHistoryPosition(0);
+  }, []);
+
   // Format timestamp
   const formatTimestamp = (ms: number): string => {
     const seconds = Math.floor(ms / 1000);
@@ -144,13 +203,16 @@ export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
     }
   };
 
+  // Get current event for display
+  const currentEvent = history[currentHistoryPosition] || null;
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2 mb-3">
           <Activity className="w-5 h-5 text-green-500" />
-          <h2 className="font-semibold text-lg">Script Simulator</h2>
+          <h2 className="font-semibold text-lg">Advanced Simulator</h2>
           <Badge variant={isRunning ? 'default' : 'outline'} className="ml-auto">
             {isRunning ? 'Running' : 'Paused'}
           </Badge>
@@ -271,71 +333,137 @@ export const SimulatorPanel: React.FC<SimulatorPanelProps> = ({ script }) => {
         </div>
       </div>
 
-      {/* Execution History */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-          <h3 className="font-medium text-sm">Execution History</h3>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              {history.length} events
-            </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClearHistory}
-              disabled={history.length === 0}
-              className="h-7"
-            >
-              <Trash2 className="w-3 h-3" />
-            </Button>
-          </div>
-        </div>
+      {/* Phase 3 Enhanced Features */}
+      <div className="flex-1 min-h-0">
+        <Tabs defaultValue="history" className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
+            <TabsTrigger value="history" className="text-xs">
+              <Activity className="w-3 h-3 mr-1" />
+              History
+            </TabsTrigger>
+            <TabsTrigger value="debug" className="text-xs">
+              <Bug className="w-3 h-3 mr-1" />
+              Debug
+            </TabsTrigger>
+            <TabsTrigger value="timeline" className="text-xs">
+              <Film className="w-3 h-3 mr-1" />
+              Timeline
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="text-xs">
+              <BarChart3 className="w-3 h-3 mr-1" />
+              Metrics
+            </TabsTrigger>
+          </TabsList>
 
-        <ScrollArea className="flex-1">
-          {history.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-              <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="font-medium">No Events Yet</p>
-              <p className="text-sm mt-1">Click Play to start simulation</p>
-            </div>
-          ) : (
-            <div className="p-4 space-y-2">
-              {history.slice().reverse().map((event, index) => (
-                <Card key={event.id} className="p-3">
-                  <div className="flex items-start gap-3">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 ${getEventTypeColor(event.type)}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-gray-500">
-                          {formatTimestamp(event.timestamp)}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {event.type.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      <p className="text-sm">{event.description}</p>
-                      {event.eventNode && (
-                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                          Event: {event.eventNode.label}
-                        </div>
-                      )}
-                      {event.actionNode && (
-                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                          Action: {event.actionNode.label}
-                        </div>
-                      )}
-                      {event.targetNode && (
-                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                          Target: {event.targetNode.label}
-                        </div>
-                      )}
-                    </div>
+          {/* Execution History Tab */}
+          <TabsContent value="history" className="flex-1 min-h-0 m-0">
+            <div className="h-full flex flex-col">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="font-medium text-sm">Execution History</h3>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {history.length} events
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearHistory}
+                    disabled={history.length === 0}
+                    className="h-7"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1">
+                {history.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p className="font-medium">No Events Yet</p>
+                    <p className="text-sm mt-1">Click Play to start simulation</p>
                   </div>
-                </Card>
-              ))}
+                ) : (
+                  <div className="p-4 space-y-2">
+                    {history
+                      .slice()
+                      .reverse()
+                      .map((event, index) => (
+                        <Card key={event.id} className="p-3">
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`w-2 h-2 rounded-full mt-1.5 ${getEventTypeColor(
+                                event.type
+                              )}`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-mono text-gray-500">
+                                  {formatTimestamp(event.timestamp)}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {event.type.replace('_', ' ')}
+                                </Badge>
+                              </div>
+                              <p className="text-sm">{event.description}</p>
+                              {event.eventNode && (
+                                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                  Event: {event.eventNode.label}
+                                </div>
+                              )}
+                              {event.actionNode && (
+                                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                  Action: {event.actionNode.label}
+                                </div>
+                              )}
+                              {event.targetNode && (
+                                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                  Target: {event.targetNode.label}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                  </div>
+                )}
+              </ScrollArea>
             </div>
-          )}
-        </ScrollArea>
+          </TabsContent>
+
+          {/* Debug Tab */}
+          <TabsContent value="debug" className="flex-1 min-h-0 m-0 p-0">
+            <DebugPanel
+              state={state}
+              nodes={script.nodes}
+              currentEvent={currentEvent}
+              onStep={handleStep}
+              onContinue={handlePlayPause}
+              onStop={handleReset}
+            />
+          </TabsContent>
+
+          {/* Timeline Tab */}
+          <TabsContent value="timeline" className="flex-1 min-h-0 m-0 p-0">
+            <TimelineScrubber
+              history={history}
+              currentPosition={currentHistoryPosition}
+              onPositionChange={handleTimelinePositionChange}
+              isPlaying={false}
+              onPlayPauseToggle={handleTimelinePlayPause}
+              onReset={handleTimelineReset}
+            />
+          </TabsContent>
+
+          {/* Performance Tab */}
+          <TabsContent value="performance" className="flex-1 min-h-0 m-0 p-0">
+            <PerformanceMetricsPanel
+              state={state}
+              history={history}
+              script={script}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
