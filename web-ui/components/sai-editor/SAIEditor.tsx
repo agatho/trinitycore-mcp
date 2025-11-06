@@ -14,7 +14,6 @@ import ReactFlow, {
   Connection,
   ConnectionMode,
   Controls,
-  MiniMap,
   Background,
   BackgroundVariant,
   useNodesState,
@@ -36,6 +35,11 @@ import { getParametersForEvent, getParametersForAction, getParametersForTarget }
 import { useDebouncedCallback, useRenderTime } from '@/lib/sai-unified/performance';
 
 import SAINodeComponent from './SAINode';
+import CustomEdge from './CustomEdge';
+import EnhancedMiniMap from './EnhancedMiniMap';
+import CollaborationProvider, { useCollaboration } from './CollaborationProvider';
+import PresenceIndicator from './PresenceIndicator';
+import PerformanceMonitor from './PerformanceMonitor';
 import EditorToolbar from './EditorToolbar';
 import ParameterEditor from './ParameterEditor';
 import ValidationPanel from './ValidationPanel';
@@ -63,17 +67,24 @@ const nodeTypes = {
   saiNode: SAINodeComponent,
 };
 
+// Edge types for ReactFlow
+const edgeTypes = {
+  custom: CustomEdge,
+};
+
 interface SAIEditorProps {
   initialScript?: SAIScript;
   onSave?: (script: SAIScript) => void;
   onExport?: (sql: string) => void;
 }
 
-export const SAIEditor: React.FC<SAIEditorProps> = ({
+const SAIEditorInner: React.FC<SAIEditorProps> = ({
   initialScript,
   onSave,
   onExport,
 }) => {
+  // Collaboration hooks
+  const { isNodeLocked, getNodeLock, lockNode, unlockNode, updateSelection } = useCollaboration();
   // State
   const [script, setScript] = useState<SAIScript>(
     initialScript || {
@@ -109,24 +120,36 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
 
   // Convert SAI script to ReactFlow nodes/edges
   const convertToReactFlow = useCallback((saiScript: SAIScript) => {
-    const flowNodes: Node[] = saiScript.nodes.map((node) => ({
-      id: node.id,
-      type: 'saiNode',
-      position: node.position,
-      data: { ...node },
-    }));
+    const flowNodes: Node[] = saiScript.nodes.map((node) => {
+      const lock = getNodeLock(node.id);
+      return {
+        id: node.id,
+        type: 'saiNode',
+        position: node.position,
+        data: {
+          ...node,
+          locked: isNodeLocked(node.id),
+          lockedBy: lock?.userName,
+        },
+      };
+    });
 
     const flowEdges: Edge[] = saiScript.connections.map((conn) => ({
       id: conn.id,
       source: conn.source,
       target: conn.target,
-      type: conn.type === 'link' ? 'straight' : 'smoothstep',
-      animated: conn.type === 'link',
+      type: 'custom',
+      data: {
+        animated: true,
+        status: 'active' as const,
+        executionCount: 0,
+        label: conn.type === 'link' ? 'Link' : undefined,
+      },
     }));
 
     setNodes(flowNodes);
     setEdges(flowEdges);
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, getNodeLock, isNodeLocked]);
 
   // Convert ReactFlow to SAI script
   const convertFromReactFlow = useCallback((): SAIScript => {
@@ -182,6 +205,12 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node.data as SAINodeType);
   }, []);
+
+  // Track selection for collaboration
+  useEffect(() => {
+    const selectedIds = nodes.filter(n => n.selected).map(n => n.id);
+    updateSelection(selectedIds);
+  }, [nodes, updateSelection]);
 
   // Add event node
   const handleAddEvent = useCallback(() => {
@@ -770,26 +799,18 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
             onEdgeContextMenu={onEdgeContextMenu}
             onPaneContextMenu={onPaneContextMenu}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             connectionMode={ConnectionMode.Loose}
+            defaultEdgeOptions={{
+              type: 'custom',
+              animated: true,
+            }}
             fitView
           >
             <Background variant={BackgroundVariant.Dots} />
             <Controls />
-            <MiniMap
-              nodeColor={(node) => {
-                const data = node.data as SAINodeType;
-                switch (data.type) {
-                  case 'event':
-                    return '#3b82f6';
-                  case 'action':
-                    return '#10b981';
-                  case 'target':
-                    return '#a855f7';
-                  default:
-                    return '#6b7280';
-                }
-              }}
-            />
+            <EnhancedMiniMap />
+            <PresenceIndicator showPanel={true} />
             <Panel position="top-right">
               <Button
                 variant="outline"
@@ -805,11 +826,12 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
         {/* Right Sidebar */}
         <div className="w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
           <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-5 rounded-none border-b">
+            <TabsList className="grid w-full grid-cols-6 rounded-none border-b text-xs">
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="ai">AI</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="shortcuts">Shortcuts</TabsTrigger>
             </TabsList>
 
@@ -862,6 +884,19 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
                 />
               </TabsContent>
 
+              <TabsContent value="performance" className="p-4 m-0">
+                <PerformanceMonitor
+                  script={script}
+                  nodes={nodes}
+                  onNodeClick={(nodeId) => {
+                    const node = nodes.find(n => n.id === nodeId);
+                    if (node) {
+                      setSelectedNode(node.data as SAINodeType);
+                    }
+                  }}
+                />
+              </TabsContent>
+
               <TabsContent value="shortcuts" className="p-4 m-0">
                 <KeyboardShortcutsPanel />
               </TabsContent>
@@ -880,6 +915,15 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
         />
       )}
     </div>
+  );
+};
+
+// Wrap with CollaborationProvider
+export const SAIEditor: React.FC<SAIEditorProps> = (props) => {
+  return (
+    <CollaborationProvider roomId={props.initialScript?.id}>
+      <SAIEditorInner {...props} />
+    </CollaborationProvider>
   );
 };
 
