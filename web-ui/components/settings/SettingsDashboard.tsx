@@ -299,6 +299,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="localhost"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    MySQL/MariaDB server hostname or IP address
+                  </p>
                 </div>
 
                 <div>
@@ -310,6 +313,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="3306"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Database server port (default: 3306)
+                  </p>
                 </div>
 
                 <div>
@@ -321,6 +327,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="trinity"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Database username with read/write permissions
+                  </p>
                 </div>
 
                 <div>
@@ -332,6 +341,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="••••••••"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Database user password (stored securely)
+                  </p>
                 </div>
 
                 <div>
@@ -343,6 +355,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="world"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    World database name (game content, NPCs, quests)
+                  </p>
                 </div>
 
                 <div>
@@ -354,6 +369,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="auth"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Auth database name (accounts, permissions)
+                  </p>
                 </div>
 
                 <div className="col-span-2">
@@ -365,6 +383,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="characters"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Characters database name (player data, inventory, achievements)
+                  </p>
                 </div>
               </div>
             </div>
@@ -482,6 +503,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="localhost"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    MCP server bind address (0.0.0.0 for all interfaces)
+                  </p>
                 </div>
 
                 <div>
@@ -493,6 +517,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="3000"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    MCP server port (default: 3000)
+                  </p>
                 </div>
 
                 <div>
@@ -504,6 +531,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="100"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Maximum concurrent connections allowed
+                  </p>
                 </div>
 
                 <div>
@@ -515,6 +545,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="*"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Allowed origin(s) for CORS (* for all, or specific domain)
+                  </p>
                 </div>
 
                 <div className="col-span-2">
@@ -527,6 +560,9 @@ export default function SettingsDashboard() {
                     />
                     <span className="text-sm font-medium">Enable CORS</span>
                   </label>
+                  <p className="text-xs text-gray-500 mt-1 ml-6">
+                    Cross-Origin Resource Sharing (enable for web clients)
+                  </p>
                 </div>
               </div>
             </div>
@@ -548,6 +584,9 @@ export default function SettingsDashboard() {
                     />
                     <span className="text-sm font-medium">Enable WebSocket Server</span>
                   </label>
+                  <p className="text-xs text-gray-500 mt-1 ml-6">
+                    Enable real-time bidirectional communication for live updates
+                  </p>
                 </div>
 
                 <div>
@@ -559,6 +598,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="3001"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    WebSocket server port (must differ from HTTP port)
+                  </p>
                 </div>
 
                 <div>
@@ -570,6 +612,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="50"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Maximum simultaneous WebSocket connections
+                  </p>
                 </div>
 
                 <div>
@@ -585,6 +630,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="30000"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Keep-alive ping interval (30000ms = 30 seconds)
+                  </p>
                 </div>
 
                 <div>
@@ -596,6 +644,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="60000"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Connection timeout before disconnect (60000ms = 1 minute)
+                  </p>
                 </div>
 
                 <div className="col-span-2">
@@ -609,6 +660,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="100"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Maximum events per second per client (prevents spam)
+                  </p>
                 </div>
               </div>
             </div>
@@ -629,6 +683,9 @@ export default function SettingsDashboard() {
                   />
                   <span className="text-sm font-medium">Enable Testing Framework</span>
                 </label>
+                <p className="text-xs text-gray-500 ml-6">
+                  Activate automated testing tools and test execution
+                </p>
               </div>
 
               <div>
@@ -641,6 +698,9 @@ export default function SettingsDashboard() {
                   />
                   <span className="text-sm font-medium">Auto-Generate Tests</span>
                 </label>
+                <p className="text-xs text-gray-500 ml-6">
+                  Automatically create test cases from API endpoints and database schemas
+                </p>
               </div>
 
               <div>
@@ -653,6 +713,9 @@ export default function SettingsDashboard() {
                   />
                   <span className="text-sm font-medium">Track Performance Baselines</span>
                 </label>
+                <p className="text-xs text-gray-500 ml-6">
+                  Record and monitor query execution times for performance regression detection
+                </p>
               </div>
 
               <div>
@@ -671,7 +734,7 @@ export default function SettingsDashboard() {
                   max="100"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Minimum code coverage percentage required
+                  Minimum code coverage percentage required (0-100)
                 </p>
               </div>
             </div>
@@ -698,6 +761,9 @@ export default function SettingsDashboard() {
                   <option value="warn">Warning</option>
                   <option value="error">Error</option>
                 </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Minimum log level to capture (debug = all, error = only errors)
+                </p>
               </div>
 
               <div>
@@ -710,6 +776,9 @@ export default function SettingsDashboard() {
                   />
                   <span className="text-sm font-medium">Log to Console</span>
                 </label>
+                <p className="text-xs text-gray-500 ml-6">
+                  Output logs to console/stdout for real-time monitoring
+                </p>
               </div>
 
               <div>
@@ -722,6 +791,9 @@ export default function SettingsDashboard() {
                   />
                   <span className="text-sm font-medium">Log to File</span>
                 </label>
+                <p className="text-xs text-gray-500 ml-6">
+                  Write logs to file with automatic rotation
+                </p>
               </div>
 
               <div>
@@ -733,6 +805,9 @@ export default function SettingsDashboard() {
                   className="w-full p-2 border rounded"
                   placeholder="./logs/trinity-mcp.log"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Path where log files will be written
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -748,7 +823,7 @@ export default function SettingsDashboard() {
                     placeholder="10485760"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {(config.logging.maxFileSize / 1024 / 1024).toFixed(2)} MB
+                    Rotate log when size exceeds (10485760 = 10MB)
                   </p>
                 </div>
 
@@ -761,6 +836,9 @@ export default function SettingsDashboard() {
                     className="w-full p-2 border rounded"
                     placeholder="5"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Number of log files to keep (older files are deleted)
+                  </p>
                 </div>
               </div>
             </div>
