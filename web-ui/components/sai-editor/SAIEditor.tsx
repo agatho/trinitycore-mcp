@@ -33,6 +33,7 @@ import { parseSQL } from '@/lib/sai-unified/sql-parser';
 import { instantiateTemplate } from '@/lib/sai-unified/templates';
 import { getParametersForEvent, getParametersForAction, getParametersForTarget } from '@/lib/sai-unified/parameters';
 import { useDebouncedCallback, useRenderTime } from '@/lib/sai-unified/performance';
+import { getSQLHistoryManager } from '@/lib/sai-unified/sql-history';
 
 import SAINodeComponent from './SAINode';
 import CustomEdge from './CustomEdge';
@@ -47,6 +48,7 @@ import TemplateLibrary from './TemplateLibrary';
 import AIGenerationPanel from './AIGenerationPanel';
 import ContextMenu, { ContextMenuItem } from './ContextMenu';
 import KeyboardShortcutsPanel from './KeyboardShortcutsPanel';
+import SQLHistoryPanel from './SQLHistoryPanel';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -106,6 +108,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [clipboard, setClipboard] = useState<Clipboard | null>(null);
   const [historyManager] = useState(() => new HistoryManager(script));
+  const [sqlHistoryManager] = useState(() => getSQLHistoryManager());
   const [showTemplates, setShowTemplates] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -562,6 +565,9 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     const currentScript = convertFromReactFlow();
     const sql = generateSQL(currentScript);
 
+    // Add to SQL history
+    sqlHistoryManager.addEntry(sql, currentScript, 'Manual SQL export');
+
     // Download as file
     const blob = new Blob([sql], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -576,7 +582,14 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     }
 
     toast.success('SQL exported');
-  }, [convertFromReactFlow, onExport]);
+  }, [convertFromReactFlow, onExport, sqlHistoryManager]);
+
+  // Restore from SQL history
+  const handleRestoreFromHistory = useCallback((restoredScript: SAIScript) => {
+    setScript(restoredScript);
+    convertToReactFlow(restoredScript);
+    toast.success('Restored from history');
+  }, [convertToReactFlow]);
 
   // Import SQL
   const handleImportSQL = useCallback(() => {
@@ -858,11 +871,12 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
         {/* Right Sidebar */}
         <div className="w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
           <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-6 rounded-none border-b text-xs">
+            <TabsList className="grid w-full grid-cols-7 rounded-none border-b text-xs">
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="ai">AI</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="shortcuts">Shortcuts</TabsTrigger>
             </TabsList>
@@ -912,6 +926,13 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
                     convertToReactFlow(generatedScript);
                     toast.success('AI-generated script applied');
                   }}
+                />
+              </TabsContent>
+
+              <TabsContent value="history" className="p-0 m-0 h-full">
+                <SQLHistoryPanel
+                  historyManager={sqlHistoryManager}
+                  onRestore={handleRestoreFromHistory}
                 />
               </TabsContent>
 
