@@ -49,6 +49,7 @@ import AIGenerationPanel from './AIGenerationPanel';
 import ContextMenu, { ContextMenuItem } from './ContextMenu';
 import KeyboardShortcutsPanel from './KeyboardShortcutsPanel';
 import SQLHistoryPanel from './SQLHistoryPanel';
+import SimulatorPanel from './SimulatorPanel';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -871,12 +872,13 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
         {/* Right Sidebar */}
         <div className="w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
           <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-7 rounded-none border-b text-xs">
+            <TabsList className="grid w-full grid-cols-8 rounded-none border-b text-xs">
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="ai">AI</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="simulator">Simulator</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="shortcuts">Shortcuts</TabsTrigger>
             </TabsList>
@@ -934,6 +936,10 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
                   historyManager={sqlHistoryManager}
                   onRestore={handleRestoreFromHistory}
                 />
+              </TabsContent>
+
+              <TabsContent value="simulator" className="p-0 m-0 h-full">
+                <SimulatorPanel script={script} />
               </TabsContent>
 
               <TabsContent value="performance" className="p-4 m-0">
