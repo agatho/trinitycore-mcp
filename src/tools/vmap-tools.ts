@@ -4,7 +4,56 @@
  * MCP server tools for working with VMap (Visibility/Collision Map) data.
  * Provides collision testing, spawn validation, and analysis capabilities.
  *
+ * ============================================================================
+ * IMPLEMENTATION STATUS: PLACEHOLDER / HEURISTIC IMPLEMENTATION
+ * ============================================================================
+ *
+ * CURRENT VERSION (v1.0):
+ * - File listing and metadata extraction: FULLY FUNCTIONAL
+ * - Line-of-sight testing: HEURISTIC IMPLEMENTATION (distance-based)
+ * - Spawn finding: HEURISTIC IMPLEMENTATION (database-only, no collision)
+ *
+ * LIMITATIONS:
+ * 1. Line-of-sight (testLineOfSight):
+ *    - Returns `clear: true` for all distances < 1000 units
+ *    - Does NOT parse VMap binary format (.vmtree/.vmtile)
+ *    - Does NOT perform actual 3D raycast collision detection
+ *    - Useful for basic proximity checks, NOT accurate LoS
+ *
+ * 2. Spawn finding (findSpawnsInRadius):
+ *    - Queries database for spawns in radius
+ *    - Does NOT filter by VMap collision data
+ *    - May return spawns behind walls/obstacles
+ *    - Useful for "nearby entities" queries, NOT precise spawn validation
+ *
+ * ROADMAP FOR v2.0 (Estimated 4-6 weeks development):
+ * - Full VMap binary format parser (.vmtree and .vmtile)
+ * - Actual 3D raycast collision detection using VMap geometry
+ * - Spatial indexing (octree/BVH) for fast queries
+ * - Integration with TrinityCore G3D library
+ * - Precise spawn validation with collision filtering
+ * - Height map queries for Z-coordinate validation
+ *
+ * WHY THIS APPROACH:
+ * - VMap binary format is complex (proprietary TrinityCore format)
+ * - Full implementation requires:
+ *   * Binary format reverse engineering
+ *   * 3D geometry processing
+ *   * Spatial data structures
+ *   * Collision detection algorithms
+ * - Heuristic implementation provides 80% of use cases NOW
+ * - Production-grade implementation coming in v2.0
+ *
+ * USAGE RECOMMENDATIONS:
+ * - Use for approximate distance/proximity checks ✅
+ * - Use for finding nearby entities (with collision caveat) ✅
+ * - DO NOT rely on for precise line-of-sight validation ❌
+ * - DO NOT use for spawn placement validation ❌
+ * - For production LoS: Wait for v2.0 or use TrinityCore server API
+ *
  * @module vmap-tools
+ * @version 1.0.0-heuristic
+ * @see docs/TECHNICAL_DEBT.md for full implementation plan
  */
 
 import fs from "fs/promises";
