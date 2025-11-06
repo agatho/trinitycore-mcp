@@ -362,7 +362,7 @@ export function formatComprehensiveReportMarkdown(report: ComprehensiveAnalysisR
   output += `**Overall Score:** ${report.mechanics.overallScore.toFixed(0)}/100\n\n`;
 
   output += `**Interrupts:** ${report.mechanics.interrupts.successfulInterrupts}/${report.mechanics.interrupts.totalCastableInterrupts} (${report.mechanics.interrupts.interruptAccuracy.toFixed(0)}%)\n`;
-  output += `**Crowd Control Efficiency:** ${report.mechanics.crowdControl.efficiency.toFixed(0)}%\n\n`;
+  output += `**Crowd Control Efficiency:** ${report.mechanics.crowdControl.ccEfficiency.toFixed(0)}%\n\n`;
 
   if (report.mechanics.topIssues.length > 0) {
     output += "**Top Issues:**\n";

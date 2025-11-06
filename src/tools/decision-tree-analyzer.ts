@@ -80,6 +80,7 @@ export interface DecisionTreeAnalysis {
   suboptimalDecisions: SuboptimalDecision[];
   recommendations: string[];
   qualityScore: number; // 0-100
+  decisions: Decision[]; // All decisions made during combat
 }
 
 // ============================================================================
@@ -474,6 +475,7 @@ export function analyzeDecisionMaking(
     suboptimalDecisions,
     recommendations,
     qualityScore,
+    decisions,
   };
 }
 

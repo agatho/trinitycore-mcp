@@ -139,6 +139,12 @@ export interface CombatMechanicsReport {
     topIssues: string[];
     quickWins: string[];
   };
+
+  // Convenience properties for direct access
+  overallScore: number; // Same as overall.mechanicsScore
+  topIssues: string[]; // Same as overall.topIssues
+  interrupts: InterruptAnalysis; // Same as interruptAnalysis
+  crowdControl: CCAnalysis; // Same as ccAnalysis
 }
 
 // ============================================================================
@@ -657,5 +663,10 @@ export function analyzeCombatMechanics(
       topIssues,
       quickWins,
     },
+    // Convenience properties for direct access
+    overallScore: mechanicsScore,
+    topIssues,
+    interrupts: interruptAnalysis,
+    crowdControl: ccAnalysis,
   };
 }
