@@ -52,7 +52,7 @@ export async function generateBotComponent(options: {
                 : options.role === 'dps' ? 'cpp/strategies/dps_strategy'
                 : 'cpp/strategies/base_strategy',
     state_manager: 'cpp/strategies/state_manager',
-    event_handler: 'event_handlers/event_handler', // TODO: Create C++ template
+    event_handler: 'event_handlers/event_handler',
   };
 
   const templateName = templateMap[options.componentType];

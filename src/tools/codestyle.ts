@@ -175,7 +175,7 @@ function checkComments(content: string, file: string): StyleViolation[] {
           violation: "Missing Doxygen comment for public method",
           expected: "/** @brief ... */",
           autoFixable: true,
-          fix: "    /** @brief TODO: Add description */\n" + nextLine
+          fix: "    /** @brief [Add method description] */\n" + nextLine
         });
       }
     }

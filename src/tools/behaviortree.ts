@@ -153,6 +153,63 @@ function evaluateCondition(value: any, operator: string, target: any): boolean {
   }
 }
 
+/**
+ * Generate C++ execution code for a single node
+ */
+function generateNodeExecution(tree: BehaviorTree, nodeId: string, indent: string): string {
+  const node = tree.nodes.find(n => n.id === nodeId);
+  if (!node) return `${indent}// Node ${nodeId} not found`;
+
+  let code = '';
+
+  if (node.type === 'condition') {
+    const condData = node.data as ConditionData;
+    code += `${indent}// Condition: ${condData.conditionType} ${condData.operator} ${condData.value}\n`;
+    code += `${indent}if (Get${condData.conditionType}() ${condData.operator} ${condData.value})\n`;
+    code += `${indent}{\n`;
+    if (node.outputs[0]) {
+      code += generateNodeExecution(tree, node.outputs[0], indent + '    ');
+    }
+    code += `${indent}}\n`;
+    if (node.outputs[1]) {
+      code += `${indent}else\n`;
+      code += `${indent}{\n`;
+      code += generateNodeExecution(tree, node.outputs[1], indent + '    ');
+      code += `${indent}}\n`;
+    }
+  } else if (node.type === 'action') {
+    const actData = node.data as ActionData;
+    code += `${indent}// Action: ${actData.actionType}\n`;
+    code += `${indent}Execute${actData.actionType}();\n`;
+    if (node.outputs[0]) {
+      code += generateNodeExecution(tree, node.outputs[0], indent);
+    }
+  }
+
+  return code;
+}
+
+/**
+ * Generate execution code for all nodes (as separate functions)
+ */
+function generateAllNodesExecution(tree: BehaviorTree): string {
+  let code = '// Behavior tree nodes implementation\n';
+
+  for (const node of tree.nodes) {
+    if (node.type === 'action') {
+      const actData = node.data as ActionData;
+      code += `    // Action node: ${node.id}\n`;
+      code += `    // Type: ${actData.actionType}\n`;
+    } else if (node.type === 'condition') {
+      const condData = node.data as ConditionData;
+      code += `    // Condition node: ${node.id}\n`;
+      code += `    // Check: ${condData.conditionType} ${condData.operator} ${condData.value}\n`;
+    }
+  }
+
+  return code;
+}
+
 export async function generateCppCode(tree: BehaviorTree): Promise<{ headerCode: string; sourceCode: string }> {
   const className = `${tree.metadata.role || "Bot"}AI`;
 
@@ -193,8 +250,17 @@ void ${className}::UpdateAI(uint32 diff)
 
 void ${className}::ExecuteBehaviorTree()
 {
-    // Auto-generated behavior tree logic
-    // TODO: Implement node execution
+    // Auto-generated behavior tree execution
+    // Tree: ${tree.name} - ${tree.description}
+
+    // Execute root node
+    ${generateNodeExecution(tree, tree.rootNode, '    ')}
+}
+
+// Helper: Generate execution code for a node
+void ExecuteNode_${tree.rootNode}()
+{
+    ${generateAllNodesExecution(tree)}
 }
 `;
 
