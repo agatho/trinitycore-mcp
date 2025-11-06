@@ -290,6 +290,18 @@ import {
   formatComprehensiveReportSummary
 } from "./tools/combatloganalyzer-advanced.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
+import {
+  listVMapFiles,
+  getVMapFileInfo,
+  testLineOfSight,
+  findSpawnsInRadius
+} from "./tools/vmap-tools.js";
+import {
+  listMMapFiles,
+  getMMapFileInfo,
+  findPath,
+  isOnNavMesh
+} from "./tools/mmap-tools.js";
 
 // MCP Server instance
 const server = new Server(
@@ -2382,6 +2394,156 @@ const TOOLS: Tool[] = [
       required: ["botName"],
     },
   },
+  // VMap Tools (Phase 1.1a)
+  {
+    name: "list-vmap-files",
+    description: "List available VMap files in a directory. VMap files contain visibility and collision geometry for game maps.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "Path to VMap directory (default: from VMAP_PATH env variable)",
+        },
+      },
+    },
+  },
+  {
+    name: "get-vmap-file-info",
+    description: "Get detailed information about a specific VMap file including size, type (tree/tile), and map coordinates.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapFile: {
+          type: "string",
+          description: "Path to VMap file (.vmtree or .vmtile)",
+        },
+      },
+      required: ["vmapFile"],
+    },
+  },
+  {
+    name: "vmap-test-line-of-sight",
+    description: "Test line-of-sight between two points using VMap collision data. NOTE: Current implementation uses distance-based heuristics. Full VMap parsing planned for v2.0. Returns clear if distance < 1000 units.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "VMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        startX: { type: "number", description: "Start X coordinate" },
+        startY: { type: "number", description: "Start Y coordinate" },
+        startZ: { type: "number", description: "Start Z coordinate" },
+        endX: { type: "number", description: "End X coordinate" },
+        endY: { type: "number", description: "End Y coordinate" },
+        endZ: { type: "number", description: "End Z coordinate" },
+      },
+      required: ["vmapDir", "mapId", "startX", "startY", "startZ", "endX", "endY", "endZ"],
+    },
+  },
+  {
+    name: "vmap-find-spawns-in-radius",
+    description: "Find creature/gameobject spawns within radius of a point. NOTE: Current implementation queries database only. Full VMap collision filtering planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vmapDir: {
+          type: "string",
+          description: "VMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        centerX: { type: "number", description: "Center X coordinate" },
+        centerY: { type: "number", description: "Center Y coordinate" },
+        centerZ: { type: "number", description: "Center Z coordinate" },
+        radius: {
+          type: "number",
+          description: "Search radius in game units",
+        },
+      },
+      required: ["vmapDir", "mapId", "centerX", "centerY", "centerZ", "radius"],
+    },
+  },
+  // MMap Tools (Phase 1.1b)
+  {
+    name: "list-mmap-files",
+    description: "List available MMap (Movement Map / Navigation Mesh) files in a directory. MMap files are used for AI pathfinding.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "Path to MMap directory (default: from MMAP_PATH env variable)",
+        },
+      },
+    },
+  },
+  {
+    name: "get-mmap-file-info",
+    description: "Get detailed information about a specific MMap file including size, type (header/tile), and map coordinates.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapFile: {
+          type: "string",
+          description: "Path to MMap file (.mmap or .mmtile)",
+        },
+      },
+      required: ["mmapFile"],
+    },
+  },
+  {
+    name: "mmap-find-path",
+    description: "Find walkable path between two points using navigation mesh. NOTE: Current implementation returns straight-line path with interpolated waypoints. Full A* pathfinding on Recast navmesh planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "MMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        startX: { type: "number", description: "Start X coordinate" },
+        startY: { type: "number", description: "Start Y coordinate" },
+        startZ: { type: "number", description: "Start Z coordinate" },
+        goalX: { type: "number", description: "Goal X coordinate" },
+        goalY: { type: "number", description: "Goal Y coordinate" },
+        goalZ: { type: "number", description: "Goal Z coordinate" },
+      },
+      required: ["mmapDir", "mapId", "startX", "startY", "startZ", "goalX", "goalY", "goalZ"],
+    },
+  },
+  {
+    name: "mmap-is-on-navmesh",
+    description: "Check if a position is on the navigation mesh. NOTE: Current implementation returns true for all positions. Full navmesh validation planned for v2.0.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mmapDir: {
+          type: "string",
+          description: "MMap directory path",
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID",
+        },
+        posX: { type: "number", description: "Position X coordinate" },
+        posY: { type: "number", description: "Position Y coordinate" },
+        posZ: { type: "number", description: "Position Z coordinate" },
+      },
+      required: ["mmapDir", "mapId", "posX", "posY", "posZ"],
+    },
+  },
 ];
 
 // List tools handler
@@ -3685,6 +3847,139 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         return {
           content: [{ type: "text", text: formatted }],
+        };
+      }
+
+      // VMap Tools (Phase 1.1a)
+      case "list-vmap-files": {
+        const vmapDir = (args.vmapDir as string | undefined) || process.env.VMAP_PATH || "./data/vmaps";
+        const result = await listVMapFiles(vmapDir);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-vmap-file-info": {
+        const vmapFile = args.vmapFile as string;
+        const result = await getVMapFileInfo(vmapFile);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "vmap-test-line-of-sight": {
+        const result = await testLineOfSight({
+          vmapDir: args.vmapDir as string,
+          mapId: args.mapId as number,
+          startX: args.startX as number,
+          startY: args.startY as number,
+          startZ: args.startZ as number,
+          endX: args.endX as number,
+          endY: args.endY as number,
+          endZ: args.endZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "vmap-find-spawns-in-radius": {
+        const result = await findSpawnsInRadius({
+          vmapDir: args.vmapDir as string,
+          mapId: args.mapId as number,
+          centerX: args.centerX as number,
+          centerY: args.centerY as number,
+          centerZ: args.centerZ as number,
+          radius: args.radius as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // MMap Tools (Phase 1.1b)
+      case "list-mmap-files": {
+        const mmapDir = (args.mmapDir as string | undefined) || process.env.MMAP_PATH || "./data/mmaps";
+        const result = await listMMapFiles(mmapDir);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get-mmap-file-info": {
+        const mmapFile = args.mmapFile as string;
+        const result = await getMMapFileInfo(mmapFile);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "mmap-find-path": {
+        const result = await findPath({
+          mmapDir: args.mmapDir as string,
+          mapId: args.mapId as number,
+          startX: args.startX as number,
+          startY: args.startY as number,
+          startZ: args.startZ as number,
+          goalX: args.goalX as number,
+          goalY: args.goalY as number,
+          goalZ: args.goalZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "mmap-is-on-navmesh": {
+        const result = await isOnNavMesh({
+          mmapDir: args.mmapDir as string,
+          mapId: args.mapId as number,
+          posX: args.posX as number,
+          posY: args.posY as number,
+          posZ: args.posZ as number,
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
         };
       }
 
