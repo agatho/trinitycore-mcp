@@ -302,6 +302,26 @@ import {
   findPath,
   isOnNavMesh
 } from "./tools/mmap-tools.js";
+import {
+  exportAllDatabases,
+  exportTables
+} from "./database/export-engine.js";
+import {
+  importFromDirectory,
+  importFromFile
+} from "./database/import-engine.js";
+import {
+  quickBackup,
+  quickRestore
+} from "./database/backup-restore.js";
+import {
+  quickHealthCheck,
+  fullHealthCheck,
+  healthCheckWithFix
+} from "./database/health-checker.js";
+import {
+  compareDatabases
+} from "./database/diff-tool.js";
 
 // MCP Server instance
 const server = new Server(
@@ -2544,6 +2564,204 @@ const TOOLS: Tool[] = [
       required: ["mmapDir", "mapId", "posX", "posY", "posZ"],
     },
   },
+  // Database Tools (Phase 1.1c)
+  {
+    name: "export-database",
+    description: "Export TrinityCore databases (world, auth, characters) to SQL or JSON format. Supports schema-only, data-only, or complete exports with compression.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        outputDir: { type: "string", description: "Output directory path" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Export format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "outputDir"],
+    },
+  },
+  {
+    name: "export-database-tables",
+    description: "Export specific tables from a TrinityCore database. Useful for partial backups or data migration.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        tables: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of table names to export",
+        },
+        outputDir: { type: "string", description: "Output directory path" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Export format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "database", "tables", "outputDir"],
+    },
+  },
+  {
+    name: "import-database-from-directory",
+    description: "Import database from a directory containing SQL/JSON export files. Validates and imports schema and data.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        directory: { type: "string", description: "Directory containing export files" },
+        format: {
+          type: "string",
+          enum: ["SQL", "JSON", "CSV"],
+          description: "Import format (default: SQL)",
+        },
+      },
+      required: ["host", "user", "password", "database", "directory"],
+    },
+  },
+  {
+    name: "import-database-from-file",
+    description: "Import database from a single SQL/JSON file. Quick import for single-file backups.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        filepath: { type: "string", description: "Path to import file" },
+        dropExisting: {
+          type: "boolean",
+          description: "Drop existing tables before import (default: false)",
+        },
+      },
+      required: ["host", "user", "password", "database", "filepath"],
+    },
+  },
+  {
+    name: "backup-database",
+    description: "Create a compressed backup of a TrinityCore database. Includes schema and data with metadata.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        backupDir: { type: "string", description: "Backup directory path" },
+      },
+      required: ["host", "user", "password", "database", "backupDir"],
+    },
+  },
+  {
+    name: "restore-database",
+    description: "Restore a database from a backup file. Validates backup integrity before restoration.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+        backup: { type: "string", description: "Path to backup file" },
+        dropExisting: {
+          type: "boolean",
+          description: "Drop existing database before restore (default: false)",
+        },
+      },
+      required: ["host", "user", "password", "database", "backup"],
+    },
+  },
+  {
+    name: "database-health-check-quick",
+    description: "Quick health check of database: connection, table count, index status, basic integrity. Takes ~5-10 seconds.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "database-health-check-full",
+    description: "Comprehensive health check: connection, integrity, performance, indexes, foreign keys, statistics. Takes several minutes.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "database-health-check-and-fix",
+    description: "Health check with automatic repair: checks integrity, repairs tables, rebuilds indexes, updates statistics.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        host: { type: "string", description: "Database host" },
+        port: { type: "number", description: "Database port (default: 3306)" },
+        user: { type: "string", description: "Database user" },
+        password: { type: "string", description: "Database password" },
+        database: { type: "string", description: "Database name (world, auth, or characters)" },
+      },
+      required: ["host", "user", "password", "database"],
+    },
+  },
+  {
+    name: "compare-databases",
+    description: "Compare two database schemas/data and generate detailed diff report. Useful for migration planning and synchronization.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sourceHost: { type: "string", description: "Source database host" },
+        sourcePort: { type: "number", description: "Source database port (default: 3306)" },
+        sourceUser: { type: "string", description: "Source database user" },
+        sourcePassword: { type: "string", description: "Source database password" },
+        sourceDatabase: { type: "string", description: "Source database name" },
+        targetHost: { type: "string", description: "Target database host" },
+        targetPort: { type: "number", description: "Target database port (default: 3306)" },
+        targetUser: { type: "string", description: "Target database user" },
+        targetPassword: { type: "string", description: "Target database password" },
+        targetDatabase: { type: "string", description: "Target database name" },
+      },
+      required: [
+        "sourceHost",
+        "sourceUser",
+        "sourcePassword",
+        "sourceDatabase",
+        "targetHost",
+        "targetUser",
+        "targetPassword",
+        "targetDatabase",
+      ],
+    },
+  },
 ];
 
 // List tools handler
@@ -3973,6 +4191,224 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           posY: args.posY as number,
           posZ: args.posZ as number,
         });
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      // Database Tools (Phase 1.1c)
+      case "export-database": {
+        const baseConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+        };
+        const result = await exportAllDatabases(
+          baseConfig,
+          args.outputDir as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "export-database-tables": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await exportTables(
+          dbConfig,
+          args.tables as string[],
+          args.outputDir as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "import-database-from-directory": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await importFromDirectory(
+          dbConfig,
+          args.directory as string,
+          (args.format as any) || "SQL"
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "import-database-from-file": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await importFromFile(
+          dbConfig,
+          args.filepath as string,
+          (args.dropExisting as boolean) || false
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "backup-database": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickBackup(dbConfig, args.backupDir as string);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "restore-database": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickRestore(
+          dbConfig,
+          args.backup as string,
+          (args.dropExisting as boolean) || false
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-quick": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await quickHealthCheck(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-full": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await fullHealthCheck(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "database-health-check-and-fix": {
+        const dbConfig = {
+          host: args.host as string,
+          port: (args.port as number) || 3306,
+          user: args.user as string,
+          password: args.password as string,
+          database: args.database as string,
+        };
+        const result = await healthCheckWithFix(dbConfig);
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "compare-databases": {
+        const sourceConfig = {
+          host: args.sourceHost as string,
+          port: (args.sourcePort as number) || 3306,
+          user: args.sourceUser as string,
+          password: args.sourcePassword as string,
+          database: args.sourceDatabase as string,
+        };
+        const targetConfig = {
+          host: args.targetHost as string,
+          port: (args.targetPort as number) || 3306,
+          user: args.targetUser as string,
+          password: args.targetPassword as string,
+          database: args.targetDatabase as string,
+        };
+        const result = await compareDatabases(sourceConfig, targetConfig);
         return {
           content: [
             {
