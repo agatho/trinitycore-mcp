@@ -152,11 +152,13 @@ export class TestFramework extends EventEmitter {
   public suite(name: string, config: Partial<TestSuiteConfig> = {}): TestSuite {
     const suite = new TestSuite({
       name,
+      pattern: config.pattern ?? "**/*.test.ts",
       type: config.type ?? TestType.UNIT,
       timeout: config.timeout ?? 5000,
       parallel: config.parallel ?? false,
       coverageThreshold: config.coverageThreshold ?? 80,
-      ...config,
+      setup: config.setup ?? (async () => {}),
+      teardown: config.teardown ?? (async () => {}),
     });
 
     this.suites.set(name, suite);

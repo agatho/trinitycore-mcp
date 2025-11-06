@@ -19,7 +19,7 @@ import * as path from "path";
 
 export interface CombatLogEntry {
     timestamp: number;
-    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED";
+    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED" | "AURA_REMOVED";
     source: string;
     target: string;
     spellId?: number;
