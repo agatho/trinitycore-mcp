@@ -173,24 +173,17 @@ export async function getSecurityStatus(): Promise<string> {
         return JSON.stringify({
             security: {
                 api_keys: {
-                    total: securityStats.api_keys.total,
-                    enabled: securityStats.api_keys.enabled,
-                    disabled: securityStats.api_keys.disabled,
-                    expired: securityStats.api_keys.expired,
+                    total: securityStats.apiKeys.total,
+                    active: securityStats.apiKeys.active,
+                    expired: securityStats.apiKeys.expired,
                     expiring_soon: expiringSoon.length,
-                    by_role: securityStats.api_keys.by_role,
                 },
-                ip_access_control: {
-                    whitelist_count: securityStats.ip_lists.whitelist_count,
-                    blacklist_count: securityStats.ip_lists.blacklist_count,
-                    whitelist_enabled: securityStats.config.enable_ip_whitelist,
-                    blacklist_enabled: securityStats.config.enable_ip_blacklist,
+                rate_limits: {
+                    active: securityStats.rateLimits.active,
+                    blocked: securityStats.rateLimits.blocked,
                 },
-                authentication: {
-                    api_keys_enabled: securityStats.config.enable_api_keys,
-                    request_signing_enabled: securityStats.config.enable_request_signing,
-                    anonymous_access_allowed: securityStats.config.allow_anonymous_access,
-                },
+                threats: securityStats.threats,
+                audit: securityStats.audit,
             },
             rate_limiting: {
                 global: {
@@ -229,7 +222,7 @@ export async function getSecurityStatus(): Promise<string> {
             },
             alerts: {
                 expiring_api_keys: expiringSoon.map((k: APIKey) => ({
-                    id: k.id,
+                    key: k.key,
                     name: k.name,
                     expires_at: k.expiresAt,
                     days_remaining: k.expiresAt
@@ -252,7 +245,7 @@ export async function getSecurityStatus(): Promise<string> {
                     })),
             },
             overall_status: {
-                security_healthy: securityStats.api_keys.enabled > 0 || securityStats.config.allow_anonymous_access,
+                security_healthy: securityStats.apiKeys.active > 0,
                 load_balancer_healthy: loadBalancerStats.healthy_servers > 0,
                 backups_healthy: backupStats.by_status.verified > 0 || backupStats.by_status.completed > 0,
                 rate_limiter_active: true,
