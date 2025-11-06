@@ -336,6 +336,11 @@ export class DecisionTracker {
       const [action, frequency] = mostCommonAction;
       const successRate = (decisions.filter(d => d.wasOptimal).length / decisions.length) * 100;
 
+      // Calculate average outcome (damage or healing) from decisions with this action
+      const actionDecisions = decisions.filter(d => d.action === action);
+      const totalOutcome = actionDecisions.reduce((sum, d) => sum + (d.damage || d.healing || 0), 0);
+      const averageOutcome = actionDecisions.length > 0 ? totalOutcome / actionDecisions.length : 0;
+
       patterns.push({
         name: `Pattern: ${action} when ${stateKey}`,
         description: `Bot tends to use ${action} in this situation`,
@@ -343,7 +348,7 @@ export class DecisionTracker {
         action,
         frequency,
         successRate,
-        averageOutcome: 0, // TODO: Calculate from actual outcomes
+        averageOutcome,
       });
     }
 

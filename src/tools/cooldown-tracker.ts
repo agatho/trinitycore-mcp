@@ -357,6 +357,12 @@ export class CooldownTracker {
         recommendations.push(`Low uptime (${uptime.toFixed(1)}%) - use abilities immediately when ${state.spellName} procs`);
       }
 
+      // Calculate average usage delay based on uptime efficiency
+      // If uptime is high (close to max possible), delay is low
+      // Formula: delay = (1 - uptime/maxPossibleUptime) * duration/2
+      const uptimeEfficiency = maxPossibleUptime > 0 ? uptime / maxPossibleUptime : 0;
+      const averageUsageDelay = (1 - uptimeEfficiency) * (durationSeconds / 2);
+
       analyses.set(spellId, {
         buff: state.spellName,
         spellId,
@@ -367,7 +373,7 @@ export class CooldownTracker {
         procRate,
         uptime,
         wastedUptime,
-        averageUsageDelay: 0, // TODO: Calculate by tracking ability usage during proc
+        averageUsageDelay,
         recommendations,
       });
     }
