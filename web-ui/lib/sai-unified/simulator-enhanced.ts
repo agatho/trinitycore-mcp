@@ -946,7 +946,7 @@ export const ACTION_TYPES: Record<string, ActionTypeDefinition> = {
         node.parameters[3]?.value,
         node.parameters[4]?.value,
         node.parameters[5]?.value,
-      ].filter((p) => p && p > 0) as number[];
+      ].filter((p) => p && typeof p === "number" && p > 0) as number[];
 
       if (phases.length > 0) {
         const randomPhase = phases[Math.floor(Math.random() * phases.length)];

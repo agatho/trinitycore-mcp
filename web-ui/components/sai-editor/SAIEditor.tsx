@@ -156,7 +156,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     }));
 
     // Generate link edges from node.link field (visual representation of event chains)
-    const linkEdges: Edge[] = saiScript.nodes
+    const linkEdges = saiScript.nodes
       .filter((node) => node.type === 'event' && node.link && node.link > 0)
       .map((node) => {
         // Find target node by link ID
@@ -182,7 +182,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
         }
         return null;
       })
-      .filter((edge): edge is Edge => edge !== null);
+      .filter((edge) => edge !== null);
 
     setNodes(flowNodes);
     setEdges([...flowEdges, ...linkEdges]);
@@ -441,7 +441,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     // Record history before deletion
     historyManager.record(
       convertFromReactFlow(),
-      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)`,
+      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)` as any,
       'user'
     );
 
@@ -464,7 +464,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific node
   const handleDeleteNode = useCallback((nodeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}`, 'user');
+    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}` as any, 'user');
 
     setNodes((nds) => nds.filter(n => n.id !== nodeId));
     setEdges((eds) => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
@@ -478,7 +478,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific edge
   const handleDeleteEdge = useCallback((edgeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}`, 'user');
+    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}` as any, 'user');
     setEdges((eds) => eds.filter(e => e.id !== edgeId));
     toast.success('Connection deleted');
   }, [setEdges, convertFromReactFlow, historyManager]);
@@ -510,6 +510,49 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
     toast.success('Node duplicated');
   }, [nodes, setNodes]);
+
+  // Auto layout
+  const handleAutoLayout = useCallback(() => {
+    const currentScript = convertFromReactFlow();
+    const layoutedScript = autoLayout(currentScript);
+    convertToReactFlow(layoutedScript);
+    toast.success('Layout applied');
+  }, [convertFromReactFlow, convertToReactFlow]);
+
+
+  // Export SQL
+  const handleExportSQL = useCallback(() => {
+    const currentScript = convertFromReactFlow();
+    const sql = generateSQL(currentScript);
+
+    // Add to SQL history
+    sqlHistoryManager.addEntry(sql, currentScript, 'Manual SQL export');
+
+    // Download as file
+    const blob = new Blob([sql], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sai_${currentScript.entryOrGuid}_${Date.now()}.sql`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    if (onExport) {
+      onExport(sql);
+    }
+
+    toast.success('SQL exported');
+  }, [convertFromReactFlow, onExport, sqlHistoryManager]);
+
+
+  const handleSave = useCallback(() => {
+    const currentScript = convertFromReactFlow();
+    if (onSave) {
+      onSave(currentScript);
+      toast.success('Script saved');
+    }
+  }, [convertFromReactFlow, onSave]);
+
 
   // Keyboard event handler
   useEffect(() => {
@@ -585,38 +628,6 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nodes, edges, setNodes, setEdges, handleDeleteSelected, handleDuplicateNode, handleSave, handleExportSQL, handleAutoLayout, onSave]);
 
-  // Auto layout
-  const handleAutoLayout = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    const layoutedScript = autoLayout(currentScript);
-    convertToReactFlow(layoutedScript);
-    toast.success('Layout applied');
-  }, [convertFromReactFlow, convertToReactFlow]);
-
-  // Export SQL
-  const handleExportSQL = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    const sql = generateSQL(currentScript);
-
-    // Add to SQL history
-    sqlHistoryManager.addEntry(sql, currentScript, 'Manual SQL export');
-
-    // Download as file
-    const blob = new Blob([sql], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sai_${currentScript.entryOrGuid}_${Date.now()}.sql`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    if (onExport) {
-      onExport(sql);
-    }
-
-    toast.success('SQL exported');
-  }, [convertFromReactFlow, onExport, sqlHistoryManager]);
-
   // Restore from SQL history
   const handleRestoreFromHistory = useCallback((restoredScript: SAIScript) => {
     setScript(restoredScript);
@@ -676,14 +687,6 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
   }, [script.entryOrGuid, convertToReactFlow]);
 
   // Save
-  const handleSave = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    if (onSave) {
-      onSave(currentScript);
-      toast.success('Script saved');
-    }
-  }, [convertFromReactFlow, onSave]);
-
   // Context menu handlers
   const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
@@ -733,7 +736,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             onClick: () => handleDuplicateNode(contextMenu.target.id),
             shortcut: 'Ctrl+D',
           },
-          { separator: true },
+          { separator: true, label: "", onClick: () => {} },
           {
             label: 'Copy',
             icon: <Copy className="w-4 h-4" />,
@@ -754,7 +757,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             },
             shortcut: 'Ctrl+X',
           },
-          { separator: true },
+          { separator: true, label: "", onClick: () => {} },
           {
             label: 'Delete',
             icon: <Trash2 className="w-4 h-4" />,
@@ -791,7 +794,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             icon: <Plus className="w-4 h-4" />,
             onClick: handleAddTarget,
           },
-          { separator: true },
+          { separator: true, label: "", onClick: () => {} },
           {
             label: 'Paste',
             icon: <Copy className="w-4 h-4" />,
@@ -799,7 +802,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             disabled: !clipboard,
             shortcut: 'Ctrl+V',
           },
-          { separator: true },
+          { separator: true, label: "", onClick: () => {} },
           {
             label: 'Select All',
             onClick: () => {
