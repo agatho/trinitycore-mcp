@@ -940,3 +940,26 @@ export class SecurityManager extends EventEmitter {
     this.emit('shutdown');
   }
 }
+
+// Singleton instance
+let securityManager: SecurityManager | null = null;
+
+/**
+ * Get or create the singleton SecurityManager instance
+ */
+export function getSecurityManager(config?: Partial<SecurityConfig>): SecurityManager {
+  if (!securityManager) {
+    securityManager = new SecurityManager(config || {});
+  }
+  return securityManager;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ */
+export function resetSecurityManager(): void {
+  if (securityManager) {
+    securityManager.shutdown();
+  }
+  securityManager = null;
+}
