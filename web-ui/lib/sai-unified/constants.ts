@@ -1,39 +1,26 @@
 /**
- * ⚠️ DEPRECATED - DO NOT USE ⚠️
+ * TrinityCore SAI Unified Editor - Type Constants
  *
- * This file is DEPRECATED and will be removed in a future version.
+ * Complete SAI type definitions (282 total):
+ * - 91 Event Types (SMART_EVENT)
+ * - 160 Action Types (SMART_ACTION)
+ * - 31 Target Types (SMART_TARGET)
  *
- * Please migrate to the new unified SAI editor:
- * - Location: @/lib/sai-unified/
- * - Components: @/components/sai-editor/
- * - Documentation: /docs/SAI_EDITOR_USER_GUIDE.md
- * - Migration Guide: Run `npx ts-node scripts/migrate-sai-editor.ts`
- *
- * New features in unified editor:
- * - AI-powered generation (GPT-4, Claude, Ollama, LM Studio)
- * - Real-time database validation
- * - Collaborative editing
- * - 12+ pre-built templates
- * - Performance optimizations
- * - Comprehensive testing
- *
- * @deprecated Use @/lib/sai-unified/ instead
- * @see /docs/SAI_EDITOR_USER_GUIDE.md
- */
-
-/**
- * Complete TrinityCore Smart AI (SAI) Editor Utilities
- *
- * Contains ALL SAI event, action, and target types from TrinityCore master branch.
  * Source: SmartScriptMgr.h from TrinityCore/TrinityCore GitHub repository
  *
- * This file provides comprehensive SAI type definitions for the Visual SAI Editor.
+ * @module sai-unified/constants
+ * @version 3.0.0
  */
 
+// ============================================================================
+// SAI EVENT TYPES (91 total: 0-90)
+// ============================================================================
+
 /**
- * COMPLETE SAI Event Types (0-90) - ALL TrinityCore Events
+ * Complete SAI Event Types from TrinityCore
+ * Events trigger when specific conditions are met
  */
-export const SAI_EVENT_TYPES_COMPLETE = [
+export const SAI_EVENT_TYPES = [
   { id: '0', name: 'UPDATE_IC', label: 'Update In Combat', params: ['InitialMin', 'InitialMax', 'RepeatMin', 'RepeatMax'] },
   { id: '1', name: 'UPDATE_OOC', label: 'Update Out of Combat', params: ['InitialMin', 'InitialMax', 'RepeatMin', 'RepeatMax'] },
   { id: '2', name: 'HEALTH_PCT', label: 'Health Percentage', params: ['HPMin%', 'HPMax%', 'RepeatMin', 'RepeatMax'] },
@@ -125,12 +112,17 @@ export const SAI_EVENT_TYPES_COMPLETE = [
   { id: '88', name: 'AREATRIGGER_EXIT', label: 'Areatrigger Exit', params: ['AreaTriggerID'] },
   { id: '89', name: 'ON_AURA_APPLIED', label: 'On Aura Applied', params: ['SpellID'] },
   { id: '90', name: 'ON_AURA_REMOVED', label: 'On Aura Removed', params: ['SpellID'] },
-];
+] as const;
+
+// ============================================================================
+// SAI ACTION TYPES (160 total: 0-159)
+// ============================================================================
 
 /**
- * COMPLETE SAI Action Types (0-159) - ALL TrinityCore Actions
+ * Complete SAI Action Types from TrinityCore
+ * Actions are executed when events trigger
  */
-export const SAI_ACTION_TYPES_COMPLETE = [
+export const SAI_ACTION_TYPES = [
   { id: '0', name: 'NONE', label: 'None', params: [] },
   { id: '1', name: 'TALK', label: 'Say Text', params: ['TextID', 'Duration', 'UseTalkTarget'] },
   { id: '2', name: 'SET_FACTION', label: 'Set Faction', params: ['FactionID'] },
@@ -291,12 +283,17 @@ export const SAI_ACTION_TYPES_COMPLETE = [
   { id: '157', name: 'EXIT_VEHICLE', label: 'Exit Vehicle', params: [] },
   { id: '158', name: 'RESUME_MOVEMENT', label: 'Resume Movement', params: [] },
   { id: '159', name: 'FALL', label: 'Fall', params: [] },
-];
+] as const;
+
+// ============================================================================
+// SAI TARGET TYPES (31 total: 0-30)
+// ============================================================================
 
 /**
- * COMPLETE SAI Target Types (0-30) - ALL TrinityCore Targets
+ * Complete SAI Target Types from TrinityCore
+ * Targets specify which entity the action affects
  */
-export const SAI_TARGET_TYPES_COMPLETE = [
+export const SAI_TARGET_TYPES = [
   { id: '0', name: 'NONE', label: 'No Target', params: [] },
   { id: '1', name: 'SELF', label: 'Self', params: [] },
   { id: '2', name: 'VICTIM', label: 'Current Victim', params: [] },
@@ -328,4 +325,60 @@ export const SAI_TARGET_TYPES_COMPLETE = [
   { id: '28', name: 'FARTHEST', label: 'Farthest', params: ['MaxDist'] },
   { id: '29', name: 'VEHICLE_PASSENGER', label: 'Vehicle Passenger', params: ['SeatID'] },
   { id: '30', name: 'CLOSEST_UNSPAWNED_GAMEOBJECT', label: 'Closest Unspawned Gameobject', params: ['GameobjectEntry', 'MaxDist'] },
-];
+] as const;
+
+// ============================================================================
+// CONVENIENCE EXPORTS
+// ============================================================================
+
+/**
+ * Total count of SAI types
+ */
+export const SAI_TYPE_COUNTS = {
+  events: SAI_EVENT_TYPES.length,
+  actions: SAI_ACTION_TYPES.length,
+  targets: SAI_TARGET_TYPES.length,
+  total: SAI_EVENT_TYPES.length + SAI_ACTION_TYPES.length + SAI_TARGET_TYPES.length,
+} as const;
+
+/**
+ * Get event type by ID
+ */
+export function getEventType(id: string) {
+  return SAI_EVENT_TYPES.find(e => e.id === id);
+}
+
+/**
+ * Get action type by ID
+ */
+export function getActionType(id: string) {
+  return SAI_ACTION_TYPES.find(a => a.id === id);
+}
+
+/**
+ * Get target type by ID
+ */
+export function getTargetType(id: string) {
+  return SAI_TARGET_TYPES.find(t => t.id === id);
+}
+
+/**
+ * Get event type by name
+ */
+export function getEventTypeByName(name: string) {
+  return SAI_EVENT_TYPES.find(e => e.name === name);
+}
+
+/**
+ * Get action type by name
+ */
+export function getActionTypeByName(name: string) {
+  return SAI_ACTION_TYPES.find(a => a.name === name);
+}
+
+/**
+ * Get target type by name
+ */
+export function getTargetTypeByName(name: string) {
+  return SAI_TARGET_TYPES.find(t => t.name === name);
+}

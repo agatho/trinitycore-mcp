@@ -283,6 +283,12 @@ import {
   analyzeBotCombatLog,
   formatCombatAnalysisReport
 } from "./tools/botcombatloganalyzer.js";
+import {
+  analyzeComprehensive,
+  formatComprehensiveReportMarkdown,
+  formatComprehensiveReportJSON,
+  formatComprehensiveReportSummary
+} from "./tools/combatloganalyzer-advanced.js";
 import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
 
 // MCP Server instance
@@ -2329,6 +2335,53 @@ const TOOLS: Tool[] = [
       },
     },
   },
+  {
+    name: "analyze-combat-log-comprehensive",
+    description: "🚀 ADVANCED: Comprehensive bot combat log analysis with ML-powered insights. Includes cooldown tracking, decision tree analysis, combat mechanics evaluation, ML pattern detection, performance comparison, and actionable recommendations. Enterprise-grade analysis for bot optimization.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        logFile: {
+          type: "string",
+          description: "Path to combat log file",
+        },
+        logText: {
+          type: "string",
+          description: "Combat log text (alternative to logFile)",
+        },
+        botName: {
+          type: "string",
+          description: "Bot name to analyze (required)",
+        },
+        className: {
+          type: "string",
+          description: "Bot class (e.g., Warrior, Mage) - enables performance comparison",
+        },
+        spec: {
+          type: "string",
+          description: "Bot spec (e.g., Arms, Fire) - optional for performance comparison",
+        },
+        level: {
+          type: "number",
+          description: "Bot level (default: 60)",
+        },
+        includeML: {
+          type: "boolean",
+          description: "Include ML pattern detection and behavior classification (default: true)",
+        },
+        includeRecommendations: {
+          type: "boolean",
+          description: "Include comprehensive recommendations (default: true)",
+        },
+        outputFormat: {
+          type: "string",
+          enum: ["json", "markdown", "summary"],
+          description: "Output format (default: markdown)",
+        },
+      },
+      required: ["botName"],
+    },
+  },
 ];
 
 // List tools handler
@@ -3600,6 +3653,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           report,
           (args.outputFormat as "json" | "markdown") || "markdown"
         );
+
+        return {
+          content: [{ type: "text", text: formatted }],
+        };
+      }
+
+      case "analyze-combat-log-comprehensive": {
+        const comprehensiveReport = await analyzeComprehensive({
+          logFile: args.logFile as string | undefined,
+          logText: args.logText as string | undefined,
+          botName: args.botName as string,
+          className: args.className as string | undefined,
+          spec: args.spec as string | undefined,
+          level: args.level as number | undefined,
+          includeML: args.includeML as boolean | undefined,
+          includeRecommendations: args.includeRecommendations as boolean | undefined,
+          outputFormat: (args.outputFormat as "json" | "markdown" | "summary") || "markdown",
+        });
+
+        let formatted: string;
+        const format = (args.outputFormat as "json" | "markdown" | "summary") || "markdown";
+
+        if (format === "json") {
+          formatted = formatComprehensiveReportJSON(comprehensiveReport);
+        } else if (format === "summary") {
+          formatted = formatComprehensiveReportSummary(comprehensiveReport);
+        } else {
+          formatted = formatComprehensiveReportMarkdown(comprehensiveReport);
+        }
 
         return {
           content: [{ type: "text", text: formatted }],
