@@ -29,6 +29,46 @@ export interface BotInfo {
   power: number;
   maxPower: number;
   powerType: "mana" | "rage" | "energy" | "focus" | "runic_power";
+
+  // Combat stats for accurate DPS/HPS/Threat calculations
+  stats?: {
+    // Primary stats
+    strength?: number;
+    agility?: number;
+    intellect?: number;
+    stamina?: number;
+
+    // Secondary stats
+    critRating?: number;
+    hasteRating?: number;
+    masteryRating?: number;
+    versatilityRating?: number;
+
+    // Derived stats
+    critChance?: number;      // Percentage (0-100)
+    hastePercent?: number;    // Percentage (0-100)
+    masteryPercent?: number;  // Percentage (0-100)
+    versatilityPercent?: number; // Percentage (0-100)
+
+    // Combat stats
+    attackPower?: number;
+    spellPower?: number;
+    bonusSpellPower?: number;
+
+    // Weapon stats (for melee DPS)
+    weaponDamageMin?: number;
+    weaponDamageMax?: number;
+    weaponSpeed?: number;
+    weaponDPS?: number;
+
+    // Defense stats (for tanks)
+    armor?: number;
+    avoidance?: number;       // Combined dodge + parry %
+    block?: number;           // Block %
+
+    // Healing stats (for healers)
+    healingDone?: number;     // Healing power bonus
+  };
 }
 
 export interface GroupComposition {
@@ -189,11 +229,11 @@ export function analyzeGroupComposition(bots: BotInfo[]): GroupComposition {
 
   // Calculate estimated DPS/HPS based on bot stats
   const totalDps = [...meleeDps, ...rangedDps].reduce((sum, bot) => {
-    return sum + estimateDpsFromItemLevel(bot.itemLevel, bot.role);
+    return sum + estimateDpsFromBot(bot);
   }, 0);
 
   const totalHps = healers.reduce((sum, bot) => {
-    return sum + estimateHpsFromItemLevel(bot.itemLevel);
+    return sum + estimateHpsFromBot(bot);
   }, 0);
 
   // Analyze balance
@@ -466,11 +506,11 @@ export function optimizeGroupDps(bots: BotInfo[], currentDps: number): DpsOptimi
   let potentialDps = 0;
 
   const dpsPlayers = bots.filter(b => b.role.includes("dps"));
-  const totalExpectedDps = dpsPlayers.reduce((sum, b) => sum + estimateDpsFromItemLevel(b.itemLevel, b.role), 0);
+  const totalExpectedDps = dpsPlayers.reduce((sum, b) => sum + estimateDpsFromBot(b), 0);
 
   for (const bot of dpsPlayers) {
-    // Estimate potential DPS based on ilvl
-    const expectedDps = estimateDpsFromItemLevel(bot.itemLevel, bot.role);
+    // Estimate potential DPS based on stats
+    const expectedDps = estimateDpsFromBot(bot);
     potentialDps += expectedDps;
 
     // Calculate bot's estimated current contribution proportional to their expected DPS
@@ -657,28 +697,14 @@ export function coordinateResources(bots: BotInfo[]): ResourceCoordination {
     // Track tank threat
     if (bot.role === "tank") {
       // Calculate threat based on tank DPS and threat modifiers
-      // Tanks generate threat = damage * threat_modifier (usually 4-6x for tank specs)
-      const tankDps = estimateDpsFromItemLevel(bot.itemLevel, "tank");
-      const threatModifier = 5.0; // Tank stance/spec gives ~500% threat
-      const tps = tankDps * threatModifier;
-
-      // Estimate current threat (accumulated over ~30 seconds of combat)
-      const threat = tps * 30;
-
-      // Tank is stable if they generate enough threat to hold aggro
-      // Typically need 110% of DPS threat to maintain aggro
-      const totalGroupDps = bots
-        .filter(b => b.role.includes("dps"))
-        .reduce((sum, b) => sum + estimateDpsFromItemLevel(b.itemLevel, b.role), 0);
-      const requiredTps = totalGroupDps * 1.1;
-      const isStable = tps >= requiredTps;
+      const threatResult = calculateTankThreat(bot, bots);
 
       tankThreat.push({
         tankId: bot.botId,
         tankName: bot.name,
-        threat,
-        tps,
-        isStable
+        threat: threatResult.currentThreat,
+        tps: threatResult.tps,
+        isStable: threatResult.isStable
       });
     }
   }
@@ -760,6 +786,46 @@ function getCCAbility(classId: number): string {
   return ccAbilities[classId] || "CC";
 }
 
+/**
+ * Estimate DPS from bot stats
+ *
+ * This function calculates realistic DPS estimates based on:
+ * - Weapon damage and attack power (melee)
+ * - Spell power (casters)
+ * - Secondary stat scaling (crit, haste, mastery, versatility)
+ *
+ * @param bot Bot information with stats
+ * @returns Estimated DPS
+ */
+function estimateDpsFromBot(bot: BotInfo): number {
+  // If stats are not provided, fall back to item level estimation
+  if (!bot.stats) {
+    return estimateDpsFromItemLevel(bot.itemLevel, bot.role);
+  }
+
+  const stats = bot.stats;
+
+  // Handle tank role separately (lower DPS, threat focus)
+  if (bot.role === "tank") {
+    return estimateTankDps(bot);
+  }
+
+  // Melee DPS calculation
+  if (bot.role === "melee_dps") {
+    return estimateMeleeDps(bot);
+  }
+
+  // Ranged DPS (casters) calculation
+  if (bot.role === "ranged_dps") {
+    return estimateRangedDps(bot);
+  }
+
+  return 0;
+}
+
+/**
+ * Estimate DPS from item level (fallback when stats not available)
+ */
 function estimateDpsFromItemLevel(itemLevel: number, role: string): number {
   // Handle tank role separately (lower DPS)
   if (role === "tank") {
@@ -777,6 +843,211 @@ function estimateDpsFromItemLevel(itemLevel: number, role: string): number {
   return baseDps + ((itemLevel - 450) * dpsPerIlvl);
 }
 
+/**
+ * Calculate melee DPS based on weapon damage and attack power
+ *
+ * Formula:
+ * DPS = (WeaponDPS + (AttackPower * 0.14)) * CritMultiplier * HasteMultiplier * MasteryMultiplier * VersatilityMultiplier
+ */
+function estimateMeleeDps(bot: BotInfo): number {
+  const stats = bot.stats!;
+
+  // Calculate weapon DPS
+  const weaponDamageAvg = stats.weaponDamageMin && stats.weaponDamageMax
+    ? (stats.weaponDamageMin + stats.weaponDamageMax) / 2
+    : 0;
+
+  const weaponSpeed = stats.weaponSpeed || 2.6; // Default to 2.6 for missing data
+  const weaponDPS = stats.weaponDPS || (weaponDamageAvg / weaponSpeed);
+
+  // Calculate attack power contribution
+  const attackPower = stats.attackPower || (stats.strength || 0) * 1.0 + (stats.agility || 0) * 1.0;
+  const attackPowerBonus = attackPower * 0.14; // AP coefficient for auto-attacks
+
+  // Calculate secondary stat multipliers
+  const critChance = stats.critChance || 0;
+  const hastePercent = stats.hastePercent || 0;
+  const masteryPercent = stats.masteryPercent || 0;
+  const versatilityPercent = stats.versatilityPercent || 0;
+
+  // Crit multiplier: Base damage + (CritChance * 50% bonus)
+  // Average crit adds 50% damage (200% on crit - 100% base = 100% bonus, / 2 = 50% average)
+  const critMultiplier = 1 + (critChance / 100) * 0.50;
+
+  // Haste multiplier: Direct DPS increase
+  const hasteMultiplier = 1 + (hastePercent / 100);
+
+  // Mastery multiplier: Spec-specific, average ~1:1 scaling
+  const masteryMultiplier = 1 + (masteryPercent / 100);
+
+  // Versatility multiplier: Direct damage increase
+  const versatilityMultiplier = 1 + (versatilityPercent / 100);
+
+  // Calculate total DPS
+  const baseDPS = weaponDPS + attackPowerBonus;
+  const totalDPS = baseDPS * critMultiplier * hasteMultiplier * masteryMultiplier * versatilityMultiplier;
+
+  // Add ability damage (estimated as 2-3x auto-attack DPS for most specs)
+  const abilityMultiplier = 3.5; // Average ability contribution
+  const finalDPS = totalDPS * abilityMultiplier;
+
+  return Math.round(finalDPS);
+}
+
+/**
+ * Calculate ranged/caster DPS based on spell power
+ *
+ * Formula:
+ * DPS = (SpellPower * SpellCoefficient / CastTime) * CritMultiplier * HasteMultiplier * MasteryMultiplier * VersatilityMultiplier
+ */
+function estimateRangedDps(bot: BotInfo): number {
+  const stats = bot.stats!;
+
+  // Calculate spell power (Intellect + Bonus Spell Power)
+  const spellPower = (stats.intellect || 0) * 1.0 + (stats.bonusSpellPower || stats.spellPower || 0);
+
+  // Average spell coefficient (varies by spec, ~0.85 for most DPS spells)
+  const spellCoefficient = 0.85;
+
+  // Average cast time (accounting for instant casts, ~2.0s effective)
+  const baseCastTime = 2.0;
+  const hastePercent = stats.hastePercent || 0;
+  const effectiveCastTime = baseCastTime / (1 + hastePercent / 100);
+
+  // Calculate secondary stat multipliers
+  const critChance = stats.critChance || 0;
+  const masteryPercent = stats.masteryPercent || 0;
+  const versatilityPercent = stats.versatilityPercent || 0;
+
+  // Crit multiplier: For spells, crits deal 200% damage (100% bonus)
+  // Average crit adds (CritChance% * 100% bonus)
+  const critMultiplier = 1 + (critChance / 100) * 1.0;
+
+  // Mastery multiplier: Spec-specific, average ~1:1 scaling
+  const masteryMultiplier = 1 + (masteryPercent / 100);
+
+  // Versatility multiplier: Direct damage increase
+  const versatilityMultiplier = 1 + (versatilityPercent / 100);
+
+  // Calculate damage per cast
+  const damagePerCast = spellPower * spellCoefficient * critMultiplier * masteryMultiplier * versatilityMultiplier;
+
+  // Calculate DPS (damage per cast / cast time)
+  const dps = damagePerCast / effectiveCastTime;
+
+  // Add DoTs, cooldowns, and proc effects (estimated +50% for most specs)
+  const totalDPS = dps * 1.5;
+
+  return Math.round(totalDPS);
+}
+
+/**
+ * Calculate tank DPS (lower than DPS specs, threat-focused)
+ *
+ * Formula:
+ * DPS = (WeaponDPS + (AttackPower * 0.10)) * SecondaryStatMultipliers * 0.6
+ * Tanks deal ~60% of DPS spec damage due to defensive talents/gear
+ */
+function estimateTankDps(bot: BotInfo): number {
+  const stats = bot.stats!;
+
+  // Calculate weapon DPS (simplified for tanks)
+  const weaponDamageAvg = stats.weaponDamageMin && stats.weaponDamageMax
+    ? (stats.weaponDamageMin + stats.weaponDamageMax) / 2
+    : 0;
+
+  const weaponSpeed = stats.weaponSpeed || 2.6;
+  const weaponDPS = stats.weaponDPS || (weaponDamageAvg / weaponSpeed);
+
+  // Calculate attack power (Strength for most tanks, Agility for Monks/Druids)
+  const attackPower = stats.attackPower || (stats.strength || 0) * 1.0 + (stats.agility || 0) * 1.0;
+  const attackPowerBonus = attackPower * 0.10; // Lower coefficient for tanks
+
+  // Calculate secondary stat multipliers
+  const critChance = stats.critChance || 0;
+  const hastePercent = stats.hastePercent || 0;
+  const masteryPercent = stats.masteryPercent || 0;
+  const versatilityPercent = stats.versatilityPercent || 0;
+
+  const critMultiplier = 1 + (critChance / 100) * 0.50;
+  const hasteMultiplier = 1 + (hastePercent / 100);
+  const masteryMultiplier = 1 + (masteryPercent / 100);
+  const versatilityMultiplier = 1 + (versatilityPercent / 100);
+
+  // Calculate base DPS
+  const baseDPS = weaponDPS + attackPowerBonus;
+  const dpsWithSecondaries = baseDPS * critMultiplier * hasteMultiplier * masteryMultiplier * versatilityMultiplier;
+
+  // Tanks deal ~60% of DPS spec damage (ability modifier included)
+  const tankDpsMultiplier = 2.5; // Ability contribution + tank penalty
+  const finalDPS = dpsWithSecondaries * tankDpsMultiplier;
+
+  return Math.round(finalDPS);
+}
+
+/**
+ * Estimate HPS (Healing Per Second) from bot stats
+ *
+ * This function calculates realistic HPS estimates based on:
+ * - Intellect (primary stat for healers)
+ * - Spell power and healing done bonuses
+ * - Secondary stat scaling (crit, haste, mastery, versatility)
+ *
+ * @param bot Bot information with stats
+ * @returns Estimated HPS
+ */
+function estimateHpsFromBot(bot: BotInfo): number {
+  // If stats are not provided, fall back to item level estimation
+  if (!bot.stats) {
+    return estimateHpsFromItemLevel(bot.itemLevel);
+  }
+
+  const stats = bot.stats;
+
+  // Calculate spell power (Intellect + Healing Done bonus)
+  const intellect = stats.intellect || 0;
+  const healingDone = stats.healingDone || stats.bonusSpellPower || stats.spellPower || 0;
+  const healingPower = intellect * 1.0 + healingDone;
+
+  // Average healing spell coefficient (~0.90 for most heals, higher than damage)
+  const healingCoefficient = 0.90;
+
+  // Average cast time for heals (accounting for instant casts, HoTs, ~2.2s effective)
+  const baseCastTime = 2.2;
+  const hastePercent = stats.hastePercent || 0;
+  const effectiveCastTime = baseCastTime / (1 + hastePercent / 100);
+
+  // Calculate secondary stat multipliers
+  const critChance = stats.critChance || 0;
+  const masteryPercent = stats.masteryPercent || 0;
+  const versatilityPercent = stats.versatilityPercent || 0;
+
+  // Crit multiplier: For heals, crits heal for 200% (100% bonus)
+  // Average crit adds (CritChance% * 100% bonus)
+  const critMultiplier = 1 + (critChance / 100) * 1.0;
+
+  // Mastery multiplier: Varies by spec, average ~1:1 scaling for HPS
+  // (Druid = HoT boost, Priest = shields/absorbs, Paladin = beacon, etc.)
+  const masteryMultiplier = 1 + (masteryPercent / 100);
+
+  // Versatility multiplier: Direct healing increase
+  const versatilityMultiplier = 1 + (versatilityPercent / 100);
+
+  // Calculate healing per cast
+  const healingPerCast = healingPower * healingCoefficient * critMultiplier * masteryMultiplier * versatilityMultiplier;
+
+  // Calculate HPS (healing per cast / cast time)
+  const hps = healingPerCast / effectiveCastTime;
+
+  // Add HoTs, cooldowns, and smart heals (estimated +40% for most specs)
+  const totalHPS = hps * 1.4;
+
+  return Math.round(totalHPS);
+}
+
+/**
+ * Estimate HPS from item level (fallback when stats not available)
+ */
 function estimateHpsFromItemLevel(itemLevel: number): number {
   // Healer HPS estimation (WoW 11.2 values)
   // HPS scales with intellect and secondary stats
@@ -786,35 +1057,134 @@ function estimateHpsFromItemLevel(itemLevel: number): number {
   return baseHps + ((itemLevel - 450) * hpsPerIlvl);
 }
 
+/**
+ * Calculate tank threat generation
+ *
+ * Threat Formula:
+ * - Threat = Damage * ThreatModifier
+ * - Tank specs have ~500% threat from damage (5x multiplier)
+ * - DPS specs have 100% threat from damage (1x multiplier)
+ * - Healers generate threat from healing (~50% of healing as threat)
+ *
+ * @param tank Tank bot
+ * @param allBots All bots in group (for DPS comparison)
+ * @returns Threat calculation result
+ */
+function calculateTankThreat(tank: BotInfo, allBots: BotInfo[]): {
+  currentThreat: number;
+  tps: number;
+  isStable: boolean;
+} {
+  // Calculate tank DPS
+  const tankDps = estimateDpsFromBot(tank);
+
+  // Tank threat modifier
+  // - Protection Warrior/Paladin: ~500% (5.0x)
+  // - Blood DK: ~550% (5.5x)
+  // - Guardian Druid/Brewmaster Monk: ~450% (4.5x)
+  // - Vengeance DH: ~480% (4.8x)
+  const tankThreatModifiers: { [classId: number]: number } = {
+    1: 5.0,   // Warrior
+    2: 5.0,   // Paladin
+    6: 5.5,   // Death Knight
+    10: 4.5,  // Monk
+    11: 4.5,  // Druid
+    12: 4.8   // Demon Hunter
+  };
+
+  const threatModifier = tankThreatModifiers[tank.classId] || 5.0;
+
+  // Calculate threat per second (TPS)
+  const tps = tankDps * threatModifier;
+
+  // Estimate current threat (accumulated over ~30 seconds of combat)
+  const combatDuration = 30; // seconds
+  const currentThreat = tps * combatDuration;
+
+  // Calculate total group DPS threat
+  const totalGroupDps = allBots
+    .filter(b => b.role.includes("dps"))
+    .reduce((sum, b) => sum + estimateDpsFromBot(b), 0);
+
+  // Tank needs 110% of highest DPS threat to maintain stable aggro
+  // This accounts for threat decay, taunt mechanics, and DPS burst windows
+  const requiredTps = totalGroupDps * 1.1;
+
+  // Tank is stable if they generate enough threat
+  const isStable = tps >= requiredTps;
+
+  return {
+    currentThreat,
+    tps,
+    isStable
+  };
+}
+
 function getResourceRegenRate(bot: BotInfo): number {
   // WoW 11.2 resource regeneration rates
   const powerType = bot.powerType.toLowerCase();
+  const stats = bot.stats;
 
   switch (powerType) {
     case "mana":
-      // Mana regen = Base regen * (1 + Spirit/SpiritToRegen) * MP5_items
-      // Simplified: ~1-2% of max mana per second (depending on spirit)
-      // Combat regen is 50% of out-of-combat regen
+      // Mana regen formula (WoW 11.2):
+      // Base regen = 0.05 * Intellect * sqrt(Intellect) per 5 seconds
+      // In-combat regen = Base regen (changed in recent expansions, no longer reduced)
+      //
+      // Simplified calculation when stats available:
+      if (stats && stats.intellect) {
+        const intellect = stats.intellect;
+        const baseRegenPer5 = 0.05 * intellect * Math.sqrt(intellect);
+        const regenPerSecond = baseRegenPer5 / 5.0;
+
+        // Account for spirit/MP5 items (estimated +20% average from gear)
+        const gearBonus = 1.20;
+        return regenPerSecond * gearBonus;
+      }
+
+      // Fallback: ~1.5% of max mana per second
       const baseManaRegen = bot.maxPower * 0.015;
       return baseManaRegen;
 
     case "energy":
       // Rogues and Druids (Cat Form): 10 energy per second base
-      return 10;
+      // Haste increases energy regen in modern WoW
+      const energyBase = 10;
+      const hasteMultiplier = stats && stats.hastePercent
+        ? 1 + (stats.hastePercent / 100)
+        : 1.0;
+      return energyBase * hasteMultiplier;
 
     case "rage":
       // Warriors and Druids (Bear Form): Generated by damage taken/dealt
-      // ~2-3 rage per second from auto-attacks, more from abilities
-      return 2.5;
+      // Base rage gen: ~2-3 per second from auto-attacks
+      // Additional from abilities: ~3-5 per second
+      // Haste increases rage gen through faster auto-attacks
+      const rageBase = 5.0; // Average combined rage gen
+      const rageHasteMultiplier = stats && stats.hastePercent
+        ? 1 + (stats.hastePercent / 100) * 0.5 // Haste has ~50% effect on rage gen
+        : 1.0;
+      return rageBase * rageHasteMultiplier;
 
     case "focus":
       // Hunters: 5 focus per second base
-      return 5;
+      // Haste increases focus regen
+      const focusBase = 5;
+      const focusHasteMultiplier = stats && stats.hastePercent
+        ? 1 + (stats.hastePercent / 100)
+        : 1.0;
+      return focusBase * focusHasteMultiplier;
 
     case "runic_power":
-      // Death Knights: Generated by abilities (Frost Strike, etc.)
-      // Average ~10-15 RP per second during rotation
-      return 12;
+      // Death Knights: Generated by abilities
+      // Rune regeneration: 1 rune per 10 seconds base (6 runes total)
+      // RP generation: ~10-15 RP per second during rotation
+      // Haste increases rune regen and RP gen
+      const rpBase = 12;
+      const rpHasteMultiplier = stats && stats.hastePercent
+        ? 1 + (stats.hastePercent / 100)
+        : 1.0;
+      return rpBase * rpHasteMultiplier;
 
     case "fury":
       // Demon Hunters: Rage-like resource, generated by abilities
@@ -853,49 +1223,98 @@ function getResourceRegenRate(bot: BotInfo): number {
   }
 }
 
+/**
+ * Calculate resource consumption rate with haste scaling
+ *
+ * @param bot Bot information
+ * @returns Resource consumption rate per second
+ */
 function getResourceConsumptionRate(bot: BotInfo): number {
   // Resource consumption rates based on role and rotation intensity
   const powerType = bot.powerType.toLowerCase();
+  const stats = bot.stats;
 
   // Mana-based classes
   if (powerType === "mana") {
+    // Base consumption rates
+    let baseConsumptionPercent = 0;
+
     if (bot.role === "healer") {
       // Healers: High consumption during intense healing (1.5-2.5% per second)
-      return bot.maxPower * 0.020; // ~50 seconds to OOM under heavy load
+      baseConsumptionPercent = 0.020; // ~50 seconds to OOM under heavy load
     } else if (bot.role.includes("dps")) {
       // Casters: Moderate consumption (0.8-1.2% per second)
-      return bot.maxPower * 0.010; // ~100 seconds to OOM
+      baseConsumptionPercent = 0.010; // ~100 seconds to OOM
     } else {
-      // Tanks with mana: Low consumption
-      return bot.maxPower * 0.005;
+      // Tanks with mana (Protection Paladin): Low consumption
+      baseConsumptionPercent = 0.005;
     }
+
+    const baseConsumption = bot.maxPower * baseConsumptionPercent;
+
+    // Haste increases mana consumption by increasing cast speed
+    // More casts per second = more mana spent per second
+    const hasteMultiplier = stats && stats.hastePercent
+      ? 1 + (stats.hastePercent / 100)
+      : 1.0;
+
+    return baseConsumption * hasteMultiplier;
   }
 
   // Energy-based (Rogues, Feral Druids)
   if (powerType === "energy") {
     // Energy is capped at 100/120, consumed by finishers and builders
-    // Average consumption: ~30-40 energy per 3-second cycle
-    return 12; // Energy per second average
+    // Average consumption: ~30-40 energy per 3-second cycle = 12 energy/sec
+    const energyBase = 12;
+
+    // Haste increases energy consumption through faster rotations
+    const hasteMultiplier = stats && stats.hastePercent
+      ? 1 + (stats.hastePercent / 100)
+      : 1.0;
+
+    return energyBase * hasteMultiplier;
   }
 
   // Rage-based (Warriors, Guardian Druids)
   if (powerType === "rage") {
     // Rage is spent on abilities, capped at 100
-    // Consumption matches generation in steady state
-    return 8; // Rage per second average
+    // Consumption ~8 rage per second average
+    const rageBase = 8;
+
+    // Haste increases rage consumption through faster rotations
+    const hasteMultiplier = stats && stats.hastePercent
+      ? 1 + (stats.hastePercent / 100) * 0.5 // Reduced effect since rage gen also scales
+      : 1.0;
+
+    return rageBase * hasteMultiplier;
   }
 
   // Focus (Hunters)
   if (powerType === "focus") {
     // Focus: Capped at 120, consumed by focus dumps
-    // Average consumption: ~30-40 focus per 3-second cycle
-    return 10; // Focus per second average
+    // Average consumption: ~30-40 focus per 3-second cycle = 10 focus/sec
+    const focusBase = 10;
+
+    // Haste increases focus consumption
+    const hasteMultiplier = stats && stats.hastePercent
+      ? 1 + (stats.hastePercent / 100)
+      : 1.0;
+
+    return focusBase * hasteMultiplier;
   }
 
   // Runic Power (Death Knights)
   if (powerType === "runic_power") {
     // Runic Power: Capped at 100/125, consumed by spenders
-    return 15; // RP per second average
+    // Average consumption: 15 RP per second
+    const rpBase = 15;
+
+    // Haste increases RP consumption through faster rotations
+    const hasteMultiplier = stats && stats.hastePercent
+      ? 1 + (stats.hastePercent / 100)
+      : 1.0;
+
+    return rpBase * hasteMultiplier;
   }
 
   // Other resource types are typically capped and don't deplete like mana
