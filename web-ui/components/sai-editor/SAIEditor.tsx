@@ -41,10 +41,22 @@ import ParameterEditor from './ParameterEditor';
 import ValidationPanel from './ValidationPanel';
 import TemplateLibrary from './TemplateLibrary';
 import AIGenerationPanel from './AIGenerationPanel';
+import ContextMenu, { ContextMenuItem } from './ContextMenu';
+import KeyboardShortcutsPanel from './KeyboardShortcutsPanel';
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import {
+  Copy,
+  Trash2,
+  Edit,
+  Unlink,
+  Plus,
+  Scissors,
+  Settings as SettingsIcon,
+  Layers,
+} from 'lucide-react';
 
 // Node types for ReactFlow
 const nodeTypes = {
@@ -84,6 +96,12 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
   const [clipboard, setClipboard] = useState<Clipboard | null>(null);
   const [historyManager] = useState(() => new HistoryManager(script));
   const [showTemplates, setShowTemplates] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    type: 'node' | 'edge' | 'canvas';
+    target?: any;
+  } | null>(null);
 
   // ReactFlow state
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -314,6 +332,162 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
     toast.success(`Cut ${selectedIds.length} node(s)`);
   }, [nodes, handleCopy, setNodes, setEdges]);
 
+  // Delete selected nodes and edges
+  const handleDeleteSelected = useCallback(() => {
+    const selectedNodeIds = nodes.filter(n => n.selected).map(n => n.id);
+    const selectedEdgeIds = edges.filter(e => e.selected).map(e => e.id);
+
+    if (selectedNodeIds.length === 0 && selectedEdgeIds.length === 0) {
+      return;
+    }
+
+    // Record history before deletion
+    historyManager.record(
+      convertFromReactFlow(),
+      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)`,
+      'user'
+    );
+
+    // Remove selected nodes
+    setNodes((nds) => nds.filter(n => !selectedNodeIds.includes(n.id)));
+
+    // Remove selected edges AND edges connected to deleted nodes
+    setEdges((eds) => eds.filter(e =>
+      !selectedEdgeIds.includes(e.id) &&
+      !selectedNodeIds.includes(e.source) &&
+      !selectedNodeIds.includes(e.target)
+    ));
+
+    // Clear selection
+    setSelectedNode(null);
+
+    const totalDeleted = selectedNodeIds.length + selectedEdgeIds.length;
+    toast.success(`Deleted ${selectedNodeIds.length} node(s) and ${totalDeleted} connection(s)`);
+  }, [nodes, edges, setNodes, setEdges, convertFromReactFlow, historyManager]);
+
+  // Delete specific node
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}`, 'user');
+
+    setNodes((nds) => nds.filter(n => n.id !== nodeId));
+    setEdges((eds) => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
+
+    if (selectedNode?.id === nodeId) {
+      setSelectedNode(null);
+    }
+
+    toast.success('Node deleted');
+  }, [selectedNode, setNodes, setEdges, convertFromReactFlow, historyManager]);
+
+  // Delete specific edge
+  const handleDeleteEdge = useCallback((edgeId: string) => {
+    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}`, 'user');
+    setEdges((eds) => eds.filter(e => e.id !== edgeId));
+    toast.success('Connection deleted');
+  }, [setEdges, convertFromReactFlow, historyManager]);
+
+  // Duplicate node
+  const handleDuplicateNode = useCallback((nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return;
+
+    const nodeData = node.data as SAINodeType;
+    const newNode: SAINodeType = {
+      ...nodeData,
+      id: `${nodeData.type}-${Date.now()}`,
+      position: {
+        x: node.position.x + 50,
+        y: node.position.y + 50,
+      },
+    };
+
+    setNodes((nds) => [
+      ...nds,
+      {
+        id: newNode.id,
+        type: 'saiNode',
+        position: newNode.position,
+        data: newNode,
+      },
+    ]);
+
+    toast.success('Node duplicated');
+  }, [nodes, setNodes]);
+
+  // Keyboard event handler
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if user is typing in an input field
+      const activeElement = document.activeElement;
+      const isTyping = activeElement?.tagName === 'INPUT' ||
+                       activeElement?.tagName === 'TEXTAREA' ||
+                       activeElement?.tagName === 'SELECT';
+
+      // DELETE or BACKSPACE key
+      if ((event.key === 'Delete' || event.key === 'Backspace') && !isTyping) {
+        event.preventDefault();
+        handleDeleteSelected();
+      }
+
+      // Ctrl+A - Select all
+      if (event.ctrlKey && event.key === 'a' && !isTyping) {
+        event.preventDefault();
+        setNodes((nds) => nds.map(n => ({ ...n, selected: true })));
+        setEdges((eds) => eds.map(e => ({ ...e, selected: true })));
+        toast.info('All nodes selected');
+      }
+
+      // Ctrl+D - Duplicate
+      if (event.ctrlKey && event.key === 'd' && !isTyping) {
+        event.preventDefault();
+        const selectedNodeIds = nodes.filter(n => n.selected).map(n => n.id);
+        if (selectedNodeIds.length === 1) {
+          handleDuplicateNode(selectedNodeIds[0]);
+        } else if (selectedNodeIds.length > 1) {
+          toast.error('Can only duplicate one node at a time');
+        }
+      }
+
+      // Ctrl+S - Save
+      if (event.ctrlKey && event.key === 's' && !isTyping) {
+        event.preventDefault();
+        if (onSave) {
+          handleSave();
+        }
+      }
+
+      // Ctrl+E - Export SQL
+      if (event.ctrlKey && event.key === 'e' && !isTyping) {
+        event.preventDefault();
+        handleExportSQL();
+      }
+
+      // Ctrl+L - Auto layout
+      if (event.ctrlKey && event.key === 'l' && !isTyping) {
+        event.preventDefault();
+        handleAutoLayout();
+      }
+
+      // Escape - Deselect all
+      if (event.key === 'Escape') {
+        setNodes((nds) => nds.map(n => ({ ...n, selected: false })));
+        setEdges((eds) => eds.map(e => ({ ...e, selected: false })));
+        setSelectedNode(null);
+      }
+
+      // Enter - Edit selected node
+      if (event.key === 'Enter' && !isTyping) {
+        const selectedNodes = nodes.filter(n => n.selected);
+        if (selectedNodes.length === 1) {
+          setSelectedNode(selectedNodes[0].data as SAINodeType);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nodes, edges, setNodes, setEdges, handleDeleteSelected, handleDuplicateNode, handleSave, handleExportSQL, handleAutoLayout, onSave]);
+
   // Auto layout
   const handleAutoLayout = useCallback(() => {
     const currentScript = convertFromReactFlow();
@@ -403,6 +577,158 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
     }
   }, [convertFromReactFlow, onSave]);
 
+  // Context menu handlers
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'node',
+      target: node,
+    });
+  }, []);
+
+  const onEdgeContextMenu = useCallback((event: React.MouseEvent, edge: Edge) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'edge',
+      target: edge,
+    });
+  }, []);
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'canvas',
+    });
+  }, []);
+
+  // Get context menu items based on type
+  const getContextMenuItems = useCallback((): ContextMenuItem[] => {
+    if (!contextMenu) return [];
+
+    switch (contextMenu.type) {
+      case 'node':
+        return [
+          {
+            label: 'Edit Properties',
+            icon: <Edit className="w-4 h-4" />,
+            onClick: () => setSelectedNode(contextMenu.target.data),
+            shortcut: 'Enter',
+          },
+          {
+            label: 'Duplicate',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => handleDuplicateNode(contextMenu.target.id),
+            shortcut: 'Ctrl+D',
+          },
+          { separator: true },
+          {
+            label: 'Copy',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and copy
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCopy, 50);
+            },
+            shortcut: 'Ctrl+C',
+          },
+          {
+            label: 'Cut',
+            icon: <Scissors className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and cut
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCut, 50);
+            },
+            shortcut: 'Ctrl+X',
+          },
+          { separator: true },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-4 h-4" />,
+            onClick: () => handleDeleteNode(contextMenu.target.id),
+            shortcut: 'Delete',
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'edge':
+        return [
+          {
+            label: 'Delete Connection',
+            icon: <Unlink className="w-4 h-4" />,
+            onClick: () => handleDeleteEdge(contextMenu.target.id),
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'canvas':
+        return [
+          {
+            label: 'Add Event',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddEvent,
+          },
+          {
+            label: 'Add Action',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddAction,
+          },
+          {
+            label: 'Add Target',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddTarget,
+          },
+          { separator: true },
+          {
+            label: 'Paste',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: handlePaste,
+            disabled: !clipboard,
+            shortcut: 'Ctrl+V',
+          },
+          { separator: true },
+          {
+            label: 'Select All',
+            onClick: () => {
+              setNodes((nds) => nds.map(n => ({ ...n, selected: true })));
+              setEdges((eds) => eds.map(e => ({ ...e, selected: true })));
+            },
+            shortcut: 'Ctrl+A',
+          },
+          {
+            label: 'Auto Layout',
+            icon: <Layers className="w-4 h-4" />,
+            onClick: handleAutoLayout,
+            shortcut: 'Ctrl+L',
+          },
+        ];
+
+      default:
+        return [];
+    }
+  }, [
+    contextMenu,
+    handleCopy,
+    handleCut,
+    handlePaste,
+    handleAutoLayout,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleDuplicateNode,
+    handleAddEvent,
+    handleAddAction,
+    handleAddTarget,
+    clipboard,
+    setNodes,
+    setEdges,
+  ]);
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950">
       {/* Toolbar */}
@@ -415,6 +741,8 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
         onCopy={handleCopy}
         onPaste={handlePaste}
         onCut={handleCut}
+        onDelete={handleDeleteSelected}
+        hasSelection={nodes.some(n => n.selected) || edges.some(e => e.selected)}
         onAddEvent={handleAddEvent}
         onAddAction={handleAddAction}
         onAddTarget={handleAddTarget}
@@ -438,6 +766,9 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onNodeContextMenu={onNodeContextMenu}
+            onEdgeContextMenu={onEdgeContextMenu}
+            onPaneContextMenu={onPaneContextMenu}
             nodeTypes={nodeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
@@ -474,11 +805,12 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
         {/* Right Sidebar */}
         <div className="w-96 border-l border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
           <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
+            <TabsList className="grid w-full grid-cols-5 rounded-none border-b">
               <TabsTrigger value="properties">Properties</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="ai">AI</TabsTrigger>
+              <TabsTrigger value="shortcuts">Shortcuts</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-auto">
@@ -529,10 +861,24 @@ export const SAIEditor: React.FC<SAIEditorProps> = ({
                   }}
                 />
               </TabsContent>
+
+              <TabsContent value="shortcuts" className="p-4 m-0">
+                <KeyboardShortcutsPanel />
+              </TabsContent>
             </div>
           </Tabs>
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={getContextMenuItems()}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };
