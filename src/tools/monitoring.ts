@@ -212,14 +212,14 @@ export async function queryLogs(options: {
             },
             statistics: {
                 by_level: {
-                    DEBUG: filteredLogs.filter(l => l.level === 'DEBUG').length,
-                    INFO: filteredLogs.filter(l => l.level === 'INFO').length,
-                    WARN: filteredLogs.filter(l => l.level === 'WARN').length,
-                    ERROR: filteredLogs.filter(l => l.level === 'ERROR').length,
-                    FATAL: filteredLogs.filter(l => l.level === 'FATAL').length,
+                    DEBUG: filteredLogs.filter(l => l.level === LogLevel.DEBUG).length,
+                    INFO: filteredLogs.filter(l => l.level === LogLevel.INFO).length,
+                    WARN: filteredLogs.filter(l => l.level === LogLevel.WARN).length,
+                    ERROR: filteredLogs.filter(l => l.level === LogLevel.ERROR).length,
+                    FATAL: filteredLogs.filter(l => l.level === LogLevel.FATAL).length,
                 },
                 unique_trace_ids: [...new Set(filteredLogs.map(l => l.traceId).filter(Boolean))].length,
-                error_count: filteredLogs.filter(l => l.level === 'ERROR' || l.level === 'FATAL').length,
+                error_count: filteredLogs.filter(l => l.level === LogLevel.ERROR || l.level === LogLevel.FATAL).length,
             },
         };
 

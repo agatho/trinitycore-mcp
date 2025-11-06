@@ -887,6 +887,13 @@ export class SecurityManager extends EventEmitter {
   }
 
   /**
+   * List all API keys
+   */
+  public listApiKeys(): APIKey[] {
+    return Array.from(this.apiKeys.values());
+  }
+
+  /**
    * Start cleanup intervals
    */
   private startCleanupIntervals(): void {
@@ -939,4 +946,27 @@ export class SecurityManager extends EventEmitter {
     this.threatScores.clear();
     this.emit('shutdown');
   }
+}
+
+// Singleton instance
+let securityManager: SecurityManager | null = null;
+
+/**
+ * Get or create the singleton SecurityManager instance
+ */
+export function getSecurityManager(config?: Partial<SecurityConfig>): SecurityManager {
+  if (!securityManager) {
+    securityManager = new SecurityManager(config || {});
+  }
+  return securityManager;
+}
+
+/**
+ * Reset the singleton instance (for testing)
+ */
+export function resetSecurityManager(): void {
+  if (securityManager) {
+    securityManager.shutdown();
+  }
+  securityManager = null;
 }

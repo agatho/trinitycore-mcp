@@ -101,12 +101,14 @@ function generateInsertStatement(script: SAIScript, options: ExportOptions): str
   }
 
   let sql = 'INSERT INTO `smart_scripts` (\n';
-  sql += '  `entryorguid`, `source_type`, `id`, `link`,\n';
+  sql += '  `entryorguid`, `source_type`, `id`, `link`, `Difficulties`,\n';
   sql += '  `event_type`, `event_phase_mask`, `event_chance`, `event_flags`,\n';
   sql += '  `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`,\n';
+  sql += '  `event_param_string`, `event_cooldown_min`, `event_cooldown_max`,\n';
   sql += '  `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`,\n';
+  sql += '  `action_param_string`,\n';
   sql += '  `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`,\n';
-  sql += '  `target_x`, `target_y`, `target_z`, `target_o`,\n';
+  sql += '  `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`,\n';
   sql += '  `comment`\n';
   sql += ') VALUES\n';
 
@@ -164,6 +166,7 @@ function buildSQLEntries(script: SAIScript, options: ExportOptions): SQLEntry[] 
         source_type: script.sourceType,
         id: id,
         link: eventNode.link || 0,
+        difficulties: eventNode.difficulties || '',
 
         // Event fields
         event_type: parseInt(eventNode.typeId),
@@ -175,6 +178,9 @@ function buildSQLEntries(script: SAIScript, options: ExportOptions): SQLEntry[] 
         event_param3: getParamValue(eventNode, 2),
         event_param4: getParamValue(eventNode, 3),
         event_param5: getParamValue(eventNode, 4),
+        event_param_string: eventNode.paramString || '',
+        event_cooldown_min: eventNode.cooldownMin || 0,
+        event_cooldown_max: eventNode.cooldownMax || 0,
 
         // Action fields
         action_type: parseInt(actionNode.typeId),
@@ -184,6 +190,7 @@ function buildSQLEntries(script: SAIScript, options: ExportOptions): SQLEntry[] 
         action_param4: getParamValue(actionNode, 3),
         action_param5: getParamValue(actionNode, 4),
         action_param6: getParamValue(actionNode, 5),
+        action_param_string: actionNode.paramString || '',
 
         // Target fields
         target_type: targetNode ? parseInt(targetNode.typeId) : 0,
@@ -191,10 +198,11 @@ function buildSQLEntries(script: SAIScript, options: ExportOptions): SQLEntry[] 
         target_param2: targetNode ? getParamValue(targetNode, 1) : 0,
         target_param3: targetNode ? getParamValue(targetNode, 2) : 0,
         target_param4: targetNode ? getParamValue(targetNode, 3) : 0,
-        target_x: 0,
-        target_y: 0,
-        target_z: 0,
-        target_o: 0,
+        target_param_string: targetNode?.paramString || '',
+        target_x: targetNode?.targetPosition?.x || 0,
+        target_y: targetNode?.targetPosition?.y || 0,
+        target_z: targetNode?.targetPosition?.z || 0,
+        target_o: targetNode?.targetPosition?.o || 0,
 
         // Comment
         comment: generateComment(eventNode, actionNode, targetNode ?? null),
@@ -218,18 +226,20 @@ function formatSQLEntry(
 ): string {
   if (options.prettyPrint) {
     let sql = '(\n';
-    sql += `  ${entry.entryorguid}, ${entry.source_type}, ${entry.id}, ${entry.link},\n`;
+    sql += `  ${entry.entryorguid}, ${entry.source_type}, ${entry.id}, ${entry.link}, ${escapeSQL(entry.difficulties)},\n`;
     sql += `  ${entry.event_type}, ${entry.event_phase_mask}, ${entry.event_chance}, ${entry.event_flags},\n`;
     sql += `  ${entry.event_param1}, ${entry.event_param2}, ${entry.event_param3}, ${entry.event_param4}, ${entry.event_param5},\n`;
+    sql += `  ${escapeSQL(entry.event_param_string)}, ${entry.event_cooldown_min}, ${entry.event_cooldown_max},\n`;
     sql += `  ${entry.action_type}, ${entry.action_param1}, ${entry.action_param2}, ${entry.action_param3}, ${entry.action_param4}, ${entry.action_param5}, ${entry.action_param6},\n`;
+    sql += `  ${escapeSQL(entry.action_param_string)},\n`;
     sql += `  ${entry.target_type}, ${entry.target_param1}, ${entry.target_param2}, ${entry.target_param3}, ${entry.target_param4},\n`;
-    sql += `  ${entry.target_x}, ${entry.target_y}, ${entry.target_z}, ${entry.target_o},\n`;
+    sql += `  ${escapeSQL(entry.target_param_string)}, ${entry.target_x}, ${entry.target_y}, ${entry.target_z}, ${entry.target_o},\n`;
     sql += `  ${escapeSQL(entry.comment)}\n`;
     sql += ')';
     return sql;
   } else {
     // Compact format
-    return `(${entry.entryorguid}, ${entry.source_type}, ${entry.id}, ${entry.link}, ${entry.event_type}, ${entry.event_phase_mask}, ${entry.event_chance}, ${entry.event_flags}, ${entry.event_param1}, ${entry.event_param2}, ${entry.event_param3}, ${entry.event_param4}, ${entry.event_param5}, ${entry.action_type}, ${entry.action_param1}, ${entry.action_param2}, ${entry.action_param3}, ${entry.action_param4}, ${entry.action_param5}, ${entry.action_param6}, ${entry.target_type}, ${entry.target_param1}, ${entry.target_param2}, ${entry.target_param3}, ${entry.target_param4}, ${entry.target_x}, ${entry.target_y}, ${entry.target_z}, ${entry.target_o}, ${escapeSQL(entry.comment)})`;
+    return `(${entry.entryorguid}, ${entry.source_type}, ${entry.id}, ${entry.link}, ${escapeSQL(entry.difficulties)}, ${entry.event_type}, ${entry.event_phase_mask}, ${entry.event_chance}, ${entry.event_flags}, ${entry.event_param1}, ${entry.event_param2}, ${entry.event_param3}, ${entry.event_param4}, ${entry.event_param5}, ${escapeSQL(entry.event_param_string)}, ${entry.event_cooldown_min}, ${entry.event_cooldown_max}, ${entry.action_type}, ${entry.action_param1}, ${entry.action_param2}, ${entry.action_param3}, ${entry.action_param4}, ${entry.action_param5}, ${entry.action_param6}, ${escapeSQL(entry.action_param_string)}, ${entry.target_type}, ${entry.target_param1}, ${entry.target_param2}, ${entry.target_param3}, ${entry.target_param4}, ${escapeSQL(entry.target_param_string)}, ${entry.target_x}, ${entry.target_y}, ${entry.target_z}, ${entry.target_o}, ${escapeSQL(entry.comment)})`;
   }
 }
 
@@ -367,6 +377,7 @@ interface SQLEntry {
   source_type: number;
   id: number;
   link: number;
+  difficulties: string;
 
   event_type: number;
   event_phase_mask: number;
@@ -377,6 +388,9 @@ interface SQLEntry {
   event_param3: number;
   event_param4: number;
   event_param5: number;
+  event_param_string: string;
+  event_cooldown_min: number;
+  event_cooldown_max: number;
 
   action_type: number;
   action_param1: number;
@@ -385,12 +399,14 @@ interface SQLEntry {
   action_param4: number;
   action_param5: number;
   action_param6: number;
+  action_param_string: string;
 
   target_type: number;
   target_param1: number;
   target_param2: number;
   target_param3: number;
   target_param4: number;
+  target_param_string: string;
   target_x: number;
   target_y: number;
   target_z: number;

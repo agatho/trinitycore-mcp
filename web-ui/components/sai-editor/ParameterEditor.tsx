@@ -15,7 +15,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertCircle, Info, MessageSquare } from 'lucide-react';
 
 interface ParameterEditorProps {
   parameters: SAIParameter[];
@@ -31,6 +34,8 @@ export const ParameterEditor: React.FC<ParameterEditorProps> = ({
   description,
 }) => {
   const [validationErrors, setValidationErrors] = useState<Map<string, string>>(new Map());
+  const [textMode, setTextMode] = useState<Map<string, 'id' | 'direct'>>(new Map());
+  const [directText, setDirectText] = useState<Map<string, string>>(new Map());
 
   const handleParameterChange = (index: number, value: number | string) => {
     const newParams = [...parameters];
@@ -177,10 +182,14 @@ export const ParameterEditor: React.FC<ParameterEditorProps> = ({
         );
 
       case 'text':
+        const currentMode = textMode.get(param.name) || 'id';
+        const currentText = directText.get(param.name) || '';
+
         return (
-          <div key={index} className="space-y-2">
+          <div key={index} className="space-y-3 border rounded-lg p-4 bg-slate-50 dark:bg-slate-900">
             <div className="flex items-center justify-between">
-              <Label htmlFor={`param-${index}`} className="text-sm font-medium">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
                 {param.name}
                 {param.required && <span className="text-red-500 ml-1">*</span>}
               </Label>
@@ -191,14 +200,53 @@ export const ParameterEditor: React.FC<ParameterEditorProps> = ({
             {param.description && (
               <p className="text-xs text-gray-500 dark:text-gray-400">{param.description}</p>
             )}
-            <Input
-              id={`param-${index}`}
-              type="number"
-              value={param.value}
-              onChange={(e) => handleParameterChange(index, Number(e.target.value))}
-              className={error ? 'border-red-500' : ''}
-              placeholder="Text group ID from creature_text"
-            />
+
+            <Tabs
+              value={currentMode}
+              onValueChange={(val) => {
+                const newMode = new Map(textMode);
+                newMode.set(param.name, val as 'id' | 'direct');
+                setTextMode(newMode);
+              }}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="id">Text ID</TabsTrigger>
+                <TabsTrigger value="direct">Direct Text</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="id" className="space-y-2">
+                <Input
+                  type="number"
+                  value={param.value}
+                  onChange={(e) => handleParameterChange(index, Number(e.target.value))}
+                  className={error ? 'border-red-500' : ''}
+                  placeholder="Text group ID from creature_text"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  References creature_text.groupid
+                </p>
+              </TabsContent>
+
+              <TabsContent value="direct" className="space-y-2">
+                <Textarea
+                  value={currentText}
+                  onChange={(e) => {
+                    const newText = new Map(directText);
+                    newText.set(param.name, e.target.value);
+                    setDirectText(newText);
+                  }}
+                  placeholder="Enter the text the creature should say/yell/whisper..."
+                  className="min-h-[100px] resize-y"
+                  maxLength={1000}
+                />
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <span>Direct text input (will be converted to creature_text entry)</span>
+                  <span>{currentText.length}/1000</span>
+                </div>
+              </TabsContent>
+            </Tabs>
+
             {error && (
               <div className="flex items-center gap-1 text-xs text-red-500">
                 <AlertCircle className="h-3 w-3" />

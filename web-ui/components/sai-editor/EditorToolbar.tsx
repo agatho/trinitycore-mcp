@@ -30,6 +30,7 @@ import {
   Copy,
   ClipboardPaste,
   Scissors,
+  Trash2,
   Download,
   Upload,
   Layout as LayoutIcon,
@@ -39,6 +40,7 @@ import {
   Zap,
   Target,
   MessageSquare,
+  Keyboard,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -54,6 +56,8 @@ interface EditorToolbarProps {
   onCopy: () => void;
   onPaste: () => void;
   onCut: () => void;
+  onDelete?: () => void;
+  hasSelection?: boolean;
 
   // Add nodes
   onAddEvent: () => void;
@@ -85,6 +89,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onCopy,
   onPaste,
   onCut,
+  onDelete,
+  hasSelection = false,
   onAddEvent,
   onAddAction,
   onAddTarget,
@@ -182,6 +188,18 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         >
           <ClipboardPaste className="h-4 w-4" />
         </Button>
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            disabled={!hasSelection}
+            title="Delete selected (Delete key)"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <Separator orientation="vertical" className="h-8" />
