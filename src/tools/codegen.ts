@@ -392,16 +392,16 @@ export async function validateGeneratedCode(options: {
 
   // Convert validation result to expected format
   const errors = result.issues
-    .filter(i => i.severity === 'error')
-    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
+    .filter((i: any) => i.severity === 'error')
+    .map((i: any) => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
   const warnings = result.issues
-    .filter(i => i.severity === 'warning')
-    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
+    .filter((i: any) => i.severity === 'warning')
+    .map((i: any) => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
   const info = result.issues
-    .filter(i => i.severity === 'info')
-    .map(i => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
+    .filter((i: any) => i.severity === 'info')
+    .map((i: any) => `[${i.rule}] ${i.message}${i.line ? ` at line ${i.line}` : ''}`);
 
   const validationTime = performance.now() - start;
 
