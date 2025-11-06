@@ -7,6 +7,9 @@
  * @module utils/error-handler
  */
 
+import { logger } from './logger.js';
+
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -468,14 +471,14 @@ function logError(details: ErrorDetails): void {
   };
 
   if (logLevel === "error") {
-    console.error("[ERROR]", JSON.stringify(logMessage, null, 2));
+    logger.error("[ERROR]", JSON.stringify(logMessage, null, 2));
     if (details.stack) {
-      console.error("Stack trace:", details.stack);
+      logger.error("Stack trace:", details.stack);
     }
   } else if (logLevel === "warn") {
-    console.warn("[WARN]", JSON.stringify(logMessage, null, 2));
+    logger.warn("[WARN]", JSON.stringify(logMessage, null, 2));
   } else {
-    console.log("[INFO]", JSON.stringify(logMessage, null, 2));
+    logger.info("[INFO]", JSON.stringify(logMessage, null, 2));
   }
 }
 

@@ -24,6 +24,7 @@ import type {
   CodeFix,
   FixType,
 } from './types.js';
+import { logger } from '../utils/logger.js';
 import type { CodeAnalysisEngine } from './CodeAnalysisEngine.js';
 
 // ============================================================================
@@ -360,7 +361,7 @@ export class AIReviewEngine {
         if (result.status === 'fulfilled') {
           results.push(result.value);
         } else {
-          console.error('AI review failed for violation:', result.reason);
+          logger.error('AI review failed for violation:', result.reason);
         }
       }
 
@@ -659,7 +660,7 @@ ${ast.functions.map((f) => `- ${f.name}()`).join('\n')}
         }
       } catch (error) {
         lastError = error as Error;
-        console.error(`LLM API call failed (attempt ${attempt + 1}/${maxRetries}):`, error);
+        logger.error(`LLM API call failed (attempt ${attempt + 1}/${maxRetries}):`, error);
 
         // Exponential backoff
         if (attempt < maxRetries - 1) {
@@ -859,7 +860,7 @@ ${prompt}`;
         confidenceScore: parsed.confidenceScore || 0.5,
       };
     } catch (error) {
-      console.error('Failed to parse GPT-4 response:', error);
+      logger.error('Failed to parse GPT-4 response:', error);
       return {
         enhancedExplanation: 'Failed to parse AI response',
         contextualInsights: [],
@@ -900,7 +901,7 @@ ${prompt}`;
         complexity: parsed.complexity || 'medium',
       };
     } catch (error) {
-      console.error('Failed to parse quality analysis:', error);
+      logger.error('Failed to parse quality analysis:', error);
       return {
         qualityScore: 50,
         strengths: [],
@@ -957,7 +958,7 @@ ${prompt}`;
 
       return related.length > 0 ? related.join('\n') : null;
     } catch (error) {
-      console.error('Failed to find related code:', error);
+      logger.error('Failed to find related code:', error);
       return null;
     }
   }
@@ -1102,7 +1103,7 @@ Provide 3-5 high-level insights as a JSON array:
       const parsed = JSON.parse(jsonContent);
       return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
-      console.error('Failed to generate overall insights:', error);
+      logger.error('Failed to generate overall insights:', error);
       return ['Multiple code quality issues detected. Review individual violations for details.'];
     }
   }

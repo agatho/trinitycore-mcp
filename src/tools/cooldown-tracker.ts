@@ -9,6 +9,7 @@
 
 import type { CombatLogEntry, AbilityUsage, MissedOpportunity } from "./botcombatloganalyzer.js";
 import { queryWorld } from "../database/connection.js";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -470,12 +471,12 @@ export async function loadCooldownsFromDatabase(): Promise<void> {
   // Check if cache is still valid
   const now = Date.now();
   if (cooldownCacheTimestamp && (now - cooldownCacheTimestamp) < COOLDOWN_CACHE_TTL) {
-    console.log('[Cooldown Tracker] Using cached cooldown data');
+    logger.info('[Cooldown Tracker] Using cached cooldown data');
     return;
   }
 
   try {
-    console.log('[Cooldown Tracker] Loading cooldowns from spell_template database...');
+    logger.info('[Cooldown Tracker] Loading cooldowns from spell_template database...');
 
     // Query spell_template for cooldown data
     // RecoveryTime = cooldown in milliseconds
@@ -530,11 +531,11 @@ export async function loadCooldownsFromDatabase(): Promise<void> {
       }
 
       cooldownCacheTimestamp = now;
-      console.log(`[Cooldown Tracker] Loaded ${loadedCount} cooldowns from database (cache TTL: 5min)`);
+      logger.info(`[Cooldown Tracker] Loaded ${loadedCount} cooldowns from database (cache TTL: 5min)`);
     }
   } catch (error) {
-    console.error('[Cooldown Tracker] Failed to load cooldowns from database:', error);
-    console.log('[Cooldown Tracker] Falling back to hardcoded cooldown database');
+    logger.error('[Cooldown Tracker] Failed to load cooldowns from database:', error);
+    logger.info('[Cooldown Tracker] Falling back to hardcoded cooldown database');
     // Keep hardcoded data as fallback
   }
 }

@@ -46,6 +46,7 @@ import {
   type ReportFormat,
   type ReportOptions,
 } from './ReviewReportGenerator.js';
+import { logger } from '../utils/logger.js';
 
 // Type exports
 import type {
@@ -294,10 +295,10 @@ export class CodeReviewOrchestrator {
     }
 
     if (this.config.verbose) {
-      console.log('🔧 CodeReviewOrchestrator initialized');
-      console.log(`   - AI Enhancement: ${this.config.enableAI ? 'Enabled' : 'Disabled'}`);
-      console.log(`   - LLM Provider: ${this.config.llmConfig.provider}`);
-      console.log(`   - Project Root: ${this.config.projectRoot}`);
+      logger.info('🔧 CodeReviewOrchestrator initialized');
+      logger.info(`   - AI Enhancement: ${this.config.enableAI ? 'Enabled' : 'Disabled'}`);
+      logger.info(`   - LLM Provider: ${this.config.llmConfig.provider}`);
+      logger.info(`   - Project Root: ${this.config.projectRoot}`);
     }
   }
 
@@ -331,7 +332,7 @@ export class CodeReviewOrchestrator {
     } catch (e) {}
 
     if (this.config.verbose) {
-      console.log(`\n🔍 Reviewing ${filePaths.length} file(s)...`);
+      logger.info(`\n🔍 Reviewing ${filePaths.length} file(s)...`);
     }
 
     const allViolations: RuleViolation[] = [];
@@ -362,7 +363,7 @@ export class CodeReviewOrchestrator {
           } catch (e) {}
 
           if (this.config.verbose) {
-            console.warn(`⚠️  File not found: ${filePath}`);
+            logger.warn(`⚠️  File not found: ${filePath}`);
           }
           continue;
         }
@@ -370,7 +371,7 @@ export class CodeReviewOrchestrator {
         filesAnalyzed.add(filePath);
 
         if (this.config.verbose) {
-          console.log(`   Analyzing: ${filePath}`);
+          logger.info(`   Analyzing: ${filePath}`);
         }
 
         // Step 1: Code analysis with Serena integration
@@ -431,7 +432,7 @@ export class CodeReviewOrchestrator {
         // Step 3: AI enhancement (if enabled)
         if (this.config.enableAI && this.aiReviewEngine && violations.length > 0) {
           if (this.config.verbose) {
-            console.log(`   🤖 AI enhancing ${violations.length} violation(s)...`);
+            logger.info(`   🤖 AI enhancing ${violations.length} violation(s)...`);
           }
 
           const batchResult = await this.aiReviewEngine.reviewViolationsBatch(violations, codeContext);
@@ -441,9 +442,9 @@ export class CodeReviewOrchestrator {
           allViolations.push(...violations);
         }
       } catch (error) {
-        console.error(`❌ Error analyzing ${filePath}:`, error);
+        logger.error(`❌ Error analyzing ${filePath}:`, error);
         if (this.config.verbose && error instanceof Error) {
-          console.error(error.stack);
+          logger.error(error.stack);
         }
       }
     }
@@ -468,10 +469,10 @@ export class CodeReviewOrchestrator {
     const durationMs = Date.now() - startTime;
 
     if (this.config.verbose) {
-      console.log(`\n✅ Review complete in ${durationMs}ms`);
-      console.log(`   - Total violations: ${filteredViolations.length}`);
-      console.log(`   - Files analyzed: ${filesAnalyzed.size}`);
-      console.log(`   - Files with issues: ${filesWithIssues.size}`);
+      logger.info(`\n✅ Review complete in ${durationMs}ms`);
+      logger.info(`   - Total violations: ${filteredViolations.length}`);
+      logger.info(`   - Files analyzed: ${filesAnalyzed.size}`);
+      logger.info(`   - Files with issues: ${filesWithIssues.size}`);
     }
 
     // FILE LOGGING
@@ -497,21 +498,21 @@ export class CodeReviewOrchestrator {
   async reviewPattern(patterns: string | string[]): Promise<CodeReviewResult> {
     const patternArray = Array.isArray(patterns) ? patterns : [patterns];
 
-    console.log(`\n🔍 reviewPattern() called`);
-    console.log(`   Patterns: ${patternArray.join(', ')}`);
-    console.log(`   Project root: ${this.config.projectRoot}`);
+    logger.info(`\n🔍 reviewPattern() called`);
+    logger.info(`   Patterns: ${patternArray.join(', ')}`);
+    logger.info(`   Project root: ${this.config.projectRoot}`);
 
     const files: string[] = [];
     for (const pattern of patternArray) {
-      console.log(`   Searching with glob pattern: ${pattern}`);
+      logger.info(`   Searching with glob pattern: ${pattern}`);
       const matches = await glob(pattern, {
         cwd: this.config.projectRoot,
         absolute: false,
         ignore: ['**/node_modules/**', '**/build/**', '**/dist/**', '**/.git/**'],
       });
-      console.log(`   Glob found ${matches.length} matches for pattern: ${pattern}`);
+      logger.info(`   Glob found ${matches.length} matches for pattern: ${pattern}`);
       if (matches.length > 0 && matches.length <= 5) {
-        console.log(`   Sample files: ${matches.slice(0, 5).join(', ')}`);
+        logger.info(`   Sample files: ${matches.slice(0, 5).join(', ')}`);
       }
       files.push(...matches);
     }
@@ -519,7 +520,7 @@ export class CodeReviewOrchestrator {
     // Remove duplicates
     const uniqueFiles = Array.from(new Set(files));
 
-    console.log(`   Total unique files after deduplication: ${uniqueFiles.length}`);
+    logger.info(`   Total unique files after deduplication: ${uniqueFiles.length}`);
 
     return this.reviewFiles(uniqueFiles);
   }
@@ -533,7 +534,7 @@ export class CodeReviewOrchestrator {
    */
   async generateReport(results: CodeReviewResult, outputPath: string, format: ReportFormat = 'markdown'): Promise<void> {
     if (this.config.verbose) {
-      console.log(`\n📄 Generating ${format} report: ${outputPath}`);
+      logger.info(`\n📄 Generating ${format} report: ${outputPath}`);
     }
 
     const reportOptions: ReportOptions = {
@@ -557,11 +558,11 @@ export class CodeReviewOrchestrator {
     if (format !== 'console') {
       await fs.writeFile(outputPath, report, 'utf-8');
       if (this.config.verbose) {
-        console.log(`   ✅ Report saved to: ${outputPath}`);
+        logger.info(`   ✅ Report saved to: ${outputPath}`);
       }
     } else {
       // For console format, output to stdout
-      console.log(report);
+      logger.info(report);
     }
   }
 
@@ -679,7 +680,7 @@ export class CodeReviewOrchestrator {
     }
 
     if (this.config.verbose) {
-      console.log('🔧 Configuration updated');
+      logger.info('🔧 Configuration updated');
     }
   }
 }

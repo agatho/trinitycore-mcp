@@ -10,6 +10,7 @@ import {
   SearchOptions,
   DocumentCategory,
 } from './types.js';
+import { logger } from '../utils/logger.js';
 
 export class SearchEngine {
   private index: MiniSearch<KnowledgeBaseDocument>;
@@ -40,7 +41,7 @@ export class SearchEngine {
     await this.index.addAllAsync(documents);
 
     const duration = performance.now() - start;
-    console.log(`Indexed ${documents.length} documents in ${duration.toFixed(2)}ms`);
+    logger.info(`Indexed ${documents.length} documents in ${duration.toFixed(2)}ms`);
   }
 
   search(query: string, options?: SearchOptions): SearchResult[] {
@@ -81,7 +82,7 @@ export class SearchEngine {
       });
 
     const duration = performance.now() - start;
-    console.log(`Search completed in ${duration.toFixed(2)}ms`);
+    logger.info(`Search completed in ${duration.toFixed(2)}ms`);
 
     return results;
   }

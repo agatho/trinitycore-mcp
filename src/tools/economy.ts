@@ -8,6 +8,7 @@
  */
 
 import { queryWorld } from "../database/connection";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -489,13 +490,13 @@ async function calculateRecipeProfitability(
             craftingCost += cost;
           } catch (e) {
             // Skip materials that can't be loaded
-            console.warn(`Could not load reagent ${reagentId} for recipe ${recipeId}`);
+            logger.warn(`Could not load reagent ${reagentId} for recipe ${recipeId}`);
           }
         }
       }
     }
   } catch (error) {
-    console.warn(`Could not parse reagents for recipe ${recipeId}:`, error);
+    logger.warn(`Could not parse reagents for recipe ${recipeId}:`, error);
   }
 
   // If no materials found in spell data, use fallback estimation

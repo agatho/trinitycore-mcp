@@ -14,6 +14,7 @@ import {
   parseDB2SectionHeader,
   isValidDB2Signature,
 } from './DB2Header';
+import { logger } from '../../utils/logger.js';
 import { IDB2FileSource, DB2FileSystemSource } from './DB2FileSource';
 import { DB2Record } from './DB2Record';
 import { DB2FileLoaderSparse } from './DB2FileLoaderSparse';
@@ -94,7 +95,7 @@ export class DB2FileLoader {
     if (this.header.minId !== this.header.maxId) {
       this.loadIdListAndOffsetMap(source);
     } else {
-      console.warn(`⚠️  File has no ID range (minId == maxId), skipping ID list loading`);
+      logger.warn(`⚠️  File has no ID range (minId == maxId), skipping ID list loading`);
     }
 
     // Load copy table if present
@@ -231,11 +232,11 @@ export class DB2FileLoader {
 
     // DEBUG: Log section file offset for spell 1
     if (spellId === 1) {
-      console.log(`\n🔍 DEBUG Spell 1 - Section File Offset:`);
-      console.log(`  section.fileOffset: ${section.fileOffset}`);
-      console.log(`  recordIndex (localIndex): ${mapping.localIndex}`);
-      console.log(`  recordSize: ${this.header!.recordSize}`);
-      console.log(`  recordCount: ${section.recordCount}`);
+      logger.info(`\n🔍 DEBUG Spell 1 - Section File Offset:`);
+      logger.info(`  section.fileOffset: ${section.fileOffset}`);
+      logger.info(`  recordIndex (localIndex): ${mapping.localIndex}`);
+      logger.info(`  recordSize: ${this.header!.recordSize}`);
+      logger.info(`  recordCount: ${section.recordCount}`);
     }
 
     // Pass the spellId as the 6th parameter for both sparse and inline files
@@ -326,9 +327,9 @@ export class DB2FileLoader {
       this.columnMeta.push(meta);
     }
 
-    console.warn(`✅ Loaded ${this.fieldEntries.length} field entries (TrinityCore format)`);
+    logger.warn(`✅ Loaded ${this.fieldEntries.length} field entries (TrinityCore format)`);
     if (this.fieldEntries.length > 0) {
-      console.warn(`📊 First field: unusedBits=${this.fieldEntries[0].unusedBits}, offset=${this.fieldEntries[0].offset}`);
+      logger.warn(`📊 First field: unusedBits=${this.fieldEntries[0].unusedBits}, offset=${this.fieldEntries[0].offset}`);
     }
   }
 
@@ -397,21 +398,21 @@ export class DB2FileLoader {
     // Clear section manager
     this.sectionManager.clear();
 
-    console.warn(`\n📂 Loading multi-section DB2 file with ${this.sections.length} sections...`);
+    logger.warn(`\n📂 Loading multi-section DB2 file with ${this.sections.length} sections...`);
 
     // Load ALL sections (not just the first one!)
     for (let sectionIdx = 0; sectionIdx < this.sections.length; sectionIdx++) {
       const section = this.sections[sectionIdx];
 
       if (section.idTableSize === 0) {
-        console.warn(`⚠️  Section ${sectionIdx}: No ID table (idTableSize = 0)`);
+        logger.warn(`⚠️  Section ${sectionIdx}: No ID table (idTableSize = 0)`);
         continue;
       }
 
-      console.warn(`\n📊 Processing Section ${sectionIdx}:`);
-      console.warn(`   Catalog entries: ${section.catalogDataCount}`);
-      console.warn(`   ID table size: ${section.idTableSize} bytes`);
-      console.warn(`   Record count: ${section.recordCount}`);
+      logger.warn(`\n📊 Processing Section ${sectionIdx}:`);
+      logger.warn(`   Catalog entries: ${section.catalogDataCount}`);
+      logger.warn(`   ID table size: ${section.idTableSize} bytes`);
+      logger.warn(`   Record count: ${section.recordCount}`);
 
       // CRITICAL FIX: TrinityCore reads catalog data in specific order
       // Based on DB2FileLoaderSparseImpl::LoadCatalogData() lines 1017-1045
@@ -425,10 +426,10 @@ export class DB2FileLoader {
 
       if (section.catalogDataCount > 0 && section.catalogDataOffset > 0) {
         // SPARSE FILE: Load catalog IDs and catalog entries from catalogDataOffset
-        console.warn(`   📂 Sparse section - loading ${section.catalogDataCount} catalog entries`);
+        logger.warn(`   📂 Sparse section - loading ${section.catalogDataCount} catalog entries`);
 
         if (!source.setPosition(section.catalogDataOffset)) {
-          console.warn(`   ❌ Failed to seek to catalog offset ${section.catalogDataOffset}`);
+          logger.warn(`   ❌ Failed to seek to catalog offset ${section.catalogDataOffset}`);
           continue;
         }
 
@@ -437,20 +438,20 @@ export class DB2FileLoader {
         const catalogIdsBuffer = Buffer.alloc(catalogIdsSize);
 
         if (!source.read(catalogIdsBuffer, catalogIdsSize)) {
-          console.warn(`   ❌ Failed to read ${catalogIdsSize} bytes for catalog IDs`);
+          logger.warn(`   ❌ Failed to read ${catalogIdsSize} bytes for catalog IDs`);
           continue;
         }
 
         // Parse catalog IDs into ID list
         sectionIdList = new DB2IdList();
         sectionIdList.loadFromBuffer(catalogIdsBuffer, this.header!.minId, this.header!.maxId);
-        console.warn(`   ✅ Loaded ${catalogIdsSize / 4} catalog spell IDs`);
+        logger.warn(`   ✅ Loaded ${catalogIdsSize / 4} catalog spell IDs`);
 
         // Step 2: Skip copy table if present (not needed for now)
         if (section.copyTableCount > 0) {
           const copyTableSize = section.copyTableCount * 8; // 8 bytes per entry
           source.skip(copyTableSize);
-          console.warn(`   ⏭️  Skipped ${copyTableSize} bytes of copy table data`);
+          logger.warn(`   ⏭️  Skipped ${copyTableSize} bytes of copy table data`);
         }
 
         // Step 3: Read catalog entries array (offset + size pairs) - 6 bytes per entry
@@ -458,14 +459,14 @@ export class DB2FileLoader {
         const catalogEntriesBuffer = Buffer.alloc(catalogEntriesSize);
 
         if (!source.read(catalogEntriesBuffer, catalogEntriesSize)) {
-          console.warn(`   ❌ Failed to read ${catalogEntriesSize} bytes for catalog entries`);
+          logger.warn(`   ❌ Failed to read ${catalogEntriesSize} bytes for catalog entries`);
           continue;
         }
 
         // Parse catalog entries into offset map
         sectionOffsetMap = new DB2OffsetMap();
         sectionOffsetMap.loadFromBuffer(catalogEntriesBuffer, section.catalogDataCount);
-        console.warn(`   ✅ Loaded ${section.catalogDataCount} catalog entries (offset+size pairs)`);
+        logger.warn(`   ✅ Loaded ${section.catalogDataCount} catalog entries (offset+size pairs)`);
 
       } else if (section.idTableSize > 0) {
         // DENSE FILE: Load ID list from after records + string table
@@ -473,22 +474,22 @@ export class DB2FileLoader {
                             section.recordCount * this.header!.recordSize +
                             section.stringTableSize;
 
-        console.warn(`   📁 Dense section - loading ${section.idTableSize} bytes of ID list`);
+        logger.warn(`   📁 Dense section - loading ${section.idTableSize} bytes of ID list`);
 
         if (!source.setPosition(idListOffset)) {
-          console.warn(`   ❌ Failed to seek to ID list offset ${idListOffset}`);
+          logger.warn(`   ❌ Failed to seek to ID list offset ${idListOffset}`);
           continue;
         }
 
         const idListBuffer = Buffer.alloc(section.idTableSize);
         if (!source.read(idListBuffer, section.idTableSize)) {
-          console.warn(`   ❌ Failed to read ${section.idTableSize} bytes for ID list`);
+          logger.warn(`   ❌ Failed to read ${section.idTableSize} bytes for ID list`);
           continue;
         }
 
         sectionIdList = new DB2IdList();
         sectionIdList.loadFromBuffer(idListBuffer, this.header!.minId, this.header!.maxId);
-        console.warn(`   ✅ Loaded ${section.idTableSize / 4} IDs from dense ID list`);
+        logger.warn(`   ✅ Loaded ${section.idTableSize / 4} IDs from dense ID list`);
 
         // Dense files don't have offset map - records are contiguous
         sectionOffsetMap = null;
@@ -502,14 +503,14 @@ export class DB2FileLoader {
           sectionIdList.toMap(),
           sectionOffsetMap ? sectionOffsetMap.toMap(sectionIdList) : null
         );
-        console.warn(`   ✅ Section ${sectionIdx} loaded successfully`);
+        logger.warn(`   ✅ Section ${sectionIdx} loaded successfully`);
       } else {
-        console.warn(`   ⚠️  Section ${sectionIdx} has no ID list - skipping`);
+        logger.warn(`   ⚠️  Section ${sectionIdx} has no ID list - skipping`);
       }
     }
 
     // Print diagnostics
-    console.warn(this.sectionManager.getDiagnostics());
+    logger.warn(this.sectionManager.getDiagnostics());
   }
 
   /**

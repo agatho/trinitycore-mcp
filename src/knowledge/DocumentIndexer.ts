@@ -5,6 +5,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import MarkdownIt from 'markdown-it';
 import { KnowledgeBaseDocument, CodeExample, DocumentCategory, DifficultyLevel } from './types.js';
+import { logger } from '../utils/logger.js';
 
 export class DocumentIndexer {
   private md: MarkdownIt;
@@ -27,7 +28,7 @@ export class DocumentIndexer {
       allDocuments.push(...docs);
     }
 
-    console.log(`Indexed ${allDocuments.length} total documents`);
+    logger.info(`Indexed ${allDocuments.length} total documents`);
     return allDocuments;
   }
 
@@ -42,7 +43,7 @@ export class DocumentIndexer {
         if (doc) documents.push(doc);
       }
     } catch (error) {
-      console.error(`Error indexing category ${category}:`, error);
+      logger.error(`Error indexing category ${category}:`, error);
     }
 
     return documents;

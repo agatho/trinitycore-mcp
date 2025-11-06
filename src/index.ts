@@ -7,6 +7,7 @@
 
 // Load environment variables from .env file
 import dotenv from "dotenv";
+import { logger } from './utils/logger.js';
 dotenv.config();
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -3878,7 +3879,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         try {
           require('fs').appendFileSync(logPath, logMsg);
         } catch (e) {
-          console.error('Failed to write log:', e);
+          logger.error('Failed to write log:', e);
         }
 
         const result = await reviewFile(args.filePath as string, {
@@ -4926,21 +4927,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("TrinityCore MCP Server running on stdio");
+  logger.error("TrinityCore MCP Server running on stdio");
 
   // Week 7: Optional cache warming on startup (disabled by default)
   // Uncomment to enable automatic cache warming for improved performance
   // const warmOnStartup = process.env.CACHE_WARM_ON_STARTUP === "true";
   // if (warmOnStartup) {
-  //   console.error("Warming DB2 caches...");
+  //   logger.error("Warming DB2 caches...");
   //   const warmResult = await CacheWarmer.warmAllCaches();
   //   if (warmResult.success) {
-  //     console.error(`Cache warming complete: ${warmResult.recordsPreloaded} records in ${warmResult.totalTime}ms`);
+  //     logger.error(`Cache warming complete: ${warmResult.recordsPreloaded} records in ${warmResult.totalTime}ms`);
   //   }
   // }
 }
 
 main().catch((error) => {
-  console.error("Fatal error:", error);
+  logger.error("Fatal error:", error);
   process.exit(1);
 });

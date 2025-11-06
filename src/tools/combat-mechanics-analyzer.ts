@@ -8,6 +8,7 @@
  */
 
 import type { CombatLogEntry, MissedOpportunity, SuboptimalDecision } from "./botcombatloganalyzer.js";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -519,7 +520,7 @@ export class MovementAnalyzer {
   processEntries(entries: CombatLogEntry[], botName: string): void {
     // TODO: Parse position data from enhanced logs
     // For now, estimate movement from spell casts
-    console.log("[Movement Analyzer] Position data not available in standard logs");
+    logger.info("[Movement Analyzer] Position data not available in standard logs");
   }
 
   /**
@@ -570,7 +571,7 @@ export class ResourceAnalyzer {
    */
   processEntries(entries: CombatLogEntry[], botName: string): void {
     // TODO: Parse resource data from enhanced logs
-    console.log("[Resource Analyzer] Resource data not available in standard logs - estimating from spell costs");
+    logger.info("[Resource Analyzer] Resource data not available in standard logs - estimating from spell costs");
   }
 
   /**

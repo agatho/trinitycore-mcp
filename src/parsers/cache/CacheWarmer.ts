@@ -9,6 +9,7 @@
 import { DB2CachedLoaderFactory } from "../db2/DB2CachedFileLoader";
 import * as path from "path";
 import * as fs from "fs";
+import { logger } from '../../utils/logger.js';
 
 const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 
@@ -226,7 +227,7 @@ export class CacheWarmer {
         // Check if file exists
         if (!fs.existsSync(filePath)) {
           if (config.verbose) {
-            console.log(`[CacheWarmer] Skipping ${fileName} - file not found`);
+            logger.info(`[CacheWarmer] Skipping ${fileName} - file not found`);
           }
           continue;
         }
@@ -277,7 +278,7 @@ export class CacheWarmer {
           loader.preloadRecords(idsToLoad);
 
           if (config.verbose) {
-            console.log(
+            logger.info(
               `[CacheWarmer] Preloaded ${idsToLoad.length} records from ${fileName}`
             );
           }

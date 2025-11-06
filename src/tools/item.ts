@@ -8,6 +8,7 @@ import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader.js";
 import { ItemSchema } from "../parsers/schemas/ItemSchema.js";
 import * as path from "path";
 import * as fs from "fs";
+import { logger } from '../utils/logger.js';
 
 export interface ItemInfo {
   itemId: number;
@@ -103,7 +104,7 @@ function loadItemCache(): boolean {
 
   try {
     if (!fs.existsSync(ITEM_CACHE_PATH)) {
-      console.warn(`Item cache not found at ${ITEM_CACHE_PATH}. Using DB2 parser or database only.`);
+      logger.warn(`Item cache not found at ${ITEM_CACHE_PATH}. Using DB2 parser or database only.`);
       return false;
     }
 
@@ -114,10 +115,10 @@ function loadItemCache(): boolean {
       itemCache.set(parseInt(key), value as ItemCacheEntry);
     }
 
-    console.log(`✅ Loaded item cache: ${itemCache.size} entries`);
+    logger.info(`✅ Loaded item cache: ${itemCache.size} entries`);
     return true;
   } catch (error) {
-    console.error(`Failed to load item cache: ${error}`);
+    logger.error(`Failed to load item cache: ${error}`);
     itemCache = null;
     return false;
   }
@@ -134,7 +135,7 @@ function loadItemSparseCache(): boolean {
 
   try {
     if (!fs.existsSync(ITEM_SPARSE_CACHE_PATH)) {
-      console.warn(`Item sparse cache not found at ${ITEM_SPARSE_CACHE_PATH}. Using DB2 parser or database only.`);
+      logger.warn(`Item sparse cache not found at ${ITEM_SPARSE_CACHE_PATH}. Using DB2 parser or database only.`);
       return false;
     }
 
@@ -145,10 +146,10 @@ function loadItemSparseCache(): boolean {
       itemSparseCache.set(parseInt(key), value as ItemSparseCacheEntry);
     }
 
-    console.log(`✅ Loaded item sparse cache: ${itemSparseCache.size} entries`);
+    logger.info(`✅ Loaded item sparse cache: ${itemSparseCache.size} entries`);
     return true;
   } catch (error) {
-    console.error(`Failed to load item sparse cache: ${error}`);
+    logger.error(`Failed to load item sparse cache: ${error}`);
     itemSparseCache = null;
     return false;
   }
@@ -272,7 +273,7 @@ async function loadItemFromDB2(itemId: number): Promise<{
       source: "db2-parser"
     };
   } catch (error) {
-    console.error("Error loading item from DB2:", error);
+    logger.error("Error loading item from DB2:", error);
     return {
       data: null,
       itemCacheHit: false,
@@ -310,7 +311,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
       const items = await queryWorld(query, [itemId]);
       dbItem = items && items.length > 0 ? items[0] : null;
     } catch (dbError) {
-      console.warn(`Database query failed for item ${itemId}, using DB2 cache only:`,
+      logger.warn(`Database query failed for item ${itemId}, using DB2 cache only:`,
         dbError instanceof Error ? dbError.message : String(dbError));
       // Continue with dbItem = null, will use DB2 cache data
     }
@@ -397,7 +398,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
       },
     };
   } catch (error) {
-    console.error(`getItemInfo(${itemId}) failed:`, error instanceof Error ? error.message : String(error));
+    logger.error(`getItemInfo(${itemId}) failed:`, error instanceof Error ? error.message : String(error));
     return {
       itemId,
       name: "Error",

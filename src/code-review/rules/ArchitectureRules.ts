@@ -23,6 +23,7 @@ import {
   CodeFix,
   IssueSeverity,
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -702,7 +703,7 @@ export const ARCHITECTURE_RULES: CodeReviewRule[] = [
   ...DEPENDENCY_PATTERNS,
 ];
 
-console.log(`Architecture Rules loaded: ${ARCHITECTURE_RULES.length} rules`);
-console.log(
+logger.info(`Architecture Rules loaded: ${ARCHITECTURE_RULES.length} rules`);
+logger.info(
   `Target: 50 rules, Current: ${ARCHITECTURE_RULES.length} (${((ARCHITECTURE_RULES.length / 50) * 100).toFixed(1)}%)`
 );

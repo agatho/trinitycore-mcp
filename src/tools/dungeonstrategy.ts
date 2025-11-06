@@ -8,6 +8,7 @@
  */
 
 import { queryWorld } from "../database/connection";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -343,7 +344,7 @@ export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLay
       bosses.push(bossInfo);
     } catch (e) {
       // Skip bosses that can't be loaded
-      console.warn(`Could not load boss ${boss.entry}: ${e}`);
+      logger.warn(`Could not load boss ${boss.entry}: ${e}`);
     }
   }
 

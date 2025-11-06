@@ -26,6 +26,7 @@ import type {
   Language,
   SymbolInfo,
 } from './types.js';
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // SERENA MCP INTEGRATION TYPES
@@ -332,7 +333,7 @@ export class CodeAnalysisEngine {
       fileContent = await fs.readFile(filepath, 'utf-8');
       lineCount = fileContent.split('\n').length;
     } catch (error) {
-      console.error(`Failed to read file ${filepath}:`, error);
+      logger.error(`Failed to read file ${filepath}:`, error);
     }
 
     // Build symbol table from Serena symbols
@@ -905,7 +906,7 @@ async function parseFileWithFallback(filepath: string): Promise<SerenaFileOvervi
       }
     }
 
-    console.log(`⚠️  Fallback parser found ${symbols.length} symbols in ${filepath}`);
+    logger.info(`⚠️  Fallback parser found ${symbols.length} symbols in ${filepath}`);
     return {
       file: filepath,
       symbols,
@@ -913,7 +914,7 @@ async function parseFileWithFallback(filepath: string): Promise<SerenaFileOvervi
       top_level_symbols: symbols.length,
     };
   } catch (error) {
-    console.error(`Failed to parse file ${filepath}:`, error);
+    logger.error(`Failed to parse file ${filepath}:`, error);
     return {
       file: filepath,
       symbols: [],
@@ -944,7 +945,7 @@ export function createCodeAnalysisEngine(serenaMCPClient: any, astData?: any): C
 
       // Fallback to Serena MCP if available
       if (!serenaMCPClient) {
-        console.log(`⚠️  Serena unavailable, using fallback parser for: ${filepath}`);
+        logger.info(`⚠️  Serena unavailable, using fallback parser for: ${filepath}`);
         return await parseFileWithFallback(filepath);
       }
 

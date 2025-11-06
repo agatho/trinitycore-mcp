@@ -20,6 +20,7 @@ import { analyzeCombatMechanics, type CombatMechanicsReport } from "./combat-mec
 import { analyzePatterns, type PatternDetectionResult } from "./pattern-detection-ml.js";
 import { PerformanceComparisonEngine, formatPerformanceReport, type PerformanceReport } from "./performance-comparison.js";
 import { RecommendationEngine, formatRecommendationReport, type RecommendationReport } from "./recommendation-engine.js";
+import { logger } from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -88,7 +89,7 @@ export async function analyzeComprehensive(options: AdvancedAnalysisOptions): Pr
   const summary: CombatMetrics = calculateBasicMetrics(entries, botName, duration);
 
   // 1. Cooldown Analysis
-  console.error("[Analyzer] Running cooldown and proc analysis...");
+  logger.error("[Analyzer] Running cooldown and proc analysis...");
   const { cooldownAnalyses, procAnalyses, missedOpportunities } = addCooldownAnalysisToCombatMetrics(
     entries,
     botName,
@@ -96,17 +97,17 @@ export async function analyzeComprehensive(options: AdvancedAnalysisOptions): Pr
   );
 
   // 2. Decision Tree Analysis
-  console.error("[Analyzer] Analyzing decision-making patterns...");
+  logger.error("[Analyzer] Analyzing decision-making patterns...");
   const decisionAnalysis = analyzeDecisionMaking(entries, botName);
 
   // 3. Combat Mechanics Analysis
-  console.error("[Analyzer] Analyzing combat mechanics...");
+  logger.error("[Analyzer] Analyzing combat mechanics...");
   const mechanicsReport = analyzeCombatMechanics(entries, botName);
 
   // 4. ML Pattern Detection (optional)
   let patternResult: PatternDetectionResult | undefined;
   if (options.includeML !== false) {
-    console.error("[Analyzer] Running ML pattern detection and behavior classification...");
+    logger.error("[Analyzer] Running ML pattern detection and behavior classification...");
     try {
       patternResult = analyzePatterns(
         summary,
@@ -114,14 +115,14 @@ export async function analyzeComprehensive(options: AdvancedAnalysisOptions): Pr
         entries
       );
     } catch (error) {
-      console.error(`[Analyzer] ML analysis failed: ${error}`);
+      logger.error(`[Analyzer] ML analysis failed: ${error}`);
     }
   }
 
   // 5. Performance Comparison (optional)
   let performanceReport: PerformanceReport | undefined;
   if (options.className) {
-    console.error("[Analyzer] Comparing performance vs baselines...");
+    logger.error("[Analyzer] Comparing performance vs baselines...");
     try {
       const engine = new PerformanceComparisonEngine();
       performanceReport = engine.generateReport(
@@ -131,14 +132,14 @@ export async function analyzeComprehensive(options: AdvancedAnalysisOptions): Pr
         options.level || 60
       );
     } catch (error) {
-      console.error(`[Analyzer] Performance comparison failed: ${error}`);
+      logger.error(`[Analyzer] Performance comparison failed: ${error}`);
     }
   }
 
   // 6. Comprehensive Recommendations
   let recommendationReport: RecommendationReport | undefined;
   if (options.includeRecommendations !== false && patternResult && performanceReport) {
-    console.error("[Analyzer] Generating comprehensive recommendations...");
+    logger.error("[Analyzer] Generating comprehensive recommendations...");
     try {
       const engine = new RecommendationEngine();
       recommendationReport = engine.generateRecommendations(
@@ -150,7 +151,7 @@ export async function analyzeComprehensive(options: AdvancedAnalysisOptions): Pr
         performanceReport
       );
     } catch (error) {
-      console.error(`[Analyzer] Recommendation generation failed: ${error}`);
+      logger.error(`[Analyzer] Recommendation generation failed: ${error}`);
     }
   }
 

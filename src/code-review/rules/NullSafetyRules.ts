@@ -25,6 +25,7 @@ import {
   CodeFix,
   IssueSeverity,
 } from '../types.js';
+import { logger } from '../../utils/logger.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -1643,5 +1644,5 @@ export const NULL_SAFETY_RULES: CodeReviewRule[] = [
 
 // Verification: Count rules
 const NULL_SAFETY_RULE_COUNT = NULL_SAFETY_RULES.length;
-console.log(`Null Safety Rules loaded: ${NULL_SAFETY_RULE_COUNT} rules`);
-console.log(`Target: 200 rules, Current: ${NULL_SAFETY_RULE_COUNT} (${((NULL_SAFETY_RULE_COUNT / 200) * 100).toFixed(1)}%)`);
+logger.info(`Null Safety Rules loaded: ${NULL_SAFETY_RULE_COUNT} rules`);
+logger.info(`Target: 200 rules, Current: ${NULL_SAFETY_RULE_COUNT} (${((NULL_SAFETY_RULE_COUNT / 200) * 100).toFixed(1)}%)`);

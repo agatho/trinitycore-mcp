@@ -8,6 +8,7 @@
  */
 
 import { MCPError, ErrorSeverity, ErrorCategory } from "./error-handler.js";
+import { logger } from './logger.js';
 
 // ============================================================================
 // Types
@@ -41,7 +42,7 @@ const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   backoffMultiplier: 2,
   retryableErrors: isTransientError,
   onRetry: (attempt, error) => {
-    console.log(`[Retry] Attempt ${attempt} failed:`, error);
+    logger.info(`[Retry] Attempt ${attempt} failed:`, error);
   },
 };
 
@@ -108,7 +109,7 @@ export async function withRetry<T>(
         opts.backoffMultiplier
       );
 
-      console.log(`[Retry] Waiting ${delay}ms before attempt ${attempt + 1}...`);
+      logger.info(`[Retry] Waiting ${delay}ms before attempt ${attempt + 1}...`);
       await sleep(delay);
     }
   }
@@ -287,7 +288,7 @@ export const DATABASE_RETRY_OPTIONS: RetryOptions = {
   maxDelayMs: 5000,
   backoffMultiplier: 2,
   onRetry: (attempt, error) => {
-    console.log(`[Database Retry] Attempt ${attempt} failed:`, getErrorMessage(error));
+    logger.info(`[Database Retry] Attempt ${attempt} failed:`, getErrorMessage(error));
   },
 };
 
@@ -300,7 +301,7 @@ export const NETWORK_RETRY_OPTIONS: RetryOptions = {
   maxDelayMs: 16000,
   backoffMultiplier: 2,
   onRetry: (attempt, error) => {
-    console.log(`[Network Retry] Attempt ${attempt} failed:`, getErrorMessage(error));
+    logger.info(`[Network Retry] Attempt ${attempt} failed:`, getErrorMessage(error));
   },
 };
 

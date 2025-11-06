@@ -12,6 +12,7 @@ import {
   type CodeReviewConfig,
   type CodeReviewResult,
 } from "../code-review/index.js";
+import { logger } from '../utils/logger.js';
 import type {
   IssueSeverity,
   RuleCategory,
@@ -238,11 +239,11 @@ export async function reviewProjectDirectory(
   } = {}
 ): Promise<string> {
   try {
-    console.log(`\n📦 reviewProjectDirectory() called from MCP tool`);
-    console.log(`   projectRoot: ${projectRoot}`);
-    console.log(`   patterns: ${JSON.stringify(options.patterns)}`);
-    console.log(`   excludePatterns: ${JSON.stringify(options.excludePatterns)}`);
-    console.log(`   minConfidence: ${options.minConfidence ?? 0.7}`);
+    logger.info(`\n📦 reviewProjectDirectory() called from MCP tool`);
+    logger.info(`   projectRoot: ${projectRoot}`);
+    logger.info(`   patterns: ${JSON.stringify(options.patterns)}`);
+    logger.info(`   excludePatterns: ${JSON.stringify(options.excludePatterns)}`);
+    logger.info(`   minConfidence: ${options.minConfidence ?? 0.7}`);
 
     // Use the convenience function
     const result = await reviewProject({
@@ -264,7 +265,7 @@ export async function reviewProjectDirectory(
       verbose: options.verbose ?? false,
     });
 
-    console.log(`   reviewProject() returned ${result.violations.length} violations`);
+    logger.info(`   reviewProject() returned ${result.violations.length} violations`);
 
     // Format result
     return formatReviewResult(result, "project");
