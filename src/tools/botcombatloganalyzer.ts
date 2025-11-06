@@ -19,7 +19,7 @@ import * as path from "path";
 
 export interface CombatLogEntry {
     timestamp: number;
-    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED";
+    type: "SPELL_CAST" | "SPELL_DAMAGE" | "SPELL_HEAL" | "UNIT_DIED" | "SWING_DAMAGE" | "AURA_APPLIED" | "AURA_REMOVED" | "SPELL_INTERRUPT";
     source: string;
     target: string;
     spellId?: number;
@@ -27,6 +27,7 @@ export interface CombatLogEntry {
     amount?: number;
     critical?: boolean;
     overkill?: number;
+    outcome?: "success" | "failure" | "interrupted" | "resisted" | "immune";
 }
 
 export interface BotCombatMetrics {
@@ -67,6 +68,9 @@ export interface BotCombatMetrics {
     timeSpentDead: number;
     defensiveCooldownUsage: number;
 }
+
+// Export alias for backward compatibility
+export type CombatMetrics = BotCombatMetrics;
 
 export interface AbilityUsage {
     spellId: number;
@@ -328,6 +332,13 @@ export async function formatCombatAnalysisReport(
 
 /**
  * Parse log entries from text
+ */
+export function parseCombatLog(logContent: string): CombatLogEntry[] {
+    return parseLogEntries(logContent);
+}
+
+/**
+ * Parse log entries from text (internal implementation)
  */
 function parseLogEntries(logContent: string): CombatLogEntry[] {
     const entries: CombatLogEntry[] = [];
