@@ -25,7 +25,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Simple melee attacker that auto-attacks and uses a single ability',
     category: 'combat',
     tags: ['combat', 'melee', 'basic'],
-    difficulty: 1,
     script: {
       name: 'Basic Melee Combat',
       sourceType: 0 as SAISourceType,
@@ -90,7 +89,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Caster that uses multiple spells with varying frequencies',
     category: 'combat',
     tags: ['combat', 'caster', 'spells', 'magic'],
-    difficulty: 2,
     script: {
       name: 'Caster Combat',
       sourceType: 0 as SAISourceType,
@@ -200,7 +198,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Three-phase boss encounter with health-based transitions',
     category: 'boss',
     tags: ['boss', 'phases', 'combat', 'advanced'],
-    difficulty: 4,
     script: {
       name: 'Boss Phase System',
       sourceType: 0 as SAISourceType,
@@ -294,7 +291,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Summon additional creatures at 75%, 50%, and 25% health',
     category: 'boss',
     tags: ['boss', 'summon', 'combat', 'adds'],
-    difficulty: 3,
     script: {
       name: 'Boss Add Summons',
       sourceType: 0 as SAISourceType,
@@ -359,7 +355,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Yell text when entering combat',
     category: 'dialogue',
     tags: ['dialogue', 'combat', 'aggro', 'basic'],
-    difficulty: 1,
     script: {
       name: 'Aggro Yell',
       sourceType: 0 as SAISourceType,
@@ -418,7 +413,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Yell text when dying',
     category: 'dialogue',
     tags: ['dialogue', 'death', 'basic'],
-    difficulty: 1,
     script: {
       name: 'Death Yell',
       sourceType: 0 as SAISourceType,
@@ -476,7 +470,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Handle quest accept and reward with dialogue',
     category: 'quest',
     tags: ['quest', 'dialogue', 'npc'],
-    difficulty: 2,
     script: {
       name: 'Quest Giver',
       sourceType: 0 as SAISourceType,
@@ -580,7 +573,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Follow waypoint path with pause at each point',
     category: 'movement',
     tags: ['movement', 'waypoint', 'patrol'],
-    difficulty: 2,
     script: {
       name: 'Waypoint Patrol',
       sourceType: 0 as SAISourceType,
@@ -645,7 +637,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Apply buff aura when creature spawns',
     category: 'combat',
     tags: ['spawn', 'buff', 'aura'],
-    difficulty: 1,
     script: {
       name: 'Buff on Spawn',
       sourceType: 0 as SAISourceType,
@@ -701,7 +692,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Flee when health drops below 15%',
     category: 'combat',
     tags: ['flee', 'health', 'survival'],
-    difficulty: 2,
     script: {
       name: 'Flee at Low Health',
       sourceType: 0 as SAISourceType,
@@ -753,7 +743,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Call nearby allies when attacked',
     category: 'combat',
     tags: ['aggro', 'assist', 'group'],
-    difficulty: 2,
     script: {
       name: 'Call for Help',
       sourceType: 0 as SAISourceType,
@@ -802,7 +791,6 @@ export const SAI_TEMPLATE_LIBRARY: SAITemplate[] = [
     description: 'Cast enrage buff when health drops below 30%',
     category: 'combat',
     tags: ['enrage', 'buff', 'health'],
-    difficulty: 2,
     script: {
       name: 'Enrage at Low Health',
       sourceType: 0 as SAISourceType,
@@ -921,7 +909,7 @@ export function instantiateTemplate(
     id: `script-${Date.now()}`,
     name: baseScript?.name || template.script.name || template.name,
     entryOrGuid: baseScript?.entryOrGuid || 0,
-    sourceType: baseScript?.sourceType || template.script.sourceType,
+    sourceType: (baseScript?.sourceType ?? template.script.sourceType) as SAISourceType,
     nodes: JSON.parse(JSON.stringify(template.script.nodes || [])),
     connections: JSON.parse(JSON.stringify(template.script.connections || [])),
     metadata: {

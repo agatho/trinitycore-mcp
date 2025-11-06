@@ -46,12 +46,15 @@ export default function MapViewerPage() {
 
     try {
       await rendererRef.current.render(loadedMap, {
-        mode: renderMode,
+        renderMode,
         colorScheme,
-        scale,
+        showLiquid: true,
+        showAreas: true,
+        showHoles: true,
+        showContours: true,
+        heightExaggeration: 1.0,
         contourInterval,
-        showGrid: false,
-        gridSize: 16,
+        opacity: 1.0,
       });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Rendering failed';
@@ -141,13 +144,13 @@ export default function MapViewerPage() {
                       <div>
                         <span className="text-slate-500">Height Range:</span>{' '}
                         <span className="text-white font-mono">
-                          {loadedMap.heightMap.minHeight.toFixed(2)}m - {loadedMap.heightMap.maxHeight.toFixed(2)}m
+                          {loadedMap.stats.minHeight.toFixed(2)}m - {loadedMap.stats.maxHeight.toFixed(2)}m
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-500">Grid Size:</span>{' '}
+                        <span className="text-slate-500">Areas:</span>{' '}
                         <span className="text-white font-mono">
-                          {loadedMap.heightMap.gridWidth}x{loadedMap.heightMap.gridHeight}
+                          {loadedMap.stats.areaCount}
                         </span>
                       </div>
                     </div>
@@ -307,19 +310,19 @@ export default function MapViewerPage() {
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">Min Elevation:</span>
                             <span className="text-white font-mono">
-                              {loadedMap.heightMap.minHeight.toFixed(2)}m
+                              {loadedMap.stats.minHeight.toFixed(2)}m
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">Max Elevation:</span>
                             <span className="text-white font-mono">
-                              {loadedMap.heightMap.maxHeight.toFixed(2)}m
+                              {loadedMap.stats.maxHeight.toFixed(2)}m
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-slate-400">Range:</span>
                             <span className="text-white font-mono">
-                              {(loadedMap.heightMap.maxHeight - loadedMap.heightMap.minHeight).toFixed(2)}m
+                              {(loadedMap.stats.maxHeight - loadedMap.stats.minHeight).toFixed(2)}m
                             </span>
                           </div>
                         </div>

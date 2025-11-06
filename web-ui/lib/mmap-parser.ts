@@ -423,13 +423,6 @@ function parseDtPoly(reader: BinaryReader): dtPoly {
   };
 }
 
-// Helper for reading uint16
-BinaryReader.prototype.readUInt16 = function (): number {
-  const value = this.view.getUint16(this.offset, this.littleEndian);
-  this.offset += 2;
-  return value;
-};
-
 /**
  * Parse dtLink structure
  */

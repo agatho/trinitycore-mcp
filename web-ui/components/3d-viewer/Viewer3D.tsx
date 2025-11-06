@@ -115,6 +115,7 @@ export function Viewer3D({
     [RenderLayer.MMapOffMesh]: true,
     [RenderLayer.Grid]: true,
     [RenderLayer.Axes]: true,
+    [RenderLayer.Interactive]: true,
   });
   const [stats, setStats] = useState<RenderStats>({
     fps: 0,

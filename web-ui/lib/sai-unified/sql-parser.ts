@@ -190,7 +190,7 @@ function parseInsertValues(sql: string): SQLEntry[] {
   const entries: SQLEntry[] = [];
 
   // Find VALUES clause
-  const valuesMatch = sql.match(/VALUES\s*(.+)/is);
+  const valuesMatch = sql.match(/VALUES\s*([\s\S]+)/i);
   if (!valuesMatch) return entries;
 
   let valuesStr = valuesMatch[1];

@@ -417,7 +417,6 @@ export class ClaudeProvider implements AIProvider {
               confidence: 0.95,
               tokensUsed: data.usage?.input_tokens + data.usage?.output_tokens || 0,
               generationTime: Date.now() - startTime,
-              provider: 'Claude Code Max',
             };
           }
 

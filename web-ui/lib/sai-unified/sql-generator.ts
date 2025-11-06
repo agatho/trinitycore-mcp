@@ -197,7 +197,7 @@ function buildSQLEntries(script: SAIScript, options: ExportOptions): SQLEntry[] 
         target_o: 0,
 
         // Comment
-        comment: generateComment(eventNode, actionNode, targetNode),
+        comment: generateComment(eventNode, actionNode, targetNode ?? null),
       };
 
       entries.push(entry);
