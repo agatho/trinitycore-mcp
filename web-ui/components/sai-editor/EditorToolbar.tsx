@@ -28,7 +28,7 @@ import {
   Undo2,
   Redo2,
   Copy,
-  Paste,
+  ClipboardPaste,
   Scissors,
   Download,
   Upload,
@@ -180,7 +180,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           disabled={!canPaste}
           title="Paste (Ctrl+V)"
         >
-          <Paste className="h-4 w-4" />
+          <ClipboardPaste className="h-4 w-4" />
         </Button>
       </div>
 

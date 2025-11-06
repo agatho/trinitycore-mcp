@@ -17,7 +17,7 @@ import {
   AlertCircle,
   FileUp,
   Loader2,
-  Map,
+  Map as MapIcon,
   Navigation,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -69,7 +69,7 @@ export default function Viewer3DPage() {
           mapId,
           mapName: file.name.replace(".vmtree", ""),
           tree,
-          tiles: new Map(),
+          tiles: new globalThis.Map<string, any>(),
           allSpawns: [],
           bounds: {
             min: { x: -1000, y: -1000, z: -1000 },
@@ -80,7 +80,7 @@ export default function Viewer3DPage() {
         setVmapData(data);
       } else {
         // Load .vmtile file(s)
-        const tileBuffers = new Map<string, ArrayBuffer>();
+        const tileBuffers = new globalThis.Map<string, ArrayBuffer>();
 
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
@@ -150,14 +150,14 @@ export default function Viewer3DPage() {
           mapId,
           mapName: file.name.replace(".mmap", ""),
           header,
-          tiles: new Map(),
+          tiles: new globalThis.Map(),
           offMeshConnections: [],
         };
 
         setMmapData(data);
       } else {
         // Load .mmtile file(s)
-        const tileBuffers = new Map<string, ArrayBuffer>();
+        const tileBuffers = new globalThis.Map<string, ArrayBuffer>();
 
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
@@ -243,7 +243,7 @@ export default function Viewer3DPage() {
         <Tabs defaultValue="vmap">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="vmap" className="flex items-center gap-2">
-              <Map className="w-4 h-4" />
+              <MapIcon className="w-4 h-4" />
               VMap Files
             </TabsTrigger>
             <TabsTrigger value="mmap" className="flex items-center gap-2">
@@ -366,7 +366,7 @@ export default function Viewer3DPage() {
           <div className="text-center space-y-4">
             <div className="flex justify-center">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                <Map className="w-8 h-8 text-muted-foreground" />
+                <MapIcon className="w-8 h-8 text-muted-foreground" />
               </div>
             </div>
             <div className="space-y-2">

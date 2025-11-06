@@ -1343,15 +1343,6 @@ export const PARAMETER_REGISTRY: Record<string, Omit<SAIParameter, 'name'>> = {
     tooltip: 'Initial maximum time in milliseconds',
     defaultValue: 0,
   },
-  RepeatMin: {
-    value: 0,
-    type: 'number',
-    min: 0,
-    units: 'ms',
-    description: 'Repeat min time',
-    tooltip: 'Minimum repeat time in milliseconds',
-    defaultValue: 0,
-  },
 };
 
 // ============================================================================

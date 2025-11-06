@@ -295,7 +295,7 @@ function validateNode(node: SAINode, script: SAIScript): ValidationError[] {
 
   // Validate link
   if (node.link !== undefined && node.link !== 0) {
-    const linkedNode = script.nodes.find((n) => n.id === node.link.toString());
+    const linkedNode = script.nodes.find((n) => n.id === node.link!.toString());
     if (!linkedNode) {
       errors.push({
         nodeId: node.id,

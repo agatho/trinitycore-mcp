@@ -74,6 +74,12 @@ class BinaryReader {
     return value;
   }
 
+  readUInt16(): number {
+    const value = this.view.getUint16(this.offset, this.littleEndian);
+    this.offset += 2;
+    return value;
+  }
+
   readInt32(): number {
     const value = this.view.getInt32(this.offset, this.littleEndian);
     this.offset += 4;

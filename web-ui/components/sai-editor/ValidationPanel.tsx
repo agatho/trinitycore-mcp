@@ -153,10 +153,10 @@ export const ValidationPanel: React.FC<ValidationPanelProps> = ({
         {/* Score Badge */}
         <div className="flex items-center gap-2 mt-2">
           <Badge
-            variant={validation.score >= 90 ? 'default' : validation.score >= 70 ? 'secondary' : 'destructive'}
+            variant={(validation.score ?? 0) >= 90 ? 'default' : (validation.score ?? 0) >= 70 ? 'secondary' : 'destructive'}
             className="text-sm"
           >
-            Score: {validation.score}/100
+            Score: {validation.score ?? 0}/100
           </Badge>
           {validation.valid && (
             <Badge variant="outline" className="text-xs text-green-600 border-green-600">
