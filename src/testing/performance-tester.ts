@@ -196,7 +196,7 @@ export class PerformanceTester extends EventEmitter {
           const iterStart = Date.now();
 
           promises.push(
-            fn()
+            Promise.resolve(fn())
               .then(() => {
                 durations.push(Date.now() - iterStart);
               })

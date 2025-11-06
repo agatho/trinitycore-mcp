@@ -462,14 +462,24 @@ export class ConfigManager extends EventEmitter {
   /**
    * Deep merge two objects
    */
-  private deepMerge<T>(target: T, source: Partial<T>): T {
+  private deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
     const output = { ...target };
 
     for (const key in source) {
-      if (source[key] instanceof Object && key in target) {
-        output[key] = this.deepMerge(target[key] as any, source[key] as any);
+      const sourceValue = source[key];
+      const targetValue = target[key as keyof T];
+
+      if (
+        sourceValue !== null &&
+        typeof sourceValue === 'object' &&
+        !Array.isArray(sourceValue) &&
+        targetValue !== null &&
+        typeof targetValue === 'object' &&
+        !Array.isArray(targetValue)
+      ) {
+        output[key] = this.deepMerge(targetValue as any, sourceValue as any);
       } else {
-        output[key] = source[key] as any;
+        output[key] = sourceValue as any;
       }
     }
 
