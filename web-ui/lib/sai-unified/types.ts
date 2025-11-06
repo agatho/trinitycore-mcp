@@ -75,6 +75,12 @@ export interface SAIParameter {
 
   /** Tooltip help text */
   tooltip?: string;
+
+  /** Whether this parameter uses string value (param_string columns) */
+  isStringParam?: boolean;
+
+  /** String value (for param_string columns) */
+  stringValue?: string;
 }
 
 // ============================================================================
@@ -125,6 +131,30 @@ export interface SAINode {
 
   /** Link to another event (for chaining) */
   link?: number;
+
+  /** Dungeon/Raid difficulty restrictions (comma-separated difficulty IDs, empty = all) */
+  difficulties?: string;
+
+  /** Event cooldown minimum (milliseconds) */
+  cooldownMin?: number;
+
+  /** Event cooldown maximum (milliseconds) */
+  cooldownMax?: number;
+
+  /** String parameter (for modern TrinityCore param_string fields) */
+  paramString?: string;
+
+  /** Target position coordinates (for movement/summon/teleport actions) */
+  targetPosition?: {
+    /** X coordinate */
+    x: number;
+    /** Y coordinate */
+    y: number;
+    /** Z coordinate (height) */
+    z: number;
+    /** Orientation in radians (0-2π) */
+    o: number;
+  };
 
   /** Node-specific metadata */
   metadata?: {
