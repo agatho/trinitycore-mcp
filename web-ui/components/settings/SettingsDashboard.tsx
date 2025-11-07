@@ -93,18 +93,26 @@ export default function SettingsDashboard() {
   const [saving, setSaving] = useState<boolean>(false);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [envFileExists, setEnvFileExists] = useState<boolean>(false);
+  const [showRestartInfo, setShowRestartInfo] = useState<boolean>(false);
 
   // Load configuration on mount
   useEffect(() => {
     loadConfig();
   }, []);
 
-  const loadConfig = async () => {
+  const loadConfig = async (reload = false) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/config");
+      const url = reload ? "/api/config?reload=true" : "/api/config";
+      const response = await fetch(url);
       const data = await response.json();
       setConfig(data.config);
+      setEnvFileExists(data.envFileExists);
+      if (reload && data.reloaded) {
+        setSuccessMessage("Configuration reloaded from .env.local!");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      }
     } catch (error) {
       console.error("Failed to load configuration:", error);
     } finally {
@@ -112,15 +120,17 @@ export default function SettingsDashboard() {
     }
   };
 
-  const saveConfig = async () => {
+  const saveConfig = async (persist = false) => {
     if (!config) return;
 
     setSaving(true);
     setValidation(null);
     setSuccessMessage("");
+    setShowRestartInfo(false);
 
     try {
-      const response = await fetch("/api/config", {
+      const url = persist ? "/api/config?persist=true" : "/api/config";
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
@@ -131,8 +141,14 @@ export default function SettingsDashboard() {
       if (data.success) {
         setValidation(data.validation);
         if (data.validation.valid) {
-          setSuccessMessage("Configuration saved successfully!");
-          setTimeout(() => setSuccessMessage(""), 3000);
+          setSuccessMessage(data.message || "Configuration saved successfully!");
+          if (persist) {
+            setShowRestartInfo(true);
+          }
+          setTimeout(() => {
+            setSuccessMessage("");
+            if (!persist) setShowRestartInfo(false);
+          }, persist ? 10000 : 3000);
         }
       } else {
         setValidation({
@@ -222,12 +238,43 @@ export default function SettingsDashboard() {
         <p className="text-gray-600">
           Configure database connections, file paths, server settings, and more
         </p>
+        <div className="mt-2 flex items-center gap-2">
+          {envFileExists ? (
+            <span className="text-sm text-green-600 flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              .env.local file exists
+            </span>
+          ) : (
+            <span className="text-sm text-orange-600 flex items-center gap-1">
+              <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+              No .env.local file - using defaults
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Success Message */}
       {successMessage && (
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           {successMessage}
+        </div>
+      )}
+
+      {/* Restart Information */}
+      {showRestartInfo && (
+        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded">
+          <h3 className="font-bold mb-2">Restart Required</h3>
+          <p className="mb-2">
+            Changes have been saved to .env.local but require a server restart to take effect.
+          </p>
+          <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-300">
+            <h4 className="font-semibold text-sm mb-2">How to restart:</h4>
+            <ul className="text-sm space-y-1 list-disc list-inside">
+              <li><strong>Development mode:</strong> Stop the dev server (Ctrl+C) and run <code className="px-1 bg-blue-200 rounded">npm run dev</code></li>
+              <li><strong>Production mode:</strong> Restart the Next.js server with <code className="px-1 bg-blue-200 rounded">npm run build && npm start</code></li>
+              <li><strong>Docker:</strong> Restart the container with <code className="px-1 bg-blue-200 rounded">docker-compose restart web-ui</code></li>
+            </ul>
+          </div>
         </div>
       )}
 
@@ -847,30 +894,66 @@ export default function SettingsDashboard() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button
-          onClick={saveConfig}
+          onClick={() => saveConfig(false)}
+          disabled={saving}
+          className="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400"
+          title="Save changes temporarily (lost on restart)"
+        >
+          {saving ? "Saving..." : "Save (Memory Only)"}
+        </button>
+
+        <button
+          onClick={() => saveConfig(true)}
           disabled={saving}
           className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+          title="Save changes to .env.local file (persisted)"
         >
-          {saving ? "Saving..." : "Save Settings"}
+          {saving ? "Saving..." : "Save & Persist to .env.local"}
+        </button>
+
+        <button
+          onClick={() => loadConfig(true)}
+          disabled={loading}
+          className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
+          title="Reload configuration from .env.local file"
+        >
+          {loading ? "Loading..." : "Reload from .env.local"}
         </button>
 
         <button
           onClick={resetConfig}
           disabled={saving}
-          className="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400"
+          className="px-6 py-3 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400"
+          title="Reset all settings to default values"
         >
           Reset to Defaults
         </button>
+      </div>
 
-        <button
-          onClick={loadConfig}
-          disabled={loading}
-          className="px-6 py-3 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:bg-gray-100"
-        >
-          Reload
-        </button>
+      {/* Help Section */}
+      <div className="mt-6 p-4 bg-gray-100 border border-gray-300 rounded">
+        <h3 className="font-bold text-gray-800 mb-2">Configuration Help</h3>
+        <div className="text-sm text-gray-700 space-y-2">
+          <p>
+            <strong>Save (Memory Only):</strong> Saves changes temporarily. Changes will be lost when the server restarts.
+          </p>
+          <p>
+            <strong>Save & Persist:</strong> Saves changes to <code className="px-1 bg-gray-200 rounded">web-ui/.env.local</code> file.
+            Changes are permanent but require a server restart to take full effect.
+          </p>
+          <p>
+            <strong>Reload from .env.local:</strong> Discards current changes and reloads configuration from the .env.local file.
+          </p>
+          <p>
+            <strong>Reset to Defaults:</strong> Resets all settings to their default values (does not modify .env.local).
+          </p>
+          <p className="mt-3 pt-3 border-t border-gray-300">
+            <strong>Note:</strong> The .env.local file should be located at <code className="px-1 bg-gray-200 rounded">web-ui/.env.local</code>.
+            You can copy <code className="px-1 bg-gray-200 rounded">web-ui/.env.template</code> to create it.
+          </p>
+        </div>
       </div>
     </div>
   );
