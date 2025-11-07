@@ -27,7 +27,7 @@ import type {
   VMapTileIndex,
   VMapTree,
 } from "./vmap-types";
-import { NODE_MARKER, VMAP_MAGIC, VMapParseError } from "./vmap-types";
+import { NODE_MARKER, SUPPORTED_VMAP_VERSIONS, VMapParseError } from "./vmap-types";
 
 // ============================================================================
 // Binary Reader Utility
@@ -186,12 +186,16 @@ export function parseVMapTree(
 
   // Read magic header (8 bytes)
   const magic = reader.readString(8);
-  if (options.strictValidation !== false && magic !== VMAP_MAGIC) {
+  if (options.strictValidation !== false && !SUPPORTED_VMAP_VERSIONS.includes(magic as any)) {
     throw new VMapParseError(
-      `Invalid magic header: expected "${VMAP_MAGIC}", got "${magic}"`,
+      `Unsupported VMAP version: got "${magic}", supported versions: ${SUPPORTED_VMAP_VERSIONS.join(", ")}`,
       fileName,
       reader.getOffset(),
     );
+  }
+
+  if (options.verbose) {
+    console.log(`[VMapParser] Detected VMAP version: ${magic} in ${fileName}`);
   }
 
   // Read node marker (4 bytes)
@@ -341,9 +345,9 @@ export function parseVMapTile(
 
   // Read magic header (8 bytes)
   const magic = reader.readString(8);
-  if (options.strictValidation !== false && magic !== VMAP_MAGIC) {
+  if (options.strictValidation !== false && !SUPPORTED_VMAP_VERSIONS.includes(magic as any)) {
     throw new VMapParseError(
-      `Invalid magic header: expected "${VMAP_MAGIC}", got "${magic}"`,
+      `Unsupported VMAP version: got "${magic}", supported versions: ${SUPPORTED_VMAP_VERSIONS.join(", ")}`,
       fileName,
       reader.getOffset(),
     );
@@ -454,9 +458,9 @@ export function parseVMapTileIndex(
 
   // Read magic header (8 bytes)
   const magic = reader.readString(8);
-  if (options.strictValidation !== false && magic !== VMAP_MAGIC) {
+  if (options.strictValidation !== false && !SUPPORTED_VMAP_VERSIONS.includes(magic as any)) {
     throw new VMapParseError(
-      `Invalid magic header: expected "${VMAP_MAGIC}", got "${magic}"`,
+      `Unsupported VMAP version: got "${magic}", supported versions: ${SUPPORTED_VMAP_VERSIONS.join(", ")}`,
       fileName,
       reader.getOffset(),
     );
