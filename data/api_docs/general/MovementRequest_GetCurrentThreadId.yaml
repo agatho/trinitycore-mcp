@@ -1,0 +1,49 @@
+api:
+  class: MovementRequest
+  method: GetCurrentThreadId
+  signature: uint32 MovementRequest::GetCurrentThreadId()
+documentation:
+  brief: Returns the thread identifier currently handling the movement request.
+  description: The GetCurrentThreadId method retrieves the unique identifier of the
+    thread that is currently processing or managing this MovementRequest instance.
+    This is useful for debugging multithreaded scenarios, ensuring proper thread affinity,
+    or tracking which worker thread is responsible for handling specific movement
+    operations within the TrinityCore server architecture. The returned value typically
+    corresponds to the OS-level thread ID and can be used to correlate movement request
+    processing with specific server threads.
+  parameters: []
+  returns: A uint32 value representing the thread identifier (TID) of the currently
+    executing thread handling this movement request. This is typically a unique integer
+    assigned by the operating system to identify the thread.
+  examples:
+  - title: Basic Usage
+    code: 'uint32 currentThread = movementRequest.GetCurrentThreadId();
+
+      TC_LOG_DEBUG("movement", "Movement request handled by thread: %u", currentThread);'
+    language: cpp
+  - title: Thread Affinity Check
+    code: "uint32 originalThread = movementRequest.GetCurrentThreadId();\n// ... some\
+      \ processing ...\nuint32 currentThread = movementRequest.GetCurrentThreadId();\n\
+      if (originalThread != currentThread)\n{\n    TC_LOG_ERROR(\"movement\", \"Thread\
+      \ affinity violated! Expected %u, got %u\", originalThread, currentThread);\n\
+      }"
+    language: cpp
+  notes: This method is primarily used in multithreaded environments where movement
+    requests are processed asynchronously across different worker threads. The thread
+    ID returned may differ from the main server thread, especially when dealing with
+    asynchronous pathfinding or movement updates. Implementation typically uses OS-specific
+    APIs like GetCurrentThreadId() on Windows or gettid() on Linux.
+  warnings: Be cautious when using this method for synchronization purposes as thread
+    IDs can be reused by the operating system after threads terminate. Also, relying
+    on thread IDs for critical logic may lead to non-portable code and should be avoided
+    in favor of proper thread synchronization primitives.
+  related:
+  - SetCurrentThreadId
+  - GetMovementId
+  - IsThreadSafe
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T12:18:43.558119'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

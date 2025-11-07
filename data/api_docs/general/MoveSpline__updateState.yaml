@@ -1,0 +1,61 @@
+api:
+  class: MoveSpline
+  method: _updateState
+  signature: UpdateResult MoveSpline::_updateState(int32 & ms_time_diff)
+documentation:
+  brief: Updates the internal state of the spline movement based on elapsed time.
+  description: The _updateState method is responsible for advancing the internal state
+    of a MoveSpline object, typically used in character or creature movement calculations
+    within TrinityCore. It processes the time difference since the last update and
+    modifies the spline's current position and status accordingly. This method is
+    crucial for maintaining smooth and accurate movement animations during pathfinding
+    and spline-based locomotion. The method adjusts internal counters, calculates
+    new positions along the spline path, and may trigger events or callbacks when
+    specific milestones are reached. It operates on a time-based system where the
+    provided time difference is used to interpolate the current position along the
+    defined spline trajectory.
+  parameters:
+  - name: ms_time_diff
+    description: Reference to an integer containing the time elapsed in milliseconds
+      since the last update. This value is modified by the method to reflect the actual
+      time consumed during processing.
+  returns: Returns an UpdateResult enum indicating the outcome of the state update
+    operation. Possible values include SUCCESS, FINISHED, or other status codes that
+    indicate whether the spline movement completed, is still in progress, or encountered
+    an error condition.
+  examples:
+  - title: Basic usage in movement update loop
+    code: "int32 timeDiff = 50; // 50ms since last update\nUpdateResult result = spline->_updateState(timeDiff);\n\
+      if (result == UpdateResult::FINISHED)\n{\n    // Movement completed, handle\
+      \ next action\n    HandleMovementFinished();\n}"
+    language: cpp
+  - title: Integration with game tick loop
+    code: "void UpdateMovement()\n{\n    static uint32 lastUpdateTime = getMSTime();\n\
+      \    uint32 currentTime = getMSTime();\n    int32 timeDiff = currentTime - lastUpdateTime;\n\
+      \    lastUpdateTime = currentTime;\n\n    if (timeDiff > 0)\n    {\n       \
+      \ UpdateResult result = spline->_updateState(timeDiff);\n        switch (result)\n\
+      \        {\n            case UpdateResult::SUCCESS:\n                // Continue\
+      \ updating\n                break;\n            case UpdateResult::FINISHED:\n\
+      \                // Movement complete, notify subscribers\n                OnMovementComplete();\n\
+      \                break;\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within the game's main update loop and
+    should be invoked regularly to maintain smooth movement animation. The internal
+    state management relies on accurate time tracking, so using precise timing functions
+    is essential for proper behavior. The method may modify the input parameter 'ms_time_diff'
+    to reflect actual processing time consumed.
+  warnings: Do not call this method directly from outside the movement system without
+    understanding its implications. Incorrect handling of the time difference parameter
+    can lead to incorrect positioning or skipped movement steps. This method should
+    only be called when the spline is actively being processed, not during initialization
+    or cleanup phases.
+  related:
+  - MoveSpline::update
+  - MoveSpline::getFinalDestination
+  - MoveSpline::isFinished
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T12:24:23.439275'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

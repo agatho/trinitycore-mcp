@@ -1,0 +1,63 @@
+api:
+  class: OutdoorPvP
+  method: BroadcastPacket
+  signature: void OutdoorPvP::BroadcastPacket(const WorldPacket * data) const
+documentation:
+  brief: Sends a WorldPacket to all players within the OutdoorPvP area
+  description: The BroadcastPacket method is used to transmit a WorldPacket to all
+    connected players who are currently within the boundaries of the OutdoorPvP zone.
+    This method is typically employed for sending updates, notifications, or game
+    state changes that affect all players in the outdoor PvP area. The packet is sent
+    directly to the clients without any filtering based on faction or other criteria,
+    ensuring that all players in the zone receive the message simultaneously. This
+    mechanism is crucial for maintaining synchronized gameplay experiences in outdoor
+    PvP zones where real-time communication between server and client is essential.
+  parameters:
+  - name: data
+    description: A pointer to a WorldPacket object containing the data to be broadcasted
+      to all players in the OutdoorPvP zone. The packet should be properly constructed
+      with appropriate opcode and payload before being passed to this method.
+  returns: null
+  examples:
+  - title: Broadcasting a Custom Message Packet
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT, 100);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(0);
+
+      packet << "Outdoor PvP Event Activated!";
+
+
+      outdoorPvP->BroadcastPacket(&packet);'
+    language: cpp
+  - title: Sending Territory Capture Update
+    code: 'WorldPacket updatePacket(SMSG_UPDATE_WORLD_STATE, 8);
+
+      updatePacket << uint32(0x1234); // Territory ID
+
+      updatePacket << uint32(1);   // New controlling faction (Alliance)
+
+
+      outdoorPvP->BroadcastPacket(&updatePacket);'
+    language: cpp
+  notes: This method operates synchronously and will block until all packets are sent
+    to connected players. It's important to ensure that the WorldPacket passed to
+    this method is valid and properly formatted, as invalid packets can cause client-side
+    errors or disconnections. The method does not perform any filtering or validation
+    on player presence - it broadcasts to everyone currently within the OutdoorPvP
+    zone regardless of their faction or status.
+  warnings: Avoid calling BroadcastPacket with large or frequently updated packets
+    as this can lead to performance degradation and network congestion. Ensure that
+    the packet data being broadcasted is appropriate for all players in the zone,
+    as there's no mechanism to filter recipients based on player state or faction.
+  related:
+  - SendPacket
+  - HandlePlayerEnter
+  - HandlePlayerLeave
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T12:05:39.847277'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

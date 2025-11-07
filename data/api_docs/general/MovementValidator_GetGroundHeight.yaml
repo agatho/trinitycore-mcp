@@ -1,0 +1,67 @@
+api:
+  class: MovementValidator
+  method: GetGroundHeight
+  signature: bool MovementValidator::GetGroundHeight(Map * map, float x, float y,
+    float & z) const
+documentation:
+  brief: Retrieves the ground height at a specified location on a map.
+  description: The GetGroundHeight method calculates and returns the Z-coordinate
+    (vertical position) of the ground surface at the given X and Y coordinates within
+    a specified map. This is essential for determining valid walking positions, preventing
+    players from falling through the world, and ensuring proper collision detection.
+    The method performs a height query against the map's terrain data and updates
+    the provided reference parameter with the resulting height value. It returns true
+    if the operation was successful and a valid height was retrieved; otherwise, it
+    returns false, indicating that the coordinates are invalid or outside of navigable
+    terrain.
+  parameters:
+  - name: map
+    description: Pointer to the Map object where the ground height is to be queried.
+      Must not be null.
+  - name: x
+    description: The X coordinate (horizontal position) for which to retrieve the
+      ground height.
+  - name: y
+    description: The Y coordinate (horizontal position) for which to retrieve the
+      ground height.
+  - name: z
+    description: Reference to a float variable that will be updated with the retrieved
+      ground height value upon successful execution.
+  returns: True if the ground height was successfully retrieved and the coordinates
+    are valid within the map's navigable area. False if the operation failed, typically
+    due to invalid coordinates or an inaccessible map.
+  examples:
+  - title: Basic Usage Example
+    code: "Map* myMap = ...; // Assume this is a valid map pointer\nfloat x = 100.0f,\
+      \ y = 200.0f;\nfloat groundZ;\nif (validator.GetGroundHeight(myMap, x, y, groundZ))\
+      \ {\n    printf(\"Ground height at (%.2f, %.2f) is %.2f\\n\", x, y, groundZ);\n\
+      } else {\n    printf(\"Failed to retrieve ground height at (%.2f, %.2f)\\n\"\
+      , x, y);\n}"
+    language: cpp
+  - title: Usage in Movement Validation
+    code: "float playerX = player->GetPositionX();\nfloat playerY = player->GetPositionY();\n\
+      float groundHeight;\nif (validator.GetGroundHeight(player->GetMap(), playerX,\
+      \ playerY, groundHeight)) {\n    // Adjust player's Z position to match ground\
+      \ level\n    player->Relocate(playerX, playerY, groundHeight);\n} else {\n \
+      \   // Handle invalid ground height case\n    sLog->outError(\"Invalid ground\
+      \ height for player at (%.2f, %.2f)\", playerX, playerY);\n}"
+    language: cpp
+  notes: This method relies on the underlying map's terrain data and navigation mesh
+    to determine accurate ground heights. It may involve expensive computations depending
+    on the complexity of the terrain or the number of height checks performed. The
+    method assumes that the provided Map pointer is valid and that the coordinates
+    are within the bounds of the map.
+  warnings: Do not pass null pointers for the 'map' parameter, as this will likely
+    result in a crash or undefined behavior. Also, be aware that invalid X/Y coordinates
+    may return false without setting the Z value to any meaningful number, so always
+    check the return value before using the z reference.
+  related:
+  - GetWaterHeight
+  - IsInLineOfSight
+  - CalculatePath
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T12:17:14.033402'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

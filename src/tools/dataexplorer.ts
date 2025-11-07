@@ -239,11 +239,11 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
       break;
 
     case "quests":
-      table = "quest_template";
+      table = "quest_template qt LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID";
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
-          : "ID, LogTitle, QuestLevel, MinLevel, QuestType";
+          : "qt.ID, qt.LogTitle, qta.MaxLevel as QuestLevel, qt.MinLevel, qt.QuestInfoID as QuestType";
       database = "world";
       break;
 

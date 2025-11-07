@@ -216,14 +216,15 @@ export async function analyzeMobStats(zoneId: number): Promise<MobStats> {
 export async function analyzeQuestStats(zoneId: number): Promise<QuestStats> {
   const questData = await queryWorld(
     `SELECT
-      ID,
-      QuestLevel,
-      MinLevel,
-      QuestType,
-      Flags,
-      SpecialFlags
-     FROM quest_template
-     WHERE (QuestSortID = ? OR ZoneOrSort = ?)`,
+      qt.ID,
+      qta.MaxLevel as QuestLevel,
+      qt.MinLevel,
+      qt.QuestInfoID as QuestType,
+      qt.Flags,
+      qta.SpecialFlags
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE (qt.QuestSortID = ? OR qt.ZoneOrSort = ?)`,
     [zoneId, zoneId]
   );
 

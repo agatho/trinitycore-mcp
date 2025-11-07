@@ -486,9 +486,10 @@ export async function optimizeCurrentQuests(
     try {
       // Get quest details from database
       const query = `
-        SELECT ID, QuestLevel, RewardXP, RewardMoney, RewardItem1, RewardItem2, RewardItem3, RewardItem4
-        FROM quest_template
-        WHERE ID = ?
+        SELECT qt.ID, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty as RewardXP, qt.RewardMoney, qt.RewardItem1, qt.RewardItem2, qt.RewardItem3, qt.RewardItem4
+        FROM quest_template qt
+        LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+        WHERE qt.ID = ?
       `;
       const results = await queryWorld(query, [questId]);
 
