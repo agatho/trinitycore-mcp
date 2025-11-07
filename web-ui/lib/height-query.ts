@@ -9,8 +9,10 @@
 
 import type { VMapData, AABox, ModelSpawn, Vector3 } from "./vmap-types";
 import type { MMapData, NavMeshTile } from "./mmap-types";
+import type { MapDataCollection } from "./map-parser";
 import { queryBIHTree } from "./vmap-parser";
 import { findNearestPoly } from "./mmap-parser";
+import { getHeightFromMapData } from "./map-parser";
 
 // ============================================================================
 // Constants
@@ -48,7 +50,7 @@ export interface HeightQueryResult {
   z: number | null;
 
   /** Source of height data */
-  source: "vmap" | "mmap" | null;
+  source: "map" | "vmap" | "mmap" | null;
 
   /** All intersection points found (if returnAllIntersections=true) */
   intersections?: Array<{ z: number; distance: number }>;
@@ -68,6 +70,7 @@ export interface HeightQueryResult {
  * @param y World Y coordinate
  * @param vmapData VMap collision data (optional)
  * @param mmapData MMap navigation mesh data (optional)
+ * @param mapData TrinityCore .map terrain data (optional)
  * @param options Query options
  * @returns Height query result
  */
@@ -76,6 +79,7 @@ export function getHeightAtPosition(
   y: number,
   vmapData?: VMapData,
   mmapData?: MMapData,
+  mapData?: MapDataCollection,
   options: HeightQueryOptions = {}
 ): HeightQueryResult {
   const {
@@ -84,6 +88,20 @@ export function getHeightAtPosition(
     returnAllIntersections = false,
     verbose = false,
   } = options;
+
+  // Try .map data first if available (most accurate terrain heights)
+  if (mapData) {
+    const height = getHeightFromMapData(mapData, x, y);
+    if (height !== null) {
+      if (verbose) {
+        console.log(`[HeightQuery] Found height from .map data: ${height.toFixed(2)}`);
+      }
+      return {
+        z: height,
+        source: "map",
+      };
+    }
+  }
 
   // Try VMap first if preferred and available
   if (preferVMap && vmapData) {

@@ -229,12 +229,13 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
 
     // Auto-detect height if enabled and collision data is available
     let z = 0;
-    if (state.autoDetectHeight && (state.vmapData || state.mmapData)) {
+    if (state.autoDetectHeight && (state.mapData || state.vmapData || state.mmapData)) {
       const heightResult = getHeightAtPosition(
         wowCoords.x,
         wowCoords.y,
         state.vmapData || undefined,
         state.mmapData || undefined,
+        state.mapData || undefined,
         {
           preferVMap: true,
           searchRadius: 10.0,
@@ -289,12 +290,13 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
 
       // Query height at cursor position if collision data is available
       let z = 0;
-      if ((state.vmapData || state.mmapData) && state.autoDetectHeight) {
+      if ((state.mapData || state.vmapData || state.mmapData) && state.autoDetectHeight) {
         const heightResult = getHeightAtPosition(
           wow.x,
           wow.y,
           state.vmapData || undefined,
           state.mmapData || undefined,
+          state.mapData || undefined,
           {
             preferVMap: true,
             searchRadius: 10.0,

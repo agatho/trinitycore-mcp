@@ -50,6 +50,7 @@ import { WoWMaps, generateSpawnSQL, generateWaypointSQL, exportMapData } from '@
 import { useWorldEditorState, type ViewMode } from './hooks/useWorldEditorState';
 import { loadVMapData } from '@/lib/vmap-parser';
 import { loadMMapData } from '@/lib/mmap-parser';
+import { loadMapData } from '@/lib/map-parser';
 import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import { MapView2D } from './components/MapView2D';
 import { MapView3D } from './components/MapView3D';
@@ -157,6 +158,52 @@ export default function WorldEditorPage() {
         img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle TrinityCore .map file upload
+  const handleMapFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    actions.setCollisionDataStatus({ ...state.collisionDataStatus, map: 'loading', message: 'Loading .map files...' });
+
+    try {
+      const fileBuffers = new Map<string, ArrayBuffer>();
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.name.endsWith('.map')) {
+          const buffer = await file.arrayBuffer();
+          fileBuffers.set(file.name, buffer);
+        }
+      }
+
+      if (fileBuffers.size === 0) {
+        throw new Error('No .map files found. Please select TrinityCore terrain map files.');
+      }
+
+      const mapInfo = Object.values(WoWMaps).find(m => m.id === state.selectedMap);
+      const mapName = mapInfo?.name || `Map ${state.selectedMap}`;
+
+      const mapData = loadMapData(state.selectedMap, mapName, fileBuffers, {
+        verbose: true,
+        maxTiles: 100,
+      });
+
+      actions.setMapData(mapData);
+      actions.setCollisionDataStatus({
+        ...state.collisionDataStatus,
+        map: 'loaded',
+        message: `Map loaded: ${mapData.tiles.size} tiles`,
+      });
+    } catch (error: any) {
+      console.error('Failed to load .map files:', error);
+      actions.setCollisionDataStatus({
+        ...state.collisionDataStatus,
+        map: 'error',
+        message: `Map error: ${error.message}`,
+      });
     }
   };
 
@@ -488,6 +535,33 @@ export default function WorldEditorPage() {
             {/* Collision Data Status */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept=".map"
+                  onChange={handleMapFileUpload}
+                  className="hidden"
+                  id="map-upload"
+                  multiple
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('map-upload')?.click()}
+                  disabled={state.collisionDataStatus.map === 'loading'}
+                  title="Upload TrinityCore .map terrain height files"
+                >
+                  <Upload className="w-3 h-3 mr-2" />
+                  {state.collisionDataStatus.map === 'loading' ? 'Loading .map...' : 'Upload .map'}
+                </Button>
+                {state.collisionDataStatus.map === 'loaded' && (
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                )}
+                {state.collisionDataStatus.map === 'error' && (
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
                 {/* Auto-load status indicator */}
                 {autoLoadResult.status.vmap === 'checking' && (
                   <span className="text-xs text-blue-400">Checking...</span>
@@ -591,6 +665,9 @@ export default function WorldEditorPage() {
               <div>Selected: {state.selectedItems.size}</div>
             </div>
             <div className="flex gap-4">
+              <div className={state.mapData ? 'text-green-400' : ''}>
+                Map: {state.mapData ? `${state.mapData.tiles.size} tiles` : 'Not loaded'}
+              </div>
               <div className={state.vmapData ? 'text-green-400' : ''}>
                 VMap: {state.vmapData ? `${state.vmapData.allSpawns.length} spawns` : 'Not loaded'}
               </div>
