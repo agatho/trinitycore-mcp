@@ -121,7 +121,7 @@ async function listCollisionFiles(
   type: 'vmap' | 'mmap'
 ): Promise<CollisionFileInfo[]> {
   const files: CollisionFileInfo[] = [];
-  const mapIdPadded = mapId.padStart(type === 'vmap' ? 4 : 3, '0');
+  const mapIdPadded = mapId.padStart(4, '0'); // Both VMap and MMap use 4 digits
 
   try {
     if (type === 'vmap') {
@@ -177,7 +177,7 @@ async function listCollisionFiles(
       }
 
       // Find all .mmtile files for this map
-      // Format: <mapId><x><y>.mmtile (e.g., 0003248.mmtile = map 000, tile 32,48)
+      // Format: <mapId><x><y>.mmtile (e.g., 00003248.mmtile = map 0000, tile 32,48)
       const tilePattern = new RegExp(`^${mapIdPadded}\\d{4}\\.mmtile$`);
       for (const file of dirContents) {
         if (tilePattern.test(file)) {

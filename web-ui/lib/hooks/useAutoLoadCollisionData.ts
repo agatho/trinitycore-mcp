@@ -260,8 +260,8 @@ async function autoLoadMMap(
     const tileBuffers = new Map<string, ArrayBuffer>();
 
     for (const tileFile of tileFiles) {
-      // TrinityCore format: <mapId><x><y>.mmtile (e.g., 0003248.mmtile)
-      const match = tileFile.filename.match(/(\d{3})(\d{2})(\d{2})\.mmtile/);
+      // TrinityCore format: <mapId><x><y>.mmtile (e.g., 00003248.mmtile)
+      const match = tileFile.filename.match(/(\d{4})(\d{2})(\d{2})\.mmtile/);
       if (match) {
         const fileMapId = parseInt(match[1], 10);
         const tileX = parseInt(match[2], 10);
