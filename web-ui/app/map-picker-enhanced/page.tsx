@@ -353,6 +353,24 @@ export default function EnhancedMapPickerPage() {
     ctx.translate(offset.x, offset.y);
     ctx.scale(scale, scale);
 
+    // Draw background map image if available
+    if (mapImage) {
+      ctx.globalAlpha = 0.8; // Make map slightly transparent so overlays are visible
+      ctx.drawImage(mapImage, 0, 0, CANVAS_WIDTH / scale, CANVAS_HEIGHT / scale);
+      ctx.globalAlpha = 1.0;
+    } else {
+      // Draw "no map loaded" message
+      ctx.fillStyle = '#475569';
+      ctx.font = `${20 / scale}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('No Map Loaded', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) - 30 / scale);
+      ctx.fillStyle = '#64748b';
+      ctx.font = `${14 / scale}px sans-serif`;
+      ctx.fillText('Upload a map image to begin', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale));
+      ctx.fillText('Use the "Upload Map" button in the left panel', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) + 25 / scale);
+      ctx.textAlign = 'left';
+    }
+
     // Draw grid
     if (showGrid) {
       ctx.strokeStyle = '#334155';
@@ -991,6 +1009,39 @@ export default function EnhancedMapPickerPage() {
           <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4 space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-white mb-4">Tools</h3>
+
+              {/* Map Upload */}
+              <div className="mb-4 p-3 bg-blue-900/30 border border-blue-700 rounded">
+                <label className="block mb-2">
+                  <span className="text-sm font-semibold text-blue-300">Load Map Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMapUpload}
+                    className="hidden"
+                    id="map-upload"
+                  />
+                  <Button
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => document.getElementById('map-upload')?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {mapImage ? 'Change Map' : 'Upload Map'}
+                  </Button>
+                </label>
+                {!mapImage && (
+                  <p className="text-xs text-slate-400 mt-2">
+                    Upload a map image to start placing coordinates
+                  </p>
+                )}
+                {mapImage && (
+                  <p className="text-xs text-green-400 mt-2 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Map loaded
+                  </p>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <Button
