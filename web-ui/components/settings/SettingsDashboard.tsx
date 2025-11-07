@@ -382,7 +382,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.database.host}
                     onChange={(e) => updateDatabase({ host: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="localhost"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -396,7 +396,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.database.port}
                     onChange={(e) => updateDatabase({ port: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="3306"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -410,7 +410,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.database.user}
                     onChange={(e) => updateDatabase({ user: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="trinity"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -424,7 +424,7 @@ export default function SettingsDashboard() {
                     type="password"
                     value={config.database.password}
                     onChange={(e) => updateDatabase({ password: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="••••••••"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -438,7 +438,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.database.world}
                     onChange={(e) => updateDatabase({ world: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="world"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -452,7 +452,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.database.auth}
                     onChange={(e) => updateDatabase({ auth: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="auth"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -466,7 +466,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.database.characters}
                     onChange={(e) => updateDatabase({ characters: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="characters"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -490,7 +490,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.trinityRoot}
                   onChange={(e) => updateDataPaths({ trinityRoot: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="C:\TrinityCore or /home/user/TrinityCore"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -504,7 +504,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.gtPath}
                   onChange={(e) => updateDataPaths({ gtPath: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./data/gt"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -518,7 +518,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.dbcPath}
                   onChange={(e) => updateDataPaths({ dbcPath: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./data/dbc"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -532,7 +532,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.db2Path}
                   onChange={(e) => updateDataPaths({ db2Path: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./data/db2"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -548,7 +548,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.vmapPath}
                   onChange={(e) => updateDataPaths({ vmapPath: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./data/vmaps"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -564,7 +564,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.dataPaths.mmapPath}
                   onChange={(e) => updateDataPaths({ mmapPath: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./data/mmaps"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -586,7 +586,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.server.host}
                     onChange={(e) => updateServer({ host: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="localhost"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -600,7 +600,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.server.port}
                     onChange={(e) => updateServer({ port: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="3000"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -614,7 +614,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.server.maxConnections}
                     onChange={(e) => updateServer({ maxConnections: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="100"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -628,7 +628,7 @@ export default function SettingsDashboard() {
                     type="text"
                     value={config.server.corsOrigin}
                     onChange={(e) => updateServer({ corsOrigin: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="*"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -681,7 +681,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.websocket.port}
                     onChange={(e) => updateWebSocket({ port: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="3001"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -695,7 +695,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.websocket.maxClients}
                     onChange={(e) => updateWebSocket({ maxClients: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="50"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -713,7 +713,7 @@ export default function SettingsDashboard() {
                     onChange={(e) =>
                       updateWebSocket({ heartbeatInterval: parseInt(e.target.value) })
                     }
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="30000"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -727,7 +727,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.websocket.timeoutMs}
                     onChange={(e) => updateWebSocket({ timeoutMs: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="60000"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -743,7 +743,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.websocket.rateLimit}
                     onChange={(e) => updateWebSocket({ rateLimit: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="100"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -814,7 +814,7 @@ export default function SettingsDashboard() {
                   onChange={(e) =>
                     updateTesting({ coverageThreshold: parseInt(e.target.value) })
                   }
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="80"
                   min="0"
                   max="100"
@@ -840,7 +840,7 @@ export default function SettingsDashboard() {
                       level: e.target.value as "debug" | "info" | "warn" | "error",
                     })
                   }
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                 >
                   <option value="debug">Debug</option>
                   <option value="info">Info</option>
@@ -888,7 +888,7 @@ export default function SettingsDashboard() {
                   type="text"
                   value={config.logging.filePath}
                   onChange={(e) => updateLogging({ filePath: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
                   placeholder="./logs/trinity-mcp.log"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -905,7 +905,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.logging.maxFileSize}
                     onChange={(e) => updateLogging({ maxFileSize: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="10485760"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -919,7 +919,7 @@ export default function SettingsDashboard() {
                     type="number"
                     value={config.logging.maxFiles}
                     onChange={(e) => updateLogging({ maxFiles: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
                     placeholder="5"
                   />
                   <p className="text-xs text-gray-500 mt-1">
