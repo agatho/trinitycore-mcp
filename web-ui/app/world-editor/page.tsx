@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Map,
+  Map as MapIcon,
   Box,
   Layout,
   Maximize2,
@@ -251,7 +251,7 @@ export default function WorldEditorPage() {
             <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <Map className="w-4 h-4" />
+                  <MapIcon className="w-4 h-4" />
                   2D Map View
                 </h3>
               </div>
@@ -274,7 +274,7 @@ export default function WorldEditorPage() {
           <Tabs value={state.activeView} onValueChange={(v) => actions.setActiveView(v as '2d' | '3d')} className="h-full">
             <TabsList className="grid grid-cols-2 w-[400px]">
               <TabsTrigger value="2d" className="flex items-center gap-2">
-                <Map className="w-4 h-4" />
+                <MapIcon className="w-4 h-4" />
                 2D Map
               </TabsTrigger>
               <TabsTrigger value="3d" className="flex items-center gap-2">
@@ -311,7 +311,7 @@ export default function WorldEditorPage() {
             <div className="absolute bottom-6 right-6 w-80 h-60 bg-slate-800 border-2 border-slate-600 rounded-lg p-2 shadow-2xl">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs font-semibold text-white flex items-center gap-1">
-                  <Map className="w-3 h-3" />
+                  <MapIcon className="w-3 h-3" />
                   2D Minimap
                 </h4>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
