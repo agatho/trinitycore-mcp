@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode, Table, TrendingUp, Terminal, FileText, GitBranch, Eye, Map, Route as RouteIcon, Workflow } from "lucide-react";
+import { Search, Database, Zap, Code, BookOpen, Server, BarChart3, GitCompare, Brain, Activity, FileCode, Table, TrendingUp, Terminal, FileText, GitBranch, Eye, Map, Route as RouteIcon, Workflow, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -160,6 +160,13 @@ export default function HomePage() {
       description: "Visual spell/item diff with highlights",
       href: "/diff-compare",
       color: "text-cyan-500",
+    },
+    {
+      name: "Settings",
+      icon: Settings,
+      description: "Configure database, server, and application settings",
+      href: "/settings",
+      color: "text-slate-400",
     },
   ];
 
