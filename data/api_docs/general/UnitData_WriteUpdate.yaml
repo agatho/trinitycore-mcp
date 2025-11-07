@@ -1,0 +1,87 @@
+api:
+  class: UnitData
+  method: WriteUpdate
+  signature: void UnitData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Unit * owner, const Player * receiver) const
+documentation:
+  brief: Writes unit data update information into a ByteBuffer for transmission to
+    a specific player.
+  description: The WriteUpdate method serializes the current state of a Unit's data
+    fields into a ByteBuffer, preparing it for network transmission to a specific
+    receiver player. This method is typically invoked during packet construction for
+    update packets such as SMSG_UPDATE_OBJECT or similar object updates in the World
+    of Warcraft protocol. It respects the provided changesMask to determine which
+    fields should be included in the update, and can optionally ignore nested changes
+    masks for more granular control over what data gets sent. The owner parameter
+    provides context about the unit being updated, while the receiver parameter allows
+    for conditional logic based on the receiving player's state or permissions.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets for client
+      updates.
+  - name: changesMask
+    description: An integer mask that indicates which fields of the UnitData have
+      changed and should be included in the update. Each bit corresponds to a specific
+      data field.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag indicating whether nested changes masks (such as those
+      for dynamic fields or sub-components) should be ignored during serialization.
+      If true, only top-level changes are considered.
+  - name: owner
+    description: Pointer to the Unit instance whose data is being serialized. This
+      provides context for the update and may be used for conditional logic or validation.
+  - name: receiver
+    description: Pointer to the Player who will receive this update packet. Used for
+      per-player filtering or conditional serialization based on player state or visibility
+      rules.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Packet Construction
+    code: 'ByteBuffer data;
+
+      int changesMask = UNIT_FIELD_HEALTH | UNIT_FIELD_MAXHEALTH;
+
+      Player* receiver = playerSession->GetPlayer();
+
+      unit->GetUnitData()->WriteUpdate(data, changesMask, false, unit, receiver);
+
+      // Construct and send update packet using ''data''
+
+      '
+    language: cpp
+  - title: Conditional Update with Nested Mask Ignoring
+    code: 'ByteBuffer data;
+
+      int changesMask = UNIT_FIELD_FLAGS;
+
+      bool ignoreNested = true;
+
+      Player* receiver = playerSession->GetPlayer();
+
+      unit->GetUnitData()->WriteUpdate(data, changesMask, ignoreNested, unit, receiver);
+
+      // Send only top-level field updates without nested components
+
+      '
+    language: cpp
+  notes: This method is part of the core object update system in TrinityCore and is
+    called extensively during world object synchronization. It's designed to efficiently
+    serialize only changed fields to reduce bandwidth usage. The implementation may
+    perform internal checks against the receiver player's visibility state or other
+    game-specific conditions.
+  warnings: Incorrectly setting the changesMask can result in incomplete or incorrect
+    updates being sent to clients, potentially causing visual glitches or gameplay
+    inconsistencies. Always ensure that all relevant field bits are set in the mask
+    before calling this method.
+  related:
+  - UnitData::GetChangesMask
+  - UnitData::SetChangesMask
+  - Unit::BuildUpdateData
+  - WorldObject::BuildUpdatePacket
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T23:05:34.748962'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -5,8 +5,8 @@
 
 import mysql from "mysql2/promise";
 import { LRUCache } from "lru-cache";
-import { DatabaseError, handleError } from "../utils/error-handler.js";
-import { withRetry, DATABASE_RETRY_OPTIONS } from "../utils/retry.js";
+import { DatabaseError, handleError } from "../utils/error-handler";
+import { withRetry, DATABASE_RETRY_OPTIONS } from "../utils/retry";
 
 // Environment variables
 const DB_CONFIG = {

@@ -1,0 +1,57 @@
+api:
+  class: SmartAreaTriggerAI
+  method: OnUnitEnter
+  signature: void SmartAreaTriggerAI::OnUnitEnter(Unit * unit)
+documentation:
+  brief: Handles the event when a unit enters the area trigger's detection range
+  description: The OnUnitEnter method is invoked by the SmartAreaTriggerAI system
+    when a Unit (such as a player or creature) enters the defined area trigger zone.
+    This method serves as a callback for custom AI behavior, allowing developers to
+    implement specific actions or logic when units interact with the trigger. The
+    method is typically used in conjunction with SmartAI scripts to create dynamic
+    environmental interactions, quest triggers, or combat-related events. It is important
+    to note that this method may be called multiple times if the same unit re-enters
+    the trigger after leaving, and it should not perform heavy operations to avoid
+    impacting performance.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that has entered the area trigger. This
+      can represent a player, creature, or game object that triggered the event. The
+      pointer is guaranteed to be valid during execution of this method.
+  returns: null
+  examples:
+  - title: Basic unit enter handling
+    code: "void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)\n{\n    if (unit->IsPlayer())\n\
+      \    {\n        // Trigger quest event for player\n        unit->ToPlayer()->KilledMonsterCredit(12345);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced unit enter with conditional logic
+    code: "void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)\n{\n    if (!unit || !unit->IsInWorld())\n\
+      \        return;\n\n    // Only process players and creatures\n    if (unit->GetTypeId()\
+      \ == TYPEID_PLAYER || unit->GetTypeId() == TYPEID_UNIT)\n    {\n        // Check\
+      \ if unit is hostile to the trigger's owner\n        if (unit->IsHostileTo(GetOwner()))\n\
+      \        {\n            // Trigger combat event\n            DoCast(unit, SPELL_ENEMY_DETECTED);\n\
+      \        }\n        else\n        {\n            // Friendly unit - perform\
+      \ different action\n            DoCast(unit, SPELL_FRIENDLY_GREETING);\n   \
+      \     }\n    }\n}"
+    language: cpp
+  notes: The OnUnitEnter method is part of the SmartAI framework and integrates with
+    the World of Warcraft's area trigger system. This method is automatically called
+    by the core when a unit enters the trigger's defined area, and it should be implemented
+    carefully to avoid performance bottlenecks or infinite loops. The method may be
+    invoked from different threads depending on how the AI is initialized, so thread
+    safety considerations are important.
+  warnings: Avoid performing expensive operations inside this method as it can block
+    the game loop. Do not call methods that might modify the unit's state in a way
+    that could cause recursion or infinite loops. Ensure that the unit pointer passed
+    to this method is valid before dereferencing it.
+  related:
+  - OnUnitExit
+  - OnUnitUpdate
+  - OnAreaTrigger
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:28:11.957620'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

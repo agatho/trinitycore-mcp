@@ -1,0 +1,56 @@
+api:
+  class: SmartAI
+  method: JustDied
+  signature: void SmartAI::JustDied(Unit * killer)
+documentation:
+  brief: Executes AI behavior when the creature's health drops to zero and it is killed
+    by a unit.
+  description: The JustDied method is a callback function in the SmartAI system that
+    is invoked when a creature's health reaches zero and it is killed by another unit,
+    referred to as the 'killer'. This method allows developers to define custom AI
+    behaviors or actions that should occur upon the death of a creature. It is part
+    of the SmartAI framework which provides an extensible way to implement intelligent
+    behavior for NPCs in TrinityCore. The method receives the Unit pointer of the
+    killer as a parameter, enabling conditional logic based on who or what killed
+    the creature. This callback is typically used for triggering events, spawning
+    loot, initiating dialogue, or performing other actions that should occur at the
+    moment of death.
+  parameters:
+  - name: killer
+    description: Pointer to the Unit object that caused the creature's death. This
+      can be a player, another NPC, or any game entity capable of dealing damage.
+      Can be NULL if the death was not caused by a direct unit attack.
+  returns: null
+  examples:
+  - title: Basic JustDied Implementation
+    code: "void SmartAI::JustDied(Unit* killer)\n{\n    // Spawn loot when killed\n\
+      \    DoSpawnLoot();\n    \n    // Send a message to nearby players\n    Talk(0);\n\
+      }"
+    language: cpp
+  - title: Conditional JustDied Based on Killer
+    code: "void SmartAI::JustDied(Unit* killer)\n{\n    if (killer && killer->GetTypeId()\
+      \ == TYPEID_PLAYER)\n    {\n        // Reward the player who killed this creature\n\
+      \        Player* player = killer->ToPlayer();\n        player->KilledMonsterCredit(me->GetEntry());\n\
+      \    }\n    \n    // Trigger a quest event\n    if (me->GetInstanceScript())\n\
+      \    {\n        me->GetInstanceScript()->SetData(DATA_CREATURE_DIED, me->GetEntry());\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is called after the creature has been fully killed and its death
+    animation may have started. It should not be used to perform actions that require
+    the creature to still be alive or in combat. SmartAI's JustDied is part of a larger
+    event-driven system, so it can be overridden in custom AI scripts for specific
+    creature behaviors.
+  warnings: Avoid performing operations that might cause memory corruption or access
+    violations within this method, especially if the killer unit has already been
+    destroyed or removed from the game world. Be cautious with complex logic that
+    could block the main thread or cause performance issues during high-traffic events.
+  related:
+  - SmartAI::EnterCombat
+  - SmartAI::JustRespawned
+  - SmartAI::UpdateAI
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:54:36.829371'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

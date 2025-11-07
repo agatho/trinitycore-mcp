@@ -1,0 +1,68 @@
+api:
+  class: MechanicAwareness
+  method: DetectAOECast
+  signature: bool MechanicAwareness::DetectAOECast(Unit * caster, float & radius,
+    int & center)
+documentation:
+  brief: Detects if a unit is casting an area-of-effect spell and retrieves the spell's
+    radius and center point.
+  description: The DetectAOECast method checks whether the specified unit is currently
+    casting an area-of-effect spell. If a valid AOE cast is detected, it populates
+    the provided radius and center parameters with relevant data about the spell's
+    impact area. This functionality is typically used in AI systems to determine when
+    to avoid or react to incoming AoE spells. The method returns true if an AOE cast
+    is successfully detected, otherwise false. It relies on internal tracking of spell
+    casting states and may not detect all types of AOE effects depending on implementation
+    details.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit object that is casting the spell. Must be a valid
+      unit pointer; null pointers will result in undefined behavior.
+  - name: radius
+    description: Reference to a float value that will be filled with the radius of
+      the detected AOE spell if one is found. This represents the distance from the
+      center point where the spell effect applies.
+  - name: center
+    description: Reference to an integer value that will be filled with the center
+      point identifier or index of the detected AOE spell if one is found. The exact
+      meaning depends on internal implementation but typically refers to a specific
+      location or target reference.
+  returns: Returns true if a valid area-of-effect spell cast was detected for the
+    given caster, and the radius and center parameters were successfully populated.
+    Returns false otherwise, which may occur if no AOE spell is currently being cast
+    by the unit or if the detection logic fails.
+  examples:
+  - title: Basic usage to detect AOE cast
+    code: "Unit* target = ...; // some unit\nfloat radius;\nint center;\nif (mechanicAwareness.DetectAOECast(target,\
+      \ radius, center)) {\n    // Process detected AOE spell\n    printf(\"Detected\
+      \ AOE with radius %.2f at center %d\\n\", radius, center);\n} else {\n    //\
+      \ No AOE detected\n    printf(\"No AOE cast detected\\n\");\n}"
+    language: cpp
+  - title: Using detection in AI decision making
+    code: "Unit* currentTarget = unit->GetVictim();\nfloat aoeRadius;\nint aoeCenter;\n\
+      if (mechanicAwareness.DetectAOECast(currentTarget, aoeRadius, aoeCenter)) {\n\
+      \    // Avoid the AOE area\n    Position targetPos;\n    currentTarget->GetPosition(&targetPos);\n\
+      \    // Move away from the center point\n    unit->GetMotionMaster()->MovePoint(0,\
+      \ targetPos.x + aoeRadius, targetPos.y + aoeRadius);\n}"
+    language: cpp
+  notes: This method is likely part of an AI-awareness system and may be used internally
+    by TrinityCore's spell detection or threat management systems. It assumes that
+    the caster unit has active spell casting information available, which might not
+    always be true in all scenarios (e.g., during spell preparation or channeling).
+    The 'center' parameter type suggests it could refer to a spell target index or
+    a specific coordinate reference depending on how the system is implemented.
+  warnings: Ensure that the caster pointer is valid and points to an active unit before
+    calling this method. Passing invalid pointers may lead to crashes or undefined
+    behavior. Also, note that this function only detects currently active AOE casts;
+    it does not predict future spell usage or handle delayed effects.
+  related:
+  - DetectSpellCast
+  - IsCastingAOE
+  - GetSpellRadius
+  - GetCurrentSpellTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T08:45:45.982050'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

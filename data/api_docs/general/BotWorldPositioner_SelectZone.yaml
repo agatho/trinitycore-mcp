@@ -1,0 +1,73 @@
+api:
+  class: BotWorldPositioner
+  method: SelectZone
+  signature: ZoneChoice BotWorldPositioner::SelectZone(uint32 level, int faction,
+    uint8 race)
+documentation:
+  brief: Selects an appropriate zone for a bot based on level, faction, and race parameters.
+  description: The SelectZone method determines the most suitable game zone for a
+    bot character given its level, faction, and race. This method is typically used
+    during bot initialization or zone switching to ensure that bots are placed in
+    zones that match their capabilities and alignment with the game world. The selection
+    process considers various factors such as zone difficulty levels, player population
+    distribution, and faction-specific zones to optimize gameplay experience and prevent
+    imbalance. It ensures that bots are assigned to appropriate environments where
+    they can contribute meaningfully to the game without overwhelming or underutilizing
+    available resources.
+  parameters:
+  - name: level
+    description: The level of the bot character, used to determine suitable zone difficulty
+      ranges. Valid values are typically between 1 and 80 for standard WoW expansions.
+  - name: faction
+    description: The faction of the bot (0 for Alliance, 1 for Horde). Determines
+      which faction-specific zones may be selected based on game mechanics and world
+      balance.
+  - name: race
+    description: The race of the bot character. Used to ensure zone selection respects
+      racial restrictions or preferences in certain areas, particularly in early game
+      zones where some zones are restricted by race.
+  returns: Returns a ZoneChoice object that contains information about the selected
+    zone including its ID, name, and possibly other metadata required for zone assignment.
+    The ZoneChoice structure typically includes fields such as zone_id, zone_name,
+    and potentially flags indicating suitability or restrictions.
+  examples:
+  - title: Basic usage of SelectZone
+    code: 'BotWorldPositioner positioner;
+
+      uint32 botLevel = 15;
+
+      int botFaction = 0; // Alliance
+
+      uint8 botRace = 1; // Human
+
+      ZoneChoice chosenZone = positioner.SelectZone(botLevel, botFaction, botRace);
+
+      // Use chosenZone.zone_id to assign the bot to the selected zone'
+    language: cpp
+  - title: Advanced usage with multiple bots
+    code: "BotWorldPositioner positioner;\nstd::vector<Bot*> bots = GetBots();\nfor\
+      \ (auto& bot : bots) {\n    ZoneChoice zone = positioner.SelectZone(bot->GetLevel(),\
+      \ bot->GetFaction(), bot->GetRace());\n    if (zone.zone_id != 0) {\n      \
+      \  bot->SetCurrentZone(zone.zone_id);\n        bot->TeleportToZone(zone.zone_id);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely uses internal zone databases and balancing algorithms
+    to make decisions. It may cache previously selected zones to avoid frequent recomputation,
+    especially when dealing with many bots of similar characteristics. The implementation
+    might also consider current server load or player density in different zones to
+    distribute bots more evenly across the game world.
+  warnings: Improper parameter values for level, faction, or race could result in
+    invalid zone selections or errors. Ensure that faction values are either 0 (Alliance)
+    or 1 (Horde), and that level is within valid range for the expansion being played.
+    Using this method without proper initialization of the bot's properties may lead
+    to incorrect zone assignments.
+  related:
+  - GetZoneInfo
+  - AssignBotToZone
+  - CalculateZoneDifficulty
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T17:47:27.269185'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

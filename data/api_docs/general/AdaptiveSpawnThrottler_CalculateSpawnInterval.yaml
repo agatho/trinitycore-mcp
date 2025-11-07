@@ -1,0 +1,54 @@
+api:
+  class: AdaptiveSpawnThrottler
+  method: CalculateSpawnInterval
+  signature: uint32 AdaptiveSpawnThrottler::CalculateSpawnInterval() const
+documentation:
+  brief: Calculates and returns the adaptive spawn interval in milliseconds for creature
+    or game object spawning.
+  description: The CalculateSpawnInterval method determines the appropriate time interval
+    between spawns based on current server load, player activity, and configured throttling
+    parameters. This adaptive mechanism helps balance server performance and gameplay
+    experience by dynamically adjusting how frequently new creatures or game objects
+    are spawned into the world. The returned value represents the delay in milliseconds
+    before the next spawn event should occur. This method is typically used internally
+    by the AdaptiveSpawnThrottler class to manage spawn scheduling and prevent excessive
+    resource consumption during peak player activity.
+  parameters: []
+  returns: Returns a uint32 value representing the calculated spawn interval in milliseconds.
+    A value of 0 indicates that no spawn should occur immediately, while larger values
+    indicate longer delays before the next spawn event.
+  examples:
+  - title: Basic Usage Example
+    code: 'AdaptiveSpawnThrottler throttler;
+
+      uint32 interval = throttler.CalculateSpawnInterval();
+
+      // Use interval to schedule next spawn event
+
+      printf("Next spawn in %u milliseconds\n", interval);'
+    language: cpp
+  - title: Integration with Spawn Scheduler
+    code: "class CreatureSpawner {\npublic:\n    void ScheduleNextSpawn() {\n    \
+      \    AdaptiveSpawnThrottler throttler;\n        uint32 delay = throttler.CalculateSpawnInterval();\n\
+      \        // Schedule timer for next spawn\n        sWorld->ScheduleBackgroundTask([delay]()\
+      \ {\n            // Spawn logic here\n        }, delay);\n    }\n};"
+    language: cpp
+  notes: This method is designed to be called frequently and should not perform heavy
+    computations. The actual implementation likely considers factors such as current
+    player count, server load average, and configuration settings from the world configuration.
+    The return value is cached internally and may vary between calls based on dynamic
+    conditions.
+  warnings: Do not call this method outside of the intended throttling context as
+    it relies on internal state that may not be properly initialized or updated in
+    other scenarios. The returned interval values should be used directly for scheduling,
+    not modified or interpreted as absolute timestamps.
+  related:
+  - AdaptiveSpawnThrottler::Update
+  - AdaptiveSpawnThrottler::GetLastSpawnTime
+  - AdaptiveSpawnThrottler::SetSpawnRate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T06:48:55.137806'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

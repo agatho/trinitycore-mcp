@@ -1,0 +1,69 @@
+api:
+  class: BotPacketRelay
+  method: BroadcastToGroup
+  signature: void BotPacketRelay::BroadcastToGroup(BotSession * botSession, const
+    WorldPacket * packet, bool ignoreBot)
+documentation:
+  brief: Sends a packet to all members of the bot's group, optionally excluding the
+    originating bot session.
+  description: The BroadcastToGroup method is responsible for transmitting a WorldPacket
+    to all players within the same group as the specified bot session. This functionality
+    is commonly used in bot systems to synchronize actions or messages across group
+    members. The method allows for an optional exclusion of the sending bot itself,
+    which can be useful when the bot needs to broadcast a message without echoing
+    it back to itself. The implementation likely leverages internal TrinityCore group
+    management and packet handling mechanisms to ensure proper delivery to all relevant
+    players in the group.
+  parameters:
+  - name: botSession
+    description: Pointer to the BotSession object representing the bot that is initiating
+      the broadcast. This parameter determines the group context for the broadcast
+      operation.
+  - name: packet
+    description: Pointer to the WorldPacket object containing the data to be broadcasted
+      to the group members. The packet should be properly constructed before being
+      passed to this method.
+  - name: ignoreBot
+    description: Boolean flag indicating whether the originating bot session should
+      be excluded from receiving the broadcast. If true, the bot will not receive
+      its own broadcast message; if false, it may receive the packet depending on
+      internal logic.
+  returns: null
+  examples:
+  - title: Basic Group Broadcast
+    code: 'BotSession* session = GetBotSession();
+
+      WorldPacket packet(SMSG_CHAT_MESSAGE, 100);
+
+      // ... populate packet with data ...
+
+      broadcastRelay->BroadcastToGroup(session, &packet, true);'
+    language: cpp
+  - title: Broadcast Including Self
+    code: 'BotSession* session = GetBotSession();
+
+      WorldPacket packet(SMSG_GROUP_ACTION_RESULT, 50);
+
+      // ... populate packet with data ...
+
+      broadcastRelay->BroadcastToGroup(session, &packet, false);'
+    language: cpp
+  notes: This method likely operates within the context of a bot management system
+    where individual bots are part of player groups. It may internally use group iterators
+    or session managers to identify and send packets to all relevant players. Performance
+    considerations include avoiding unnecessary packet duplication when ignoreBot
+    is true, and ensuring thread safety if called from multiple concurrent bot threads.
+  warnings: Ensure that the WorldPacket passed to this method is properly constructed
+    and valid before calling, as invalid packets may cause client-side errors or disconnections.
+    Be cautious with broadcast frequency to avoid flooding group members with too
+    many messages in a short time period.
+  related:
+  - SendToGroup
+  - BroadcastToGuild
+  - RelayPacket
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T18:59:13.431665'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

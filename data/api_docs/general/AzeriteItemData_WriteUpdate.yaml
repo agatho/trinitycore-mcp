@@ -1,0 +1,70 @@
+api:
+  class: AzeriteItemData
+  method: WriteUpdate
+  signature: void AzeriteItemData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const AzeriteItem * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes and writes Azerite item data updates to a network buffer for transmission
+    to players.
+  description: The WriteUpdate method serializes the current state of an AzeriteItemData
+    object into a ByteBuffer, which is then sent over the network to update client-side
+    representations of Azerite items. This method handles the encoding of changes
+    based on a provided changes mask and can optionally ignore nested change masks
+    for more granular control. It is typically invoked during packet construction
+    when sending updates about Azerite item properties such as level, experience,
+    or unlocked powers to players in the game world. The method requires an owner
+    (the AzeriteItem instance) and a receiver (the Player who will receive the update).
+  parameters:
+  - name: data
+    description: A reference to a ByteBuffer where the serialized update data will
+      be written. This buffer is typically used for constructing network packets.
+  - name: changesMask
+    description: An integer mask indicating which fields of the AzeriteItemData have
+      changed and should be included in the update. Each bit corresponds to a specific
+      field or property.
+  - name: ignoreNestedChangesMask
+    description: A boolean flag that determines whether nested change masks (e.g.,
+      for child structures) should be ignored during serialization. If true, only
+      top-level changes are considered.
+  - name: owner
+    description: A pointer to the AzeriteItem instance that owns this data. Used to
+      access current values and metadata required for the update.
+  - name: receiver
+    description: A pointer to the Player who will receive the update packet. This
+      may be used to determine visibility or specific client-side handling.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      int changesMask = 0x01;
+
+      bool ignoreNested = false;
+
+      AzeriteItem* item = ...; // some AzeriteItem instance
+
+      Player* player = ...; // the receiving player
+
+      item->GetAzeriteItemData()->WriteUpdate(data, changesMask, ignoreNested, item,
+      player);'
+    language: cpp
+  notes: This method is part of the TrinityCore's network update system for Azerite
+    items. It assumes that the provided ByteBuffer has sufficient capacity to hold
+    the serialized data. The implementation likely uses internal serialization helpers
+    and may perform optimizations based on the changesMask to avoid unnecessary data
+    transmission.
+  warnings: Incorrectly setting the changesMask can lead to incomplete or incorrect
+    updates being sent to clients, potentially causing visual inconsistencies or gameplay
+    issues. Ensure that all relevant fields are properly marked in the mask before
+    calling this method.
+  related:
+  - AzeriteItemData::ReadUpdate
+  - AzeriteItemData::BuildUpdateData
+  - AzeriteItemData::GetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:24:32.287493'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

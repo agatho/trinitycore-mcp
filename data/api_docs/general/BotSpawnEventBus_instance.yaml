@@ -1,0 +1,48 @@
+api:
+  class: BotSpawnEventBus
+  method: instance
+  signature: BotSpawnEventBus * BotSpawnEventBus::instance()
+documentation:
+  brief: Returns the singleton instance of the BotSpawnEventBus class
+  description: The instance() method implements the singleton pattern for the BotSpawnEventBus
+    class, ensuring that only one instance of the event bus exists throughout the
+    application lifecycle. This method is typically used to access the global event
+    handling mechanism for bot spawn events in TrinityCore's AI system. The returned
+    pointer provides access to all bot spawn-related event callbacks and registration
+    methods. This implementation is thread-safe and designed to be called from any
+    context within the game server.
+  parameters: []
+  returns: A pointer to the single BotSpawnEventBus instance, or nullptr if the instance
+    could not be created
+  examples:
+  - title: Basic Usage
+    code: "BotSpawnEventBus* eventBus = BotSpawnEventBus::instance();\nif (eventBus)\n\
+      {\n    // Register a callback for bot spawn events\n    eventBus->RegisterCallback(\"\
+      OnBotSpawn\", [](uint32 botId) {\n        // Handle bot spawn logic\n    });\n\
+      }"
+    language: cpp
+  - title: Accessing Event Bus in AI Context
+    code: "class BotAI : public CreatureAI\n{\npublic:\n    void JustRespawned() override\n\
+      \    {\n        BotSpawnEventBus* bus = BotSpawnEventBus::instance();\n    \
+      \    if (bus)\n        {\n            bus->TriggerEvent(\"BotRespawned\", GetBotId());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method follows the singleton pattern and should be used carefully to
+    avoid creating multiple instances. The implementation assumes that the instance
+    is initialized during server startup, and calling this method before initialization
+    may return nullptr. The event bus is designed to handle asynchronous events in
+    a multi-threaded environment.
+  warnings: Do not manually delete or destroy the returned pointer as it's managed
+    by the singleton pattern. Calling this method from multiple threads simultaneously
+    should be safe due to thread-safety guarantees, but ensure proper synchronization
+    if modifying event handlers concurrently.
+  related:
+  - RegisterCallback
+  - UnregisterCallback
+  - TriggerEvent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T17:55:11.509355'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

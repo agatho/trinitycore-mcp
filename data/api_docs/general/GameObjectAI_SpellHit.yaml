@@ -1,0 +1,65 @@
+api:
+  class: GameObjectAI
+  method: SpellHit
+  signature: void GameObjectAI::SpellHit(WorldObject * param0, const SpellInfo * param1)
+documentation:
+  brief: Handles spell hit events for game objects, allowing custom AI behavior when
+    a spell affects the object.
+  description: The SpellHit method is a virtual callback function in the GameObjectAI
+    class that is invoked whenever a spell successfully hits the game object. This
+    method allows developers to implement custom logic in response to spell effects,
+    such as triggering special animations, modifying object state, or initiating other
+    AI behaviors. It serves as an event handler for spell interactions and can be
+    overridden by custom GameObjectAI implementations to provide unique responses
+    to different spells. The method is typically called during the spell's execution
+    phase when the spell's effects are applied to the target object.
+  parameters:
+  - name: param0
+    description: Pointer to the WorldObject that was hit by the spell. This represents
+      the game object that received the spell effect, which could be a GameObject,
+      Creature, Player, or other world entity.
+  - name: param1
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell that hit the object. This includes spell ID, effects, duration,
+      and other spell properties that can be used to customize behavior based on the
+      specific spell being cast.
+  returns: null
+  examples:
+  - title: Basic SpellHit Override
+    code: "class MyGameObjectAI : public GameObjectAI\n{\npublic:\n    MyGameObjectAI(GameObject*\
+      \ go) : GameObjectAI(go) {}\n    \n    void SpellHit(WorldObject* caster, const\
+      \ SpellInfo* spellInfo) override\n    {\n        if (spellInfo->Id == 12345)\n\
+      \        {\n            // Custom behavior when spell ID 12345 hits this object\n\
+      \            SendGameObjectCustomEvent(1);\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced SpellHit with Conditional Logic
+    code: "class ChestAI : public GameObjectAI\n{\npublic:\n    ChestAI(GameObject*\
+      \ go) : GameObjectAI(go) {}\n    \n    void SpellHit(WorldObject* caster, const\
+      \ SpellInfo* spellInfo) override\n    {\n        // Only respond to player-cast\
+      \ spells\n        if (Player* player = caster->ToPlayer())\n        {\n    \
+      \        switch (spellInfo->Id)\n            {\n                case 10001:\
+      \ // Lockpick spell\n                    SetGoState(GO_STATE_ACTIVE);\n    \
+      \                break;\n                case 10002: // Unlock spell\n     \
+      \               SetGoState(GO_STATE_READY);\n                    break;\n  \
+      \              default:\n                    break;\n            }\n       \
+      \ }\n    }\n};"
+    language: cpp
+  notes: The SpellHit method is part of the GameObject's AI system and will only be
+    called if the GameObject has a custom AI implementation. It's important to check
+    that both parameters are valid before using them, as null pointers could occur
+    in edge cases. This method should not be used for heavy computations or blocking
+    operations as it may affect spell execution performance.
+  warnings: Do not modify the spellInfo structure directly as it is read-only. Be
+    cautious when calling methods that might cause recursion or infinite loops within
+    SpellHit. Avoid performing database operations or complex calculations in this
+    method to prevent potential performance issues.
+  related:
+  - SpellHitTarget
+  - UpdateAI
+  - OnSpellClick
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:54:11.895032'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

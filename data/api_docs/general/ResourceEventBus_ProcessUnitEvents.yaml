@@ -1,0 +1,59 @@
+api:
+  class: ResourceEventBus
+  method: ProcessUnitEvents
+  signature: uint32 ResourceEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes all resource-related events for a specified unit within the given
+    time delta.
+  description: The ProcessUnitEvents method handles the execution of queued resource
+    events associated with a specific game unit identified by its GUID. It iterates
+    through pending events and applies them based on the provided time difference
+    (diff), which typically represents the elapsed milliseconds since the last update
+    cycle. This method is crucial for maintaining synchronization between in-game
+    resource changes and their corresponding event triggers, such as health regeneration,
+    mana updates, or cooldown reductions. The method ensures that all relevant events
+    are processed in a timely manner to keep the game state consistent and responsive.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose resource events need
+      to be processed. This value must correspond to a valid GameObject or Creature
+      in the world.
+  - name: diff
+    description: The time delta in milliseconds since the last processing cycle. Used
+      to determine how much time has passed and whether any timed events should be
+      triggered or updated.
+  returns: Returns a uint32 value representing the number of events successfully processed
+    for the specified unit during this call. A return value of zero indicates no events
+    were pending or processed.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 eventsProcessed = eventBus.ProcessUnitEvents(playerGuid, 100);\n\
+      if (eventsProcessed > 0)\n{\n    // Handle successful processing of resource\
+      \ events\n    sLog->outString(\"Processed %u resource events for unit %u\",\
+      \ eventsProcessed, playerGuid);\n}"
+    language: cpp
+  - title: Integration with Game Loop
+    code: "void UpdateWorld()\n{\n    // Simulate game loop update\n    uint32 diff\
+      \ = getMSTimeDiff(lastUpdateTime, getMSTime());\n    lastUpdateTime = getMSTime();\n\
+      \n    // Process all unit resource events\n    for (auto& pair : m_units)\n\
+      \    {\n        uint32 guid = pair.first;\n        ResourceEventBus* bus = pair.second;\n\
+      \        bus->ProcessUnitEvents(guid, diff);\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within the main game loop or update
+    cycle. It's important to ensure that the unit GUID passed is valid and corresponds
+    to an active unit in the world. The method assumes proper locking mechanisms are
+    in place if used in a multi-threaded context.
+  warnings: Passing an invalid or non-existent unit GUID may lead to undefined behavior
+    or crashes. Always validate the GUID before calling this method. Additionally,
+    this function should not be called from within event handlers that might cause
+    re-entrancy issues.
+  related:
+  - RegisterUnitEvent
+  - UnregisterUnitEvent
+  - GetUnitEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:54:08.450607'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

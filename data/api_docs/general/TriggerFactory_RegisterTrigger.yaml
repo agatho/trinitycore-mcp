@@ -1,0 +1,51 @@
+api:
+  class: TriggerFactory
+  method: RegisterTrigger
+  signature: void TriggerFactory::RegisterTrigger(const std::string & name, std::function<std::shared_ptr<Trigger>
+    ()> creator)
+documentation:
+  brief: Registers a new trigger creator function with the specified name in the TriggerFactory.
+  description: The RegisterTrigger method allows developers to register a trigger
+    creation factory function under a specific name within the TriggerFactory. This
+    enables dynamic instantiation of different trigger types at runtime based on the
+    registered name. The method takes a string identifier and a std::function that
+    returns a std::shared_ptr<Trigger>, allowing for flexible and extensible trigger
+    system design. This is commonly used in World of Warcraft's TrinityCore to support
+    modular trigger systems such as quest triggers, event triggers, or custom game
+    mechanics.
+  parameters:
+  - name: name
+    description: A unique string identifier for the trigger type being registered.
+      This name will be used later to retrieve and instantiate the trigger.
+  - name: creator
+    description: A std::function object that takes no parameters and returns a std::shared_ptr<Trigger>.
+      This function is invoked when a trigger of the specified name needs to be instantiated.
+  returns: null
+  examples:
+  - title: Basic Trigger Registration
+    code: "TriggerFactory::Instance()->RegisterTrigger(\"QuestStart\", []() {\n  \
+      \  return std::make_shared<QuestStartTrigger>();\n});"
+    language: cpp
+  - title: Advanced Trigger Registration with Parameters
+    code: "TriggerFactory::Instance()->RegisterTrigger(\"SpellCast\", [](const std::string&\
+      \ spellName) {\n    return std::make_shared<SpellCastTrigger>(spellName);\n\
+      });"
+    language: cpp
+  notes: This method is typically called during server initialization or module loading
+    to register all available trigger types. The registration process is thread-safe,
+    but it's recommended to perform all registrations before the server begins accepting
+    connections. The factory pattern used here allows for easy extension of trigger
+    functionality without modifying existing code.
+  warnings: Registering a trigger with an already-existing name will overwrite the
+    previous registration, potentially causing unexpected behavior if not handled
+    carefully. Ensure that trigger names are unique and descriptive to avoid conflicts
+    in large modded environments.
+  related:
+  - TriggerFactory::GetTrigger
+  - TriggerFactory::UnregisterTrigger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T00:22:22.856503'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

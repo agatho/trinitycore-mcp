@@ -6,7 +6,7 @@
  * Benefit: Enables AI agents to understand data structures without manual SQL exploration.
  */
 
-import { queryWorld, queryAuth, queryCharacters } from "../database/connection.js";
+import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
 
 /**
  * Column information from INFORMATION_SCHEMA

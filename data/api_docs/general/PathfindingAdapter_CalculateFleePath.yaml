@@ -1,0 +1,68 @@
+api:
+  class: PathfindingAdapter
+  method: CalculateFleePath
+  signature: bool PathfindingAdapter::CalculateFleePath(Player * bot, Unit * threat,
+    float distance, MovementPath & path)
+documentation:
+  brief: Calculates a flee path for a bot away from a threat at a specified distance.
+  description: The CalculateFleePath method determines a safe movement path for a
+    player bot to retreat from a threatening unit. It computes a route that ensures
+    the bot moves away from the threat at the given distance, taking into account
+    navigation mesh constraints and obstacles. This method is typically used in AI
+    behavior systems where bots need to escape dangerous situations or avoid combat.
+    The resulting path is stored in the provided MovementPath object for execution
+    by the movement system. The method returns true if a valid path was calculated
+    successfully, or false if pathfinding failed due to obstacles, invalid parameters,
+    or other issues.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that needs to flee.
+      Must be a valid player instance with valid movement capabilities.
+  - name: threat
+    description: Pointer to the Unit object representing the threat from which the
+      bot should flee. Can be any unit type (player, creature, etc.) that poses a
+      danger to the bot.
+  - name: distance
+    description: The minimum distance the bot should maintain from the threat when
+      calculating the flee path. Must be a positive value representing world units.
+  - name: path
+    description: Reference to a MovementPath object where the calculated flee path
+      will be stored. This path can be executed by the movement system to make the
+      bot flee.
+  returns: True if a valid flee path was successfully calculated and stored in the
+    provided path object, false otherwise. Returns false when pathfinding fails due
+    to obstacles, invalid parameters, or when no suitable escape route exists.
+  examples:
+  - title: Basic Flee Path Calculation
+    code: "Player* bot = ...;\nUnit* threat = ...;\nMovementPath fleePath;\n\nif (PathfindingAdapter::CalculateFleePath(bot,\
+      \ threat, 10.0f, fleePath)) {\n    // Execute the flee path\n    bot->GetMotionMaster()->MovePath(fleePath);\n\
+      } else {\n    // Handle failed path calculation\n    bot->Say(\"Cannot flee!\"\
+      , LANG_UNIVERSAL);\n}"
+    language: cpp
+  - title: Flee Path with Distance Check
+    code: "Player* bot = ...;\nUnit* threat = ...;\nMovementPath fleePath;\n\nfloat\
+      \ fleeDistance = 15.0f;\nif (bot->GetDistance(threat) < fleeDistance) {\n  \
+      \  if (PathfindingAdapter::CalculateFleePath(bot, threat, fleeDistance, fleePath))\
+      \ {\n        bot->GetMotionMaster()->MovePath(fleePath);\n    }\n} else {\n\
+      \    // Bot is already safe\n    bot->Say(\"I'm safe!\", LANG_UNIVERSAL);\n}"
+    language: cpp
+  notes: This method relies on the underlying navigation mesh system and may fail
+    if the threat or bot positions are not within valid navigable areas. The path
+    calculation considers current bot movement capabilities and terrain constraints.
+    Performance is optimized for real-time AI behavior, but complex environments with
+    many obstacles may slow down pathfinding operations.
+  warnings: Ensure that both bot and threat pointers are valid before calling this
+    method to prevent crashes. The distance parameter must be positive; negative values
+    will likely cause unexpected behavior or pathfinding failures. This method does
+    not perform any combat-related checks - it only calculates the path, so additional
+    logic should handle threat evaluation.
+  related:
+  - CalculateMoveTo
+  - CalculatePath
+  - GetMovementPath
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T06:56:13.006918'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

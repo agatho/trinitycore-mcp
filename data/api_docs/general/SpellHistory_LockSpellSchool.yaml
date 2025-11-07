@@ -1,0 +1,58 @@
+api:
+  class: SpellHistory
+  method: LockSpellSchool
+  signature: void SpellHistory::LockSpellSchool(int schoolMask, int lockoutTime)
+documentation:
+  brief: Locks a spell school for a specified duration to prevent casting of spells
+    from that school.
+  description: The LockSpellSchool method prevents any spells belonging to the specified
+    spell school from being cast for the given lockout time. This mechanism is typically
+    used in World of Warcraft to implement cooldowns or restrictions on certain types
+    of spells, such as preventing a player from casting magic spells while under a
+    silence effect. The schoolMask parameter identifies which spell school(s) to lock,
+    and lockoutTime specifies how long (in milliseconds) the restriction should last.
+    This method is commonly used in spell effects that impose temporary restrictions
+    on magical abilities.
+  parameters:
+  - name: schoolMask
+    description: Bitmask representing the spell school(s) to lock. Each bit corresponds
+      to a specific spell school (e.g., Physical = 1, Holy = 2, Fire = 4, etc.). Multiple
+      schools can be combined using bitwise OR operations.
+  - name: lockoutTime
+    description: Duration in milliseconds for which the spell school(s) should be
+      locked. This determines how long the restriction will remain active before allowing
+      spells to be cast again.
+  returns: null
+  examples:
+  - title: Silence Effect Locking All Magic Schools
+    code: 'SpellHistory* spellHistory = player->GetSpellHistory();
+
+      spellHistory->LockSpellSchool(SPELL_SCHOOL_MASK_ALL, 3000); // Lock all schools
+      for 3 seconds'
+    language: cpp
+  - title: Locking Only Fire and Frost Schools
+    code: 'SpellHistory* spellHistory = player->GetSpellHistory();
+
+      spellHistory->LockSpellSchool(SPELL_SCHOOL_MASK_FIRE | SPELL_SCHOOL_MASK_FROST,
+      5000); // Lock fire and frost schools for 5 seconds'
+    language: cpp
+  notes: This method modifies internal spell casting state tracking within the SpellHistory
+    class. It's important to note that lockout times are typically applied as absolute
+    durations rather than relative to when the method is called, meaning that multiple
+    calls may overwrite previous lockouts if they occur within the same duration.
+    The implementation relies on a timer-based system to manage the lockout periods.
+  warnings: Improper use of this method can lead to unexpected behavior in spell casting
+    mechanics. Ensure that lockout times are reasonable and do not create infinite
+    loops or unintended restrictions. Also, be aware that this method does not prevent
+    other forms of spell interruption or casting restrictions; it only affects the
+    specific spell school locking mechanism.
+  related:
+  - SpellHistory::GetSpellCooldown
+  - SpellHistory::IsSpellOnCooldown
+  - SpellHistory::AddSpellCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:59:45.381689'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

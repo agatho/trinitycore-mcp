@@ -1,0 +1,61 @@
+api:
+  class: UnitAI
+  method: DamageDealt
+  signature: void UnitAI::DamageDealt(Unit * param0, uint32 & param1, DamageEffectType
+    param2)
+documentation:
+  brief: Handles damage dealt events for AI units, updating damage metrics and triggering
+    relevant callbacks.
+  description: The DamageDealt method is a virtual callback function in the UnitAI
+    class that is invoked whenever a unit deals damage to another unit. This method
+    allows AI implementations to track and respond to damage events, potentially modifying
+    damage values or triggering additional behaviors such as combat log entries, status
+    effects, or AI decision-making logic. It serves as an integral part of the combat
+    system's event handling mechanism within TrinityCore's AI framework. The method
+    is typically called internally by the game engine during combat processing and
+    should not be invoked directly unless implementing custom AI behavior.
+  parameters:
+  - name: param0
+    description: Pointer to the Unit that is dealing the damage. This represents the
+      attacker in the damage event.
+  - name: param1
+    description: Reference to a uint32 value representing the amount of damage dealt.
+      This value can be modified by the AI implementation to adjust the actual damage
+      output.
+  - name: param2
+    description: Enum value of type DamageEffectType that specifies the type of damage
+      effect being applied (e.g., direct damage, periodic damage, healing, etc.).
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "void MyAI::DamageDealt(Unit* target, uint32& damage, DamageEffectType damagetype)\n\
+      {\n    // Reduce damage by 10% for all attacks\n    damage = damage * 0.9f;\n\
+      \    \n    // Log the event\n    sLog->outString(\"Custom AI dealt %u damage\
+      \ to %s\", damage, target->GetName().c_str());\n}"
+    language: cpp
+  - title: Conditional Damage Modification
+    code: "void MyAI::DamageDealt(Unit* target, uint32& damage, DamageEffectType damagetype)\n\
+      {\n    // Only modify physical damage\n    if (damagetype == DIRECT_DAMAGE ||\
+      \ damagetype == NORMAL_HIT)\n    {\n        // Apply a 15% damage reduction\
+      \ for critical hits\n        if (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->GetSession()->GetSecurity()\
+      \ > SEC_PLAYER)\n            damage *= 0.85f;\n    }\n}"
+    language: cpp
+  notes: This method is part of the virtual AI interface and must be overridden in
+    derived classes to implement custom behavior. It is called during combat processing,
+    so performance considerations are important. The damage value passed by reference
+    allows for modification of the final damage dealt.
+  warnings: Modifying the damage value directly can have cascading effects on combat
+    calculations and should be done carefully. Avoid modifying values that could cause
+    overflow or underflow conditions. This method is not intended to be called manually
+    outside of the game engine's internal systems.
+  related:
+  - DamageTaken
+  - DealDamage
+  - SpellHit
+  - AttackStart
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T00:20:14.119511'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

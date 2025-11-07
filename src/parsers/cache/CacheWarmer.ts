@@ -9,7 +9,7 @@
 import { DB2CachedLoaderFactory } from "../db2/DB2CachedFileLoader";
 import * as path from "path";
 import * as fs from "fs";
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../utils/logger';
 
 const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 

@@ -1,0 +1,63 @@
+api:
+  class: AuctionManager
+  method: ValidateAuctionCreation
+  signature: bool AuctionManager::ValidateAuctionCreation(Player * bot, Item * item,
+    uint64 bidPrice, uint64 buyoutPrice)
+documentation:
+  brief: Validates whether an auction can be created for a given item with specified
+    bid and buyout prices.
+  description: The ValidateAuctionCreation method checks if the provided parameters
+    are valid for creating an auction in the Auction House system. It ensures that
+    the item being auctioned is eligible, the bid and buyout prices meet minimum requirements,
+    and the player has sufficient permissions or resources to list the item. This
+    validation is crucial before proceeding with actual auction creation to prevent
+    invalid or exploitative listings. The method performs checks such as ensuring
+    the item is not soulbound, meets auction house restrictions, and that the pricing
+    complies with game economy rules.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the player attempting to
+      create the auction. Must be a valid player instance.
+  - name: item
+    description: Pointer to the Item object that is being listed for auction. The
+      item must be in the player's inventory and not bound to another player.
+  - name: bidPrice
+    description: The minimum bid price for the auction, specified in copper (100 copper
+      = 1 silver). Must be a positive value that meets the minimum auction bid requirements.
+  - name: buyoutPrice
+    description: The buyout price for the item, specified in copper. If set to 0,
+      no buyout is allowed. Must be greater than or equal to the bid price and meet
+      auction house rules.
+  returns: Returns true if all validation checks pass and the auction can be created;
+    otherwise returns false if any validation fails.
+  examples:
+  - title: Basic Auction Creation Validation
+    code: "Player* player = ...;\nItem* item = ...;\nuint64 bidPrice = 10000; // 1\
+      \ silver\nuint64 buyoutPrice = 50000; // 5 silver\nbool isValid = sAuctionMgr->ValidateAuctionCreation(player,\
+      \ item, bidPrice, buyoutPrice);\nif (isValid)\n{\n    // Proceed with auction\
+      \ creation\n}"
+    language: cpp
+  - title: Validation with Zero Buyout Price
+    code: "Player* player = ...;\nItem* item = ...;\nuint64 bidPrice = 1000; // 10\
+      \ copper\nuint64 buyoutPrice = 0; // No buyout allowed\nbool isValid = sAuctionMgr->ValidateAuctionCreation(player,\
+      \ item, bidPrice, buyoutPrice);\nif (isValid)\n{\n    // Proceed with auction\
+      \ creation without buyout\n}"
+    language: cpp
+  notes: This method is typically called before attempting to create an actual auction
+    in the database. It does not perform any database operations but rather validates
+    the input parameters against internal rules and restrictions. The validation includes
+    checking item binding status, price limits, and player permissions.
+  warnings: Do not call this method without ensuring that the Player and Item pointers
+    are valid. Passing null or invalid pointers will result in undefined behavior.
+    Also, note that even if validation passes, the actual auction creation may still
+    fail due to server-side limitations or economy constraints.
+  related:
+  - AuctionManager::CreateAuction
+  - AuctionManager::GetAuctionHouseFees
+  - AuctionManager::IsAuctionValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:29:02.990990'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

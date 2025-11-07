@@ -1,0 +1,62 @@
+api:
+  class: UnitData
+  method: WriteCreate
+  signature: void UnitData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Unit * owner, const Player * receiver) const
+documentation:
+  brief: Writes unit data fields to a ByteBuffer for client creation packet
+  description: The WriteCreate method serializes the unit's data fields into a ByteBuffer,
+    preparing them for inclusion in a client creation packet. This method is typically
+    invoked when sending initial unit state information to players, such as when a
+    creature or player enters a player's field of view. The method respects field
+    visibility flags and may conditionally include certain fields based on the owner
+    and receiver context. It ensures that only relevant data is sent to avoid network
+    overhead while maintaining proper game state synchronization.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized unit data will be
+      written
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields should be included in the packet
+      based on visibility rules
+  - name: owner
+    description: Pointer to the Unit that owns this data, used for context-based field
+      filtering
+  - name: receiver
+    description: Pointer to the Player who will receive this packet, used for player-specific
+      visibility checks
+  returns: null
+  examples:
+  - title: Basic usage in packet creation
+    code: 'ByteBuffer data;
+
+      UnitData unitData;
+
+      Player* receiver = ...;
+
+      unitData.WriteCreate(data, VISIBILITY_FLAG_NORMAL, owner, receiver);
+
+      WorldPacket packet(SMSG_CREATE_OBJECT, data.size());
+
+      packet.append(data);
+
+      receiver->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the object serialization system in TrinityCore and
+    should only be called when preparing packets for network transmission. The field
+    visibility logic ensures that sensitive or irrelevant data is not sent to players
+    who shouldn't see it, improving both security and performance.
+  warnings: Incorrect fieldVisibilityFlags can result in missing or incorrect data
+    being sent to clients, potentially causing visual glitches or game state inconsistencies.
+    The owner and receiver parameters must be valid pointers; passing null pointers
+    may lead to undefined behavior.
+  related:
+  - WriteUpdate
+  - GetUInt32Value
+  - SetUInt32Value
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T23:05:56.427496'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

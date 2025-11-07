@@ -1,0 +1,53 @@
+api:
+  class: Action
+  method: GetLowestHealthAlly
+  signature: ::Unit * Action::GetLowestHealthAlly(BotAI * ai, float range) const
+documentation:
+  brief: Finds and returns the Unit with the lowest health among nearby allies within
+    a specified range.
+  description: The GetLowestHealthAlly method searches for the ally unit with the
+    lowest current health value within the given range. It is commonly used in AI
+    logic to determine which friendly target needs healing or support first. The method
+    iterates through all valid units in the specified range, comparing their health
+    percentages and returning a pointer to the one with the lowest health. If no suitable
+    ally is found within range, it returns nullptr. This function is particularly
+    useful for implementing priority-based healing or support behaviors in bot AI
+    systems.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance that owns this action. Used to access
+      AI context and unit information.
+  - name: range
+    description: Maximum distance (in yards) within which to search for allies. Units
+      beyond this range will be ignored.
+  returns: Pointer to the ::Unit object with the lowest health among allies within
+    range, or nullptr if no valid ally is found.
+  examples:
+  - title: Basic usage in AI logic
+    code: "Unit* target = action->GetLowestHealthAlly(ai, 30.0f);\nif (target && target->IsAlive())\
+      \ {\n    // Perform healing or support action on the lowest health ally\n  \
+      \  ai->GetBot()->CastSpell(target, SPELL_HEALING_SPELL);\n}"
+    language: cpp
+  - title: Using with conditional checks
+    code: "Unit* lowest = action->GetLowestHealthAlly(ai, 40.0f);\nif (lowest && lowest->GetHealthPct()\
+      \ < 30.0f) {\n    // Only act if ally's health is critically low\n    ai->GetBot()->CastSpell(lowest,\
+      \ SPELL_EMERGENCY_HEAL);\n} else if (lowest) {\n    // Otherwise, just move\
+      \ to support\n    ai->GetBot()->MoveTo(lowest);\n}"
+    language: cpp
+  notes: The method uses the AI's internal unit scanning logic and respects faction
+    and visibility constraints. It does not perform any direct combat checks or threat
+    assessments; it simply identifies the lowest health ally within range. The range
+    parameter is typically measured from the bot's current position.
+  warnings: Ensure that the returned Unit pointer is checked for nullptr before dereferencing
+    to avoid segmentation faults. Be cautious when using this method in high-frequency
+    loops as it may involve multiple unit scans and comparisons.
+  related:
+  - GetHighestHealthAlly
+  - GetNearestEnemy
+  - GetNearbyUnits
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:56:21.791205'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

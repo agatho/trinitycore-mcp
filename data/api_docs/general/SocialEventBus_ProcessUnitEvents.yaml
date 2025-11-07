@@ -1,0 +1,59 @@
+api:
+  class: SocialEventBus
+  method: ProcessUnitEvents
+  signature: uint32 SocialEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes queued social events for a specified unit within the given time
+    delta.
+  description: The ProcessUnitEvents method handles the execution of social events
+    that have been scheduled for a particular unit, such as players or NPCs. It iterates
+    through the event queue associated with the given unit GUID and processes each
+    event based on its type and timing. The method takes a time delta (diff) parameter
+    to determine how much time has passed since the last update, which is used to
+    calculate whether events should be triggered. This function is typically called
+    from the main game loop or update system to ensure timely execution of social
+    interactions like emotes, gossip options, or other unit-specific behaviors. The
+    method ensures that events are processed in order and respects their timing constraints.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose social events need
+      to be processed. This can represent a player, NPC, or any other game entity
+      with social behavior capabilities.
+  - name: diff
+    description: The time delta in milliseconds since the last update cycle. Used
+      to determine how much time has passed and whether scheduled events should be
+      executed.
+  returns: Returns the number of events successfully processed for the specified unit
+    during this call. A return value of zero indicates no events were processed, while
+    a positive integer indicates the count of processed events.
+  examples:
+  - title: Basic usage in game update loop
+    code: "void GameUpdate()\n{\n    uint32 processedEvents = sSocialEventBus->ProcessUnitEvents(playerGuid,\
+      \ deltaTime);\n    // Handle any post-processing if needed\n}"
+    language: cpp
+  - title: Processing events for multiple units
+    code: "void UpdateSocialEvents()\n{\n    for (auto& player : sObjectAccessor->GetPlayers())\n\
+      \    {\n        uint32 count = sSocialEventBus->ProcessUnitEvents(player->GetGUID().GetRawValue(),\
+      \ deltaTime);\n        if (count > 0)\n        {\n            // Log or handle\
+      \ event processing\n        }\n    }\n}"
+    language: cpp
+  notes: This method is designed to be called from the main game thread and should
+    not be invoked from multiple threads simultaneously. The time delta parameter
+    must accurately reflect the actual elapsed time since the last call to maintain
+    proper event timing. Events are processed in chronological order based on their
+    scheduled execution times.
+  warnings: Improper handling of the time delta can cause events to execute too early
+    or too late, leading to incorrect social behavior. Ensure that unitGuid refers
+    to a valid existing unit, otherwise undefined behavior may occur. This method
+    should not be called with zero or negative diff values unless explicitly intended
+    for testing purposes.
+  related:
+  - AddSocialEvent
+  - RemoveSocialEvent
+  - GetUnitEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:16:43.680450'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

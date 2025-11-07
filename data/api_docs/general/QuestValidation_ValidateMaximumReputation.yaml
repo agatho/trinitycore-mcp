@@ -1,0 +1,58 @@
+api:
+  class: QuestValidation
+  method: ValidateMaximumReputation
+  signature: bool QuestValidation::ValidateMaximumReputation(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player can complete a quest based on their maximum reputation
+    cap.
+  description: The ValidateMaximumReputation method checks if a given player has reached
+    or exceeded the maximum reputation threshold required to complete a specific quest.
+    This validation ensures that players cannot progress quests beyond their current
+    reputation level, which is a core game mechanic in World of Warcraft's quest system.
+    The method typically evaluates the player's standing with relevant factions and
+    compares it against the quest's reputation requirements. It returns true if the
+    player meets all necessary reputation conditions, otherwise false. This check
+    is often performed during quest completion validation to prevent exploits or unintended
+    progression.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being validated. Must be a valid
+      quest ID present in the game's database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose reputation
+      is being checked. Must not be null and must represent an active player character.
+  returns: Returns true if the player has sufficient reputation to complete the specified
+    quest, false otherwise. A return value of false typically indicates that the player's
+    faction standings are insufficient for quest progression.
+  examples:
+  - title: Basic Reputation Validation
+    code: "if (QuestValidation::ValidateMaximumReputation(12345, player)) {\n    //\
+      \ Player can complete quest 12345\n    player->CompleteQuest(12345);\n} else\
+      \ {\n    // Player lacks required reputation\n    player->SendNotification(\"\
+      You do not have sufficient reputation to complete this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Completion Logic
+    code: "void Player::OnQuestComplete(uint32 questId) {\n    if (!QuestValidation::ValidateMaximumReputation(questId,\
+      \ this)) {\n        SendNotification(\"Quest cannot be completed due to insufficient\
+      \ reputation.\");\n        return;\n    }\n    // Proceed with normal quest\
+      \ completion logic\n    CompleteQuest(questId);\n}"
+    language: cpp
+  notes: This method likely interacts with the player's faction standing data stored
+    in the database and may involve caching mechanisms for performance. The validation
+    process typically checks against the maximum reputation level that can be earned
+    for each faction associated with the quest. Implementation details may vary depending
+    on how TrinityCore handles faction reputation thresholds.
+  warnings: Ensure that the player pointer is valid before calling this method to
+    prevent crashes. Be aware that reputation requirements might change based on expansion
+    content or server settings, so this validation should be robust against such variations.
+  related:
+  - Player::GetReputation
+  - Player::HasReputation
+  - Quest::GetRequiredReputation
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:15:22.833632'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

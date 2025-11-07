@@ -1,0 +1,62 @@
+api:
+  class: TradeManager
+  method: CalculateItemPriority
+  signature: uint32 TradeManager::CalculateItemPriority(Item * item, Player * player)
+    const
+documentation:
+  brief: Calculates and returns the priority value of an item for trading purposes
+    based on its properties and the player's current state.
+  description: The CalculateItemPriority method determines a numerical priority score
+    for a given item within the context of a trade. This score is used by the TradeManager
+    to sort items in a trade window, helping players prioritize which items to offer
+    or accept during trades. The calculation considers various item attributes such
+    as item level, quality, and potential value, as well as the player's current inventory
+    state and trading preferences. The method is typically invoked when preparing
+    trade proposals or evaluating trade offers to ensure optimal item ordering for
+    efficient trading.
+  parameters:
+  - name: item
+    description: Pointer to the Item object for which the priority is being calculated.
+      Must not be null.
+  - name: player
+    description: Pointer to the Player object whose inventory and preferences affect
+      the item priority calculation. Must not be null.
+  returns: A uint32 value representing the calculated priority of the item. Higher
+    values indicate higher priority, with 0 typically meaning no priority or invalid
+    item.
+  examples:
+  - title: Basic usage in trade context
+    code: 'Item* tradeItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+      uint32 priority = tradeManager->CalculateItemPriority(tradeItem, player);
+
+      // Use priority to sort items in trade window
+
+      std::cout << "Item priority: " << priority << std::endl;'
+    language: cpp
+  - title: Sorting items by priority for trade
+    code: "std::vector<std::pair<Item*, uint32>> itemPriorities;\nfor (uint8 i = 0;\
+      \ i < MAX_INVENTORY_SLOT; ++i)\n{\n    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ i);\n    if (item)\n        itemPriorities.push_back({item, tradeManager->CalculateItemPriority(item,\
+      \ player)});\n}\n\nstd::sort(itemPriorities.begin(), itemPriorities.end(),\n\
+      \    [](const auto& a, const auto& b) { return a.second > b.second; });"
+    language: cpp
+  notes: This method is part of the internal trade management system and may be called
+    frequently during trade operations. It relies on item properties and player data
+    that can change dynamically, so results should not be cached for extended periods.
+    The exact algorithm used for calculating priority is implementation-specific and
+    may evolve with game updates.
+  warnings: Ensure both item and player parameters are valid pointers before calling
+    this method to avoid undefined behavior. The returned priority value is only meaningful
+    within the context of a specific trade session and may not represent absolute
+    item value outside of that scope.
+  related:
+  - TradeManager::AddItemToTrade
+  - TradeManager::GetTradeItemPriority
+  - Player::GetItemByPos
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T23:17:58.355623'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

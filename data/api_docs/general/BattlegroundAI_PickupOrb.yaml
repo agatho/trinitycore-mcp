@@ -1,0 +1,57 @@
+api:
+  class: BattlegroundAI
+  method: PickupOrb
+  signature: bool BattlegroundAI::PickupOrb(int * player)
+documentation:
+  brief: Attempts to pick up a battleground orb, returning true if successful.
+  description: The PickupOrb method is responsible for handling the logic of a player
+    picking up an orb within a battleground. This typically occurs during capture-the-flag
+    or similar game modes where players must collect orbs to score points or complete
+    objectives. The method checks if the player can pick up the orb based on current
+    battleground state and player conditions, then performs the necessary updates
+    to the game world and scoring system. It returns true if the orb pickup was successful
+    and false otherwise.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's identifier or index
+      within the battleground context. This parameter is used to determine which player
+      is attempting to pick up the orb and validate their eligibility.
+  returns: Returns true if the orb pickup was successful, indicating that the player
+    has collected the orb and any associated rewards or scoring updates have been
+    applied. Returns false if the pickup failed due to invalid conditions such as
+    the player being ineligible, the orb already being taken, or the battleground
+    state preventing collection.
+  examples:
+  - title: Basic usage in battleground AI
+    code: "if (bgAI->PickupOrb(&playerId)) {\n    // Handle successful orb pickup\n\
+      \    SendPacketToAllPlayers(SMSG_BG_PLAYER_JOINED, ...);\n} else {\n    // Handle\
+      \ failed pickup attempt\n    SendSystemMessage(\"You cannot pick up that orb\
+      \ now.\");\n}"
+    language: cpp
+  - title: Integration with player state validation
+    code: "void MyBattleground::HandlePlayerOrbPickup(Player* player) {\n    int playerId\
+      \ = player->GetGUID().GetCounter();\n    if (PickupOrb(&playerId)) {\n     \
+      \   // Update player's score\n        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE,\
+      \ 1);\n        // Play pickup sound\n        player->PlayDirectSound(SOUND_ORB_PICKUP);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely interacts with internal battleground state tracking and
+    may be called from multiple threads during concurrent gameplay. The 'player' parameter
+    should point to a valid player identifier within the battleground context, otherwise
+    behavior is undefined. Implementation details are tied to specific battleground
+    types like AV, AB, or EotS.
+  warnings: Do not call this method without ensuring that the player pointer points
+    to a valid battleground participant. Calling with an invalid player ID may cause
+    undefined behavior or crashes. The method assumes proper synchronization of battleground
+    state changes and should not be called during critical sections where state is
+    being modified.
+  related:
+  - BattlegroundAI::Update
+  - BattlegroundAI::HandlePlayerLeave
+  - BattlegroundAI::CheckWinConditions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T20:09:59.257860'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

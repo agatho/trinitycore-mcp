@@ -1,0 +1,58 @@
+api:
+  class: QuestEventBus
+  method: Subscribe
+  signature: bool QuestEventBus::Subscribe(BotAI * subscriber, const int & types)
+documentation:
+  brief: Subscribes a BotAI instance to quest events of specified types.
+  description: The Subscribe method registers a BotAI subscriber to receive notifications
+    about quest-related events. It allows the bot to react to specific types of quest
+    activities such as quest acceptance, completion, or failure. The method takes
+    a pointer to the BotAI instance and a bitmask representing the event types the
+    subscriber wishes to listen for. This mechanism enables modular event-driven behavior
+    in the AI system, allowing bots to respond dynamically to changes in quest state
+    without constant polling.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that wants to subscribe to quest events.
+      Must be a valid pointer to an initialized BotAI object.
+  - name: types
+    description: Bitmask specifying which types of quest events the subscriber wishes
+      to receive. Each bit represents a different event type (e.g., acceptance, completion,
+      failure). Valid values are defined by QuestEventType constants.
+  returns: Returns true if the subscription was successfully added to the event bus,
+    false otherwise. A return value of false may indicate that the subscriber pointer
+    is invalid or that the event types bitmask contains unsupported values.
+  examples:
+  - title: Basic Subscription
+    code: "BotAI* myBot = new BotAI();\nint eventTypeMask = QUEST_ACCEPTED | QUEST_COMPLETE;\n\
+      bool success = QuestEventBus::Subscribe(myBot, eventTypeMask);\nif (success)\
+      \ {\n    // Bot is now subscribed to quest acceptance and completion events\n\
+      }"
+    language: cpp
+  - title: Subscription with All Event Types
+    code: "BotAI* ai = GetPlayerBot();\nint allEvents = QUEST_ACCEPTED | QUEST_COMPLETE\
+      \ | QUEST_FAILED | QUEST_REMOVED;\nbool result = QuestEventBus::Subscribe(ai,\
+      \ allEvents);\nif (result) {\n    // Bot will receive notifications for all\
+      \ quest state changes\n}"
+    language: cpp
+  notes: The subscription mechanism uses a global event bus singleton. Subscribers
+    are stored in an internal container and notified via callback mechanisms when
+    matching events occur. The types parameter should be constructed using bitwise
+    OR operations of predefined QuestEventType constants. Ensure that the BotAI instance
+    remains valid for the duration of the subscription, as dangling pointers can cause
+    undefined behavior.
+  warnings: Do not subscribe the same BotAI instance multiple times with different
+    event type masks; this may lead to duplicate notifications or inconsistent state
+    handling. Avoid calling Subscribe with invalid BotAI pointers, which will result
+    in a failed subscription and potential runtime errors. Be cautious when unsubscribing
+    from events, as improper cleanup can cause memory leaks.
+  related:
+  - Unsubscribe
+  - Publish
+  - GetEventBus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:58:52.267197'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

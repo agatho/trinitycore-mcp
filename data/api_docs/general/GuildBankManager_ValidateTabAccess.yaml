@@ -1,0 +1,64 @@
+api:
+  class: GuildBankManager
+  method: ValidateTabAccess
+  signature: bool GuildBankManager::ValidateTabAccess(int * player, uint32 tabId,
+    BankOperation operation)
+documentation:
+  brief: Validates whether a player has the required permissions to perform a bank
+    operation on a specific guild bank tab.
+  description: The ValidateTabAccess method checks if a given player has sufficient
+    privileges to execute a specified bank operation (such as depositing or withdrawing
+    items) on a particular guild bank tab. This method is crucial for maintaining
+    guild bank security and ensuring that only authorized members can access certain
+    tabs based on their guild rank and permissions. The validation process typically
+    involves checking the player's current rank, the tab's access permissions, and
+    the type of operation being requested. It returns true if the operation is allowed,
+    false otherwise. This method is commonly used before performing any guild bank
+    transaction to prevent unauthorized access.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's GUID or identifier.
+      This parameter identifies which player is attempting the operation.
+  - name: tabId
+    description: The unique identifier of the guild bank tab being accessed. Tabs
+      are numbered starting from 0, with each tab having its own access permissions.
+  - name: operation
+    description: An enumeration value indicating the type of bank operation being
+      performed (e.g., deposit, withdraw). This determines what permissions are required
+      for access.
+  returns: Returns true if the player has sufficient privileges to perform the specified
+    operation on the given tab; otherwise returns false. A return value of false typically
+    indicates insufficient guild rank or tab-specific restrictions.
+  examples:
+  - title: Basic Validation Check
+    code: "if (guildBankManager->ValidateTabAccess(&playerGuid, 2, BANK_OP_WITHDRAW))\
+      \ {\n    // Allow withdrawal from tab 2\n    guildBankManager->WithdrawItem(playerGuid,\
+      \ 2, itemGuid);\n} else {\n    // Deny access\n    SendErrorMessage(playerGuid,\
+      \ \"Insufficient permissions to withdraw from this tab.\");\n}"
+    language: cpp
+  - title: Permission Validation Before Deposit
+    code: "uint32 playerRank = GetPlayerGuildRank(playerGuid);\nif (guildBankManager->ValidateTabAccess(&playerGuid,\
+      \ 0, BANK_OP_DEPOSIT) && playerRank <= GUILD_RANK_OFFICER) {\n    // Allow deposit\
+      \ only for officers or above\n    guildBankManager->DepositItem(playerGuid,\
+      \ 0, itemGuid);\n} else {\n    SendErrorMessage(playerGuid, \"You do not have\
+      \ permission to deposit items in this tab.\");\n}"
+    language: cpp
+  notes: This method likely interacts with internal guild rank and tab permission
+    systems. It may cache results for performance reasons or be called frequently
+    during bank operations. The operation parameter is expected to be one of predefined
+    constants like BANK_OP_DEPOSIT, BANK_OP_WITHDRAW, etc.
+  warnings: Ensure that the player GUID is valid before calling this method; invalid
+    pointers can cause crashes. The tabId must be within valid range for the guild's
+    bank tabs, otherwise behavior is undefined. This function should not be used as
+    a substitute for full authorization checks in all contexts.
+  related:
+  - GetGuildBankTabPermissions
+  - SetGuildBankTabAccess
+  - IsPlayerInGuild
+  - GetPlayerGuildRank
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T02:48:49.426485'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

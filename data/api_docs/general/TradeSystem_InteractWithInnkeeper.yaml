@@ -1,0 +1,52 @@
+api:
+  class: TradeSystem
+  method: InteractWithInnkeeper
+  signature: void TradeSystem::InteractWithInnkeeper(Player * player, uint32 innkeeperGuid)
+documentation:
+  brief: Initiates interaction with an innkeeper NPC for player services such as resting
+    and vendor access.
+  description: The InteractWithInnkeeper method handles the core functionality when
+    a player interacts with an innkeeper NPC in World of Warcraft. This method typically
+    triggers the innkeeper's interface, allowing players to rest, recover health and
+    mana, and access innkeeper services like mail or vendor options. It is commonly
+    invoked when a player right-clicks on an innkeeper NPC or uses a specific interaction
+    command. The method ensures proper state management for the player and validates
+    that the target is indeed an innkeeper before proceeding with the interaction
+    logic.
+  parameters:
+  - name: player
+    description: Pointer to the Player object initiating the interaction with the
+      innkeeper.
+  - name: innkeeperGuid
+    description: The unique identifier (GUID) of the innkeeper NPC that the player
+      is interacting with. Must correspond to a valid GameObject of type GAMEOBJECT_TYPE_INNKEEPER.
+  returns: null
+  examples:
+  - title: Basic Innkeeper Interaction
+    code: "void HandlePlayerInnkeeperInteraction(Player* player, uint32 innkeeperGuid)\n\
+      {\n    TradeSystem::InteractWithInnkeeper(player, innkeeperGuid);\n}"
+    language: cpp
+  - title: Checking Validity Before Interaction
+    code: "void SafeInteractWithInnkeeper(Player* player, uint32 guid)\n{\n    if\
+      \ (!player || !guid) return;\n    \n    GameObject* innkeeper = player->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject,\
+      \ guid));\n    if (innkeeper && innkeeper->GetGoType() == GAMEOBJECT_TYPE_INNKEEPER)\n\
+      \    {\n        TradeSystem::InteractWithInnkeeper(player, guid);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the player and innkeeper GUIDs are valid and that
+    the player is within interaction range. The actual UI interaction (e.g., showing
+    the rest menu) is handled by client-side code, while this method manages server-side
+    logic such as cooldowns, resource recovery, and state transitions.
+  warnings: Ensure the innkeeperGuid corresponds to a valid GameObject of type GAMEOBJECT_TYPE_INNKEEPER;
+    otherwise, unexpected behavior or errors may occur. Avoid calling this method
+    outside of proper game context (e.g., during map loading or invalid player states).
+  related:
+  - Player::SendBindPoint
+  - Player::SaveToDB
+  - Player::SetRestStartTime
+  - Player::ResetAllPackets
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T00:32:49.098539'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

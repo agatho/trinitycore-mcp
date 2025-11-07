@@ -1,0 +1,55 @@
+api:
+  class: PvPCombatAI
+  method: TrackCCUsed
+  signature: void PvPCombatAI::TrackCCUsed(int * target, CCType ccType)
+documentation:
+  brief: Tracks when a crowd control effect is used on a target.
+  description: The TrackCCUsed method records information about a crowd control (CC)
+    ability that has been applied to a target within the PvPCombatAI system. This
+    method is typically invoked when a player or creature successfully applies a CC
+    effect, such as fear, charm, or root, to another unit during PvP combat. It updates
+    internal tracking mechanisms to monitor CC usage statistics and potentially influence
+    AI decision-making based on recent CC activity. The method accepts a pointer to
+    the target unit and the type of CC applied, allowing the AI to maintain awareness
+    of which effects have been used and when.
+  parameters:
+  - name: target
+    description: A pointer to the target unit that has been affected by the crowd
+      control effect. This parameter must be a valid pointer to a Unit object or null
+      if no target is specified.
+  - name: ccType
+    description: An enumeration value representing the type of crowd control effect
+      used. This typically corresponds to predefined CC types such as ROOT, SILENCE,
+      FEAR, CHARM, etc., defined in the CCType enum.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void ApplyFear(Unit* target)\n{\n    // Apply fear effect\n    target->AddAura(SPELL_FEAR,\
+      \ target);\n    \n    // Track the CC usage\n    PvPCombatAI* ai = reinterpret_cast<PvPCombatAI*>(target->GetAI());\n\
+      \    if (ai)\n        ai->TrackCCUsed(&target, CCType::FEAR);\n}"
+    language: cpp
+  - title: Advanced Usage with AI State Update
+    code: "void HandleCCApplication(Unit* target, CCType ccType)\n{\n    // Apply\
+      \ the CC effect\n    target->AddAura(GetCCSpellId(ccType), target);\n    \n\
+      \    // Track it in PvP AI\n    if (PvPCombatAI* ai = dynamic_cast<PvPCombatAI*>(target->GetAI()))\n\
+      \    {\n        ai->TrackCCUsed(&target, ccType);\n        \n        // Optionally\
+      \ update AI behavior based on CC usage\n        ai->UpdateCombatState();\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is part of the PvP combat AI system and should only be called
+    when a legitimate CC effect is applied. The target parameter must be a valid unit
+    pointer to avoid undefined behavior. Internal tracking may include timestamps
+    or counters for each CC type, which can affect AI decision-making logic.
+  warnings: Ensure that the target pointer passed into this method is valid before
+    calling to prevent crashes or memory corruption. Incorrectly setting the ccType
+    enum value could lead to improper tracking and unexpected AI behavior.
+  related:
+  - GetCCUsedCount
+  - IsCCAllowed
+  - ResetCCTracking
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T05:22:30.241503'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

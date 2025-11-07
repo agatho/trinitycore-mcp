@@ -222,7 +222,7 @@ export async function getSecurityStatus(): Promise<string> {
             },
             alerts: {
                 expiring_api_keys: expiringSoon.map((k: APIKey) => ({
-                    id: k.id,
+                    
                     key: k.key,
                     name: k.name,
                     expires_at: k.expiresAt,

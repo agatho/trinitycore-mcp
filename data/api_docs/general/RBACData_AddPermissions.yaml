@@ -1,0 +1,69 @@
+api:
+  class: RBACData
+  method: AddPermissions
+  signature: void RBACData::AddPermissions(const RBACPermissionContainer & permsFrom,
+    RBACPermissionContainer & permsTo)
+documentation:
+  brief: Adds permissions from one RBAC permission container to another
+  description: The AddPermissions method copies all permissions from a source RBACPermissionContainer
+    (permsFrom) into a destination RBACPermissionContainer (permsTo). This operation
+    is typically used during role-based access control initialization or when merging
+    user permissions. The method performs a deep copy of the permission data, ensuring
+    that the destination container receives all permissions without modifying the
+    source container. In World of Warcraft's TrinityCore implementation, this method
+    supports the RBAC system that controls player access to game features and commands
+    based on assigned roles.
+  parameters:
+  - name: permsFrom
+    description: The source RBACPermissionContainer containing permissions to be copied
+  - name: permsTo
+    description: The destination RBACPermissionContainer where permissions will be
+      added
+  returns: null
+  examples:
+  - title: Basic Permission Addition
+    code: 'RBACPermissionContainer sourcePerms;
+
+      RBACPermissionContainer targetPerms;
+
+      // Add some permissions to sourcePerms
+
+      sourcePerms.insert(1); // Add permission ID 1
+
+      sourcePerms.insert(2); // Add permission ID 2
+
+
+      // Transfer all permissions from source to target
+
+      RBACData::AddPermissions(sourcePerms, targetPerms);
+
+      // targetPerms now contains permissions 1 and 2'
+    language: cpp
+  - title: Adding Permissions During Role Assignment
+    code: "void AssignRoleToPlayer(Player* player, const std::string& roleName) {\n\
+      \    RBACPermissionContainer rolePermissions;\n    // Load permissions for the\
+      \ specified role\n    if (LoadRolePermissions(roleName, rolePermissions)) {\n\
+      \        // Get current player's permissions\n        RBACData* playerRBAC =\
+      \ player->GetRBACData();\n        RBACPermissionContainer& currentPerms = playerRBAC->GetPermissions();\n\
+      \        \n        // Add new role permissions to existing ones\n        RBACData::AddPermissions(rolePermissions,\
+      \ currentPerms);\n        \n        // Update player's access rights\n     \
+      \   playerRBAC->UpdatePermissions();\n    }\n}"
+    language: cpp
+  notes: This method does not perform any validation or deduplication of permissions.
+    If duplicate permission IDs exist in both containers, they will be added to the
+    destination container without removal of duplicates. The method operates on the
+    RBACPermissionContainer type which is a set-like structure that stores unique
+    permission identifiers.
+  warnings: Be cautious when using this method with large permission sets as it performs
+    a full copy operation. Ensure proper synchronization if used in multi-threaded
+    contexts where permissions might be modified concurrently.
+  related:
+  - RBACData::GetPermissions
+  - RBACData::RemovePermissions
+  - RBACData::HasPermission
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T00:04:12.736097'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,75 @@
+api:
+  class: WalkInData
+  method: WriteUpdate
+  signature: void WalkInData::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes update data for WalkInData to a ByteBuffer for transmission to a player.
+  description: The WriteUpdate method serializes the current state of a WalkInData
+    object into a ByteBuffer, which is typically used for sending updates to players
+    in the game world. This method handles the encoding of relevant fields and may
+    consider changes masks to determine what data needs to be sent. It's commonly
+    used during packet construction for object updates, particularly when sending
+    movement or state information to specific players. The method respects the owner
+    and receiver parameters to ensure proper data filtering based on visibility rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for constructing network packets sent
+      to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the changes mask when writing
+      updates. If true, all fields are written regardless of change status; if false,
+      only changed fields are included.
+  - name: owner
+    description: Pointer to the Player object that owns this WalkInData instance.
+      Used for determining visibility and ownership-based filtering during update
+      serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update data. Used
+      to apply receiver-specific visibility rules and filtering logic.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Packet Construction
+    code: 'ByteBuffer data;
+
+      WalkInData walkInData;
+
+      Player* owner = ...; // Player who owns the data
+
+      Player* receiver = ...; // Player receiving the update
+
+      walkInData.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' as part of an update packet'
+    language: cpp
+  - title: Forcing Full Update with Ignore Flag
+    code: 'ByteBuffer data;
+
+      WalkInData walkInData;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      walkInData.WriteUpdate(data, true, owner, receiver);
+
+      // Forces all fields to be written, ignoring change tracking'
+    language: cpp
+  notes: This method is typically called during the update process for objects that
+    need to be synchronized with players in the game world. The changes mask behavior
+    allows for efficient updates by only sending data that has actually changed since
+    the last update, reducing bandwidth usage.
+  warnings: Improper use of the ignoreChangesMask parameter can lead to unnecessary
+    bandwidth consumption. Always consider whether partial updates are appropriate
+    for your use case.
+  related:
+  - WalkInData::ReadUpdate
+  - WalkInData::BuildValuesUpdateBlockForPlayer
+  - WalkInData::BuildOutOfRangeUpdate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T22:57:35.894208'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

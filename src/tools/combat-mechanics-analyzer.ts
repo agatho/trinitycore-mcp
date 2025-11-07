@@ -7,8 +7,8 @@
  * @module tools/combat-mechanics-analyzer
  */
 
-import type { CombatLogEntry, MissedOpportunity, SuboptimalDecision } from "./botcombatloganalyzer.js";
-import { logger } from '../utils/logger.js';
+import type { CombatLogEntry, MissedOpportunity, SuboptimalDecision } from "./botcombatloganalyzer";
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // TYPES

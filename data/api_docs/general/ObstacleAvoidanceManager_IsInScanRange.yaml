@@ -1,0 +1,68 @@
+api:
+  class: ObstacleAvoidanceManager
+  method: IsInScanRange
+  signature: bool ObstacleAvoidanceManager::IsInScanRange(const int & pos, const DetectionContext
+    & context)
+documentation:
+  brief: Determines whether a given position is within the scan range of the obstacle
+    avoidance manager for the specified detection context.
+  description: The IsInScanRange method evaluates whether a provided position falls
+    within the detection range configured for obstacle avoidance. This functionality
+    is crucial for AI pathfinding and movement behavior in TrinityCore, particularly
+    when determining if an object or location should be considered for avoidance calculations.
+    The method takes into account the current context of detection, which may include
+    factors such as the type of entity being detected, environmental constraints,
+    or specific AI behaviors. It returns true if the position is within range, false
+    otherwise. This check is typically used before performing more expensive operations
+    like raycasting or detailed collision detection.
+  parameters:
+  - name: pos
+    description: Reference to an integer representing the position coordinate to be
+      checked. In TrinityCore's context, this usually corresponds to a grid-based
+      coordinate system where positions are defined by integer values.
+  - name: context
+    description: Reference to a DetectionContext object that defines the parameters
+      and constraints for the detection operation. This includes information about
+      the type of detection being performed, relevant flags, and other contextual
+      data that affects how range is calculated.
+  returns: Returns a boolean value indicating whether the specified position is within
+    the scan range. True indicates the position is within range and should be considered
+    for obstacle avoidance calculations; false means it's outside the range and can
+    be ignored.
+  examples:
+  - title: Basic usage to check if a position is in scan range
+    code: "int testPosition = 100;\nDetectionContext context;\n// Set up detection\
+      \ context with relevant parameters\nif (obstacleManager.IsInScanRange(testPosition,\
+      \ context)) {\n    // Proceed with detailed obstacle checking\n    std::cout\
+      \ << \"Position is in scan range\" << std::endl;\n} else {\n    // Skip expensive\
+      \ calculations\n    std::cout << \"Position is out of scan range\" << std::endl;\n\
+      }"
+    language: cpp
+  - title: Using IsInScanRange as a pre-filter in pathfinding
+    code: "class PathFinder {\npublic:\n    bool FindPath(const Position& start, const\
+      \ Position& end) {\n        DetectionContext context;\n        context.type\
+      \ = DETECTION_TYPE_MOVEMENT;\n        \n        // Pre-check if target is even\
+      \ in scan range\n        if (!obstacleManager.IsInScanRange(end.GetPositionX(),\
+      \ context)) {\n            return false; // Early exit if out of range\n   \
+      \     }\n        \n        // Continue with full pathfinding logic...\n    \
+      \    return true;\n    }\n};"
+    language: cpp
+  notes: This method is designed to be lightweight and fast, making it suitable for
+    frequent checks during AI decision-making loops. The implementation likely uses
+    cached or precomputed values for performance optimization. It's important to note
+    that the 'pos' parameter may represent either a single coordinate or an index
+    depending on how the underlying grid system is structured.
+  warnings: Ensure that the DetectionContext provided contains valid and relevant
+    parameters, as incorrect context settings may lead to false positives or negatives
+    in range calculations. This method should not be used as a replacement for actual
+    collision detection but rather as a preliminary filter.
+  related:
+  - GetScanRange
+  - IsInAvoidanceRange
+  - UpdateDetectionContext
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:21:30.995802'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

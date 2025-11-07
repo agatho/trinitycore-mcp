@@ -1,0 +1,53 @@
+api:
+  class: DefensiveBehaviorManager
+  method: CountNearbyEnemies
+  signature: uint32 DefensiveBehaviorManager::CountNearbyEnemies(float range) const
+documentation:
+  brief: Counts the number of nearby enemy units within a specified range.
+  description: The CountNearbyEnemies method determines how many hostile units are
+    located within a given radius around the current unit. This functionality is typically
+    used in AI behavior logic to make decisions based on threat levels or crowd control
+    mechanics. The method performs a spatial query to identify all valid enemy targets
+    within the specified range, excluding any that may be dead, invisible, or otherwise
+    ineligible for targeting. It's commonly employed by defensive behaviors to assess
+    danger levels and determine appropriate responses such as fleeing, casting protective
+    spells, or engaging in combat.
+  parameters:
+  - name: range
+    description: The maximum distance (in yards) to search for nearby enemies. Must
+      be a positive value greater than zero.
+  returns: Returns a uint32 representing the total count of valid enemy units found
+    within the specified range. Returns zero if no enemies are detected or if the
+    range parameter is invalid.
+  examples:
+  - title: Basic usage to determine threat level
+    code: "uint32 enemyCount = defensiveManager->CountNearbyEnemies(10.0f);\nif (enemyCount\
+      \ > 3)\n{\n    // Initiate defensive behavior\n    unit->CastSpell(unit, SPELL_DEFENSIVE_STANCE,\
+      \ true);\n}"
+    language: cpp
+  - title: Using result for dynamic AI decision making
+    code: "float threatRange = 15.0f;\nuint32 nearbyEnemies = defensiveManager->CountNearbyEnemies(threatRange);\n\
+      \nif (nearbyEnemies >= 5)\n{\n    // Flee from danger\n    unit->GetMotionMaster()->MoveFleeing(unit,\
+      \ 5000);\n}\nelse if (nearbyEnemies >= 2)\n{\n    // Cast protective aura\n\
+      \    unit->CastSpell(unit, SPELL_PROTECTIVE_AURA, true);\n}\nelse\n{\n    //\
+      \ Return to normal behavior\n    unit->GetMotionMaster()->MoveChase(unit->GetVictim());\n\
+      }"
+    language: cpp
+  notes: This method likely uses internal spatial partitioning systems for performance
+    optimization. The range parameter is typically measured in yards and represents
+    a spherical area around the unit's current position. The method may exclude certain
+    enemy types (such as dead or invisible units) from the count based on standard
+    TrinityCore targeting rules.
+  warnings: Ensure that the range parameter is positive to avoid undefined behavior.
+    Be aware that this method might be computationally expensive in high-density environments
+    with many units, though internal optimizations should mitigate performance issues.
+  related:
+  - CountNearbyAllies
+  - GetNearbyEnemies
+  - IsInCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:00:26.726462'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

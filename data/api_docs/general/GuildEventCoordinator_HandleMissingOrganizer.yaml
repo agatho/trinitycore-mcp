@@ -1,0 +1,56 @@
+api:
+  class: GuildEventCoordinator
+  method: HandleMissingOrganizer
+  signature: void GuildEventCoordinator::HandleMissingOrganizer(uint32 eventId)
+documentation:
+  brief: Handles the case where a guild event organizer is missing by attempting to
+    find and assign a new organizer.
+  description: The HandleMissingOrganizer method in the GuildEventCoordinator class
+    is responsible for managing scenarios where a guild event's designated organizer
+    has become unavailable or invalid. This typically occurs when the original organizer
+    leaves the guild, becomes offline, or otherwise cannot fulfill their role. The
+    method searches for a suitable replacement organizer from among active guild members
+    who meet the necessary criteria (such as having appropriate permissions or being
+    online). If a valid replacement is found, it assigns that member as the new organizer
+    for the specified event. This ensures continuity of guild event management and
+    prevents events from being left in an unmanageable state due to missing leadership.
+  parameters:
+  - name: eventId
+    description: The unique identifier of the guild event for which the organizer
+      is missing. This ID must correspond to a valid event currently managed by the
+      GuildEventCoordinator.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'GuildEventCoordinator coordinator;
+
+      coordinator.HandleMissingOrganizer(12345); // Handles missing organizer for
+      event with ID 12345'
+    language: cpp
+  - title: Integration with Event Management System
+    code: "void OnGuildMemberLeave(Player* player) {\n    // Find any events where\
+      \ this player was the organizer\n    for (auto& event : guildEvents) {\n   \
+      \     if (event.organizerGuid == player->GetGUID()) {\n            coordinator.HandleMissingOrganizer(event.id);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the GuildEventCoordinator has access to a list of
+    active guild members and their current status. It may involve database lookups
+    or cache queries to determine eligibility for organizer roles. The implementation
+    should be thread-safe if called from concurrent contexts, especially when dealing
+    with event state changes.
+  warnings: The method does not validate whether the eventId is valid before processing;
+    callers should ensure that the eventId corresponds to an existing event managed
+    by this coordinator. Additionally, if no suitable replacement organizer can be
+    found, the event may remain without proper leadership, potentially causing issues
+    in event execution or tracking.
+  related:
+  - GetEventOrganizer
+  - SetEventOrganizer
+  - FindAvailableOrganizer
+  - ValidateEvent
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T12:37:26.258902'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

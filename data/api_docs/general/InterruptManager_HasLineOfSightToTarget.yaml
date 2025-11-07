@@ -1,0 +1,56 @@
+api:
+  class: InterruptManager
+  method: HasLineOfSightToTarget
+  signature: bool InterruptManager::HasLineOfSightToTarget(Unit * target)
+documentation:
+  brief: Determines whether the unit has unobstructed line of sight to the specified
+    target unit.
+  description: The HasLineOfSightToTarget method evaluates whether a Unit can see
+    another Unit without any environmental obstructions, such as walls or terrain
+    features. This is commonly used in spell casting, AI behavior, and combat mechanics
+    where visibility is crucial for actions like targeting, casting spells, or initiating
+    attacks. The method performs a raycast check from the source unit's position to
+    the target unit's position, taking into account collision detection with game
+    objects and map boundaries. It returns true if there is a clear path between the
+    two units, and false otherwise.
+  parameters:
+  - name: target
+    description: A pointer to the Unit object that the source unit's line of sight
+      is being checked against. Must not be null.
+  returns: Returns true if there is an unobstructed line of sight from the calling
+    unit to the target unit, false otherwise. The method will return false if the
+    target is null or if any environmental obstacles block the direct path between
+    the two units.
+  examples:
+  - title: Basic usage in spell targeting
+    code: "if (interruptManager.HasLineOfSightToTarget(targetUnit)) {\n    // Proceed\
+      \ with spell casting\n    caster->CastSpell(targetUnit, SPELL_ID, true);\n}\
+      \ else {\n    // Target is not visible, cannot cast\n    caster->SendSpellFailed(client,\
+      \ SPELL_ID, SPELL_FAILED_NO_LINE_OF_SIGHT);\n}"
+    language: cpp
+  - title: AI decision making based on line of sight
+    code: "if (player->HasLineOfSightToTarget(enemy)) {\n    // Enemy is visible,\
+      \ perform attack\n    player->Attack(enemy, true);\n} else {\n    // Enemy not\
+      \ visible, move to position with better visibility\n    player->MoveTowards(enemy,\
+      \ 10.0f);\n}"
+    language: cpp
+  notes: This method is computationally expensive as it performs raycasting through
+    the game world. It should be used sparingly in performance-critical code paths
+    such as AI update loops or frequent spell checks. The implementation considers
+    both static and dynamic obstacles, including terrain features, game objects, and
+    other units that may block visibility.
+  warnings: Do not call this method with a null target pointer; it will likely cause
+    undefined behavior or crashes. This method should not be used for determining
+    if a unit is within range but out of sight, as it only checks for visual obstruction,
+    not distance. Avoid calling this in tight loops without caching results.
+  related:
+  - Unit::IsInFront
+  - Unit::IsInBack
+  - Unit::IsWithinDist
+  - WorldObject::GetDistance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:23:10.551147'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

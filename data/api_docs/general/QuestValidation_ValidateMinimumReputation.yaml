@@ -1,0 +1,57 @@
+api:
+  class: QuestValidation
+  method: ValidateMinimumReputation
+  signature: bool QuestValidation::ValidateMinimumReputation(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates if a player has the minimum required reputation to accept a quest
+  description: The ValidateMinimumReputation method checks whether the specified player
+    meets the minimum reputation requirements for accepting a given quest. This validation
+    is performed by querying the quest's reputation requirements against the player's
+    current reputation levels with relevant factions. The method ensures that players
+    cannot accept quests they do not meet the prerequisites for, maintaining game
+    balance and progression integrity. It returns true if the player has sufficient
+    reputation, or false otherwise. This check typically occurs during quest acceptance
+    logic within the TrinityCore framework.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate reputation requirements
+      for. Must correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose reputation
+      is being validated against the quest requirements. Cannot be null.
+  returns: Returns true if the player has sufficient reputation to accept the quest,
+    false otherwise. If the quest has no reputation requirements, the method returns
+    true by default.
+  examples:
+  - title: Basic Reputation Validation
+    code: "if (QuestValidation::ValidateMinimumReputation(12345, player)) {\n    //\
+      \ Player can accept the quest\n    player->AddQuest(12345);\n} else {\n    //\
+      \ Player lacks required reputation\n    player->SendNotification(\"You do not\
+      \ have sufficient reputation to accept this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (!QuestValidation::ValidateMinimumReputation(quest->GetQuestId(),\
+      \ this)) {\n        SendQuestInvalidReason(QUEST_INVALID_REPUTATION);\n    \
+      \    return;\n    }\n    // Proceed with normal quest acceptance logic\n   \
+      \ AddQuest(quest->GetQuestId());\n}"
+    language: cpp
+  notes: This method relies on the quest's reputation requirements stored in the database.
+    The validation is performed using the player's current faction standings, which
+    are updated through various game actions such as completing quests, killing mobs,
+    or interacting with NPCs. This function does not modify any player state; it only
+    performs a read-only check.
+  warnings: Ensure that the questId parameter corresponds to an actual quest in the
+    database, otherwise behavior is undefined. The method assumes that the Player
+    pointer is valid and not null, as passing a null pointer would result in a crash
+    or undefined behavior.
+  related:
+  - Player::GetReputation
+  - Quest::GetRequiredReputation
+  - Player::CanTakeQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:14:56.253685'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

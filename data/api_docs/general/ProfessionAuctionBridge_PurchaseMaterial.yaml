@@ -1,0 +1,73 @@
+api:
+  class: ProfessionAuctionBridge
+  method: PurchaseMaterial
+  signature: bool ProfessionAuctionBridge::PurchaseMaterial(int * player, uint32 itemId,
+    uint32 quantity, uint32 maxPricePerUnit)
+documentation:
+  brief: Attempts to purchase a specified quantity of material item from the profession
+    auction house.
+  description: The PurchaseMaterial method facilitates the acquisition of crafting
+    materials from the profession auction house system. It handles the transaction
+    logic including validating player permissions, checking item availability, verifying
+    sufficient funds, and updating inventory. The method ensures that players can
+    only purchase items they are qualified to craft based on their skill level and
+    profession requirements. It also enforces maximum price constraints per unit to
+    prevent overpaying for materials.
+  parameters:
+  - name: player
+    description: Pointer to the player object representing the buyer. Must be a valid
+      player instance with active session and sufficient funds.
+  - name: itemId
+    description: Unique identifier of the material item to purchase from the auction
+      house. Must correspond to a valid item in the game database that is available
+      for auction.
+  - name: quantity
+    description: Number of units of the specified item to purchase. Must be a positive
+      integer greater than zero.
+  - name: maxPricePerUnit
+    description: Maximum price per unit the player is willing to pay. Transaction
+      will fail if any unit exceeds this price limit.
+  returns: Returns true if the purchase was successful and the materials were added
+    to the player's inventory. Returns false if the transaction failed due to insufficient
+    funds, invalid item, player not meeting requirements, or other validation errors.
+  examples:
+  - title: Basic Material Purchase
+    code: "Player* player = ...; // Valid player instance\nuint32 itemId = 12345;\
+      \ // Example material ID\nuint32 quantity = 10;\nuint32 maxPricePerUnit = 5000;\n\
+      bool success = sProfessionAuctionBridge->PurchaseMaterial(&player, itemId, quantity,\
+      \ maxPricePerUnit);\nif (success) {\n    // Handle successful purchase\n   \
+      \ sWorld->SendWorldText(LANG_PURCHASE_SUCCESS, itemId, quantity);\n} else {\n\
+      \    // Handle failed purchase\n    sWorld->SendWorldText(LANG_PURCHASE_FAILED,\
+      \ itemId);\n}"
+    language: cpp
+  - title: Bulk Material Purchase with Error Handling
+    code: "Player* player = ...;\nuint32 itemId = 12345;\nuint32 quantity = 100;\n\
+      uint32 maxPricePerUnit = 1000;\n\nif (sProfessionAuctionBridge->PurchaseMaterial(&player,\
+      \ itemId, quantity, maxPricePerUnit)) {\n    // Log successful transaction\n\
+      \    sLog->outString(\"Player %u purchased %u units of item %u\", player->GetGUID().GetCounter(),\
+      \ quantity, itemId);\n} else {\n    // Check specific error conditions\n   \
+      \ if (player->GetMoney() < (quantity * maxPricePerUnit)) {\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Not enough gold to complete purchase.\");\n    } else {\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Purchase failed for item %u.\", itemId);\n    }\n}"
+    language: cpp
+  notes: This method is part of the profession auction house system and interacts
+    with both the player's inventory and the auction house database. The method performs
+    multiple checks including item validity, player skill requirements, and financial
+    constraints. It may trigger additional events such as auction house update notifications
+    or crafting skill progression.
+  warnings: The player parameter must be a valid pointer to an active player object;
+    passing null or invalid pointers will cause undefined behavior. The method does
+    not validate that the player has the required profession skills - this validation
+    should occur before calling PurchaseMaterial. Multiple concurrent calls from the
+    same player may result in race conditions if not properly synchronized.
+  related:
+  - GetAuctionItem
+  - ListAvailableMaterials
+  - CheckPlayerRequirements
+  - UpdatePlayerMoney
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T05:30:01.644770'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

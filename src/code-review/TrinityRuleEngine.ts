@@ -14,17 +14,17 @@ import {
   CodeContext,
   AST,
   IssueSeverity,
-} from './types.js';
-import { logger } from '../utils/logger.js';
+} from './types';
+import { logger } from '../utils/logger';
 
 // Import rule categories
-import { NULL_SAFETY_RULES } from './rules/NullSafetyRules.js';
-import { MEMORY_RULES } from './rules/MemoryRules.js';
-import { CONCURRENCY_RULES } from './rules/ConcurrencyRules.js';
-import { CONVENTION_RULES } from './rules/ConventionRules.js';
-import { SECURITY_RULES } from './rules/SecurityRules.js';
-import { PERFORMANCE_RULES } from './rules/PerformanceRules.js';
-import { ARCHITECTURE_RULES } from './rules/ArchitectureRules.js';
+import { NULL_SAFETY_RULES } from './rules/NullSafetyRules';
+import { MEMORY_RULES } from './rules/MemoryRules';
+import { CONCURRENCY_RULES } from './rules/ConcurrencyRules';
+import { CONVENTION_RULES } from './rules/ConventionRules';
+import { SECURITY_RULES } from './rules/SecurityRules';
+import { PERFORMANCE_RULES } from './rules/PerformanceRules';
+import { ARCHITECTURE_RULES } from './rules/ArchitectureRules';
 
 // ============================================================================
 // RULE DATABASE
@@ -585,10 +585,10 @@ export class TrinityRuleEngine {
 // EXPORTS
 // ============================================================================
 
-export * from './rules/NullSafetyRules.js';
-export * from './rules/MemoryRules.js';
-export * from './rules/ConcurrencyRules.js';
-export * from './rules/ConventionRules.js';
-export * from './rules/SecurityRules.js';
-export * from './rules/PerformanceRules.js';
-export * from './rules/ArchitectureRules.js';
+export * from './rules/NullSafetyRules';
+export * from './rules/MemoryRules';
+export * from './rules/ConcurrencyRules';
+export * from './rules/ConventionRules';
+export * from './rules/SecurityRules';
+export * from './rules/PerformanceRules';
+export * from './rules/ArchitectureRules';

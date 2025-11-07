@@ -1,0 +1,60 @@
+api:
+  class: PlayerbotPacketSniffer
+  method: OnPacketSend
+  signature: void PlayerbotPacketSniffer::OnPacketSend(WorldSession * session, const
+    WorldPacket & packet)
+documentation:
+  brief: Processes outgoing packets from a player session for bot behavior analysis
+    and packet interception.
+  description: The OnPacketSend method is invoked whenever a packet is about to be
+    sent from a WorldSession to a client. It serves as a hook point for the Playerbot
+    system to monitor, analyze, or modify outgoing game traffic. This method allows
+    player bots to react to specific packet types, gather information about the player's
+    actions, or even prevent certain packets from being delivered. The method operates
+    within the context of the TrinityCore's packet handling architecture and is typically
+    used in conjunction with other bot-related systems to maintain bot behavior consistency
+    and responsiveness.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the client connection
+      sending the packet. This session contains information about the player, their
+      state, and the network connection.
+  - name: packet
+    description: Reference to the WorldPacket object containing the data that will
+      be sent to the client. This packet includes the opcode and payload data for
+      the outgoing message.
+  returns: null
+  examples:
+  - title: Basic Packet Sniffing Implementation
+    code: "void PlayerbotPacketSniffer::OnPacketSend(WorldSession* session, const\
+      \ WorldPacket& packet)\n{\n    if (packet.GetOpcode() == SMSG_UPDATE_OBJECT)\n\
+      \    {\n        // Log or process update object packets\n        sLog->outDebug(LOG_FILTER_PLAYERBOT,\
+      \ \"Bot detected SMSG_UPDATE_OBJECT from %s\", session->GetPlayer()->GetName());\n\
+      \    }\n}"
+    language: cpp
+  - title: Intercepting Movement Packets
+    code: "void PlayerbotPacketSniffer::OnPacketSend(WorldSession* session, const\
+      \ WorldPacket& packet)\n{\n    if (packet.GetOpcode() == SMSG_MOVE_UPDATE)\n\
+      \    {\n        // Modify or suppress movement updates for bot behavior\n  \
+      \      if (IsBotControlled(session->GetPlayer()))\n        {\n            //\
+      \ Example: Prevent certain movement packets from reaching the client\n     \
+      \       return; // Suppress packet\n        }\n    }\n}"
+    language: cpp
+  notes: This method is called during the packet send process, before the actual network
+    transmission occurs. It's important to note that modifying or suppressing packets
+    can affect gameplay behavior and should be done carefully. The method runs in
+    the context of the session's thread, so any heavy processing may impact performance.
+  warnings: Modifying or suppressing packets directly within this method can cause
+    unexpected client-side behavior or disconnects. Always ensure packet integrity
+    when intercepting or altering data. Avoid performing blocking operations inside
+    this method as it may affect server responsiveness.
+  related:
+  - OnPacketReceive
+  - PlayerbotAI::HandleBotOutgoingPacket
+  - WorldSession::SendPacket
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T05:48:15.952538'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

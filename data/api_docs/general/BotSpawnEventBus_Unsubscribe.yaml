@@ -1,0 +1,52 @@
+api:
+  class: BotSpawnEventBus
+  method: Unsubscribe
+  signature: void BotSpawnEventBus::Unsubscribe(HandlerId handlerId)
+documentation:
+  brief: Removes a previously subscribed event handler from the bot spawn event bus.
+  description: The Unsubscribe method removes an event handler that was previously
+    registered with the BotSpawnEventBus using the Subscribe method. This method takes
+    a HandlerId parameter which uniquely identifies the handler to be removed. Once
+    unsubscribed, the handler will no longer receive notifications when bot spawn
+    events occur. The method performs no validation on the provided HandlerId, so
+    calling it with an invalid or already-unsubscribed handler ID may result in undefined
+    behavior. This is typically used to clean up event handlers when they are no longer
+    needed, preventing memory leaks and ensuring proper event handling lifecycle management.
+  parameters:
+  - name: handlerId
+    description: The unique identifier of the event handler to be removed from the
+      bot spawn event bus. This ID should have been previously returned by a successful
+      Subscribe call.
+  returns: null
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: "BotSpawnEventBus& eventBus = BotSpawnEventBus::Instance();\nHandlerId id\
+      \ = eventBus.Subscribe([](Bot* bot) {\n    // Handle bot spawn\n});\n// ...\
+      \ some time later ...\neventBus.Unsubscribe(id);"
+    language: cpp
+  - title: Unsubscribing in Cleanup Routine
+    code: "class BotManager {\npublic:\n    void RemoveBot(Bot* bot) {\n        //\
+      \ Unsubscribe from events before removing the bot\n        eventBus_.Unsubscribe(handlerId_);\n\
+      \        // Proceed with bot removal logic\n    }\nprivate:\n    BotSpawnEventBus&\
+      \ eventBus_ = BotSpawnEventBus::Instance();\n    HandlerId handlerId_;\n};"
+    language: cpp
+  notes: The BotSpawnEventBus is designed to be thread-safe for subscription operations,
+    but the Unsubscribe method should ideally be called from the same thread that
+    performed the Subscribe operation to avoid potential race conditions. The HandlerId
+    should be treated as an opaque identifier and not assumed to have any particular
+    structure or meaning outside of the event bus context.
+  warnings: Calling Unsubscribe with an invalid HandlerId can lead to undefined behavior,
+    including potential crashes or memory corruption. Always ensure that the HandlerId
+    was obtained from a successful Subscribe call before attempting to unsubscribe.
+    Repeatedly unsubscribing the same handler ID may cause issues if not properly
+    managed.
+  related:
+  - Subscribe
+  - Publish
+  - Clear
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:55:35.777408'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

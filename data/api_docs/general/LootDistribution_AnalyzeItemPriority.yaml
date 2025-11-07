@@ -1,0 +1,64 @@
+api:
+  class: LootDistribution
+  method: AnalyzeItemPriority
+  signature: LootPriority LootDistribution::AnalyzeItemPriority(Player * player, const
+    LootItem & item)
+documentation:
+  brief: Evaluates and returns the priority level of a loot item for a given player
+    based on their class, specialization, and item type.
+  description: The AnalyzeItemPriority method determines how valuable or relevant
+    a specific loot item is to a particular player. It considers factors such as the
+    player's class, specialization, and the item's type (weapon, armor, consumable,
+    etc.) to assign a priority level. This functionality is crucial for determining
+    loot distribution order in group scenarios where items should be awarded to the
+    most suitable player based on their needs and role within the group. The method
+    does not modify any state and is purely analytical in nature.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the loot priority is being
+      evaluated. Must be a valid player instance; null pointers will result in undefined
+      behavior.
+  - name: item
+    description: Reference to the LootItem structure representing the item whose priority
+      is being assessed. The item must have valid properties such as item template,
+      class, and subclass for accurate analysis.
+  returns: Returns a LootPriority enum value indicating the calculated priority of
+    the item for the specified player. Possible values include LOW, MEDIUM, HIGH,
+    and VERY_HIGH, representing increasing levels of desirability or relevance to
+    the player's current needs.
+  examples:
+  - title: Basic Usage Example
+    code: "Player* player = ...; // Assume valid player instance\nLootItem item =\
+      \ ...; // Assume valid loot item\nLootPriority priority = LootDistribution::AnalyzeItemPriority(player,\
+      \ item);\nswitch (priority)\n{\n    case LootPriority::LOW:\n        // Handle\
+      \ low priority item\n        break;\n    case LootPriority::HIGH:\n        //\
+      \ Handle high priority item\n        break;\n}"
+    language: cpp
+  - title: Advanced Usage with Group Loot
+    code: "std::vector<Player*> groupMembers = ...; // List of players in the group\n\
+      LootItem item = ...; // Item to evaluate\nstd::map<Player*, LootPriority> priorities;\n\
+      for (Player* member : groupMembers)\n{\n    if (member && member->IsAlive())\n\
+      \    {\n        priorities[member] = LootDistribution::AnalyzeItemPriority(member,\
+      \ item);\n    }\n}\n// Sort players by priority to determine distribution order\n\
+      auto compare = [](const std::pair<Player*, LootPriority>& a, const std::pair<Player*,\
+      \ LootPriority>& b)\n{\n    return a.second > b.second;\n};\nstd::sort(priorities.begin(),\
+      \ priorities.end(), compare);"
+    language: cpp
+  notes: This method relies on internal TrinityCore loot rules and item templates
+    to make decisions. Performance is generally fast but depends on the complexity
+    of item evaluation logic. The method assumes valid inputs and does not perform
+    input validation, so calling code should ensure player and item are valid before
+    invocation.
+  warnings: Calling this method with a null player pointer or invalid item reference
+    may lead to crashes or undefined behavior. Ensure that both parameters point to
+    valid objects before invoking the method.
+  related:
+  - GetLootItem
+  - DistributeLoot
+  - IsLootAllowed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T09:36:58.406605'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

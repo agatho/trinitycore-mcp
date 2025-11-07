@@ -1,0 +1,47 @@
+api:
+  class: AreaTrigger
+  method: Remove
+  signature: void AreaTrigger::Remove()
+documentation:
+  brief: Removes the area trigger from the world and cleans up its resources.
+  description: The Remove method is responsible for safely removing an AreaTrigger
+    object from the game world. It typically handles the cleanup of associated resources,
+    such as removing the trigger from active triggers lists, notifying the client
+    about removal, and ensuring that any pending events or references are properly
+    terminated. This method is commonly called when an area trigger's duration expires,
+    is manually removed by a spell effect, or when the associated GameObject or Unit
+    is destroyed. The method ensures that no dangling references remain in the game
+    state after removal.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Spell Effect
+    code: "void SpellEffectRemoveAreaTrigger(Spell* spell)\n{\n    if (AreaTrigger*\
+      \ trigger = spell->GetCaster()->GetAreaTriggerById(12345))\n    {\n        trigger->Remove();\n\
+      \    }\n}"
+    language: cpp
+  - title: Removing Area Trigger on Expiration
+    code: "void AreaTrigger::Update(uint32 diff)\n{\n    if (m_timeLeft <= diff)\n\
+      \    {\n        Remove(); // Remove the area trigger when time expires\n   \
+      \     return;\n    }\n    m_timeLeft -= diff;\n}"
+    language: cpp
+  notes: This method should not be called directly from outside the AreaTrigger's
+    internal logic unless you are certain about the consequences. It is typically
+    invoked by the core game loop or through spell handlers when an area trigger needs
+    to be destroyed. The method may perform asynchronous cleanup operations, so immediate
+    access to the object after calling Remove() could result in undefined behavior.
+  warnings: Calling Remove() on an already-removed AreaTrigger can lead to memory
+    corruption or crashes. Always verify that the area trigger is still valid before
+    removal. Additionally, if this method is called from a different thread than where
+    the object was created, it may cause race conditions unless proper synchronization
+    mechanisms are in place.
+  related:
+  - AreaTrigger::Add
+  - AreaTrigger::IsRemoved
+  - AreaTrigger::GetOwner
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T22:09:38.945031'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

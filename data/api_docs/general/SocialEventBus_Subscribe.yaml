@@ -1,0 +1,59 @@
+api:
+  class: SocialEventBus
+  method: Subscribe
+  signature: bool SocialEventBus::Subscribe(BotAI * subscriber, const int & types)
+documentation:
+  brief: Registers a BotAI subscriber to receive notifications for specified social
+    event types.
+  description: The Subscribe method allows a BotAI instance to register itself with
+    the SocialEventBus to receive notifications about specific social events. The
+    method takes a pointer to the subscribing BotAI and an integer representing the
+    bitmask of event types the subscriber wishes to listen to. It returns true if
+    the subscription was successfully added, or false if the subscription failed due
+    to invalid parameters or internal errors. This mechanism enables bots to react
+    to social interactions such as chat messages, group invitations, or friend requests
+    within the game environment.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that wishes to subscribe to social
+      events. Must not be null.
+  - name: types
+    description: Bitmask representing the types of social events the subscriber wants
+      to receive notifications for. Each bit corresponds to a specific event type
+      defined in the social event system.
+  returns: True if the subscription was successfully registered with the event bus,
+    false otherwise. Returns false if the subscriber pointer is null or if the event
+    type mask is invalid.
+  examples:
+  - title: Basic Subscription Example
+    code: "BotAI* myBot = new BotAI();\nint eventTypeMask = SOCIAL_EVENT_CHAT_MESSAGE\
+      \ | SOCIAL_EVENT_GROUP_INVITE;\nbool success = SocialEventBus::Subscribe(myBot,\
+      \ eventTypeMask);\nif (success) {\n    // Bot is now subscribed to chat messages\
+      \ and group invites\n}"
+    language: cpp
+  - title: Subscription with Error Handling
+    code: "BotAI* bot = GetPlayerBot();\nif (!bot) {\n    return false;\n}\nint allEvents\
+      \ = SOCIAL_EVENT_CHAT_MESSAGE | SOCIAL_EVENT_FRIEND_REQUEST | SOCIAL_EVENT_GROUP_INVITE;\n\
+      bool result = SocialEventBus::Subscribe(bot, allEvents);\nif (!result) {\n \
+      \   // Handle subscription failure\n    sLog->outError(\"Failed to subscribe\
+      \ bot %u to social events\", bot->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: The SocialEventBus uses a thread-safe design pattern where subscriptions
+    are managed through a central registry. The types parameter should be constructed
+    using predefined constants or masks defined in the social event system. Multiple
+    subscribers can be registered for the same event type, and all will receive notifications
+    when those events occur.
+  warnings: Ensure that the BotAI instance remains valid for the duration of the subscription,
+    as unsubscribing is not handled automatically. Passing a null subscriber pointer
+    will result in a failed subscription attempt. The types parameter must represent
+    valid event types defined by the social event system to avoid undefined behavior.
+  related:
+  - Unsubscribe
+  - Publish
+  - GetSubscribers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:15:53.376936'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

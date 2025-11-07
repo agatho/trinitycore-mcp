@@ -1,0 +1,89 @@
+api:
+  class: ConversationData
+  method: WriteUpdate
+  signature: void ConversationData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Conversation * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes conversation data changes into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the changes made to a ConversationData
+    object into a ByteBuffer, preparing it for network transmission. It uses a changes
+    mask to determine which fields have been modified and should be included in the
+    update packet. The method respects nested change masks and can filter updates
+    based on the owner of the conversation and the receiving player. This is typically
+    used during packet construction for sending conversation state updates to players
+    in the World of Warcraft client, ensuring that only relevant data is transmitted.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is populated with the encoded conversation changes.
+  - name: changesMask
+    description: Integer mask indicating which fields of the conversation data have
+      changed and should be included in the update packet. Each bit corresponds to
+      a specific field or property.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested change masks should be
+      considered when serializing updates. If true, nested changes are ignored during
+      serialization.
+  - name: owner
+    description: Pointer to the Conversation object that owns this data. Used for
+      context and potentially filtering based on conversation state or ownership.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to determine if certain updates should be included or filtered based on
+      player-specific conditions.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ConversationData data;
+
+      ByteBuffer buffer;
+
+      Player* receiver = ...; // Get player reference
+
+      Conversation* owner = ...; // Get conversation reference
+
+      int changesMask = 0x01; // Assume first field changed
+
+
+      data.WriteUpdate(buffer, changesMask, false, owner, receiver);'
+    language: cpp
+  - title: Using nested change mask ignore flag
+    code: 'ConversationData data;
+
+      ByteBuffer buffer;
+
+      Player* receiver = ...;
+
+      Conversation* owner = ...;
+
+      int changesMask = 0x0F; // Multiple fields changed
+
+
+      // Ignore nested changes for this update
+
+      bool ignoreNested = true;
+
+      data.WriteUpdate(buffer, changesMask, ignoreNested, owner, receiver);'
+    language: cpp
+  notes: This method is part of the TrinityCore's networking system and is typically
+    called internally by the server when constructing update packets for players.
+    The changes mask is expected to be constructed using predefined bit flags that
+    correspond to specific fields in the conversation data structure. Performance-wise,
+    this method should be efficient since it only serializes changed data rather than
+    entire structures.
+  warnings: Incorrectly setting the changesMask can result in incomplete or incorrect
+    updates being sent to clients. Developers must ensure that all relevant bits are
+    set when calling this method. Additionally, using an invalid owner or receiver
+    pointer may lead to undefined behavior or crashes during serialization.
+  related:
+  - ConversationData::ReadUpdate
+  - ConversationData::BuildUpdateData
+  - ConversationData::GetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:21:25.213802'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

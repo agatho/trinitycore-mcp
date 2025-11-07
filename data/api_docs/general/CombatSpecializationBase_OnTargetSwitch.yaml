@@ -1,0 +1,57 @@
+api:
+  class: CombatSpecializationBase
+  method: OnTargetSwitch
+  signature: void CombatSpecializationBase::OnTargetSwitch(::Unit * oldTarget, ::Unit
+    * newTarget)
+documentation:
+  brief: Handles the event when a unit's target switches to a new unit.
+  description: The OnTargetSwitch method is invoked whenever a combat specialization's
+    target changes from one unit to another. This method serves as a callback mechanism
+    for specialized combat behaviors that need to respond to target transitions. It
+    allows custom logic to be executed when the unit's current target is replaced
+    by a new target, enabling features such as resetting cooldowns, updating AI states,
+    or triggering special abilities based on the new target. The method receives both
+    the previous target and the new target as parameters, providing context for any
+    necessary state updates or actions.
+  parameters:
+  - name: oldTarget
+    description: Pointer to the Unit that was previously being targeted. May be nullptr
+      if no target was active before the switch.
+  - name: newTarget
+    description: Pointer to the Unit that is now being targeted. May be nullptr if
+      the target is being cleared.
+  returns: null
+  examples:
+  - title: Basic Target Switch Handler
+    code: "void MyCombatSpecialization::OnTargetSwitch(Unit* oldTarget, Unit* newTarget)\n\
+      {\n    // Reset cooldowns when target changes\n    if (newTarget)\n        ResetAbilityCooldowns();\n\
+      \    else\n        CancelAllActiveEffects();\n}"
+    language: cpp
+  - title: Advanced Target Switch with State Management
+    code: "void MyCombatSpecialization::OnTargetSwitch(Unit* oldTarget, Unit* newTarget)\n\
+      {\n    // Log target transition\n    if (newTarget)\n        TC_LOG_DEBUG(\"\
+      combat\", \"Unit %u switched target from %u to %u\", \n                    \
+      \ GetOwner()->GetGUID().GetCounter(), \n                     oldTarget ? oldTarget->GetGUID().GetCounter()\
+      \ : 0, \n                     newTarget->GetGUID().GetCounter());\n    \n  \
+      \  // Update combat state\n    if (newTarget && !newTarget->IsInCombat())\n\
+      \        SetCombatState(false);\n    else if (newTarget)\n        SetCombatState(true);\n\
+      }"
+    language: cpp
+  notes: This method is typically called during combat state updates and may be invoked
+    multiple times in quick succession during rapid target switching. Developers should
+    ensure that any logic within this method is efficient to avoid performance degradation
+    during active combat scenarios.
+  warnings: Avoid performing expensive operations or blocking calls within this method
+    as it can impact combat responsiveness. Also, be cautious of potential null pointer
+    dereferences when accessing oldTarget or newTarget if they are not validated before
+    use.
+  related:
+  - OnCombatStart
+  - OnCombatStop
+  - SetTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:01:00.509271'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

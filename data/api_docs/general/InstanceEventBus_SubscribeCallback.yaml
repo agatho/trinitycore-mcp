@@ -1,0 +1,59 @@
+api:
+  class: InstanceEventBus
+  method: SubscribeCallback
+  signature: uint32 InstanceEventBus::SubscribeCallback(EventHandler handler, const
+    int & types)
+documentation:
+  brief: Registers a callback handler for instance events of specified types and returns
+    a unique subscription ID.
+  description: The SubscribeCallback method allows subsystems or modules to register
+    interest in specific types of instance-related events by providing an event handler
+    function and a bitmask of event types. The method returns a unique identifier
+    that can be used later to unsubscribe from these events. This mechanism is crucial
+    for decoupling event producers from consumers in the TrinityCore instance management
+    system, enabling flexible and modular event handling without tight coupling between
+    components. The subscription ID returned by this method should be stored by the
+    caller for potential future use with UnsubscribeCallback.
+  parameters:
+  - name: handler
+    description: A function pointer or callable object that will be invoked when matching
+      events occur. The handler must match the EventHandler signature expected by
+      the InstanceEventBus.
+  - name: types
+    description: A bitmask representing the types of instance events to subscribe
+      to. Individual event type constants should be combined using bitwise OR operations
+      to specify multiple event types.
+  returns: Returns a unique uint32 identifier that represents this subscription. This
+    ID can be used with UnsubscribeCallback to remove the registration. A return value
+    of 0 typically indicates an error or invalid subscription request.
+  examples:
+  - title: Basic Subscription Example
+    code: uint32 subscriptionId = instanceEventBus.SubscribeCallback(&MyEventHandler,
+      INSTANCE_EVENT_TYPE_CREATE | INSTANCE_EVENT_TYPE_DESTROY);
+    language: cpp
+  - title: Multiple Event Types Subscription
+    code: "auto handler = [](const InstanceEvent& event) { \n    // Handle event\n\
+      };\nuint32 id = instanceEventBus.SubscribeCallback(handler, INSTANCE_EVENT_TYPE_ENTER\
+      \ | INSTANCE_EVENT_TYPE_LEAVE | INSTANCE_EVENT_TYPE_UPDATE);"
+    language: cpp
+  notes: The subscription ID returned by SubscribeCallback is managed internally by
+    the InstanceEventBus and should not be reused or assumed to be persistent across
+    server restarts. Event handlers are invoked synchronously in the context where
+    events are fired, so long-running operations within handlers may impact performance.
+    The types parameter accepts a bitmask of event type constants defined elsewhere
+    in the TrinityCore API.
+  warnings: Failing to store the returned subscription ID means you cannot unsubscribe
+    later, potentially leading to memory leaks or dangling references if the handler
+    object is destroyed before the event bus. Event handlers must be thread-safe if
+    events can be fired from different threads. Be cautious of circular dependencies
+    between event handlers and other systems.
+  related:
+  - UnsubscribeCallback
+  - FireEvent
+  - HasSubscribers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:33:10.220653'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

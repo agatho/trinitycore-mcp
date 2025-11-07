@@ -1,0 +1,102 @@
+api:
+  class: AuctionHouseObject
+  method: AddAuction
+  signature: void AuctionHouseObject::AddAuction(int trans, AuctionPosting auction)
+documentation:
+  brief: Adds a new auction to the auction house system with the specified transaction
+    and auction posting data.
+  description: The AddAuction method is responsible for inserting a new auction item
+    into the auction house database. It takes an optional transaction identifier and
+    an AuctionPosting object that contains all necessary details about the auction
+    such as item, bid amount, buyout price, and duration. This method ensures that
+    the auction is properly registered in the system and will be available for players
+    to browse and bid on. The transaction parameter allows for database transaction
+    management, ensuring data consistency when multiple related operations are performed
+    together. The method performs necessary validations to ensure that the auction
+    posting conforms to game rules and restrictions before adding it to the auction
+    house.
+  parameters:
+  - name: trans
+    description: Database transaction identifier used for managing database operations.
+      If set to 0 or negative value, no explicit transaction is used. This allows
+      for batch processing of multiple auctions within a single database transaction
+      for improved performance and data consistency.
+  - name: auction
+    description: AuctionPosting object containing all the details required for creating
+      an auction including item GUID, starting bid, buyout price, duration, and other
+      auction properties. This object must contain valid data or the method may fail
+      to add the auction properly.
+  returns: null
+  examples:
+  - title: Basic Auction Addition
+    code: 'AuctionPosting newAuction;
+
+      newAuction.itemGuid = 12345;
+
+      newAuction.startBid = 1000;
+
+      newAuction.buyoutPrice = 5000;
+
+      newAuction.duration = 3600;
+
+
+      // Add auction without transaction
+
+      auctionHouse->AddAuction(0, newAuction);'
+    language: cpp
+  - title: Auction Addition with Transaction
+    code: 'int transactionId = database.BeginTransaction();
+
+      AuctionPosting auction1;
+
+      auction1.itemGuid = 12345;
+
+      auction1.startBid = 1000;
+
+      auction1.buyoutPrice = 5000;
+
+      auction1.duration = 3600;
+
+
+      AuctionPosting auction2;
+
+      auction2.itemGuid = 12346;
+
+      auction2.startBid = 2000;
+
+      auction2.buyoutPrice = 8000;
+
+      auction2.duration = 7200;
+
+
+      // Add multiple auctions in single transaction
+
+      auctionHouse->AddAuction(transactionId, auction1);
+
+      auctionHouse->AddAuction(transactionId, auction2);
+
+      database.CommitTransaction(transactionId);'
+    language: cpp
+  notes: This method is typically called when a player successfully posts an item
+    for auction. The method internally handles database persistence and ensures that
+    all auction-related constraints are enforced. It's important to note that this
+    method does not validate the item ownership or permissions - those checks should
+    be performed before calling AddAuction. The transaction parameter can significantly
+    improve performance when adding multiple auctions at once, as it reduces the number
+    of individual database commits.
+  warnings: Calling this method with an invalid AuctionPosting object may result in
+    database corruption or inconsistent state. Always ensure that the auction data
+    is valid and conforms to game rules before calling this method. Using a transaction
+    ID that doesn't correspond to an active database transaction will likely cause
+    errors or undefined behavior.
+  related:
+  - RemoveAuction
+  - GetAuction
+  - UpdateAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T21:15:59.708214'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

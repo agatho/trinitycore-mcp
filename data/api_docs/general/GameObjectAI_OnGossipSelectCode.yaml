@@ -1,0 +1,62 @@
+api:
+  class: GameObjectAI
+  method: OnGossipSelectCode
+  signature: bool GameObjectAI::OnGossipSelectCode(Player * param0, uint32 param1,
+    uint32 param2, const char * param3)
+documentation:
+  brief: Handles selection of a gossip option with a code from a game object's gossip
+    menu
+  description: The OnGossipSelectCode method is invoked when a player selects a gossip
+    option that includes a code parameter. This method allows GameObjectAI implementations
+    to handle specific actions based on the selected gossip item, its associated code,
+    and the player who interacted with it. It is part of the standard gossip interaction
+    flow in TrinityCore where players can choose from multiple options presented by
+    game objects such as quest givers or vendors. The method returns a boolean indicating
+    whether the gossip session should continue or be closed.
+  parameters:
+  - name: param0
+    description: Pointer to the Player object who selected the gossip option
+  - name: param1
+    description: The menu ID of the gossip menu from which the option was selected
+  - name: param2
+    description: The specific gossip option index that was selected (zero-based)
+  - name: param3
+    description: The code string associated with the selected gossip option, or nullptr
+      if none
+  returns: True if the gossip session should continue (e.g., show another menu), false
+    to close the gossip session
+  examples:
+  - title: Basic implementation handling a specific code
+    code: "bool GameObjectAI::OnGossipSelectCode(Player* player, uint32 menuId, uint32\
+      \ itemId, const char* code)\n{\n    if (strcmp(code, \"QUEST_ACCEPT\") == 0)\n\
+      \    {\n        // Handle quest acceptance logic\n        player->PlayerTalkClass->SendCloseGossip();\n\
+      \        return false;\n    }\n    return true;\n}"
+    language: cpp
+  - title: Advanced implementation with multiple code handling
+    code: "bool GameObjectAI::OnGossipSelectCode(Player* player, uint32 menuId, uint32\
+      \ itemId, const char* code)\n{\n    if (code == nullptr)\n        return true;\n\
+      \n    if (strcmp(code, \"REPAIR\") == 0)\n    {\n        player->GetSession()->SendListInventory(GetObjectGuid());\n\
+      \        return false;\n    }\n    else if (strcmp(code, \"TELEPORT\") == 0)\n\
+      \    {\n        // Teleport logic here\n        player->TeleportTo(1, 1000.0f,\
+      \ 1000.0f, 100.0f, 0);\n        return false;\n    }\n    else if (strcmp(code,\
+      \ \"QUEST_COMPLETE\") == 0)\n    {\n        // Complete quest logic\n      \
+      \  player->PlayerTalkClass->SendCloseGossip();\n        return false;\n    }\n\
+      \n    return true;\n}"
+    language: cpp
+  notes: This method is typically called after OnGossipSelect and is used for more
+    complex interactions where a code string provides additional context beyond just
+    the menu ID and item index. The code parameter may be set by the database or script
+    system when defining gossip options.
+  warnings: Ensure that the code parameter is properly validated before use to prevent
+    potential security issues. Always consider whether to return true or false based
+    on if further interaction should occur after this selection.
+  related:
+  - OnGossipSelect
+  - OnGossipHello
+  - OnGossipSelectItem
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:58:32.948329'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -9,7 +9,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { glob } from 'glob';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // Type Definitions

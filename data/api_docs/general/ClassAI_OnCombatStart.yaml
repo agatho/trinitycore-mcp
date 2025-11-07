@@ -1,0 +1,53 @@
+api:
+  class: ClassAI
+  method: OnCombatStart
+  signature: void ClassAI::OnCombatStart(int * target)
+documentation:
+  brief: Initializes AI behavior when entering combat mode
+  description: The OnCombatStart method is called when a creature or NPC enters combat
+    state. This method serves as the primary entry point for AI logic during combat
+    initiation, allowing developers to define custom behaviors such as targeting strategies,
+    spell casting, or movement patterns. The method is invoked automatically by the
+    TrinityCore framework when an AI-controlled unit begins combat with a target.
+    It provides a hook for implementing specialized combat routines while maintaining
+    compatibility with the core AI system.
+  parameters:
+  - name: target
+    description: Pointer to the target entity that initiated combat. This parameter
+      represents the unit (player or creature) against which the AI-controlled unit
+      is now engaged in combat.
+  returns: void
+  examples:
+  - title: Basic Combat Start Implementation
+    code: "class MyCreatureAI : public ClassAI {\npublic:\n    void OnCombatStart(int*\
+      \ target) override {\n        // Log combat start\n        sLog->outString(\"\
+      Creature entered combat with target %d\", *target);\n        \n        // Perform\
+      \ initial actions\n        DoCast(SPELL_INITIAL_SPELL);\n    }\n};"
+    language: cpp
+  - title: Advanced Combat Start with Target Analysis
+    code: "class AdvancedCreatureAI : public ClassAI {\npublic:\n    void OnCombatStart(int*\
+      \ target) override {\n        // Analyze target type\n        Unit* unitTarget\
+      \ = ObjectAccessor::GetUnit(*me, *target);\n        if (unitTarget && unitTarget->IsPlayer())\
+      \ {\n            // Player-specific behavior\n            DoCast(SPELL_PLAYER_AGGRO_SPELL);\n\
+      \        } else {\n            // Creature target behavior\n            DoCast(SPELL_CREATURE_AGGRO_SPELL);\n\
+      \        }\n        \n        // Set up combat timers\n        _combatTimer\
+      \ = 5000;\n    }\n};"
+    language: cpp
+  notes: This method is invoked only once per combat entry, not on every combat update.
+    The target parameter points to a valid unit ID that can be used with ObjectAccessor::GetUnit()
+    for further operations. Implementations should avoid heavy computations or blocking
+    operations in this method as it's called from the game loop.
+  warnings: Do not modify the target pointer directly as it may cause undefined behavior.
+    Always use ObjectAccessor::GetUnit() to safely retrieve the target unit object.
+    Avoid calling combat-related functions that might cause recursion or stack overflow.
+  related:
+  - OnCombatUpdate
+  - OnCombatStop
+  - OnEnterCombat
+  - OnLeaveCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:20:52.568934'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: PlayerMenu
+  method: SendQuestGiverStatus
+  signature: void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, int
+    npcGUID) const
+documentation:
+  brief: Sends the quest giver status to the player's client for a specified NPC.
+  description: The SendQuestGiverStatus method is used to communicate the current
+    quest status of an NPC to the player's client. This status determines what quest-related
+    options are displayed in the quest window, such as whether the player can accept,
+    turn in, or has completed a quest. The method takes a QuestGiverStatus enum value
+    and an NPC GUID to identify which NPC's status should be updated. This is typically
+    called when a player interacts with an NPC to open the quest menu, ensuring that
+    the client displays the correct UI elements based on the player's quest progress
+    and the NPC's available quests.
+  parameters:
+  - name: questStatus
+    description: The QuestGiverStatus enum value indicating the current status of
+      the quest giver. Valid values include QUEST_GIVER_STATUS_NONE, QUEST_GIVER_STATUS_UNAVAILABLE,
+      QUEST_GIVER_STATUS_AVAILABLE, QUEST_GIVER_STATUS_REWARD_REP, etc., which control
+      what options are shown in the client's quest window.
+  - name: npcGUID
+    description: The integer GUID of the NPC whose quest status is being sent. This
+      identifies the specific NPC object in the game world for which the quest status
+      should be updated on the player's client.
+  returns: null
+  examples:
+  - title: Basic usage when a player interacts with an NPC
+    code: 'PlayerMenu* playerMenu = player->GetPlayerMenu();
+
+      playerMenu->SendQuestGiverStatus(QUEST_GIVER_STATUS_AVAILABLE, npc->GetGUID().GetCounter());'
+    language: cpp
+  - title: Sending quest status based on player's quest progress
+    code: "if (player->HasQuestForGO(npc->GetEntry()))\n{\n    playerMenu->SendQuestGiverStatus(QUEST_GIVER_STATUS_REWARD_REP,\
+      \ npc->GetGUID().GetCounter());\n}\nelse\n{\n    playerMenu->SendQuestGiverStatus(QUEST_GIVER_STATUS_UNAVAILABLE,\
+      \ npc->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: This method directly sends a packet to the client and should only be called
+    when the quest status is actually changing. It does not perform any validation
+    on the questStatus parameter; invalid values may cause unexpected behavior in
+    the client UI. The NPC GUID must correspond to an actual NPC object in the world
+    for the update to take effect.
+  warnings: Calling this method without proper context or with invalid NPC GUIDs can
+    result in incorrect UI states or client-side errors. Ensure that questStatus is
+    a valid enum value from the QuestGiverStatus enumeration. This method should not
+    be called during network packet processing as it may cause recursion issues.
+  related:
+  - GetQuestMenu
+  - SendQuestGiverQuestList
+  - SendQuestGiverOfferReward
+  - SendQuestGiverRequestItems
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T06:10:17.456435'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

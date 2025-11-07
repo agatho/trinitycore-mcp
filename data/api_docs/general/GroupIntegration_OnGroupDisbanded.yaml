@@ -1,0 +1,48 @@
+api:
+  class: GroupIntegration
+  method: OnGroupDisbanded
+  signature: void GroupIntegration::OnGroupDisbanded(Group * group)
+documentation:
+  brief: Handles the event when a group is disbanded in the game world
+  description: The OnGroupDisbanded method is invoked when a player's group is disbanded,
+    either manually by the group leader or automatically due to all members leaving.
+    This method is responsible for cleaning up any resources associated with the group
+    and notifying relevant systems about the group's dissolution. The method receives
+    a pointer to the Group object that has been disbanded and performs necessary cleanup
+    operations such as removing group references from player objects, updating group
+    status flags, and triggering any registered callbacks or events related to group
+    disbanding. This is an essential part of maintaining game state consistency when
+    groups are terminated.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that has been disbanded. This parameter
+      must not be null and represents the group instance being destroyed.
+  returns: null
+  examples:
+  - title: Basic Usage in Custom Module
+    code: "void MyGroupHandler::OnGroupDisbanded(Group* group)\n{\n    if (!group)\n\
+      \        return;\n    \n    // Log the disbanding event\n    sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Group %u disbanded\", group->GetId());\n    \n    // Perform cleanup operations\n\
+      \    for (Group::MemberSlotList::const_iterator itr = group->GetMembersBegin();\
+      \ itr != group->GetMembersEnd(); ++itr)\n    {\n        Player* player = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \        if (player)\n            player->RemoveGroupInvite();\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the core group management system during
+    group destruction. Developers should ensure that any custom cleanup logic does
+    not cause deadlocks or access invalid memory after the group object has been partially
+    destroyed. The method assumes that the Group pointer passed to it is valid and
+    not already freed.
+  warnings: Do not attempt to access group members or perform operations on the group
+    object after this method completes, as the group may be in the process of being
+    deleted. Avoid calling methods that might re-entrant into the group system from
+    within this handler.
+  related:
+  - Group::Disband
+  - Group::RemoveMember
+  - Group::AddMember
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:01:48.299325'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

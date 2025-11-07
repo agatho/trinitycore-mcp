@@ -1,0 +1,42 @@
+api:
+  class: GroupInvitationHandler
+  method: ValidateNoInvitationLoop
+  signature: bool GroupInvitationHandler::ValidateNoInvitationLoop(int inviterGuid)
+    const
+documentation:
+  brief: Validates that inviting a player will not create a group invitation loop.
+  description: The ValidateNoInvitationLoop method checks whether inviting a player
+    to a group would result in a circular reference or loop within the group invitation
+    system. This prevents scenarios where players might indirectly invite each other
+    in a way that could cause infinite loops or invalid group states. The method typically
+    examines the current group membership and pending invitations to ensure no such
+    loops exist before allowing an invitation to proceed. It is used internally by
+    the group management system to maintain data integrity and prevent logical errors
+    in group formation.
+  parameters: []
+  returns: Returns true if no invitation loop would be created by inviting the player
+    with the given GUID; returns false otherwise.
+  examples:
+  - title: Basic usage in group invitation validation
+    code: "if (groupInvitationHandler.ValidateNoInvitationLoop(inviterGuid)) {\n \
+      \   // Proceed with invitation\n    group->AddMember(player);\n} else {\n  \
+      \  // Handle loop detection\n    SendGroupOperationResult(false, \"Cannot invite\
+      \ player - would create a loop\");\n}"
+    language: cpp
+  notes: This method is crucial for maintaining the integrity of group invitations
+    in TrinityCore. It likely uses a graph traversal algorithm to detect cycles in
+    the invitation chain. The implementation may cache previous checks or maintain
+    state about current invitations to avoid redundant computations.
+  warnings: Do not call this method without first ensuring that the inviter GUID is
+    valid and corresponds to an active player. Calling this method with invalid GUIDs
+    could lead to undefined behavior or incorrect loop detection results.
+  related:
+  - GroupInvitationHandler::AddInvite
+  - GroupInvitationHandler::RemoveInvite
+  - GroupInvitationHandler::GetInvites
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T02:56:28.563505'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

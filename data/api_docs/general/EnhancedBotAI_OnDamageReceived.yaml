@@ -1,0 +1,56 @@
+api:
+  class: EnhancedBotAI
+  method: OnDamageReceived
+  signature: void EnhancedBotAI::OnDamageReceived(Unit * attacker, uint32 damage)
+documentation:
+  brief: Handles damage received events for enhanced bot AI units
+  description: The OnDamageReceived method is invoked when an EnhancedBotAI unit takes
+    damage from an attacker. This method processes the damage event, potentially triggering
+    AI behaviors such as retaliatory actions, health-based decision making, or threat
+    updates. It serves as a core component of the bot's combat response system, allowing
+    for dynamic reactions to incoming attacks based on current health status and AI
+    configuration.
+  parameters:
+  - name: attacker
+    description: Pointer to the Unit object that inflicted the damage. May be null
+      if the damage source is not a unit (e.g., environmental effects).
+  - name: damage
+    description: The amount of damage points received by the bot. This value represents
+      the actual damage dealt, not modified by armor or resistance.
+  returns: null
+  examples:
+  - title: Basic Damage Handling
+    code: "void EnhancedBotAI::OnDamageReceived(Unit* attacker, uint32 damage)\n{\n\
+      \    if (damage > 0)\n    {\n        // Update threat table\n        AddThreat(attacker,\
+      \ damage);\n        \n        // Trigger defensive behavior if health is low\n\
+      \        if (GetHealthPercent() < 30)\n            DoRetreat();\n    }\n}"
+    language: cpp
+  - title: Advanced Damage Reaction with Attacker Tracking
+    code: "void EnhancedBotAI::OnDamageReceived(Unit* attacker, uint32 damage)\n{\n\
+      \    if (!attacker || damage == 0)\n        return;\n    \n    // Track attacker\
+      \ for future targeting\n    m_lastAttacker = attacker;\n    \n    // Adjust\
+      \ behavior based on damage type or attacker type\n    if (attacker->GetTypeId()\
+      \ == TYPEID_PLAYER)\n        m_playerDamageTaken += damage;\n    else if (attacker->GetTypeId()\
+      \ == TYPEID_UNIT)\n        m_creatureDamageTaken += damage;\n    \n    // Call\
+      \ base AI reaction logic\n    HandleCombatEvent();\n}"
+    language: cpp
+  notes: This method is typically called from within the core TrinityCore combat system
+    when a unit receives damage. The implementation should be lightweight to avoid
+    performance issues during high-frequency combat events. It's recommended that
+    derived classes override this method to implement custom AI behaviors while ensuring
+    proper base class calls are maintained.
+  warnings: Avoid performing heavy operations or blocking calls inside this method
+    as it may impact combat responsiveness. Be cautious when modifying unit state
+    directly within this handler, as it can lead to race conditions or inconsistent
+    AI behavior if not properly synchronized.
+  related:
+  - OnDamageDealt
+  - HandleCombatEvent
+  - AddThreat
+  - GetHealthPercent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T14:47:49.720524'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

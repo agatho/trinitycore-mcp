@@ -20,7 +20,7 @@ import {
   calculateQuestXP,
   getLevelRangeStats,
   type XPLevelEntry
-} from "../data/xp-per-level.js";
+} from "../data/xp-per-level";
 
 // ============================================================================
 // TYPE DEFINITIONS

@@ -1,0 +1,56 @@
+api:
+  class: AuctionHouse
+  method: ValidateAuctionAccess
+  signature: bool AuctionHouse::ValidateAuctionAccess(int * player, uint32 auctionHouseId)
+documentation:
+  brief: Validates whether a player has access to a specific auction house.
+  description: The ValidateAuctionAccess method checks if a given player is authorized
+    to interact with a specified auction house. This validation typically involves
+    verifying that the player meets prerequisites such as being in the correct zone,
+    having the necessary reputation, or possessing required items. The method ensures
+    that players cannot access auction houses they are not permitted to use, maintaining
+    game balance and preventing exploits. It returns true if access is granted, false
+    otherwise.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). This parameter identifies which player is attempting to access the auction
+      house.
+  - name: auctionHouseId
+    description: Unique identifier for the auction house. This value corresponds to
+      the AuctionHouse.dbc entry and determines which specific auction house the validation
+      applies to.
+  returns: Returns true if the player has valid access to the specified auction house,
+    false otherwise. A return value of false may indicate invalid player GUID, incorrect
+    zone, insufficient reputation, or other access restrictions.
+  examples:
+  - title: Basic Access Validation
+    code: "int playerId = 12345;\nuint32 ahId = 7;\nbool isValid = AuctionHouse::ValidateAuctionAccess(&playerId,\
+      \ ahId);\nif (isValid)\n{\n    // Proceed with auction house operations\n}"
+    language: cpp
+  - title: Integration in Auction House Interaction
+    code: "void HandleAuctionHouseQuery(Player* player, uint32 auctionHouseId)\n{\n\
+      \    int playerId = player->GetGUID().GetCounter();\n    if (AuctionHouse::ValidateAuctionAccess(&playerId,\
+      \ auctionHouseId))\n    {\n        // Open auction house interface\n       \
+      \ player->SendAuctionHello(player, auctionHouseId);\n    }\n    else\n    {\n\
+      \        // Send error message or deny access\n        player->SendAuctionCommandResult(0,\
+      \ AUCTION_ERR_INVALID_ITEM);\n    }\n}"
+    language: cpp
+  notes: This method likely performs database lookups or cached checks to determine
+    if a player can access an auction house. It may also consider faction restrictions
+    and zone requirements. The method is typically called before allowing any interaction
+    with the auction house.
+  warnings: Ensure that the player GUID passed is valid and represents an active player.
+    Passing an invalid or uninitialized pointer could lead to undefined behavior.
+    Also, this method does not validate item-specific requirements for placing bids
+    or auctions; it only checks general access rights.
+  related:
+  - GetAuctionHouse
+  - SendAuctionHello
+  - ValidateAuctionItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:19:45.813230'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

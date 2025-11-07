@@ -1,0 +1,60 @@
+api:
+  class: GroupInvitationHandler
+  method: IsInviterInRange
+  signature: bool GroupInvitationHandler::IsInviterInRange(Player * inviter) const
+documentation:
+  brief: Checks if the group inviter is within the acceptable range for inviting players
+    to a group
+  description: The IsInviterInRange method determines whether a given player (the
+    inviter) is within the valid distance range to invite another player into a group.
+    This check is essential for preventing players from inviting others across large
+    distances in the game world, maintaining gameplay balance and preventing exploitation.
+    The method typically evaluates the physical distance between the inviter and the
+    target player, ensuring they are within the limits defined by the game's group
+    invitation system. It may also consider other factors such as whether both players
+    are in the same instance or map, though this depends on the specific implementation
+    details.
+  parameters:
+  - name: inviter
+    description: Pointer to the Player object representing the player who is attempting
+      to invite another player into a group. This parameter must not be null and should
+      represent an active player in the game world.
+  returns: Returns true if the inviter is within the acceptable range for group invitation,
+    false otherwise. A return value of false typically means that either the players
+    are too far apart or some other condition (such as being in different instances)
+    prevents the invitation from proceeding.
+  examples:
+  - title: Basic usage to check if a player can invite another
+    code: "Player* inviter = ...; // Get the inviter player object\nif (groupHandler.IsInviterInRange(inviter))\
+      \ {\n    // Proceed with group invitation logic\n    groupHandler.InvitePlayer(inviter,\
+      \ targetPlayer);\n} else {\n    // Notify the inviter that they are too far\
+      \ away\n    inviter->SendNotification(\"You are too far away to invite this\
+      \ player.\");\n}"
+    language: cpp
+  - title: Using in a group invitation flow with error handling
+    code: "void HandleGroupInvite(Player* inviter, Player* target) {\n    if (!inviter\
+      \ || !target) return;\n    \n    GroupInvitationHandler handler;\n    if (handler.IsInviterInRange(inviter))\
+      \ {\n        // Check if the target is already in a group\n        if (target->GetGroup())\
+      \ {\n            inviter->SendNotification(\"Player is already in a group.\"\
+      );\n            return;\n        }\n        \n        // Proceed with invitation\n\
+      \        handler.InvitePlayer(inviter, target);\n    } else {\n        inviter->SendNotification(\"\
+      You must be closer to invite this player.\");\n    }\n}"
+    language: cpp
+  notes: This method likely uses the game's built-in distance calculation functions
+    and may take into account instance boundaries, map restrictions, or other environmental
+    factors. It is commonly used in conjunction with other group-related methods to
+    ensure proper group management and prevent abuse of the invitation system.
+  warnings: Ensure that the inviter parameter is valid and not null before calling
+    this method. Failing to do so could result in undefined behavior or crashes. Also,
+    be aware that distance checks may vary depending on the specific game version
+    and server configuration.
+  related:
+  - GroupInvitationHandler::InvitePlayer
+  - GroupInvitationHandler::CanInvite
+  - Player::GetDistance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T12:59:38.997146'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

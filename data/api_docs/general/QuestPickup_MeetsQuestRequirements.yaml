@@ -1,0 +1,57 @@
+api:
+  class: QuestPickup
+  method: MeetsQuestRequirements
+  signature: bool QuestPickup::MeetsQuestRequirements(uint32 questId, Player * bot)
+documentation:
+  brief: Checks if a player meets all requirements to start or continue a specific
+    quest.
+  description: The MeetsQuestRequirements method evaluates whether a given player
+    has satisfied all prerequisites necessary to accept or progress through a specified
+    quest. This includes checking for required level, previous quest completion, item
+    inventory, and other conditional criteria defined in the quest's data. The method
+    is typically used by quest pickup systems to determine if a quest can be offered
+    to a player or if the player can advance to the next stage of the quest. It ensures
+    that players cannot bypass quest requirements through invalid means.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to check requirements for. Must
+      correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the character whose quest
+      requirements are being validated. Cannot be null.
+  returns: Returns true if all quest requirements are met for the specified player,
+    otherwise returns false. A return value of false indicates that one or more conditions
+    (such as level, previous quests, items, etc.) have not been satisfied.
+  examples:
+  - title: Basic Quest Requirement Check
+    code: "if (questPickup->MeetsQuestRequirements(12345, player)) {\n    // Player\
+      \ can accept or continue the quest\n    player->AddQuest(12345);\n} else {\n\
+      \    // Player does not meet requirements\n    player->SendNotification(\"You\
+      \ do not meet the requirements for this quest.\");\n}"
+    language: cpp
+  - title: Using in Quest Gossip Logic
+    code: "void OnGossipHello(Player* player, Creature* creature) {\n    uint32 questId\
+      \ = 67890;\n    if (questPickup->MeetsQuestRequirements(questId, player)) {\n\
+      \        AddGossipItemFor(player, GOSSIP_ICON_CHAT, \"Accept Quest\", GOSSIP_SENDER_MAIN,\
+      \ GOSSIP_ACTION_INFO_DEF + questId);\n    } else {\n        AddGossipItemFor(player,\
+      \ GOSSIP_ICON_CHAT, \"Quest Not Available\", GOSSIP_SENDER_MAIN, 0);\n    }\n\
+      \    SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());\n\
+      }"
+    language: cpp
+  notes: This method internally utilizes the TrinityCore quest system's built-in validation
+    logic which includes checking player level, completed quests, required items in
+    inventory, and faction standings. The function is designed to be efficient and
+    should not cause noticeable performance impact during normal gameplay operations.
+  warnings: Ensure that the questId parameter corresponds to a valid quest entry;
+    invalid IDs may lead to undefined behavior or incorrect results. Always verify
+    that the player pointer is valid before calling this method to prevent crashes.
+  related:
+  - QuestPickup::GetQuestStatus
+  - QuestPickup::CanTakeQuest
+  - Player::HasQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:46:49.038211'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

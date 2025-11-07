@@ -1,0 +1,59 @@
+api:
+  class: GroupIntegration
+  method: OnMemberAdded
+  signature: void GroupIntegration::OnMemberAdded(Group * group, Player * member)
+documentation:
+  brief: Invoked when a new member is added to a group, allowing integration logic
+    to execute.
+  description: The OnMemberAdded method is a callback function that gets triggered
+    whenever a player is successfully added to a group within the TrinityCore framework.
+    This method serves as an integration point for custom group management logic,
+    such as updating player statistics, broadcasting messages, or synchronizing group
+    data across systems. It is typically used by addons or custom modules that need
+    to react to group membership changes. The method receives a pointer to the Group
+    object and the Player object of the newly added member, enabling developers to
+    access both group context and member-specific information. This callback ensures
+    that all relevant systems are notified when group composition changes, maintaining
+    consistency in game state.
+  parameters:
+  - name: group
+    description: Pointer to the Group object to which the member was added. This represents
+      the group context for the operation.
+  - name: member
+    description: Pointer to the Player object that was added to the group. This provides
+      access to the player's data and state.
+  returns: null
+  examples:
+  - title: Basic usage in a custom group handler
+    code: "void MyGroupIntegration::OnMemberAdded(Group* group, Player* member)\n\
+      {\n    // Log the addition of a new member\n    sLog->outString(\"Player %s\
+      \ joined group %u\", member->GetName().c_str(), group->GetId());\n    \n   \
+      \ // Update player's group-related statistics\n    member->UpdateGroupStats();\n\
+      }"
+    language: cpp
+  - title: Advanced usage with event broadcasting
+    code: "void MyGroupIntegration::OnMemberAdded(Group* group, Player* member)\n\
+      {\n    // Broadcast a message to all group members\n    ChatHandler handler(member->GetSession());\n\
+      \    handler.PSendSysMessage(\"Welcome %s to the group!\", member->GetName().c_str());\n\
+      \    \n    // Trigger additional logic for group synchronization\n    if (group->IsRaidGroup())\n\
+      \    {\n        member->SetGroupRole(GROUP_ROLE_TANK);\n        sWorld->SendGlobalGMSysMessage(\"\
+      New raid member added: \" + member->GetName());\n    }\n}"
+    language: cpp
+  notes: This method is called after the member has been successfully added to the
+    group, so it's safe to assume that both the group and player objects are valid.
+    The method should be implemented with performance in mind since it may be invoked
+    frequently during group operations.
+  warnings: Ensure that any logic within this method does not block or delay execution,
+    as it is called synchronously during group management operations. Avoid performing
+    heavy computations or database queries directly inside this callback to prevent
+    potential lag or deadlocks.
+  related:
+  - OnMemberRemoved
+  - OnGroupDisbanded
+  - OnGroupChanged
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:00:59.532697'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

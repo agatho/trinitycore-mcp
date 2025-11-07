@@ -1,0 +1,82 @@
+api:
+  class: CraftingOrderData
+  method: WriteUpdate
+  signature: void CraftingOrderData::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes crafting order data into a ByteBuffer for network transmission
+    to players.
+  description: The WriteUpdate method serializes the current state of a CraftingOrderData
+    object into a ByteBuffer, preparing it for transmission over the network. This
+    method is typically used when sending updates about crafting orders to players,
+    such as changes in order status, progress, or completion. The serialization process
+    respects the changes mask unless explicitly ignored via the ignoreChangesMask
+    parameter. It takes into account the owner and receiver players to determine what
+    data should be included in the update packet based on visibility rules. This method
+    is essential for maintaining synchronization between the server's crafting order
+    state and client displays.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where the serialized crafting order data will
+      be written. This buffer is typically used to construct network packets sent
+      to players.
+  - name: ignoreChangesMask
+    description: When true, all fields of the crafting order are serialized regardless
+      of change tracking. When false (default), only fields that have changed since
+      last update are included.
+  - name: owner
+    description: The Player object representing the owner of the crafting order. This
+      player will receive updates about their own orders.
+  - name: receiver
+    description: The Player object representing the intended recipient of the update
+      packet. This may differ from the owner in cases like shared or auctioned crafting
+      orders.
+  returns: null
+  examples:
+  - title: Basic Usage for Crafting Order Update
+    code: 'ByteBuffer data;
+
+      CraftingOrderData order;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      order.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' to the receiver''s client
+
+      '
+    language: cpp
+  - title: Forcing Full Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      CraftingOrderData order;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      // Force sending all fields, ignoring change tracking
+
+      order.WriteUpdate(data, true, owner, receiver);
+
+      '
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    be called when crafting order data needs to be synchronized with clients. The
+    implementation likely uses internal change tracking mechanisms to optimize network
+    traffic by only sending modified fields unless ignoreChangesMask is true.
+  warnings: Calling this method without proper player context or invalid pointers
+    can lead to undefined behavior. Ensure that both owner and receiver parameters
+    are valid Player objects before calling this method.
+  related:
+  - CraftingOrderData::ReadUpdate
+  - CraftingOrderData::BuildUpdateData
+  - CraftingOrderData::IsChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:11:49.933278'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

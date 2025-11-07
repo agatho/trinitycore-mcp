@@ -27,6 +27,29 @@ export interface LogEntry {
   stack?: string;
   pid?: number;
   hostname?: string;
+  traceId?: string;
+  service?: string;
+  environment?: string;
+  error?: {
+    name: string;
+    message: string;
+    stack?: string;
+  };
+  performance?: {
+    duration: number;
+    unit: string;
+  };
+}
+
+/**
+ * Log query interface
+ */
+export interface LogQuery {
+  level?: string;
+  startTime?: Date;
+  endTime?: Date;
+  traceId?: string;
+  limit?: number;
 }
 
 /**
@@ -277,6 +300,75 @@ export class Logger extends EventEmitter {
     await Promise.all(promises);
     this.transports = [];
     this.emit('closed');
+  }
+
+  /**
+   * Get current log file path (if FileTransport is configured)
+   */
+  public getCurrentLogFile(): string | null {
+    const fileTransport = this.transports.find(t => t.name === 'file') as FileTransport | undefined;
+    return fileTransport ? (fileTransport as any).filePath : null;
+  }
+
+  /**
+   * Query logs from file (if FileTransport is configured)
+   */
+  public async queryLogs(query: LogQuery): Promise<LogEntry[]> {
+    const logFile = this.getCurrentLogFile();
+    if (!logFile) {
+      return [];
+    }
+
+    try {
+      // Read log file
+      const content = await fs.promises.readFile(logFile, 'utf-8');
+      const lines = content.split('\n').filter(line => line.trim());
+
+      // Parse and filter logs
+      let logs: LogEntry[] = [];
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line) as LogEntry;
+
+          // Convert timestamp string to Date if needed
+          if (typeof entry.timestamp === 'string') {
+            entry.timestamp = new Date(entry.timestamp);
+          }
+
+          // Apply filters
+          if (query.level && entry.level !== LogLevel[query.level as keyof typeof LogLevel]) {
+            continue;
+          }
+
+          if (query.startTime && entry.timestamp < query.startTime) {
+            continue;
+          }
+
+          if (query.endTime && entry.timestamp > query.endTime) {
+            continue;
+          }
+
+          if (query.traceId && entry.traceId !== query.traceId) {
+            continue;
+          }
+
+          logs.push(entry);
+        } catch (parseError) {
+          // Skip invalid JSON lines
+          continue;
+        }
+      }
+
+      // Apply limit
+      if (query.limit && query.limit > 0) {
+        logs = logs.slice(-query.limit);
+      }
+
+      return logs;
+    } catch (error) {
+      console.error('Error reading log file:', error);
+      return [];
+    }
   }
 }
 

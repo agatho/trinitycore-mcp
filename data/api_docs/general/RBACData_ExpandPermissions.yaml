@@ -1,0 +1,63 @@
+api:
+  class: RBACData
+  method: ExpandPermissions
+  signature: void RBACData::ExpandPermissions(RBACPermissionContainer & permissions)
+documentation:
+  brief: Expands the permissions contained in the RBACPermissionContainer by resolving
+    role-based access control hierarchies and adding inherited permissions.
+  description: The ExpandPermissions method processes the RBACPermissionContainer
+    to resolve all hierarchical relationships between permissions, ensuring that any
+    inherited or grouped permissions are included in the final set. This method is
+    crucial for determining the complete set of permissions a user or entity possesses
+    based on their assigned roles and groups within the TrinityCore system. It modifies
+    the input container in-place by adding additional permissions that are derived
+    from existing ones through role inheritance rules. The method ensures that permission
+    checks can be performed efficiently without needing to traverse complex role hierarchies
+    at runtime.
+  parameters:
+  - name: permissions
+    description: Reference to an RBACPermissionContainer that holds the base set of
+      permissions to be expanded. This container will be modified in-place to include
+      all inherited permissions.
+  returns: null
+  examples:
+  - title: Expanding Permissions for a Player
+    code: 'RBACPermissionContainer playerPermissions;
+
+      // Assume playerPermissions is populated with base permissions
+
+      RBACData rbacData;
+
+      rbacData.ExpandPermissions(playerPermissions);
+
+      // Now playerPermissions contains all expanded permissions including inherited
+      ones'
+    language: cpp
+  - title: Using Expanded Permissions for Access Control
+    code: "void CheckPlayerAccess(Player* player, uint32 requiredPermission) {\n \
+      \   RBACPermissionContainer permissions;\n    // Populate permissions from player's\
+      \ roles\n    player->GetRBACData()->GetPermissions(permissions);\n    \n   \
+      \ // Expand the permissions to include inherited ones\n    player->GetRBACData()->ExpandPermissions(permissions);\n\
+      \    \n    // Check if expanded permissions contain required permission\n  \
+      \  if (permissions.find(requiredPermission) != permissions.end()) {\n      \
+      \  // Grant access\n    }\n}"
+    language: cpp
+  notes: This method performs in-place modification of the input container, so callers
+    should ensure they have a copy of the original permissions if needed later. The
+    expansion process may involve recursive lookups through role hierarchies which
+    could impact performance with deeply nested roles. This method is typically called
+    internally by the RBAC system during permission evaluation.
+  warnings: Modifying the input container directly can lead to unexpected behavior
+    if other parts of the code rely on the original unexpanded permissions. Ensure
+    that all references to the container are updated appropriately after calling this
+    method.
+  related:
+  - GetPermissions
+  - AddPermission
+  - RemovePermission
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T00:03:03.896773'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

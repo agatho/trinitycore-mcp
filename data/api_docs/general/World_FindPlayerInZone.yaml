@@ -1,0 +1,52 @@
+api:
+  class: World
+  method: FindPlayerInZone
+  signature: Player * World::FindPlayerInZone(uint32 zone)
+documentation:
+  brief: Finds and returns a player object within the specified zone ID.
+  description: The FindPlayerInZone method searches through all active players in
+    the game world and returns a pointer to the first player found in the specified
+    zone. This method is typically used for zone-based operations, such as sending
+    zone-specific messages or triggering zone-related events. The method performs
+    a linear search through the player list, which may have performance implications
+    in high-player-density zones. It's important to note that this function returns
+    only the first player found in the zone and not all players within it.
+  parameters:
+  - name: zone
+    description: The zone identifier (ZoneID) to search for players in. This corresponds
+      to the zone ID defined in the game's database tables.
+  returns: A pointer to a Player object if at least one player is found in the specified
+    zone; otherwise, returns nullptr if no players are present in that zone.
+  examples:
+  - title: Basic usage to find a player in a specific zone
+    code: "Player* player = sWorld->FindPlayerInZone(1234);\nif (player)\n{\n    //\
+      \ Player found in zone 1234\n    player->SendNotification(\"Hello from zone\
+      \ 1234!\");\n}\nelse\n{\n    // No players found in zone 1234\n    sLog->outString(\"\
+      No players found in zone 1234\");\n}"
+    language: cpp
+  - title: Using FindPlayerInZone for zone-based event triggering
+    code: "void TriggerZoneEvent(uint32 zoneId)\n{\n    Player* player = sWorld->FindPlayerInZone(zoneId);\n\
+      \    if (player)\n    {\n        // Perform zone-specific action\n        player->CastSpell(player,\
+      \ 12345, true); // Example spell cast\n    }\n    else\n    {\n        sLog->outString(\"\
+      No players in zone %u to trigger event.\", zoneId);\n    }\n}"
+    language: cpp
+  notes: This method performs a linear search through all online players, so performance
+    may degrade with large numbers of concurrent players. The returned Player pointer
+    is valid only as long as the player remains in the zone and hasn't been deleted.
+    This function does not account for sub-zones or instances; it searches based on
+    the primary zone ID.
+  warnings: Be cautious when using this method in performance-critical code paths,
+    as it iterates through all players. Also, always check for nullptr before dereferencing
+    the returned pointer to avoid crashes. The method only returns one player even
+    if multiple exist in the same zone, so use with caution in scenarios requiring
+    all players.
+  related:
+  - FindPlayerByName
+  - GetPlayersInZone
+  - IsPlayerInZone
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-05T23:40:48.899823'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

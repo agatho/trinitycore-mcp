@@ -9,7 +9,7 @@ import {
   type QuestPrerequisites,
   type QuestReward,
   type QuestObjective,
-} from '@/../../src/tools/questchain';
+} from '@/../src/tools/questchain';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     // Search quests
     if (search) {
-      const { queryWorld } = await import('@/../../src/database/connection');
+      const { queryWorld } = await import('@/../src/database/connection');
 
       const searchQuery = `
         SELECT
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'questIds must be an array' }, { status: 400 });
     }
 
-    const { queryWorld } = await import('@/../../src/database/connection');
+    const { queryWorld } = await import('@/../src/database/connection');
 
     // Check for broken references
     const brokenChains: Array<{

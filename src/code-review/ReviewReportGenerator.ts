@@ -22,8 +22,8 @@ import type {
   CodeFix,
   IssueSeverity,
   RuleCategory,
-} from './types.js';
-import type { AIReviewResult, BatchAIReviewResult } from './AIReviewEngine.js';
+} from './types';
+import type { AIReviewResult, BatchAIReviewResult } from './AIReviewEngine';
 
 // ============================================================================
 // REPORT TYPES

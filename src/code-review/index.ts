@@ -37,16 +37,16 @@ import path from 'path';
 import { glob } from 'glob';
 
 // Core components
-import { TrinityRuleEngine } from './TrinityRuleEngine.js';
-import { CodeAnalysisEngine, createCodeAnalysisEngine } from './CodeAnalysisEngine.js';
-import { AIReviewEngine, createAIReviewEngine, type LLMConfig, type LLMProvider } from './AIReviewEngine.js';
+import { TrinityRuleEngine } from './TrinityRuleEngine';
+import { CodeAnalysisEngine, createCodeAnalysisEngine } from './CodeAnalysisEngine';
+import { AIReviewEngine, createAIReviewEngine, type LLMConfig, type LLMProvider } from './AIReviewEngine';
 import {
   ReviewReportGenerator,
   createReviewReportGenerator,
   type ReportFormat,
   type ReportOptions,
-} from './ReviewReportGenerator.js';
-import { logger } from '../utils/logger.js';
+} from './ReviewReportGenerator';
+import { logger } from '../utils/logger';
 
 // Type exports
 import type {
@@ -61,7 +61,7 @@ import type {
   DataFlowResult,
   CompilerType,
   CodeReviewRule,
-} from './types.js';
+} from './types';
 
 // =============================================================================
 // PUBLIC API TYPES

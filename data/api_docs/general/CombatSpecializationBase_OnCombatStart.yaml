@@ -1,0 +1,56 @@
+api:
+  class: CombatSpecializationBase
+  method: OnCombatStart
+  signature: void CombatSpecializationBase::OnCombatStart(::Unit * target)
+documentation:
+  brief: Initializes combat-specific behavior when a unit enters combat mode.
+  description: The OnCombatStart method is invoked when a Unit begins combat, typically
+    triggered by an attack or being attacked. This method serves as a hook for specialized
+    combat behaviors defined in derived classes. It allows for custom logic to be
+    executed at the start of combat, such as applying buffs, setting up combat states,
+    or initializing special abilities. The method receives the target unit that initiated
+    combat and is expected to handle any necessary setup required for the specific
+    combat specialization.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that triggered the start of combat. This
+      represents the entity that initiated the combat state, such as a player attacking
+      an NPC or vice versa.
+  returns: null
+  examples:
+  - title: Basic Combat Start Implementation
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnCombatStart(Unit* target) override {\n        // Apply a combat\
+      \ buff to the unit\n        target->AddAura(SPELL_COMBAT_BUFF, target);\n  \
+      \      // Log combat start event\n        sLog->outString(\"Combat started with\
+      \ %s\", target->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Advanced Combat Start with State Management
+    code: "class AdvancedCombatSpecialization : public CombatSpecializationBase {\n\
+      public:\n    void OnCombatStart(Unit* target) override {\n        if (!target)\n\
+      \            return;\n        \n        // Set combat state\n        SetCombatState(true);\n\
+      \        \n        // Initialize special abilities\n        if (target->GetTypeId()\
+      \ == TYPEID_PLAYER) {\n            // Player-specific logic\n            target->CastSpell(target,\
+      \ SPELL_PLAYER_COMBAT_START, true);\n        } else {\n            // NPC-specific\
+      \ logic\n            target->CastSpell(target, SPELL_NPC_COMBAT_START, true);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is typically called from within the core combat system when a
+    unit's combat state transitions to active. It should not be used for heavy computations
+    or blocking operations as it may affect combat performance. The target parameter
+    will never be null in normal operation, but defensive programming practices are
+    recommended.
+  warnings: Do not call methods that modify combat state or trigger additional combat
+    events within this method unless absolutely necessary, as it may lead to stack
+    overflow or unexpected behavior. Avoid performing database operations or complex
+    calculations that could block the game loop.
+  related:
+  - OnCombatEnd
+  - OnDamageTaken
+  - OnTargetKilled
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:04:56.258801'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

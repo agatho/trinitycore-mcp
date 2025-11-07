@@ -13,7 +13,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import Handlebars from 'handlebars';
 import prettier from 'prettier';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 export interface CodeGenerationOptions {
   templateName: string;

@@ -1,0 +1,67 @@
+api:
+  class: TankPositioning
+  method: CalculateOffTankPosition
+  signature: int TankPositioning::CalculateOffTankPosition(Unit * target, Player *
+    mainTank, const CombatPositionContext & context)
+documentation:
+  brief: Calculates and returns the optimal positioning for an off-tank unit relative
+    to the main tank and target within a combat context.
+  description: The CalculateOffTankPosition method determines the appropriate positioning
+    strategy for a secondary tank (off-tank) in relation to the primary tank and the
+    current combat target. This method evaluates various factors such as threat distribution,
+    positioning constraints, and combat mechanics to compute an effective off-tank
+    placement that supports the main tank's role while maintaining optimal group dynamics.
+    It is typically used during encounter design or dynamic positioning adjustments
+    in raid or dungeon scenarios where proper tank coordination is essential for success.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the current combat target
+      that both tanks are engaging. Must be a valid unit pointer; null values will
+      result in undefined behavior.
+  - name: mainTank
+    description: Pointer to the Player object representing the primary tank in the
+      group. This player should be actively tanking the target and is used as a reference
+      point for positioning calculations.
+  - name: context
+    description: Reference to a CombatPositionContext structure containing contextual
+      data about the current combat environment, including available space, threat
+      levels, and positioning rules that influence the calculated off-tank position.
+  returns: Returns an integer value representing the calculated off-tank position
+    index or identifier. A positive value typically indicates a valid computed position,
+    while negative values may denote errors or invalid configurations (e.g., insufficient
+    space or conflicting constraints).
+  examples:
+  - title: Basic Usage in Combat Scenario
+    code: "CombatPositionContext ctx;\nctx.threatLevel = ThreatLevel::HIGH;\nctx.availableSpace\
+      \ = 10.0f;\nUnit* target = mainTank->GetVictim();\nint offTankPos = tankPositioning.CalculateOffTankPosition(target,\
+      \ mainTank, ctx);\nif (offTankPos >= 0)\n{\n    // Proceed with movement to\
+      \ calculated position\n    player->MovePosition(offTankPos);\n}"
+    language: cpp
+  - title: Advanced Usage with Dynamic Context Update
+    code: "CombatPositionContext ctx;\nctx.threatLevel = ThreatLevel::HIGH;\nctx.availableSpace\
+      \ = 15.0f;\nctx.isRaidEncounter = true;\nUnit* target = mainTank->GetVictim();\n\
+      Player* offTank = GetOffTankPlayer(); // Assume this function retrieves the\
+      \ off-tank\nint result = tankPositioning.CalculateOffTankPosition(target, mainTank,\
+      \ ctx);\nif (result > 0)\n{\n    Position pos;\n    CalculatePositionFromIndex(result,\
+      \ &pos);\n    offTank->TeleportTo(pos);\n}\nelse if (result == -1)\n{\n    //\
+      \ Handle insufficient space error\n    SendErrorToPlayer(offTank, \"Not enough\
+      \ room for off-tank positioning\");\n}"
+    language: cpp
+  notes: This method relies heavily on the accuracy of the CombatPositionContext data
+    provided. Improperly configured context values can lead to incorrect positioning
+    decisions. The method assumes that both target and mainTank are valid objects
+    in the current combat state, and does not perform null checks internally.
+  warnings: Do not call this method without ensuring that both target and mainTank
+    pointers are valid, as passing invalid pointers will result in undefined behavior
+    or crashes. Additionally, the returned integer index must be validated before
+    use to prevent out-of-bounds access when converting to actual position coordinates.
+  related:
+  - CalculateMainTankPosition
+  - GetCombatContextFromUnit
+  - ValidatePositioningConstraints
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T01:33:46.522532'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

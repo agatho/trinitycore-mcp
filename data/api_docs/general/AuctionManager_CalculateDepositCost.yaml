@@ -1,0 +1,58 @@
+api:
+  class: AuctionManager
+  method: CalculateDepositCost
+  signature: uint64 AuctionManager::CalculateDepositCost(Player * bot, Item * item,
+    uint32 duration)
+documentation:
+  brief: Calculates the deposit cost for auctioning an item based on player, item,
+    and duration parameters.
+  description: The CalculateDepositCost method computes the required deposit amount
+    that a player must pay to list an item on the auction house. This deposit is dependent
+    on the item's quality, level, and the auction duration selected by the player.
+    The method ensures that higher-value items or longer auctions require larger deposits
+    to prevent spamming and maintain auction house economy. It integrates with TrinityCore's
+    auction house system to enforce economic balance and player engagement.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the player who is auctioning
+      the item. Must be a valid player instance.
+  - name: item
+    description: Pointer to the Item object that is being auctioned. Must not be null
+      and must be a valid item in the player's inventory.
+  - name: duration
+    description: The duration of the auction in seconds (valid values are typically
+      1, 2, 4, 8, 12, or 24 hours). Determines how long the item will be listed for
+      sale.
+  returns: Returns a uint64 value representing the deposit cost in copper. Zero indicates
+    no deposit is required, while non-zero values indicate the amount that must be
+    paid to place the auction.
+  examples:
+  - title: Basic Usage Example
+    code: "uint64 deposit = sAuctionMgr->CalculateDepositCost(player, item, 24 * 3600);\
+      \ // 24-hour auction\nif (deposit > 0)\n{\n    player->ModifyMoney(-static_cast<int64>(deposit));\n\
+      \    // Proceed with auction creation\n}"
+    language: cpp
+  - title: Advanced Usage with Validation
+    code: "if (item && player)\n{\n    uint32 duration = 12 * 3600; // 12-hour duration\n\
+      \    uint64 deposit = sAuctionMgr->CalculateDepositCost(player, item, duration);\n\
+      \    if (deposit > 0 && player->GetMoney() >= deposit)\n    {\n        player->ModifyMoney(-static_cast<int64>(deposit));\n\
+      \        // Create auction with calculated deposit\n    }\n    else\n    {\n\
+      \        // Handle insufficient funds or invalid item\n    }\n}"
+    language: cpp
+  notes: This method is typically called before creating an auction to ensure the
+    player has sufficient funds. The calculation may vary depending on server configuration
+    settings related to auction house deposit rates and item quality multipliers.
+  warnings: Ensure that both 'bot' and 'item' parameters are valid pointers; passing
+    null values will likely cause undefined behavior or crashes. Also, be aware that
+    the returned value is in copper units, so large deposits may require careful handling
+    of uint64 overflow scenarios.
+  related:
+  - AuctionManager::AddAuction
+  - AuctionManager::GetAuctionDeposit
+  - Player::ModifyMoney
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:30:16.976061'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

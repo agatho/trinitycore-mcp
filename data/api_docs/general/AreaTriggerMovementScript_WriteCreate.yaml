@@ -1,0 +1,66 @@
+api:
+  class: AreaTriggerMovementScript
+  method: WriteCreate
+  signature: void AreaTriggerMovementScript::WriteCreate(ByteBuffer & data, const
+    AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger movement data to a ByteBuffer for client synchronization.
+  description: The WriteCreate method serializes area trigger movement information
+    into a ByteBuffer format suitable for sending to players. This method is typically
+    invoked during the creation or initialization phase of an area trigger, ensuring
+    that relevant client-side data such as position, orientation, and movement parameters
+    are properly transmitted. It plays a crucial role in synchronizing area trigger
+    states between the server and connected clients, particularly when area triggers
+    are first encountered by players or when their properties change dynamically.
+    The method utilizes the provided owner AreaTrigger object to extract necessary
+    data and formats it according to the client protocol for proper interpretation.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where serialized area trigger movement
+      data will be written. This buffer is typically used to construct network packets
+      sent to players.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this movement script.
+      Used to extract movement-related properties and state information for serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive the serialized data.
+      May be used to determine specific client behavior or filtering based on player
+      state.
+  returns: null
+  examples:
+  - title: Basic usage in area trigger creation
+    code: "void MyAreaTriggerScript::OnCreate(Player* player)\n{\n    ByteBuffer data;\n\
+      \    WriteCreate(data, GetOwner(), player);\n    // Send data to player\n}"
+    language: cpp
+  - title: Usage within a custom movement script
+    code: "class CustomAreaTriggerMovementScript : public AreaTriggerMovementScript\n\
+      {\npublic:\n    void WriteCreate(ByteBuffer& data, const AreaTrigger* owner,\
+      \ const Player* receiver) const override\n    {\n        // Custom serialization\
+      \ logic here\n        data << owner->GetGUID();\n        data << owner->GetPositionX();\n\
+      \        data << owner->GetPositionY();\n        data << owner->GetPositionZ();\n\
+      \        data << owner->GetOrientation();\n    }\n};"
+    language: cpp
+  notes: This method is part of the area trigger movement system and should only be
+    called during appropriate lifecycle events such as area trigger creation or state
+    changes. The ByteBuffer must be properly initialized before calling this method
+    to avoid memory corruption. This method does not perform any validation on input
+    parameters beyond basic null checks, so callers should ensure valid objects are
+    passed.
+  warnings: Calling this method with a null owner or receiver pointer will likely
+    result in undefined behavior or crashes. Ensure that the AreaTrigger object is
+    fully initialized before calling WriteCreate. The serialized data format may vary
+    depending on the client version and patch level, so compatibility should be verified
+    across different game versions.
+  related:
+  - AreaTriggerMovementScript::WriteUpdate
+  - AreaTriggerMovementScript::WriteDestroy
+  - AreaTrigger::GetGUID
+  - AreaTrigger::GetPositionX
+  - AreaTrigger::GetPositionY
+  - AreaTrigger::GetPositionZ
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:37:25.589714'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

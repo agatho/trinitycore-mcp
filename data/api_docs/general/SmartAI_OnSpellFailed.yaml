@@ -1,0 +1,61 @@
+api:
+  class: SmartAI
+  method: OnSpellFailed
+  signature: void SmartAI::OnSpellFailed(const SpellInfo * spellInfo)
+documentation:
+  brief: Handles spell failure events within the SmartAI system, allowing for custom
+    behavior when a spell fails to cast.
+  description: The OnSpellFailed method is invoked by the SmartAI system whenever
+    a spell fails to execute successfully. This method provides an opportunity for
+    custom AI logic to respond to spell failures, such as triggering alternative actions,
+    logging events, or modifying the creature's state. It is part of the event-driven
+    AI framework used in TrinityCore's SmartAI implementation, where various spell-related
+    events can be intercepted and handled. The method receives a pointer to the SpellInfo
+    structure that represents the failed spell, enabling access to spell properties
+    and effects for conditional logic. This functionality allows developers to create
+    more sophisticated and responsive AI behaviors that adapt dynamically to casting
+    failures.
+  parameters:
+  - name: spellInfo
+    description: Pointer to the SpellInfo structure representing the spell that failed
+      to cast. This contains all relevant information about the spell including its
+      ID, effects, duration, and other properties. Must not be null when the method
+      is called.
+  returns: void
+  examples:
+  - title: Basic Spell Failure Handling
+    code: "void SmartAI::OnSpellFailed(const SpellInfo* spellInfo)\n{\n    if (spellInfo->Id\
+      \ == 12345) // Example: specific spell ID\n    {\n        // Log the failure\
+      \ or trigger alternative behavior\n        TC_LOG_DEBUG(\"smartai\", \"Spell\
+      \ %u failed to cast.\", spellInfo->Id);\n        // Implement custom logic here\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Spell Failure with State Change
+    code: "void SmartAI::OnSpellFailed(const SpellInfo* spellInfo)\n{\n    // Check\
+      \ if the failed spell was a healing spell\n    if (spellInfo->Effects[0].Effect\
+      \ == SPELL_EFFECT_HEAL || \n        spellInfo->Effects[1].Effect == SPELL_EFFECT_HEAL\
+      \ ||\n        spellInfo->Effects[2].Effect == SPELL_EFFECT_HEAL)\n    {\n  \
+      \      // Switch to aggressive mode or change target\n        SetAggro(true);\n\
+      \        TC_LOG_DEBUG(\"smartai\", \"Healing spell failed, switching to aggressive\
+      \ mode.\");\n    }\n}"
+    language: cpp
+  notes: 'This method is part of the SmartAI event system and is called asynchronously
+    when a spell fails. The SpellInfo pointer passed to this method is valid only
+    during the scope of this function call. Developers should avoid storing references
+    to the SpellInfo object beyond this scope. Performance considerations: since this
+    method can be called frequently during combat, any logic within it should be optimized
+    to prevent performance bottlenecks.'
+  warnings: Do not modify or delete the SpellInfo object passed to this method as
+    it is managed by the core system. Avoid performing heavy operations or blocking
+    calls within this method to prevent impacting AI responsiveness. Be cautious when
+    using spell IDs directly, as they may change between game versions or patches.
+  related:
+  - OnSpellCast
+  - OnSpellSuccess
+  - OnSpellLaunch
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:44:42.861451'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

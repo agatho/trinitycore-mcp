@@ -3,12 +3,12 @@
  * Week 7: Enhanced with Item.db2 + ItemSparse.db2 integration via DB2CachedFileLoader
  */
 
-import { queryWorld } from "../database/connection.js";
-import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader.js";
-import { ItemSchema } from "../parsers/schemas/ItemSchema.js";
+import { queryWorld } from "../database/connection";
+import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader";
+import { ItemSchema } from "../parsers/schemas/ItemSchema";
 import * as path from "path";
 import * as fs from "fs";
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 export interface ItemInfo {
   itemId: number;

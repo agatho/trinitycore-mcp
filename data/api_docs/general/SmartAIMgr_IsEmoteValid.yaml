@@ -1,0 +1,64 @@
+api:
+  class: SmartAIMgr
+  method: IsEmoteValid
+  signature: bool SmartAIMgr::IsEmoteValid(const SmartScriptHolder & e, uint32 entry)
+documentation:
+  brief: Validates whether a smart script emote is correctly configured for use in
+    the AI system.
+  description: The IsEmoteValid method checks if a given SmartScriptHolder object
+    containing emote data is properly structured and contains valid parameters for
+    execution within the TrinityCore AI framework. This validation ensures that emotes
+    referenced in smart scripts are not malformed or contain invalid identifiers,
+    preventing runtime errors during AI behavior execution. The method typically performs
+    checks on emote type, target validity, and other contextual constraints required
+    for proper emote handling in World of Warcraft's AI system.
+  parameters:
+  - name: e
+    description: A const reference to a SmartScriptHolder object containing the emote
+      data to be validated. This structure holds all relevant information about the
+      emote including type, target, and associated parameters.
+  - name: entry
+    description: The entry ID of the creature or game object that owns this smart
+      script. Used for context validation and ensuring proper targeting within the
+      AI system.
+  returns: Returns true if the emote data in the SmartScriptHolder is valid and can
+    be safely executed by the AI system; returns false otherwise. Invalid conditions
+    include malformed emote types, invalid targets, or missing required parameters.
+  examples:
+  - title: Basic Emote Validation
+    code: 'SmartScriptHolder emote;
+
+      emote.emote = 1234;
+
+      emote.target_type = SMART_TARGET_SELF;
+
+      bool isValid = sSmartAIMgr->IsEmoteValid(emote, 12345);
+
+      // Returns true if emote is valid for creature with entry ID 12345'
+    language: cpp
+  - title: Validation in AI Script Context
+    code: "void OnAIUpdate(Unit* unit) {\n    if (unit->GetScriptId() == 54321) {\n\
+      \        SmartScriptHolder emote;\n        emote.emote = 5678;\n        emote.target_type\
+      \ = SMART_TARGET_CREATURE;\n        emote.target_entry = 9876;\n        if (sSmartAIMgr->IsEmoteValid(emote,\
+      \ unit->GetEntry())) {\n            // Proceed with emote execution\n      \
+      \      unit->HandleEmote(emote.emote);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used internally by the SmartAI system to validate
+    emotes before execution. It performs essential checks on emote parameters and
+    context to ensure game stability. The validation process may involve checking
+    against known emote IDs, verifying target types, and ensuring proper parameter
+    combinations.
+  warnings: Do not rely on this method for runtime emote execution directly. Always
+    use it as a pre-validation step before attempting to execute emotes in AI scripts.
+    Incorrect usage can lead to invalid emote behavior or potential crashes if malformed
+    data is passed through without validation.
+  related:
+  - SmartAIMgr::HandleEmote
+  - SmartAIMgr::ExecuteScript
+  - SmartAIMgr::ValidateSmartScript
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:34:10.187729'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

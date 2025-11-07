@@ -1,0 +1,67 @@
+api:
+  class: ItemData
+  method: WriteUpdate
+  signature: void ItemData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes item data changes into a network packet buffer for client updates.
+  description: The WriteUpdate method serializes the changes made to an ItemData object
+    into a ByteBuffer, which is typically used to send updates to players in the game
+    world. It respects a changes mask to determine which fields should be included
+    in the update packet. The method also considers the owner and receiver of the
+    item for proper serialization context. This function is essential for synchronizing
+    item state between server and client, particularly when items are modified through
+    gameplay mechanics such as enchantments, durability changes, or stack updates.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically sent over the network to clients.
+  - name: changesMask
+    description: Integer mask indicating which fields of the item have been modified
+      and should be included in the update packet. Each bit corresponds to a specific
+      field in the item data structure.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested changes (like those within
+      sub-structures) should be considered when applying the changes mask. If true,
+      nested changes are ignored.
+  - name: owner
+    description: Pointer to the Item object that contains the data being updated.
+      Used for context and validation during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. May be
+      used to customize the update based on player-specific conditions or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Packet Construction
+    code: "ByteBuffer updateData;\nint changesMask = 0x01; // Example mask for basic\
+      \ item fields\nPlayer* receiver = playerSession->GetPlayer();\nItem* item =\
+      \ player->GetItemByGuid(itemGuid);\nif (item)\n{\n    item->GetItemData()->WriteUpdate(updateData,\
+      \ changesMask, false, item, receiver);\n    // Send updateData to client via\
+      \ session\n}"
+    language: cpp
+  - title: Updating Enchanted Item with Nested Changes
+    code: "ByteBuffer updateBuffer;\nint changesMask = 0x0F; // Mask for multiple\
+      \ item fields including enchantments\nItem* enchantedItem = player->GetItemBySlot(15);\
+      \ // Example slot for weapon\nPlayer* receiver = playerSession->GetPlayer();\n\
+      if (enchantedItem)\n{\n    enchantedItem->GetItemData()->WriteUpdate(updateBuffer,\
+      \ changesMask, true, enchantedItem, receiver);\n    // Send update with nested\
+      \ changes ignored\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's item synchronization system. It's
+    crucial for maintaining consistency between server-side item state and client-side
+    representation. The changesMask parameter must be carefully constructed to reflect
+    actual modifications, otherwise unnecessary data may be sent over the network.
+  warnings: Incorrectly setting the changesMask can lead to either missing updates
+    or excessive bandwidth usage. Always ensure that only truly modified fields are
+    marked in the mask. Using an incorrect owner or receiver pointer can cause undefined
+    behavior during serialization.
+  related:
+  - ItemData::ReadUpdate
+  - Item::GetChangesMask
+  - Item::SetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:24:46.390394'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: OnlyOnceAreaTriggerScript
+  method: TryHandleOnce
+  signature: bool OnlyOnceAreaTriggerScript::TryHandleOnce(Player * player, const
+    AreaTriggerEntry * trigger)
+documentation:
+  brief: Attempts to handle an area trigger event only once per player.
+  description: The TryHandleOnce method is designed to process area trigger events
+    in a way that ensures each player only experiences the associated trigger logic
+    once. This prevents repeated execution of quest-related or scripted actions when
+    a player re-enters an area trigger zone. The method typically checks if the player
+    has already interacted with the specific trigger, and if not, executes the relevant
+    script logic before marking the interaction as completed. It's commonly used in
+    conjunction with area triggers that are meant to activate one-time events such
+    as quest start or completion triggers.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that has entered the area trigger zone.
+      This parameter is required and must be a valid player instance.
+  - name: trigger
+    description: Pointer to the AreaTriggerEntry structure describing the specific
+      area trigger being activated. This parameter is required and must point to a
+      valid area trigger entry.
+  returns: Returns true if the area trigger was successfully handled for the player
+    (i.e., it's the first time they've entered this trigger and the logic executed),
+    or false if the trigger has already been processed for this player or if processing
+    failed.
+  examples:
+  - title: Basic usage in a custom area trigger script
+    code: "bool MyAreaTriggerScript::TryHandleOnce(Player* player, const AreaTriggerEntry*\
+      \ trigger)\n{\n    if (!player || !trigger)\n        return false;\n\n    //\
+      \ Check if player has already completed this trigger\n    if (player->HasAura(12345))\
+      \ // Example aura indicating completion\n        return false;\n\n    // Perform\
+      \ trigger logic\n    player->AddAura(12345, player); // Mark as completed\n\
+      \    player->CompleteQuest(67890);   // Complete quest\n\n    return true;\n\
+      }"
+    language: cpp
+  notes: This method is typically called from within the AreaTriggerScript framework
+    in TrinityCore. It's important to ensure that the script properly manages state
+    tracking for each player to avoid unintended behavior. The method should be implemented
+    carefully to prevent race conditions when multiple threads might access the same
+    player's trigger state.
+  warnings: Do not call this method directly from outside of the area trigger handling
+    system as it relies on internal state management. Improper implementation can
+    lead to players being able to repeat one-time events or miss them entirely.
+  related:
+  - OnAreaTriggerEnter
+  - OnAreaTriggerLeave
+  - IsPlayerAlreadyTriggered
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T07:11:55.951848'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

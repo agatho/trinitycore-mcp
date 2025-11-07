@@ -1,0 +1,58 @@
+api:
+  class: TargetSelector
+  method: DetermineTargetPriority
+  signature: TargetPriority TargetSelector::DetermineTargetPriority(Unit * target,
+    const SelectionContext & context)
+documentation:
+  brief: Evaluates and returns the priority level of a target unit based on selection
+    context.
+  description: The DetermineTargetPriority method assesses a given target unit's suitability
+    for selection within an AI decision-making process. It takes into account various
+    factors such as threat level, distance, health status, and other contextual variables
+    defined in the SelectionContext. This method is typically used by AI systems to
+    determine which enemy or ally should be targeted next during combat or non-combat
+    scenarios. The returned TargetPriority value indicates how favorable the target
+    is for selection, with higher values representing more preferred targets. The
+    method does not modify the state of either the target or context objects.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that will be evaluated for target priority.
+      Must not be null.
+  - name: context
+    description: Reference to a SelectionContext object containing environmental and
+      situational data used in priority calculation. Includes information such as
+      threat levels, available targets, and AI behavior settings.
+  returns: A TargetPriority enum value indicating the calculated priority of the target.
+    Higher values indicate more desirable targets. Possible values may include HIGH_PRIORITY,
+    MEDIUM_PRIORITY, LOW_PRIORITY, or NO_PRIORITY depending on implementation.
+  examples:
+  - title: Basic usage in AI logic
+    code: "TargetPriority priority = selector.DetermineTargetPriority(enemyUnit, context);\n\
+      if (priority >= TargetPriority::HIGH_PRIORITY) {\n    // Select this target\
+      \ for attack\n}"
+    language: cpp
+  - title: Using with multiple targets to find best
+    code: "Unit* bestTarget = nullptr;\nTargetPriority bestPriority = TargetPriority::NO_PRIORITY;\n\
+      \nfor (auto& target : context.GetAvailableTargets()) {\n    TargetPriority currentPriority\
+      \ = selector.DetermineTargetPriority(target, context);\n    if (currentPriority\
+      \ > bestPriority) {\n        bestPriority = currentPriority;\n        bestTarget\
+      \ = target;\n    }\n}\n\nif (bestTarget && bestPriority >= TargetPriority::MEDIUM_PRIORITY)\
+      \ {\n    // Execute targeting logic\n}"
+    language: cpp
+  notes: This method is part of the AI target selection system and is called frequently
+    during combat decision cycles. It's designed to be fast and efficient, avoiding
+    heavy computations that could impact performance. The implementation may vary
+    based on specific AI behavior configurations.
+  warnings: Ensure that the target pointer is valid before calling this method; passing
+    a null pointer will likely result in undefined behavior or crashes. Be aware that
+    the context object must contain valid data for accurate priority calculations.
+  related:
+  - GetTargetPriority
+  - EvaluateTarget
+  - SelectBestTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T01:25:04.650433'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

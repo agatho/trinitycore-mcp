@@ -1,0 +1,63 @@
+api:
+  class: FormationManager
+  method: CalculateRoleBasedPosition
+  signature: int FormationManager::CalculateRoleBasedPosition(FormationRole role,
+    const int & leaderPos, float orientation)
+documentation:
+  brief: Calculates and returns the position index for a unit based on its formation
+    role, leader position, and orientation.
+  description: The CalculateRoleBasedPosition method determines the appropriate positional
+    index within a formation for a unit given its FormationRole, the leader's position,
+    and the formation's orientation. This method is used in group-based AI behavior
+    to maintain proper positioning of units in formations such as those used by NPCs
+    or player-controlled groups. The method takes into account the role (e.g., front,
+    flank, rear) of the unit within the formation and computes where that unit should
+    be placed relative to the leader's position. It is typically invoked during formation
+    updates or when a new unit joins an existing formation.
+  parameters:
+  - name: role
+    description: The FormationRole enum value indicating the unit's role in the formation
+      (e.g., LEADER, FRONT, FLANK_LEFT, FLANK_RIGHT, REAR). This determines the relative
+      position within the formation structure.
+  - name: leaderPos
+    description: The integer index representing the leader's current position in the
+      formation array. Used as a reference point for calculating other units' positions.
+  - name: orientation
+    description: The float value representing the direction (in radians) that the
+      formation is facing. This affects how roles translate into actual spatial positions,
+      especially for flanking roles.
+  returns: An integer index representing the calculated position within the formation
+    array where the unit should be placed based on its role, leader's position, and
+    orientation. Returns -1 if an invalid role or calculation error occurs.
+  examples:
+  - title: Basic usage for a flank position
+    code: int pos = formationManager.CalculateRoleBasedPosition(FormationRole::FLANK_LEFT,
+      0, M_PI / 4);
+    language: cpp
+  - title: Using with dynamic leader position and orientation
+    code: 'int leaderIndex = GetLeaderPosition();
+
+      float currentOrientation = GetFormationOrientation();
+
+      int pos = formationManager.CalculateRoleBasedPosition(FormationRole::REAR, leaderIndex,
+      currentOrientation);'
+    language: cpp
+  notes: This method assumes that the formation structure is predefined and that roles
+    map to fixed spatial relationships. The orientation parameter is critical for
+    determining directional roles like FLANK_LEFT or FLANK_RIGHT. Performance-wise,
+    this method should be lightweight as it only performs mathematical calculations
+    without database or network calls.
+  warnings: Ensure that the FormationRole enum values are valid before calling this
+    method, as invalid roles may cause unexpected behavior or return -1. The leaderPos
+    parameter must refer to a valid index in the formation array; otherwise, the result
+    will be incorrect.
+  related:
+  - GetFormationRole
+  - SetFormationRole
+  - UpdateFormationPosition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:21:20.313510'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

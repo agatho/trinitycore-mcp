@@ -1,0 +1,57 @@
+api:
+  class: InventoryManager
+  method: LogAction
+  signature: void InventoryManager::LogAction(const std::string & action, Item * item)
+    const
+documentation:
+  brief: Logs an inventory action with associated item information to the game's logging
+    system
+  description: The LogAction method records inventory management events such as item
+    acquisition, deletion, or transfer. It takes an action string describing the operation
+    and a pointer to the affected item, then writes this information to the server's
+    log files for debugging and monitoring purposes. This method is typically used
+    internally by the InventoryManager class to maintain audit trails of player inventory
+    changes within the TrinityCore framework.
+  parameters:
+  - name: action
+    description: A descriptive string indicating the type of inventory action performed
+      (e.g., 'ITEM_ADD', 'ITEM_REMOVE', 'ITEM_MOVE'). This string is used to categorize
+      and identify the logged event in the server logs.
+  - name: item
+    description: Pointer to the Item object that was affected by the inventory action.
+      The method will typically access item properties like GUID, entry ID, and stack
+      count for logging purposes. Can be nullptr if no specific item is involved in
+      the action.
+  returns: null
+  examples:
+  - title: Logging Item Addition
+    code: 'InventoryManager* inventory = player->GetInventory();
+
+      Item* newItem = new Item();
+
+      inventory->LogAction("ITEM_ADD", newItem);'
+    language: cpp
+  - title: Logging Item Removal with Null Check
+    code: "InventoryManager* inventory = player->GetInventory();\nItem* removedItem\
+      \ = inventory->GetItemByGuid(itemGuid);\nif (removedItem)\n{\n    inventory->LogAction(\"\
+      ITEM_REMOVE\", removedItem);\n}\nelse\n{\n    inventory->LogAction(\"ITEM_REMOVE_FAILED\"\
+      , nullptr);\n}"
+    language: cpp
+  notes: The method is marked as const, indicating it does not modify the InventoryManager
+    object state but may still perform logging operations that could involve thread-safe
+    write access to log files. It's recommended to use this method sparingly in performance-critical
+    sections due to potential I/O overhead from file logging.
+  warnings: Ensure that item pointers passed are valid and not dangling before calling
+    this method, as accessing invalid memory could cause crashes. The action string
+    should be carefully validated to prevent injection attacks or malformed log entries.
+  related:
+  - GetItemByGuid
+  - LogItemOperation
+  - AddItem
+  - RemoveItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T02:25:43.245626'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

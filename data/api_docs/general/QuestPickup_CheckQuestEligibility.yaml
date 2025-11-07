@@ -1,0 +1,65 @@
+api:
+  class: QuestPickup
+  method: CheckQuestEligibility
+  signature: QuestEligibility QuestPickup::CheckQuestEligibility(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Checks if a player is eligible to accept a specified quest based on quest
+    requirements and player state.
+  description: The CheckQuestEligibility method evaluates whether a given player meets
+    all prerequisites to accept a specific quest. It verifies conditions such as quest
+    level requirements, previous quest completion status, required items or currency,
+    and other game-specific eligibility rules. This method is typically used by the
+    quest system to determine if a quest can be offered to a player or if it should
+    be rejected due to unmet criteria. The result indicates whether the player is
+    eligible, not eligible due to level, missing prerequisites, or other reasons.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to check eligibility for. Must
+      correspond to a valid quest in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose quest
+      eligibility is being checked. Cannot be null.
+  returns: 'Returns a QuestEligibility enum value indicating the result of the eligibility
+    check. Possible values include: QUEST_ELIGIBILITY_OK (player can accept the quest),
+    QUEST_ELIGIBILITY_NOT_LEVEL_REQUIREMENT (player does not meet level requirement),
+    QUEST_ELIGIBILITY_ALREADY_COMPLETED (quest already completed), QUEST_ELIGIBILITY_MISSING_PREREQUISITES
+    (player lacks required previous quests or items), and others as defined in the
+    QuestEligibility enum.'
+  examples:
+  - title: Basic usage to check quest eligibility
+    code: "QuestEligibility result = questPickup->CheckQuestEligibility(12345, player);\n\
+      if (result == QUEST_ELIGIBILITY_OK) {\n    // Player can accept the quest\n\
+      \    player->AddQuest(12345);\n} else {\n    // Handle ineligible case\n   \
+      \ player->SendNotification(\"You are not eligible for this quest.\");\n}"
+    language: cpp
+  - title: Using eligibility result to conditionally offer quest
+    code: "QuestEligibility eligibility = questPickup->CheckQuestEligibility(67890,\
+      \ player);\nswitch (eligibility) {\n    case QUEST_ELIGIBILITY_OK:\n       \
+      \ player->AddQuest(67890);\n        break;\n    case QUEST_ELIGIBILITY_NOT_LEVEL_REQUIREMENT:\n\
+      \        player->SendNotification(\"You are not high enough level for this quest.\"\
+      );\n        break;\n    case QUEST_ELIGIBILITY_ALREADY_COMPLETED:\n        player->SendNotification(\"\
+      You have already completed this quest.\");\n        break;\n    default:\n \
+      \       player->SendNotification(\"You cannot accept this quest at this time.\"\
+      );\n        break;\n}"
+    language: cpp
+  notes: This method performs database lookups and checks various player state conditions,
+    so it may have performance implications when called frequently. It is recommended
+    to cache results where possible or limit calls to only when necessary. The method
+    assumes that the questId exists in the database and that the player pointer is
+    valid.
+  warnings: Ensure that the Player pointer passed is valid and not null; passing a
+    null pointer will likely cause a crash. Also, be aware that this method does not
+    modify the player's quest state or add the quest to their active quests - it only
+    checks eligibility.
+  related:
+  - GetQuestStatus
+  - CanPlayerAcceptQuest
+  - AddQuest
+  - RemoveQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:50:37.021626'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

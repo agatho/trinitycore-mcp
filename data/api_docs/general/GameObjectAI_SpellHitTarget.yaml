@@ -1,0 +1,68 @@
+api:
+  class: GameObjectAI
+  method: SpellHitTarget
+  signature: void GameObjectAI::SpellHitTarget(WorldObject * param0, const SpellInfo
+    * param1)
+documentation:
+  brief: Handles the event when a spell hits a target object in the game world.
+  description: The SpellHitTarget method is invoked by the TrinityCore framework when
+    a spell successfully hits and affects a target object. This virtual method allows
+    GameObjectAI implementations to define custom behavior in response to spells hitting
+    their associated game objects. It serves as an event handler that can be overridden
+    by derived classes to implement specific logic such as triggering effects, modifying
+    object state, or initiating other AI behaviors. The method is part of the spell
+    interaction system and is called during the spell's execution phase when damage
+    or effects are applied to targets.
+  parameters:
+  - name: param0
+    description: Pointer to the WorldObject that was hit by the spell. This can be
+      any game object such as a player, creature, GameObject, or item that is affected
+      by the spell.
+  - name: param1
+    description: Pointer to the SpellInfo structure containing detailed information
+      about the spell that caused this event. This includes spell ID, effects, duration,
+      and other spell properties.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyGameObjectAI : public GameObjectAI\n{\npublic:\n    void SpellHitTarget(WorldObject*\
+      \ target, const SpellInfo* spellInfo) override\n    {\n        // Log that a\
+      \ spell hit the object\n        sLog->outString(\"Spell %u hit target %s\",\
+      \ spellInfo->Id, target->GetName().c_str());\n        \n        // Trigger custom\
+      \ behavior based on spell ID\n        if (spellInfo->Id == 12345)\n        {\n\
+      \            // Perform specific action when this spell hits\n            DoSomethingSpecial();\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Target Type Checking
+    code: "class ChestGameObjectAI : public GameObjectAI\n{\npublic:\n    void SpellHitTarget(WorldObject*\
+      \ target, const SpellInfo* spellInfo) override\n    {\n        // Only respond\
+      \ to player targets\n        if (Player* player = target->ToPlayer())\n    \
+      \    {\n            // Check if it's a healing spell\n            if (spellInfo->Effects[0].Effect\
+      \ == SPELL_EFFECT_HEAL)\n            {\n                // Give the player a\
+      \ reward or modify their state\n                player->AddItem(ITEM_ID_REWARD,\
+      \ 1);\n            }\n        }\n        \n        // Handle all other targets\n\
+      \        else if (Creature* creature = target->ToCreature())\n        {\n  \
+      \          // Trigger special behavior for creatures\n            creature->AI()->DoAction(ACTION_SPELL_HIT);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the spell's application phase, so it should
+    not perform heavy operations that could block the game loop. The SpellInfo pointer
+    remains valid only for the duration of this call and should not be stored or accessed
+    after returning. GameObjectAI implementations must be careful to check the target
+    type before performing operations that may cause issues with different object
+    types.
+  warnings: Do not modify or delete the target object within this method, as it may
+    lead to undefined behavior or crashes. Be cautious when accessing spell properties
+    that might change between versions of TrinityCore. Ensure proper null checks for
+    both parameters since they are passed from the core system.
+  related:
+  - SpellHit
+  - JustCreated
+  - UpdateAI
+  - OnSpellClick
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:53:39.841881'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

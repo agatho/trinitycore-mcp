@@ -16,7 +16,7 @@
  * @module tools/querybuilder
  */
 
-import { queryWorld, queryAuth, queryCharacters } from "../database/connection.js";
+import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
 
 export interface DatabaseTable {
   database: "world" | "auth" | "characters";

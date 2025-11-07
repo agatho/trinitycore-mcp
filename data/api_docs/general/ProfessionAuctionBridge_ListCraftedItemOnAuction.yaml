@@ -1,0 +1,62 @@
+api:
+  class: ProfessionAuctionBridge
+  method: ListCraftedItemOnAuction
+  signature: bool ProfessionAuctionBridge::ListCraftedItemOnAuction(int * player,
+    uint32 itemGuid, const CraftedItemAuctionConfig & config)
+documentation:
+  brief: Lists a crafted item on the auction house using the specified configuration.
+  description: The ListCraftedItemOnAuction method attempts to list a crafted item
+    owned by a player on the auction house. It uses the provided configuration to
+    determine auction parameters such as duration, starting bid, and buyout price.
+    The method requires the player to have the item in their inventory and ensures
+    the item is valid for auctioning. This function is typically used within crafting
+    profession systems where players can auction items they've crafted directly from
+    their inventory.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). Must be a valid player GUID or nullptr.
+  - name: itemGuid
+    description: The unique identifier (GUID) of the crafted item to be listed on
+      auction. Must correspond to an existing item in the player's inventory.
+  - name: config
+    description: Configuration object containing auction settings such as duration,
+      starting bid, and buyout price for the item being listed.
+  returns: Returns true if the item was successfully listed on the auction house;
+    otherwise returns false. Failure may occur due to invalid player GUID, missing
+    item, or invalid auction configuration.
+  examples:
+  - title: Basic Usage Example
+    code: "int playerId = 12345;\nuint32 itemId = 67890;\nCraftedItemAuctionConfig\
+      \ config;\nconfig.duration = AUCTION_DURATION_12HOURS;\nconfig.startBid = 1000;\n\
+      config.buyoutPrice = 5000;\nbool result = bridge->ListCraftedItemOnAuction(&playerId,\
+      \ itemId, config);\nif (result) {\n    // Item successfully listed\n} else {\n\
+      \    // Failed to list item\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "int playerId = 12345;\nuint32 itemId = 67890;\nCraftedItemAuctionConfig\
+      \ config;\nconfig.duration = AUCTION_DURATION_24HOURS;\nconfig.startBid = 2500;\n\
+      config.buyoutPrice = 10000;\n\nif (playerId <= 0 || itemId == 0) {\n    // Invalid\
+      \ input parameters\n    return false;\n}\n\nbool success = bridge->ListCraftedItemOnAuction(&playerId,\
+      \ itemId, config);\nif (!success) {\n    // Log error or notify player\n   \
+      \ sLog->outError(\"Failed to list crafted item %u on auction for player %d\"\
+      , itemId, playerId);\n}\nreturn success;"
+    language: cpp
+  notes: This method assumes the player has sufficient permissions and that the item
+    is valid for auctioning. It does not perform checks on item restrictions or auction
+    house limits beyond basic validity. The method may block if it needs to interact
+    with database operations during listing.
+  warnings: Ensure that the player GUID and item GUID are valid before calling this
+    function, as invalid values can lead to undefined behavior or database corruption.
+    Also ensure that the configuration parameters are within acceptable ranges for
+    auction house rules.
+  related:
+  - GetCraftedItemAuctionConfig
+  - RemoveCraftedItemFromAuction
+  - IsItemValidForAuction
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T05:30:58.275469'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryWorld } from '@/../../src/database/connection';
+import { queryWorld } from '@/../src/database/connection';
 
 export const dynamic = 'force-dynamic';
 

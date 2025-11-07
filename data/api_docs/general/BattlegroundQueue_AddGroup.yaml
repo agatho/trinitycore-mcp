@@ -1,0 +1,73 @@
+api:
+  class: BattlegroundQueue
+  method: AddGroup
+  signature: GroupQueueInfo * BattlegroundQueue::AddGroup(const Player * leader, const
+    Group * group, int team, const PVPDifficultyEntry * bracketEntry, bool isPremade,
+    uint32 ArenaRating, uint32 MatchmakerRating)
+documentation:
+  brief: Adds a group to the battleground queue with specified parameters.
+  description: The AddGroup method is responsible for inserting a player group into
+    the battleground queue system. It takes a leader player, the group itself, team
+    affiliation, bracket information, and premade status to create a GroupQueueInfo
+    object that represents the queued group. This method is typically called when
+    players attempt to join a battleground queue as a group rather than individually.
+    The method handles the necessary bookkeeping for group-based matchmaking and ensures
+    proper queue management according to game rules.
+  parameters:
+  - name: leader
+    description: Pointer to the player who leads the group attempting to queue. Must
+      be a valid Player object.
+  - name: group
+    description: Pointer to the Group object that is being queued. Must be a valid
+      Group with members.
+  - name: team
+    description: Team identifier (0 for Alliance, 1 for Horde) indicating which faction
+      the group belongs to.
+  - name: bracketEntry
+    description: Pointer to PVPDifficultyEntry that defines the bracket (level range
+      and battleground type) for this queue entry.
+  - name: isPremade
+    description: Boolean flag indicating whether the group is premade (already formed
+      before queueing).
+  - name: ArenaRating
+    description: The arena rating of the group, used for ranked battleground matchmaking.
+      Zero if not applicable.
+  - name: MatchmakerRating
+    description: The matchmaker rating used for ranked battleground matching. Zero
+      if not applicable.
+  returns: Returns a pointer to GroupQueueInfo which contains information about the
+    queued group, including queue position and status. Returns NULL if the group could
+    not be added due to invalid parameters or system errors.
+  examples:
+  - title: Basic usage of AddGroup
+    code: "GroupQueueInfo* gqi = bgQueue->AddGroup(player, group, TEAM_ALLIANCE, bracket,\
+      \ false, 0, 0);\nif (gqi != nullptr) {\n    // Group successfully added to queue\n\
+      \    sWorld->SendGlobalText(\"Group queued for battleground.\");\n} else {\n\
+      \    // Failed to add group\n    sWorld->SendGlobalText(\"Failed to queue group.\"\
+      );\n}"
+    language: cpp
+  - title: Adding a premade group with arena rating
+    code: "GroupQueueInfo* gqi = bgQueue->AddGroup(leaderPlayer, playerGroup, TEAM_HORDE,\
+      \ bracketEntry, true, 1500, 1200);\nif (gqi != nullptr) {\n    // Group queued\
+      \ as premade with specific ratings\n    sWorld->SendGlobalText(\"Premade group\
+      \ queued with arena rating: 1500\");\n}"
+    language: cpp
+  notes: This method is part of the battleground queue system and interacts with internal
+    data structures to manage player groups. It performs validation on input parameters
+    and may modify the internal state of the BattlegroundQueue class. The returned
+    GroupQueueInfo pointer should be used carefully as it's managed internally by
+    the queue system.
+  warnings: Calling this method with invalid or null pointers (leader, group, bracketEntry)
+    will likely cause undefined behavior or crashes. Ensure that all parameters are
+    valid before calling AddGroup. Also, be aware that groups added to the queue may
+    not immediately begin matchmaking if there are no matching opponents available.
+  related:
+  - BattlegroundQueue::RemoveGroup
+  - BattlegroundQueue::GetPlayerGroupInfoData
+  - BattlegroundQueue::CheckArenaJoin
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T20:03:41.281665'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: DeathHookIntegration
+  method: OnPlayerPreResurrection
+  signature: void DeathHookIntegration::OnPlayerPreResurrection(Player * player)
+documentation:
+  brief: Executes custom logic before a player is resurrected in the game world
+  description: The OnPlayerPreResurrection method is a hook point that allows developers
+    to execute custom code immediately before a player character undergoes the resurrection
+    process. This method is typically invoked during the pre-resurrection phase, giving
+    addons or core modifications the opportunity to modify player state, trigger events,
+    or perform validation checks before the resurrection occurs. The method receives
+    a pointer to the Player object that is about to be resurrected, enabling access
+    to player data and properties. It's important to note that this hook executes
+    prior to any resurrection mechanics being applied by the game engine, making it
+    suitable for intercepting or altering the resurrection flow.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that is about to be resurrected. This
+      parameter must not be null and represents the specific player character undergoing
+      the resurrection process.
+  returns: null
+  examples:
+  - title: Basic Resurrection Hook Implementation
+    code: "void DeathHookIntegration::OnPlayerPreResurrection(Player* player)\n{\n\
+      \    // Log resurrection event\n    sLog->outString(\"Player %s is about to\
+      \ be resurrected.\", player->GetName().c_str());\n    \n    // Prevent resurrection\
+      \ if player has a specific debuff\n    if (player->HasAura(12345)) // Example\
+      \ aura ID\n    {\n        player->SendSystemMessage(\"You cannot be resurrected\
+      \ while affected by this debuff!\");\n        return; // Prevents resurrection\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Resurrection Modification
+    code: "void DeathHookIntegration::OnPlayerPreResurrection(Player* player)\n{\n\
+      \    // Check if player is in a specific area\n    if (player->GetMapId() ==\
+      \ 1234) // Example map ID\n    {\n        // Modify resurrection location\n\
+      \        player->SetHomebind();\n        \n        // Apply temporary buff before\
+      \ resurrection\n        player->CastSpell(player, 54321, true);\n        \n\
+      \        // Send custom message\n        player->SendSystemMessage(\"You will\
+      \ be resurrected at your home location.\");\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's hook system and should be implemented
+    carefully to avoid performance issues or infinite recursion. The player object
+    passed to this method may not yet have all resurrection-related data initialized,
+    so access to certain properties might be limited until after the resurrection
+    process begins.
+  warnings: Modifying player state in this hook can affect game balance and may cause
+    unexpected behavior if not handled properly. Avoid performing heavy operations
+    or database calls within this method as it could block the game loop. Be cautious
+    when preventing resurrection, as this may break core gameplay mechanics or create
+    exploits.
+  related:
+  - OnPlayerResurrect
+  - OnPlayerDeath
+  - OnPlayerEnterWorld
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:48:09.497407'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,87 @@
+api:
+  class: MailDraft
+  method: SendMailTo
+  signature: void MailDraft::SendMailTo(int trans, const MailReceiver & receiver,
+    const MailSender & sender, MailCheckMask checked, uint32 deliver_delay)
+documentation:
+  brief: Sends a mail message to a specified receiver using the provided sender information
+    and delivery settings.
+  description: The SendMailTo method is used to dispatch a mail message within the
+    TrinityCore framework. It takes a transaction identifier, receiver details, sender
+    information, check mask, and an optional delivery delay. This method handles the
+    core logic for delivering in-game mail to players or NPCs. The transaction parameter
+    allows for database transaction management, ensuring data consistency during mail
+    creation. The checked parameter determines which fields of the mail are marked
+    as checked (e.g., if the item was delivered), and the deliver_delay specifies
+    how long (in seconds) the mail should wait before being delivered to the recipient.
+  parameters:
+  - name: trans
+    description: Database transaction identifier used for managing consistency during
+      mail creation. Must be a valid transaction handle or zero if no transaction
+      is used.
+  - name: receiver
+    description: MailReceiver object containing the recipient's details including
+      GUID, name, and type (player or NPC).
+  - name: sender
+    description: MailSender object containing the sender's details including type,
+      entry ID, and associated item information.
+  - name: checked
+    description: MailCheckMask value indicating which aspects of the mail are marked
+      as checked (e.g., items or money have been delivered).
+  - name: deliver_delay
+    description: Time in seconds to delay delivery of the mail. Zero means immediate
+      delivery.
+  returns: null
+  examples:
+  - title: Basic Mail Delivery
+    code: 'MailDraft draft;
+
+      draft.SetSubject("Welcome!");
+
+      draft.SetBody("Hello, and welcome to our server.");
+
+      MailReceiver receiver(GUID_LOPART(12345), "PlayerName", MAIL_RECEIVER_TYPE_PLAYER);
+
+      MailSender sender(MAIL_SENDER_TYPE_ITEM, 12345);
+
+      draft.SendMailTo(0, receiver, sender, MAIL_CHECK_MASK_NONE, 0);'
+    language: cpp
+  - title: Delayed Mail with Item Attachment
+    code: 'MailDraft draft;
+
+      draft.SetSubject("Your Reward");
+
+      draft.SetBody("Here is your reward for completing the quest.");
+
+      MailReceiver receiver(GUID_LOPART(67890), "AnotherPlayer", MAIL_RECEIVER_TYPE_PLAYER);
+
+      MailSender sender(MAIL_SENDER_TYPE_ITEM, 54321);
+
+      ItemTemplate itemTemplate;
+
+      // Assume itemTemplate is populated with valid data
+
+      draft.AddItem(&itemTemplate, 1); // Attach one item
+
+      draft.SendMailTo(0, receiver, sender, MAIL_CHECK_MASK_HAS_ITEM, 3600); // Delay
+      for 1 hour'
+    language: cpp
+  notes: This method internally uses the mail system's database operations and requires
+    proper initialization of MailReceiver and MailSender objects. It does not perform
+    any validation on the input parameters beyond basic type checks, so invalid inputs
+    may lead to undefined behavior or database errors.
+  warnings: Ensure that all GUIDs and identifiers are valid before calling this method;
+    otherwise, mail delivery will fail silently or cause database corruption. The
+    deliver_delay parameter should be carefully considered as it affects player experience
+    and server performance if set too high.
+  related:
+  - MailDraft::SendMailTo
+  - MailDraft::SetSubject
+  - MailDraft::SetBody
+  - MailDraft::AddItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T08:55:46.333317'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -7,7 +7,7 @@
  * @module event-parsers
  */
 
-import type { SOAPEvent } from "./websocket-server.js";
+import type { SOAPEvent } from "./websocket-server";
 
 // ============================================================================
 // Types

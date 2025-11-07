@@ -6,7 +6,7 @@
  * Benefit: Humans can understand complex quest dependencies and progression paths visually.
  */
 
-import { queryWorld } from "../database/connection.js";
+import { queryWorld } from "../database/connection";
 
 /**
  * Quest information

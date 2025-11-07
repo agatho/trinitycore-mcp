@@ -1,0 +1,49 @@
+api:
+  class: BotActionQueue
+  method: Pop
+  signature: bool BotActionQueue::Pop(BotAction & action)
+documentation:
+  brief: Removes and returns the next bot action from the queue
+  description: The Pop method retrieves the next available BotAction from the internal
+    queue structure. It attempts to extract the first element in the queue and copies
+    it into the provided reference parameter. The method returns true if an action
+    was successfully retrieved and false if the queue is empty. This operation modifies
+    the queue state by removing the returned element, making it a destructive read
+    operation. In the context of TrinityCore's bot system, this method is typically
+    used to process queued AI actions sequentially.
+  parameters:
+  - name: action
+    description: Reference to a BotAction object where the popped action will be stored.
+      The caller must ensure this object is properly initialized before calling Pop.
+  returns: True if an action was successfully removed from the queue and copied into
+    the reference parameter; false if the queue is empty and no action could be retrieved.
+  examples:
+  - title: Basic usage of Pop method
+    code: "BotAction nextAction;\nif (botQueue.Pop(nextAction)) {\n    // Process\
+      \ the retrieved action\n    nextAction.Execute();\n} else {\n    // Queue was\
+      \ empty, no action to process\n    printf(\"No actions available\\n\");\n}"
+    language: cpp
+  - title: Continuous processing of bot actions
+    code: "while (true) {\n    BotAction action;\n    if (!botQueue.Pop(action)) {\n\
+      \        break; // No more actions\n    }\n    action.Execute();\n    // Process\
+      \ other logic here\n}"
+    language: cpp
+  notes: This method is typically used in a FIFO (First-In-First-Out) manner to process
+    bot AI decisions sequentially. The queue implementation may be thread-safe depending
+    on the specific BotActionQueue instantiation, but callers should verify thread
+    safety requirements for their use case. Performance considerations include potential
+    locking mechanisms if the queue is shared across threads.
+  warnings: Calling Pop on an empty queue will return false without modifying the
+    action parameter. Ensure proper error handling when using this method to avoid
+    unexpected behavior. If multiple threads access the same queue, consider synchronization
+    mechanisms to prevent race conditions.
+  related:
+  - Push
+  - IsEmpty
+  - Size
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T19:21:15.058102'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

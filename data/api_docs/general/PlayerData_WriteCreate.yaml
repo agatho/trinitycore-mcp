@@ -1,0 +1,70 @@
+api:
+  class: PlayerData
+  method: WriteCreate
+  signature: void PlayerData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes player data to a ByteBuffer for network transmission during player
+    creation.
+  description: The WriteCreate method serializes player data into a ByteBuffer format
+    suitable for sending to clients when a player is created or becomes visible to
+    another player. This method handles the serialization of various player attributes,
+    including GUID, name, race, class, gender, and other relevant fields based on
+    visibility flags. The method respects field visibility settings to determine which
+    data should be included in the packet, ensuring that sensitive or private information
+    is only sent when appropriate. It's typically invoked during player enter-world
+    events or when a player becomes visible to another player within the game world.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized player data will be
+      written. This buffer is used to construct the network packet sent to the client.
+  - name: fieldVisibilityFlags
+    description: Integer flag that determines which fields should be included in the
+      serialized output. These flags control visibility of various player attributes
+      based on game context and permissions.
+  - name: owner
+    description: Pointer to the Player object whose data is being written. This represents
+      the player whose information is being serialized for transmission.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. Used to
+      determine visibility of certain fields based on relationship or permissions
+      between players.
+  returns: null
+  examples:
+  - title: Basic usage in player enter-world scenario
+    code: 'ByteBuffer data;
+
+      PlayerData playerData;
+
+      playerData.WriteCreate(data, VISIBILITY_FLAG_NORMAL, player, receiver);
+
+      // Send data to receiver''s client'
+    language: cpp
+  - title: Writing player data with custom visibility flags
+    code: 'ByteBuffer buffer;
+
+      uint32 visibilityFlags = VISIBILITY_FLAG_GM | VISIBILITY_FLAG_ADMIN;
+
+      playerData.WriteCreate(buffer, visibilityFlags, player, targetPlayer);
+
+      // Construct and send packet with extended visibility'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system. The
+    fieldVisibilityFlags parameter controls what data gets included in the final packet,
+    which can significantly impact network bandwidth usage. Developers should be aware
+    that this method may be called frequently during player enter-world events and
+    should consider performance implications when modifying its behavior.
+  warnings: Incorrectly setting visibility flags can result in sensitive player information
+    being exposed to unauthorized players or missing critical data needed for proper
+    client rendering. The owner and receiver parameters must not be null; passing
+    invalid pointers will cause undefined behavior.
+  related:
+  - PlayerData::WriteUpdate
+  - PlayerData::WriteDestroy
+  - PlayerData::WriteCreateUpdate
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T01:04:02.090054'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

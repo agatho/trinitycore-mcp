@@ -1,0 +1,52 @@
+api:
+  class: AuraEventBus
+  method: Unsubscribe
+  signature: void AuraEventBus::Unsubscribe(BotAI * subscriber)
+documentation:
+  brief: Removes a BotAI subscriber from the AuraEventBus event system.
+  description: The Unsubscribe method removes a specified BotAI subscriber from the
+    AuraEventBus, effectively disconnecting it from receiving aura-related events.
+    This method is typically used when a bot AI instance is being destroyed or deactivated
+    to prevent memory leaks and ensure proper cleanup of event subscriptions. The
+    method operates on a singleton event bus that manages all active aura event listeners
+    within the TrinityCore framework. It ensures that unsubscribed subscribers no
+    longer receive notifications about aura application, removal, or modification
+    events.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that should be removed from the event
+      bus subscription list. Must not be null, otherwise behavior is undefined.
+  returns: None. This method returns void and performs no value return.
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'BotAI* myBot = new BotAI();
+
+      // ... subscribe to events ...
+
+      AuraEventBus::Instance()->Unsubscribe(myBot);
+
+      delete myBot;'
+    language: cpp
+  - title: Unsubscribe During Cleanup
+    code: "class MyBotAI : public BotAI {\npublic:\n    ~MyBotAI() {\n        AuraEventBus::Instance()->Unsubscribe(this);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method assumes that the subscriber has previously been subscribed to
+    the event bus. If called on an unsubscribed subscriber, it may result in undefined
+    behavior or performance degradation due to internal data structure inconsistencies.
+    The implementation likely uses a container (such as std::set or std::unordered_set)
+    to track active subscribers for efficient lookup and removal operations.
+  warnings: Calling Unsubscribe with a null pointer will cause undefined behavior.
+    Ensure that all BotAI instances are properly unsubscribed before deletion to avoid
+    dangling pointers and memory leaks. This method should not be called from within
+    an event handler to prevent potential iterator invalidation issues.
+  related:
+  - Subscribe
+  - Publish
+  - Instance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:01:43.099213'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

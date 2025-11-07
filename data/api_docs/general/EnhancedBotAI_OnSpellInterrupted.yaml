@@ -1,0 +1,51 @@
+api:
+  class: EnhancedBotAI
+  method: OnSpellInterrupted
+  signature: void EnhancedBotAI::OnSpellInterrupted(const int * spell)
+documentation:
+  brief: Handles the event when a bot's spell is interrupted during casting.
+  description: The OnSpellInterrupted method is invoked when a spell being cast by
+    an EnhancedBotAI-controlled character is interrupted by external factors such
+    as damage, movement, or other game mechanics. This method allows the AI to respond
+    appropriately to spell interruptions, potentially resetting spell states, adjusting
+    behavior, or initiating alternative actions. It serves as a critical callback
+    in the bot's AI lifecycle management, ensuring proper handling of dynamic combat
+    scenarios where spell casting may be disrupted.
+  parameters:
+  - name: spell
+    description: Pointer to an integer representing the spell ID that was interrupted.
+      The value may be null if the interruption is not tied to a specific spell.
+  returns: void
+  examples:
+  - title: Basic Spell Interruption Handling
+    code: "void EnhancedBotAI::OnSpellInterrupted(const int* spell)\n{\n    if (spell\
+      \ != nullptr)\n    {\n        // Log the interrupted spell\n        sLog->outString(\"\
+      Bot spell %d was interrupted.\", *spell);\n        // Reset spell casting state\n\
+      \        m_spellState = SPELL_STATE_NONE;\n    }\n}"
+    language: cpp
+  - title: Advanced Spell Interruption with Behavior Adjustment
+    code: "void EnhancedBotAI::OnSpellInterrupted(const int* spell)\n{\n    if (spell\
+      \ != nullptr && *spell == SPELL_FIREBALL)\n    {\n        // If Fireball was\
+      \ interrupted, switch to melee attack\n        m_bot->SetReactState(REACT_AGGRESSIVE);\n\
+      \        m_bot->AttackStart(m_target);\n    }\n    else\n    {\n        // Default\
+      \ behavior for other spells\n        m_spellState = SPELL_STATE_NONE;\n    \
+      \    m_nextSpellTime = getMSTime();\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within the core TrinityCore spell system
+    when a spell interruption event occurs. Developers should ensure that any state
+    changes made in this method do not conflict with other AI systems or cause race
+    conditions. The spell parameter may be null, so proper null checking is advised.
+  warnings: Improper handling of spell interruptions can lead to inconsistent bot
+    behavior or AI lockups. Always validate the spell ID and handle potential null
+    pointers. Be cautious when modifying bot state within this method as it may affect
+    ongoing combat logic.
+  related:
+  - OnSpellCast
+  - OnSpellFailed
+  - UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T14:41:25.823678'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

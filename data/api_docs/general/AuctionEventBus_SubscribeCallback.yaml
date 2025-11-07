@@ -1,0 +1,60 @@
+api:
+  class: AuctionEventBus
+  method: SubscribeCallback
+  signature: uint32 AuctionEventBus::SubscribeCallback(EventHandler handler, const
+    int & types)
+documentation:
+  brief: Registers a callback handler for auction events of specified types and returns
+    a unique subscription ID.
+  description: The SubscribeCallback method allows systems within TrinityCore to register
+    event handlers that will be invoked when specific auction-related events occur.
+    It takes an EventHandler function pointer and a bitmask of event types to subscribe
+    to, returning a unique identifier that can later be used to unsubscribe. This
+    mechanism is part of the AuctionEventBus system which facilitates decoupled communication
+    between different subsystems interested in auction activities such as item listings,
+    bids, or sales. The method ensures that callbacks are properly registered and
+    managed within the event bus infrastructure.
+  parameters:
+  - name: handler
+    description: A function pointer to the EventHandler callback that will be invoked
+      when matching auction events occur. This should be a function that matches the
+      EventHandler signature.
+  - name: types
+    description: A bitmask representing the types of auction events to subscribe to.
+      Individual event type constants should be combined using bitwise OR operations
+      to specify multiple event types.
+  returns: Returns a unique uint32 identifier for the subscription that can be used
+    later to unsubscribe from events. This ID is guaranteed to be non-zero and uniquely
+    identifies this specific subscription within the AuctionEventBus.
+  examples:
+  - title: Basic Subscription Example
+    code: "void MyAuctionHandler(AuctionEvent const& event) {\n    // Handle auction\
+      \ event\n}\n\nuint32 subscriptionId = auctionEventBus.SubscribeCallback(&MyAuctionHandler,\
+      \ AUCTION_EVENT_LISTED | AUCTION_EVENT_BID);\n// Later, to unsubscribe:\n//\
+      \ auctionEventBus.UnsubscribeCallback(subscriptionId);"
+    language: cpp
+  - title: Multiple Event Types Subscription
+    code: 'uint32 subscriptionId = auctionEventBus.SubscribeCallback(&HandleAuctionEvents,
+      AUCTION_EVENT_LISTED | AUCTION_EVENT_SOLD | AUCTION_EVENT_EXPIRED);
+
+      // This will receive notifications for listed, sold, and expired auctions'
+    language: cpp
+  notes: The subscription ID returned by this method is managed internally by the
+    AuctionEventBus and should be stored by the caller for potential future use in
+    unsubscribing. The EventHandler function must remain valid for the lifetime of
+    the subscription, as it will be called directly without any ownership transfer.
+    This method is thread-safe and can be called from any thread context.
+  warnings: Do not call this method with a null EventHandler pointer; doing so may
+    result in undefined behavior or crashes. Ensure that event handlers are designed
+    to be reentrant if they might be called from multiple threads simultaneously.
+    The types parameter should only contain valid auction event type constants defined
+    in the system.
+  related:
+  - UnsubscribeCallback
+  - PublishEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:34:52.139293'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,81 @@
+api:
+  class: CollectableSourceTrackedData
+  method: WriteUpdate
+  signature: void CollectableSourceTrackedData::WriteUpdate(ByteBuffer & data, bool
+    ignoreChangesMask, const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes collectable source tracked data into a ByteBuffer for network
+    transmission to a player.
+  description: The WriteUpdate method serializes the internal state of a CollectableSourceTrackedData
+    object into a ByteBuffer, preparing it for network transmission to a specific
+    player. This method is typically used in World of Warcraft's TrinityCore server
+    to send updates about collectable sources (such as achievements, treasures, or
+    other tracked items) to players. The serialization process respects the changes
+    mask unless explicitly ignored via the ignoreChangesMask parameter. It takes into
+    account the owner of the data and the receiver to ensure proper filtering and
+    formatting of the update packet. This method is essential for maintaining synchronization
+    between server-side collectable tracking and client-side UI updates.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where the serialized data will be written.
+      This buffer is typically used to construct network packets sent to players.
+  - name: ignoreChangesMask
+    description: A boolean flag indicating whether to ignore the internal changes
+      mask. If true, all data fields are serialized regardless of their change status.
+      If false, only changed fields are included in the update.
+  - name: owner
+    description: The Player object representing the owner of the collectable source
+      data. This is used to determine which specific data should be sent to the receiver.
+  - name: receiver
+    description: The Player object who will receive this update. The method may use
+      this parameter for filtering or conditional serialization based on player-specific
+      settings or permissions.
+  returns: null
+  examples:
+  - title: Basic usage in a packet sending context
+    code: 'ByteBuffer data;
+
+      CollectableSourceTrackedData trackedData;
+
+      Player* owner = ...; // Get the owner player
+
+      Player* receiver = ...; // Get the receiving player
+
+      trackedData.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' to receiver via network'
+    language: cpp
+  - title: Forcing full update regardless of changes
+    code: 'ByteBuffer data;
+
+      CollectableSourceTrackedData trackedData;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      trackedData.WriteUpdate(data, true, owner, receiver);
+
+      // Send full serialized data to receiver
+
+      // Useful for initial login sync or debugging'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    is likely called during player update cycles. It's important to note that the
+    actual data written depends on the internal state of the CollectableSourceTrackedData
+    object, including its change tracking mechanism. The method does not perform any
+    network I/O itself but prepares the data for transmission.
+  warnings: Ensure that both owner and receiver parameters are valid Player objects
+    before calling this method to avoid undefined behavior. When ignoreChangesMask
+    is set to true, it may result in larger packet sizes and unnecessary bandwidth
+    usage, so use with caution in performance-critical scenarios.
+  related:
+  - CollectableSourceTrackedData::ReadUpdate
+  - CollectableSourceTrackedData::ResetChanges
+  - CollectableSourceTrackedData::HasChanges
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T04:42:37.106418'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

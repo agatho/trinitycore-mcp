@@ -1,0 +1,57 @@
+api:
+  class: QuestValidation
+  method: ValidateQuestStatus
+  signature: bool QuestValidation::ValidateQuestStatus(uint32 questId, Player * bot)
+documentation:
+  brief: Validates whether a player can accept or turn in a specific quest based on
+    game rules and player state
+  description: The ValidateQuestStatus method checks if a given quest can be accepted
+    or completed by a specified player character. It evaluates various conditions
+    such as quest prerequisites, player level requirements, previous quest completions,
+    and quest availability within the game world. This validation is crucial for ensuring
+    that players cannot exploit quest mechanics by accepting invalid quests or completing
+    them out of order. The method returns true if all validation checks pass, allowing
+    the quest to proceed, or false if any condition fails, preventing the quest from
+    being accepted or turned in.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate. Must be a valid quest
+      ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the character performing
+      the quest validation. Cannot be null.
+  returns: Returns true if all validation checks for the quest pass and the player
+    can proceed with the quest; returns false if any validation fails, indicating
+    the quest cannot be accepted or completed at this time.
+  examples:
+  - title: Basic Quest Validation
+    code: "if (QuestValidation::ValidateQuestStatus(12345, player)) {\n    // Proceed\
+      \ with quest acceptance logic\n    player->AddQuest(12345);\n} else {\n    //\
+      \ Inform player that quest cannot be accepted\n    player->SendNotification(\"\
+      You cannot accept this quest at this time.\");\n}"
+    language: cpp
+  - title: Validation Before Quest Completion
+    code: "uint32 questId = 67890;\nPlayer* bot = player;\nif (QuestValidation::ValidateQuestStatus(questId,\
+      \ bot)) {\n    // Player can complete the quest\n    bot->CompleteQuest(questId);\n\
+      } else {\n    // Quest cannot be completed due to validation failure\n    bot->SendNotification(\"\
+      This quest cannot be turned in at this time.\");\n}"
+    language: cpp
+  notes: The method performs multiple database queries and checks against player state,
+    so it should not be called excessively during high-frequency operations. It's
+    recommended to cache validation results when possible for performance optimization.
+    The validation includes checking quest flags, player level, previous quest completions,
+    and various game state conditions.
+  warnings: Never call this method with a null Player pointer as it will likely cause
+    a crash or undefined behavior. Also, be aware that the validation may change based
+    on server configuration settings or expansion-specific rules, so always test in
+    your specific environment.
+  related:
+  - Player::CanTakeQuest
+  - Player::IsActiveQuest
+  - Player::GetQuestStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:09:24.028986'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

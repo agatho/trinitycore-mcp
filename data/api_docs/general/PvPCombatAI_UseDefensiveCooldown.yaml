@@ -1,0 +1,58 @@
+api:
+  class: PvPCombatAI
+  method: UseDefensiveCooldown
+  signature: bool PvPCombatAI::UseDefensiveCooldown(int * player)
+documentation:
+  brief: Attempts to use a defensive cooldown ability in PvP combat.
+  description: The UseDefensiveCooldown method evaluates whether the AI-controlled
+    player should activate a defensive cooldown ability during PvP encounters. It
+    checks the current state of the player's cooldowns, health status, and combat
+    situation to determine if using a defensive ability would be beneficial. The method
+    returns true if a defensive cooldown was successfully used or is not needed at
+    this time, and false if the cooldown cannot be used due to restrictions or unmet
+    conditions. This functionality is crucial for maintaining survivability in PvP
+    scenarios where timing of defensive abilities can mean the difference between
+    victory and defeat.
+  parameters:
+  - name: player
+    description: Pointer to the player object that will potentially use a defensive
+      cooldown. This parameter allows the method to access player-specific information
+      such as health, mana, cooldowns, and current combat state.
+  returns: Returns true if a defensive cooldown was successfully used or if no defensive
+    action is required at this time. Returns false if the cooldown cannot be used
+    due to being on cooldown, insufficient resources, or other restrictive conditions.
+  examples:
+  - title: Basic Usage in Combat AI Loop
+    code: "void PvPCombatAI::UpdateAI(uint32 diff)\n{\n    if (me->IsInCombat())\n\
+      \    {\n        int* player = reinterpret_cast<int*>(me);\n        if (!UseDefensiveCooldown(player))\n\
+      \        {\n            // Handle case where defensive cooldown could not be\
+      \ used\n            DoNextAction();\n        }\n    }\n}"
+    language: cpp
+  - title: Integration with Health-Based Decision Making
+    code: "bool PvPCombatAI::UseDefensiveCooldown(int* player)\n{\n    if (!player\
+      \ || *player <= 0)\n        return false;\n\n    Player* plr = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *player));\n    if (!plr || !plr->IsInCombat())\n        return true;\n\n\
+      \    // Check health percentage and cooldown status\n    if (plr->GetHealthPct()\
+      \ < 30.0f && plr->HasSpellCooldown(12345)) // Example defensive spell ID\n \
+      \   {\n        // Use defensive ability\n        return true;\n    }\n    \n\
+      \    return false;\n}"
+    language: cpp
+  notes: This method is typically called during the AI update loop in PvP combat scenarios.
+    The implementation should consider the specific cooldown mechanics of different
+    defensive abilities and ensure proper timing to avoid wasting valuable cooldowns.
+    Performance-wise, this method should be lightweight as it's called frequently
+    during combat.
+  warnings: Ensure that the player pointer passed is valid and points to an actual
+    player object. Passing a null or invalid pointer can lead to undefined behavior.
+    Also, be cautious about using defensive cooldowns too aggressively, as overuse
+    may result in missed opportunities for offensive actions.
+  related:
+  - UseOffensiveCooldown
+  - IsPlayerInCombat
+  - GetPlayerHealthPct
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T05:21:59.919149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

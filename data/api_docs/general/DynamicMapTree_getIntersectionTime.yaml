@@ -1,0 +1,79 @@
+api:
+  class: DynamicMapTree
+  method: getIntersectionTime
+  signature: bool DynamicMapTree::getIntersectionTime(const G3D::Ray & ray, const
+    G3D::Vector3 & endPos, const PhaseShift & phaseShift, float & maxDist) const
+documentation:
+  brief: Calculates the intersection time of a ray with the dynamic map tree, returning
+    the maximum distance to the first collision.
+  description: The getIntersectionTime method performs a raycast against the dynamic
+    map tree structure to determine the time (distance) at which the given ray intersects
+    with any geometry in the map. It uses the provided ray and end position to compute
+    the intersection point, taking into account the phase shift for proper collision
+    detection in phased environments. The method modifies the maxDist parameter to
+    reflect the distance along the ray where the first intersection occurs, or leaves
+    it unchanged if no intersection is found. This functionality is essential for
+    determining line-of-sight, spell casting range, and other spatial interactions
+    within the game world.
+  parameters:
+  - name: ray
+    description: The G3D::Ray object representing the origin point and direction of
+      the raycast. The ray's origin should be positioned at the starting location
+      of the interaction (e.g., player's position), and its direction should point
+      toward the target area.
+  - name: endPos
+    description: The G3D::Vector3 representing the end position of the ray, used to
+      define the ray's extent for intersection testing. This parameter is typically
+      used to limit the search distance or to provide a reference point for determining
+      the maximum possible intersection distance.
+  - name: phaseShift
+    description: The PhaseShift object that specifies which phases of the map should
+      be considered during collision detection. This is crucial in phased environments
+      where different parts of the world are visible only under certain conditions
+      (e.g., specific quests or events).
+  - name: maxDist
+    description: A reference to a float value that will be updated with the calculated
+      intersection distance if an intersection occurs. If no intersection is found,
+      this value remains unchanged. The distance is measured along the ray's direction
+      from its origin.
+  returns: Returns true if an intersection was found within the specified bounds;
+    otherwise returns false. When true, maxDist contains the distance to the first
+    intersection point along the ray.
+  examples:
+  - title: Basic Raycast for Line-of-Sight Check
+    code: "G3D::Ray ray(playerPosition, targetDirection);\nG3D::Vector3 endPos = playerPosition\
+      \ + targetDirection * 50.0f;\nPhaseShift phase;\nfloat maxDist = 0.0f;\n\nif\
+      \ (dynamicMapTree->getIntersectionTime(ray, endPos, phase, maxDist)) {\n   \
+      \ // An obstacle was hit within 50 units\n    std::cout << \"Hit at distance:\
+      \ \" << maxDist << std::endl;\n} else {\n    // No obstacles in the path\n \
+      \   std::cout << \"Clear line of sight\" << std::endl;\n}"
+    language: cpp
+  - title: Spell Casting Range Validation
+    code: "G3D::Ray ray(casterPosition, targetDirection);\nG3D::Vector3 endPos = casterPosition\
+      \ + targetDirection * spellRange;\nPhaseShift phase;\nfloat maxDist = 0.0f;\n\
+      \nif (dynamicMapTree->getIntersectionTime(ray, endPos, phase, maxDist)) {\n\
+      \    // Spell can't be cast beyond the obstacle\n    if (maxDist < spellRange)\
+      \ {\n        std::cout << \"Spell blocked by obstacle at \" << maxDist << \"\
+      \ yards\" << std::endl;\n    }\n} else {\n    // Spell can reach target\n  \
+      \  std::cout << \"Spell reaches target\" << std::endl;\n}"
+    language: cpp
+  notes: This method is part of the dynamic map tree system used by TrinityCore to
+    efficiently handle complex terrain and object collision detection. It's optimized
+    for performance in large-scale environments, but may be slower when dealing with
+    high-frequency raycasts. The phaseShift parameter is critical for accurate results
+    in phased content such as raids or world events.
+  warnings: Ensure that the ray direction vector is normalized to avoid incorrect
+    distance calculations. Be cautious when using this method in high-frequency loops
+    (e.g., every frame) as it can impact performance. Also, always validate that the
+    endPos is reasonable relative to the expected interaction range to prevent unnecessary
+    computation.
+  related:
+  - getIntersectionTime
+  - getObjectHitPosition
+  - isInLineOfSight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:09:35.095837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

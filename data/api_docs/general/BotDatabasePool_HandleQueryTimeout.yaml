@@ -1,0 +1,39 @@
+api:
+  class: BotDatabasePool
+  method: HandleQueryTimeout
+  signature: void BotDatabasePool::HandleQueryTimeout(const QueryRequest & request)
+documentation:
+  brief: Handles database query timeout events for bot-related operations
+  description: The HandleQueryTimeout method processes timeout occurrences during
+    database queries executed by the bot system. This method is invoked when a database
+    operation exceeds its configured timeout limit, allowing the system to gracefully
+    handle failed queries and potentially retry or log the failure. The method ensures
+    that bot database operations do not hang indefinitely and maintains system stability
+    by properly managing query lifecycle events.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic timeout handling
+    code: "void BotDatabasePool::HandleQueryTimeout(const QueryRequest& request)\n\
+      {\n    // Log the timeout event\n    sLog->outError(\"Bot database query timed\
+      \ out for request: %s\", request.GetQueryString());\n    \n    // Mark the query\
+      \ as failed in bot system\n    if (request.GetCallback())\n        request.GetCallback()->OnTimeout();\n\
+      }"
+    language: cpp
+  notes: This method is typically called from the database thread pool's timeout handler.
+    It should not perform heavy operations as it may block other query processing.
+    The method assumes that the QueryRequest object contains valid data and that callbacks
+    are properly initialized.
+  warnings: Do not modify the request object directly within this method as it may
+    cause race conditions. Ensure all callback invocations are thread-safe to prevent
+    undefined behavior in multi-threaded database environments.
+  related:
+  - ExecuteQuery
+  - QueueQuery
+  - OnQueryComplete
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T05:51:14.920944'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

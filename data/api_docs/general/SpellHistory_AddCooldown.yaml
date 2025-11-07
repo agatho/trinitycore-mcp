@@ -1,0 +1,81 @@
+api:
+  class: SpellHistory
+  method: AddCooldown
+  signature: void SpellHistory::AddCooldown(int spellId, int itemId, int cooldownEnd,
+    int categoryId, int categoryEnd, bool onHold)
+documentation:
+  brief: Adds a spell cooldown to the SpellHistory manager with optional item and
+    category tracking.
+  description: The AddCooldown method registers a cooldown period for a specific spell
+    or item within the SpellHistory system. This is used by the TrinityCore server
+    to track when spells can be cast again, respecting global cooldowns, spell-specific
+    cooldowns, and category-based restrictions. The method accepts parameters for
+    spell ID, item ID, cooldown end time, category ID, and category end time, allowing
+    fine-grained control over cooldown behavior. It also supports an 'onHold' flag
+    to temporarily prevent cooldown expiration.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell being placed on cooldown. A value
+      of 0 indicates no spell is associated with this cooldown entry.
+  - name: itemId
+    description: The unique identifier of the item being placed on cooldown, typically
+      used for items that have spell effects. A value of 0 indicates no item is associated.
+  - name: cooldownEnd
+    description: Timestamp indicating when the cooldown period ends. This is usually
+      a Unix timestamp or game time value representing the end of the cooldown window.
+  - name: categoryId
+    description: The category ID that this cooldown belongs to, used for grouping
+      related spells or items under the same cooldown restrictions. A value of 0 indicates
+      no category is assigned.
+  - name: categoryEnd
+    description: Timestamp indicating when the category cooldown ends. This is used
+      to enforce category-wide cooldowns that affect multiple spells or items.
+  - name: onHold
+    description: Boolean flag indicating whether the cooldown should be held (not
+      expire until explicitly released). When true, the cooldown will not count down
+      until set to false.
+  returns: null
+  examples:
+  - title: Basic Spell Cooldown
+    code: 'SpellHistory* history = player->GetSpellHistory();
+
+      uint32 spellId = 12345;
+
+      uint32 cooldownEnd = time(nullptr) + 10; // 10 seconds from now
+
+      history->AddCooldown(spellId, 0, cooldownEnd, 0, 0, false);'
+    language: cpp
+  - title: Item Cooldown with Category
+    code: 'SpellHistory* history = player->GetSpellHistory();
+
+      uint32 spellId = 0;
+
+      uint32 itemId = 67890;
+
+      uint32 cooldownEnd = time(nullptr) + 30; // 30 seconds from now
+
+      uint32 categoryId = 100;
+
+      uint32 categoryEnd = time(nullptr) + 45; // Category expires in 45 seconds
+
+      history->AddCooldown(spellId, itemId, cooldownEnd, categoryId, categoryEnd,
+      false);'
+    language: cpp
+  notes: This method directly interacts with the internal cooldown tracking system
+    of TrinityCore. Cooldowns are typically managed per-player and persist across
+    sessions unless explicitly cleared. The 'onHold' parameter is useful for implementing
+    temporary cooldown suspension during certain game events or player states.
+  warnings: Incorrectly setting the cooldownEnd or categoryEnd times can lead to unexpected
+    behavior in spell casting or item usage. Ensure that all timestamps are valid
+    and represent future times relative to the current server time. Misusing the onHold
+    flag may cause cooldowns to never expire, leading to game-breaking situations.
+  related:
+  - SpellHistory::GetCooldown
+  - SpellHistory::HasCooldown
+  - SpellHistory::ClearCooldown
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:02:46.764276'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

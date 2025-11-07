@@ -8,8 +8,8 @@
  */
 
 import { EventEmitter } from "events";
-import type { SOAPWebSocketServer, SOAPEvent } from "./websocket-server.js";
-import type { SOAPConnectionConfig } from "../types/soap.js";
+import type { SOAPWebSocketServer, SOAPEvent } from "./websocket-server";
+import type { SOAPConnectionConfig } from "../types/soap";
 
 // ============================================================================
 // Types

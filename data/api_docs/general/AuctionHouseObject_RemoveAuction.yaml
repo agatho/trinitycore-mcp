@@ -1,0 +1,63 @@
+api:
+  class: AuctionHouseObject
+  method: RemoveAuction
+  signature: int AuctionHouseObject::RemoveAuction(int trans, AuctionPosting * auction,
+    int * auctionItr)
+documentation:
+  brief: Removes an auction from the auction house system and updates associated data
+    structures.
+  description: The RemoveAuction method is responsible for removing a specific auction
+    posting from the auction house system. It handles cleanup of internal data structures,
+    updates auction iterators, and ensures consistency within the auction house database.
+    This method typically gets invoked when an auction expires, is bought by a player,
+    or is manually canceled. The method takes a transaction identifier, a pointer
+    to the auction posting to be removed, and a pointer to an iterator that may need
+    updating after removal. It returns an integer status code indicating success or
+    failure of the operation.
+  parameters:
+  - name: trans
+    description: Transaction identifier used for database operations. This value is
+      typically passed down from higher-level systems to ensure atomicity during auction
+      removal.
+  - name: auction
+    description: Pointer to the AuctionPosting object that represents the auction
+      to be removed. Must be a valid pointer; passing null may result in undefined
+      behavior.
+  - name: auctionItr
+    description: Pointer to an integer iterator that tracks the position of the auction
+      within internal data structures. This value is updated by the method after removal.
+  returns: 'Returns an integer status code: 0 indicates successful removal, while
+    non-zero values typically indicate errors such as invalid input parameters or
+    database issues.'
+  examples:
+  - title: Basic Auction Removal
+    code: "int transactionId = 12345;\nAuctionPosting* auctionToRemove = GetAuctionById(67890);\n\
+      int iteratorValue = 0;\nint result = auctionHouse->RemoveAuction(transactionId,\
+      \ auctionToRemove, &iteratorValue);\nif (result == 0) {\n    // Auction successfully\
+      \ removed\n} else {\n    // Handle error\n}"
+    language: cpp
+  - title: Error Handling During Auction Removal
+    code: "int trans = 54321;\nAuctionPosting* auction = nullptr;\nint itr = 0;\n\
+      int status = auctionHouse->RemoveAuction(trans, auction, &itr);\nif (status\
+      \ != 0) {\n    // Log error or handle accordingly\n    sLog->outError(\"Failed\
+      \ to remove auction: %d\", status);\n}"
+    language: cpp
+  notes: This method is part of the core auction house logic in TrinityCore and should
+    only be called when an auction is confirmed for removal. It assumes that the provided
+    auction pointer is valid and points to a live auction entry. The transaction parameter
+    must be properly initialized before calling this method.
+  warnings: Calling RemoveAuction with a null auction pointer or invalid transaction
+    ID may lead to crashes or data corruption. Ensure all preconditions are met before
+    invoking this method, especially in multi-threaded environments where concurrent
+    access to auction data structures must be handled carefully.
+  related:
+  - AddAuction
+  - GetAuction
+  - UpdateAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:10:24.875340'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

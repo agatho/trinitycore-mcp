@@ -1,0 +1,74 @@
+api:
+  class: TankPositioning
+  method: CalculateTankPosition
+  signature: int TankPositioning::CalculateTankPosition(Unit * target, Group * group,
+    const CombatPositionContext & context)
+documentation:
+  brief: Calculates optimal tank positioning for a target within a group based on
+    combat context.
+  description: The CalculateTankPosition method determines the best position for a
+    tank unit to maintain aggro and protect the group during combat. It evaluates
+    the target's current state, the group's composition, and contextual combat data
+    to return a suitable positioning value. This method is typically used in AI-driven
+    tank behavior systems where positioning affects threat generation and group survivability.
+    The method assumes valid input parameters and may return different values based
+    on combat conditions.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the current combat target.
+      Must be a valid unit in the current zone or combat context.
+  - name: group
+    description: Pointer to the Group object containing the player's group members.
+      Should represent a valid group with at least one member.
+  - name: context
+    description: Reference to CombatPositionContext structure containing combat-related
+      data such as threat levels, positioning constraints, and environmental factors
+      affecting tank positioning decisions.
+  returns: Returns an integer value representing the calculated optimal tank position.
+    Positive values indicate forward positioning, negative values indicate rear positioning,
+    and zero indicates neutral or default positioning. The exact meaning of each value
+    depends on the implementation's internal logic.
+  examples:
+  - title: Basic Tank Positioning Calculation
+    code: 'Unit* target = player->GetVictim();
+
+      Group* group = player->GetGroup();
+
+      CombatPositionContext context;
+
+      context.threatLevel = THREAT_HIGH;
+
+      context.isInMeleeRange = true;
+
+      int position = tankPositioning.CalculateTankPosition(target, group, context);
+
+      // Use returned position to adjust tank''s movement or positioning'
+    language: cpp
+  - title: Advanced Tank Positioning with Dynamic Context
+    code: "Unit* target = player->GetVictim();\nGroup* group = player->GetGroup();\n\
+      CombatPositionContext context;\ncontext.threatLevel = THREAT_MEDIUM;\ncontext.isInMeleeRange\
+      \ = false;\ncontext.distanceToTarget = 25.0f;\ncontext.groupSize = group ? group->GetMembersCount()\
+      \ : 1;\nint position = tankPositioning.CalculateTankPosition(target, group,\
+      \ context);\nif (position > 0) {\n    // Move forward to maintain aggro\n} else\
+      \ if (position < 0) {\n    // Move back to avoid damage\n} else {\n    // Maintain\
+      \ current position\n}"
+    language: cpp
+  notes: This method is designed for use in combat AI systems and assumes that the
+    target unit is actively engaged in combat. The positioning logic may vary depending
+    on the specific implementation of CombatPositionContext. Performance considerations
+    include avoiding frequent recalculations during active combat, as this could impact
+    frame rate.
+  warnings: Ensure that all input parameters are valid before calling this method
+    to prevent undefined behavior. The context parameter must be properly initialized
+    with relevant combat data for accurate positioning decisions. Using stale or invalid
+    target pointers may result in incorrect positioning calculations.
+  related:
+  - GetTankPosition
+  - SetTankPosition
+  - UpdateCombatContext
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T01:32:46.224514'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

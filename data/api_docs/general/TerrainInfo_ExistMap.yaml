@@ -1,0 +1,63 @@
+api:
+  class: TerrainInfo
+  method: ExistMap
+  signature: bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log)
+documentation:
+  brief: Checks whether a specific map tile exists for the given map ID and grid coordinates.
+  description: The ExistMap method determines if a particular map tile is available
+    within the game world for the specified map identifier and grid position. This
+    function is essential for validating map data integrity before attempting to access
+    or load terrain information. It verifies that the requested map tile has been
+    properly initialized and is accessible, which helps prevent errors when navigating
+    or interacting with world objects. The method supports both logging of missing
+    tiles and silent validation depending on the log parameter value.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the map to check for existence. This corresponds
+      to the Map.dbc entry ID used internally by TrinityCore.
+  - name: gx
+    description: The grid X coordinate (tile column) to validate. Grid coordinates
+      are typically in the range of 0-63 for standard world maps.
+  - name: gy
+    description: The grid Y coordinate (tile row) to validate. Grid coordinates are
+      typically in the range of 0-63 for standard world maps.
+  - name: log
+    description: Boolean flag indicating whether to log missing map tiles. When true,
+      logs warnings if a tile does not exist; when false, suppresses logging.
+  returns: Returns true if the specified map tile exists and is accessible, false
+    otherwise. A return value of false typically indicates that the requested map
+    ID or grid coordinates are invalid or that the tile has not been loaded into memory.
+  examples:
+  - title: Basic usage to check map tile existence
+    code: "if (TerrainInfo::ExistMap(0, 10, 15, true)) {\n    // Map tile exists,\
+      \ safe to proceed with operations\n    printf(\"Map tile (10,15) exists for\
+      \ map 0\\n\");\n} else {\n    // Map tile does not exist or is inaccessible\n\
+      \    printf(\"Map tile (10,15) does not exist for map 0\\n\");\n}"
+    language: cpp
+  - title: Using ExistMap to validate world navigation
+    code: "uint32 mapId = player->GetMapId();\nint32 gridX = (int32)player->GetPositionX()\
+      \ / 533.333f;\nint32 gridY = (int32)player->GetPositionY() / 533.333f;\n\nif\
+      \ (!TerrainInfo::ExistMap(mapId, gridX, gridY, false)) {\n    // Prevent navigation\
+      \ to invalid locations\n    player->SendAreaTriggerMessage(\"Invalid location\
+      \ - terrain not loaded\");\n    return;\n}"
+    language: cpp
+  notes: This method is primarily used during world loading and navigation validation
+    processes. It may involve disk I/O operations or memory lookups depending on how
+    the map data is stored and cached. The grid coordinates are typically derived
+    from world coordinates using a fixed tile size of approximately 533.3333 units
+    per tile. Performance can be impacted when checking large numbers of tiles in
+    rapid succession.
+  warnings: Calling this method with invalid map IDs or out-of-bounds grid coordinates
+    may result in undefined behavior or performance degradation. Always validate inputs
+    before calling this function, especially in high-frequency contexts such as player
+    movement validation.
+  related:
+  - GetMap
+  - LoadMap
+  - IsGridLoaded
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T01:06:50.305019'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

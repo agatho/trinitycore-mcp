@@ -1,0 +1,73 @@
+api:
+  class: RoleOptimizer
+  method: GreedyOptimization
+  signature: OptimizationResult RoleOptimizer::GreedyOptimization(const int & players,
+    const GroupComposition & targetComposition, const OptimizationConstraints & constraints)
+documentation:
+  brief: Performs a greedy optimization of group composition based on target roles
+    and constraints.
+  description: The GreedyOptimization method evaluates available players and attempts
+    to construct an optimal group composition that satisfies the specified target
+    roles and constraints. It uses a greedy algorithm approach, selecting players
+    in order of their suitability for each role to maximize overall group effectiveness.
+    This method is commonly used in World of Warcraft's TrinityCore server to automate
+    raid or dungeon group formation, ensuring that teams meet required role distributions
+    such as tanks, healers, and damage dealers. The optimization process considers
+    player availability, class distribution, and other game-specific constraints to
+    produce a balanced team configuration.
+  parameters:
+  - name: players
+    description: Reference to the number of players available for group formation.
+      This parameter determines how many potential candidates are considered in the
+      optimization process.
+  - name: targetComposition
+    description: The desired group composition containing the required role distribution
+      (e.g., number of tanks, healers, DPS). Defines what roles need to be filled
+      for optimal performance.
+  - name: constraints
+    description: Set of rules and limitations that must be respected during optimization.
+      Includes restrictions such as minimum level requirements, class restrictions,
+      or player availability constraints.
+  returns: An OptimizationResult object containing the optimized group composition
+    along with metadata about the success or failure of the optimization process.
+    The result includes details like which players were selected for the group and
+    whether all roles could be satisfied within the given constraints.
+  examples:
+  - title: Basic Greedy Optimization Usage
+    code: "RoleOptimizer optimizer;\nint playerCount = 25;\nGroupComposition target;\n\
+      target.tanks = 1;\ntarget.healers = 3;\ntarget.dps = 8;\nOptimizationConstraints\
+      \ constraints;\nconstraints.minLevel = 80;\nconstraints.maxLevel = 90;\nOptimizationResult\
+      \ result = optimizer.GreedyOptimization(playerCount, target, constraints);\n\
+      if (result.success) {\n    // Process the optimized group\n}"
+    language: cpp
+  - title: Advanced Optimization with Multiple Constraints
+    code: "RoleOptimizer optimizer;\nint playerCount = 15;\nGroupComposition target;\n\
+      target.tanks = 2;\ntarget.healers = 2;\ntarget.dps = 6;\nOptimizationConstraints\
+      \ constraints;\nconstraints.minLevel = 80;\nconstraints.maxLevel = 90;\nconstraints.requiredClasses\
+      \ = {CLASS_WARRIOR, CLASS_PALADIN, CLASS_DRUID, CLASS_SHAMAN};\nOptimizationResult\
+      \ result = optimizer.GreedyOptimization(playerCount, target, constraints);\n\
+      if (result.success) {\n    for (const auto& player : result.groupMembers) {\n\
+      \        std::cout << \"Selected: \" << player.name << \" (\" << player.classType\
+      \ << \")\" << std::endl;\n    }\n}"
+    language: cpp
+  notes: This method implements a greedy algorithm which may not always produce the
+    globally optimal solution but provides a fast and reasonably effective result.
+    The performance of this optimization can be affected by large numbers of players
+    or complex constraints, as it iterates through available candidates to fill each
+    role in turn. For best results, ensure that the target composition is feasible
+    given the available player pool and constraints.
+  warnings: The method may return an incomplete result if the constraints are too
+    restrictive or if there aren't enough qualified players for all roles. It's important
+    to check the success flag of the returned OptimizationResult before using the
+    group members. Additionally, this method assumes that player availability and
+    role preferences are properly initialized in the system.
+  related:
+  - GetPlayerRoles
+  - ValidateGroupComposition
+  - ApplyOptimizationConstraints
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:25:39.196356'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

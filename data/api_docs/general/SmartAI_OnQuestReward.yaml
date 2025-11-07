@@ -1,0 +1,66 @@
+api:
+  class: SmartAI
+  method: OnQuestReward
+  signature: void SmartAI::OnQuestReward(Player * player, const Quest * quest, int
+    type, uint32 opt)
+documentation:
+  brief: Handles quest reward processing for SmartAI, executing associated scripts
+    when a player completes a quest
+  description: The OnQuestReward method is invoked by the SmartAI system when a player
+    successfully rewards a quest. This method triggers any configured smart scripts
+    associated with the AI, allowing for custom behavior such as spawning objects,
+    changing creature states, or modifying player conditions. It serves as an event
+    handler that integrates with TrinityCore's quest completion system to enable dynamic
+    AI responses. The method accepts the player who completed the quest, the quest
+    object itself, a type identifier, and optional reward data to determine how the
+    reward should be processed.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who completed the quest and is receiving
+      the reward
+  - name: quest
+    description: Pointer to the Quest object that was completed by the player
+  - name: type
+    description: Integer type identifier indicating the reward type (e.g., 0 for normal
+      reward, 1 for quest credit)
+  - name: opt
+    description: Optional uint32 value that may contain additional context or flags
+      for reward processing
+  returns: null
+  examples:
+  - title: Basic Quest Reward Handler Implementation
+    code: "void SmartAI::OnQuestReward(Player* player, const Quest* quest, int type,\
+      \ uint32 opt)\n{\n    // Execute script when player rewards a quest\n    if\
+      \ (quest && player)\n    {\n        // Trigger custom behavior based on quest\
+      \ ID\n        switch (quest->GetQuestId())\n        {\n            case 12345:\n\
+      \                // Spawn an item or NPC\n                me->SummonCreature(1234,\
+      \ player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0,\
+      \ TEMPSUMMON_TIMED_DESPAWN, 30000);\n                break;\n            default:\n\
+      \                break;\n        }\n    }\n}"
+    language: cpp
+  - title: Advanced Quest Reward with Conditional Logic
+    code: "void SmartAI::OnQuestReward(Player* player, const Quest* quest, int type,\
+      \ uint32 opt)\n{\n    if (!player || !quest)\n        return;\n\n    // Check\
+      \ if player has completed a specific quest\n    if (quest->GetQuestId() == 67890)\n\
+      \    {\n        // Give gold reward\n        player->ModifyMoney(10000);\n \
+      \       \n        // Send custom text\n        DoScriptText(SAY_QUEST_COMPLETE,\
+      \ me);\n        \n        // Set creature to inactive\n        me->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NON_ATTACKABLE);\n    }\n}"
+    language: cpp
+  notes: This method is part of the SmartAI framework and should only be overridden
+    in custom AI implementations. The type parameter typically indicates how the reward
+    was processed (e.g., normal reward vs. quest credit). It's important to validate
+    that both player and quest pointers are not null before accessing their members.
+  warnings: Avoid performing heavy operations inside this method as it may affect
+    performance during quest completion. Do not modify the quest object directly within
+    this handler, as it could cause unexpected behavior in the core quest system.
+  related:
+  - OnQuestAccept
+  - OnQuestCancel
+  - OnQuestComplete
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:46:14.909212'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: BotSpawnEventBus
+  method: Subscribe
+  signature: HandlerId BotSpawnEventBus::Subscribe(BotSpawnEventType eventType, EventHandler
+    handler)
+documentation:
+  brief: Registers a handler function to be called when a bot spawn event of the specified
+    type occurs
+  description: The Subscribe method allows developers to register event handlers for
+    specific bot spawn events within the TrinityCore framework. It takes an event
+    type and a handler function, then returns a unique identifier that can be used
+    later to unsubscribe from the event. This mechanism enables modular and decoupled
+    event-driven programming for bot lifecycle management. The method is typically
+    used in AI or scripting systems where custom behavior needs to be triggered when
+    bots are created, destroyed, or modified during gameplay.
+  parameters:
+  - name: eventType
+    description: The type of bot spawn event to subscribe to. Valid values include
+      but are not limited to BOT_SPAWN_CREATED, BOT_SPAWN_DESTROYED, and BOT_SPAWN_MODIFIED.
+  - name: handler
+    description: A function pointer or callable object that will be invoked when the
+      specified event occurs. The handler should match the expected signature for
+      the given event type.
+  returns: Returns a HandlerId which uniquely identifies this subscription. This ID
+    can be used with the Unsubscribe method to remove the handler from the event bus.
+  examples:
+  - title: Basic Subscription Example
+    code: "void MyBotEventHandler(BotSpawnEvent const& event) {\n    // Handle bot\
+      \ spawn event\n}\n\n// Subscribe to bot creation events\nHandlerId id = BotSpawnEventBus::Instance()->Subscribe(BOT_SPAWN_CREATED,\
+      \ &MyBotEventHandler);"
+    language: cpp
+  - title: Advanced Subscription with Lambda
+    code: "#include <functional>\n\n// Subscribe using a lambda function\nHandlerId\
+      \ id = BotSpawnEventBus::Instance()->Subscribe(BOT_SPAWN_DESTROYED, [](BotSpawnEvent\
+      \ const& event) {\n    // Custom logic when bot is destroyed\n    sLog->outString(\"\
+      Bot %u was destroyed\", event.GetBotId());\n});"
+    language: cpp
+  notes: The event bus uses a thread-safe design pattern to handle subscriptions and
+    event dispatching. Subscriptions are managed internally using smart pointers to
+    prevent memory leaks. The HandlerId returned by Subscribe should be stored if
+    you plan to unsubscribe later, as failing to do so may result in dangling references
+    or unexpected behavior.
+  warnings: Be cautious when unsubscribing from events; ensure that the HandlerId
+    is valid and that the handler function remains alive for the duration of its subscription.
+    Improper handling can lead to crashes or undefined behavior if the handler is
+    destroyed before being unsubscribed.
+  related:
+  - Unsubscribe
+  - Publish
+  - IsSubscribed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:56:22.687395'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

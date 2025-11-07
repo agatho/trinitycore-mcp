@@ -1,0 +1,75 @@
+api:
+  class: DynamicObject
+  method: BuildValuesUpdate
+  signature: void DynamicObject::BuildValuesUpdate(int * data, int flags, const int
+    * target) const
+documentation:
+  brief: Populates update buffer with dynamic object data for client synchronization
+  description: The BuildValuesUpdate method constructs and fills an update packet
+    buffer with the current state values of a dynamic object, preparing it for network
+    transmission to clients. This method is typically invoked during object updates
+    or when sending initial object state to new players joining the world. It handles
+    serialization of object properties such as position, orientation, display ID,
+    and other relevant attributes that need to be synchronized with client instances.
+    The method operates on a provided data buffer and uses specified flags to determine
+    which values should be included in the update packet.
+  parameters:
+  - name: data
+    description: Pointer to an integer array where the serialized update data will
+      be written. This buffer must be pre-allocated with sufficient space to hold
+      all required update fields.
+  - name: flags
+    description: Integer flags that control which object values are included in the
+      update. These flags typically correspond to specific update types or categories
+      of data fields.
+  - name: target
+    description: Pointer to an integer array representing the target object for the
+      update. This may be used to determine relative positioning or targeting information
+      for the dynamic object's state.
+  returns: null
+  examples:
+  - title: Basic usage in update handler
+    code: 'int updateData[MAX_UPDATE_FIELDS];
+
+      int flags = UPDATEFLAG_ALL;
+
+      int targetData[OBJECT_END];
+
+
+      // Initialize target data
+
+      memset(targetData, 0, sizeof(targetData));
+
+
+      dynamicObject->BuildValuesUpdate(updateData, flags, targetData);
+
+      '
+    language: cpp
+  - title: Sending dynamic object update to players in range
+    code: "for (auto& player : playersInRange)\n{\n    int updateData[MAX_UPDATE_FIELDS];\n\
+      \    int flags = UPDATEFLAG_LOWGUID | UPDATEFLAG_POSITION;\n    int targetData[OBJECT_END];\n\
+      \    \n    // Prepare target data for this specific player\n    memset(targetData,\
+      \ 0, sizeof(targetData));\n    \n    dynamicObject->BuildValuesUpdate(updateData,\
+      \ flags, targetData);\n    \n    // Send update packet to player\n    player->SendUpdateToPlayer(dynamicObject,\
+      \ updateData, flags);\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when an object's state needs to be synchronized with clients. The
+    data buffer must be large enough to accommodate all fields specified by the flags
+    parameter. The target parameter may be used for conditional updates based on player
+    perspective or targeting.
+  warnings: Calling this method without proper allocation of the data buffer can lead
+    to memory corruption. Ensure that the buffer size matches expected field count
+    for the provided flags. This method should not be called directly from game logic
+    threads without proper synchronization.
+  related:
+  - BuildOutOfRangeUpdate
+  - BuildCreateUpdateBlockForPlayer
+  - GetUpdateData
+  - SendUpdateToPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:06:24.424058'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

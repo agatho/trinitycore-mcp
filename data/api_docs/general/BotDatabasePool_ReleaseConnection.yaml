@@ -1,0 +1,55 @@
+api:
+  class: BotDatabasePool
+  method: ReleaseConnection
+  signature: void BotDatabasePool::ReleaseConnection(size_t connectionIndex)
+documentation:
+  brief: Releases a database connection back to the pool for reuse.
+  description: The ReleaseConnection method returns a previously acquired database
+    connection to the BotDatabasePool, making it available for other components to
+    use. This method is typically called after completing database operations to ensure
+    proper resource management and prevent connection leaks. The connection index
+    parameter identifies which specific connection in the pool should be released.
+    Proper usage of this method ensures efficient database connection handling and
+    optimal performance within the TrinityCore framework.
+  parameters:
+  - name: connectionIndex
+    description: The zero-based index identifying which connection in the pool to
+      release. This index must correspond to a valid connection that was previously
+      acquired from the pool.
+  returns: null
+  examples:
+  - title: Basic Connection Release
+    code: 'BotDatabasePool& pool = BotDatabasePool::Instance();
+
+      size_t connectionIndex = pool.AcquireConnection();
+
+      // Perform database operations...
+
+      pool.ReleaseConnection(connectionIndex);'
+    language: cpp
+  - title: Thread-Safe Connection Management
+    code: "BotDatabasePool& pool = BotDatabasePool::Instance();\nsize_t connectionIndex\
+      \ = pool.AcquireConnection();\n// Perform thread-safe database operations...\n\
+      {   // Scope for automatic cleanup\n    std::lock_guard<std::mutex> lock(pool.GetMutex());\n\
+      \    pool.ReleaseConnection(connectionIndex);\n} // Connection automatically\
+      \ released"
+    language: cpp
+  notes: This method is part of a connection pooling mechanism designed to reduce
+    the overhead of creating and destroying database connections. The pool maintains
+    a fixed number of active connections that can be acquired and released as needed.
+    It's important to always release connections back to the pool to maintain optimal
+    resource utilization.
+  warnings: Failing to call ReleaseConnection after acquiring a connection may lead
+    to connection exhaustion, where all available connections are in use and new requests
+    must wait or fail. Never release a connection that was not acquired from the same
+    pool instance.
+  related:
+  - AcquireConnection
+  - GetConnectionCount
+  - InitializePool
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T05:50:21.102060'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

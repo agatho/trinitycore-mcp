@@ -1,0 +1,63 @@
+api:
+  class: GroupStateMachine
+  method: OnStateEnter
+  signature: void GroupStateMachine::OnStateEnter(GroupState state, StateCallback
+    callback)
+documentation:
+  brief: Registers a callback function to be invoked when entering a specific group
+    state.
+  description: The OnStateEnter method allows developers to register a callback function
+    that will be executed whenever the GroupStateMachine transitions into a specified
+    group state. This mechanism is commonly used in World of Warcraft's TrinityCore
+    framework to handle state-specific logic during group operations such as raid
+    or dungeon management. The callback function receives the current state and can
+    perform actions like updating UI elements, triggering events, or modifying group
+    behavior based on the new state. This method supports multiple callbacks per state
+    and ensures proper execution order during state transitions.
+  parameters:
+  - name: state
+    description: The GroupState enum value representing the target state to monitor
+      for entry. Valid values include GROUP_STATE_NONE, GROUP_STATE_IDLE, GROUP_STATE_IN_PROGRESS,
+      GROUP_STATE_FINISHED, etc., depending on the group's operational context.
+  - name: callback
+    description: A StateCallback function pointer or lambda that will be invoked when
+      entering the specified state. The callback should accept a GroupState parameter
+      and return void, allowing it to perform state-specific actions without returning
+      values.
+  returns: null
+  examples:
+  - title: Basic State Entry Callback Registration
+    code: "void MyGroupHandler(GroupState state) {\n    switch (state) {\n       \
+      \ case GROUP_STATE_IN_PROGRESS:\n            // Start combat timer or update\
+      \ UI\n            break;\n        case GROUP_STATE_FINISHED:\n            //\
+      \ Clean up resources or award rewards\n            break;\n    }\n}\n\n// Register\
+      \ the callback for group in-progress state\nGroupStateMachine* gsm = GetGroupStateMachine();\n\
+      gsm->OnStateEnter(GROUP_STATE_IN_PROGRESS, &MyGroupHandler);"
+    language: cpp
+  - title: Lambda Callback Registration with Capture
+    code: "auto lambdaCallback = [](GroupState state) {\n    if (state == GROUP_STATE_IDLE)\
+      \ {\n        // Log idle state entry\n        sLog->outString(\"Group entered\
+      \ idle state\");\n    }\n};\n\n// Register lambda callback for idle state\n\
+      GroupStateMachine* gsm = GetGroupStateMachine();\ngsm->OnStateEnter(GROUP_STATE_IDLE,\
+      \ lambdaCallback);"
+    language: cpp
+  notes: This method is typically used in conjunction with GroupStateMachine::Update()
+    to ensure callbacks are triggered at appropriate times. The registered callbacks
+    are executed synchronously during the state transition process, so performance-critical
+    operations should be minimized within these functions. Callbacks are not automatically
+    removed when the state changes, so developers must manage their lifecycle carefully.
+  warnings: Registering multiple callbacks for the same state may lead to unexpected
+    behavior if callback execution order is important. Avoid performing heavy computations
+    or blocking operations inside callbacks as they can affect group performance.
+    Ensure that the callback function remains valid throughout the lifetime of the
+    GroupStateMachine instance.
+  related:
+  - GroupStateMachine::OnStateExit
+  - GroupStateMachine::Update
+  - GroupStateMachine::SetState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T12:52:27.851274'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

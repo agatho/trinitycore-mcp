@@ -1,0 +1,65 @@
+api:
+  class: MechanicAwareness
+  method: DetectCleave
+  signature: bool MechanicAwareness::DetectCleave(Unit * target, float & angle, float
+    & range)
+documentation:
+  brief: Determines if a target unit is within cleave range and angle for the current
+    unit's melee attack.
+  description: The DetectCleave method evaluates whether a specified target unit falls
+    within the cleave attack parameters of the calling unit. It calculates the angular
+    and distance relationship between the unit and its target to determine if a cleave
+    effect would apply. This method is typically used in AI logic for determining
+    when to perform cleave attacks or to assess threat distribution in combat scenarios.
+    The method modifies the provided angle and range parameters to reflect the calculated
+    values, which can be used by calling code to make further decisions about attack
+    execution or targeting.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that is being evaluated for cleave eligibility.
+      Must not be null.
+  - name: angle
+    description: Reference to a float value that will be updated with the calculated
+      angle between the unit and target in radians. This represents the angular span
+      of the cleave area.
+  - name: range
+    description: Reference to a float value that will be updated with the calculated
+      distance between the unit and target. This represents the maximum range for
+      the cleave effect.
+  returns: Returns true if the target is within the cleave parameters (angle and range),
+    otherwise returns false. The method does not validate the target's state or combat
+    status, so additional checks may be required.
+  examples:
+  - title: Basic Cleave Detection
+    code: "Unit* target = ...; // some target unit\nfloat angle = 0.0f;\nfloat range\
+      \ = 0.0f;\nif (mechanicAwareness.DetectCleave(target, angle, range)) {\n   \
+      \ // Target is within cleave parameters\n    // Use angle and range values for\
+      \ further processing\n}\n"
+    language: cpp
+  - title: Using Cleave Detection in AI Logic
+    code: "void AIUpdate(Unit* me) {\n    Unit* target = me->GetVictim();\n    if\
+      \ (target && !me->IsWithinMeleeRange(target)) {\n        float angle = 0.0f;\n\
+      \        float range = 0.0f;\n        if (mechanicAwareness.DetectCleave(target,\
+      \ angle, range)) {\n            // Execute cleave attack logic\n           \
+      \ me->CastSpell(target, SPELL_CLEAVE, true);\n        }\n    }\n}\n"
+    language: cpp
+  notes: This method is primarily used in AI decision-making processes for units that
+    have cleave abilities. The angle and range values returned are not necessarily
+    the same as those defined by the spell or ability itself, but rather the result
+    of the detection logic. The method assumes that both the calling unit and target
+    are valid and in the same map/instance.
+  warnings: Ensure that the target parameter is a valid Unit pointer before calling
+    this method to avoid undefined behavior. Do not assume that a successful return
+    means the cleave can be executed immediately, as other factors like line of sight
+    or cooldowns may still prevent it.
+  related:
+  - DetectMelee
+  - IsWithinCleaveRange
+  - GetCleaveAngle
+  - GetCleaveRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T08:45:13.898741'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,73 @@
+api:
+  class: BotActionQueue
+  method: Push
+  signature: void BotActionQueue::Push(BotAction && action)
+documentation:
+  brief: Adds a new bot action to the end of the action queue for processing.
+  description: The Push method enqueues a BotAction object into the BotActionQueue,
+    making it available for execution by the bot's AI system. This method is typically
+    used when a bot needs to schedule a new action to be performed at a later time.
+    The action is moved into the queue using move semantics, which avoids unnecessary
+    copying of the action object. The queue maintains actions in the order they were
+    pushed, with the first action being processed first (FIFO - First In, First Out).
+    This method does not block or delay execution; it simply adds the action to an
+    internal data structure for later processing.
+  parameters:
+  - name: action
+    description: An rvalue reference to a BotAction object that will be moved into
+      the queue. The action represents a single unit of work that the bot should perform,
+      such as moving to a location, attacking a target, or interacting with an object.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: 'BotAction moveAction;
+
+      moveAction.type = BotActionType::MOVE_TO_POSITION;
+
+      moveAction.position = {100.0f, 200.0f, 300.0f};
+
+
+      // Push the action to the queue
+
+      botActionQueue.Push(std::move(moveAction));'
+    language: cpp
+  - title: Pushing Multiple Actions
+    code: 'BotAction attackAction;
+
+      attackAction.type = BotActionType::ATTACK_TARGET;
+
+      attackAction.targetGuid = PlayerGUID;
+
+
+      BotAction lootAction;
+
+      lootAction.type = BotActionType::LOOT_OBJECT;
+
+      lootAction.objectGuid = GameObjectGUID;
+
+
+      // Push multiple actions in sequence
+
+      botActionQueue.Push(std::move(attackAction));
+
+      botActionQueue.Push(std::move(lootAction));'
+    language: cpp
+  notes: This method uses move semantics for efficiency, so the original BotAction
+    object should not be used after calling Push. The queue is designed to be thread-safe
+    for single-producer, single-consumer scenarios where one thread pushes actions
+    and another processes them. Performance-wise, this operation is O(1) as it simply
+    appends to the end of an internal container.
+  warnings: Calling Push with a moved-from BotAction object will result in undefined
+    behavior. Ensure that the action object is not used after being moved into the
+    queue. In multi-threaded contexts, ensure proper synchronization if multiple threads
+    are pushing actions simultaneously.
+  related:
+  - BotActionQueue::Pop
+  - BotActionQueue::IsEmpty
+  - BotActionQueue::Size
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T19:19:59.668264'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

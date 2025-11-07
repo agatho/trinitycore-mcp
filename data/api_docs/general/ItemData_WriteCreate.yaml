@@ -1,0 +1,75 @@
+api:
+  class: ItemData
+  method: WriteCreate
+  signature: void ItemData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Writes item creation data into a ByteBuffer for network transmission to a
+    player.
+  description: The WriteCreate method serializes the item's data fields into a ByteBuffer,
+    preparing it for sending to a client. This method is typically used when informing
+    players about newly created items, such as when an item is dropped, looted, or
+    summoned. It takes into account visibility flags and may conditionally include
+    certain fields based on the owner and receiver. The method ensures that only relevant
+    data is sent to prevent information leakage and maintain game balance.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where serialized item data will be written.
+      This buffer is typically used for constructing network packets.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields should be included in the serialization.
+      These flags control visibility of item properties based on context (e.g., owner
+      vs. observer).
+  - name: owner
+    description: Pointer to the Item object whose data is being serialized. Can be
+      null if no specific owner is relevant.
+  - name: receiver
+    description: Pointer to the Player who will receive this item data. Used to determine
+      visibility and access rights for certain fields.
+  returns: null
+  examples:
+  - title: Basic usage in item drop handling
+    code: 'ByteBuffer data;
+
+      Item* droppedItem = ...; // some item instance
+
+      Player* player = ...; // the player who receives it
+
+      int visibilityFlags = VISIBILITY_FLAG_OWNER | VISIBILITY_FLAG_RECEIVER;
+
+      droppedItem->WriteCreate(data, visibilityFlags, droppedItem, player);
+
+      // Send ''data'' to player''s client'
+    language: cpp
+  - title: Writing item data for a loot notification
+    code: 'ByteBuffer packet;
+
+      Item* lootItem = ...; // item from loot
+
+      Player* looter = ...; // the player who looted it
+
+      ItemData itemData = lootItem->GetItemData();
+
+      itemData.WriteCreate(packet, VISIBILITY_FLAG_LOOTER, lootItem, looter);
+
+      // Send packet to looter''s client'
+    language: cpp
+  notes: This method is part of the TrinityCore's network serialization system for
+    items. It should be called only when preparing data for transmission over the
+    network or internal packet handling. The fieldVisibilityFlags parameter determines
+    what information is exposed to the receiver, which helps maintain game security
+    and prevent cheating.
+  warnings: Incorrect usage of fieldVisibilityFlags can lead to information leakage
+    or client-side errors. Make sure that the owner and receiver parameters are valid
+    pointers before calling this method. Improperly setting visibility flags may cause
+    items to appear with incorrect data to players.
+  related:
+  - Item::GetItemData
+  - Item::WriteUpdate
+  - Item::BuildCreateUpdateBlockForPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:25:17.253663'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

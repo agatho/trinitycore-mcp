@@ -1,0 +1,55 @@
+api:
+  class: CombatSpecializationBase
+  method: GetDoTRemainingTime
+  signature: uint32 CombatSpecializationBase::GetDoTRemainingTime(::Unit * target,
+    uint32 spellId) const
+documentation:
+  brief: Retrieves the remaining time of a DoT spell effect on the specified target.
+  description: The GetDoTRemainingTime method is used to determine how much time remains
+    before a Damage over Time (DoT) spell effect expires on a given unit. This method
+    is typically utilized in combat specialization logic to make decisions based on
+    the duration of ongoing damage effects. It takes a target unit and a spell ID
+    as parameters, and returns the remaining duration of that specific DoT in milliseconds.
+    The method does not modify any state and is read-only in nature.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object on which the DoT effect is applied. Must
+      be a valid pointer, otherwise behavior is undefined.
+  - name: spellId
+    description: The unique identifier of the spell whose DoT duration is being queried.
+      This should correspond to a valid spell that applies a damage-over-time effect.
+  returns: Returns a uint32 value representing the remaining time (in milliseconds)
+    until the specified DoT spell expires on the target. If the spell is not active
+    or the target does not have the DoT applied, it may return 0 or an undefined value.
+  examples:
+  - title: Check Remaining DoT Time Before Applying New Effect
+    code: "if (uint32 remaining = combatSpec->GetDoTRemainingTime(target, SPELL_FIREBALL_DOT))\
+      \ {\n    // If the DoT is still active, we might choose not to reapply it\n\
+      \    if (remaining > 5000) // Less than 5 seconds left\n        return;\n}\n\
+      // Proceed with applying new DoT effect"
+    language: cpp
+  - title: Use in AI Decision Making for Spell Timing
+    code: "uint32 dotTime = combatSpec->GetDoTRemainingTime(victim, SPELL_CORRUPTION_DOT);\n\
+      if (dotTime < 3000) {\n    // If corruption is about to expire, consider refreshing\
+      \ it\n    DoCast(victim, SPELL_CORRUPTION_DOT);\n}"
+    language: cpp
+  notes: This method assumes that the target unit has a valid aura application for
+    the specified spell ID. The returned value represents raw duration and may not
+    account for modifiers like haste or other game mechanics that could affect DoT
+    tick intervals. This function is commonly used in AI scripts to optimize spell
+    usage timing.
+  warnings: Ensure that both the target and spellId parameters are valid before calling
+    this method, as invalid pointers or non-existent spell IDs can lead to undefined
+    behavior or crashes. Also note that this method only reflects the current state
+    of the DoT; it does not predict future changes in duration due to external factors.
+  related:
+  - GetSpellDuration
+  - IsSpellActive
+  - HasAura
+  - GetAuraDuration
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:36:35.357139'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

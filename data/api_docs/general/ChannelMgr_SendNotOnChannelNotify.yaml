@@ -1,0 +1,57 @@
+api:
+  class: ChannelMgr
+  method: SendNotOnChannelNotify
+  signature: void ChannelMgr::SendNotOnChannelNotify(const Player * player, const
+    std::string & name)
+documentation:
+  brief: Sends a notification to a player that they are not on the specified channel.
+  description: The SendNotOnChannelNotify method is used to inform a player that they
+    are attempting to perform an action on a chat channel they are not currently part
+    of. This typically occurs when a player tries to send a message to a channel they
+    have not joined, or when trying to leave a channel they are not in. The method
+    sends a specific error message to the player's client, notifying them of their
+    channel membership status. This is an internal utility function used by the ChannelMgr
+    class to maintain proper channel access control and user experience.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that should receive the notification.
+      Must be a valid player instance, otherwise behavior is undefined.
+  - name: name
+    description: The name of the channel that the player is not on. This string represents
+      the channel identifier used for the notification message.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'ChannelMgr* channelMgr = sChannelMgr;
+
+      Player* player = ...; // valid player instance
+
+      std::string channelName = "General";
+
+      channelMgr->SendNotOnChannelNotify(player, channelName);'
+    language: cpp
+  - title: Usage in Channel Management Context
+    code: "void HandleChannelMessage(Player* player, std::string const& message, std::string\
+      \ const& channelName)\n{\n    Channel* ch = sChannelMgr->GetChannel(channelName,\
+      \ player);\n    if (!ch || !ch->HasMember(player))\n    {\n        sChannelMgr->SendNotOnChannelNotify(player,\
+      \ channelName);\n        return;\n    }\n    // Proceed with sending message...\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the ChannelMgr class when a
+    player attempts to interact with a channel they are not a member of. The implementation
+    likely sends a specific packet to the player's client that displays an error message
+    in their chat interface, informing them that they are not on the requested channel.
+  warnings: Ensure that the player pointer is valid before calling this method, as
+    passing a null or invalid pointer could lead to undefined behavior. Also, make
+    sure the channel name string is properly formatted and does not contain unexpected
+    characters that might affect client-side display.
+  related:
+  - ChannelMgr::GetChannel
+  - ChannelMgr::JoinChannel
+  - ChannelMgr::LeaveChannel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:52:30.432100'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

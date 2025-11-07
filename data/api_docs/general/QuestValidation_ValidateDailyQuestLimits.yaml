@@ -1,0 +1,58 @@
+api:
+  class: QuestValidation
+  method: ValidateDailyQuestLimits
+  signature: bool QuestValidation::ValidateDailyQuestLimits(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player can accept a daily quest based on their current
+    daily quest limits
+  description: The ValidateDailyQuestLimits method checks if a player is allowed to
+    accept a specific daily quest by verifying against their current daily quest count
+    and limits. This method ensures that players cannot exceed the maximum number
+    of daily quests they are permitted to complete per day, which is a core game mechanic
+    in World of Warcraft to balance quest progression and prevent quest spamming.
+    The validation considers both the player's current daily quest log and any restrictions
+    imposed by the quest system itself.
+  parameters:
+  - name: questId
+    description: The unique identifier of the daily quest being validated for acceptance
+  - name: bot
+    description: Pointer to the Player object representing the player attempting to
+      accept the quest
+  returns: Returns true if the player can accept the daily quest, false otherwise.
+    A return value of false indicates that either the player has already reached their
+    daily quest limit or there are other validation failures preventing quest acceptance.
+  examples:
+  - title: Basic Quest Validation
+    code: "if (QuestValidation::ValidateDailyQuestLimits(12345, player)) {\n    //\
+      \ Player can accept the quest\n    player->AddQuest(12345);\n} else {\n    //\
+      \ Player cannot accept the quest\n    player->SendNotification(\"You have reached\
+      \ your daily quest limit.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (quest->IsDaily())\
+      \ {\n        if (!sQuestValidation->ValidateDailyQuestLimits(quest->GetQuestId(),\
+      \ this)) {\n            SendQuestInvalidation(quest->GetQuestId());\n      \
+      \      return;\n        }\n    }\n    // Proceed with normal quest acceptance\
+      \ logic\n    Player::OnQuestAccept(quest);\n}"
+    language: cpp
+  notes: This method is typically called during the quest acceptance process before
+    allowing a player to take on a new daily quest. The implementation likely checks
+    against internal counters maintained by the player's quest log and compares them
+    against server configuration limits for daily quests. Performance considerations
+    should be minimal as this is a simple validation check, but it may involve database
+    lookups depending on how daily quest tracking is implemented.
+  warnings: This method assumes that the player object passed in is valid and properly
+    initialized. Calling with a null player pointer will likely result in undefined
+    behavior or crashes. Additionally, this validation only applies to daily quests;
+    regular quests should be validated through different mechanisms.
+  related:
+  - ValidateQuestLimits
+  - CanPlayerAcceptQuest
+  - GetDailyQuestCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:18:11.228988'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

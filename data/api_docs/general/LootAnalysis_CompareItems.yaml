@@ -1,0 +1,63 @@
+api:
+  class: LootAnalysis
+  method: CompareItems
+  signature: float LootAnalysis::CompareItems(Player * player, const LootItem & newItem,
+    const Item * currentItem)
+documentation:
+  brief: Compares two items to determine their relative value for loot distribution
+    decisions.
+  description: The CompareItems method evaluates and ranks two items based on various
+    factors such as item level, quality, stats, and potential usefulness to a player.
+    It is used internally by the LootAnalysis system to assist in determining optimal
+    loot distribution strategies during group loot scenarios. The method takes into
+    account the player's current inventory, role, and gear priorities when making
+    comparisons. This functionality supports the TrinityCore's loot system by providing
+    quantitative values that help determine which item should be awarded to which
+    player based on their needs and the overall group benefit.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose inventory and preferences are
+      considered during comparison. Must not be null.
+  - name: newItem
+    description: Reference to the LootItem structure representing the item being evaluated
+      for potential acquisition. Contains loot-specific metadata.
+  - name: currentItem
+    description: Pointer to the existing Item object that is being compared against
+      the new item. Can be null if comparing against an empty slot.
+  returns: Returns a float value representing the relative comparison score between
+    the two items. A positive value indicates the newItem is better, negative indicates
+    currentItem is better, and zero indicates they are equivalent in value for the
+    given player.
+  examples:
+  - title: Basic item comparison
+    code: "float score = lootAnalysis->CompareItems(player, newLootItem, existingItem);\n\
+      if (score > 0.0f) {\n    // newItem is better\n} else if (score < 0.0f) {\n\
+      \    // currentItem is better\n} else {\n    // Items are equally valuable\n\
+      }"
+    language: cpp
+  - title: Using comparison in loot decision logic
+    code: "float bestScore = -FLT_MAX;\nItem* bestItem = nullptr;\nfor (auto& lootItem\
+      \ : player->GetLoot().GetLootItems()) {\n    float score = lootAnalysis->CompareItems(player,\
+      \ lootItem, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));\n    if (score\
+      \ > bestScore) {\n        bestScore = score;\n        bestItem = lootItem.item;\n\
+      \    }\n}\n// Use bestItem for further processing"
+    language: cpp
+  notes: The method internally uses player's gear statistics, item quality thresholds,
+    and role-specific preferences to calculate the comparison score. It may perform
+    multiple internal evaluations including stat calculations, item slot validation,
+    and potential enchantment assessments. The returned float value is typically normalized
+    for consistency across different item types.
+  warnings: Ensure that both player and newItem parameters are valid before calling
+    this method, as null pointers will likely cause crashes or undefined behavior.
+    The comparison score should not be used directly for loot assignment without additional
+    context about the specific loot distribution rules in effect.
+  related:
+  - GetLootItemValue
+  - EvaluateItemForPlayer
+  - CalculateItemScore
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T09:55:13.287373'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

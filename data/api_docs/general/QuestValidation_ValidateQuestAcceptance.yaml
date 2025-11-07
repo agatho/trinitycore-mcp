@@ -1,0 +1,57 @@
+api:
+  class: QuestValidation
+  method: ValidateQuestAcceptance
+  signature: bool QuestValidation::ValidateQuestAcceptance(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player can accept a specified quest based on game rules
+    and requirements.
+  description: The ValidateQuestAcceptance method checks if a given player meets all
+    necessary conditions to accept a specific quest in the World of Warcraft game.
+    It evaluates various factors such as quest prerequisites, player level, completed
+    quest dependencies, faction requirements, and other game-specific constraints.
+    This validation ensures that players cannot accept quests they are not qualified
+    for, maintaining game balance and progression integrity. The method returns true
+    if all validations pass, indicating the quest can be accepted by the player; otherwise,
+    it returns false.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate for acceptance. Must
+      correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player attempting to
+      accept the quest. Cannot be null.
+  returns: True if the player can accept the specified quest, false otherwise. Returns
+    false if any validation check fails, such as level requirements not met, prerequisites
+    unfulfilled, or faction restrictions.
+  examples:
+  - title: Basic Quest Acceptance Validation
+    code: "if (QuestValidation::ValidateQuestAcceptance(12345, player)) {\n    //\
+      \ Proceed with quest acceptance logic\n    player->AddQuest(12345);\n} else\
+      \ {\n    // Inform player they cannot accept the quest\n    player->SendNotification(\"\
+      You do not meet the requirements to accept this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Acceptance Flow
+    code: "void Player::OnQuestAccept(uint32 questId) {\n    if (!QuestValidation::ValidateQuestAcceptance(questId,\
+      \ this)) {\n        SendQuestInvalidReason(QUEST_INVALID_REASON_NOT_ENOUGH_MONEY);\n\
+      \        return;\n    }\n    // Continue with normal quest acceptance flow\n\
+      \    AcceptQuest(questId);\n}"
+    language: cpp
+  notes: This method performs database lookups and checks against player state, so
+    it may have performance implications if called frequently. It's recommended to
+    cache validation results where possible for repeated checks. The method assumes
+    the player object is fully initialized with current quest data and status.
+  warnings: Ensure that the player pointer is valid and not null before calling this
+    method. Passing an invalid or uninitialized player object will result in undefined
+    behavior. Additionally, this method does not modify the player's state directly;
+    it only validates whether acceptance would be allowed.
+  related:
+  - ValidateQuestComplete
+  - CanPlayerAcceptQuest
+  - IsQuestValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:13:22.533071'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

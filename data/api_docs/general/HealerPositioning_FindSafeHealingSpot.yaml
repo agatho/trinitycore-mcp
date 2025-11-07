@@ -1,0 +1,62 @@
+api:
+  class: HealerPositioning
+  method: FindSafeHealingSpot
+  signature: int HealerPositioning::FindSafeHealingSpot(Player * healer, Unit * threat,
+    const CombatPositionContext & context)
+documentation:
+  brief: Calculates and returns the optimal safe healing position for a healer based
+    on threat and combat context.
+  description: The FindSafeHealingSpot method determines the best location for a healer
+    to move to while maintaining safety from enemy threats. It evaluates the current
+    positioning of the healer, the threat level posed by the target unit, and contextual
+    combat data to compute a suitable healing spot. This method is typically used
+    in AI-driven healing behaviors where positioning is critical for survival and
+    effectiveness. The method considers factors such as distance from threat, line
+    of sight, and potential danger zones when calculating the optimal position.
+  parameters:
+  - name: healer
+    description: Pointer to the Player object representing the healer unit that needs
+      positioning. Must be a valid player with healing capabilities.
+  - name: threat
+    description: Pointer to the Unit object representing the threat source (enemy)
+      that the healer must avoid. Must be a valid unit with threat data.
+  - name: context
+    description: Reference to CombatPositionContext structure containing combat-related
+      positioning data such as map boundaries, terrain, and threat zones.
+  returns: Returns an integer value representing the calculated safe healing spot
+    index or identifier. A positive value typically indicates a valid position found,
+    while zero or negative values may indicate failure or no suitable position available.
+  examples:
+  - title: Basic Usage Example
+    code: "CombatPositionContext context;\ncontext.mapBoundary = {0, 100, 0, 100};\n\
+      context.threatZones = {{50, 50, 20}};\nint spot = healerPositioning.FindSafeHealingSpot(playerHealer,\
+      \ enemyThreat, context);\nif (spot > 0) {\n    // Move to the calculated safe\
+      \ spot\n    playerHealer->MoveTo(spot);\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "CombatPositionContext context;\ncontext.mapBoundary = {0, 200, 0, 200};\n\
+      context.threatZones = {{100, 100, 30}, {150, 50, 25}};\nint spot = healerPositioning.FindSafeHealingSpot(playerHealer,\
+      \ enemyThreat, context);\nswitch (spot) {\n    case -1:\n        // No threat\
+      \ detected\n        playerHealer->Say(\"No threat detected.\");\n        break;\n\
+      \    case 0:\n        // No safe spot found\n        playerHealer->Say(\"No\
+      \ safe healing spot available.\");\n        break;\n    default:\n        //\
+      \ Valid spot found\n        playerHealer->MoveTo(spot);\n        break;\n}"
+    language: cpp
+  notes: This method performs complex spatial calculations involving threat zones,
+    map boundaries, and unit positioning. It may be computationally expensive in high-threat
+    scenarios with many obstacles. The CombatPositionContext should be properly initialized
+    before calling this method to ensure accurate results.
+  warnings: Ensure that the healer and threat pointers are valid before calling this
+    method; passing null pointers will likely cause undefined behavior. The context
+    structure must contain valid boundary and threat zone data for meaningful positioning
+    calculations.
+  related:
+  - GetHealingPosition
+  - CalculateThreatDistance
+  - EvaluateSafeZone
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T11:55:32.897272'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

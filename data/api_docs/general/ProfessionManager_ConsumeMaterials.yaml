@@ -1,0 +1,65 @@
+api:
+  class: ProfessionManager
+  method: ConsumeMaterials
+  signature: bool ProfessionManager::ConsumeMaterials(int * player, const RecipeInfo
+    & recipe)
+documentation:
+  brief: Consumes required materials from the player's inventory for crafting a specified
+    recipe.
+  description: The ConsumeMaterials method is responsible for removing the necessary
+    raw materials and components from a player's inventory when they attempt to craft
+    an item using a specific recipe. This method verifies that the player has sufficient
+    quantities of each required material before deducting them from their inventory.
+    It ensures that crafting operations respect the game's resource management system
+    and prevents players from duplicating resources through repeated crafting attempts.
+    The method returns true if all materials were successfully consumed, or false
+    if the player lacks sufficient materials or encounters an error during the process.
+  parameters:
+  - name: player
+    description: Pointer to the player object that is attempting to craft the item.
+      This parameter represents the player's inventory and is used to check material
+      availability and perform deductions.
+  - name: recipe
+    description: Reference to a RecipeInfo structure containing details about the
+      recipe being crafted, including required materials, quantities, and other crafting
+      parameters.
+  returns: Returns true if all required materials were successfully removed from the
+    player's inventory; returns false if the player does not have sufficient materials
+    or if an error occurred during material deduction.
+  examples:
+  - title: Basic Crafting Material Consumption
+    code: "Player* player = ...;\nRecipeInfo recipe = GetCraftingRecipe(12345);\n\
+      if (professionManager.ConsumeMaterials(&player, recipe)) {\n    // Materials\
+      \ successfully consumed\n    SendCraftingSuccessMessage(player);\n} else {\n\
+      \    // Insufficient materials\n    SendInsufficientMaterialsMessage(player);\n\
+      }"
+    language: cpp
+  - title: Advanced Crafting with Error Handling
+    code: "Player* player = ...;\nRecipeInfo recipe = GetCraftingRecipe(67890);\n\
+      bool success = professionManager.ConsumeMaterials(&player, recipe);\nif (!success)\
+      \ {\n    // Check if player has enough materials\n    if (HasSufficientMaterials(player,\
+      \ recipe)) {\n        // Handle other potential errors\n        LogError(\"\
+      Failed to consume materials for recipe %d\", recipe.id);\n    } else {\n   \
+      \     SendInsufficientMaterialsMessage(player);\n    }\n}"
+    language: cpp
+  notes: This method directly interacts with the player's inventory system and should
+    only be called after validating that the player is eligible to craft the specified
+    recipe. The method assumes that all preconditions for crafting have already been
+    verified, such as skill level requirements and proper tool usage. Implementation
+    details include checking item counts, performing atomic operations on inventory
+    slots, and potentially triggering inventory update events.
+  warnings: Calling this method without first verifying that the player has sufficient
+    materials may lead to inconsistent state where partial materials are deducted
+    but crafting fails. Always validate material availability before calling this
+    function. This method should not be called concurrently from multiple threads
+    without proper synchronization mechanisms in place.
+  related:
+  - GetRecipeRequirements
+  - VerifyCraftingConditions
+  - AddCraftedItemToInventory
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T00:26:07.751398'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

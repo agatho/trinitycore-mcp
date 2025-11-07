@@ -1,0 +1,58 @@
+api:
+  class: QuestValidation
+  method: ValidateQuestChainPosition
+  signature: bool QuestValidation::ValidateQuestChainPosition(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player can accept or continue a quest chain at the current
+    position.
+  description: The ValidateQuestChainPosition method checks if a given quest ID is
+    valid for the specified player within the context of their current quest chain.
+    It ensures that the quest can be accepted or continued based on prerequisites
+    such as previous quest completion, level requirements, and quest chain logic.
+    This validation is essential for preventing invalid quest progression and maintaining
+    game balance. The method typically returns true if the quest can be accepted or
+    continued, false otherwise. It may also consider player state, faction, and other
+    contextual factors to determine quest validity.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate. Must correspond to
+      a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player for whom the
+      quest validation is performed. Cannot be null.
+  returns: Returns true if the quest can be accepted or continued within the current
+    quest chain, false otherwise. A return value of false indicates that the quest
+    is not valid at this point in the chain due to missing prerequisites, level requirements,
+    or other validation failures.
+  examples:
+  - title: Basic Quest Chain Validation
+    code: "if (QuestValidation::ValidateQuestChainPosition(12345, player)) {\n   \
+      \ // Proceed with quest acceptance logic\n    player->AddQuest(12345);\n} else\
+      \ {\n    // Handle invalid quest chain position\n    player->SendNotification(\"\
+      You cannot accept this quest at this time.\");\n}"
+    language: cpp
+  - title: Integration with Quest Acceptance System
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (!QuestValidation::ValidateQuestChainPosition(quest->GetQuestId(),\
+      \ this)) {\n        SendQuestInvalidReason(QUEST_INVALID_REASON_NOT_IN_LOG);\n\
+      \        return;\n    }\n    // Continue with normal quest acceptance flow\n\
+      \    AddQuest(quest->GetQuestId());\n}"
+    language: cpp
+  notes: This method likely performs database lookups and checks against player's
+    current quest log. It may be called frequently during quest interaction, so performance
+    optimization is important. The validation considers both direct prerequisites
+    (previous quests) and indirect factors like level requirements and faction status.
+  warnings: Ensure that the Player pointer passed to this method is valid and not
+    null. Passing an invalid or uninitialized player object will result in undefined
+    behavior. This method should only be called when the player is in a valid state
+    for quest interaction.
+  related:
+  - ValidateQuestChain
+  - CanPlayerAcceptQuest
+  - IsQuestValidForPlayer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:12:30.371431'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
