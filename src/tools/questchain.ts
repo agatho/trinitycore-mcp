@@ -321,7 +321,8 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
  * Find all quest chains in a zone
  */
 export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[]> {
-  // Find all quests in zone that are chain starters (no previous quest)
+  // Find all quests in zone that are potential chain starters
+  // Removed NextQuestID requirement - many chains only use PrevQuestID
   const query = `
     SELECT DISTINCT qt.ID
     FROM quest_template qt
@@ -330,9 +331,7 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
     INNER JOIN creature c ON cqs.id = c.id
     WHERE c.zoneId = ?
       AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
-      AND qta.NextQuestID IS NOT NULL
-      AND qta.NextQuestID != 0
-    LIMIT 50
+    LIMIT 100
   `;
 
   const starters = await queryWorld(query, [zoneId]);
@@ -342,7 +341,8 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
   for (const starter of starters) {
     try {
       const chain = await traceQuestChain(starter.ID);
-      if (chain.totalQuests > 1) { // Only include actual chains (2+ quests)
+      // Include all quests, even standalone ones (chains of 1 quest)
+      if (chain.totalQuests >= 1) {
         chains.push(chain);
       }
     } catch (error) {
