@@ -434,9 +434,28 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
     if (!results || results.length === 0) break;
 
     const quest = results[0];
+
+    // Fetch objectives and rewards for this quest
+    let objectives = null;
+    let rewards = null;
+
+    try {
+      objectives = await analyzeQuestObjectives(currentQuestId);
+    } catch (err) {
+      console.log(`[DEBUG] Could not fetch objectives for quest ${currentQuestId}:`, err instanceof Error ? err.message : String(err));
+    }
+
+    try {
+      rewards = await getQuestRewards(currentQuestId);
+    } catch (err) {
+      console.log(`[DEBUG] Could not fetch rewards for quest ${currentQuestId}:`, err instanceof Error ? err.message : String(err));
+    }
+
     nodes.push({
       ...quest,
-      depth
+      depth,
+      objectives,
+      rewards
     });
 
     // TrinityCore chains use PrevQuestID (backwards), not NextQuestID (always 0)

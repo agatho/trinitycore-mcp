@@ -193,6 +193,8 @@ export default function QuestChainsPage() {
             depth: q.depth,
             zone: zones.find((z) => z.id === zoneId)?.name || `Zone ${zoneId}`,
             zoneId,
+            objectives: q.objectives,
+            rewards: q.rewards,
           });
         });
       });
