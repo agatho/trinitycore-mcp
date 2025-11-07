@@ -6,7 +6,8 @@
  *
  * File format (from mapextractor):
  * - Folder: maps/
- * - Naming: <mapId><x><y>.map (e.g., 00032048.map = map 000, grid 32,48)
+ * - Tilelist: <mapId>.tilelist (e.g., 0001.tilelist)
+ * - Naming: <mapId>_<x>_<y>.map (e.g., 0001_55_42.map = map 1, grid 55,42)
  * - Header with offsets and sizes
  * - Area map (grid of zone IDs)
  * - Height map (129x129 grid of heights)
@@ -95,11 +96,11 @@ const GRID_PART_SIZE = 129;
 /**
  * Parse a single .map file
  *
- * TrinityCore naming convention: <mapId><x><y>.map
- * - mapId: 3 digits (000-999)
+ * TrinityCore naming convention: <mapId>_<x>_<y>.map
+ * - mapId: 4 digits (0000-9999)
  * - x: 2 digits (00-63)
  * - y: 2 digits (00-63)
- * Example: 00032048.map = Map 0, Grid (32, 48)
+ * Example: 0001_55_42.map = Map 1, Grid (55, 42)
  */
 export function parseMapFile(
   buffer: ArrayBuffer,
@@ -108,10 +109,10 @@ export function parseMapFile(
   const view = new DataView(buffer);
   let offset = 0;
 
-  // Parse filename: <mapId><x><y>.map (e.g., 00032048.map)
-  const match = filename.match(/(\d{3})(\d{2})(\d{2})\.map/);
+  // Parse filename: <mapId>_<x>_<y>.map (e.g., 0001_55_42.map)
+  const match = filename.match(/(\d{4})_(\d{2})_(\d{2})\.map/);
   if (!match) {
-    throw new Error(`Invalid map filename format: ${filename} (expected format: <mapId><x><y>.map, e.g., 00032048.map)`);
+    throw new Error(`Invalid map filename format: ${filename} (expected format: <mapId>_<x>_<y>.map, e.g., 0001_55_42.map)`);
   }
 
   const mapId = parseInt(match[1], 10);
