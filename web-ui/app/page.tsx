@@ -143,7 +143,7 @@ export default function HomePage() {
     {
       name: "Map Coordinate Picker",
       icon: Map,
-      description: "Advanced map editor with undo/redo, pathfinding, measurements. Upload map images to begin.",
+      description: "Advanced map editor using TrinityCore coordinate system. Select WoW maps or upload custom images.",
       href: "/map-picker-enhanced",
       color: "text-sky-400",
     },

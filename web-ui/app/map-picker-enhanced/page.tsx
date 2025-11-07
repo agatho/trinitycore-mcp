@@ -57,6 +57,8 @@ import {
   simplifyPath,
   canvasToWow,
   wowToCanvas,
+  WoWMaps,
+  loadMapImage,
 } from '@/lib/map-editor';
 import {
   HistoryManager,
@@ -98,11 +100,13 @@ export default function EnhancedMapPickerPage() {
   const historyManager = useRef(new HistoryManager());
 
   // Map state
-  const [selectedMap, setSelectedMap] = useState(0);
+  const [selectedMap, setSelectedMap] = useState(0); // Default to Eastern Kingdoms
+  const [availableMaps] = useState(() => Object.values(WoWMaps));
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [isLoadingMap, setIsLoadingMap] = useState(false);
 
   // Editor state
   const [currentTool, setCurrentTool] = useState<Tool>('select');
@@ -200,6 +204,23 @@ export default function EnhancedMapPickerPage() {
       setSelectedItems(state.selectedItems);
     }
   }, []);
+
+  // Load map image when selected map changes
+  useEffect(() => {
+    const loadMap = async () => {
+      setIsLoadingMap(true);
+      try {
+        const img = await loadMapImage(selectedMap);
+        setMapImage(img);
+      } catch (error) {
+        console.error('Failed to load map:', error);
+        setMapImage(null);
+      } finally {
+        setIsLoadingMap(false);
+      }
+    };
+    loadMap();
+  }, [selectedMap]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -363,11 +384,12 @@ export default function EnhancedMapPickerPage() {
       ctx.fillStyle = '#475569';
       ctx.font = `${20 / scale}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('No Map Loaded', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) - 30 / scale);
+      ctx.fillText('No Map Image Available', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) - 50 / scale);
       ctx.fillStyle = '#64748b';
       ctx.font = `${14 / scale}px sans-serif`;
-      ctx.fillText('Upload a map image to begin', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale));
-      ctx.fillText('Use the "Upload Map" button in the left panel', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) + 25 / scale);
+      ctx.fillText('Map will use WoW coordinate system without visual background', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) - 20 / scale);
+      ctx.fillText('You can still place coordinates and export SQL', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) + 5 / scale);
+      ctx.fillText('Upload a custom map image using the button in the left panel', CANVAS_WIDTH / (2 * scale), CANVAS_HEIGHT / (2 * scale) + 30 / scale);
       ctx.textAlign = 'left';
     }
 
@@ -1010,10 +1032,49 @@ export default function EnhancedMapPickerPage() {
             <div>
               <h3 className="text-lg font-semibold text-white mb-4">Tools</h3>
 
-              {/* Map Upload */}
+              {/* Map Selection */}
               <div className="mb-4 p-3 bg-blue-900/30 border border-blue-700 rounded">
                 <label className="block mb-2">
-                  <span className="text-sm font-semibold text-blue-300">Load Map Image</span>
+                  <span className="text-sm font-semibold text-blue-300">Select WoW Map</span>
+                  <select
+                    value={selectedMap}
+                    onChange={(e) => setSelectedMap(parseInt(e.target.value))}
+                    className="w-full mt-2 p-2 bg-slate-800 border border-slate-600 rounded text-white"
+                  >
+                    {availableMaps.map((map) => (
+                      <option key={map.id} value={map.id}>
+                        {map.name} (ID: {map.id})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {isLoadingMap && (
+                  <p className="text-xs text-yellow-400 mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 mr-1 animate-spin" />
+                    Loading map...
+                  </p>
+                )}
+                {!isLoadingMap && !mapImage && (
+                  <p className="text-xs text-orange-400 mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    No image available. Use custom upload below.
+                  </p>
+                )}
+                {!isLoadingMap && mapImage && (
+                  <p className="text-xs text-green-400 mt-2 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Map loaded
+                  </p>
+                )}
+              </div>
+
+              {/* Custom Map Upload (fallback) */}
+              <div className="mb-4 p-3 bg-slate-900/30 border border-slate-600 rounded">
+                <label className="block mb-2">
+                  <span className="text-xs font-semibold text-slate-400">Custom Map Image</span>
+                  <p className="text-xs text-slate-500 mt-1 mb-2">
+                    Upload your own map image if official maps are not available
+                  </p>
                   <input
                     type="file"
                     accept="image/*"
@@ -1023,24 +1084,14 @@ export default function EnhancedMapPickerPage() {
                   />
                   <Button
                     variant="outline"
-                    className="w-full mt-2"
+                    size="sm"
+                    className="w-full"
                     onClick={() => document.getElementById('map-upload')?.click()}
                   >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {mapImage ? 'Change Map' : 'Upload Map'}
+                    <Upload className="w-3 h-3 mr-2" />
+                    Upload Custom
                   </Button>
                 </label>
-                {!mapImage && (
-                  <p className="text-xs text-slate-400 mt-2">
-                    Upload a map image to start placing coordinates
-                  </p>
-                )}
-                {mapImage && (
-                  <p className="text-xs text-green-400 mt-2 flex items-center">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Map loaded
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -1174,11 +1225,14 @@ export default function EnhancedMapPickerPage() {
 
             {showCoordinates && (
               <div className="pt-4 border-t border-slate-700">
-                <h3 className="text-sm font-semibold text-white mb-2">Cursor</h3>
+                <h3 className="text-sm font-semibold text-white mb-2">Cursor (WoW Coords)</h3>
                 <div className="space-y-1 text-xs text-slate-400 font-mono">
                   <div>X: {mouseCoords.x.toFixed(2)}</div>
                   <div>Y: {mouseCoords.y.toFixed(2)}</div>
                 </div>
+                <p className="text-xs text-slate-500 mt-2">
+                  TrinityCore world coordinates
+                </p>
               </div>
             )}
           </div>
