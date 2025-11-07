@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { readEnvFile, writeEnvFile, reloadEnvVars, envFileExists } from "@/lib/env-utils";
+import { readAllEnvFiles, writeAllEnvFiles, reloadEnvVars, envFileExists } from "@/lib/env-utils";
 
 interface DatabaseConfig {
   host: string;
@@ -280,10 +280,13 @@ export async function GET(request: NextRequest) {
       },
     };
 
+    const envFiles = envFileExists();
+
     return NextResponse.json({
       success: true,
       config: responseConfig,
-      envFileExists: envFileExists(),
+      envFileExists: envFiles.webUI || envFiles.mcpServer,
+      envFiles: envFiles,
       reloaded: shouldReload,
     });
   } catch (error) {
@@ -339,11 +342,11 @@ export async function POST(request: NextRequest) {
     // Update configuration
     currentConfig = newConfig;
 
-    // Persist to .env.local if requested
+    // Persist to both .env files if requested
     if (shouldPersist) {
       try {
         const envVars = configToEnvVars(newConfig);
-        writeEnvFile(envVars);
+        writeAllEnvFiles(envVars);
       } catch (error) {
         return NextResponse.json(
           {
@@ -361,7 +364,7 @@ export async function POST(request: NextRequest) {
       validation,
       persisted: shouldPersist,
       message: shouldPersist
-        ? "Configuration saved and persisted to .env.local. Restart the server to apply changes."
+        ? "Configuration saved to both web-ui/.env.local and root .env files. Restart both services to apply changes."
         : "Configuration saved in memory. Changes will be lost on restart.",
     });
   } catch (error) {
