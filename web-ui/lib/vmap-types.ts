@@ -16,10 +16,26 @@
 // ============================================================================
 
 /**
- * VMAP file format magic header (8 bytes)
- * Used to identify and validate VMap binary files
+ * VMAP file format magic headers (8 bytes)
+ * Different TrinityCore versions use different VMAP formats
  */
-export const VMAP_MAGIC = "VMAP_006"; // 8-byte string
+export const VMAP_MAGIC_V4 = "VMAP_4.D"; // WotLK era (3.3.5)
+export const VMAP_MAGIC_V005 = "VMAP_005"; // Cataclysm era (4.3.4)
+export const VMAP_MAGIC_V006 = "VMAP_006"; // Modern (MoP+, 5.x+)
+
+/**
+ * All supported VMAP versions
+ */
+export const SUPPORTED_VMAP_VERSIONS = [
+  VMAP_MAGIC_V4,
+  VMAP_MAGIC_V005,
+  VMAP_MAGIC_V006,
+] as const;
+
+/**
+ * Primary VMAP magic (latest version)
+ */
+export const VMAP_MAGIC = VMAP_MAGIC_V006;
 
 /**
  * Node section marker (4 bytes)
