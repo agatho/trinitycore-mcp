@@ -65,7 +65,16 @@ export async function GET(request: NextRequest) {
 
     // Download specific file
     if (action === 'download' && filename) {
-      const filePath = path.join(basePath, filename);
+      let filePath: string;
+
+      // VMap files are in subfolders: vmaps/<mapId>/file
+      // Other files are at root level
+      if (type === 'vmap') {
+        const mapIdPadded = mapId.padStart(4, '0');
+        filePath = path.join(basePath, mapIdPadded, filename);
+      } else {
+        filePath = path.join(basePath, filename);
+      }
 
       // Security: Prevent path traversal
       if (!filePath.startsWith(basePath)) {
@@ -112,16 +121,27 @@ async function listCollisionFiles(
   type: 'vmap' | 'mmap'
 ): Promise<CollisionFileInfo[]> {
   const files: CollisionFileInfo[] = [];
-  const mapIdPadded = mapId.padStart(3, '0');
+  const mapIdPadded = mapId.padStart(type === 'vmap' ? 4 : 3, '0');
 
   try {
-    const dirContents = await fs.readdir(basePath);
-
     if (type === 'vmap') {
-      // Look for .vmtree and .vmtile files
+      // VMap files are in subfolders: vmaps/<mapId>/
+      const mapFolder = path.join(basePath, mapIdPadded);
+
+      // Check if map folder exists
+      try {
+        await fs.access(mapFolder);
+      } catch {
+        // Folder doesn't exist - no files available
+        return files;
+      }
+
+      const dirContents = await fs.readdir(mapFolder);
+
+      // Look for .vmtree file
       const treeFile = `${mapIdPadded}.vmtree`;
       if (dirContents.includes(treeFile)) {
-        const stats = await fs.stat(path.join(basePath, treeFile));
+        const stats = await fs.stat(path.join(mapFolder, treeFile));
         files.push({
           filename: treeFile,
           size: stats.size,
@@ -130,10 +150,10 @@ async function listCollisionFiles(
       }
 
       // Find all .vmtile files for this map
-      const tilePattern = new RegExp(`^\\d+_\\d+\\.vmtile$`);
+      const tilePattern = new RegExp(`^${mapIdPadded}_\\d{2}_\\d{2}\\.vmtile$`);
       for (const file of dirContents) {
         if (tilePattern.test(file)) {
-          const stats = await fs.stat(path.join(basePath, file));
+          const stats = await fs.stat(path.join(mapFolder, file));
           files.push({
             filename: file,
             size: stats.size,
@@ -142,7 +162,10 @@ async function listCollisionFiles(
         }
       }
     } else if (type === 'mmap') {
-      // Look for .mmap and .mmtile files
+      // MMap files are at root level
+      const dirContents = await fs.readdir(basePath);
+
+      // Look for .mmap header file
       const headerFile = `${mapIdPadded}.mmap`;
       if (dirContents.includes(headerFile)) {
         const stats = await fs.stat(path.join(basePath, headerFile));
