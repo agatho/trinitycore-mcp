@@ -45,10 +45,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { WoWMaps } from '@/lib/map-editor';
+import { WoWMaps, generateSpawnSQL, generateWaypointSQL, exportMapData } from '@/lib/map-editor';
 import { useWorldEditorState, type ViewMode } from './hooks/useWorldEditorState';
 import { loadVMapData } from '@/lib/vmap-parser';
 import { loadMMapData } from '@/lib/mmap-parser';
+import { MapView2D } from './components/MapView2D';
+import { MapView3D } from './components/MapView3D';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
@@ -175,6 +177,41 @@ export default function WorldEditorPage() {
     }
   };
 
+  // Export SQL
+  const exportSQL = () => {
+    let sql = `-- World Editor Export\n-- Map ID: ${state.selectedMap}\n-- Generated: ${new Date().toISOString()}\n\n`;
+
+    state.coordinates.forEach(coord => {
+      if (coord.type === 'spawn') {
+        sql += generateSpawnSQL(coord, 1234) + '\n\n';
+      }
+    });
+
+    state.waypointPaths.forEach(path => {
+      sql += generateWaypointSQL(path) + '\n\n';
+    });
+
+    const blob = new Blob([sql], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `world_editor_map_${state.selectedMap}_${Date.now()}.sql`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export JSON
+  const exportJSON = () => {
+    const json = exportMapData(state.coordinates, state.roads, state.transitions, state.waypointPaths);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `world_editor_map_${state.selectedMap}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // Render view mode content
   const renderViewContent = () => {
     switch (state.viewMode) {
@@ -188,9 +225,7 @@ export default function WorldEditorPage() {
                   2D Map View
                 </h3>
               </div>
-              <div className="bg-slate-900 rounded flex items-center justify-center h-[600px]">
-                <p className="text-slate-500">2D Map Component (Coming Next)</p>
-              </div>
+              <MapView2D state={state} actions={actions} width={600} height={600} />
             </div>
             <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
@@ -199,9 +234,7 @@ export default function WorldEditorPage() {
                   3D View
                 </h3>
               </div>
-              <div className="bg-slate-900 rounded flex items-center justify-center h-[600px]">
-                <p className="text-slate-500">3D View Component (Coming Next)</p>
-              </div>
+              <MapView3D state={state} actions={actions} width={600} height={600} />
             </div>
           </div>
         );
@@ -221,16 +254,12 @@ export default function WorldEditorPage() {
             </TabsList>
             <TabsContent value="2d" className="mt-4">
               <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
-                <div className="bg-slate-900 rounded flex items-center justify-center h-[600px]">
-                  <p className="text-slate-500">2D Map Component (Coming Next)</p>
-                </div>
+                <MapView2D state={state} actions={actions} width={1400} height={700} />
               </div>
             </TabsContent>
             <TabsContent value="3d" className="mt-4">
               <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
-                <div className="bg-slate-900 rounded flex items-center justify-center h-[600px]">
-                  <p className="text-slate-500">3D View Component (Coming Next)</p>
-                </div>
+                <MapView3D state={state} actions={actions} width={1400} height={700} />
               </div>
             </TabsContent>
           </Tabs>
@@ -246,9 +275,7 @@ export default function WorldEditorPage() {
                   3D View (Main)
                 </h3>
               </div>
-              <div className="bg-slate-900 rounded flex items-center justify-center h-[600px]">
-                <p className="text-slate-500">3D View Component (Coming Next)</p>
-              </div>
+              <MapView3D state={state} actions={actions} width={1400} height={700} />
             </div>
             {/* Minimap overlay */}
             <div className="absolute bottom-6 right-6 w-80 h-60 bg-slate-800 border-2 border-slate-600 rounded-lg p-2 shadow-2xl">
@@ -261,9 +288,7 @@ export default function WorldEditorPage() {
                   <Minimize2 className="w-3 h-3" />
                 </Button>
               </div>
-              <div className="bg-slate-900 rounded flex items-center justify-center h-[calc(100%-2rem)]">
-                <p className="text-xs text-slate-500">2D Map Component</p>
-              </div>
+              <MapView2D state={state} actions={actions} width={300} height={200} />
             </div>
           </div>
         );
@@ -289,13 +314,13 @@ export default function WorldEditorPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline">
+              <Button variant="outline" onClick={exportSQL}>
                 <Download className="w-4 h-4 mr-2" />
                 Export SQL
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={exportJSON}>
                 <Save className="w-4 h-4 mr-2" />
-                Save Project
+                Export JSON
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
