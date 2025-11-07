@@ -4,13 +4,13 @@
  * Endpoints for managing TrinityCore MCP configuration.
  *
  * GET /api/config - Get current configuration
+ * GET /api/config?reload=true - Reload from .env.local and get configuration
  * POST /api/config - Update configuration
+ * POST /api/config?persist=true - Update and persist to .env.local
  */
 
 import { NextRequest, NextResponse } from "next/server";
-
-// Mock configuration manager (in production, this would import from the actual config manager)
-// For now, we'll use a simple in-memory configuration store
+import { readEnvFile, writeEnvFile, reloadEnvVars, envFileExists } from "@/lib/env-utils";
 
 interface DatabaseConfig {
   host: string;
@@ -73,55 +73,62 @@ interface TrinityMCPConfig {
   logging: LoggingConfig;
 }
 
-// Default configuration
-let currentConfig: TrinityMCPConfig = {
-  database: {
-    host: process.env.TRINITY_DB_HOST || process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.TRINITY_DB_PORT || process.env.DB_PORT || "3306"),
-    user: process.env.TRINITY_DB_USER || process.env.DB_USERNAME || "trinity",
-    password: process.env.TRINITY_DB_PASSWORD || process.env.DB_PASSWORD || "",
-    world: process.env.TRINITY_DB_WORLD || process.env.DB_WORLD_DATABASE || "world",
-    auth: process.env.TRINITY_DB_AUTH || process.env.DB_AUTH_DATABASE || "auth",
-    characters: process.env.TRINITY_DB_CHARACTERS || process.env.DB_CHARACTERS_DATABASE || "characters",
-  },
-  dataPaths: {
-    trinityRoot: process.env.TRINITY_ROOT || "./",
-    gtPath: process.env.GT_PATH || "./data/gt",
-    dbcPath: process.env.DBC_PATH || "./data/dbc",
-    db2Path: process.env.DB2_PATH || "./data/db2",
-    vmapPath: process.env.VMAP_PATH || process.env.MAP_FILES_PATH || "./data/vmaps",
-    mmapPath: process.env.MMAP_PATH || "./data/mmaps",
-  },
-  server: {
-    port: parseInt(process.env.MCP_PORT || process.env.PORT || "3000"),
-    host: process.env.MCP_HOST || "localhost",
-    corsEnabled: true,
-    corsOrigin: "*",
-    maxConnections: 100,
-  },
-  websocket: {
-    enabled: true,
-    port: parseInt(process.env.WEBSOCKET_PORT || "3001"),
-    maxClients: parseInt(process.env.WEBSOCKET_MAX_CLIENTS || "50"),
-    heartbeatInterval: parseInt(process.env.WEBSOCKET_HEARTBEAT_INTERVAL || "30000"),
-    timeoutMs: parseInt(process.env.WEBSOCKET_TIMEOUT_MS || "60000"),
-    rateLimit: parseInt(process.env.WEBSOCKET_RATE_LIMIT || "100"),
-  },
-  testing: {
-    enabled: process.env.TESTING_ENABLED === "true" || true,
-    autoGenerateTests: process.env.TESTING_AUTO_GENERATE === "true" || false,
-    coverageThreshold: parseInt(process.env.TESTING_COVERAGE_THRESHOLD || "80"),
-    performanceBaselines: process.env.TESTING_PERFORMANCE_BASELINES === "true" || true,
-  },
-  logging: {
-    level: (process.env.LOG_LEVEL as "debug" | "info" | "warn" | "error") || "info",
-    console: process.env.LOG_CONSOLE !== "false",
-    file: process.env.LOG_FILE !== "false",
-    filePath: process.env.LOG_FILE_PATH || "./logs/trinity-mcp.log",
-    maxFileSize: parseInt(process.env.LOG_MAX_FILE_SIZE || "10485760"), // 10MB
-    maxFiles: parseInt(process.env.LOG_MAX_FILES || "5"),
-  },
-};
+/**
+ * Load configuration from environment variables
+ */
+function loadConfigFromEnv(): TrinityMCPConfig {
+  return {
+    database: {
+      host: process.env.TRINITY_DB_HOST || process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.TRINITY_DB_PORT || process.env.DB_PORT || "3306"),
+      user: process.env.TRINITY_DB_USER || process.env.DB_USERNAME || "trinity",
+      password: process.env.TRINITY_DB_PASSWORD || process.env.DB_PASSWORD || "",
+      world: process.env.TRINITY_DB_WORLD || process.env.DB_WORLD_DATABASE || "world",
+      auth: process.env.TRINITY_DB_AUTH || process.env.DB_AUTH_DATABASE || "auth",
+      characters: process.env.TRINITY_DB_CHARACTERS || process.env.DB_CHARACTERS_DATABASE || "characters",
+    },
+    dataPaths: {
+      trinityRoot: process.env.TRINITY_ROOT || "./",
+      gtPath: process.env.GT_PATH || "./data/gt",
+      dbcPath: process.env.DBC_PATH || "./data/dbc",
+      db2Path: process.env.DB2_PATH || "./data/db2",
+      vmapPath: process.env.VMAP_PATH || process.env.MAP_FILES_PATH || "./data/vmaps",
+      mmapPath: process.env.MMAP_PATH || "./data/mmaps",
+    },
+    server: {
+      port: parseInt(process.env.MCP_PORT || process.env.PORT || "3000"),
+      host: process.env.MCP_HOST || "localhost",
+      corsEnabled: process.env.CORS_ENABLED !== "false",
+      corsOrigin: process.env.CORS_ORIGIN || "*",
+      maxConnections: parseInt(process.env.MAX_CONNECTIONS || "100"),
+    },
+    websocket: {
+      enabled: process.env.WEBSOCKET_ENABLED !== "false",
+      port: parseInt(process.env.WEBSOCKET_PORT || "3001"),
+      maxClients: parseInt(process.env.WEBSOCKET_MAX_CLIENTS || "50"),
+      heartbeatInterval: parseInt(process.env.WEBSOCKET_HEARTBEAT_INTERVAL || "30000"),
+      timeoutMs: parseInt(process.env.WEBSOCKET_TIMEOUT_MS || "60000"),
+      rateLimit: parseInt(process.env.WEBSOCKET_RATE_LIMIT || "100"),
+    },
+    testing: {
+      enabled: process.env.TESTING_ENABLED !== "false",
+      autoGenerateTests: process.env.TESTING_AUTO_GENERATE === "true",
+      coverageThreshold: parseInt(process.env.TESTING_COVERAGE_THRESHOLD || "80"),
+      performanceBaselines: process.env.TESTING_PERFORMANCE_BASELINES !== "false",
+    },
+    logging: {
+      level: (process.env.LOG_LEVEL as "debug" | "info" | "warn" | "error") || "info",
+      console: process.env.LOG_CONSOLE !== "false",
+      file: process.env.LOG_FILE !== "false",
+      filePath: process.env.LOG_FILE_PATH || "./logs/trinity-mcp.log",
+      maxFileSize: parseInt(process.env.LOG_MAX_FILE_SIZE || "10485760"), // 10MB
+      maxFiles: parseInt(process.env.LOG_MAX_FILES || "5"),
+    },
+  };
+}
+
+// Initialize config from environment
+let currentConfig: TrinityMCPConfig = loadConfigFromEnv();
 
 /**
  * Validate configuration
@@ -195,23 +202,89 @@ function validateConfig(config: TrinityMCPConfig): {
 }
 
 /**
+ * Convert config to environment variable format
+ */
+function configToEnvVars(config: TrinityMCPConfig): Record<string, string> {
+  return {
+    // Database
+    DB_HOST: config.database.host,
+    DB_PORT: config.database.port.toString(),
+    DB_USERNAME: config.database.user,
+    DB_PASSWORD: config.database.password,
+    DB_WORLD_DATABASE: config.database.world,
+    DB_AUTH_DATABASE: config.database.auth,
+    DB_CHARACTERS_DATABASE: config.database.characters,
+
+    // Data Paths
+    TRINITY_ROOT: config.dataPaths.trinityRoot,
+    GT_PATH: config.dataPaths.gtPath,
+    DBC_PATH: config.dataPaths.dbcPath,
+    DB2_PATH: config.dataPaths.db2Path,
+    VMAP_PATH: config.dataPaths.vmapPath,
+    MMAP_PATH: config.dataPaths.mmapPath,
+
+    // Server
+    MCP_HOST: config.server.host,
+    MCP_PORT: config.server.port.toString(),
+    CORS_ENABLED: config.server.corsEnabled.toString(),
+    CORS_ORIGIN: config.server.corsOrigin,
+    MAX_CONNECTIONS: config.server.maxConnections.toString(),
+
+    // WebSocket
+    WEBSOCKET_ENABLED: config.websocket.enabled.toString(),
+    WEBSOCKET_PORT: config.websocket.port.toString(),
+    WEBSOCKET_MAX_CLIENTS: config.websocket.maxClients.toString(),
+    WEBSOCKET_HEARTBEAT_INTERVAL: config.websocket.heartbeatInterval.toString(),
+    WEBSOCKET_TIMEOUT_MS: config.websocket.timeoutMs.toString(),
+    WEBSOCKET_RATE_LIMIT: config.websocket.rateLimit.toString(),
+
+    // Testing
+    TESTING_ENABLED: config.testing.enabled.toString(),
+    TESTING_AUTO_GENERATE: config.testing.autoGenerateTests.toString(),
+    TESTING_COVERAGE_THRESHOLD: config.testing.coverageThreshold.toString(),
+    TESTING_PERFORMANCE_BASELINES: config.testing.performanceBaselines.toString(),
+
+    // Logging
+    LOG_LEVEL: config.logging.level,
+    LOG_CONSOLE: config.logging.console.toString(),
+    LOG_FILE: config.logging.file.toString(),
+    LOG_FILE_PATH: config.logging.filePath,
+    LOG_MAX_FILE_SIZE: config.logging.maxFileSize.toString(),
+    LOG_MAX_FILES: config.logging.maxFiles.toString(),
+  };
+}
+
+/**
  * GET /api/config
  * Get current configuration
  */
 export async function GET(request: NextRequest) {
   try {
-    // Return current configuration (sanitized)
-    const sanitizedConfig = {
+    const searchParams = request.nextUrl.searchParams;
+    const shouldReload = searchParams.get('reload') === 'true';
+    const showPassword = searchParams.get('showPassword') === 'true';
+
+    if (shouldReload) {
+      // Reload environment variables from .env.local
+      reloadEnvVars();
+      // Reload config from environment
+      currentConfig = loadConfigFromEnv();
+    }
+
+    // Return current configuration (optionally sanitized)
+    const responseConfig = {
       ...currentConfig,
       database: {
         ...currentConfig.database,
-        password: currentConfig.database.password ? "••••••••" : "",
+        password: showPassword ? currentConfig.database.password : (currentConfig.database.password ? "••••••••" : ""),
       },
     };
 
     return NextResponse.json({
       success: true,
-      config: sanitizedConfig,
+      config: responseConfig,
+      envFileExists: envFileExists(),
+      reloaded: shouldReload,
     });
   } catch (error) {
     return NextResponse.json(
@@ -230,10 +303,18 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const shouldPersist = searchParams.get('persist') === 'true';
+
     const updates = (await request.json()) as TrinityMCPConfig;
 
+    // Handle password: if it's masked, keep the current password
+    if (updates.database.password === "••••••••") {
+      updates.database.password = currentConfig.database.password;
+    }
+
     // Merge updates with current config
-    const newConfig = {
+    const newConfig: TrinityMCPConfig = {
       database: { ...currentConfig.database, ...updates.database },
       dataPaths: { ...currentConfig.dataPaths, ...updates.dataPaths },
       server: { ...currentConfig.server, ...updates.server },
@@ -258,13 +339,30 @@ export async function POST(request: NextRequest) {
     // Update configuration
     currentConfig = newConfig;
 
-    // In production, this would save to a file or database
-    // For now, we just keep it in memory
+    // Persist to .env.local if requested
+    if (shouldPersist) {
+      try {
+        const envVars = configToEnvVars(newConfig);
+        writeEnvFile(envVars);
+      } catch (error) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Configuration validated but failed to persist: ${(error as Error).message}`,
+            validation,
+          },
+          { status: 500 }
+        );
+      }
+    }
 
     return NextResponse.json({
       success: true,
       validation,
-      config: currentConfig,
+      persisted: shouldPersist,
+      message: shouldPersist
+        ? "Configuration saved and persisted to .env.local. Restart the server to apply changes."
+        : "Configuration saved in memory. Changes will be lost on restart.",
     });
   } catch (error) {
     return NextResponse.json(
