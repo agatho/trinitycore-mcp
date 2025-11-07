@@ -60,6 +60,11 @@ import {
   WoWMaps,
   loadMapImage,
 } from '@/lib/map-editor';
+import type { VMapData } from '@/lib/vmap-types';
+import type { MMapData } from '@/lib/mmap-types';
+import { parseVMapTree, parseVMapTile, loadVMapData } from '@/lib/vmap-parser';
+import { parseMMapHeader, parseMMapTile, loadMMapData } from '@/lib/mmap-parser';
+import { getHeightAtPosition } from '@/lib/height-query';
 import {
   HistoryManager,
   EditorState,
@@ -144,11 +149,21 @@ export default function EnhancedMapPickerPage() {
   const [showMinimap, setShowMinimap] = useState(true);
   const [showIntersections, setShowIntersections] = useState(false);
   const [showCoordinates, setShowCoordinates] = useState(true);
-  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0, z: 0 });
 
   // Search and validation
   const [searchQuery, setSearchQuery] = useState('');
   const [validationIssues, setValidationIssues] = useState<any[]>([]);
+
+  // VMap/MMap collision data
+  const [vmapData, setVmapData] = useState<VMapData | null>(null);
+  const [mmapData, setMmapData] = useState<MMapData | null>(null);
+  const [collisionDataStatus, setCollisionDataStatus] = useState<{
+    vmap: 'none' | 'loading' | 'loaded' | 'error';
+    mmap: 'none' | 'loading' | 'loaded' | 'error';
+    message?: string;
+  }>({ vmap: 'none', mmap: 'none' });
+  const [autoDetectHeight, setAutoDetectHeight] = useState(true);
 
   const CANVAS_WIDTH = 1200;
   const CANVAS_HEIGHT = 800;
@@ -494,19 +509,22 @@ export default function EnhancedMapPickerPage() {
       ctx.globalAlpha = spawnsLayer.opacity;
       coordinates.forEach(coord => {
         if (coord.type === 'spawn') {
+          // Convert WoW world coordinates to canvas coordinates for rendering
+          const canvasPos = wowToCanvas(coord.x, coord.y, selectedMap, CANVAS_WIDTH / scale, CANVAS_HEIGHT / scale);
+
           const isSelected = selectedItems.has(coord.id);
           ctx.fillStyle = isSelected ? '#34d399' : '#10b981';
           ctx.strokeStyle = '#fff';
           ctx.lineWidth = (2 / scale) * (isSelected ? 1.5 : 1);
           ctx.beginPath();
-          ctx.arc(coord.x, coord.y, (8 / scale) * (isSelected ? 1.3 : 1), 0, Math.PI * 2);
+          ctx.arc(canvasPos.x, canvasPos.y, (8 / scale) * (isSelected ? 1.3 : 1), 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
           // Draw label
           ctx.fillStyle = '#fff';
           ctx.font = `${12 / scale}px sans-serif`;
-          ctx.fillText(coord.label || '', coord.x + 12 / scale, coord.y + 4 / scale);
+          ctx.fillText(coord.label || '', canvasPos.x + 12 / scale, canvasPos.y + 4 / scale);
         }
       });
       ctx.globalAlpha = 1;
@@ -649,14 +667,36 @@ export default function EnhancedMapPickerPage() {
     }
   };
 
-  const addSpawnPoint = (x: number, y: number) => {
+  const addSpawnPoint = (canvasX: number, canvasY: number) => {
     saveState('Add spawn point');
 
+    // Convert canvas coordinates to WoW world coordinates
+    const wowCoords = canvasToWow(canvasX, canvasY, selectedMap, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Auto-detect height if enabled and collision data is available
+    let z = 0;
+    if (autoDetectHeight && (vmapData || mmapData)) {
+      const heightResult = getHeightAtPosition(wowCoords.x, wowCoords.y, vmapData || undefined, mmapData || undefined, {
+        preferVMap: true,
+        searchRadius: 10.0,
+        verbose: false,
+      });
+
+      if (heightResult.z !== null) {
+        z = heightResult.z;
+        console.log(`[MapPicker] Auto-detected height: ${z.toFixed(2)} (source: ${heightResult.source})`);
+      } else {
+        console.log(`[MapPicker] Could not detect height at (${wowCoords.x.toFixed(2)}, ${wowCoords.y.toFixed(2)})`);
+      }
+    }
+
+    // Store WoW world coordinates (NOT canvas coordinates)
+    // The drawing code will convert WoW -> canvas for rendering
     const newCoord: MapCoordinate = {
       id: `spawn-${Date.now()}`,
-      x,
-      y,
-      z: 0,
+      x: wowCoords.x, // WoW world X coordinate
+      y: wowCoords.y, // WoW world Y coordinate
+      z,
       mapId: selectedMap,
       type: 'spawn',
       label: `Spawn ${coordinates.filter(c => c.type === 'spawn').length + 1}`,
@@ -840,7 +880,21 @@ export default function EnhancedMapPickerPage() {
       const x = (e.clientX - rect.left - offset.x) / scale;
       const y = (e.clientY - rect.top - offset.y) / scale;
       const wow = canvasToWow(x, y, selectedMap, CANVAS_WIDTH, CANVAS_HEIGHT);
-      setMouseCoords(wow);
+
+      // Query height at cursor position if collision data is available
+      let z = 0;
+      if ((vmapData || mmapData) && autoDetectHeight) {
+        const heightResult = getHeightAtPosition(wow.x, wow.y, vmapData || undefined, mmapData || undefined, {
+          preferVMap: true,
+          searchRadius: 10.0,
+          verbose: false,
+        });
+        if (heightResult.z !== null) {
+          z = heightResult.z;
+        }
+      }
+
+      setMouseCoords({ x: wow.x, y: wow.y, z });
     }
 
     if (isPanning) {
@@ -866,6 +920,138 @@ export default function EnhancedMapPickerPage() {
         img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // Upload VMap files
+  const handleVMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setCollisionDataStatus({ ...collisionDataStatus, vmap: 'loading', message: 'Loading VMap files...' });
+
+    try {
+      // Find .vmtree file
+      let treeFile: File | null = null;
+      const tileFiles: File[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.name.endsWith('.vmtree')) {
+          treeFile = file;
+        } else if (file.name.endsWith('.vmtile')) {
+          tileFiles.push(file);
+        }
+      }
+
+      if (!treeFile) {
+        throw new Error('No .vmtree file found. Please select the tree file for this map.');
+      }
+
+      // Read tree file
+      const treeBuffer = await treeFile.arrayBuffer();
+
+      // Read tile files
+      const tileBuffers = new Map<string, ArrayBuffer>();
+      for (const tileFile of tileFiles) {
+        // Extract tile coordinates from filename (e.g., "32_48.vmtile")
+        const match = tileFile.name.match(/(\d+)_(\d+)\.vmtile/);
+        if (match) {
+          const tileX = parseInt(match[1], 10);
+          const tileY = parseInt(match[2], 10);
+          const buffer = await tileFile.arrayBuffer();
+          tileBuffers.set(`${tileX}_${tileY}`, buffer);
+        }
+      }
+
+      // Load VMap data
+      const mapData = Object.values(WoWMaps).find(m => m.id === selectedMap);
+      const mapName = mapData?.name || `Map ${selectedMap}`;
+
+      const vmap = loadVMapData(selectedMap, mapName, treeBuffer, tileBuffers, {
+        verbose: true,
+        maxTiles: 100, // Limit tiles to prevent memory issues
+      });
+
+      setVmapData(vmap);
+      setCollisionDataStatus({
+        ...collisionDataStatus,
+        vmap: 'loaded',
+        message: `VMap loaded: ${vmap.allSpawns.length} spawns, ${vmap.tiles.size} tiles`,
+      });
+    } catch (error: any) {
+      console.error('Failed to load VMap:', error);
+      setCollisionDataStatus({
+        ...collisionDataStatus,
+        vmap: 'error',
+        message: `VMap error: ${error.message}`,
+      });
+    }
+  };
+
+  // Upload MMap files
+  const handleMMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setCollisionDataStatus({ ...collisionDataStatus, mmap: 'loading', message: 'Loading MMap files...' });
+
+    try {
+      // Find .mmap header file
+      let headerFile: File | null = null;
+      const tileFiles: File[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.name.endsWith('.mmap') && !file.name.includes('mmtile')) {
+          headerFile = file;
+        } else if (file.name.endsWith('.mmtile')) {
+          tileFiles.push(file);
+        }
+      }
+
+      if (!headerFile) {
+        throw new Error('No .mmap header file found. Please select the header file for this map.');
+      }
+
+      // Read header file
+      const headerBuffer = await headerFile.arrayBuffer();
+
+      // Read tile files
+      const tileBuffers = new Map<string, ArrayBuffer>();
+      for (const tileFile of tileFiles) {
+        // Extract tile coordinates from filename (e.g., "3248.mmtile")
+        const match = tileFile.name.match(/(\d{2})(\d{2})\.mmtile/);
+        if (match) {
+          const tileX = parseInt(match[1], 10);
+          const tileY = parseInt(match[2], 10);
+          const buffer = await tileFile.arrayBuffer();
+          tileBuffers.set(`${tileX}_${tileY}`, buffer);
+        }
+      }
+
+      // Load MMap data
+      const mapData = Object.values(WoWMaps).find(m => m.id === selectedMap);
+      const mapName = mapData?.name || `Map ${selectedMap}`;
+
+      const mmap = loadMMapData(selectedMap, mapName, headerBuffer, tileBuffers, {
+        verbose: true,
+        maxTiles: 100, // Limit tiles to prevent memory issues
+      });
+
+      setMmapData(mmap);
+      setCollisionDataStatus({
+        ...collisionDataStatus,
+        mmap: 'loaded',
+        message: `MMap loaded: ${mmap.tiles.size} tiles`,
+      });
+    } catch (error: any) {
+      console.error('Failed to load MMap:', error);
+      setCollisionDataStatus({
+        ...collisionDataStatus,
+        mmap: 'error',
+        message: `MMap error: ${error.message}`,
+      });
     }
   };
 
@@ -1229,6 +1415,10 @@ export default function EnhancedMapPickerPage() {
                 <div className="space-y-1 text-xs text-slate-400 font-mono">
                   <div>X: {mouseCoords.x.toFixed(2)}</div>
                   <div>Y: {mouseCoords.y.toFixed(2)}</div>
+                  <div className={mouseCoords.z !== 0 ? 'text-emerald-400' : ''}>
+                    Z: {mouseCoords.z.toFixed(2)}
+                    {mouseCoords.z !== 0 && ' (detected)'}
+                  </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-2">
                   TrinityCore world coordinates
@@ -1336,7 +1526,7 @@ export default function EnhancedMapPickerPage() {
                       >
                         <div className="font-semibold text-white">{coord.label}</div>
                         <div className="text-slate-400 text-xs mt-1">
-                          X: {coord.x.toFixed(2)}, Y: {coord.y.toFixed(2)}
+                          X: {coord.x.toFixed(2)}, Y: {coord.y.toFixed(2)}, Z: {coord.z?.toFixed(2) || '0.00'}
                         </div>
                         <Button
                           size="sm"
