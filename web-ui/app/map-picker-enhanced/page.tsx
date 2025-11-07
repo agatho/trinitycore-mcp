@@ -30,6 +30,7 @@ import {
   Info,
   Settings,
   Keyboard,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -65,6 +66,7 @@ import type { MMapData } from '@/lib/mmap-types';
 import { parseVMapTree, parseVMapTile, loadVMapData } from '@/lib/vmap-parser';
 import { parseMMapHeader, parseMMapTile, loadMMapData } from '@/lib/mmap-parser';
 import { getHeightAtPosition } from '@/lib/height-query';
+import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import {
   HistoryManager,
   EditorState,
@@ -167,6 +169,34 @@ export default function EnhancedMapPickerPage() {
 
   const CANVAS_WIDTH = 1200;
   const CANVAS_HEIGHT = 800;
+
+  // Auto-load collision data from configured paths
+  const autoLoadResult = useAutoLoadCollisionData(selectedMap, {
+    autoLoad: true,
+    maxTiles: 100,
+    verbose: false,
+  });
+
+  // Update collision data when auto-load completes
+  useEffect(() => {
+    if (autoLoadResult.vmap && !vmapData) {
+      setVmapData(autoLoadResult.vmap);
+    }
+    if (autoLoadResult.mmap && !mmapData) {
+      setMmapData(autoLoadResult.mmap);
+    }
+
+    // Update status
+    setCollisionDataStatus({
+      vmap: autoLoadResult.status.vmap === 'loaded' ? 'loaded' :
+            autoLoadResult.status.vmap === 'loading' ? 'loading' :
+            autoLoadResult.status.vmap === 'error' ? 'error' : 'none',
+      mmap: autoLoadResult.status.mmap === 'loaded' ? 'loaded' :
+            autoLoadResult.status.mmap === 'loading' ? 'loading' :
+            autoLoadResult.status.mmap === 'error' ? 'error' : 'none',
+      message: autoLoadResult.status.vmapMessage || autoLoadResult.status.mmapMessage,
+    });
+  }, [autoLoadResult.vmap, autoLoadResult.mmap, autoLoadResult.status]);
 
   // Get current editor state
   const getEditorState = useCallback(
@@ -1282,18 +1312,37 @@ export default function EnhancedMapPickerPage() {
 
               {/* Collision Data Upload */}
               <div className="mb-4 p-3 bg-emerald-900/30 border border-emerald-700 rounded">
-                <div className="mb-2">
-                  <span className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
-                    <Layers className="w-4 h-4" />
-                    Collision Data
-                  </span>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Load VMap/MMap files for automatic Z coordinate detection
-                  </p>
+                <div className="mb-2 flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
+                      <Layers className="w-4 h-4" />
+                      Collision Data
+                    </span>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Auto-loads from server or upload manually
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={autoLoadResult.reload}
+                    title="Reload collision data from configured paths"
+                    className="h-8 w-8 p-0"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                  </Button>
                 </div>
 
                 {/* VMap Upload */}
                 <div className="mb-2">
+                  {/* Auto-load status */}
+                  {autoLoadResult.status.vmap === 'checking' && (
+                    <p className="text-xs text-blue-400 mb-1">Checking for VMap...</p>
+                  )}
+                  {autoLoadResult.status.vmap === 'unavailable' && (
+                    <p className="text-xs text-slate-500 mb-1">VMap not configured - upload manually</p>
+                  )}
+
                   <input
                     type="file"
                     accept=".vmtree,.vmtile"
@@ -1310,7 +1359,7 @@ export default function EnhancedMapPickerPage() {
                     disabled={collisionDataStatus.vmap === 'loading'}
                   >
                     <Upload className="w-3 h-3 mr-2" />
-                    {collisionDataStatus.vmap === 'loading' ? 'Loading VMap...' : 'Load VMap'}
+                    {collisionDataStatus.vmap === 'loading' ? 'Loading VMap...' : 'Upload VMap'}
                   </Button>
                   {collisionDataStatus.vmap === 'loaded' && (
                     <p className="text-xs text-green-400 mt-1 flex items-center">
@@ -1328,6 +1377,14 @@ export default function EnhancedMapPickerPage() {
 
                 {/* MMap Upload */}
                 <div className="mb-2">
+                  {/* Auto-load status */}
+                  {autoLoadResult.status.mmap === 'checking' && (
+                    <p className="text-xs text-blue-400 mb-1">Checking for MMap...</p>
+                  )}
+                  {autoLoadResult.status.mmap === 'unavailable' && (
+                    <p className="text-xs text-slate-500 mb-1">MMap not configured - upload manually</p>
+                  )}
+
                   <input
                     type="file"
                     accept=".mmap,.mmtile"
@@ -1344,7 +1401,7 @@ export default function EnhancedMapPickerPage() {
                     disabled={collisionDataStatus.mmap === 'loading'}
                   >
                     <Upload className="w-3 h-3 mr-2" />
-                    {collisionDataStatus.mmap === 'loading' ? 'Loading MMap...' : 'Load MMap'}
+                    {collisionDataStatus.mmap === 'loading' ? 'Loading MMap...' : 'Upload MMap'}
                   </Button>
                   {collisionDataStatus.mmap === 'loaded' && (
                     <p className="text-xs text-green-400 mt-1 flex items-center">

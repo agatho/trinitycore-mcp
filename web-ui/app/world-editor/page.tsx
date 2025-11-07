@@ -9,7 +9,7 @@
  * - Picture-in-picture mode (3D main + 2D minimap)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Map,
   Box,
@@ -25,6 +25,7 @@ import {
   Grid3x3,
   CheckCircle,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -49,11 +50,40 @@ import { WoWMaps, generateSpawnSQL, generateWaypointSQL, exportMapData } from '@
 import { useWorldEditorState, type ViewMode } from './hooks/useWorldEditorState';
 import { loadVMapData } from '@/lib/vmap-parser';
 import { loadMMapData } from '@/lib/mmap-parser';
+import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import { MapView2D } from './components/MapView2D';
 import { MapView3D } from './components/MapView3D';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
+
+  // Auto-load collision data from configured paths
+  const autoLoadResult = useAutoLoadCollisionData(state.selectedMap, {
+    autoLoad: true,
+    maxTiles: 100,
+    verbose: false,
+  });
+
+  // Update collision data when auto-load completes
+  useEffect(() => {
+    if (autoLoadResult.vmap && !state.vmapData) {
+      actions.setVMapData(autoLoadResult.vmap);
+    }
+    if (autoLoadResult.mmap && !state.mmapData) {
+      actions.setMMapData(autoLoadResult.mmap);
+    }
+
+    // Update status
+    actions.setCollisionDataStatus({
+      vmap: autoLoadResult.status.vmap === 'loaded' ? 'loaded' :
+            autoLoadResult.status.vmap === 'loading' ? 'loading' :
+            autoLoadResult.status.vmap === 'error' ? 'error' : 'none',
+      mmap: autoLoadResult.status.mmap === 'loaded' ? 'loaded' :
+            autoLoadResult.status.mmap === 'loading' ? 'loading' :
+            autoLoadResult.status.mmap === 'error' ? 'error' : 'none',
+      message: autoLoadResult.status.vmapMessage || autoLoadResult.status.mmapMessage,
+    });
+  }, [autoLoadResult.vmap, autoLoadResult.mmap, autoLoadResult.status]);
 
   // Handle VMap file upload
   const handleVMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -420,6 +450,14 @@ export default function WorldEditorPage() {
             {/* Collision Data Status */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
+                {/* Auto-load status indicator */}
+                {autoLoadResult.status.vmap === 'checking' && (
+                  <span className="text-xs text-blue-400">Checking...</span>
+                )}
+                {autoLoadResult.status.vmap === 'unavailable' && (
+                  <span className="text-xs text-slate-500">Not configured</span>
+                )}
+
                 <input
                   type="file"
                   accept=".vmtree,.vmtile"
@@ -435,7 +473,7 @@ export default function WorldEditorPage() {
                   disabled={state.collisionDataStatus.vmap === 'loading'}
                 >
                   <Upload className="w-3 h-3 mr-2" />
-                  {state.collisionDataStatus.vmap === 'loading' ? 'Loading VMap...' : 'Load VMap'}
+                  {state.collisionDataStatus.vmap === 'loading' ? 'Loading VMap...' : 'Upload VMap'}
                 </Button>
                 {state.collisionDataStatus.vmap === 'loaded' && (
                   <CheckCircle className="w-4 h-4 text-green-400" />
@@ -446,6 +484,14 @@ export default function WorldEditorPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Auto-load status indicator */}
+                {autoLoadResult.status.mmap === 'checking' && (
+                  <span className="text-xs text-blue-400">Checking...</span>
+                )}
+                {autoLoadResult.status.mmap === 'unavailable' && (
+                  <span className="text-xs text-slate-500">Not configured</span>
+                )}
+
                 <input
                   type="file"
                   accept=".mmap,.mmtile"
@@ -461,7 +507,7 @@ export default function WorldEditorPage() {
                   disabled={state.collisionDataStatus.mmap === 'loading'}
                 >
                   <Upload className="w-3 h-3 mr-2" />
-                  {state.collisionDataStatus.mmap === 'loading' ? 'Loading MMap...' : 'Load MMap'}
+                  {state.collisionDataStatus.mmap === 'loading' ? 'Loading MMap...' : 'Upload MMap'}
                 </Button>
                 {state.collisionDataStatus.mmap === 'loaded' && (
                   <CheckCircle className="w-4 h-4 text-green-400" />
@@ -470,6 +516,16 @@ export default function WorldEditorPage() {
                   <AlertCircle className="w-4 h-4 text-red-400" />
                 )}
               </div>
+
+              {/* Reload button for auto-load */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={autoLoadResult.reload}
+                title="Reload collision data from configured paths"
+              >
+                <RefreshCw className="w-3 h-3" />
+              </Button>
             </div>
 
             {/* Status Message */}

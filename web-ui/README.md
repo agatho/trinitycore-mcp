@@ -268,6 +268,12 @@ TRINITY_ROOT=C:\\TrinityBots\\TrinityCore
 DBC_PATH=C:\\TrinityBots\\Server\\data\\dbc
 DB2_PATH=C:\\TrinityBots\\Server\\data\\db2
 
+# Collision Data Auto-Load (Optional)
+# Enable automatic VMap/MMap loading from filesystem for height detection
+# If not set, users can still manually upload files via the UI
+VMAP_DATA_PATH=C:\\TrinityBots\\Server\\data\\vmaps
+MMAP_DATA_PATH=C:\\TrinityBots\\Server\\data\\mmaps
+
 # Next.js
 NEXT_PUBLIC_APP_NAME=TrinityCore API Explorer
 NEXT_PUBLIC_APP_URL=http://localhost:3000
