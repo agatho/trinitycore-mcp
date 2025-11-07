@@ -593,6 +593,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     toast.success('Layout applied');
   }, [convertFromReactFlow, convertToReactFlow]);
 
+
   // Export SQL
   const handleExportSQL = useCallback(() => {
     const currentScript = convertFromReactFlow();
@@ -676,13 +677,157 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
   }, [script.entryOrGuid, convertToReactFlow]);
 
   // Save
-  const handleSave = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    if (onSave) {
-      onSave(currentScript);
-      toast.success('Script saved');
+  // Context menu handlers
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'node',
+      target: node,
+    });
+  }, []);
+
+  const onEdgeContextMenu = useCallback((event: React.MouseEvent, edge: Edge) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'edge',
+      target: edge,
+    });
+  }, []);
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'canvas',
+    });
+  }, []);
+
+  // Get context menu items based on type
+  const getContextMenuItems = useCallback((): ContextMenuItem[] => {
+    if (!contextMenu) return [];
+
+    switch (contextMenu.type) {
+      case 'node':
+        return [
+          {
+            label: 'Edit Properties',
+            icon: <Edit className="w-4 h-4" />,
+            onClick: () => setSelectedNode(contextMenu.target.data),
+            shortcut: 'Enter',
+          },
+          {
+            label: 'Duplicate',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => handleDuplicateNode(contextMenu.target.id),
+            shortcut: 'Ctrl+D',
+          },
+          { separator: true, label: "", onClick: () => {} },
+          {
+            label: 'Copy',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and copy
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCopy, 50);
+            },
+            shortcut: 'Ctrl+C',
+          },
+          {
+            label: 'Cut',
+            icon: <Scissors className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and cut
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCut, 50);
+            },
+            shortcut: 'Ctrl+X',
+          },
+          { separator: true, label: "", onClick: () => {} },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-4 h-4" />,
+            onClick: () => handleDeleteNode(contextMenu.target.id),
+            shortcut: 'Delete',
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'edge':
+        return [
+          {
+            label: 'Delete Connection',
+            icon: <Unlink className="w-4 h-4" />,
+            onClick: () => handleDeleteEdge(contextMenu.target.id),
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'canvas':
+        return [
+          {
+            label: 'Add Event',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddEvent,
+          },
+          {
+            label: 'Add Action',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddAction,
+          },
+          {
+            label: 'Add Target',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddTarget,
+          },
+          { separator: true, label: "", onClick: () => {} },
+          {
+            label: 'Paste',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: handlePaste,
+            disabled: !clipboard,
+            shortcut: 'Ctrl+V',
+          },
+          { separator: true, label: "", onClick: () => {} },
+          {
+            label: 'Select All',
+            onClick: () => {
+              setNodes((nds) => nds.map(n => ({ ...n, selected: true })));
+              setEdges((eds) => eds.map(e => ({ ...e, selected: true })));
+            },
+            shortcut: 'Ctrl+A',
+          },
+          {
+            label: 'Auto Layout',
+            icon: <Layers className="w-4 h-4" />,
+            onClick: handleAutoLayout,
+            shortcut: 'Ctrl+L',
+          },
+        ];
+
+      default:
+        return [];
     }
-  }, [convertFromReactFlow, onSave]);
+  }, [
+    contextMenu,
+    handleCopy,
+    handleCut,
+    handlePaste,
+    handleAutoLayout,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleDuplicateNode,
+    handleAddEvent,
+    handleAddAction,
+    handleAddTarget,
+    clipboard,
+    setNodes,
+    setEdges,
+  ]);
 
   // Context menu handlers
   const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
