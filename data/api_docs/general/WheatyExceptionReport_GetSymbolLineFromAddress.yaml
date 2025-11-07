@@ -1,0 +1,66 @@
+api:
+  class: WheatyExceptionReport
+  method: GetSymbolLineFromAddress
+  signature: BOOL WheatyExceptionReport::GetSymbolLineFromAddress(HANDLE hProcess,
+    DWORD64 qwAddr, ULONG InlineContext, PDWORD pdwDisplacement, PIMAGEHLP_LINE64
+    Line64)
+documentation:
+  brief: Retrieves line number and file information for a given address using debug
+    symbols.
+  description: The GetSymbolLineFromAddress method resolves a memory address to its
+    corresponding source code line and file information within the context of a process.
+    It utilizes the Windows Debug Help API to perform symbol resolution, which is
+    essential for generating detailed crash reports or stack traces in debugging scenarios.
+    This functionality is particularly useful when analyzing exceptions or crashes
+    in TrinityCore server environments where developers need to pinpoint the exact
+    location of errors in the source code. The method requires a valid process handle
+    and address, and it can optionally account for inline context during symbol resolution.
+  parameters:
+  - name: hProcess
+    description: Handle to the process for which symbol information is being retrieved.
+      This must be a valid process handle obtained through functions like OpenProcess.
+  - name: qwAddr
+    description: The 64-bit address within the process for which line number and file
+      information are requested. This typically represents an instruction pointer
+      or memory location from a crash dump or stack trace.
+  - name: InlineContext
+    description: Specifies the inline context for symbol resolution. This parameter
+      is used when resolving symbols in inline functions, allowing for more precise
+      debugging information. A value of 0 usually means no inline context.
+  - name: pdwDisplacement
+    description: Pointer to a variable that receives the displacement from the symbol's
+      base address. If NULL, this value is not returned.
+  - name: Line64
+    description: Pointer to an IMAGEHLP_LINE64 structure that will be filled with
+      line number and file information for the specified address.
+  returns: TRUE if the symbol line information was successfully retrieved, FALSE otherwise.
+    If the function fails, use GetLastError() to obtain extended error information.
+  examples:
+  - title: Basic usage of GetSymbolLineFromAddress
+    code: "#include <windows.h>\n#include <dbghelp.h>\n\nBOOL ResolveAddressToLine(HANDLE\
+      \ hProcess, DWORD64 address)\n{\n    IMAGEHLP_LINE64 line;\n    line.SizeOfStruct\
+      \ = sizeof(IMAGEHLP_LINE64);\n    DWORD displacement = 0;\n    \n    if (GetSymbolLineFromAddress(hProcess,\
+      \ address, 0, &displacement, &line))\n    {\n        printf(\"File: %s, Line:\
+      \ %lu\\n\", line.FileName, line.LineNumber);\n        return TRUE;\n    }\n\
+      \    else\n    {\n        printf(\"Failed to resolve address. Error: %lu\\n\"\
+      , GetLastError());\n        return FALSE;\n    }\n}"
+    language: cpp
+  notes: This method relies on debug symbols being available for the process. Without
+    proper symbol files (.pdb), resolution may fail even if the address is valid.
+    The IMAGEHLP_LINE64 structure must be initialized with its SizeOfStruct member
+    set to sizeof(IMAGEHLP_LINE64) before calling this function.
+  warnings: Ensure that the process handle passed in hProcess has sufficient privileges
+    to access debug information. Also, note that inline context resolution can be
+    complex and may require additional setup or specific symbol handling depending
+    on how the code was compiled.
+  related:
+  - SymInitialize
+  - SymFromAddr
+  - StackWalk64
+  - MiniDumpWriteDump
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T08:42:38.245008'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: WheatyExceptionReport
+  method: _GetWindowsVersionFromWMI
+  signature: BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR * szVersion,
+    DWORD cntMax)
+documentation:
+  brief: Retrieves the Windows version information using WMI and stores it in the
+    provided buffer.
+  description: The _GetWindowsVersionFromWMI method attempts to fetch detailed Windows
+    operating system version information by querying the Windows Management Instrumentation
+    (WMI) interface. It populates the supplied character buffer with the version string,
+    which typically includes OS name, service pack, and build number. This functionality
+    is often used for diagnostic logging or compatibility checks within TrinityCore's
+    crash reporting or system monitoring features. The method requires appropriate
+    permissions to access WMI and may fail if the WMI service is unavailable or restricted.
+    It is designed to be called during application initialization or error handling
+    routines where OS details are needed for debugging purposes.
+  parameters:
+  - name: szVersion
+    description: Pointer to a character buffer that will receive the Windows version
+      string. The buffer must be large enough to hold the full version information,
+      typically up to 256 characters.
+  - name: cntMax
+    description: Maximum number of characters that can be written to the szVersion
+      buffer, including the null terminator. This parameter ensures buffer overflow
+      protection.
+  returns: Returns TRUE if the Windows version information was successfully retrieved
+    and stored in the buffer; otherwise, returns FALSE if the operation failed due
+    to WMI access issues, insufficient buffer size, or other system errors.
+  examples:
+  - title: Basic usage of _GetWindowsVersionFromWMI
+    code: "#include <windows.h>\n\nTCHAR versionBuffer[256];\nWheatyExceptionReport\
+      \ reporter;\n\nif (reporter._GetWindowsVersionFromWMI(versionBuffer, 256)) {\n\
+      \    printf(\"Windows Version: %s\\n\", versionBuffer);\n} else {\n    printf(\"\
+      Failed to retrieve Windows version.\\n\");\n}"
+    language: cpp
+  notes: This method relies on the Windows Management Instrumentation (WMI) service,
+    which must be running and accessible for successful execution. The implementation
+    may involve COM initialization and cleanup, so it should not be called from threads
+    that do not support COM. Additionally, this function is typically used in crash
+    reporting or diagnostic modules where accurate OS identification is crucial.
+  warnings: Do not call this method from high-frequency code paths as WMI queries
+    can introduce performance overhead. Also, ensure that the szVersion buffer is
+    sufficiently large to avoid truncation of version information. Failure to properly
+    initialize COM before calling this function may result in undefined behavior or
+    access violations.
+  related:
+  - _GetSystemInfo
+  - _WriteMiniDump
+  - _GenerateExceptionReport
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T08:40:55.137370'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

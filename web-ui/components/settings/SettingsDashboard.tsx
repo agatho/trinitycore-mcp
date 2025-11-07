@@ -969,6 +969,39 @@ export default function SettingsDashboard() {
         >
           Reset to Defaults
         </button>
+
+        <button
+          onClick={resetConfig}
+          disabled={saving}
+          className="px-6 py-3 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400"
+          title="Reset all settings to default values"
+        >
+          Reset to Defaults
+        </button>
+      </div>
+
+      {/* Help Section */}
+      <div className="mt-6 p-4 bg-gray-100 border border-gray-300 rounded">
+        <h3 className="font-bold text-gray-800 mb-2">Configuration Help</h3>
+        <div className="text-sm text-gray-700 space-y-2">
+          <p>
+            <strong>Save (Memory Only):</strong> Saves changes temporarily. Changes will be lost when the server restarts.
+          </p>
+          <p>
+            <strong>Save & Persist:</strong> Saves changes to <code className="px-1 bg-gray-200 rounded">web-ui/.env.local</code> file.
+            Changes are permanent but require a server restart to take full effect.
+          </p>
+          <p>
+            <strong>Reload from .env.local:</strong> Discards current changes and reloads configuration from the .env.local file.
+          </p>
+          <p>
+            <strong>Reset to Defaults:</strong> Resets all settings to their default values (does not modify .env.local).
+          </p>
+          <p className="mt-3 pt-3 border-t border-gray-300">
+            <strong>Note:</strong> The .env.local file should be located at <code className="px-1 bg-gray-200 rounded">web-ui/.env.local</code>.
+            You can copy <code className="px-1 bg-gray-200 rounded">web-ui/.env.template</code> to create it.
+          </p>
+        </div>
       </div>
 
       {/* Help Section */}

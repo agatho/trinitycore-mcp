@@ -1,0 +1,58 @@
+api:
+  class: VehicleJoinEvent
+  method: Execute
+  signature: bool VehicleJoinEvent::Execute(uint64 param0, uint32 param1)
+documentation:
+  brief: Executes the vehicle join event logic for a player entering a vehicle
+  description: The VehicleJoinEvent::Execute method handles the core functionality
+    when a player attempts to board a vehicle in World of Warcraft. This method validates
+    the player's ability to enter the vehicle, manages the transition process, and
+    updates relevant game state including passenger assignments, vehicle status flags,
+    and player movement constraints. The method ensures proper synchronization between
+    client and server states during vehicle entry, handling edge cases such as invalid
+    vehicle entries or conflicting passenger slots. It returns true if the join operation
+    was successful and false if it failed due to validation errors or system constraints.
+  parameters:
+  - name: param0
+    description: The GUID of the player attempting to join the vehicle
+  - name: param1
+    description: The seat index within the vehicle where the player will be seated
+      (0-7)
+  returns: Returns true if the player successfully joined the vehicle, false otherwise.
+    Failure conditions include invalid GUID, invalid seat index, vehicle already full,
+    or player not in range of the vehicle.
+  examples:
+  - title: Basic Vehicle Join
+    code: "VehicleJoinEvent event;\nuint64 playerGuid = 123456789ULL;\nuint32 seatIndex\
+      \ = 0;\nbool success = event.Execute(playerGuid, seatIndex);\nif (success)\n\
+      \    printf(\"Player successfully joined the vehicle\\n\");\nelse\n    printf(\"\
+      Failed to join vehicle\\n\");"
+    language: cpp
+  - title: Vehicle Join with Error Handling
+    code: "VehicleJoinEvent event;\nuint64 playerGuid = 123456789ULL;\nuint32 seatIndex\
+      \ = 3;\n\nif (event.Execute(playerGuid, seatIndex)) {\n    // Vehicle join successful\n\
+      \    Player* player = ObjectAccessor::FindPlayer(playerGuid);\n    if (player)\
+      \ {\n        player->SetInVehicle(true);\n        player->SetVehicleSeat(seatIndex);\n\
+      \    }\n} else {\n    // Handle failed vehicle join\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Unable to board vehicle.\");\n}"
+    language: cpp
+  notes: This method is typically called from the Vehicle::AddPassenger() function
+    and should only be invoked when a player is attempting to enter a vehicle. The
+    method performs validation checks including range, vehicle status, and passenger
+    slot availability. It's important to note that this method does not directly send
+    packets to clients; it primarily handles internal state management.
+  warnings: Do not call this method directly without proper pre-validation of the
+    player and vehicle states. Calling with invalid GUID or seat index values may
+    cause undefined behavior or crashes. This method assumes the vehicle object is
+    valid and properly initialized before execution.
+  related:
+  - Vehicle::AddPassenger
+  - Vehicle::RemovePassenger
+  - Player::SetInVehicle
+  - Player::SetVehicleSeat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:10:21.398038'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

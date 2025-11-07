@@ -69,12 +69,13 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo | null> {
       QuestLevel as level,
       MinLevel as minLevel,
       QuestType as type,
-      PrevQuestID as prevQuest,
-      NextQuestID as nextQuest,
-      ExclusiveGroup as exclusiveGroup,
-      BreadcrumbForQuestId as breadcrumbQuest
-     FROM quest_template
-     WHERE ID = ?`,
+      qta.PrevQuestID as prevQuest,
+      qta.NextQuestID as nextQuest,
+      COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup,
+      qta.BreadcrumbForQuestId as breadcrumbQuest
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE qt.ID = ?`,
     [questId]
   );
 
@@ -380,9 +381,10 @@ export function generateMermaidDiagram(
 export async function findQuestChainsByZone(zoneId: number): Promise<number[]> {
   const rows = await queryWorld(
     `SELECT DISTINCT ID
-     FROM quest_template
-     WHERE (QuestSortID = ? OR ZoneOrSort = ?)
-       AND PrevQuestID = 0
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE (qt.QuestSortID = ? OR qt.ZoneOrSort = ?)
+       AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
      ORDER BY QuestLevel, ID`,
     [zoneId, zoneId]
   );
@@ -399,9 +401,10 @@ export async function findQuestChainsByLevel(
 ): Promise<number[]> {
   const rows = await queryWorld(
     `SELECT DISTINCT ID
-     FROM quest_template
-     WHERE QuestLevel BETWEEN ? AND ?
-       AND PrevQuestID = 0
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE qta.MaxLevel BETWEEN ? AND ?
+       AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
      ORDER BY QuestLevel, ID`,
     [minLevel, maxLevel]
   );

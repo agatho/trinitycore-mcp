@@ -1,0 +1,48 @@
+api:
+  class: PriestAI
+  method: GetBestHealTarget
+  signature: int * PriestAI::GetBestHealTarget()
+documentation:
+  brief: Determines and returns the most suitable target for healing based on priority
+    rules and current combat state.
+  description: The GetBestHealTarget method evaluates all available friendly targets
+    within the PriestAI's awareness to determine which one should be prioritized for
+    healing. It considers factors such as health percentage, proximity, threat level,
+    and whether the target is currently casting or under attack. This method is typically
+    used by the AI to make tactical decisions about where to direct healing spells
+    during combat. The returned value represents a unique identifier (GUID) of the
+    selected target, or nullptr if no suitable target exists. The implementation ensures
+    that critically injured allies are prioritized over those with higher health,
+    and that targets not currently in danger are considered only as backups.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the most appropriate healing
+    target. Returns nullptr if no valid target is found within the AI's scope.
+  examples:
+  - title: Basic usage in a healing routine
+    code: "void PriestAI::DoHealing()\n{\n    int* targetGuid = GetBestHealTarget();\n\
+      \    if (targetGuid != nullptr)\n    {\n        // Cast healing spell on the\
+      \ returned target\n        DoCast(*targetGuid, SPELL_FLASH_HEAL);\n    }\n}"
+    language: cpp
+  - title: Using target in conditional logic
+    code: "int* bestTarget = GetBestHealTarget();\nif (bestTarget != nullptr && *bestTarget\
+      \ != 0)\n{\n    Unit* target = ObjectAccessor::GetUnit(*me, *bestTarget);\n\
+      \    if (target && target->IsInWorld() && target->IsAlive())\n    {\n      \
+      \  // Proceed with healing logic\n        HealTarget(target);\n    }\n}"
+    language: cpp
+  notes: This method operates within the context of the AI's current threat and awareness
+    range. The selection process may be influenced by the priest's current mana levels,
+    spell priorities, and whether they are in combat mode. It is designed to be efficient
+    and should not introduce significant performance overhead during gameplay.
+  warnings: Ensure that the returned GUID is validated before use, as it may point
+    to a unit that has been destroyed or removed from the world. Always check for
+    null returns to prevent dereferencing invalid pointers.
+  related:
+  - GetHealTarget
+  - SelectNextHealTarget
+  - IsHealingTargetValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T11:14:09.358368'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

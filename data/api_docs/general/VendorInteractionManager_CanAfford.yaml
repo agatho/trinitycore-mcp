@@ -1,0 +1,58 @@
+api:
+  class: VendorInteractionManager
+  method: CanAfford
+  signature: bool VendorInteractionManager::CanAfford(uint64 goldCost, uint32 extendedCostId)
+    const
+documentation:
+  brief: Determines whether the player has sufficient gold and extended cost items
+    to afford a vendor transaction
+  description: The CanAfford method evaluates if the current player character possesses
+    enough currency to complete a purchase from a vendor. It checks both the standard
+    gold amount and any additional requirements specified by an extended cost ID,
+    such as reputation tokens or other items required for the transaction. This method
+    is typically used before allowing a vendor interaction to proceed, ensuring that
+    the player's inventory meets all necessary conditions for the trade. The method
+    considers the player's current gold balance and any applicable extended cost requirements,
+    returning true if the purchase can be completed and false otherwise.
+  parameters:
+  - name: goldCost
+    description: The amount of gold required for the transaction in copper coins (100
+      copper = 1 silver = 10000 copper)
+  - name: extendedCostId
+    description: Identifier for additional cost requirements such as reputation items,
+      tokens, or other non-gold currencies
+  returns: Returns true if the player has sufficient gold and meets all extended cost
+    requirements; otherwise returns false
+  examples:
+  - title: Check if player can afford a vendor item
+    code: "if (vendorManager->CanAfford(50000, 0)) {\n    // Player has 50 gold and\
+      \ can afford the item\n    vendorManager->ProcessPurchase(itemId);\n} else {\n\
+      \    // Insufficient funds\n    player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY,\
+      \ vendorGuid, itemId, 0);\n}"
+    language: cpp
+  - title: Check purchase with extended cost requirements
+    code: "uint32 reputationTokenId = 12345;\nuint32 requiredAmount = 10;\nif (vendorManager->CanAfford(100000,\
+      \ 6789)) {\n    // Player has sufficient gold and required reputation tokens\n\
+      \    vendorManager->ProcessPurchase(itemId);\n} else {\n    // Either insufficient\
+      \ gold or missing extended cost items\n    player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY,\
+      \ vendorGuid, itemId, 0);\n}"
+    language: cpp
+  notes: This method internally checks the player's gold balance and any associated
+    extended cost requirements from the game's database. It does not modify the player's
+    inventory or gold amount; it only performs a read-only check. The method assumes
+    that the VendorInteractionManager instance is properly initialized with the current
+    player context.
+  warnings: The method may return false even if the player has sufficient gold if
+    extended cost requirements are not met. Ensure that all required items or reputation
+    values are correctly configured in the database for accurate results. This method
+    should be called before any purchase processing to prevent invalid transactions.
+  related:
+  - ProcessPurchase
+  - GetPlayerGold
+  - HasRequiredItems
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T09:04:28.733791'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: QuestPickup
+  method: CanGroupMemberAcceptQuest
+  signature: bool QuestPickup::CanGroupMemberAcceptQuest(Player * member, uint32 questId)
+documentation:
+  brief: Determines whether a group member can accept a specified quest.
+  description: The CanGroupMemberAcceptQuest method evaluates if a given player member
+    of a group is eligible to accept a specific quest. It checks various conditions
+    such as quest availability, level requirements, previous quest completion status,
+    and whether the player is already on the quest. This method is typically used
+    during group quest sharing or when a player attempts to accept a quest that another
+    group member has started. The evaluation considers both individual player state
+    and group-specific restrictions.
+  parameters:
+  - name: member
+    description: Pointer to the Player object representing the group member being
+      evaluated for quest acceptance.
+  - name: questId
+    description: The unique identifier of the quest to be checked for acceptance eligibility
+      by the group member.
+  returns: Returns true if the group member can accept the specified quest, false
+    otherwise. This indicates whether all prerequisites and conditions are met for
+    the player to take on the quest.
+  examples:
+  - title: Check if a group member can accept a quest
+    code: "if (questPickup->CanGroupMemberAcceptQuest(playerMember, 12345)) {\n  \
+      \  // Player can accept the quest\n    playerMember->AddQuest(12345);\n} else\
+      \ {\n    // Player cannot accept the quest\n    playerMember->SendNotification(\"\
+      You are not eligible to accept this quest.\");\n}"
+    language: cpp
+  - title: Use in group quest sharing logic
+    code: "Group* group = player->GetGroup();\nif (group) {\n    for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n         itr != group->GetMemberSlots().end();\
+      \ ++itr)\n    {\n        Player* member = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \        if (member && !member->HasQuest(12345) && questPickup->CanGroupMemberAcceptQuest(member,\
+      \ 12345))\n        {\n            // Share quest with eligible group members\n\
+      \            member->AddQuest(12345);\n        }\n    }\n}"
+    language: cpp
+  notes: This method performs multiple checks including level requirements, quest
+    prerequisites, and player state. It's commonly used in group quest sharing systems
+    where players need to be validated before receiving quests. The method does not
+    modify the player's quest state directly but only evaluates eligibility.
+  warnings: Ensure that the Player pointer is valid and not null before calling this
+    method. Also, be aware that this method may perform database queries internally
+    for checking quest states and prerequisites, so it should not be called excessively
+    in performance-critical sections of code.
+  related:
+  - CanPlayerAcceptQuest
+  - CanGroupMemberCompleteQuest
+  - Player::HasQuest
+  - Player::AddQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T10:28:31.848636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

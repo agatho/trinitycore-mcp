@@ -162,7 +162,7 @@ export async function optimizeQuestRoute(
       qt.ID as questId,
       qt.QuestDescription as questName,
       qt.MinLevel as minLevel,
-      qt.QuestLevel as level,
+      qta.MaxLevel as level,
       qt.RewardXP as xpReward,
       qt.RewardMoney as goldReward,
       qt.RequiredRaces,
@@ -171,8 +171,8 @@ export async function optimizeQuestRoute(
     LEFT JOIN quest_poi qp ON qt.ID = qp.QuestID
     WHERE qp.MapID = ?
       AND qt.MinLevel <= ?
-      AND qt.QuestLevel >= ?
-    ORDER BY qt.QuestLevel, qt.MinLevel
+      AND qta.MaxLevel >= ?
+    ORDER BY qta.MaxLevel, qt.MinLevel
     LIMIT ?
   `;
 

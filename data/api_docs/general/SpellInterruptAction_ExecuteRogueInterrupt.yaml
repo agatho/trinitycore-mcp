@@ -1,0 +1,66 @@
+api:
+  class: SpellInterruptAction
+  method: ExecuteRogueInterrupt
+  signature: ActionResult SpellInterruptAction::ExecuteRogueInterrupt(BotAI * ai,
+    ::Unit * target, uint32 spellId)
+documentation:
+  brief: Executes a rogue interrupt action on the specified target using the given
+    spell ID.
+  description: The ExecuteRogueInterrupt method is responsible for performing an interrupt
+    action specific to rogue class abilities within the TrinityCore AI framework.
+    This function takes a BotAI instance, a target Unit, and a spell ID as inputs
+    to determine and execute the appropriate rogue interrupt behavior. It evaluates
+    whether the interrupt can be successfully applied based on various game mechanics
+    such as spell casting state, line of sight, and cooldowns. The method integrates
+    with the broader AI system to ensure proper execution of rogue abilities in combat
+    scenarios.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance managing the rogue bot's behavior and
+      decision-making process.
+  - name: target
+    description: Pointer to the Unit object representing the target of the interrupt
+      action, typically an enemy unit.
+  - name: spellId
+    description: The unique identifier of the spell to be used for the interrupt action,
+      corresponding to a specific rogue ability such as Kick or Cheap Shot.
+  returns: Returns an ActionResult enum value indicating whether the interrupt was
+    successfully executed, failed due to conditions, or is currently on cooldown.
+    Possible values include SUCCESS, FAILED, or COOLDOWN depending on the outcome
+    of the interrupt attempt.
+  examples:
+  - title: Basic Rogue Interrupt Execution
+    code: "ActionResult result = interruptAction.ExecuteRogueInterrupt(ai, target,\
+      \ 1766); // Execute Kick ability\nif (result == SUCCESS) {\n    ai->GetBot()->GetAI()->SetNextSpell(SPELL_KICK);\n\
+      }"
+    language: cpp
+  - title: Interrupt with Error Handling
+    code: "ActionResult result = interruptAction.ExecuteRogueInterrupt(ai, target,\
+      \ 1833); // Execute Cheap Shot\nswitch (result) {\n    case SUCCESS:\n     \
+      \   // Interrupt successful, proceed with follow-up actions\n        break;\n\
+      \    case FAILED:\n        // Interrupt failed due to invalid conditions\n \
+      \       ai->GetBot()->Say(\"Cannot interrupt target.\");\n        break;\n \
+      \   case COOLDOWN:\n        // Interrupt is on cooldown, wait before retrying\n\
+      \        break;\n}"
+    language: cpp
+  notes: This method assumes that the provided BotAI instance and target are valid
+    and properly initialized. It relies heavily on the AI's internal state management
+    and spell availability checks. The implementation may involve multiple internal
+    validations including line of sight, target validity, and spell readiness. Performance
+    considerations include avoiding unnecessary spell checks when the interrupt is
+    not applicable.
+  warnings: Ensure that the spellId corresponds to a valid rogue interrupt ability;
+    invalid IDs may cause undefined behavior or failed execution. The method does
+    not perform automatic cooldown management, so calling code should handle retry
+    logic appropriately. Using this function without proper target validation can
+    lead to errors during execution.
+  related:
+  - ExecuteInterrupt
+  - IsInterruptible
+  - CanInterrupt
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:32:20.040518'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

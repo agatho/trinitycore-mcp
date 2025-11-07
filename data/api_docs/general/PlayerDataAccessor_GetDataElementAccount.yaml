@@ -1,0 +1,57 @@
+api:
+  class: PlayerDataAccessor
+  method: GetDataElementAccount
+  signature: std::variant<int64, float> PlayerDataAccessor::GetDataElementAccount(uint32
+    dataElementId) const
+documentation:
+  brief: Retrieves account-specific data element value as either int64 or float.
+  description: The GetDataElementAccount method fetches a specific account-level data
+    element identified by its ID and returns it as a std::variant containing either
+    an int64 or float value. This method is typically used to access player account
+    configuration settings, statistics, or other persistent data that is stored per-account
+    rather than per-character. The returned variant allows the caller to handle both
+    integer and floating-point data types without requiring type checking at compile
+    time. The method performs no direct database operations but relies on cached or
+    pre-loaded account data within the PlayerDataAccessor instance.
+  parameters: []
+  returns: A std::variant<int64, float> containing the requested account data element
+    value. If the data element is stored as an integer, the int64 alternative will
+    be active; if stored as a floating-point number, the float alternative will be
+    active. The method returns a default-constructed variant if the data element ID
+    is invalid or not found.
+  examples:
+  - title: Basic Usage
+    code: "PlayerDataAccessor accessor;\n// Assuming account data element ID 12345\
+      \ represents player's total login time\nauto result = accessor.GetDataElementAccount(12345);\n\
+      if (std::holds_alternative<int64>(result)) {\n    int64 loginTime = std::get<int64>(result);\n\
+      \    // Process integer value\n} else if (std::holds_alternative<float>(result))\
+      \ {\n    float loginTime = std::get<float>(result);\n    // Process floating-point\
+      \ value\n}"
+    language: cpp
+  - title: Accessing Account Configuration
+    code: "PlayerDataAccessor* playerData = GetPlayerData();\nuint32 accountId = 98765;\n\
+      // Retrieve account-specific setting like maximum character slots\nauto maxSlots\
+      \ = playerData->GetDataElementAccount(accountId);\nif (std::holds_alternative<int64>(maxSlots))\
+      \ {\n    int64 slotCount = std::get<int64>(maxSlots);\n    // Use the integer\
+      \ value to determine available slots\n}"
+    language: cpp
+  notes: This method assumes that account data elements are already loaded into memory
+    or cached within the PlayerDataAccessor instance. It does not perform any database
+    queries directly but may depend on pre-loaded data from a database or configuration
+    source. The method is designed to be efficient and thread-safe for read operations,
+    assuming proper synchronization of the underlying data structures.
+  warnings: Ensure that the dataElementId parameter corresponds to a valid account
+    data element ID; invalid IDs may return default-constructed variants which could
+    lead to unexpected behavior if not checked properly. Be cautious when using std::get()
+    without checking the variant type first, as it can cause runtime exceptions if
+    the wrong alternative is accessed.
+  related:
+  - SetDataElementAccount
+  - HasDataElementAccount
+  - GetDataElementCharacter
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T11:37:31.377135'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

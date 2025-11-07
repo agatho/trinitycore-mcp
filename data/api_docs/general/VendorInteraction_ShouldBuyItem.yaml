@@ -1,0 +1,65 @@
+api:
+  class: VendorInteraction
+  method: ShouldBuyItem
+  signature: bool VendorInteraction::ShouldBuyItem(Player * player, uint32 itemId,
+    const BuyingStrategy & strategy)
+documentation:
+  brief: Determines whether a player should purchase an item from a vendor based on
+    the provided buying strategy.
+  description: The ShouldBuyItem method evaluates if a given item should be purchased
+    by a player when interacting with a vendor. It takes into account the player's
+    current inventory, money, and the specified buying strategy to make this decision.
+    The method is typically used during vendor interactions to decide which items
+    to buy or skip. This functionality supports automated purchasing decisions in
+    NPC vendor interactions, allowing for dynamic behavior based on configurable strategies
+    such as item quality thresholds, price comparisons, or inventory space considerations.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player interacting
+      with the vendor. Must be a valid player instance.
+  - name: itemId
+    description: The unique identifier of the item being considered for purchase.
+      Must correspond to a valid item in the game database.
+  - name: strategy
+    description: Reference to a BuyingStrategy object that defines the rules and conditions
+      for purchasing items. Controls logic such as price thresholds, quality requirements,
+      and inventory management.
+  returns: Returns true if the item should be purchased according to the strategy;
+    otherwise returns false. A return value of true indicates that the vendor interaction
+    system will proceed with buying the item.
+  examples:
+  - title: Basic usage in vendor interaction
+    code: "Player* player = ...;\nuint32 itemId = 12345;\nBuyingStrategy strategy;\n\
+      strategy.minQuality = ITEM_QUALITY_RARE;\nstrategy.maxPrice = 100000; // 10g\n\
+      if (vendorInteraction.ShouldBuyItem(player, itemId, strategy)) {\n    // Proceed\
+      \ with buying the item\n}"
+    language: cpp
+  - title: Using ShouldBuyItem in automated purchasing logic
+    code: "void AutoPurchaseItems(Player* player, VendorInteraction& vendor) {\n \
+      \   for (uint32 itemId : GetAvailableVendorItems()) {\n        BuyingStrategy\
+      \ strategy;\n        strategy.minQuality = ITEM_QUALITY_UNCOMMON;\n        strategy.maxPrice\
+      \ = player->GetMoney() / 2; // Spend up to half of available money\n       \
+      \ if (vendor.ShouldBuyItem(player, itemId, strategy)) {\n            vendor.BuyItem(itemId);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method does not perform actual purchasing; it only evaluates whether
+    an item should be bought. The decision is based on the provided BuyingStrategy
+    and player state, but does not account for dynamic vendor stock changes or real-time
+    price fluctuations. It assumes that all necessary data about items and players
+    is already loaded and valid.
+  warnings: Ensure that the player pointer is valid before calling this method to
+    avoid undefined behavior. The strategy object must be properly initialized with
+    valid parameters; otherwise, the evaluation may produce unexpected results. This
+    method does not validate item IDs or check if items are actually available from
+    the vendor.
+  related:
+  - BuyItem
+  - SellItem
+  - GetVendorItems
+  - UpdateBuyingStrategy
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T09:05:36.738933'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
