@@ -1280,111 +1280,6 @@ export default function EnhancedMapPickerPage() {
                 </label>
               </div>
 
-              {/* Collision Data Upload */}
-              <div className="mb-4 p-3 bg-emerald-900/30 border border-emerald-700 rounded">
-                <div className="mb-2">
-                  <span className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
-                    <Layers className="w-4 h-4" />
-                    Collision Data
-                  </span>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Load VMap/MMap files for automatic Z coordinate detection
-                  </p>
-                </div>
-
-                {/* VMap Upload */}
-                <div className="mb-2">
-                  <input
-                    type="file"
-                    accept=".vmtree,.vmtile"
-                    onChange={handleVMapUpload}
-                    className="hidden"
-                    id="vmap-upload"
-                    multiple
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => document.getElementById('vmap-upload')?.click()}
-                    disabled={collisionDataStatus.vmap === 'loading'}
-                  >
-                    <Upload className="w-3 h-3 mr-2" />
-                    {collisionDataStatus.vmap === 'loading' ? 'Loading VMap...' : 'Load VMap'}
-                  </Button>
-                  {collisionDataStatus.vmap === 'loaded' && (
-                    <p className="text-xs text-green-400 mt-1 flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      VMap loaded
-                    </p>
-                  )}
-                  {collisionDataStatus.vmap === 'error' && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center">
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      VMap error
-                    </p>
-                  )}
-                </div>
-
-                {/* MMap Upload */}
-                <div className="mb-2">
-                  <input
-                    type="file"
-                    accept=".mmap,.mmtile"
-                    onChange={handleMMapUpload}
-                    className="hidden"
-                    id="mmap-upload"
-                    multiple
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => document.getElementById('mmap-upload')?.click()}
-                    disabled={collisionDataStatus.mmap === 'loading'}
-                  >
-                    <Upload className="w-3 h-3 mr-2" />
-                    {collisionDataStatus.mmap === 'loading' ? 'Loading MMap...' : 'Load MMap'}
-                  </Button>
-                  {collisionDataStatus.mmap === 'loaded' && (
-                    <p className="text-xs text-green-400 mt-1 flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      MMap loaded
-                    </p>
-                  )}
-                  {collisionDataStatus.mmap === 'error' && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center">
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      MMap error
-                    </p>
-                  )}
-                </div>
-
-                {/* Status Message */}
-                {collisionDataStatus.message && (
-                  <p className="text-xs text-slate-400 mt-2 p-2 bg-slate-800/50 rounded">
-                    {collisionDataStatus.message}
-                  </p>
-                )}
-
-                {/* Auto-detect Height Toggle */}
-                <div className="mt-3 pt-2 border-t border-emerald-800">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-slate-300">Auto-detect Height (Z)</Label>
-                    <Switch
-                      checked={autoDetectHeight}
-                      onCheckedChange={setAutoDetectHeight}
-                      disabled={!vmapData && !mmapData}
-                    />
-                  </div>
-                  {autoDetectHeight && (vmapData || mmapData) && (
-                    <p className="text-xs text-emerald-400 mt-1">
-                      Height will be auto-filled when placing spawns
-                    </p>
-                  )}
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <Button
                   variant={currentTool === 'select' ? 'default' : 'outline'}
@@ -1527,11 +1422,6 @@ export default function EnhancedMapPickerPage() {
                 </div>
                 <p className="text-xs text-slate-500 mt-2">
                   TrinityCore world coordinates
-                  {(vmapData || mmapData) && autoDetectHeight && (
-                    <span className="block text-emerald-400 mt-1">
-                      Height detection active
-                    </span>
-                  )}
                 </p>
               </div>
             )}
