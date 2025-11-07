@@ -134,10 +134,17 @@ export default function HomePage() {
       color: "text-emerald-400",
     },
     {
+      name: "Combat Log Analyzer",
+      icon: Activity,
+      description: "ML-based combat analysis with DPS charts & recommendations",
+      href: "/combat-log-analyzer",
+      color: "text-red-400",
+    },
+    {
       name: "Map Coordinate Picker",
       icon: Map,
-      description: "Visual map editor with HTML5 Canvas",
-      href: "/map-picker",
+      description: "Advanced map editor with undo/redo, pathfinding, measurements",
+      href: "/map-picker-enhanced",
       color: "text-sky-400",
     },
     {
