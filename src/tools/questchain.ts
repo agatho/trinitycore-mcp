@@ -559,13 +559,23 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
 
 /**
  * Get quest rewards with optimization suggestions
+ * TrinityCore 11.2 schema - uses quest_reward_choice_items and quest_template columns
  */
 export async function getQuestRewards(questId: number, classId?: number): Promise<QuestReward> {
   const query = `
     SELECT
       ID as questId, LogTitle as name,
       RewardXPDifficulty as rewardXPDifficulty, RewardMoney as rewardMoney,
-      RewardBonusMoney as rewardMoneyDifficulty
+      RewardBonusMoney as rewardMoneyDifficulty,
+      RewardItem1, RewardAmount1,
+      RewardItem2, RewardAmount2,
+      RewardItem3, RewardAmount3,
+      RewardItem4, RewardAmount4,
+      RewardFactionID1, RewardFactionValue1, RewardFactionOverride1,
+      RewardFactionID2, RewardFactionValue2, RewardFactionOverride2,
+      RewardFactionID3, RewardFactionValue3, RewardFactionOverride3,
+      RewardFactionID4, RewardFactionValue4, RewardFactionOverride4,
+      RewardFactionID5, RewardFactionValue5, RewardFactionOverride5
     FROM quest_template
     WHERE ID = ?
   `;
@@ -578,35 +588,35 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
 
   const quest = results[0];
 
-  // Get choice rewards
+  // TrinityCore 11.2: Get choice rewards from quest_reward_choice_items
   const choiceQuery = `
     SELECT
-      ItemID as itemId, ItemCount as quantity
-    FROM quest_template_reward_choice_items
+      ItemID as itemId, Quantity as quantity
+    FROM quest_reward_choice_items
     WHERE QuestID = ?
   `;
 
   const choiceRewards = await queryWorld(choiceQuery, [questId]);
 
-  // Get guaranteed rewards
-  const rewardQuery = `
-    SELECT
-      ItemID as itemId, ItemCount as quantity
-    FROM quest_template_reward
-    WHERE QuestID = ?
-  `;
+  // TrinityCore 11.2: Parse guaranteed rewards from quest_template columns
+  const rewards = [];
+  for (let i = 1; i <= 4; i++) {
+    const itemId = quest[`RewardItem${i}`];
+    const quantity = quest[`RewardAmount${i}`];
+    if (itemId && itemId > 0 && quantity && quantity > 0) {
+      rewards.push({ itemId, quantity });
+    }
+  }
 
-  const rewards = await queryWorld(rewardQuery, [questId]);
-
-  // Get reputation rewards
-  const repQuery = `
-    SELECT
-      FactionID as factionId, RewardAmount as reputationChange
-    FROM quest_template_reward_faction
-    WHERE QuestID = ?
-  `;
-
-  const reputationRewards = await queryWorld(repQuery, [questId]);
+  // TrinityCore 11.2: Parse reputation rewards from quest_template columns
+  const reputationRewards = [];
+  for (let i = 1; i <= 5; i++) {
+    const factionId = quest[`RewardFactionID${i}`];
+    const reputationChange = quest[`RewardFactionValue${i}`] || quest[`RewardFactionOverride${i}`];
+    if (factionId && factionId > 0 && reputationChange) {
+      reputationRewards.push({ factionId, reputationChange });
+    }
+  }
 
   // Determine best choice reward for class if class is provided
   let bestChoiceForClass: QuestReward["bestChoiceForClass"];
@@ -1117,22 +1127,18 @@ export async function findQuestHubs(zoneId: number, minQuestCount: number = 3): 
 
 /**
  * Analyze quest objectives and estimate difficulty
+ * TrinityCore 11.2 schema - uses quest_objectives table
  */
 export async function analyzeQuestObjectives(questId: number): Promise<QuestObjective[]> {
   const objectives: QuestObjective[] = [];
 
+  // TrinityCore 11.2: quest_objectives table with Type field
   const query = `
     SELECT
-      ID as questId, RequiredNpcOrGo1 as target1, RequiredNpcOrGo2 as target2,
-      RequiredNpcOrGo3 as target3, RequiredNpcOrGo4 as target4,
-      RequiredNpcOrGoCount1 as count1, RequiredNpcOrGoCount2 as count2,
-      RequiredNpcOrGoCount3 as count3, RequiredNpcOrGoCount4 as count4,
-      RequiredItemId1 as item1, RequiredItemId2 as item2,
-      RequiredItemId3 as item3, RequiredItemId4 as item4,
-      RequiredItemCount1 as itemCount1, RequiredItemCount2 as itemCount2,
-      RequiredItemCount3 as itemCount3, RequiredItemCount4 as itemCount4
-    FROM quest_template
-    WHERE ID = ?
+      ID, QuestID, Type, \`Order\`, StorageIndex, ObjectID, Amount, Description
+    FROM quest_objectives
+    WHERE QuestID = ?
+    ORDER BY \`Order\`
   `;
 
   const results = await queryWorld(query, [questId]);
@@ -1141,47 +1147,61 @@ export async function analyzeQuestObjectives(questId: number): Promise<QuestObje
     return objectives;
   }
 
-  const quest = results[0];
+  // TrinityCore 11.2 objective type mapping
+  const typeMap: Record<number, string> = {
+    0: "kill",        // QUEST_OBJECTIVE_MONSTER - Kill creatures
+    1: "collect",     // QUEST_OBJECTIVE_ITEM - Collect items
+    2: "interact",    // QUEST_OBJECTIVE_GAMEOBJECT - Interact with objects
+    3: "talk",        // QUEST_OBJECTIVE_TALKTO - Talk to NPC
+    4: "currency",    // QUEST_OBJECTIVE_CURRENCY - Collect currency
+    5: "learnSpell",  // QUEST_OBJECTIVE_LEARNSPELL - Learn a spell
+    6: "minReputation", // QUEST_OBJECTIVE_MIN_REPUTATION
+    7: "maxReputation", // QUEST_OBJECTIVE_MAX_REPUTATION
+    8: "money",       // QUEST_OBJECTIVE_MONEY
+    9: "playermove",  // QUEST_OBJECTIVE_PLAYERMOVE
+    10: "explore",    // QUEST_OBJECTIVE_AREATRIGGER - Explore area
+    14: "winPetBattle", // QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC
+    27: "defeatBattlePet", // QUEST_OBJECTIVE_DEFEATBATTLEPET
+    28: "criteria",   // QUEST_OBJECTIVE_CRITERIA_TREE
+    29: "progressBar", // QUEST_OBJECTIVE_PROGRESS_BAR
+    42: "haveCurrency", // QUEST_OBJECTIVE_HAVE_CURRENCY
+    43: "obtainCurrency", // QUEST_OBJECTIVE_OBTAIN_CURRENCY
+    44: "increaseCurrencyCapacity", // QUEST_OBJECTIVE_INCREASE_REPUTATION
+  };
 
-  // Process creature/object objectives
-  for (let i = 1; i <= 4; i++) {
-    const target = quest[`target${i}`];
-    const count = quest[`count${i}`];
+  for (const obj of results) {
+    const type = typeMap[obj.Type] || `unknown_type_${obj.Type}`;
+    const amount = obj.Amount || 1;
 
-    if (target && target !== 0 && count && count > 0) {
-      const isCreature = target > 0;
-
-      objectives.push({
-        questId,
-        objectiveIndex: i - 1,
-        type: isCreature ? "kill" : "interact",
-        description: `${isCreature ? 'Kill' : 'Interact with'} ${Math.abs(target)} (${count}x)`,
-        requiredAmount: count,
-        creatureId: isCreature ? target : undefined,
-        gameObjectId: !isCreature ? Math.abs(target) : undefined,
-        estimatedTime: count * 2, // Rough estimate
-        difficultyRating: count > 20 ? "hard" : count > 10 ? "medium" : "easy"
-      });
+    // Generate description based on type
+    let description = obj.Description;
+    if (!description || description.trim() === "") {
+      description = `Objective ${obj.Order + 1}`;
+      if (type === "kill" && obj.ObjectID > 0) {
+        description = `Kill creature ${obj.ObjectID} (${amount}x)`;
+      } else if (type === "collect" && obj.ObjectID > 0) {
+        description = `Collect item ${obj.ObjectID} (${amount}x)`;
+      } else if (type === "interact" && obj.ObjectID > 0) {
+        description = `Interact with object ${obj.ObjectID} (${amount}x)`;
+      } else if (type === "explore") {
+        description = `Explore area`;
+      } else if (type === "talk" && obj.ObjectID > 0) {
+        description = `Talk to NPC ${obj.ObjectID}`;
+      }
     }
-  }
 
-  // Process item objectives
-  for (let i = 1; i <= 4; i++) {
-    const itemId = quest[`item${i}`];
-    const itemCount = quest[`itemCount${i}`];
-
-    if (itemId && itemId !== 0 && itemCount && itemCount > 0) {
-      objectives.push({
-        questId,
-        objectiveIndex: i + 3, // After creature objectives
-        type: "collect",
-        description: `Collect item ${itemId} (${itemCount}x)`,
-        requiredAmount: itemCount,
-        itemId,
-        estimatedTime: itemCount * 3,
-        difficultyRating: itemCount > 15 ? "hard" : itemCount > 5 ? "medium" : "easy"
-      });
-    }
+    objectives.push({
+      questId,
+      objectiveIndex: obj.Order,
+      type,
+      description,
+      requiredAmount: amount,
+      creatureId: obj.Type === 0 ? obj.ObjectID : undefined,
+      gameObjectId: obj.Type === 2 ? obj.ObjectID : undefined,
+      itemId: obj.Type === 1 ? obj.ObjectID : undefined,
+      estimatedTime: amount * (type === "kill" ? 2 : type === "collect" ? 3 : 1),
+      difficultyRating: amount > 20 ? "hard" : amount > 10 ? "medium" : "easy"
+    });
   }
 
   return objectives;

@@ -1,0 +1,54 @@
+api:
+  class: ResourceCalculator
+  method: GetCacheMutex
+  signature: std::recursive_mutex & ResourceCalculator::GetCacheMutex()
+documentation:
+  brief: Returns a reference to the internal recursive mutex used for thread-safe
+    cache access in the ResourceCalculator.
+  description: The GetCacheMutex method provides external access to the internal std::recursive_mutex
+    that protects the ResourceCalculator's cache data structures. This mutex is essential
+    for ensuring thread safety when multiple threads attempt to read from or write
+    to the calculator's cached resource values. The returned reference allows callers
+    to acquire and release the lock as needed, enabling safe concurrent access to
+    shared resources. This method is typically used in scenarios where fine-grained
+    control over locking is required, such as during complex calculations or when
+    implementing custom cache management logic.
+  parameters: []
+  returns: A reference to the std::recursive_mutex that guards access to the ResourceCalculator's
+    internal cache. This mutex can be used to synchronize access to shared data structures
+    within the calculator.
+  examples:
+  - title: Basic Mutex Usage
+    code: 'ResourceCalculator calculator;
+
+      std::lock_guard<std::recursive_mutex> lock(calculator.GetCacheMutex());
+
+      // Critical section: safe access to cached resources
+
+      '
+    language: cpp
+  - title: Custom Cache Management
+    code: "class CustomResourceHandler {\npublic:\n    void UpdateCache(ResourceCalculator&\
+      \ calc) {\n        std::lock_guard<std::recursive_mutex> lock(calc.GetCacheMutex());\n\
+      \        // Perform cache update operations safely\n        // Access and modify\
+      \ cached values\n    }\n};"
+    language: cpp
+  notes: The returned mutex is a recursive mutex, which means it can be locked multiple
+    times by the same thread without causing a deadlock. This is particularly useful
+    in complex resource calculation scenarios where nested locking might occur. The
+    mutex should only be used for protecting access to the calculator's internal cache
+    and not for general-purpose synchronization.
+  warnings: Using this method incorrectly can lead to race conditions or deadlocks.
+    Always ensure proper lock acquisition and release patterns. Never hold the returned
+    mutex for extended periods as it may block other threads from accessing cached
+    resources. Be cautious when using recursive locking in complex call stacks.
+  related:
+  - ResourceCalculator::GetCacheSize
+  - ResourceCalculator::InvalidateCache
+  - ResourceCalculator::IsCacheValid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T10:21:03.623583'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,48 @@
+api:
+  class: UpdateData
+  method: HasData
+  signature: bool UpdateData::HasData() const
+documentation:
+  brief: Checks whether the UpdateData object contains any update packets to be sent
+    to clients
+  description: The HasData method determines if the UpdateData object currently holds
+    any pending updates that need to be transmitted to connected clients. This is
+    a crucial check in TrinityCore's update system, particularly when preparing data
+    for player movement, object updates, or world state changes. The method evaluates
+    the internal state of the UpdateData container and returns true if there are pending
+    updates, false otherwise. It is commonly used before serializing and sending update
+    packets to avoid unnecessary network traffic when no changes exist.
+  parameters: []
+  returns: Returns true if the UpdateData object contains pending update packets ready
+    for transmission; returns false if no updates are present or if the object is
+    empty.
+  examples:
+  - title: Basic usage in update handler
+    code: "void HandlePlayerUpdate(Player* player)\n{\n    UpdateData data;\n    //\
+      \ ... populate data with updates ...\n    if (data.HasData())\n    {\n     \
+      \   WorldPacket packet = data.BuildPacket();\n        player->SendDirectMessage(&packet);\n\
+      \    }\n}"
+    language: cpp
+  - title: Checking before sending world updates
+    code: "void SendWorldUpdate()\n{\n    UpdateData worldData;\n    // ... add world\
+      \ object updates ...\n    if (worldData.HasData())\n    {\n        // Only send\
+      \ packet if there are actual updates\n        WorldPacket packet = worldData.BuildPacket();\n\
+      \        sWorld->SendGlobalMessage(&packet);\n    }\n}"
+    language: cpp
+  notes: This method is performance-critical in high-traffic server environments as
+    it prevents sending empty update packets. The implementation likely checks internal
+    counters or flags rather than iterating through all data, making it a fast operation.
+    It's typically used in conjunction with BuildPacket() to conditionally send updates.
+  warnings: Do not rely on this method alone for determining if updates are needed
+    - always ensure proper update logic is implemented before calling HasData(). Using
+    HasData() incorrectly may lead to missed updates or unnecessary packet construction.
+  related:
+  - UpdateData::BuildPacket
+  - UpdateData::Clear
+  - UpdateData::AddUpdateBlock
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T09:11:33.223761'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

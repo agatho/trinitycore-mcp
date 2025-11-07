@@ -1,0 +1,61 @@
+api:
+  class: SpellInterruptAction
+  method: ExecuteDemonHunterInterrupt
+  signature: ActionResult SpellInterruptAction::ExecuteDemonHunterInterrupt(BotAI
+    * ai, ::Unit * target, uint32 spellId)
+documentation:
+  brief: Interrupts a target unit's spell casting if the bot is a Demon Hunter and
+    the spell can be interrupted.
+  description: The ExecuteDemonHunterInterrupt method checks whether the provided
+    BotAI instance represents a Demon Hunter character and attempts to interrupt the
+    specified target unit's current spell cast. It evaluates if the spell being cast
+    is interruptible and if the conditions for interruption are met, such as proximity
+    and spell type. This method is typically used in AI logic to control when a Demon
+    Hunter should use its interrupt ability during combat. The method returns an ActionResult
+    indicating success or failure of the interruption attempt.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance representing the Demon Hunter character
+      performing the interrupt action.
+  - name: target
+    description: Pointer to the Unit object that is currently casting a spell and
+      may be interrupted.
+  - name: spellId
+    description: The ID of the spell being cast by the target unit, used to determine
+      if it can be interrupted.
+  returns: An ActionResult enum value indicating whether the interrupt was successful
+    or failed. Possible values include SUCCESS, FAILED, or other status codes depending
+    on implementation.
+  examples:
+  - title: Basic Demon Hunter Interrupt Usage
+    code: "if (SpellInterruptAction::ExecuteDemonHunterInterrupt(ai, target, spellId)\
+      \ == ActionResult::SUCCESS)\n{\n    // Handle successful interrupt\n    ai->GetBot()->AddText(\"\
+      Interrupted enemy spell!\");\n}"
+    language: cpp
+  - title: Advanced Interrupt with Condition Check
+    code: "if (ai->GetBot()->GetClass() == CLASS_DEMON_HUNTER && target && target->IsCasting())\n\
+      {\n    uint32 currentSpellId = target->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->Id;\n\
+      \    ActionResult result = SpellInterruptAction::ExecuteDemonHunterInterrupt(ai,\
+      \ target, currentSpellId);\n    if (result == ActionResult::SUCCESS)\n    {\n\
+      \        ai->GetBot()->AddText(\"Successfully interrupted spell.\");\n    }\n\
+      }"
+    language: cpp
+  notes: This method assumes the AI is operating in a combat context where spell interruption
+    makes sense. It relies on the underlying TrinityCore spell system to determine
+    if a spell can be interrupted, and it respects the Demon Hunter's specific abilities
+    such as Disrupt or other interrupt mechanics. The method does not perform any
+    direct spell casting but rather acts as a control flow mechanism.
+  warnings: Ensure that the target unit is valid and actively casting a spell before
+    calling this method. Calling with an invalid or null target may lead to undefined
+    behavior or crashes in the AI system. Also, be aware that not all spells can be
+    interrupted; only those marked as interruptible will be processed.
+  related:
+  - SpellInterruptAction::ExecuteInterrupt
+  - BotAI::IsInterruptibleSpell
+  - Unit::IsCasting
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T09:37:25.638284'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

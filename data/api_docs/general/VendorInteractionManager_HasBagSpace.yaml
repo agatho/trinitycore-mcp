@@ -1,0 +1,55 @@
+api:
+  class: VendorInteractionManager
+  method: HasBagSpace
+  signature: bool VendorInteractionManager::HasBagSpace(uint32 itemId, uint32 quantity)
+    const
+documentation:
+  brief: Checks if the player has sufficient bag space to purchase the specified item
+    quantity
+  description: The HasBagSpace method determines whether a player has enough free
+    inventory space to buy a given quantity of a specific item from a vendor. This
+    method evaluates the player's current inventory state, including equipped items
+    and bag contents, to ensure that the requested purchase will not result in an
+    overflow or inability to store the items. It is commonly used during vendor transactions
+    to validate purchases before proceeding with the transaction logic. The method
+    considers all available inventory slots across the player's main backpack and
+    any equipped bags.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item to check space for
+  - name: quantity
+    description: The number of items to check space for
+  returns: Returns true if there is sufficient bag space for the specified item and
+    quantity, false otherwise
+  examples:
+  - title: Checking vendor purchase eligibility
+    code: "if (vendorManager.HasBagSpace(12345, 10)) {\n    // Proceed with vendor\
+      \ transaction\n    player->BuyItemFromVendor(itemId, quantity);\n} else {\n\
+      \    // Notify player of insufficient space\n    player->SendEquipError(EQUIP_ERR_INVENTORY_FULL);\n\
+      }"
+    language: cpp
+  - title: Bulk purchase validation
+    code: "uint32 itemsToBuy[] = {1001, 1002, 1003};\nuint32 quantities[] = {5, 3,\
+      \ 2};\nbool canAfford = true;\n\nfor (int i = 0; i < 3; ++i) {\n    if (!vendorManager.HasBagSpace(itemsToBuy[i],\
+      \ quantities[i])) {\n        canAfford = false;\n        break;\n    }\n}\n\n\
+      if (canAfford) {\n    // Process all purchases\n    for (int i = 0; i < 3; ++i)\
+      \ {\n        player->BuyItemFromVendor(itemsToBuy[i], quantities[i]);\n    }\n\
+      }"
+    language: cpp
+  notes: This method performs a complete inventory check including all bag slots and
+    the main backpack. It accounts for item stacking limits and considers both equipped
+    and unequipped bags when calculating available space. The method may be called
+    frequently during vendor interactions, so performance is optimized for quick evaluation.
+  warnings: The method does not account for temporary inventory changes that might
+    occur between the check and actual purchase. In multi-threaded environments, ensure
+    proper synchronization if inventory state can change concurrently.
+  related:
+  - BuyItemFromVendor
+  - CanAffordItem
+  - GetItemCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T08:59:24.599135'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

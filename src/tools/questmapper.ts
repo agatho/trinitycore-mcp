@@ -72,7 +72,7 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo | null> {
       qta.PrevQuestID as prevQuest,
       qta.NextQuestID as nextQuest,
       COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup,
-      qt.BreadcrumbForQuestId as breadcrumbQuest
+      qta.BreadcrumbForQuestId as breadcrumbQuest
      FROM quest_template qt
      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
      WHERE qt.ID = ?`,
@@ -403,7 +403,7 @@ export async function findQuestChainsByLevel(
     `SELECT DISTINCT ID
      FROM quest_template qt
      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
-     WHERE qt.QuestLevel BETWEEN ? AND ?
+     WHERE qta.MaxLevel BETWEEN ? AND ?
        AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
      ORDER BY QuestLevel, ID`,
     [minLevel, maxLevel]

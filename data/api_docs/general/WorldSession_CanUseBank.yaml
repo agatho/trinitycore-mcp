@@ -1,0 +1,56 @@
+api:
+  class: WorldSession
+  method: CanUseBank
+  signature: bool WorldSession::CanUseBank(int bankerGUID) const
+documentation:
+  brief: Checks whether the player can access a bank account associated with a specific
+    banker GUID.
+  description: The CanUseBank method determines if the current WorldSession's player
+    is allowed to interact with a bank account identified by the given banker GUID.
+    This check typically involves verifying that the player is within range of the
+    banker, that the banker is a valid bank NPC, and that the player meets any necessary
+    conditions such as being in the same zone or having completed required quests.
+    The method does not validate the actual banking functionality itself but rather
+    ensures the player has proper access rights to initiate banking operations.
+  parameters:
+  - name: bankerGUID
+    description: The GUID of the banker NPC (typically a bank vendor) that the player
+      is attempting to interact with. This value should represent a valid GameObject
+      or Creature entry in the game world.
+  returns: Returns true if the player can use the bank associated with the specified
+    banker GUID; otherwise returns false. A return of false may indicate issues such
+    as being out of range, the banker not being a valid bank NPC, or the player lacking
+    necessary permissions or quest requirements.
+  examples:
+  - title: Basic usage to check bank access
+    code: "if (session->CanUseBank(bankerGUID)) {\n    // Proceed with bank interaction\
+      \ logic\n    session->SendBankerList(bankerGUID);\n} else {\n    // Handle insufficient\
+      \ access\n    session->SendNotification(\"You cannot use this banker.\");\n}"
+    language: cpp
+  - title: Using in a command handler context
+    code: "void HandleBankCommand(WorldSession* session, const char* args) {\n   \
+      \ if (!args || !strlen(args)) {\n        session->SendNotification(\"Usage:\
+      \ .bank <banker_guid>\");\n        return;\n    }\n    uint32 guid = atoi(args);\n\
+      \    if (session->CanUseBank(guid)) {\n        session->SendBankerList(guid);\n\
+      \    } else {\n        session->SendNotification(\"Cannot access bank.\");\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is commonly used in conjunction with other banking-related functions
+    like SendBankerList() or HandleBankerHello(). It's important to note that this
+    check only validates access rights, not the actual state of the bank account (e.g.,
+    whether it's locked or disabled). The implementation likely checks for proximity,
+    NPC validity, and player state before returning a result.
+  warnings: Ensure that the bankerGUID passed to this method corresponds to an actual
+    valid bank NPC in the world. Passing invalid or non-existent GUIDs may lead to
+    undefined behavior or incorrect access control. Also, be aware that this function
+    does not perform any authentication checks beyond basic access validation.
+  related:
+  - SendBankerList
+  - HandleBankerHello
+  - CanUseItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T08:31:38.722242'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

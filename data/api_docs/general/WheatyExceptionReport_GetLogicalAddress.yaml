@@ -1,0 +1,62 @@
+api:
+  class: WheatyExceptionReport
+  method: GetLogicalAddress
+  signature: BOOL WheatyExceptionReport::GetLogicalAddress(PVOID addr, PTSTR szModule,
+    DWORD len, DWORD & section, DWORD_PTR & offset)
+documentation:
+  brief: Retrieves logical address information including module name, section, and
+    offset for a given memory address.
+  description: The GetLogicalAddress method resolves a physical memory address to
+    its corresponding logical representation within the running process. It fills
+    in the module name where the address resides, identifies the section within that
+    module, and calculates the relative offset from the section's base. This functionality
+    is typically used for debugging and crash reporting purposes, particularly in
+    environments like World of Warcraft where memory corruption or access violations
+    may occur. The method requires a valid memory address and appropriate buffer space
+    to store the resulting module name.
+  parameters:
+  - name: addr
+    description: Pointer to the memory address to resolve. This must be a valid virtual
+      address within the current process space.
+  - name: szModule
+    description: Buffer that receives the null-terminated module name string. Must
+      be large enough to hold the full path or name of the module.
+  - name: len
+    description: Size of the szModule buffer in characters. Should be at least MAX_PATH
+      to accommodate full paths.
+  - name: section
+    description: Reference to a DWORD that receives the section number or index within
+      the module where the address resides.
+  - name: offset
+    description: Reference to a DWORD_PTR that receives the relative offset from the
+      beginning of the section to the specified address.
+  returns: Returns TRUE if the logical address information was successfully retrieved;
+    otherwise, returns FALSE. A return value of FALSE typically indicates an invalid
+    address or failure to locate the module.
+  examples:
+  - title: Basic usage example
+    code: "PVOID addr = (PVOID)0x12345678;\nTCHAR moduleName[MAX_PATH];\nDWORD section;\n\
+      DWORD_PTR offset;\n\nif (report.GetLogicalAddress(addr, moduleName, MAX_PATH,\
+      \ section, offset)) {\n    printf(\"Module: %s, Section: %d, Offset: 0x%p\\\
+      n\", moduleName, section, offset);\n} else {\n    printf(\"Failed to resolve\
+      \ address\\n\");\n}"
+    language: cpp
+  notes: This method is primarily used in exception handling and crash reporting systems.
+    It relies on the Windows debugging APIs internally to map virtual addresses to
+    their logical representations. The section parameter may represent different types
+    of sections depending on how the PE file was structured, such as code, data, or
+    resource sections.
+  warnings: Ensure that the szModule buffer is sufficiently large to prevent buffer
+    overflows. Also, calling this method with invalid memory addresses can cause access
+    violations or undefined behavior. This function should only be called from within
+    a valid debugging context where memory addresses are known to be accessible.
+  related:
+  - GetExceptionInfo
+  - GenerateReport
+  - WriteMiniDump
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T08:43:54.751343'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

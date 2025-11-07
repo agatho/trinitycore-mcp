@@ -1,0 +1,53 @@
+api:
+  class: VendorInteractionManager
+  method: GetFreeBagSlots
+  signature: uint32 VendorInteractionManager::GetFreeBagSlots() const
+documentation:
+  brief: Calculates and returns the total number of free bag slots available for item
+    storage in the vendor interaction context.
+  description: The GetFreeBagSlots method determines how many empty inventory slots
+    are currently available within the player's bag inventory. This value is crucial
+    during vendor interactions, particularly when purchasing items that may require
+    new bag space or when checking if an item can be added to the inventory without
+    triggering a 'bag full' error. The method aggregates free slots from all accessible
+    bags, excluding the main backpack and any restricted containers. It does not account
+    for temporary inventory changes that might occur during the same transaction,
+    making it most useful for pre-checking inventory capacity before attempting item
+    transactions.
+  parameters: []
+  returns: Returns a uint32 value representing the total number of free bag slots
+    available in all accessible bags. A return value of zero indicates no free slots
+    are available, while any positive integer reflects the count of available empty
+    slots.
+  examples:
+  - title: Checking Inventory Space Before Purchase
+    code: "uint32 freeSlots = vendorManager.GetFreeBagSlots();\nif (freeSlots > 0)\n\
+      {\n    // Proceed with vendor purchase\n    vendorManager.BuyItem(itemId);\n\
+      }\nelse\n{\n    // Notify player of full inventory\n    player->SendNotification(\"\
+      Your inventory is full.\");\n}"
+    language: cpp
+  - title: Preventing Item Transaction Failures
+    code: "uint32 requiredSlots = CalculateRequiredBagSlots(item);\nuint32 availableSlots\
+      \ = vendorManager.GetFreeBagSlots();\n\nif (availableSlots >= requiredSlots)\n\
+      {\n    // Safe to proceed with transaction\n    vendorManager.SellItem(item);\n\
+      }\nelse\n{\n    // Handle insufficient space\n    SendVendorError(VENDOR_ERR_INVENTORY_FULL);\n\
+      }"
+    language: cpp
+  notes: This method only considers bags that are currently accessible to the player.
+    It excludes temporary or locked containers such as those in transit or restricted
+    by game mechanics. The returned value is static at the time of invocation and
+    does not reflect real-time changes during ongoing transactions.
+  warnings: The method returns a snapshot value and may become outdated quickly if
+    inventory changes occur between the time of calling this method and when the actual
+    transaction takes place. Developers should consider using this method for pre-checks
+    rather than as a guarantee during active transactions.
+  related:
+  - GetTotalBagSlots
+  - IsInventoryFull
+  - CanAffordItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:03:11.740938'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

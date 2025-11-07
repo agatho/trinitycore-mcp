@@ -1,0 +1,59 @@
+api:
+  class: SpellInterruptAction
+  method: ExecuteMageInterrupt
+  signature: ActionResult SpellInterruptAction::ExecuteMageInterrupt(BotAI * ai, ::Unit
+    * target, uint32 spellId)
+documentation:
+  brief: Interrupts a target unit's spell casting if the specified spell ID matches
+    a known interruptible spell.
+  description: The ExecuteMageInterrupt method is responsible for determining whether
+    a bot AI can successfully interrupt an enemy unit's ongoing spell cast. It evaluates
+    if the provided spell ID corresponds to a valid interruptible spell, and if so,
+    attempts to execute the interruption logic within the context of a Mage class
+    bot. This method typically integrates with the TrinityCore AI framework to manage
+    combat behavior during spellcasting interruptions. The action is only performed
+    if the target is currently casting a spell that can be interrupted by the Mage's
+    abilities.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance managing the bot's behavior and decision-making
+      process.
+  - name: target
+    description: Pointer to the Unit object representing the target unit whose spell
+      casting is to be interrupted.
+  - name: spellId
+    description: The unique identifier of the spell that may be interrupting the target's
+      current cast. Must correspond to a valid spell in the game database.
+  returns: Returns an ActionResult enum indicating whether the interruption was successful,
+    failed, or is not applicable. Possible values include SUCCESS, FAILED, or NOT_APPLICABLE
+    depending on the outcome of the interrupt attempt.
+  examples:
+  - title: Basic usage in Mage AI logic
+    code: "ActionResult result = spellInterruptAction.ExecuteMageInterrupt(ai, targetUnit,\
+      \ 1725);\nif (result == SUCCESS) {\n    ai->GetBot()->GetMotionMaster()->Clear();\n\
+      \    ai->GetBot()->CastSpell(targetUnit, 1725, true);\n}"
+    language: cpp
+  - title: Checking interrupt eligibility before execution
+    code: "if (spellInterruptAction.ExecuteMageInterrupt(ai, target, spellId) == SUCCESS)\
+      \ {\n    ai->SetNextAction(ACTION_INTERRUPT);\n} else {\n    ai->SetNextAction(ACTION_CAST_SPELL);\n\
+      }"
+    language: cpp
+  notes: This method assumes that the bot has access to Mage-specific interrupt abilities
+    such as Counterspell or Spell Reflection. It is intended for use within a combat
+    AI loop where spell casting and interruption logic are evaluated regularly. The
+    spell ID must be validated against known interruptible spells in the game's spell
+    database.
+  warnings: Ensure that the target unit is actually casting a spell before calling
+    this method, as attempting to interrupt non-casting units may result in undefined
+    behavior or errors. Also, be cautious of spell cooldowns and mana costs when performing
+    interruptions.
+  related:
+  - SpellInterruptAction::ExecuteInterrupt
+  - BotAI::CanInterruptSpell
+  - Unit::IsCastingSpell
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:34:32.592103'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

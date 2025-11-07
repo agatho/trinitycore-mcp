@@ -1,0 +1,51 @@
+api:
+  class: SpawnCircuitBreaker
+  method: CanTransitionToClosed
+  signature: bool SpawnCircuitBreaker::CanTransitionToClosed() const
+documentation:
+  brief: Determines whether the spawn circuit breaker can transition from open to
+    closed state
+  description: The CanTransitionToClosed method evaluates if the current spawn circuit
+    breaker instance is eligible to transition from its open (failed) state back to
+    a closed (operational) state. This decision is typically based on elapsed time
+    since the last failure, configured timeout thresholds, and internal state tracking
+    mechanisms. The method does not modify any internal state but provides a boolean
+    result indicating readiness for state transition. In World of Warcraft's TrinityCore
+    environment, this functionality is crucial for managing dynamic spawn point behavior
+    after failures to prevent infinite loops or excessive resource consumption.
+  parameters: []
+  returns: Returns true if the circuit breaker can safely transition to closed state;
+    otherwise returns false if it should remain in open state or if transition conditions
+    are not met
+  examples:
+  - title: Basic usage check
+    code: "if (breaker.CanTransitionToClosed()) {\n    // Proceed with transitioning\
+      \ to closed state\n    breaker.TransitionToClosed();\n}"
+    language: cpp
+  - title: Integration with spawn management logic
+    code: "void HandleSpawnFailure(SpawnCircuitBreaker& breaker) {\n    if (breaker.CanTransitionToClosed())\
+      \ {\n        // Reset spawn point and allow new attempts\n        breaker.TransitionToClosed();\n\
+      \        Log(\"Spawn point reset after timeout\");\n    } else {\n        //\
+      \ Continue waiting before attempting reset\n        Log(\"Waiting for circuit\
+      \ breaker timeout\");\n    }\n}"
+    language: cpp
+  notes: This method is typically called periodically by the server's spawn management
+    system to determine when it's safe to retry failed spawn operations. The implementation
+    likely uses a monotonic clock or game tick counter to track elapsed time since
+    last failure. This method should be lightweight and not perform any heavy operations
+    as it may be invoked frequently.
+  warnings: Do not call this method without understanding the circuit breaker pattern's
+    intended behavior. Incorrect usage could lead to premature transitions that bypass
+    important safety checks, potentially causing resource exhaustion or inconsistent
+    spawn states in the game world.
+  related:
+  - TransitionToClosed
+  - TransitionToOpen
+  - IsOpen
+  - IsClosed
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:40:18.411765'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
