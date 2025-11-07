@@ -1,0 +1,57 @@
+api:
+  class: QuestValidation
+  method: ValidateLevelRequirements
+  signature: bool QuestValidation::ValidateLevelRequirements(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player meets the level requirements for a specified quest.
+  description: 'The ValidateLevelRequirements method checks if the given player character
+    has sufficient level to accept and complete the specified quest. It evaluates
+    the player''s current level against the minimum and maximum level constraints
+    defined in the quest template. This validation is crucial for ensuring that players
+    cannot access quests outside their appropriate level range, maintaining game balance
+    and progression integrity. The method returns true if the player meets all level
+    criteria, or false otherwise. Precondition: The questId must correspond to a valid
+    quest in the database, and the bot parameter must point to a valid Player object.'
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate. Must be a valid quest
+      ID present in the game's quest database.
+  - name: bot
+    description: Pointer to the Player object whose level will be checked against
+      the quest requirements. Must not be null.
+  returns: Returns true if the player's level is within the acceptable range for the
+    quest, false otherwise. If the quest does not exist or the player pointer is invalid,
+    behavior is undefined.
+  examples:
+  - title: Basic Quest Level Validation
+    code: "if (QuestValidation::ValidateLevelRequirements(12345, player)) {\n    //\
+      \ Player can accept and complete this quest\n    player->AddQuest(12345);\n\
+      } else {\n    // Player level is not suitable for this quest\n    player->SendNotification(\"\
+      You are not the right level for this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "bool CanAcceptQuest(Player* player, uint32 questId) {\n    if (!player\
+      \ || !sObjectMgr->GetQuestTemplate(questId)) {\n        return false;\n    }\n\
+      \    \n    if (QuestValidation::ValidateLevelRequirements(questId, player))\
+      \ {\n        return true;\n    }\n    \n    return false;\n}"
+    language: cpp
+  notes: This method relies on the quest template's minimum and maximum level fields
+    stored in the database. It performs a direct comparison between player's current
+    level and these values without considering any temporary modifiers or buffs. The
+    method assumes that the player object is fully initialized with valid data including
+    level information.
+  warnings: Do not call this method with invalid quest IDs or null player pointers
+    as it may lead to undefined behavior or crashes. Ensure that the quest template
+    exists in the database before calling this validation. This method does not account
+    for quest-specific level modifiers or temporary level adjustments.
+  related:
+  - ValidateQuestRequirements
+  - ValidatePlayerLevel
+  - GetQuestLevel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:15:50.378370'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

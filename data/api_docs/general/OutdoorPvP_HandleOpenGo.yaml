@@ -1,0 +1,68 @@
+api:
+  class: OutdoorPvP
+  method: HandleOpenGo
+  signature: bool OutdoorPvP::HandleOpenGo(Player * player, GameObject * go)
+documentation:
+  brief: Handles the interaction when a player opens a game object within an OutdoorPvP
+    area, determining if the action is valid and triggering appropriate PvP mechanics.
+  description: The HandleOpenGo method is responsible for processing player interactions
+    with GameObjects in OutdoorPvP zones. When a player attempts to open a game object
+    such as a door, chest, or capture point, this method validates whether the interaction
+    is allowed based on current PvP state, faction ownership, and player permissions.
+    It evaluates if the GameObject belongs to the active OutdoorPvP system and whether
+    the player's actions align with the ongoing battle conditions. The method returns
+    true if the interaction was successfully processed and false if it failed or was
+    denied for any reason. This functionality is crucial for maintaining the integrity
+    of OutdoorPvP mechanics, including territorial control, resource gathering, and
+    dynamic battlefield events.
+  parameters:
+  - name: player
+    description: Pointer to the Player object initiating the interaction with the
+      GameObject. Must be a valid player instance in the game world.
+  - name: go
+    description: Pointer to the GameObject being opened by the player. Must represent
+      a valid game object within an OutdoorPvP zone that supports opening interactions.
+  returns: Returns true if the GameObject interaction was successfully handled and
+    processed according to OutdoorPvP rules, false otherwise. A return value of false
+    typically indicates invalid state, unauthorized access, or the action being blocked
+    by game mechanics.
+  examples:
+  - title: Basic GameObject Opening Handling
+    code: "void Player::HandleGameObjectOpen(GameObject* go)\n{\n    if (OutdoorPvP*\
+      \ outdoorPvP = GetZone()->GetOutdoorPvP())\n    {\n        if (!outdoorPvP->HandleOpenGo(this,\
+      \ go))\n        {\n            // Handle failed interaction\n            SendNotification(\"\
+      You cannot open this object now.\");\n        }\n    }\n}"
+    language: cpp
+  - title: Advanced OutdoorPvP GameObject Interaction
+    code: "bool OutdoorPvP::HandleOpenGo(Player* player, GameObject* go)\n{\n    //\
+      \ Validate player and game object\n    if (!player || !go)\n        return false;\n\
+      \    \n    // Check if this is a valid capture point or door\n    if (go->GetGOInfo()->type\
+      \ != GAMEOBJECT_TYPE_DOOR &&\n        go->GetGOInfo()->type != GAMEOBJECT_TYPE_CAPTURE_POINT)\n\
+      \        return false;\n    \n    // Evaluate player faction and zone state\n\
+      \    if (player->GetTeamId() == GetZone()->GetFactionStatus())\n        return\
+      \ false; // Already controlled by this faction\n    \n    // Process the opening\
+      \ logic\n    if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DOOR)\n    {\n   \
+      \     // Trigger door opening animation and sound\n        go->SetGoState(GO_STATE_ACTIVE);\n\
+      \        SendZoneUpdateWorldState(go->GetZoneId(), WORLD_STATE_DOOR_OPEN, 1);\n\
+      \    }\n    \n    return true;\n}"
+    language: cpp
+  notes: This method is typically invoked from the core game loop when a player interacts
+    with a GameObject. It's designed to be lightweight and efficient as it may be
+    called frequently during PvP encounters. The method assumes that the GameObject
+    and Player pointers are valid and properly initialized before being passed in.
+  warnings: Improper handling of this method can lead to broken OutdoorPvP mechanics,
+    including incorrect faction control or missing event triggers. Developers should
+    ensure proper validation of both player and GameObject states before calling this
+    method. Avoid calling it from contexts where the player or GameObject might be
+    destroyed during processing.
+  related:
+  - HandlePlayerEnter
+  - HandlePlayerLeave
+  - Update
+  - SendZoneUpdateWorldState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:09:10.338432'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

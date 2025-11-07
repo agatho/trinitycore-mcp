@@ -1,0 +1,56 @@
+api:
+  class: SmartAIMgr
+  method: IsItemValid
+  signature: bool SmartAIMgr::IsItemValid(const SmartScriptHolder & e, uint32 entry)
+documentation:
+  brief: Validates whether a given item entry is valid within the SmartAI system
+  description: The IsItemValid method checks if a specified item entry is recognized
+    and valid for use within the SmartAI scripting system. This validation ensures
+    that items referenced in smart scripts are properly defined in the game's database,
+    preventing runtime errors or unexpected behavior when AI scripts attempt to reference
+    non-existent items. The method typically performs lookups against internal item
+    databases or caches to verify item existence and proper configuration before allowing
+    AI actions to proceed with item-related operations.
+  parameters:
+  - name: e
+    description: Reference to a SmartScriptHolder structure containing the script
+      event data and context information for validation
+  - name: entry
+    description: The unique identifier (entry ID) of the item to validate within the
+      SmartAI system
+  returns: Returns true if the specified item entry is valid and recognized by the
+    SmartAI system, false otherwise. A return value of false indicates that either
+    the item does not exist in the database or is not properly configured for use
+    with SmartAI scripts.
+  examples:
+  - title: Basic Item Validation
+    code: "SmartScriptHolder script;\nuint32 itemId = 12345;\nif (sSmartAIMgr->IsItemValid(script,\
+      \ itemId)) {\n    // Proceed with AI action using the item\n    sLog->outString(\"\
+      Item %u is valid for SmartAI usage\", itemId);\n} else {\n    // Handle invalid\
+      \ item case\n    sLog->outError(\"Invalid item ID %u in SmartAI script\", itemId);\n\
+      }"
+    language: cpp
+  - title: Validation in AI Script Context
+    code: "class MySmartAI : public SmartScript {\npublic:\n    void OnGossipHello(Player*\
+      \ player) override {\n        if (sSmartAIMgr->IsItemValid(m_script, 45678))\
+      \ {\n            // Safe to use item in gossip action\n            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,\
+      \ \"Use Item\", GOSSIP_SENDER_MAIN, 1);\n        }\n    }\n};"
+    language: cpp
+  notes: This method likely performs database lookups or cache validation to ensure
+    item integrity. It may be called frequently during AI script initialization and
+    execution, so performance optimization is important. The method should be used
+    before any item-based SmartAI actions to prevent runtime failures.
+  warnings: Using invalid item IDs in SmartAI scripts can lead to undefined behavior
+    or crashes. Always validate items using this method before incorporating them
+    into AI logic. This validation may not cover all edge cases of item usage within
+    specific AI contexts.
+  related:
+  - SmartAIMgr::IsCreatureValid
+  - SmartAIMgr::IsSpellValid
+  - SmartAIMgr::GetScriptForEntry
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:32:06.215062'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

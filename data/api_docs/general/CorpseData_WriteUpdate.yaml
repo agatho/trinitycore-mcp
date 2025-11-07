@@ -1,0 +1,83 @@
+api:
+  class: CorpseData
+  method: WriteUpdate
+  signature: void CorpseData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Corpse * owner, const Player * receiver) const
+documentation:
+  brief: Serializes corpse data into a network packet buffer for transmission to a
+    client.
+  description: The WriteUpdate method serializes the current state of a CorpseData
+    object into a ByteBuffer, which is typically used to send updates about a corpse's
+    state to a specific player client. This method handles the encoding of various
+    corpse properties such as position, orientation, display ID, and other relevant
+    data based on the provided changes mask. It is commonly invoked during packet
+    construction for corpse-related updates in the World of Warcraft server protocol.
+    The method respects the ignoreNestedChangesMask flag to determine whether nested
+    changes should be considered when building the update packet.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized corpse data will be
+      written. This buffer is typically used to construct network packets sent to
+      players.
+  - name: changesMask
+    description: An integer mask indicating which fields of the corpse have changed
+      and should be included in the update packet. Each bit corresponds to a specific
+      field in the corpse data structure.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested changes (e.g., from sub-components)
+      should be considered when processing the update. If true, nested changes are
+      ignored during serialization.
+  - name: owner
+    description: Pointer to the Corpse object that owns this data. Used for context
+      and validation during serialization of certain fields.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to apply player-specific logic or filters during serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      int changesMask = 0x01;
+
+      Corpse* corpse = ...;
+
+      Player* player = ...;
+
+      corpse->GetCorpseData()->WriteUpdate(data, changesMask, false, corpse, player);
+
+      // Send ''data'' as part of a packet to the player'
+    language: cpp
+  - title: Updating Corpse Position and Display ID
+    code: 'ByteBuffer updateBuffer;
+
+      int mask = CORPSE_UPDATE_POSITION | CORPSE_UPDATE_DISPLAY_ID;
+
+      Corpse* corpse = ...;
+
+      Player* receiver = ...;
+
+      corpse->GetCorpseData()->WriteUpdate(updateBuffer, mask, true, corpse, receiver);
+
+      // Send updateBuffer to player client'
+    language: cpp
+  notes: This method is part of the internal serialization system for corpse data
+    in TrinityCore. It's typically called indirectly by higher-level systems such
+    as WorldObject::BuildUpdateData or similar packet-building functions. The changesMask
+    parameter must be carefully constructed using appropriate bit flags defined for
+    corpse updates. Performance-wise, this method should be efficient since it only
+    serializes fields that have actually changed.
+  warnings: Incorrectly setting the changesMask can result in incomplete or invalid
+    updates being sent to clients. Ensure that all relevant bits are properly set
+    according to the current state of the corpse data. Also, passing null pointers
+    for owner or receiver may lead to undefined behavior or crashes.
+  related:
+  - CorpseData::ReadUpdate
+  - Corpse::BuildUpdateData
+  - Corpse::SendUpdateToPlayer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T04:13:10.428978'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

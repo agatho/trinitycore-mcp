@@ -13,14 +13,14 @@
  */
 
 import { readFile } from "fs/promises";
-import { parseCombatLog, type CombatLogEntry, type CombatMetrics, type AbilityUsage } from "./botcombatloganalyzer.js";
-import { CooldownTracker, addCooldownAnalysisToCombatMetrics } from "./cooldown-tracker.js";
-import { analyzeDecisionMaking, type DecisionTreeAnalysis } from "./decision-tree-analyzer.js";
-import { analyzeCombatMechanics, type CombatMechanicsReport } from "./combat-mechanics-analyzer.js";
-import { analyzePatterns, type PatternDetectionResult } from "./pattern-detection-ml.js";
-import { PerformanceComparisonEngine, formatPerformanceReport, type PerformanceReport } from "./performance-comparison.js";
-import { RecommendationEngine, formatRecommendationReport, type RecommendationReport } from "./recommendation-engine.js";
-import { logger } from '../utils/logger.js';
+import { parseCombatLog, type CombatLogEntry, type CombatMetrics, type AbilityUsage } from "./botcombatloganalyzer";
+import { CooldownTracker, addCooldownAnalysisToCombatMetrics } from "./cooldown-tracker";
+import { analyzeDecisionMaking, type DecisionTreeAnalysis } from "./decision-tree-analyzer";
+import { analyzeCombatMechanics, type CombatMechanicsReport } from "./combat-mechanics-analyzer";
+import { analyzePatterns, type PatternDetectionResult } from "./pattern-detection-ml";
+import { PerformanceComparisonEngine, formatPerformanceReport, type PerformanceReport } from "./performance-comparison";
+import { RecommendationEngine, formatRecommendationReport, type RecommendationReport } from "./recommendation-engine";
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // TYPES

@@ -63,12 +63,16 @@ interface Quest {
 }
 
 interface Zone {
-  id: number;
+  id: string; // Composite key: "mapId-zoneId"
+  zoneId: number;
+  mapId: number;
   name: string;
+  mapName: string;
   questCount: number;
   minLevel: number;
   maxLevel: number;
 }
+interface Map {  id: number;  name: string;  zoneCount: number;}
 
 interface QuestChain {
   chainId: string;
@@ -84,6 +88,8 @@ interface QuestChain {
 export default function QuestChainsPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
+  const [maps, setMaps] = useState<Map[]>([]);
+  const [selectedMap, setSelectedMap] = useState<string>('');
   const [selectedZone, setSelectedZone] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
@@ -108,6 +114,7 @@ export default function QuestChainsPage() {
 
       if (data.zones) {
         setZones(data.zones);
+}      if (data.maps) {        setMaps(data.maps);
       }
     } catch (err: any) {
       console.error('Failed to fetch zones:', err);
@@ -186,6 +193,8 @@ export default function QuestChainsPage() {
             depth: q.depth,
             zone: zones.find((z) => z.id === zoneId)?.name || `Zone ${zoneId}`,
             zoneId,
+            objectives: q.objectives,
+            rewards: q.rewards,
           });
         });
       });
@@ -199,10 +208,22 @@ export default function QuestChainsPage() {
     }
   };
 
+const handleMapChange = (mapId: string) => {
+    setSelectedMap(mapId);
+    setSelectedZone(''); // Reset zone when map changes
+  };
+
+  // Filter zones by selected map
+  const filteredZones = useMemo(() => {
+    if (!selectedMap) return zones;
+    return zones.filter(zone => zone.mapId.toString() === selectedMap);
+  }, [zones, selectedMap]);
   const handleZoneChange = (zoneId: string) => {
     setSelectedZone(zoneId);
     if (zoneId) {
-      fetchQuestChainsInZone(parseInt(zoneId));
+      // Extract zoneId from composite key "mapId-zoneId"
+      const zoneIdNum = parseInt(zoneId.split('-')[1]);
+      fetchQuestChainsInZone(zoneIdNum);
     }
   };
 
@@ -451,29 +472,54 @@ export default function QuestChainsPage() {
           </div>
         </div>
 
-        {/* Zone Selector and Search */}
+        {/* Map, Zone Selector and Search */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
-            <label className="text-sm font-semibold text-white mb-2 block">Select Zone</label>
-            {loadingZones ? (
-              <div className="flex items-center gap-2 text-slate-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Loading zones...
-              </div>
-            ) : (
-              <Select onValueChange={handleZoneChange} value={selectedZone}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a zone to view quest chains..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {zones.map((zone) => (
-                    <SelectItem key={zone.id} value={zone.id.toString()}>
-                      {zone.name} ({zone.questCount} quests, Lv {zone.minLevel}-{zone.maxLevel})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4 space-y-4">
+            <div>
+              <label className="text-sm font-semibold text-white mb-2 block">Select Map</label>
+              {loadingZones ? (
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading maps...
+                </div>
+              ) : (
+                <Select onValueChange={handleMapChange} value={selectedMap}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a map..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {maps.map((map) => (
+                      <SelectItem key={map.id} value={map.id.toString()}>
+                        {map.name} ({map.zoneCount} zones)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-white mb-2 block">Select Zone</label>
+              {loadingZones ? (
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading zones...
+                </div>
+              ) : (
+                <Select onValueChange={handleZoneChange} value={selectedZone} disabled={!selectedMap}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={!selectedMap ? "First select a map..." : "Choose a zone..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredZones.map((zone) => (
+                      <SelectItem key={zone.id} value={zone.id.toString()}>
+                        {zone.name} ({zone.questCount} quests)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
 
           <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">

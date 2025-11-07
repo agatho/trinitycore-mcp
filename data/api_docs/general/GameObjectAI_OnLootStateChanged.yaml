@@ -1,0 +1,57 @@
+api:
+  class: GameObjectAI
+  method: OnLootStateChanged
+  signature: void GameObjectAI::OnLootStateChanged(uint32 param0, Unit * param1)
+documentation:
+  brief: Handles the state change of a game object's loot, triggered when loot availability
+    or status is modified.
+  description: The OnLootStateChanged method is invoked within the GameObjectAI class
+    to notify the AI implementation when the loot state of a game object has changed.
+    This typically occurs when a player interacts with a lootable object such as a
+    chest or corpse, and the loot becomes available or unavailable. The method allows
+    custom AI behavior to be executed in response to these loot-related events, such
+    as triggering animations, updating quest objectives, or modifying the object's
+    state. It is part of the core GameObject AI system and integrates with TrinityCore's
+    loot and interaction mechanics.
+  parameters:
+  - name: param0
+    description: The new loot state identifier. Possible values include states like
+      LOOT_STATE_READY, LOOT_STATE_NOT_READY, or LOOT_STATE_LOOTED depending on the
+      object's current interaction status.
+  - name: param1
+    description: Pointer to the Unit (player or creature) that triggered the loot
+      state change. This can be null if the state change is not directly caused by
+      a unit interaction.
+  returns: void
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyGameObjectAI : public GameObjectAI {\npublic:\n    void OnLootStateChanged(uint32\
+      \ state, Unit* who) override {\n        if (state == LOOT_STATE_LOOTED) {\n\
+      \            // Perform actions when loot is taken\n            SendChatMessage(\"\
+      Loot has been taken!\");\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Loot State Handling with Quest Update
+    code: "class QuestChestAI : public GameObjectAI {\npublic:\n    void OnLootStateChanged(uint32\
+      \ state, Unit* who) override {\n        if (state == LOOT_STATE_LOOTED && who\
+      \ && who->GetTypeId() == TYPEID_PLAYER) {\n            Player* player = who->ToPlayer();\n\
+      \            // Update quest objective\n            if (player->GetQuestStatus(12345)\
+      \ == QUEST_STATUS_INCOMPLETE) {\n                player->AreaExploredOrEventHappens(12345);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from the core game loop during interaction processing.
+    Developers should be aware that the 'who' parameter may be null in certain cases,
+    such as automatic loot state changes or timed events. The method should not block
+    or perform heavy computations to avoid impacting performance.
+  warnings: Do not modify the GameObject's state directly within this method without
+    proper locking mechanisms. Ensure that any interaction with the Unit pointer is
+    safe and valid before performing operations on it.
+  related:
+  - GameObject::SetLootState
+  - GameObject::GetLootState
+  - GameObjectAI::OnLootRecieved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:57:14.178975'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

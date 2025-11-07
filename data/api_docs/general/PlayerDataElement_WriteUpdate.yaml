@@ -1,0 +1,91 @@
+api:
+  class: PlayerDataElement
+  method: WriteUpdate
+  signature: void PlayerDataElement::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes player data element updates into a ByteBuffer for network transmission
+    to a specific receiver.
+  description: The WriteUpdate method serializes the current state of a PlayerDataElement
+    into a ByteBuffer, preparing it for network transmission to a specified player
+    receiver. This method is typically used in TrinityCore's packet system to send
+    incremental updates about player data such as stats, equipment, or status effects.
+    The serialization respects change masks and can optionally ignore them based on
+    the ignoreChangesMask parameter. It requires both the owner (the player whose
+    data is being updated) and the receiver (the player who will receive the update)
+    to properly determine what data needs to be sent and how it should be formatted.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is used to construct the network packet containing the
+      player data element changes.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      updates. If true, all data fields are written regardless of their changed status;
+      if false, only fields marked as changed are serialized.
+  - name: owner
+    description: Pointer to the Player object whose data element is being updated.
+      This represents the source of the data being sent.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine visibility and proper formatting of the serialized data for the specific
+      receiver.
+  returns: null
+  examples:
+  - title: Basic usage in packet creation
+    code: 'ByteBuffer data;
+
+      PlayerDataElement element;
+
+      Player* owner = playerSession->GetPlayer();
+
+      Player* receiver = targetPlayer;
+
+
+      // Serialize the player data element update
+
+      element.WriteUpdate(data, false, owner, receiver);
+
+
+      // Send the constructed packet to the receiver
+
+      receiver->SendDirectMessage(&data);'
+    language: cpp
+  - title: Forcing full update with ignore mask
+    code: 'ByteBuffer data;
+
+      PlayerDataElement element;
+
+      Player* owner = playerSession->GetPlayer();
+
+      Player* receiver = targetPlayer;
+
+
+      // Force sending all data fields, ignoring change masks
+
+      element.WriteUpdate(data, true, owner, receiver);
+
+
+      // Send full state update to receiver
+
+      receiver->SendDirectMessage(&data);'
+    language: cpp
+  notes: This method is part of the player data synchronization system in TrinityCore.
+    It's typically called during packet construction for updates like UpdateObject
+    or SMSG_UPDATE_OBJECT. The method assumes that the owner and receiver players
+    are valid and properly initialized. Performance-wise, it's optimized to only serialize
+    changed fields when ignoreChangesMask is false.
+  warnings: Incorrect usage of the ignoreChangesMask parameter can lead to unnecessary
+    bandwidth consumption or incomplete data updates. Make sure both owner and receiver
+    parameters are valid pointers before calling this method, as null pointer dereferences
+    may occur.
+  related:
+  - PlayerDataElement::ReadUpdate
+  - PlayerDataElement::SetChanged
+  - PlayerDataElement::ClearChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:01:09.305027'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

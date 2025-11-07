@@ -1,0 +1,58 @@
+api:
+  class: InstanceScript
+  method: AddMinion
+  signature: void InstanceScript::AddMinion(Creature * minion, bool add)
+documentation:
+  brief: Adds a creature minion to the instance script's tracking list for managing
+    boss encounter behavior.
+  description: The AddMinion method is used to register a creature minion with an
+    InstanceScript, typically during boss encounters in World of Warcraft's TrinityCore
+    emulation. This allows the instance script to track and manage the lifecycle of
+    summoned creatures, ensuring proper cleanup and encounter state management when
+    the boss dies or the encounter ends. The method is commonly called when spawning
+    minions during boss fights to maintain a list of creatures that should be removed
+    or handled in specific ways during the encounter. It's an essential part of implementing
+    proper boss AI and encounter mechanics within custom dungeon or raid scripts.
+  parameters:
+  - name: minion
+    description: Pointer to the Creature object that represents the minion being added
+      to the instance script's tracking list. This must be a valid creature pointer,
+      typically obtained from spawning a creature during an encounter.
+  - name: add
+    description: Boolean flag indicating whether to add (true) or remove (false) the
+      minion from the instance script's tracking. When true, the minion is added to
+      internal tracking lists; when false, it's removed.
+  returns: null
+  examples:
+  - title: Adding a Boss Minion During Encounter
+    code: "void BossAI::JustSummoned(Creature* summon)\n{\n    if (summon->GetEntry()\
+      \ == NPC_MINION)\n        instance->AddMinion(summon, true);\n}\n\nvoid BossAI::JustDied(Unit*\
+      \ killer)\n{\n    // Remove all minions when boss dies\n    for (auto& minion\
+      \ : minionList)\n        instance->AddMinion(minion, false);\n}"
+    language: cpp
+  - title: Managing Minion List in Custom Instance Script
+    code: "class MyInstanceScript : public InstanceScript\n{\npublic:\n    void AddMinion(Creature*\
+      \ minion, bool add) override\n    {\n        if (add)\n            minionList.push_back(minion);\n\
+      \        else\n            minionList.remove(minion);\n    }\n\nprivate:\n \
+      \   std::list<Creature*> minionList;\n};"
+    language: cpp
+  notes: This method is typically used internally by the TrinityCore framework when
+    handling creature spawning and cleanup during encounters. Developers should ensure
+    that minions are properly tracked to avoid memory leaks or dangling pointers.
+    The method may be overridden in custom instance scripts to provide additional
+    behavior beyond basic tracking.
+  warnings: Calling this method with a null pointer for minion will likely cause a
+    crash. Ensure all minions passed to AddMinion are valid creatures that have been
+    successfully spawned and initialized. Misusing the add parameter can lead to inconsistent
+    encounter states or memory management issues.
+  related:
+  - GetInstance
+  - GetCreature
+  - GetGameObject
+  - SaveToDB
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T11:27:49.107867'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

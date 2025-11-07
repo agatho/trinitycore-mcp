@@ -129,7 +129,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
                     >
                       <Avatar
                         className="w-8 h-8 border-2 border-white dark:border-gray-800 ring-2"
-                        style={{ '--tw-ring-color': currentUser.color } as React.CSSProperties}
+                        style={{ ringColor: currentUser.color }}
                       >
                         <AvatarFallback
                           className="text-xs font-bold text-white"
@@ -157,7 +157,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
                       >
                         <Avatar
                           className="w-8 h-8 border-2 border-white dark:border-gray-800 ring-2"
-                          style={{ '--tw-ring-color': user.color } as React.CSSProperties}
+                          style={{ ringColor: user.color }}
                         >
                           <AvatarFallback
                             className="text-xs font-bold text-white"
@@ -210,7 +210,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
               {/* Current user */}
               {currentUser && (
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <Avatar className="w-6 h-6 ring-2" style={{ '--tw-ring-color': currentUser.color } as React.CSSProperties}>
+                  <Avatar className="w-6 h-6 ring-2" style={{ ringColor: currentUser.color }}>
                     <AvatarFallback
                       className="text-xs font-bold text-white"
                       style={{ backgroundColor: currentUser.color }}
@@ -238,7 +238,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
                     key={user.id}
                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <Avatar className="w-6 h-6 ring-2" style={{ '--tw-ring-color': user.color } as React.CSSProperties}>
+                    <Avatar className="w-6 h-6 ring-2" style={{ ringColor: user.color }}>
                       <AvatarFallback
                         className="text-xs font-bold text-white"
                         style={{ backgroundColor: user.color }}

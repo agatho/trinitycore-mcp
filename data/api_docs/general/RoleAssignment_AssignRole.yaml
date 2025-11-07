@@ -1,0 +1,69 @@
+api:
+  class: RoleAssignment
+  method: AssignRole
+  signature: bool RoleAssignment::AssignRole(uint32 playerGuid, GroupRole role, Group
+    * group)
+documentation:
+  brief: Assigns a specific role to a player within a group.
+  description: The AssignRole method is used to assign a designated GroupRole to a
+    player identified by their GUID within a specified group. This functionality is
+    essential for managing group dynamics, loot distribution, and role-based permissions
+    in World of Warcraft instances. The method validates the provided player GUID
+    and group reference before attempting to assign the role. It ensures that the
+    player exists in the group and that the role being assigned is valid according
+    to the game's internal role system. The assignment may fail if the player is not
+    part of the specified group or if invalid role values are provided.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player to whom the role will
+      be assigned. Must correspond to a valid player in the game world.
+  - name: role
+    description: The GroupRole enum value representing the role to assign to the player.
+      Valid roles typically include LEADER, MAIN_ASSIST, MAIN_TANK, and others depending
+      on the group's configuration.
+  - name: group
+    description: Pointer to the Group object in which the player resides. This parameter
+      must be a valid pointer to an existing group; otherwise, the assignment will
+      fail.
+  returns: Returns true if the role was successfully assigned to the player within
+    the specified group. Returns false if either the player is not found in the group,
+    the group pointer is invalid, or the role value is invalid.
+  examples:
+  - title: Basic Role Assignment
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nif (myGroup)\n{\n \
+      \   bool success = roleAssignment.AssignRole(playerGuid, GroupRole::MAIN_ASSIST,\
+      \ myGroup);\n    if (success)\n        TC_LOG_INFO(\"group\", \"Player %u assigned\
+      \ as Main Assist in group %u.\", playerGuid, groupId);\n    else\n        TC_LOG_ERROR(\"\
+      group\", \"Failed to assign role to player %u in group %u.\", playerGuid, groupId);\n\
+      }"
+    language: cpp
+  - title: Role Assignment with Error Handling
+    code: "Group* group = sGroupMgr->GetGroupById(groupId);\nif (!group)\n{\n    TC_LOG_ERROR(\"\
+      group\", \"Invalid group ID: %u\", groupId);\n    return false;\n}\n\nPlayer*\
+      \ player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerGuid, 0, HIGHGUID_PLAYER));\n\
+      if (!player || !group->IsMember(playerGuid))\n{\n    TC_LOG_ERROR(\"group\"\
+      , \"Player %u not found or not in group %u.\", playerGuid, groupId);\n    return\
+      \ false;\n}\n\nbool result = roleAssignment.AssignRole(playerGuid, GroupRole::MAIN_TANK,\
+      \ group);\nif (!result)\n    TC_LOG_ERROR(\"group\", \"Failed to assign Main\
+      \ Tank role to player %u.\", playerGuid);\nelse\n    TC_LOG_INFO(\"group\",\
+      \ \"Successfully assigned Main Tank role to player %u.\", playerGuid);"
+    language: cpp
+  notes: This method assumes that the group and player are properly initialized and
+    exist in the game world. It does not perform any automatic synchronization with
+    client-side UI updates, so additional logic may be needed to refresh the group
+    interface for players. The method is typically called during group management
+    operations such as leader transfers or role reassignments.
+  warnings: Ensure that the Group pointer passed to this method is valid and not null.
+    Passing an invalid group pointer will result in undefined behavior or a crash.
+    Also, make sure that the player GUID corresponds to an actual player currently
+    in the group; otherwise, the assignment will silently fail without error reporting.
+  related:
+  - GetAssignedRole
+  - UnassignRole
+  - IsPlayerInGroup
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:44:42.219537'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

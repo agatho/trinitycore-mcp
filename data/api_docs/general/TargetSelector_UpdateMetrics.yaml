@@ -1,0 +1,51 @@
+api:
+  class: TargetSelector
+  method: UpdateMetrics
+  signature: void TargetSelector::UpdateMetrics(const SelectionResult & result)
+documentation:
+  brief: Updates internal target selection metrics based on the provided selection
+    result.
+  description: The UpdateMetrics method processes a SelectionResult object to update
+    various internal metrics used by the TargetSelector for making intelligent target
+    choices. This typically involves analyzing the outcome of a previous target selection
+    attempt and adjusting heuristics or weights that influence future selections.
+    The method is part of the AI decision-making process within TrinityCore's creature
+    and player targeting systems, helping to refine target preferences over time based
+    on past performance. It may be called after each successful or failed target selection
+    to maintain up-to-date statistics for optimal targeting behavior.
+  parameters:
+  - name: result
+    description: The SelectionResult object containing data about the outcome of a
+      previous target selection attempt, including whether it was successful and what
+      target was chosen (if any).
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (m_targetSelector)\n\
+      \    {\n        SelectionResult result = m_targetSelector->SelectTarget();\n\
+      \        m_targetSelector->UpdateMetrics(result);\n    }\n}"
+    language: cpp
+  - title: Updating Metrics After Target Change
+    code: "void Unit::SetTarget(Unit* target)\n{\n    if (target && target->IsInWorld())\n\
+      \    {\n        SelectionResult result;\n        result.success = true;\n  \
+      \      result.target = target;\n        m_targetSelector->UpdateMetrics(result);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method likely modifies internal state such as target preference weights
+    or success/failure counters. It should only be called with valid SelectionResult
+    objects to avoid undefined behavior. The implementation may involve thread synchronization
+    if multiple threads access the same TargetSelector instance.
+  warnings: Calling this method without a proper SelectionResult can lead to incorrect
+    targeting decisions. Ensure that the result parameter accurately reflects the
+    target selection outcome, especially in multi-threaded environments where concurrent
+    access must be handled carefully.
+  related:
+  - TargetSelector::SelectTarget
+  - TargetSelector::GetMetrics
+  - SelectionResult
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T23:24:09.062951'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

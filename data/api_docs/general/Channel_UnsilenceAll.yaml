@@ -1,0 +1,56 @@
+api:
+  class: Channel
+  method: UnsilenceAll
+  signature: void Channel::UnsilenceAll(const Player * player, const std::string &
+    name)
+documentation:
+  brief: Removes all muted players from a specified channel, allowing them to speak
+    again.
+  description: The UnsilenceAll method removes all players who have been silenced
+    (muted) in a specific channel. This action effectively unmutes all previously
+    muted members of the channel, restoring their ability to send messages. The method
+    requires a player reference and the name of the channel to operate on. It is typically
+    used by channel moderators or administrators when they wish to restore communication
+    privileges for all muted users at once. The operation affects only the specified
+    channel and does not impact other channels or global chat settings.
+  parameters:
+  - name: player
+    description: A pointer to the Player object who is requesting the unmute action.
+      This player must have appropriate permissions (such as channel moderator status)
+      to perform this operation on the specified channel.
+  - name: name
+    description: The name of the channel from which all muted players will be unmuted.
+      This string should match an existing channel name exactly, including case sensitivity.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "Channel* channel = sChannelMgr->GetChannel(\"General\", player);\nif (channel)\n\
+      {\n    channel->UnsilenceAll(player, \"General\");\n}"
+    language: cpp
+  - title: Advanced Usage with Permission Check
+    code: "if (player->GetSession()->GetSecurity() >= SEC_MODERATOR)\n{\n    Channel*\
+      \ channel = sChannelMgr->GetChannel(\"Trade\", player);\n    if (channel &&\
+      \ channel->HasFlag(CHANNEL_FLAG_MUTE))\n    {\n        channel->UnsilenceAll(player,\
+      \ \"Trade\");\n        player->SendNotification(\"All muted players have been\
+      \ unmuted in Trade channel.\");\n    }\n}"
+    language: cpp
+  notes: This method assumes that the calling player has sufficient permissions to
+    manage the channel's mute list. It does not validate whether the channel actually
+    exists or if any players are currently muted; it simply clears all mute entries
+    for the given channel. The implementation may involve iterating through a list
+    of muted users and removing them from the internal mute state.
+  warnings: Using this method without proper permission checks can lead to unintended
+    access to channel management features. It should only be called by trusted administrators
+    or moderators. Additionally, calling this on a non-existent channel will likely
+    result in no-op behavior or potential errors depending on implementation details.
+  related:
+  - Channel::Silence
+  - Channel::Mute
+  - Channel::Unmute
+  - Channel::GetPlayerList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:30:28.426557'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

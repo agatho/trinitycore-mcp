@@ -1,0 +1,53 @@
+api:
+  class: TargetSelector
+  method: SelectInterruptibleTarget
+  signature: Unit * TargetSelector::SelectInterruptibleTarget(float maxRange)
+documentation:
+  brief: Selects the most interruptible target within a specified range for casting
+    spells that can be interrupted.
+  description: The SelectInterruptibleTarget method identifies and returns the Unit
+    (player or creature) that is currently casting a spell which can be interrupted,
+    located within the given maximum range. This function prioritizes targets based
+    on their current casting state and interruptibility, making it useful for AI behavior
+    where interrupting enemy casts is beneficial. It typically evaluates all units
+    in the vicinity of the caster, checking if they are casting spells that support
+    interruption such as channeled spells or cast times longer than a certain threshold.
+    The method ensures that only valid, non-self targets within range are considered.
+  parameters:
+  - name: maxRange
+    description: The maximum distance in yards within which to search for interruptible
+      targets. Must be a positive value; negative or zero values will result in no
+      targets being selected.
+  returns: A pointer to the Unit object representing the most interruptible target
+    within range, or nullptr if no suitable target is found.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "Unit* target = selector->SelectInterruptibleTarget(30.0f);\nif (target)\n\
+      {\n    // Cast an interrupt spell on the selected target\n    caster->CastSpell(target,\
+      \ SPELL_INTERRUPT_SPELL, true);\n}"
+    language: cpp
+  - title: Using with conditional logic for better targeting
+    code: "Unit* target = selector->SelectInterruptibleTarget(25.0f);\nif (target\
+      \ && target->IsCasting())\n{\n    // Ensure the target is actively casting before\
+      \ interrupting\n    if (target->GetSpellHistory()->HasCooldown(SPELL_INTERRUPTIBLE_SPELL))\n\
+      \        return;\n    \n    caster->CastSpell(target, SPELL_INTERRUPT_SPELL,\
+      \ true);\n}"
+    language: cpp
+  notes: This method relies on internal AI logic and spell casting state tracking.
+    It may not consider all possible interruptible spells unless explicitly supported
+    by the core's spell system. Performance is optimized for typical use cases but
+    can be affected when many units are in range.
+  warnings: Do not assume that a returned target will always be castable or interruptible;
+    always verify the target's current casting state before attempting to interrupt.
+    Also, ensure maxRange is set appropriately to avoid unnecessary computation or
+    targeting issues.
+  related:
+  - SelectTarget
+  - SelectNearestTarget
+  - SelectMostHpTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:15:18.173775'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

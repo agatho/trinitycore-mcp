@@ -1,0 +1,61 @@
+api:
+  class: CreatureAI
+  method: MovementInform
+  signature: void CreatureAI::MovementInform(int param0, int param1)
+documentation:
+  brief: Handles movement completion events for creatures in the AI system
+  description: The MovementInform method is called by the TrinityCore AI framework
+    when a creature's movement has been completed. This method serves as a callback
+    mechanism that allows custom AI implementations to respond to movement events,
+    such as when a creature finishes pathing, fleeing, or performing any other type
+    of movement behavior. The method receives two integer parameters that typically
+    represent the movement type and associated data, enabling the AI to distinguish
+    between different types of movement completions and take appropriate actions.
+  parameters:
+  - name: param0
+    description: Movement type identifier that specifies what kind of movement has
+      completed. Common values include waypoint pathing, fleeing, evading, or custom
+      movement types defined by the AI implementation.
+  - name: param1
+    description: Additional data associated with the movement completion. This could
+      represent a specific waypoint index, target ID, or other context-dependent information
+      depending on the movement type.
+  returns: null
+  examples:
+  - title: Basic Movement Inform Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void MovementInform(int\
+      \ moveType, int data) override {\n        if (moveType == POINT_MOTION_TYPE)\
+      \ {\n            // Handle point movement completion\n            if (data ==\
+      \ 100) {\n                // Specific waypoint reached\n                Talk(0);\n\
+      \            }\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Movement Inform with State Management
+    code: "class AdvancedCreatureAI : public CreatureAI {\nprivate:\n    bool m_isFleeing\
+      \ = false;\n    uint32 m_fleeTimer = 0;\npublic:\n    void MovementInform(int\
+      \ moveType, int data) override {\n        if (moveType == FLEEING_MOTION_TYPE\
+      \ && m_isFleeing) {\n            // Flee movement completed\n            m_isFleeing\
+      \ = false;\n            m_fleeTimer = 5000; // Set cooldown\n            //\
+      \ Resume normal behavior after fleeing\n            DoMeleeAttackIfReady();\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the CreatureAI callback system and should be overridden
+    in custom AI implementations. The parameters are typically set by the core movement
+    system and may vary depending on the specific movement generator used for the
+    creature. It's important to note that this method is only called when movement
+    actually completes, not during intermediate steps.
+  warnings: Do not perform heavy operations within this method as it's called from
+    the main game loop thread. Avoid calling functions that might block or cause significant
+    delays. Also, be aware that movement completion events may not always be sent
+    for all movement types, particularly if the creature is interrupted before completing
+    its movement.
+  related:
+  - CreatureAI::UpdateAI
+  - CreatureAI::MoveInLineOfSight
+  - CreatureAI::AttackStart
+  - CreatureAI::JustDied
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:24:16.147540'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

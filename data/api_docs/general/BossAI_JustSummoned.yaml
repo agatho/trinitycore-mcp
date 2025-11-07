@@ -1,0 +1,53 @@
+api:
+  class: BossAI
+  method: JustSummoned
+  signature: void BossAI::JustSummoned(int * summon)
+documentation:
+  brief: Handles the event when a creature summoned by the boss is added to the world
+  description: The JustSummoned method is a virtual callback function in the BossAI
+    class that is invoked whenever a creature summoned by the boss is successfully
+    added to the game world. This method allows the boss AI to react to newly summoned
+    creatures, such as initializing their behavior, setting up combat states, or triggering
+    additional events. It serves as an important hook for managing summoned minions
+    and ensuring proper integration with the overall boss encounter logic. The method
+    is typically called during the execution of summoning spells or abilities that
+    create NPC companions or adds for the boss.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "void BossAI::JustSummoned(Creature* summon)\n{\n    if (summon)\n    {\n\
+      \        // Set the summoned creature to attack the boss's current target\n\
+      \        summon->SetReactState(REACT_AGGRESSIVE);\n        summon->AI()->AttackStart(me->GetVictim());\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Usage with Event Triggering
+    code: "void BossAI::JustSummoned(Creature* summon)\n{\n    if (summon && summon->GetEntry()\
+      \ == NPC_SUMMONED_MINION)\n    {\n        // Trigger a special event when a\
+      \ specific minion is summoned\n        DoCast(summon, SPELL_MINION_BUFF);\n\
+      \        \n        // Add the minion to a list for later management\n      \
+      \  summons.push_back(summon->GetGUID());\n        \n        // Notify other\
+      \ parts of the encounter logic\n        if (summons.size() >= 3)\n         \
+      \   DoCast(SPELL_SUMMON_COMPLETE);\n    }\n}"
+    language: cpp
+  notes: This method is part of the BossAI framework and should be overridden in derived
+    boss classes. It's important to note that the summoned creature may not yet have
+    a valid target or full initialization when this method is called, so additional
+    setup might be required. The method is typically called from within the core AI
+    update loop after the summoning process completes.
+  warnings: Ensure proper null checking of the summoned creature pointer before accessing
+    its members. Be cautious about modifying the summoned creature's state in a way
+    that could interfere with the boss's main AI logic or cause infinite loops. Avoid
+    performing heavy operations in this method as it may be called frequently during
+    encounters.
+  related:
+  - SummonCreature
+  - DoSummon
+  - JustDied
+  - EnterCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T19:46:10.696836'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

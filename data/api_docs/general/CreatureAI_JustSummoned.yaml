@@ -1,0 +1,52 @@
+api:
+  class: CreatureAI
+  method: JustSummoned
+  signature: void CreatureAI::JustSummoned(Creature * param0)
+documentation:
+  brief: Called when a creature summoned by this AI finishes summoning.
+  description: The JustSummoned method is invoked by the TrinityCore framework when
+    a creature that was summoned through this CreatureAI instance has completed its
+    summoning process. This callback allows the AI to perform actions immediately
+    after a summoned creature becomes active in the world, such as setting initial
+    behavior, assigning targets, or triggering events. The method is part of the CreatureAI's
+    event handling system and is typically used for post-summon logic that requires
+    the summoned creature to be fully initialized before execution. It is important
+    to note that this method is only called for creatures summoned via the AI's summoning
+    functions, not for all creatures in the world.
+  parameters:
+  - name: summon
+    description: Pointer to the Creature object that was just summoned. This parameter
+      represents the summoned creature instance which has now been added to the world
+      and is fully initialized.
+  returns: null
+  examples:
+  - title: Basic usage for summoned creature initialization
+    code: "void BossAI::JustSummoned(Creature* summon)\n{\n    if (summon->GetEntry()\
+      \ == NPC_SUMMONED_MINION)\n    {\n        summon->SetReactState(REACT_AGGRESSIVE);\n\
+      \        summon->AttackStart(me->GetVictim());\n    }\n}"
+    language: cpp
+  - title: Triggering event on summoned creature
+    code: "void ShadowLordAI::JustSummoned(Creature* summon)\n{\n    if (summon->GetEntry()\
+      \ == NPC_SHADOW_GOLEM)\n    {\n        summon->CastSpell(summon, SPELL_SUMMON_EFFECT,\
+      \ true);\n        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the standard CreatureAI callback system and is automatically
+    invoked by the core when a summoned creature becomes active. Developers should
+    ensure that any logic implemented here does not cause performance issues, as it
+    may be called frequently during combat encounters. The summoned creature parameter
+    will always be valid and fully initialized at this point.
+  warnings: Do not attempt to summon additional creatures from within this method
+    without careful consideration, as it may lead to stack overflow or unexpected
+    behavior. Also, be aware that the summoned creature's AI might not yet have been
+    initialized with its own AI script when this callback is executed.
+  related:
+  - SummonCreature
+  - DoSummon
+  - DespawnSummons
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:26:19.616209'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

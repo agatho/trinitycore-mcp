@@ -1,0 +1,52 @@
+api:
+  class: DynamicQuestSystem
+  method: ShareQuestProgress
+  signature: void DynamicQuestSystem::ShareQuestProgress(Group * group, uint32 questId)
+documentation:
+  brief: Shares quest progress with all members of a group.
+  description: The ShareQuestProgress method synchronizes the current quest progress
+    for a specified quest ID among all players within a given group. This functionality
+    is essential for maintaining consistent quest state across multiple players in
+    cooperative gameplay scenarios, such as raids or dungeons. The method ensures
+    that all group members have their quest tracking updated to reflect the same progress,
+    preventing discrepancies in quest completion status. It typically operates by
+    sending update packets to each group member's client, ensuring real-time synchronization
+    of quest data.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players whose quest progress
+      will be synchronized. Must not be null and must contain at least one valid player.
+  - name: questId
+    description: Unique identifier of the quest for which progress is being shared.
+      Must correspond to a valid quest in the game database.
+  returns: null
+  examples:
+  - title: Basic usage of ShareQuestProgress
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup && playerGroup->GetMembersCount()\
+      \ > 0)\n{\n    sDynamicQuestSystem->ShareQuestProgress(playerGroup, 12345);\n\
+      }"
+    language: cpp
+  - title: Sharing quest progress with error handling
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    uint32 questId =\
+      \ player->GetQuestStatus(12345);\n    if (questId != 0 && player->GetQuestStatus(questId)\
+      \ == QUEST_STATUS_INCOMPLETE)\n    {\n        sDynamicQuestSystem->ShareQuestProgress(group,\
+      \ questId);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the group is already valid and contains players.
+    It does not perform any validation on whether players are in the same zone or
+    instance. The synchronization happens immediately without delay, making it suitable
+    for real-time quest progression updates.
+  warnings: Ensure that the group pointer is valid before calling this method to avoid
+    crashes. Also, be cautious when sharing progress for quests that might have different
+    completion conditions per player, as this could lead to unexpected behavior in
+    shared quest scenarios.
+  related:
+  - GetQuestStatus
+  - UpdateQuestProgress
+  - SendQuestUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T14:55:54.371823'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -14,7 +14,7 @@ import {
   parseDB2SectionHeader,
   isValidDB2Signature,
 } from './DB2Header';
-import { logger } from '../../utils/logger.js';
+import { logger } from '../../utils/logger';
 import { IDB2FileSource, DB2FileSystemSource } from './DB2FileSource';
 import { DB2Record } from './DB2Record';
 import { DB2FileLoaderSparse } from './DB2FileLoaderSparse';

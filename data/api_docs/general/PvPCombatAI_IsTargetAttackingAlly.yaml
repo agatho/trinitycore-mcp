@@ -1,0 +1,58 @@
+api:
+  class: PvPCombatAI
+  method: IsTargetAttackingAlly
+  signature: bool PvPCombatAI::IsTargetAttackingAlly(int * target, int * player) const
+documentation:
+  brief: Determines whether the target unit is currently attacking an ally player
+    in PvP combat.
+  description: The IsTargetAttackingAlly method evaluates if the current target unit
+    is engaged in combat with an allied player character. This function is typically
+    used within PvP AI logic to make decisions about targeting, threat management,
+    or engagement strategies. It checks the combat state of the target against known
+    ally players within the same PvP context. The method returns true when the target
+    is actively attacking any ally, and false otherwise. This functionality is crucial
+    for PvP-specific AI behavior in TrinityCore's game engine.
+  parameters:
+  - name: target
+    description: Pointer to the target unit's identifier that will be checked for
+      PvP combat engagement with allies.
+  - name: player
+    description: Pointer to the player unit's identifier used as the reference for
+      determining ally relationships in PvP context.
+  returns: Returns true if the target is currently attacking an ally player; otherwise
+    returns false. The method does not handle null pointer validation, so callers
+    must ensure valid pointers are passed.
+  examples:
+  - title: Basic usage in PvP AI decision making
+    code: "if (pvpAI->IsTargetAttackingAlly(&targetGuid, &playerGuid)) {\n    // Target\
+      \ is attacking an ally, consider switching targets or increasing aggression\n\
+      \    pvpAI->SetAggroLevel(AGGRO_HIGH);\n} else {\n    // Target not attacking\
+      \ an ally, continue normal behavior\n    pvpAI->SetAggroLevel(AGGRO_NORMAL);\n\
+      }"
+    language: cpp
+  - title: Using within a combat decision loop
+    code: "void PvPCombatAI::UpdateAI(uint32 diff) {\n    if (Unit* target = GetVictim())\
+      \ {\n        if (IsTargetAttackingAlly(&target->GetGUID(), &GetGUID())) {\n\
+      \            // Prioritize attacking the target since they're harming allies\n\
+      \            DoMeleeAttackIfReady();\n        } else {\n            // Target\
+      \ not attacking allies, evaluate other priorities\n            HandleNonAllyTarget();\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method relies on internal PvP combat state tracking within TrinityCore.
+    It assumes that both target and player GUIDs are valid and represent active units
+    in the same PvP context. The implementation likely uses cached data about unit
+    relationships and combat status for performance reasons.
+  warnings: The method does not perform null pointer checks on input parameters, which
+    could lead to crashes if invalid pointers are passed. Additionally, this function
+    should only be called during active PvP combat scenarios where ally relationships
+    are properly established.
+  related:
+  - GetVictim
+  - IsInPvPCombat
+  - SetAggroLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T10:35:03.775314'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: GameObjectData
+  method: WriteCreate
+  signature: void GameObjectData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const GameObject * owner, const Player * receiver) const
+documentation:
+  brief: Serializes GameObject data into a ByteBuffer for client creation packet
+  description: The WriteCreate method serializes the GameObjectData object's state
+    into a ByteBuffer, preparing it for transmission to a specific player in a CREATE
+    packet. This method is typically invoked during the initial spawn of game objects
+    to clients, ensuring that all relevant object properties are properly encoded
+    and sent. The serialization respects field visibility flags and may include additional
+    context based on the owner and receiver players. It's an essential part of the
+    World of Warcraft protocol implementation for object synchronization.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized GameObject data will
+      be written. This buffer is typically used to construct the CREATE packet sent
+      to clients.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields should be included in the serialization.
+      These flags control visibility of different object properties based on client
+      requirements and permissions.
+  - name: owner
+    description: Pointer to the GameObject that owns this data, or nullptr if no owner
+      exists. Used for determining ownership context during serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this packet. This allows for
+      receiver-specific field filtering and context-aware serialization.
+  returns: null
+  examples:
+  - title: Basic usage in GameObject spawn
+    code: 'ByteBuffer data;
+
+      GameObjectData goData;
+
+      goData.WriteCreate(data, 0x1, nullptr, player);
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  notes: This method is part of the internal packet construction system and should
+    not be called directly by most game logic. It's typically invoked by the GameObject's
+    spawn or update mechanisms. The fieldVisibilityFlags parameter determines which
+    data fields are included in the packet, affecting both bandwidth usage and client-side
+    object representation.
+  warnings: Incorrect use of fieldVisibilityFlags can cause clients to receive incomplete
+    or malformed object data, potentially leading to visual glitches or game state
+    inconsistencies. Always ensure proper flag values based on the target player's
+    permissions and view context.
+  related:
+  - GameObject::BuildCreateUpdateBlock
+  - GameObject::SendCreateUpdate
+  - GameObjectData::WriteUpdate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T03:10:28.567172'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

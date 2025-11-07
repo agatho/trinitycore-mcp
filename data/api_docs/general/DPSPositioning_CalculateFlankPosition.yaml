@@ -1,0 +1,59 @@
+api:
+  class: DPSPositioning
+  method: CalculateFlankPosition
+  signature: int DPSPositioning::CalculateFlankPosition(Unit * target, bool leftFlank)
+documentation:
+  brief: Calculates and returns the optimal flank position relative to a target unit
+    for a DPS character.
+  description: The CalculateFlankPosition method determines the best positional offset
+    for a DPS unit to flank an enemy target. This calculation considers the target's
+    orientation, size, and positioning to determine whether the left or right flank
+    is more advantageous. The method returns an integer value representing the calculated
+    position offset, which can be used by AI logic to adjust movement or positioning
+    strategies during combat. This functionality is particularly relevant in encounters
+    where positioning significantly impacts damage output or survivability.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target enemy. Must not
+      be null for valid calculation.
+  - name: leftFlank
+    description: Boolean flag indicating whether to calculate the left flank (true)
+      or right flank (false) position relative to the target.
+  returns: Returns an integer representing the calculated flank position offset. Positive
+    values indicate movement to the right of the target, negative values indicate
+    movement to the left. Zero may indicate no positional adjustment is needed or
+    an error occurred during calculation.
+  examples:
+  - title: Basic Flank Position Calculation
+    code: "Unit* target = player->GetVictim();\nint flankPos = dpsPositioning->CalculateFlankPosition(target,\
+      \ true);\nif (flankPos != 0) {\n    // Move to calculated flank position\n \
+      \   player->SetFacing(target->GetOrientation() + (flankPos > 0 ? 1.57f : -1.57f));\n\
+      }"
+    language: cpp
+  - title: Using Flank Position for Movement
+    code: "Unit* target = ai->GetTarget();\nif (target && target->IsInWorld()) {\n\
+      \    int leftFlankPos = dpsPositioning->CalculateFlankPosition(target, true);\n\
+      \    int rightFlankPos = dpsPositioning->CalculateFlankPosition(target, false);\n\
+      \    \n    // Choose the flank with better positioning\n    if (abs(leftFlankPos)\
+      \ < abs(rightFlankPos)) {\n        // Move to left flank\n        ai->MoveTo(target->GetPositionX()\
+      \ - 2.0f, target->GetPositionY(), target->GetPositionZ());\n    } else {\n \
+      \       // Move to right flank\n        ai->MoveTo(target->GetPositionX() +\
+      \ 2.0f, target->GetPositionY(), target->GetPositionZ());\n    }\n}"
+    language: cpp
+  notes: The method relies on accurate target orientation and positioning data. It
+    may return zero if the target is too close or if positional calculations cannot
+    be determined due to invalid parameters. This function should only be called during
+    active combat scenarios where positioning is critical.
+  warnings: Ensure that the target pointer is valid and in world before calling this
+    method. Calling with a null target or an invalid unit may result in undefined
+    behavior or incorrect positioning calculations.
+  related:
+  - GetFlankPosition
+  - CalculatePositioningOffset
+  - AdjustDPSPosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T15:56:13.064986'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

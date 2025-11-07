@@ -1,0 +1,54 @@
+api:
+  class: ResourceEventBus
+  method: PublishEvent
+  signature: bool ResourceEventBus::PublishEvent(const ResourceEvent & event)
+documentation:
+  brief: Publishes a resource event to all registered subscribers in the event bus.
+  description: The PublishEvent method dispatches a ResourceEvent to all currently
+    subscribed listeners within the ResourceEventBus. This method is used to notify
+    interested components about resource-related changes or updates, such as item
+    acquisition, currency modification, or quest progress. The event is delivered
+    synchronously to all registered handlers, and the method returns true if at least
+    one subscriber successfully processed the event. If no subscribers are registered,
+    the method still returns true but the event will not be handled by any component.
+  parameters:
+  - name: event
+    description: The ResourceEvent object containing the event data to be published
+      to all subscribers. This parameter must be a valid ResourceEvent instance with
+      properly initialized fields.
+  returns: True if the event was successfully published to at least one subscriber,
+    false otherwise. A return value of false typically indicates that no subscribers
+    were registered for this event type.
+  examples:
+  - title: Basic Event Publishing
+    code: "ResourceEvent event;\nevent.Type = ResourceEventType::ITEM_ACQUIRED;\n\
+      event.Data.ItemId = 12345;\nbool success = eventBus.PublishEvent(event);\nif\
+      \ (success)\n{\n    // Event was published to at least one subscriber\n}"
+    language: cpp
+  - title: Publishing Currency Change Event
+    code: "ResourceEvent currencyEvent;\ncurrencyEvent.Type = ResourceEventType::CURRENCY_CHANGED;\n\
+      currencyEvent.Data.CurrencyId = 123;\ncurrencyEvent.Data.Amount = 500;\nbool\
+      \ result = eventBus.PublishEvent(currencyEvent);\n// Handles the case where\
+      \ no subscribers are registered\nif (!result)\n{\n    // Log that no handlers\
+      \ were available for this currency update\n}"
+    language: cpp
+  notes: This method is synchronous and will block until all registered event handlers
+    have completed processing the event. It's recommended to keep event handler implementations
+    lightweight to avoid performance degradation. The ResourceEventBus maintains a
+    list of weak references to subscribers, so unsubscribed components are automatically
+    removed from the notification list.
+  warnings: Do not modify the event data after publishing it, as the event may be
+    processed by multiple handlers concurrently. Avoid publishing events with invalid
+    or uninitialized data which could cause undefined behavior in subscribers. Be
+    cautious when using this method in performance-critical code paths due to its
+    synchronous nature.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - HasSubscribers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:53:40.574333'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

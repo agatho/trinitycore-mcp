@@ -1,0 +1,54 @@
+api:
+  class: EscortAI
+  method: EnterEvadeMode
+  signature: void EscortAI::EnterEvadeMode(int why)
+documentation:
+  brief: Places the EscortAI into evade mode, causing it to return to its initial
+    position and reset its AI state.
+  description: The EnterEvadeMode method is used to trigger the evade behavior of
+    an EscortAI instance. When invoked, this method causes the escort NPC to stop
+    following its assigned path or target, return to its original spawn position,
+    and reset its AI state. This typically occurs when the escort becomes threatened
+    or when certain conditions are met during quest progression. The method is commonly
+    called internally by the core when the escort's target is lost or when combat
+    is initiated inappropriately. It ensures that the NPC properly resets its behavior
+    and can be re-engaged or re-started as needed.
+  parameters:
+  - name: why
+    description: An integer value indicating the reason for entering evade mode. This
+      parameter allows the system to differentiate between various states such as
+      combat loss, quest failure, or other AI-triggered evasions.
+  returns: null
+  examples:
+  - title: Basic usage in custom escort AI logic
+    code: "void MyEscortAI::UpdateAI(uint32 diff)\n{\n    if (m_player && !m_player->IsAlive())\n\
+      \    {\n        EnterEvadeMode(1); // Evade due to player death\n        return;\n\
+      \    }\n    EscortAI::UpdateAI(diff);\n}"
+    language: cpp
+  - title: Using EnterEvadeMode in response to combat loss
+    code: "void EscortAI::JustDied()\n{\n    if (HasEscortState(STATE_ESCORT_RETURNING))\n\
+      \    {\n        EnterEvadeMode(2); // Evade due to escort death\n    }\n}\n\n\
+      void EscortAI::EnterEvadeMode(int why)\n{\n    // Reset AI state and return\
+      \ to spawn point\n    if (why == 2)\n    {\n        // Handle specific case\
+      \ for escort death\n        me->GetMotionMaster()->MoveTargetedHome();\n   \
+      \ }\n    else\n    {\n        // Default evade behavior\n        me->GetMotionMaster()->MoveTargetedHome();\n\
+      \    }\n}"
+    language: cpp
+  notes: This method internally calls the base AI's evade mode logic and ensures that
+    all motion and state tracking is reset. It is important to note that calling this
+    method will interrupt any ongoing escort path or quest-related behavior, so it
+    should be used carefully in event-driven code.
+  warnings: Calling EnterEvadeMode without proper context may cause unexpected behavior
+    such as NPCs returning to spawn points during active quests. Ensure that the reason
+    for evading is well-defined and handled appropriately by the calling code.
+  related:
+  - UpdateAI
+  - StartEscort
+  - IsEscorting
+  - SetEscortState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T14:31:42.928384'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

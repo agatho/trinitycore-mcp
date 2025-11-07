@@ -1,0 +1,75 @@
+api:
+  class: UnitAssistActionData
+  method: WriteUpdate
+  signature: void UnitAssistActionData::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Unit * owner, const Player * receiver) const
+documentation:
+  brief: Serializes unit assist action data into a byte buffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of a UnitAssistActionData
+    object into a ByteBuffer, which is typically used for sending updates over the
+    network to a client. This method allows selective serialization based on changes
+    and can be configured to ignore change masks. It takes into account the owner
+    unit and target receiver player to determine what data should be included in the
+    update packet. The serialized data usually represents assist-related actions such
+    as targeting, threat levels, or combat state information for units within a player's
+    group or raid.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized action data will be
+      written. This buffer is typically used for constructing network packets sent
+      to players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing data. If true, all fields are serialized regardless of their change
+      status; if false, only changed fields are included.
+  - name: owner
+    description: Pointer to the Unit that owns this assist action data. Used to determine
+      what aspects of the unit's state should be included in the update.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. The method may
+      use this information to customize the serialized data based on the receiver's
+      perspective or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'ByteBuffer buffer;
+
+      UnitAssistActionData assistData;
+
+      Player* player = ...; // Get reference to player
+
+      Unit* owner = ...;   // Get reference to unit
+
+      assistData.WriteUpdate(buffer, false, owner, player);'
+    language: cpp
+  - title: Ignoring Changes Mask Example
+    code: 'ByteBuffer buffer;
+
+      UnitAssistActionData assistData;
+
+      Player* player = ...;
+
+      Unit* owner = ...;
+
+      assistData.WriteUpdate(buffer, true, owner, player); // Forces full serialization'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    is commonly used in combat-related updates. It's designed to minimize bandwidth
+    usage by only sending changed data when ignoreChangesMask is false. The method
+    assumes that the ByteBuffer has sufficient capacity or will automatically grow
+    as needed.
+  warnings: Ensure that both owner and receiver pointers are valid before calling
+    this method, as invalid pointers can lead to undefined behavior. Also, be cautious
+    with the ignoreChangesMask flag - setting it to true may cause unnecessary network
+    traffic if not used carefully.
+  related:
+  - ReadUpdate
+  - SetChanged
+  - IsChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T23:06:24.215933'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -6,8 +6,8 @@
  * @module test-utilities
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import type { SOAPConnectionConfig } from "../types/soap.js";
+import type { DatabaseConfig } from "../types/database";
+import type { SOAPConnectionConfig } from "../types/soap";
 
 // ============================================================================
 // Mock Data Generators

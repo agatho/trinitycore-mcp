@@ -1,0 +1,57 @@
+api:
+  class: CombatEventBus
+  method: Subscribe
+  signature: bool CombatEventBus::Subscribe(BotAI * subscriber, const int & types)
+documentation:
+  brief: Registers a BotAI subscriber to receive combat events of specified types
+  description: The Subscribe method allows a BotAI instance to register itself with
+    the CombatEventBus to receive notifications about combat-related events. It takes
+    a pointer to the subscribing BotAI object and a bitmask of event types to listen
+    for. The method returns true if the subscription was successfully added, or false
+    if the subscription failed due to invalid parameters or internal errors. This
+    mechanism enables AI bots to react to combat situations in real-time, such as
+    when enemies are attacked, health changes occur, or combat actions are executed.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that wants to subscribe to combat events.
+      Must be a valid, initialized BotAI object.
+  - name: types
+    description: Bitmask specifying which types of combat events the subscriber wishes
+      to receive. Each bit represents a different event type (e.g., damage dealt,
+      health changes, combat start/stop).
+  returns: Returns true if the subscription was successfully registered with the CombatEventBus;
+    returns false if the subscription failed due to invalid parameters or internal
+    error conditions.
+  examples:
+  - title: Basic Subscription Example
+    code: "BotAI* myBot = new BotAI();\nint combatEventTypes = DAMAGE_DEALT | HEALTH_CHANGED;\n\
+      bool success = CombatEventBus::Subscribe(myBot, combatEventTypes);\nif (success)\
+      \ {\n    // Bot is now receiving combat events\n}"
+    language: cpp
+  - title: Multiple Event Type Subscription
+    code: "class MyCombatBot : public BotAI {\npublic:\n    void OnCombatEvent(CombatEventType\
+      \ type, Unit* target) override {\n        // Handle combat event\n    }\n};\n\
+      \nMyCombatBot* bot = new MyCombatBot();\nint allCombatEvents = DAMAGE_DEALT\
+      \ | DAMAGE_TAKEN | HEALTH_CHANGED | COMBAT_START | COMBAT_STOP;\nbool result\
+      \ = CombatEventBus::Subscribe(bot, allCombatEvents);\nif (result) {\n    //\
+      \ Bot will receive all combat-related events\n}"
+    language: cpp
+  notes: The CombatEventBus uses a singleton pattern internally, so this method operates
+    on the global event bus instance. Subscribers should ensure they properly unsubscribe
+    when no longer needed to prevent memory leaks or dangling pointers. The types
+    parameter is expected to be a bitmask where each bit corresponds to a specific
+    combat event type defined in the system.
+  warnings: Calling Subscribe with a null subscriber pointer will likely cause a crash
+    or undefined behavior. Ensure that all BotAI instances are properly initialized
+    before attempting subscription. Also, be aware that excessive subscriptions may
+    impact performance if too many bots are listening to too many events simultaneously.
+  related:
+  - Unsubscribe
+  - Publish
+  - GetEventTypes
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:09:45.146832'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

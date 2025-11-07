@@ -1,0 +1,55 @@
+api:
+  class: OnlyOnceAreaTriggerScript
+  method: ResetAreaTriggerDone
+  signature: void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(const Player * player,
+    const AreaTriggerEntry * trigger)
+documentation:
+  brief: Resets the completion status of an area trigger for a specific player.
+  description: The ResetAreaTriggerDone method clears the recorded completion state
+    of a specified area trigger for a given player. This allows the area trigger to
+    be activated again, effectively resetting its 'done' flag in the player's trigger
+    data. The method is typically used when a player needs to re-enter an area trigger
+    or when the trigger's conditions are meant to be re-evaluated. It ensures that
+    the player can experience the trigger's effects again without requiring a server
+    restart or manual database modification. This functionality is crucial for quest
+    mechanics and scripted events where triggers may need to be reusable under certain
+    conditions.
+  parameters:
+  - name: player
+    description: A pointer to the Player object for whom the area trigger completion
+      status will be reset. Must not be null.
+  - name: trigger
+    description: A pointer to the AreaTriggerEntry structure representing the specific
+      area trigger whose completion status will be reset. Must not be null.
+  returns: None. This method does not return any value.
+  examples:
+  - title: Resetting a Trigger for a Player
+    code: "void OnPlayerEnterArea(Player* player, AreaTriggerEntry const* trigger)\n\
+      {\n    // Reset the area trigger completion status\n    ResetAreaTriggerDone(player,\
+      \ trigger);\n}"
+    language: cpp
+  - title: Resetting Multiple Triggers for a Player
+    code: "void OnQuestComplete(Player* player, Quest const* quest)\n{\n    // Reset\
+      \ all area triggers related to the completed quest\n    for (uint32 i = 0; i\
+      \ < sAreaTriggerStore.GetNumRows(); ++i)\n    {\n        AreaTriggerEntry const*\
+      \ trigger = sAreaTriggerStore.LookupEntry(i);\n        if (trigger && trigger->questId\
+      \ == quest->GetQuestId())\n        {\n            ResetAreaTriggerDone(player,\
+      \ trigger);\n        }\n    }\n}"
+    language: cpp
+  notes: This method directly interacts with the player's trigger data stored in memory
+    and may affect gameplay behavior if used incorrectly. It is recommended to only
+    call this method when the area trigger should logically be reactivatable. The
+    implementation assumes that both player and trigger parameters are valid and non-null.
+  warnings: Calling this method on a null player or trigger pointer will result in
+    undefined behavior. Ensure that all pointers are validated before calling this
+    function. Misuse of this method can lead to unexpected quest progression or trigger
+    activation issues.
+  related:
+  - IsAreaTriggerDone
+  - SetAreaTriggerDone
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T07:12:41.077313'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: GroupEventBus
+  method: ProcessGroupEvents
+  signature: uint32 GroupEventBus::ProcessGroupEvents(int groupGuid, uint32 diff)
+documentation:
+  brief: Processes group events for the specified group GUID within the given time
+    difference.
+  description: The ProcessGroupEvents method handles the execution of queued group-related
+    events for a specific group identified by its GUID. It is typically invoked during
+    game loop updates to ensure timely processing of group activities such as member
+    joins, leaves, invitations, or other group state changes. The method processes
+    events up to a maximum time interval defined by the 'diff' parameter, which represents
+    milliseconds since last update. This ensures that group events are handled in
+    a timely manner without blocking the main game loop. The method returns the number
+    of events processed during this call.
+  parameters:
+  - name: groupGuid
+    description: The unique identifier (GUID) of the group whose events need to be
+      processed. Must be a valid group GUID in the game world.
+  - name: diff
+    description: Time difference in milliseconds since last event processing. Used
+      to determine how much time has passed and how many events can be safely processed
+      within that timeframe.
+  returns: Returns the number of group events successfully processed during this call.
+    A value of zero indicates no events were pending or processed.
+  examples:
+  - title: Basic usage in game loop
+    code: 'uint32 eventsProcessed = groupEventBus.ProcessGroupEvents(player->GetGroup()->GetGUID(),
+      diff);
+
+      // Processed ''eventsProcessed'' number of group events for the player''s current
+      group'
+    language: cpp
+  - title: Processing events with error handling
+    code: "if (player->GetGroup()) {\n    uint32 processed = groupEventBus.ProcessGroupEvents(player->GetGroup()->GetGUID(),\
+      \ 50);\n    if (processed > 0) {\n        // Log or handle successful event\
+      \ processing\n        sLog->outDebug(LOG_FILTER_GENERAL, \"Processed %u group\
+      \ events for group %u\", processed, player->GetGroup()->GetGUID());\n    }\n\
+      }"
+    language: cpp
+  notes: This method is designed to be called regularly from the main game loop or
+    update handlers. It's important that the group GUID passed is valid and corresponds
+    to an active group in the world. The 'diff' parameter should reflect actual elapsed
+    time since last processing to avoid over-processing events.
+  warnings: Do not call this method with invalid or non-existent group GUIDs as it
+    may lead to undefined behavior or crashes. Ensure that the group exists and is
+    valid before invoking this function.
+  related:
+  - GroupEventBus::AddGroupEvent
+  - GroupEventBus::RemoveGroupEvent
+  - GroupEventBus::HasPendingEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:15:47.913686'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: EscortAI
+  method: MovementInform
+  signature: void EscortAI::MovementInform(int param0, int param1)
+documentation:
+  brief: Handles movement completion events for escorted NPCs in the world.
+  description: The MovementInform method is a callback function invoked by the TrinityCore
+    AI system when an escorted creature finishes its assigned movement path. This
+    method is typically used to trigger specific actions or state changes upon reaching
+    a destination, such as starting a dialogue, activating a quest objective, or transitioning
+    to the next phase of an escort sequence. It plays a crucial role in managing the
+    behavior of NPC escorts and ensuring proper synchronization with quest progression
+    and world events.
+  parameters:
+  - name: param0
+    description: The movement type identifier that specifies how the creature moved
+      (e.g., WAYPOINT, POINT, etc.).
+  - name: param1
+    description: The ID of the waypoint or point that was reached during the movement
+      sequence.
+  returns: null
+  examples:
+  - title: Basic Movement Inform Handler
+    code: "void EscortAI::MovementInform(int type, int id)\n{\n    if (type == WAYPOINT_MOTION_TYPE\
+      \ && id == 5)\n    {\n        // Trigger quest objective completion\n      \
+      \  Talk(SAY_COMPLETE);\n        // Continue escorting to next point\n      \
+      \  StartNextWaypoint();\n    }\n}"
+    language: cpp
+  - title: Advanced Movement Inform with Conditional Logic
+    code: "void EscortAI::MovementInform(int type, int id)\n{\n    switch (type)\n\
+      \    {\n        case WAYPOINT_MOTION_TYPE:\n            if (id == GetTotalWaypoints())\n\
+      \            {\n                // Reached final waypoint\n                CompleteQuest();\n\
+      \                SetEscortPaused(false);\n            }\n            else if\
+      \ (id == 3)\n            {\n                // Special event at waypoint 3\n\
+      \                DoCast(SPELL_SPECIAL_EVENT);\n            }\n            break;\n\
+      \        case POINT_MOTION_TYPE:\n            if (id == 100)\n            {\n\
+      \                // Handle custom point arrival\n                SetEscortPaused(true);\n\
+      \                ScheduleEvent(EVENT_RESUME_ESCORT, 2000);\n            }\n\
+      \            break;\n    }\n}"
+    language: cpp
+  notes: This method is automatically called by the core AI system and should not
+    be invoked manually. The EscortAI class handles all movement tracking internally,
+    making this callback essential for implementing custom behavior tied to specific
+    points in an escort path.
+  warnings: Ensure that any actions taken within MovementInform do not cause infinite
+    loops or disrupt the core escort flow. Avoid performing heavy operations directly
+    inside this method as it may impact performance during active escort sequences.
+  related:
+  - StartNextWaypoint
+  - SetEscortPaused
+  - CompleteQuest
+  - Talk
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T14:30:40.531605'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

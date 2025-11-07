@@ -4,14 +4,14 @@
  */
 
 import * as path from 'path';
-import { KnowledgeBaseManager } from '../knowledge/KnowledgeBaseManager.js';
+import { KnowledgeBaseManager } from '../knowledge/KnowledgeBaseManager';
 import {
   SearchResult,
   SearchOptions,
   KnowledgeBaseDocument,
   DocumentCategory,
   DifficultyLevel,
-} from '../knowledge/types.js';
+} from '../knowledge/types';
 
 // Initialize knowledge base (singleton)
 // Path is relative to the compiled dist/tools/ directory

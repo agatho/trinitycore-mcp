@@ -1,0 +1,58 @@
+api:
+  class: CombatSpecializationBase
+  method: OnDamageDealt
+  signature: void CombatSpecializationBase::OnDamageDealt(::Unit * target, uint32
+    damage)
+documentation:
+  brief: Handles the event when damage is dealt to a target unit in combat
+  description: The OnDamageDealt method is invoked when a unit successfully deals
+    damage to another unit during combat. This method serves as a hook for combat
+    specializations to implement custom behaviors or effects that should trigger upon
+    dealing damage. It provides access to both the target unit and the amount of damage
+    dealt, allowing for conditional logic based on damage values or target properties.
+    The method is typically called from within the core combat system when a damage
+    event is processed and finalized.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that received the damage. This can be
+      any unit type including players, creatures, or game objects. Must not be null.
+  - name: damage
+    description: The amount of damage that was dealt to the target. This value represents
+      the final calculated damage after all modifiers, reductions, and resistances
+      have been applied.
+  returns: null
+  examples:
+  - title: Basic Damage Dealt Handler
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnDamageDealt(Unit* target, uint32 damage) override {\n        if\
+      \ (damage > 1000) {\n            // Apply special effect for high damage hits\n\
+      \            target->AddAura(12345, GetCaster());\n        }\n    }\n};"
+    language: cpp
+  - title: Damage Dealt with Target Type Check
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnDamageDealt(Unit* target, uint32 damage) override {\n        if\
+      \ (target->IsPlayer()) {\n            // Apply effect only to players\n    \
+      \        target->CastSpell(target, 67890, true);\n        } else if (target->IsCreature()\
+      \ && target->ToCreature()->GetEntry() == 12345) {\n            // Special handling\
+      \ for specific NPC\n            GetCaster()->ModifyPower(POWER_MANA, 50);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called after damage calculation but before any damage application
+    effects. It's important to note that the target parameter may be destroyed or
+    removed from combat by the time this method executes, so any references should
+    be handled carefully. The method is part of the combat specialization system and
+    is intended for implementing class-specific abilities or talents.
+  warnings: Do not modify the target unit directly in this method unless absolutely
+    necessary, as it may cause unexpected behavior or crashes if the unit is being
+    destroyed. Avoid performing heavy computations or blocking operations within this
+    method due to its invocation during active combat processing.
+  related:
+  - OnDamageTaken
+  - OnCombatEnter
+  - OnCombatExit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:04:32.959790'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

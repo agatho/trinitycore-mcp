@@ -1,0 +1,67 @@
+api:
+  class: ConditionMgr
+  method: IsObjectMeetToConditionList
+  signature: bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo &
+    sourceInfo, const ConditionContainer & conditions) const
+documentation:
+  brief: Evaluates whether an object meets all conditions in a given condition list.
+  description: The IsObjectMeetToConditionList method checks if a specified object,
+    represented by ConditionSourceInfo, satisfies all the conditions defined in a
+    ConditionContainer. This method is used extensively in TrinityCore for validating
+    various game mechanics such as quest requirements, item usage restrictions, NPC
+    gossip options, and spell targeting rules. It iterates through each condition
+    in the container and evaluates them against the provided source information, returning
+    true only if all conditions are met. The method supports complex conditional logic
+    including logical operators and nested conditions.
+  parameters:
+  - name: sourceInfo
+    description: Reference to ConditionSourceInfo containing the object context and
+      data needed for condition evaluation. This includes the type of object, its
+      GUID, and associated variables that conditions may reference.
+  - name: conditions
+    description: Const reference to ConditionContainer holding the list of conditions
+      that must be evaluated against the source object. Each condition in the container
+      defines a specific requirement or constraint.
+  returns: Boolean value indicating whether all conditions in the container are satisfied
+    by the provided source object. Returns true if all conditions pass, false otherwise.
+  examples:
+  - title: Checking Quest Requirements
+    code: 'ConditionSourceInfo sourceInfo;
+
+      sourceInfo.SetType(CONDITION_SOURCE_TYPE_QUEST);
+
+      sourceInfo.SetGUID(ObjectGuid::Create<HighGuid::Player>(12345));
+
+
+      ConditionContainer questConditions;
+
+      // Add conditions for quest requirements
+
+      bool meetsRequirements = sConditionMgr->IsObjectMeetToConditionList(sourceInfo,
+      questConditions);'
+    language: cpp
+  - title: Validating NPC Gossip Options
+    code: "if (sConditionMgr->IsObjectMeetToConditionList(sourceInfo, gossipConditions))\n\
+      {\n    // Show gossip option\n    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,\
+      \ \"This option is available\", GOSSIP_SENDER_MAIN, 1);\n}"
+    language: cpp
+  notes: This method performs deep evaluation of all conditions in the container,
+    which may have performance implications for large condition sets. The method assumes
+    that sourceInfo and conditions are properly initialized before calling. It's commonly
+    used in conjunction with other ConditionMgr methods like GetConditionMap() to
+    retrieve pre-defined condition sets.
+  warnings: Ensure that ConditionSourceInfo is correctly populated with valid object
+    data, as invalid or missing data may lead to unexpected evaluation results. Be
+    cautious when using this method in performance-critical code paths due to potential
+    iteration over multiple conditions.
+  related:
+  - GetConditionMap
+  - IsObjectMeetToCondition
+  - AddCondition
+  - RemoveCondition
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T16:53:17.344888'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: QuestRequirementAnalyzer
+  method: AnalyzeQuestRequirements
+  signature: int QuestRequirementAnalyzer::AnalyzeQuestRequirements(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Analyzes and evaluates the requirements for a specified quest to determine
+    if a bot player can accept or complete it.
+  description: The AnalyzeQuestRequirements method assesses whether a given quest
+    can be accepted or completed by a specified bot player. It checks various conditions
+    such as level requirements, prerequisite quests, item availability, and faction
+    standings. The method returns an integer code indicating the result of the analysis,
+    which can be used to determine if the quest is accessible to the bot. This functionality
+    is crucial for automated questing systems within TrinityCore-based World of Warcraft
+    servers.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to analyze. Must correspond to
+      a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the bot that will be evaluated
+      against the quest requirements. Must not be null.
+  returns: 'Returns an integer value indicating the outcome of the analysis:
+
+    - 0: Quest can be accepted/completed
+
+    - Negative values: Various error conditions (e.g., invalid quest ID, missing prerequisites)
+
+    - Positive values: Specific requirement violations or warnings'
+  examples:
+  - title: Basic usage to check if a bot can accept a quest
+    code: "uint32 questId = 12345;\nPlayer* bot = ...; // Assume valid player pointer\n\
+      int result = analyzer.AnalyzeQuestRequirements(questId, bot);\nif (result ==\
+      \ 0) {\n    // Quest is available for the bot\n    printf(\"Quest can be accepted\\\
+      n\");\n} else {\n    // Handle different error conditions\n    printf(\"Quest\
+      \ not available: %d\\n\", result);\n}"
+    language: cpp
+  - title: Using result codes to make decisions in automated questing
+    code: "uint32 questId = 12345;\nPlayer* bot = ...;\nint analysisResult = analyzer.AnalyzeQuestRequirements(questId,\
+      \ bot);\n\nswitch (analysisResult) {\ncase 0:\n    // Proceed with quest acceptance\n\
+      \    bot->AddQuest(questId);\n    break;\ncase -1:\n    // Invalid quest ID\n\
+      \    sLog->outError(\"Invalid quest ID: %u\", questId);\n    break;\ncase -2:\n\
+      \    // Level requirement not met\n    sLog->outError(\"Player level too low\
+      \ for quest %u\", questId);\n    break;\n// Additional cases for other error\
+      \ conditions\n}"
+    language: cpp
+  notes: This method performs database lookups and checks against player state, so
+    it may have performance implications when called frequently. It's recommended
+    to cache results where possible in automated systems. The method assumes that
+    the Player object is properly initialized and represents an active bot character.
+  warnings: Ensure that the questId parameter corresponds to a valid quest in the
+    database; otherwise, the method will return error codes. The bot parameter must
+    not be null or invalid, as this could lead to undefined behavior. This method
+    does not modify the player's state directly, but its results should be used carefully
+    when making decisions about quest acceptance.
+  related:
+  - GetQuestLevel
+  - CheckQuestPrerequisites
+  - CanPlayerAcceptQuest
+  - IsQuestAvailable
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:38:24.150099'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

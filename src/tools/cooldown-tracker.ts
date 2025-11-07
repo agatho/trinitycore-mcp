@@ -7,9 +7,9 @@
  * @module tools/cooldown-tracker
  */
 
-import type { CombatLogEntry, AbilityUsage, MissedOpportunity } from "./botcombatloganalyzer.js";
-import { queryWorld } from "../database/connection.js";
-import { logger } from '../utils/logger.js';
+import type { CombatLogEntry, AbilityUsage, MissedOpportunity } from "./botcombatloganalyzer";
+import { queryWorld } from "../database/connection";
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // TYPES

@@ -150,7 +150,7 @@ export default function HomePage() {
     {
       name: "SAI Editor",
       icon: Workflow,
-      description: "Visual Smart AI script builder with templates & validation",
+      description: "Visual Smart AI script builder",
       href: "/sai-editor-enhanced",
       color: "text-blue-400",
     },

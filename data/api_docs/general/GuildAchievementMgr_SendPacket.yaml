@@ -1,0 +1,48 @@
+api:
+  class: GuildAchievementMgr
+  method: SendPacket
+  signature: void GuildAchievementMgr::SendPacket(const WorldPacket * data) const
+documentation:
+  brief: Sends a WorldPacket to all guild members with appropriate permissions.
+  description: The SendPacket method is responsible for broadcasting a WorldPacket
+    to all players who are members of the guild and have the necessary permissions
+    to receive the packet. This method is typically used for sending achievement-related
+    data, guild notifications, or other real-time updates that require immediate client-side
+    processing. The packet is transmitted through the player's connection using the
+    standard TrinityCore networking infrastructure. The method operates on a const
+    object, indicating it does not modify the GuildAchievementMgr state but rather
+    uses it to determine which players should receive the packet.
+  parameters:
+  - name: data
+    description: A pointer to the WorldPacket that contains the data to be sent to
+      guild members. This packet should be properly constructed with the appropriate
+      opcode and payload for the intended recipient clients.
+  returns: null
+  examples:
+  - title: Sending Achievement Data to Guild Members
+    code: 'WorldPacket packet(SMSG_GUILD_ACHIEVEMENT_DELETED, 4);
+
+      packet << uint32(12345); // Achievement ID
+
+      GuildAchievementMgr* mgr = guild->GetGuildAchievementMgr();
+
+      mgr->SendPacket(&packet);'
+    language: cpp
+  notes: This method likely iterates through all online guild members and sends the
+    packet via their individual connection handlers. It may include filtering based
+    on player permissions or achievement visibility settings. The method is designed
+    to be efficient and avoid sending duplicate packets to the same client.
+  warnings: Ensure that the WorldPacket passed to this method is properly formatted
+    with correct opcodes and data structure before calling SendPacket, as malformed
+    packets can cause client-side crashes or unexpected behavior. Avoid calling this
+    method from within a packet processing context to prevent potential deadlocks
+    or recursive calls.
+  related:
+  - GuildAchievementMgr::SendPacketToPlayer
+  - GuildAchievementMgr::SendPacketToOnlineMembers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T12:47:14.626262'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

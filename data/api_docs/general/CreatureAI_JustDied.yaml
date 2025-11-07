@@ -1,0 +1,52 @@
+api:
+  class: CreatureAI
+  method: JustDied
+  signature: void CreatureAI::JustDied(int * param0)
+documentation:
+  brief: Called when a creature's health reaches zero and it is about to die, allowing
+    custom AI behavior before death.
+  description: The JustDied method is invoked in the CreatureAI class when a creature's
+    health drops to zero and it is about to be removed from the world. This method
+    serves as a hook for custom AI logic that should execute immediately before the
+    creature dies, such as dropping loot, casting final spells, or triggering quest
+    events. It provides an opportunity for developers to implement unique death behaviors
+    without overriding core creature death mechanics. The method is called during
+    the creature's death sequence and is typically used for cleanup or event triggering
+    rather than modifying the death process itself.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Loot Drop on Death
+    code: "class MyCreatureAI : public CreatureAI\n{\npublic:\n    void JustDied()\
+      \ override\n    {\n        // Drop loot when creature dies\n        me->SummonGameObject(GO_LOOT_CHEST,\
+      \ me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, 0, 0, 0,\
+      \ 1);\n    }\n};"
+    language: cpp
+  - title: Trigger Quest Event on Death
+    code: "class BossAI : public CreatureAI\n{\npublic:\n    void JustDied() override\n\
+      \    {\n        // Notify quest system that boss is defeated\n        if (Player*\
+      \ player = me->GetMap()->GetPlayer(PlayerIds[0]))\n        {\n            player->KilledMonsterCredit(NPC_BOSS_KILL_CREDIT);\n\
+      \        }\n        \n        // Play death animation or sound\n        me->PlayDirectSound(SOUND_BOSS_DEATH);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called during the creature's death processing, so any modifications
+    to the creature's state should be done carefully. The creature may not be fully
+    removed from the world yet when this method executes. It's recommended to avoid
+    calling methods that might cause additional AI processing or state changes that
+    could interfere with the normal death sequence.
+  warnings: Avoid performing operations that could cause stack overflow or infinite
+    recursion within this method. Do not attempt to modify creature health or trigger
+    death conditions from within JustDied, as this may lead to undefined behavior.
+    Be cautious when accessing other objects in the world during this call, as they
+    might be in an inconsistent state.
+  related:
+  - UpdateAI
+  - EnterCombat
+  - JustRespawned
+  - DamageTaken
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:29:33.088407'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

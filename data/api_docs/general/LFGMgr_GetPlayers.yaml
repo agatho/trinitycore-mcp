@@ -1,0 +1,57 @@
+api:
+  class: LFGMgr
+  method: GetPlayers
+  signature: const int & LFGMgr::GetPlayers(int guid)
+documentation:
+  brief: Retrieves the number of players in a specific LFG (Looking for Group) dungeon
+    finder instance.
+  description: The GetPlayers method returns the current count of players participating
+    in a particular Looking for Group dungeon finder instance identified by its GUID.
+    This method is used internally by the LFG system to track group sizes and manage
+    queue operations. The returned value represents the actual number of players currently
+    queued or assigned to that specific dungeon group. It's important to note that
+    this method may return different values depending on the current state of the
+    LFG instance, such as whether players are in the queue, forming a group, or already
+    inside the dungeon.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the LFG dungeon finder instance for
+      which to retrieve player count. This is typically a 32-bit integer representing
+      the dungeon's internal ID.
+  returns: Returns a constant reference to an integer representing the number of players
+    currently associated with the specified LFG instance. The value will be zero if
+    no players are in that instance, or a positive integer indicating the current
+    group size.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 dungeonGuid = 12345;\nint playerCount = LFGMgr::GetPlayers(dungeonGuid);\n\
+      if (playerCount > 0)\n{\n    std::cout << \"Dungeon has \" << playerCount <<\
+      \ \" players\" << std::endl;\n}"
+    language: cpp
+  - title: Checking Group Size Before Adding Players
+    code: "uint32 dungeonGuid = 54321;\nconst int& currentPlayers = LFGMgr::GetPlayers(dungeonGuid);\n\
+      if (currentPlayers < MAX_GROUP_SIZE)\n{\n    // Add player to group\n    LFGMgr::AddPlayerToGroup(dungeonGuid,\
+      \ newPlayerGuid);\n}\nelse\n{\n    // Handle full group case\n    SendLFGFullMessage(dungeonGuid);\n\
+      }"
+    language: cpp
+  notes: This method returns a const reference to an integer which means it should
+    not be modified directly. The implementation likely involves accessing internal
+    LFG data structures that track player counts per dungeon instance. Performance
+    is generally good as it's designed for frequent polling during LFG operations,
+    but excessive calls without caching may impact performance in high-traffic scenarios.
+  warnings: Be aware that the returned reference points to an internal value that
+    might change if other methods modify the LFG state. Avoid storing this reference
+    for extended periods as it could become invalid or point to outdated data. Also
+    ensure the GUID parameter is valid and corresponds to an existing LFG instance
+    to prevent undefined behavior.
+  related:
+  - GetLFGInstance
+  - AddPlayerToGroup
+  - RemovePlayerFromGroup
+  - IsLFGInstanceActive
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T10:51:37.921948'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

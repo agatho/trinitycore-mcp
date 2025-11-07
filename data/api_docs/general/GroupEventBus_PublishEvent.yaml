@@ -1,0 +1,50 @@
+api:
+  class: GroupEventBus
+  method: PublishEvent
+  signature: bool GroupEventBus::PublishEvent(const GroupEvent & event)
+documentation:
+  brief: Publishes a group event to all registered subscribers in the event bus.
+  description: The GroupEventBus::PublishEvent method dispatches a given GroupEvent
+    to all registered listeners within the system. This mechanism enables asynchronous
+    communication between different subsystems of the TrinityCore server, allowing
+    components to react to group-related events such as member joins, leaves, or changes
+    in group leadership. The method returns true if the event was successfully published
+    to at least one subscriber, and false otherwise. It is typically used in the context
+    of player group management and raid coordination within World of Warcraft's game
+    mechanics.
+  parameters:
+  - name: event
+    description: The GroupEvent object containing the event data to be published.
+      This includes information about the type of group event, affected players, and
+      any relevant metadata.
+  returns: True if the event was successfully delivered to one or more subscribers;
+    false if no subscribers were registered or if delivery failed for all subscribers.
+  examples:
+  - title: Basic Event Publishing
+    code: "GroupEvent groupEvent;\n// Initialize groupEvent with appropriate data\n\
+      bool result = groupEventBus.PublishEvent(groupEvent);\nif (result)\n{\n    //\
+      \ Event was published successfully\n}"
+    language: cpp
+  - title: Publishing a Group Member Leave Event
+    code: "GroupEvent leaveEvent;\nleaveEvent.type = GroupEventType::MEMBER_LEAVE;\n\
+      leaveEvent.playerGuid = playerGuid;\nleaveEvent.groupId = groupId;\nbool success\
+      \ = groupEventBus.PublishEvent(leaveEvent);\nif (!success)\n{\n    // Handle\
+      \ case where no subscribers received the event\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and can be called from any thread.
+    It uses a lock-free mechanism internally for performance optimization, but may
+    block briefly during event delivery if subscribers are processing events synchronously.
+  warnings: Ensure that the GroupEvent object passed to this method is fully initialized
+    before publishing, as incomplete or invalid data could lead to unexpected behavior
+    in subscribers. Avoid calling this method recursively from within a subscriber's
+    event handler to prevent potential deadlocks.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - ProcessEvent
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T13:15:22.203584'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

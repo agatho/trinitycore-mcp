@@ -1,0 +1,60 @@
+api:
+  class: ThreatCoordinator
+  method: ExecuteTaunt
+  signature: bool ThreatCoordinator::ExecuteTaunt(int tankGuid, Unit * target)
+documentation:
+  brief: Executes a taunt ability on a target unit, transferring threat from the current
+    tank to the specified target.
+  description: The ExecuteTaunt method is used in TrinityCore's AI system to perform
+    a taunt action on a target unit. This method attempts to transfer threat from
+    the current tank to the specified target, effectively causing the target to become
+    the new primary threat source for the creature. The method typically involves
+    checking if the taunt can be successfully executed based on game mechanics such
+    as target validity, distance, and threat conditions. It is commonly used in boss
+    encounters or scripted AI behaviors where controlling which unit holds aggro is
+    important for proper encounter management.
+  parameters:
+  - name: tankGuid
+    description: The global unique identifier (GUID) of the current tank unit that
+      will be taunted. This identifies which unit is currently holding threat and
+      will lose it.
+  - name: target
+    description: Pointer to the Unit object that will receive the taunt effect. This
+      represents the target unit that will gain threat from the tank.
+  returns: Returns true if the taunt was successfully executed and threat was transferred,
+    false otherwise. The method may return false if the taunt fails due to invalid
+    parameters, target conditions, or game logic restrictions.
+  examples:
+  - title: Basic Taunt Execution
+    code: "if (threatCoordinator->ExecuteTaunt(playerGuid, targetUnit)) {\n    //\
+      \ Taunt successful, threat transferred\n    targetUnit->AddThreat(player, 100.0f);\n\
+      } else {\n    // Taunt failed\n    sLog->outError(\"Failed to execute taunt\
+      \ on target %u\", targetUnit->GetGUID().GetCounter());\n}"
+    language: cpp
+  - title: Taunt with Precondition Check
+    code: "if (player && targetUnit && player->IsInWorld() && targetUnit->IsInWorld())\
+      \ {\n    if (threatCoordinator->ExecuteTaunt(player->GetGUID().GetCounter(),\
+      \ targetUnit)) {\n        // Successfully taunted\n        sLog->outString(\"\
+      Player %u taunted unit %u\", player->GetGUID().GetCounter(), targetUnit->GetGUID().GetCounter());\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the ThreatCoordinator system used in AI behavior trees
+    and scripted encounters. It's commonly called during boss fight mechanics where
+    precise control over threat distribution is required. The method may perform internal
+    checks for valid targets, distance constraints, and existing threat conditions
+    before executing.
+  warnings: Ensure that both tankGuid and target parameters are valid before calling
+    this method. Passing invalid GUIDs or null pointers can lead to undefined behavior
+    or crashes in the AI system. This method should only be called from within a valid
+    AI context where threat management is appropriate.
+  related:
+  - GetThreat
+  - AddThreat
+  - ModifyThreat
+  - ClearThreatList
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T00:58:48.534374'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

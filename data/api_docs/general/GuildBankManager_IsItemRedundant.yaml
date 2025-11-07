@@ -1,0 +1,53 @@
+api:
+  class: GuildBankManager
+  method: IsItemRedundant
+  signature: bool GuildBankManager::IsItemRedundant(int * guild, uint32 itemId)
+documentation:
+  brief: Determines whether a guild bank item is redundant based on existing items
+    in the guild's inventory.
+  description: The IsItemRedundant method checks if a specified item is already present
+    in the guild bank in sufficient quantity to make additional instances redundant.
+    This function evaluates item stacking rules and guild bank slot availability to
+    determine redundancy. It is typically used during item deposit operations to optimize
+    storage usage and prevent unnecessary duplication of identical items within the
+    guild's bank. The method considers all existing entries of the same item type
+    when making its determination.
+  parameters:
+  - name: guild
+    description: Pointer to an integer representing the guild identifier. This parameter
+      likely refers to the guild's unique database ID used for querying guild-specific
+      data.
+  - name: itemId
+    description: The unique identifier of the item being checked for redundancy. This
+      corresponds to the ItemTemplate entry in the database and is used to match against
+      existing items in the guild bank.
+  returns: Returns true if the item is redundant (i.e., there are already sufficient
+    quantities of this item in the guild bank to satisfy any potential need), otherwise
+    returns false. A return value of true indicates that adding more of this item
+    would not be beneficial for storage optimization.
+  examples:
+  - title: Checking Item Redundancy Before Deposit
+    code: "int guildId = 12345;\nuint32 itemId = 18765;\nbool isRedundant = GuildBankManager::IsItemRedundant(&guildId,\
+      \ itemId);\nif (!isRedundant)\n{\n    // Proceed with depositing the item\n\
+      \    guildBank->DepositItem(itemId);\n}\nelse\n{\n    // Item is already sufficiently\
+      \ represented in bank\n    SendChatMessage(\"Item is already sufficiently stocked.\"\
+      );\n}"
+    language: cpp
+  notes: This method likely interacts with the GuildBankTab and GuildBankItem tables
+    in the database to retrieve current item counts. It may also consider item stacking
+    limits imposed by the game's guild bank system. The method assumes that items
+    of the same type are considered redundant if their total stack count meets or
+    exceeds what would be needed for normal guild operations.
+  warnings: This function should not be called with invalid guild IDs or non-existent
+    item IDs, as this could lead to undefined behavior or database access errors.
+    Ensure proper validation of input parameters before invoking this method.
+  related:
+  - GuildBankManager::DepositItem
+  - GuildBankManager::WithdrawItem
+  - GuildBankManager::GetItemCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T12:46:54.244210'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

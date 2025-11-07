@@ -1,0 +1,55 @@
+api:
+  class: PlayerbotModuleAdapter
+  method: OnModuleUpdate
+  signature: void PlayerbotModuleAdapter::OnModuleUpdate(uint32 diff)
+documentation:
+  brief: Updates the player bot module with the specified time difference.
+  description: The OnModuleUpdate method is a core callback function in the PlayerbotModuleAdapter
+    class that handles periodic updates for player bot modules. This method is invoked
+    by the game engine at regular intervals to allow modules to perform time-based
+    logic, state management, and behavior updates. The 'diff' parameter represents
+    the elapsed time in milliseconds since the last update call, enabling precise
+    timing of actions and cooldowns. This method typically contains module-specific
+    logic for AI decision making, target selection, spell casting, and movement behaviors
+    based on the current game state.
+  parameters:
+  - name: diff
+    description: The time difference in milliseconds since the last update call. This
+      value is used to calculate time-based events, cooldowns, and timing-sensitive
+      actions within the module.
+  returns: null
+  examples:
+  - title: Basic Module Update Implementation
+    code: "void MyPlayerbotModule::OnModuleUpdate(uint32 diff)\n{\n    // Handle time-based\
+      \ logic\n    if (cooldownTimer > 0)\n        cooldownTimer -= diff;\n    \n\
+      \    // Perform AI decisions\n    if (cooldownTimer <= 0 && CanCastSpell())\n\
+      \    {\n        CastSpell();\n        cooldownTimer = 5000; // Reset cooldown\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Module Update with State Management
+    code: "void CombatModule::OnModuleUpdate(uint32 diff)\n{\n    // Update combat\
+      \ timers\n    if (combatTimer > 0)\n        combatTimer = std::max(0u, combatTimer\
+      \ - diff);\n    \n    // Handle combat state transitions\n    if (IsInCombat()\
+      \ && combatTimer == 0)\n    {\n        // Execute combat logic\n        ExecuteCombatStrategy();\n\
+      \        combatTimer = 1000; // Next update in 1 second\n    }\n    \n    //\
+      \ Update target selection\n    if (target && target->IsDead())\n        target\
+      \ = nullptr;\n}"
+    language: cpp
+  notes: This method is called from the main game loop and should not block or perform
+    heavy operations that could affect game performance. The diff parameter represents
+    actual elapsed time, so implementations should account for potential large time
+    jumps during server lag or debugging sessions.
+  warnings: Avoid performing expensive operations or blocking calls within this method
+    as it's called frequently. Be cautious with time calculations that might overflow
+    or underflow with very large diff values during extended server downtime.
+  related:
+  - OnModuleInitialize
+  - OnModuleDisable
+  - OnPlayerLogin
+  - OnPlayerLogout
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T00:41:30.874683'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

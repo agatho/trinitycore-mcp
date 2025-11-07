@@ -1,0 +1,86 @@
+api:
+  class: AreaTriggerData
+  method: WriteUpdate
+  signature: void AreaTriggerData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const AreaTrigger * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes area trigger update data into a byte buffer for client synchronization.
+  description: The WriteUpdate method serializes the current state of an area trigger's
+    data into a ByteBuffer, which is then sent to a specific player client for synchronization.
+    This method handles the encoding of changes based on a provided changes mask and
+    is typically invoked during packet construction for area trigger updates. The
+    serialization respects nested change masks and can be used to send partial updates
+    when only certain properties have changed. It ensures that only relevant data
+    is transmitted to reduce network overhead while maintaining synchronization between
+    server and client states.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets sent to
+      players.
+  - name: changesMask
+    description: Integer mask indicating which fields of the area trigger have been
+      modified and should be included in the update. Each bit corresponds to a specific
+      field or property.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested change masks should be
+      ignored during serialization. When true, all relevant data is serialized regardless
+      of nested mask settings.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this data. Used for context
+      and potentially accessing owner-specific properties during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Allows
+      for conditional serialization based on player-specific criteria or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'AreaTriggerData triggerData;
+
+      ByteBuffer packetData;
+
+      int changesMask = 0x01;
+
+      AreaTrigger* owner = GetAreaTrigger();
+
+      Player* receiver = GetPlayer();
+
+      triggerData.WriteUpdate(packetData, changesMask, false, owner, receiver);
+
+      // Send packetData to player'
+    language: cpp
+  - title: Conditional Update with Nested Mask Ignoring
+    code: 'AreaTriggerData triggerData;
+
+      ByteBuffer updatePacket;
+
+      int changesMask = 0x0F;
+
+      AreaTrigger* owner = GetAreaTrigger();
+
+      Player* receiver = GetPlayer();
+
+      triggerData.WriteUpdate(updatePacket, changesMask, true, owner, receiver);
+
+      // All data is written regardless of nested masks'
+    language: cpp
+  notes: This method is part of the TrinityCore's network update system and should
+    only be called during packet construction phases. It assumes that the ByteBuffer
+    has sufficient capacity to hold the serialized data, though it may resize if needed.
+    The changesMask parameter must accurately reflect which fields have changed; otherwise,
+    clients might receive inconsistent state information.
+  warnings: Incorrectly setting the changesMask can lead to incomplete or incorrect
+    updates being sent to players, potentially causing visual glitches or gameplay
+    inconsistencies. Always ensure that the mask correctly reflects actual changes
+    in the area trigger's state before calling this method.
+  related:
+  - AreaTriggerData::ReadUpdate
+  - AreaTriggerData::BuildUpdateData
+  - AreaTrigger::BuildCreateUpdateBlockForPlayer
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T06:38:28.197086'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

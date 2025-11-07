@@ -1,0 +1,59 @@
+api:
+  class: MountManager
+  method: CanCastMountSpell
+  signature: bool MountManager::CanCastMountSpell(int * player, uint32 spellId) const
+documentation:
+  brief: Determines whether a player can cast a mount spell based on current game
+    state and restrictions.
+  description: The CanCastMountSpell method evaluates if a player is eligible to cast
+    a specific mount spell. It checks various conditions such as player state, zone
+    restrictions, combat status, and mount availability. This method is typically
+    used before allowing a player to summon or activate a mount to ensure game balance
+    and prevent exploits. The method considers factors like whether the player is
+    in a restricted zone (e.g., combat zones, indoor areas), if they are already mounted,
+    or if the spell is currently on cooldown.
+  parameters:
+  - name: player
+    description: Pointer to the player object that is attempting to cast the mount
+      spell. This parameter represents the player context for evaluation.
+  - name: spellId
+    description: The unique identifier of the mount spell being checked. This ID corresponds
+      to a specific mount ability in the game's spell database.
+  returns: Returns true if the player can cast the specified mount spell under current
+    conditions, false otherwise. The method returns false when the player is in an
+    invalid state or location for mounting.
+  examples:
+  - title: Basic usage to check mount spell eligibility
+    code: "Player* player = ...;\nuint32 mountSpellId = 34090; // Example mount spell\
+      \ ID\nif (mountManager->CanCastMountSpell(player, mountSpellId)) {\n    // Allow\
+      \ the player to cast the mount spell\n    player->CastSpell(player, mountSpellId,\
+      \ true);\n} else {\n    // Prevent casting and notify player\n    player->SendSpellFailed(0,\
+      \ mountSpellId, SPELL_FAILED_NO_MOUNTS_ALLOWED);\n}"
+    language: cpp
+  - title: Integration with mount spell handling system
+    code: "bool HandleMountSpell(Player* player, uint32 spellId) {\n    if (!player\
+      \ || !sObjectMgr->GetSpellInfo(spellId))\n        return false;\n    \n    MountManager*\
+      \ mountMgr = sObjectMgr->GetMountManager();\n    if (mountMgr && mountMgr->CanCastMountSpell(player,\
+      \ spellId)) {\n        // Proceed with mount activation logic\n        return\
+      \ player->Mount(spellId);\n    }\n    \n    // Handle invalid mount attempt\n\
+      \    player->SendSpellFailed(0, spellId, SPELL_FAILED_NO_MOUNTS_ALLOWED);\n\
+      \    return false;\n}"
+    language: cpp
+  notes: This method is part of the core mount system in TrinityCore and integrates
+    with the player's current state, zone restrictions, and spell cooldowns. It may
+    be called frequently during gameplay, so performance optimization is important
+    for large-scale server environments.
+  warnings: Do not use this method to bypass spell validation or to force mount activation
+    without checking preconditions. Incorrect usage could lead to exploits or client-server
+    desynchronization.
+  related:
+  - MountManager::IsPlayerMounted
+  - MountManager::CanPlayerUseMount
+  - Player::Mount
+  - Player::Unmount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T08:33:18.056586'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

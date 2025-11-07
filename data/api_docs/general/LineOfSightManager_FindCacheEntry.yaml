@@ -1,0 +1,65 @@
+api:
+  class: LineOfSightManager
+  method: FindCacheEntry
+  signature: LoSCacheEntry * LineOfSightManager::FindCacheEntry(int sourceGuid, int
+    targetGuid, LoSCheckType checkType)
+documentation:
+  brief: Retrieves a cached line-of-sight entry for the specified source and target
+    GUIDs with the given check type.
+  description: The FindCacheEntry method searches through the internal cache of line-of-sight
+    checks to locate an existing entry that matches the provided source GUID, target
+    GUID, and check type. This caching mechanism is used to optimize performance by
+    avoiding redundant line-of-sight calculations between the same entities. The method
+    returns a pointer to the cached entry if found, or nullptr if no matching entry
+    exists in the cache. This functionality is crucial for maintaining efficient AI
+    behavior and spell targeting in World of Warcraft environments where frequent
+    line-of-sight checks occur.
+  parameters:
+  - name: sourceGuid
+    description: The unique identifier (GUID) of the entity initiating the line-of-sight
+      check
+  - name: targetGuid
+    description: The unique identifier (GUID) of the entity being checked for line-of-sight
+      visibility
+  - name: checkType
+    description: The type of line-of-sight check to perform, determining how visibility
+      is evaluated (e.g., normal, spell, melee)
+  returns: A pointer to a LoSCacheEntry object if a matching cached entry exists;
+    otherwise, returns nullptr indicating no cached result was found for the specified
+    parameters.
+  examples:
+  - title: Basic Usage of FindCacheEntry
+    code: "LoSCacheEntry* entry = lineOfSightManager->FindCacheEntry(playerGuid, npcGuid,\
+      \ LoSCheckType::SPELL);\nif (entry != nullptr) {\n    // Use cached result\n\
+      \    bool isVisible = entry->isVisible;\n} else {\n    // Perform new line-of-sight\
+      \ calculation\n}"
+    language: cpp
+  - title: Checking for Cached Line-of-Sight in AI Logic
+    code: "Unit* attacker = unit->GetVictim();\nif (attacker) {\n    LoSCacheEntry*\
+      \ cacheEntry = lineOfSightManager->FindCacheEntry(unit->GetGUID().GetRawValue(),\
+      \ \n                                                                 attacker->GetGUID().GetRawValue(),\
+      \ \n                                                                 LoSCheckType::MELEE);\n\
+      \    if (cacheEntry && cacheEntry->isVisible) {\n        // Proceed with melee\
+      \ attack\n        unit->Attack(attacker, true);\n    } else {\n        // Need\
+      \ to re-evaluate line of sight\n        unit->SetInCombatWith(attacker);\n \
+      \   }\n}"
+    language: cpp
+  notes: The method performs a hash-based lookup for optimal performance. The cache
+    entries are typically managed by the LineOfSightManager internally and may be
+    evicted based on LRU (Least Recently Used) policies or time-based expiration.
+    This method is thread-safe as long as the underlying cache structure is properly
+    synchronized.
+  warnings: Be cautious when using cached results for critical gameplay decisions,
+    as stale entries might lead to incorrect behavior if not properly invalidated.
+    Always validate that cached entries are still relevant before relying on them
+    in time-sensitive contexts such as combat or spell targeting.
+  related:
+  - AddCacheEntry
+  - RemoveCacheEntry
+  - ClearCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:55:37.733026'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

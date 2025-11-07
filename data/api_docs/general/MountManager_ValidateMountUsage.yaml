@@ -1,0 +1,55 @@
+api:
+  class: MountManager
+  method: ValidateMountUsage
+  signature: bool MountManager::ValidateMountUsage(int * player) const
+documentation:
+  brief: Validates whether a player can use a mount based on current game state and
+    restrictions.
+  description: The ValidateMountUsage method checks if a player is allowed to use
+    a mount at the current time, considering factors such as zoning restrictions,
+    combat status, movement state, and other game mechanics that may prevent mounting.
+    This method ensures players cannot use mounts in inappropriate locations or situations,
+    such as while swimming, flying, or in certain zones like sanctuaries or battlegrounds.
+    It typically returns true if the mount usage is valid and false otherwise. The
+    validation process includes checking player state, environment conditions, and
+    server-side rules that govern when mounting is permitted.
+  parameters:
+  - name: player
+    description: Pointer to the player object whose mount usage is being validated.
+      This parameter is expected to be a valid pointer to a Player instance in the
+      TrinityCore framework.
+  returns: Returns true if the player can use a mount at this time, false otherwise.
+    A return value of false indicates that mounting would be invalid due to current
+    game state or restrictions.
+  examples:
+  - title: Basic Mount Validation Check
+    code: "Player* player = ...; // Get player instance\nif (mountManager.ValidateMountUsage(&player))\
+      \ {\n    // Player can mount\n    player->Mount(12345); // Example mount ID\n\
+      } else {\n    // Cannot mount, send error message\n    player->SendSystemMessage(\"\
+      You cannot mount right now.\");\n}"
+    language: cpp
+  - title: Integration with Mount Command Handler
+    code: "void HandleMountCommand(ChatHandler* handler) {\n    Player* player = handler->GetPlayer();\n\
+      \    if (!player) return;\n    \n    if (mountManager.ValidateMountUsage(&player))\
+      \ {\n        // Proceed with mounting logic\n        player->SetCanFly(true);\n\
+      \        player->SendMoveSpline();\n    } else {\n        handler->PSendSysMessage(\"\
+      Mounting is currently not allowed.\");\n    }\n}"
+    language: cpp
+  notes: This method likely performs checks against the player's current zone flags,
+    movement flags, and combat state. It may also consider server configuration settings
+    or custom restrictions defined by the server administrator. The implementation
+    should be thread-safe as it's typically called from game logic threads.
+  warnings: Do not call this method with a null pointer for the player parameter,
+    as this will likely cause a crash or undefined behavior. Ensure that the player
+    object is valid and in a consistent state before calling this validation method.
+  related:
+  - MountManager::AddMount
+  - MountManager::RemoveMount
+  - Player::IsInCombat
+  - Player::IsFlying
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T01:36:10.982217'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

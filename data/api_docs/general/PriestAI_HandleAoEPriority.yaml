@@ -1,0 +1,58 @@
+api:
+  class: PriestAI
+  method: HandleAoEPriority
+  signature: bool PriestAI::HandleAoEPriority(int * target)
+documentation:
+  brief: Determines if an area-of-effect spell should be prioritized for casting based
+    on current target and AI logic.
+  description: The HandleAoEPriority method evaluates whether a priest's AI should
+    prioritize casting an area-of-effect spell over other available abilities. It
+    analyzes the current target, spell availability, and combat situation to determine
+    if AoE casting is beneficial. This method typically returns true when the AI decides
+    that casting an AoE spell would be more effective than targeting a single enemy
+    or using other abilities. The method may modify the target pointer to reflect
+    a new priority target if needed. It's part of the PriestAI class's decision-making
+    process for spell selection in group combat scenarios.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the current target ID. The method
+      may modify this value to indicate a different target priority if AoE casting
+      is preferred.
+  returns: Returns true if the AI determines that an area-of-effect spell should be
+    prioritized and executed, false otherwise. A return of true indicates that the
+    AI has decided to use an AoE ability instead of targeting the original single
+    enemy.
+  examples:
+  - title: Basic usage in AI decision loop
+    code: "void PriestAI::UpdateAI(uint32 diff)\n{\n    if (HandleAoEPriority(&m_target))\n\
+      \    {\n        // Execute AoE spell\n        DoCastVictim(m_aoeSpellId);\n\
+      \    }\n    else\n    {\n        // Continue with normal targeting logic\n \
+      \       DoMeleeAttackIfReady();\n    }\n}"
+    language: cpp
+  - title: Integration with spell casting system
+    code: "bool PriestAI::HandleAoEPriority(int* target)\n{\n    if (!m_creature->getVictim()\
+      \ || !m_creature->IsInCombat())\n        return false;\n\n    // Check if multiple\
+      \ enemies are within AoE range\n    if (m_creature->CountPctPlayersInRange(10.0f)\
+      \ > 1)\n    {\n        // Prefer AoE when multiple targets present\n       \
+      \ *target = GetBestAoETarget();\n        return true;\n    }\n    \n    return\
+      \ false;\n}"
+    language: cpp
+  notes: This method is typically called during the AI update cycle to make real-time
+    decisions about spell priority. The target parameter may be modified by this function
+    to indicate a different casting target that would maximize AoE effectiveness.
+    Implementation should consider performance implications when checking multiple
+    targets or complex conditions.
+  warnings: The method modifies the target pointer, which could affect subsequent
+    AI logic if not properly handled. Ensure that any changes to the target are compatible
+    with the rest of the AI decision-making system. This function should only be called
+    when the AI is in a combat state and has valid targets.
+  related:
+  - GetBestAoETarget
+  - DoCastVictim
+  - CountPctPlayersInRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T11:11:34.262578'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,87 @@
+api:
+  class: SceneObjectData
+  method: WriteUpdate
+  signature: void SceneObjectData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Object * owner, const Player * receiver) const
+documentation:
+  brief: Serializes scene object data changes into a network packet buffer for transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of a SceneObjectData
+    instance into a ByteBuffer, which is typically used to send updates about scene
+    objects to players in the game world. It respects the provided changesMask to
+    determine which fields should be included in the update packet. The method also
+    considers the owner object and receiver player for context-specific serialization
+    logic. This functionality is crucial for maintaining synchronization between server-side
+    scene object states and client-side representations, particularly in World of
+    Warcraft's dynamic scene system where objects can have complex visual and behavioral
+    states that need to be communicated efficiently over the network.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets sent to
+      clients.
+  - name: changesMask
+    description: An integer mask indicating which fields or aspects of the scene object
+      have changed and should be included in the update. Each bit typically represents
+      a different field or component of the object.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested changes masks (e.g.,
+      for child objects or components) should be ignored during serialization. When
+      true, only top-level changes are considered.
+  - name: owner
+    description: Pointer to the Object instance that owns this SceneObjectData. Used
+      to provide context for serialization logic and determine ownership-related behaviors.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      customize the serialized data based on the receiver's perspective or state (e.g.,
+      visibility, permissions).
+  returns: None. This method modifies the provided ByteBuffer in-place and does not
+    return any value.
+  examples:
+  - title: Basic usage for sending scene object update
+    code: 'SceneObjectData sceneData;
+
+      ByteBuffer updateBuffer;
+
+      Player* targetPlayer = ...; // Get player reference
+
+      Object* ownerObject = ...; // Get owner reference
+
+      int changesMask = 0x01; // Example mask indicating first field changed
+
+      sceneData.WriteUpdate(updateBuffer, changesMask, false, ownerObject, targetPlayer);'
+    language: cpp
+  - title: Sending update with nested changes ignored
+    code: 'SceneObjectData sceneData;
+
+      ByteBuffer updateBuffer;
+
+      Player* targetPlayer = ...;
+
+      Object* ownerObject = ...;
+
+      int changesMask = 0x0F; // Multiple fields changed
+
+      sceneData.WriteUpdate(updateBuffer, changesMask, true, ownerObject, targetPlayer);
+      // Ignore nested changes'
+    language: cpp
+  notes: This method is typically called during the update cycle of the game loop
+    when scene object states need to be synchronized with clients. The changesMask
+    parameter allows for efficient partial updates rather than full object serialization.
+    Performance considerations include avoiding unnecessary data serialization when
+    possible, and the method may perform different logic paths depending on whether
+    nested changes are ignored.
+  warnings: Incorrectly setting the changesMask can result in incomplete or incorrect
+    updates being sent to clients, potentially causing visual glitches or desynchronization.
+    The owner and receiver parameters must be valid pointers; otherwise, undefined
+    behavior may occur during serialization.
+  related:
+  - SceneObjectData::ReadUpdate
+  - SceneObjectData::BuildUpdateData
+  - SceneObjectData::GetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T23:46:53.937583'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: MountManager
+  method: GetCurrentZoneId
+  signature: uint32 MountManager::GetCurrentZoneId(int * player) const
+documentation:
+  brief: Retrieves the zone identifier of the player's current location
+  description: The GetCurrentZoneId method returns the unique zone identifier (ZoneID)
+    for the player's current geographical location within the game world. This value
+    corresponds to the Zone.dbc entry and is used throughout TrinityCore for zone-specific
+    logic, such as quest tracking, area-based spell effects, and zone-related events.
+    The method internally accesses the player's current position data and maps it
+    to the appropriate zone ID based on the game's zone boundaries and hierarchy.
+    It is commonly used in conjunction with other mount and movement-related systems
+    to determine valid riding zones or to enforce zone-specific mount restrictions.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player index or identifier
+      within the server's internal player array. This parameter appears to be unused
+      in the method signature, suggesting it may be a legacy parameter or intended
+      for future use.
+  returns: Returns a uint32 value representing the zone identifier (ZoneID) of the
+    player's current location. A value of 0 typically indicates an invalid or unknown
+    zone, while valid zone IDs correspond to entries in the Zone.dbc database file.
+  examples:
+  - title: Basic usage to retrieve current zone ID
+    code: "uint32 currentZoneId = mountManager.GetCurrentZoneId(nullptr);\nif (currentZoneId\
+      \ != 0)\n{\n    printf(\"Player is currently in zone: %u\\n\", currentZoneId);\n\
+      }"
+    language: cpp
+  - title: Using zone ID to check if player is in a restricted zone
+    code: "uint32 zoneId = mountManager.GetCurrentZoneId(nullptr);\nconst uint32 restrictedZones[]\
+      \ = { 1234, 5678, 9012 };\nbool isRestricted = false;\nfor (uint32 restrictedZone\
+      \ : restrictedZones)\n{\n    if (zoneId == restrictedZone)\n    {\n        isRestricted\
+      \ = true;\n        break;\n    }\n}\nif (isRestricted)\n{\n    // Prevent mount\
+      \ usage in restricted zone\n}"
+    language: cpp
+  notes: This method likely uses the player's current coordinates to determine zone
+    boundaries, which are defined in the game's zone database. The parameter 'player'
+    appears to be unused or deprecated, as it is passed as a pointer but not dereferenced
+    within the method. Performance-wise, this operation should be relatively lightweight
+    since it only involves coordinate-to-zone mapping calculations.
+  warnings: Ensure that the player object referenced by the 'player' parameter (if
+    used) is valid and not null to avoid undefined behavior. The returned zone ID
+    may be zero if the player's location cannot be resolved to a valid zone, which
+    should be handled appropriately in calling code.
+  related:
+  - GetPlayerZoneId
+  - GetCurrentMapId
+  - IsPlayerInValidMountZone
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T08:32:55.094380'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

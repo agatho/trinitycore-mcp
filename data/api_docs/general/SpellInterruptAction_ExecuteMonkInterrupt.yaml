@@ -1,0 +1,61 @@
+api:
+  class: SpellInterruptAction
+  method: ExecuteMonkInterrupt
+  signature: ActionResult SpellInterruptAction::ExecuteMonkInterrupt(BotAI * ai, ::Unit
+    * target, uint32 spellId)
+documentation:
+  brief: Executes a monk's interrupt action on a target unit using the specified spell
+    ID.
+  description: The ExecuteMonkInterrupt method performs an interrupt action specific
+    to monk class characters within the TrinityCore AI framework. It attempts to interrupt
+    the target unit's current cast using the provided spell ID, which is typically
+    a monk ability such as 'Chi Burst' or 'Spear Hand Strike'. The method integrates
+    with the BotAI system to control bot behavior and ensure proper execution of combat
+    actions. This function is part of the general AI action category and handles the
+    logic for when and how a monk should interrupt enemy spellcasting during combat
+    encounters.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance controlling the monk bot. Used to access
+      AI state, target information, and execute actions within the bot's context.
+  - name: target
+    description: Pointer to the Unit object representing the target unit to be interrupted.
+      Must be a valid target within the bot's range and line of sight.
+  - name: spellId
+    description: The unique identifier (ID) of the spell to use for interrupting the
+      target. Should correspond to a valid monk interrupt ability such as 115072 (Spear
+      Hand Strike) or 137639 (Chi Burst).
+  returns: ActionResult indicating the success or failure of the interrupt action
+    execution. Possible return values include SUCCESS, FAILED, or PENDING depending
+    on whether the interrupt was successfully cast, failed due to conditions, or is
+    still in progress.
+  examples:
+  - title: Basic Monk Interrupt Usage
+    code: "ActionResult result = interruptAction.ExecuteMonkInterrupt(ai, targetUnit,\
+      \ 115072); // Interrupt with Spear Hand Strike\nif (result == ActionResult::SUCCESS)\
+      \ {\n    ai->GetBot()->GetMotionMaster()->Clear();\n    ai->GetBot()->SetTarget(targetUnit);\n\
+      }"
+    language: cpp
+  - title: Conditional Monk Interrupt
+    code: "if (targetUnit && targetUnit->IsNonMeleeSpellCasted()) {\n    ActionResult\
+      \ result = interruptAction.ExecuteMonkInterrupt(ai, targetUnit, 137639); //\
+      \ Chi Burst\n    if (result == ActionResult::SUCCESS) {\n        ai->GetBot()->CastSpell(targetUnit,\
+      \ 137639, true);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the bot has sufficient mana and that the target
+    is within casting range. The spell ID must correspond to a valid monk interrupt
+    ability. The AI system should ensure that the bot's current state allows for interrupt
+    actions, such as not being in a movement or casting state.
+  warnings: Ensure that the spellId parameter corresponds to an actual monk interrupt
+    spell; otherwise, the action will fail silently. Also, verify that target is valid
+    and within range before calling this method to avoid errors.
+  related:
+  - ExecuteSpellAction
+  - ExecuteCombatAction
+  - GetInterruptSpellForTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T09:33:59.737116'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

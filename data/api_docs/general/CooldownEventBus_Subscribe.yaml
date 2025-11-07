@@ -1,0 +1,60 @@
+api:
+  class: CooldownEventBus
+  method: Subscribe
+  signature: bool CooldownEventBus::Subscribe(BotAI * subscriber, const int & types)
+documentation:
+  brief: Registers a BotAI subscriber to receive cooldown-related events based on
+    specified event types.
+  description: The Subscribe method allows a BotAI instance to register itself with
+    the CooldownEventBus to receive notifications about cooldown events. It takes
+    a pointer to the BotAI subscriber and an integer representing the types of events
+    to subscribe to. The method returns true if the subscription was successful, or
+    false if it failed due to invalid parameters or internal errors. This mechanism
+    is used in TrinityCore's AI system to enable bots to react to cooldown changes
+    in their environment, such as when abilities become available again after being
+    on cooldown.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that wants to subscribe to cooldown
+      events. Must be a valid, non-null pointer to a BotAI object.
+  - name: types
+    description: Integer value specifying which types of cooldown events to subscribe
+      to. This is typically a bitmask or flag combination indicating specific event
+      categories like ability cooldowns, item cooldowns, etc.
+  returns: True if the subscription was successfully added to the event bus; false
+    if the subscription failed due to invalid parameters, null subscriber, or internal
+    error conditions.
+  examples:
+  - title: Basic Subscription Example
+    code: "BotAI* myBot = new BotAI();\nint eventTypeMask = COOLDOWN_EVENT_ABILITY\
+      \ | COOLDOWN_EVENT_ITEM;\nbool success = cooldownBus.Subscribe(myBot, eventTypeMask);\n\
+      if (success) {\n    // Bot is now subscribed to ability and item cooldown events\n\
+      }"
+    language: cpp
+  - title: Subscription with Error Handling
+    code: "BotAI* bot = GetPlayerBot();\nif (!bot) {\n    // Handle invalid bot pointer\n\
+      \    return false;\n}\nint eventTypes = COOLDOWN_EVENT_SPELL | COOLDOWN_EVENT_AURA;\n\
+      bool result = cooldownBus.Subscribe(bot, eventTypes);\nif (!result) {\n    //\
+      \ Log error or handle failed subscription\n    sLog->outError(\"Failed to subscribe\
+      \ bot %u to cooldown events\", bot->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's AI event system and should be called
+    during bot initialization or when the bot needs to start receiving specific cooldown
+    notifications. The types parameter is expected to be a bitmask, allowing multiple
+    event types to be subscribed to simultaneously. Ensure that the BotAI instance
+    remains valid for the duration of the subscription as no automatic cleanup occurs.
+  warnings: Do not call this method with a null subscriber pointer; doing so will
+    likely cause undefined behavior or crashes. The types parameter should only contain
+    valid event type flags, otherwise the subscription may not work as expected. Be
+    aware that multiple subscriptions from the same BotAI instance will result in
+    duplicate entries unless handled properly by the CooldownEventBus implementation.
+  related:
+  - Unsubscribe
+  - Publish
+  - GetSubscribers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:41:38.401815'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

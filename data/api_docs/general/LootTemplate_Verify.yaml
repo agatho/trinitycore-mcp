@@ -1,0 +1,55 @@
+api:
+  class: LootTemplate
+  method: Verify
+  signature: void LootTemplate::Verify(const LootStore & store, uint32 Id) const
+documentation:
+  brief: Validates the integrity of a loot template against its associated loot store.
+  description: The Verify method performs a consistency check on a LootTemplate object
+    to ensure that all entries within the template are valid and properly referenced
+    within the provided LootStore. It checks for correct item IDs, proper chance values,
+    and ensures that all referenced items exist in the store. This method is typically
+    used during server startup or loot template loading to catch configuration errors
+    before they cause runtime issues. The verification process helps maintain data
+    integrity and prevents potential crashes or unexpected behavior when loot is distributed
+    to players.
+  parameters:
+  - name: store
+    description: Reference to the LootStore that contains the valid loot definitions.
+      This store is used to validate that all items referenced in this template actually
+      exist within the game's loot system.
+  - name: Id
+    description: The unique identifier for this specific loot template. Used primarily
+      for logging and error reporting purposes to identify which template failed verification.
+  returns: null
+  examples:
+  - title: Basic Verification Usage
+    code: "LootTemplate* lootTemplate = sLootMgr->GetLootTemplate(12345);\nif (lootTemplate)\n\
+      {\n    lootTemplate->Verify(*sLootMgr, 12345);\n}"
+    language: cpp
+  - title: Verification in Debug Mode
+    code: '#ifdef TRINITY_DEBUG
+
+      LootTemplate* template = sLootMgr->GetLootTemplate(67890);
+
+      template->Verify(*sLootMgr, 67890);
+
+      #endif'
+    language: cpp
+  notes: This method is typically called during server initialization or when loot
+    templates are loaded from database. It performs checks that may be expensive in
+    terms of performance and is usually disabled in release builds. The method does
+    not modify any data but will log warnings or errors if inconsistencies are found.
+  warnings: Calling this method on an invalid or uninitialized LootTemplate can lead
+    to crashes or undefined behavior. Ensure the template and store parameters are
+    valid before calling Verify. This method should not be called during active gameplay
+    as it may cause performance issues.
+  related:
+  - LootStore::Verify
+  - LootTemplate::AddItem
+  - LootTemplate::Clear
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T09:10:37.394462'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

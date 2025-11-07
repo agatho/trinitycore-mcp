@@ -23,9 +23,9 @@ import type {
   MethodSymbol,
   CodeFix,
   FixType,
-} from './types.js';
-import { logger } from '../utils/logger.js';
-import type { CodeAnalysisEngine } from './CodeAnalysisEngine.js';
+} from './types';
+import { logger } from '../utils/logger';
+import type { CodeAnalysisEngine } from './CodeAnalysisEngine';
 
 // ============================================================================
 // LLM PROVIDER TYPES

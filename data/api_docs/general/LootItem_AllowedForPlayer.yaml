@@ -1,0 +1,58 @@
+api:
+  class: LootItem
+  method: AllowedForPlayer
+  signature: bool LootItem::AllowedForPlayer(const Player * player, const LootStoreItem
+    & lootStoreItem, bool strictUsabilityCheck)
+documentation:
+  brief: Determines if a player is allowed to loot a specific item based on loot rules
+    and restrictions.
+  description: The AllowedForPlayer method evaluates whether a given player can receive
+    a specific item from a loot source. It checks various conditions such as item
+    restrictions, player requirements, quest dependencies, and loot mode settings.
+    This method ensures that players only receive items they are eligible for according
+    to the game's loot system rules. The strictUsabilityCheck parameter controls how
+    strictly the method validates item usability, including checks for inventory space
+    and item level requirements.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is attempting to loot the item.
+      Must not be null.
+  - name: lootStoreItem
+    description: Reference to the LootStoreItem structure containing information about
+      the item being looted, including item ID, chance, and restrictions.
+  - name: strictUsabilityCheck
+    description: Boolean flag that determines if strict usability checks should be
+      performed. When true, additional validation such as inventory space and item
+      level requirements are enforced.
+  returns: Returns true if the player is allowed to loot the item according to all
+    applicable rules and restrictions; false otherwise.
+  examples:
+  - title: Basic usage in loot processing
+    code: "if (lootItem->AllowedForPlayer(player, lootStoreItem, false)) {\n    //\
+      \ Player can loot this item\n    player->AddItem(lootStoreItem.itemid, 1);\n\
+      } else {\n    // Player cannot loot this item\n    player->SendLootError(LOOT_ERROR_ITEM_LOCKED);\n\
+      }"
+    language: cpp
+  - title: Strict usability check for quest items
+    code: "if (lootItem->AllowedForPlayer(player, lootStoreItem, true)) {\n    //\
+      \ Player can loot and use this item\n    if (player->CanUseItem(lootStoreItem.itemid))\
+      \ {\n        player->AddItem(lootStoreItem.itemid, 1);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during the loot distribution process to validate
+    each player's eligibility for items. The strictUsabilityCheck parameter affects
+    performance as it may trigger additional database queries or inventory checks.
+    The method internally uses player's current quest state, faction settings, and
+    loot mode configurations.
+  warnings: Do not call this method with a null player pointer as it will likely cause
+    a crash. The strictUsabilityCheck flag should be used judiciously in performance-critical
+    code paths as it may involve expensive checks like inventory space validation.
+  related:
+  - LootItem::IsAllowed
+  - Player::CanUseItem
+  - LootStore::GetLootForPlayer
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T09:20:36.004850'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

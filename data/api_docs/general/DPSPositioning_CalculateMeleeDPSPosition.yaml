@@ -1,0 +1,68 @@
+api:
+  class: DPSPositioning
+  method: CalculateMeleeDPSPosition
+  signature: int DPSPositioning::CalculateMeleeDPSPosition(Unit * target, Player *
+    tank, const CombatPositionContext & context)
+documentation:
+  brief: Calculates and returns the optimal melee DPS positioning for a target based
+    on tank and combat context.
+  description: The CalculateMeleeDPSPosition method determines the best positional
+    strategy for a melee DPS player to maximize damage output while maintaining safety
+    during combat. It evaluates the relative positions of the target, the tank, and
+    other relevant combat factors defined in the CombatPositionContext. The method
+    considers factors such as threat levels, positioning constraints, and combat mechanics
+    to return an appropriate position indicator. This function is typically used in
+    AI-driven combat systems or for calculating optimal positioning in group scenarios
+    where coordination between players is essential.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that represents the current combat target.
+      Must be a valid unit with a valid position and combat state.
+  - name: tank
+    description: Pointer to the Player object representing the tank in the group.
+      This player's position and threat level are used as reference points for positioning
+      calculations.
+  - name: context
+    description: Reference to a CombatPositionContext structure containing contextual
+      data such as combat zone boundaries, threat levels, and positional constraints
+      that influence the positioning decision.
+  returns: Returns an integer value representing the calculated optimal melee DPS
+    position. A positive value typically indicates a position to the side or behind
+    the target, while negative values may indicate front-facing positions or specific
+    tactical formations. Zero usually means no valid positioning could be determined.
+  examples:
+  - title: Basic usage of CalculateMeleeDPSPosition
+    code: "Unit* target = player->GetVictim();\nPlayer* tank = GetTank();\nCombatPositionContext\
+      \ context;\ncontext.zoneBoundary = 10.0f;\ncontext.threatLevel = 50;\nint position\
+      \ = dpsPositioning.CalculateMeleeDPSPosition(target, tank, context);\nif (position\
+      \ > 0) {\n    // Move to optimal side position\n} else if (position < 0) {\n\
+      \    // Move to front position\n}"
+    language: cpp
+  - title: Using result for tactical positioning
+    code: "Unit* target = player->GetVictim();\nPlayer* tank = GetTank();\nCombatPositionContext\
+      \ context;\ncontext.zoneBoundary = 15.0f;\ncontext.threatLevel = 75;\nint position\
+      \ = dpsPositioning.CalculateMeleeDPSPosition(target, tank, context);\nswitch\
+      \ (position) {\n    case 1:\n        player->MoveTo(10.0f, 0.0f, 0.0f); // Side\
+      \ position\n        break;\n    case -1:\n        player->MoveTo(-5.0f, 0.0f,\
+      \ 0.0f); // Front position\n        break;\n    default:\n        player->StopMoving();\
+      \ // No valid position\n        break;\n}"
+    language: cpp
+  notes: This method assumes that both the target and tank are in a valid combat state
+    with known positions. The CombatPositionContext must be properly initialized before
+    calling this function to ensure accurate results. Performance is optimized for
+    frequent calls during combat, but may vary depending on complexity of context
+    data.
+  warnings: Ensure that the target and tank parameters are not null or invalid before
+    calling this method, as it will likely crash if they are. The method does not
+    validate whether the calculated position is actually reachable or safe in all
+    scenarios, so additional checks should be performed by calling code.
+  related:
+  - GetCombatPositionContext
+  - SetCombatPositionContext
+  - EvaluateThreatLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T15:55:47.435683'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

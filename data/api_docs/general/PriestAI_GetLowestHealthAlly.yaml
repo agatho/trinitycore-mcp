@@ -1,0 +1,51 @@
+api:
+  class: PriestAI
+  method: GetLowestHealthAlly
+  signature: int * PriestAI::GetLowestHealthAlly(float maxRange)
+documentation:
+  brief: Returns the GUID of the lowest health ally within the specified range.
+  description: The GetLowestHealthAlly method identifies and returns the unique identifier
+    (GUID) of the ally with the lowest health value within a given maximum range.
+    This method is typically used by Priest AI logic to determine which friendly unit
+    requires healing priority. The method iterates through all valid allies in range,
+    compares their health percentages, and returns the GUID of the unit with the lowest
+    health. If no valid allies are found within range, it may return nullptr or a
+    special value indicating no target was found. This functionality is crucial for
+    implementing intelligent healing behavior in scripted priest AI.
+  parameters:
+  - name: maxRange
+    description: The maximum distance in yards to search for allies. Units beyond
+      this range will be ignored.
+  returns: Pointer to the GUID of the lowest health ally within range, or nullptr
+    if no valid ally is found.
+  examples:
+  - title: Basic usage to find and heal lowest health ally
+    code: "Unit* target = _owner->GetLowestHealthAlly(30.0f);\nif (target && target->IsAlive())\n\
+      {\n    // Cast healing spell on the lowest health ally\n    _owner->CastSpell(target,\
+      \ SPELL_FLASH_HEAL, true);\n}"
+    language: cpp
+  - title: Using with conditional checks for valid targets
+    code: "int* lowestHealthAlly = _owner->GetLowestHealthAlly(40.0f);\nif (lowestHealthAlly\
+      \ != nullptr && *lowestHealthAlly > 0)\n{\n    Unit* ally = ObjectAccessor::GetUnit(*_owner,\
+      \ *lowestHealthAlly);\n    if (ally && ally->IsAlive() && ally->GetHealthPct()\
+      \ < 30.0f)\n    {\n        // Prioritize healing this unit\n        _owner->CastSpell(ally,\
+      \ SPELL_LESSER_HEAL, true);\n    }\n}"
+    language: cpp
+  notes: This method assumes the AI has access to a valid target list and range checking
+    capabilities. Performance may be impacted when searching large groups of units.
+    The method should only be called during AI update cycles to avoid potential issues
+    with unit state changes.
+  warnings: Ensure that the returned GUID is validated before using it as a Unit pointer,
+    as the target may have died or become invalid between the time of retrieval and
+    usage. Avoid calling this method in high-frequency loops without proper caching
+    or throttling mechanisms.
+  related:
+  - GetHighestHealthAlly
+  - GetNearestTarget
+  - GetRandomFriendlyUnit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T11:13:35.713686'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

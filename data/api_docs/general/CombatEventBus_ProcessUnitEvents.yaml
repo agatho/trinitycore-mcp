@@ -1,0 +1,54 @@
+api:
+  class: CombatEventBus
+  method: ProcessUnitEvents
+  signature: uint32 CombatEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes combat events for a specified unit within the given time difference.
+  description: The ProcessUnitEvents method handles the execution and updating of
+    combat-related events associated with a specific game unit identified by its GUID.
+    It is typically called during the game loop to manage active combat states, such
+    as damage application, spell effects, and status changes. The method takes into
+    account the time difference (diff) to accurately process events that may have
+    timed out or need immediate execution. This function ensures proper synchronization
+    of combat mechanics and maintains the integrity of ongoing battles within the
+    TrinityCore framework.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose combat events are
+      to be processed. Must be a valid unit GUID from the game world.
+  - name: diff
+    description: The time difference in milliseconds since the last call to this method
+      for the specified unit. Used to determine event timing and expiration.
+  returns: Returns the number of combat events successfully processed for the given
+    unit during this execution cycle. A value of zero indicates no active events were
+    found or processed.
+  examples:
+  - title: Basic usage in game loop
+    code: "uint32 eventsProcessed = combatEventBus.ProcessUnitEvents(playerGuid, deltaTime);\n\
+      if (eventsProcessed > 0)\n{\n    // Handle any post-processing after event handling\n\
+      }"
+    language: cpp
+  - title: Processing multiple units in a loop
+    code: "for (auto& unit : activeCombatUnits)\n{\n    uint32 processed = combatEventBus.ProcessUnitEvents(unit->GetGUID(),\
+      \ deltaTime);\n    if (processed > 0)\n    {\n        // Log or react to event\
+      \ processing\n    }\n}"
+    language: cpp
+  notes: This method is part of the core combat system and should be called regularly
+    during the game update cycle. It assumes that the unit exists in the world and
+    has active combat events assigned to it. The method does not perform any locking
+    or thread safety checks, so external synchronization may be required if used from
+    multiple threads.
+  warnings: Calling this method with an invalid or non-existent unit GUID can lead
+    to undefined behavior or crashes. Ensure that units are valid and exist in the
+    game world before invoking this function. Also, passing incorrect time differences
+    (diff) can cause events to be processed at wrong intervals or skipped entirely.
+  related:
+  - CombatEventBus::AddUnitEvent
+  - CombatEventBus::RemoveUnitEvent
+  - CombatEventBus::GetUnitEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T17:10:50.669282'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

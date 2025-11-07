@@ -1,0 +1,50 @@
+api:
+  class: LootEventBus
+  method: ClearUnitEvents
+  signature: void LootEventBus::ClearUnitEvents(int unitGuid)
+documentation:
+  brief: Clears all loot events associated with a specific unit GUID from the LootEventBus.
+  description: The ClearUnitEvents method removes all registered loot events for a
+    given unit identifier (GUID) from the LootEventBus system. This function is typically
+    used when a unit (such as a creature or game object) is destroyed, despawned,
+    or otherwise no longer relevant to active loot event processing. The method ensures
+    that no further loot-related callbacks will be triggered for the specified unit,
+    preventing potential memory leaks or invalid references. It operates on the internal
+    event mapping structure of the LootEventBus, iterating through stored events and
+    removing those associated with the provided GUID.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose loot events should
+      be cleared from the event bus. This value represents the database ID of a creature,
+      game object, or other interactable entity within the World of Warcraft instance.
+  returns: null
+  examples:
+  - title: Clear loot events for a defeated creature
+    code: "void OnCreatureDeath(Creature* creature)\n{\n    // Clear any pending loot\
+      \ events for this creature\n    LootEventBus::ClearUnitEvents(creature->GetGUID().GetCounter());\n\
+      }"
+    language: cpp
+  - title: Clear loot events during object cleanup
+    code: "void CleanupGameObject(GameObject* go)\n{\n    // Ensure no lingering loot\
+      \ event references exist\n    LootEventBus::ClearUnitEvents(go->GetGUID().GetCounter());\n\
+      }"
+    language: cpp
+  notes: This method assumes that the unitGuid parameter corresponds to a valid entity
+    in the current world state. It's recommended to verify the existence of the unit
+    before calling this function to avoid unnecessary processing. The implementation
+    likely uses hash-based lookups for efficient event removal, but performance may
+    degrade if many events are stored per unit.
+  warnings: Calling this method with an invalid or non-existent GUID could lead to
+    undefined behavior if the internal data structures aren't properly validated.
+    Ensure that only valid unit identifiers are passed to prevent potential crashes
+    or memory corruption.
+  related:
+  - LootEventBus::AddUnitEvent
+  - LootEventBus::RemoveUnitEvent
+  - LootEventBus::ProcessEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T09:24:46.673880'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

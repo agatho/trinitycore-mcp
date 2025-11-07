@@ -1,0 +1,58 @@
+api:
+  class: CreatureAI
+  method: JustSummonedGameobject
+  signature: void CreatureAI::JustSummonedGameobject(GameObject * param0)
+documentation:
+  brief: Called when a GameObject is summoned by the CreatureAI, allowing custom behavior
+    execution.
+  description: The JustSummonedGameobject method is a virtual callback function in
+    the CreatureAI class that is invoked immediately after a GameObject has been successfully
+    summoned by the creature. This method allows developers to implement custom logic
+    or actions that should occur when a summoned GameObject becomes active in the
+    game world. It serves as an event handler for summoning events, enabling AI scripts
+    to react to summoned objects such as traps, guardians, or other interactive elements.
+    The method is typically used in conjunction with summoning mechanics within creature
+    AI behavior trees or custom AI implementations.
+  parameters:
+  - name: param0
+    description: Pointer to the GameObject that was summoned by the creature. This
+      parameter provides access to the summoned object's properties and methods for
+      further manipulation or interaction.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "class MyCreatureAI : public CreatureAI\n{\npublic:\n    void JustSummonedGameobject(GameObject*\
+      \ go) override\n    {\n        // Log that a GameObject was summoned\n     \
+      \   TC_LOG_INFO(\"sql.sql\", \"Creature %u summoned GameObject %u\", GetCreature()->GetEntry(),\
+      \ go->GetEntry());\n        \n        // Example: Set the summoned object to\
+      \ despawn after 10 seconds\n        go->SetRespawnTime(10);\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Conditional Logic
+    code: "class BossAI : public CreatureAI\n{\npublic:\n    void JustSummonedGameobject(GameObject*\
+      \ go) override\n    {\n        // Check if the summoned object is a specific\
+      \ type (e.g., a trap)\n        if (go->GetEntry() == 12345)\n        {\n   \
+      \         // Apply special effects or set initial state\n            go->SetUInt32Value(GAMEOBJECT_FLAGS,\
+      \ GO_FLAG_NOT_SELECTABLE);\n            \n            // Schedule destruction\
+      \ after delay\n            GetCreature()->m_Events.AddEvent([go]()\n       \
+      \     {\n                if (go)\n                    go->Delete();\n      \
+      \      }, 30000); // Destroy after 30 seconds\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the CreatureAI virtual function interface and should
+    be overridden in custom AI implementations. The GameObject pointer passed to this
+    method is guaranteed to be valid at the time of invocation, but developers should
+    verify that it's not null before using it. This method is called from within the
+    context of the creature's AI update loop, so performance considerations apply.
+  warnings: Avoid performing heavy operations or blocking calls in this method as
+    it may impact AI responsiveness. Also, be cautious about modifying or deleting
+    the GameObject pointer directly without proper checks, as it could lead to dangling
+    pointers or crashes if not handled carefully.
+  related:
+  - CreatureAI::JustDied
+  - CreatureAI::EnterCombat
+  - CreatureAI::UpdateAI
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:25:55.590501'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: Corpse
+  method: DeleteFromDB
+  signature: void Corpse::DeleteFromDB(const int & ownerGuid, int trans)
+documentation:
+  brief: Removes a corpse entry from the database associated with a specific player
+    GUID.
+  description: The DeleteFromDB method removes a corpse record from the database that
+    is linked to a particular player's GUID. This function is typically invoked when
+    a player's corpse expires or is looted, ensuring that the corresponding database
+    entry is cleaned up to prevent orphaned records. The method operates on the database
+    level and does not affect in-memory representations directly. It requires the
+    owner's GUID to identify which corpse record should be deleted and optionally
+    accepts a transaction parameter for database consistency.
+  parameters:
+  - name: ownerGuid
+    description: The unique identifier (GUID) of the player whose corpse is to be
+      deleted from the database. This value must correspond to an existing player
+      in the database.
+  - name: trans
+    description: An optional transaction identifier used for grouping database operations.
+      If provided, the deletion will be part of a larger transaction; otherwise, it
+      may execute independently.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: 'Corpse* corpse = ...;
+
+      uint32 ownerGuid = corpse->GetOwnerGUID();
+
+      corpse->DeleteFromDB(ownerGuid);'
+    language: cpp
+  - title: With Transaction Support
+    code: 'Corpse* corpse = ...;
+
+      uint32 ownerGuid = corpse->GetOwnerGUID();
+
+      int transactionId = 12345;
+
+      corpse->DeleteFromDB(ownerGuid, transactionId);'
+    language: cpp
+  notes: This method performs a direct database operation and should only be called
+    when it's certain that the corpse record exists in the database. It does not validate
+    whether the GUID corresponds to an actual player or if the corpse has already
+    been removed.
+  warnings: Calling this method without verifying the existence of the associated
+    corpse record may result in unnecessary database queries or errors. Additionally,
+    ensure proper synchronization when using transactions to avoid race conditions.
+  related:
+  - Corpse::SaveToDB
+  - Corpse::LoadFromDB
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:34:31.436574'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

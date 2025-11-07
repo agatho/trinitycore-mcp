@@ -1,0 +1,79 @@
+api:
+  class: ObjectData
+  method: WriteUpdate
+  signature: void ObjectData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Object * owner, const Player * receiver) const
+documentation:
+  brief: Serializes object update data into a ByteBuffer for transmission to a specific
+    player.
+  description: The WriteUpdate method serializes the current state of an Object's
+    changes into a ByteBuffer, preparing it for network transmission to a specific
+    Player. This method is typically invoked during WorldObject updates to synchronize
+    client-side state with server-side data. It respects the provided changesMask
+    to determine which fields should be included in the update packet. The ignoreNestedChangesMask
+    parameter allows bypassing nested object change tracking, useful when dealing
+    with complex hierarchical objects. The owner parameter specifies the Object being
+    updated, while receiver indicates the target Player who will receive this update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for constructing network packets.
+  - name: changesMask
+    description: Integer mask indicating which fields of the object have changed and
+      should be included in the update packet. Each bit corresponds to a specific
+      field or group of fields.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested object changes should
+      be ignored during serialization. When true, only top-level changes are considered.
+  - name: owner
+    description: Pointer to the Object instance whose update data is being serialized.
+      This represents the source of the update information.
+  - name: receiver
+    description: Pointer to the Player who will receive this update packet. Used for
+      determining visibility and specific field filtering based on player state.
+  returns: null
+  examples:
+  - title: Basic usage in an update handler
+    code: 'ByteBuffer updateData;
+
+      int mask = 0x1F; // Example changes mask
+
+      Player* targetPlayer = ...;
+
+      Object* objToUpdate = ...;
+
+      objToUpdate->GetUpdateData().WriteUpdate(updateData, mask, false, objToUpdate,
+      targetPlayer);'
+    language: cpp
+  - title: Writing update with nested change handling disabled
+    code: 'ByteBuffer packet;
+
+      int changes = 0x7FF;
+
+      bool ignoreNested = true;
+
+      Player* receiver = session->GetPlayer();
+
+      WorldObject* obj = ...;
+
+      obj->GetUpdateData().WriteUpdate(packet, changes, ignoreNested, obj, receiver);'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore and is called
+    automatically during object updates. Developers should be aware that the changesMask
+    parameter directly affects network bandwidth usage as it controls what data gets
+    sent to clients. The method assumes proper initialization of the ByteBuffer before
+    calling.
+  warnings: Incorrectly setting the changesMask can result in incomplete or incorrect
+    client state synchronization. Using an invalid owner pointer will lead to undefined
+    behavior. This method should not be called outside of update contexts unless carefully
+    managed.
+  related:
+  - Object::BuildUpdateData
+  - Object::GetUpdateData
+  - Player::SendUpdateToPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:32:53.356802'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

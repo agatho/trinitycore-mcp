@@ -1,0 +1,60 @@
+api:
+  class: AuctionHouseObject
+  method: SendAuctionRemoved
+  signature: void AuctionHouseObject::SendAuctionRemoved(const AuctionPosting * auction,
+    Player * owner, int trans) const
+documentation:
+  brief: Sends an auction removed message to the auction owner's client.
+  description: The SendAuctionRemoved method is responsible for notifying the player
+    who posted an auction that their auction has been removed from the auction house.
+    This typically occurs when an auction expires without being bought, is cancelled
+    by the owner, or is removed due to system maintenance or administrative action.
+    The method sends a specific packet to the owner's client to update their auction
+    UI and remove the auction from their active listings. It ensures that the player's
+    client reflects the current state of their auctions in real-time.
+  parameters:
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the auction being
+      removed. Must not be null.
+  - name: owner
+    description: Pointer to the Player object who owns the auction. This player will
+      receive the removal notification. Must not be null.
+  - name: trans
+    description: Transaction identifier used for tracking the removal operation. Typically
+      represents a unique transaction ID or context value.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'AuctionHouseObject* auctionHouse = sAuctionMgr;
+
+      AuctionPosting* auction = auctionHouse->GetAuction(12345);
+
+      Player* owner = ObjectAccessor::FindPlayer(auction->GetOwnerGuid());
+
+      auctionHouse->SendAuctionRemoved(auction, owner, 98765);'
+    language: cpp
+  - title: Usage in Auction Expiration Context
+    code: "void AuctionHouseObject::HandleAuctionExpiration(uint32 auctionId)\n{\n\
+      \    AuctionPosting* auction = GetAuction(auctionId);\n    if (!auction) return;\n\
+      \    \n    Player* owner = ObjectAccessor::FindPlayer(auction->GetOwnerGuid());\n\
+      \    if (owner)\n    {\n        SendAuctionRemoved(auction, owner, auctionId);\n\
+      \    }\n    \n    RemoveAuction(auctionId);\n}"
+    language: cpp
+  notes: This method is part of the auction house system's internal messaging mechanism.
+    It relies on proper player object access and assumes that the auction and owner
+    parameters are valid. The transaction ID parameter may be used for logging or
+    debugging purposes but does not affect core functionality.
+  warnings: Ensure that both auction and owner parameters are valid pointers before
+    calling this method to prevent crashes. Do not call this method with null pointers
+    as it will likely cause undefined behavior in the client communication.
+  related:
+  - SendAuctionOutbid
+  - SendAuctionSuccessful
+  - SendAuctionCancelled
+  - GetAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:07:57.516166'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: AuctionEventBus
+  method: UnsubscribeCallback
+  signature: void AuctionEventBus::UnsubscribeCallback(uint32 subscriptionId)
+documentation:
+  brief: Removes a previously subscribed callback from the auction event bus using
+    its unique subscription ID.
+  description: The UnsubscribeCallback method removes a callback function that was
+    previously registered with the AuctionEventBus using SubscribeCallback. This method
+    takes a subscription ID as input and unregisters the associated callback, preventing
+    it from being invoked when auction events occur. The subscription ID is typically
+    obtained when calling SubscribeCallback and should be stored by the caller for
+    later use in unsubscribing. If an invalid or non-existent subscription ID is provided,
+    the behavior is undefined and may result in no-op or unexpected consequences.
+    This mechanism allows for dynamic management of event handlers in the auction
+    system, enabling efficient cleanup of unused callbacks.
+  parameters:
+  - name: subscriptionId
+    description: The unique identifier returned by SubscribeCallback when registering
+      a callback. Used to identify which specific callback should be removed from
+      the event bus.
+  returns: None. This method does not return any value.
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'uint32 mySubscriptionId = auctionEventBus.SubscribeCallback(&MyAuctionCallback);
+
+      // ... some code ...
+
+      auctionEventBus.UnsubscribeCallback(mySubscriptionId);'
+    language: cpp
+  - title: Unsubscribing in a Cleanup Function
+    code: "class AuctionManager\n{\npublic:\n    void Cleanup()\n    {\n        if\
+      \ (subscriptionId != 0)\n        {\n            auctionEventBus.UnsubscribeCallback(subscriptionId);\n\
+      \            subscriptionId = 0;\n        }\n    }\nprivate:\n    uint32 subscriptionId\
+      \ = 0;\n};"
+    language: cpp
+  notes: The AuctionEventBus maintains internal state to track active subscriptions.
+    It's crucial to store the subscription ID returned by SubscribeCallback for proper
+    cleanup. Failure to unsubscribe may lead to memory leaks or dangling references
+    if the callback object is destroyed before unsubscribing.
+  warnings: Passing an invalid or already-unsubscribed subscriptionId may cause undefined
+    behavior. Always ensure that subscription IDs are valid and have not been previously
+    used in UnsubscribeCallback. Reusing subscription IDs after unsubscribing can
+    lead to unexpected event handling.
+  related:
+  - SubscribeCallback
+  - PublishEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:34:07.127484'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

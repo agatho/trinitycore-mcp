@@ -1,0 +1,65 @@
+api:
+  class: OPvPCapturePoint
+  method: HandleOpenGo
+  signature: int OPvPCapturePoint::HandleOpenGo(Player * player, GameObject * go)
+documentation:
+  brief: Handles the opening of a game object during an OPvP capture point event,
+    returning a status code indicating success or failure.
+  description: The HandleOpenGo method is responsible for managing the interaction
+    when a player attempts to open a GameObject associated with an OPvP (Open Player
+    versus Player) capture point. This typically occurs when a player interacts with
+    a door, chest, or other interactive object that is part of the capture point mechanics.
+    The method validates the player's eligibility and the game state before proceeding
+    with the opening logic. It returns an integer status code indicating whether the
+    operation was successful or if an error occurred. This method plays a crucial
+    role in OPvP gameplay by controlling access to objectives and ensuring proper
+    state transitions during capture events.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is attempting to open the GameObject.
+      Must be a valid player instance with proper permissions and in a valid game
+      state.
+  - name: go
+    description: Pointer to the GameObject that is being opened. This should be a
+      valid GameObject associated with the OPvP capture point, such as a door or interactive
+      object.
+  returns: 'Returns an integer status code: 0 for success, negative values for various
+    error conditions (such as invalid player, invalid game object, or insufficient
+    permissions). Positive non-zero values may indicate specific success states or
+    special conditions related to the capture point logic.'
+  examples:
+  - title: Basic usage in OPvP event handling
+    code: "void MyOPvPCapturePoint::OnPlayerEnter(Player* player)\n{\n    GameObject*\
+      \ go = GetGameObject();\n    if (go)\n    {\n        int result = HandleOpenGo(player,\
+      \ go);\n        if (result == 0)\n        {\n            // Successfully opened\
+      \ the object\n            SendObjectiveComplete(player);\n        }\n    }\n\
+      }"
+    language: cpp
+  - title: Handling different return codes for game logic
+    code: "int OPvPCapturePoint::HandleOpenGo(Player* player, GameObject* go)\n{\n\
+      \    if (!player || !go)\n        return -1; // Invalid parameters\n    \n \
+      \   if (player->GetTeam() != GetTeam())\n        return -2; // Wrong team\n\
+      \    \n    // Perform the actual opening logic\n    go->SetGoState(GO_STATE_ACTIVE);\n\
+      \    \n    // Return success code\n    return 0;\n}"
+    language: cpp
+  notes: This method is typically called as part of the broader OPvP capture point
+    system and should only be invoked when a player interacts with a valid GameObject
+    in the context of an active capture point. The implementation may vary between
+    different OPvP types, so developers should check specific subclass implementations.
+    Consider thread safety implications if this method is called from multiple threads
+    simultaneously.
+  warnings: Ensure that both player and GameObject parameters are valid before calling
+    this method to avoid crashes or undefined behavior. This method might be called
+    during critical game state transitions, so improper handling could lead to inconsistent
+    capture point states or exploit opportunities.
+  related:
+  - GetGameObject
+  - HandlePlayerEnter
+  - HandlePlayerLeave
+  - UpdateCapturePoint
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:50:31.885556'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

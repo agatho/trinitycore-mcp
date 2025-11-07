@@ -106,7 +106,7 @@ export class RequestTracer {
 
         // Log trace start
         const logger = getLogger();
-        logger.debug(`Trace started: ${name}`, { traceId, spanId }, traceId);
+        logger.debug(`Trace started: ${name}`, { traceId, spanId });
 
         return span;
     }
@@ -161,19 +161,17 @@ export class RequestTracer {
 
         // Log span completion
         const logger = getLogger();
-        const logLevel = success ? LogLevel.DEBUG : LogLevel.ERROR;
-        logger.performance(
-            logLevel,
-            span.name,
-            span.duration,
-            `Span completed: ${span.name}`,
-            {
-                spanId: span.spanId,
-                status: span.status,
-                tags: Object.fromEntries(span.tags),
-            },
-            span.traceId
-        );
+        const metadata = {
+            spanId: span.spanId,
+            status: span.status,
+            duration: span.duration,
+            tags: Object.fromEntries(span.tags),
+        };
+        if (success) {
+            logger.debug(`Span completed: ${span.name}`, metadata);
+        } else {
+            logger.error(`Span failed: ${span.name}`, metadata);
+        }
 
         // Record metrics
         try {

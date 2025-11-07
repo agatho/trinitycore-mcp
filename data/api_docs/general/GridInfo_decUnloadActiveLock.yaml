@@ -1,0 +1,39 @@
+api:
+  class: GridInfo
+  method: decUnloadActiveLock
+  signature: void GridInfo::decUnloadActiveLock()
+documentation:
+  brief: Decrements the active unload lock counter for the grid, potentially allowing
+    grid unloading if the counter reaches zero.
+  description: The decUnloadActiveLock method reduces the internal active unload lock
+    count of a GridInfo object. This mechanism is used to control when a grid can
+    be safely unloaded from memory. When the lock count reaches zero, the grid may
+    be eligible for unloading. The method is typically called in conjunction with
+    incUnloadActiveLock to manage resource usage and ensure that grids are not unloaded
+    while objects or processes are still actively using them. This is a core part
+    of TrinityCore's grid management system which handles dynamic loading and unloading
+    of world zones based on player activity.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Usage in Grid Management
+    code: "void SomeObject::OnRemoveFromWorld()\n{\n    if (GridInfo* gridInfo = GetMap()->GetGridInfo(GetGridX(),\
+      \ GetGridY()))\n    {\n        gridInfo->decUnloadActiveLock();\n    }\n}"
+    language: cpp
+  notes: This method is part of a reference counting system for grid unload protection.
+    It's crucial to call this method the same number of times as incUnloadActiveLock
+    to properly manage grid lifecycle. The implementation likely uses atomic operations
+    or mutexes to ensure thread safety during counter modifications.
+  warnings: Improper use of this method can lead to premature grid unloading, causing
+    crashes or data corruption when objects try to access unloaded grid data. Always
+    pair with incUnloadActiveLock calls and ensure all references are cleared before
+    decrementing.
+  related:
+  - incUnloadActiveLock
+  - getUnloadActiveLockCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:34:41.211764'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

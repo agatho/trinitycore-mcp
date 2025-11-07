@@ -7,7 +7,7 @@
  * non-linear scaling factors.
  */
 
-import { Statistics } from './PerformanceAnalyzer.js';
+import { Statistics } from './PerformanceAnalyzer';
 
 // ============================================================================
 // Type Definitions

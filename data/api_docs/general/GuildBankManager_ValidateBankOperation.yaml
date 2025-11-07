@@ -1,0 +1,59 @@
+api:
+  class: GuildBankManager
+  method: ValidateBankOperation
+  signature: bool GuildBankManager::ValidateBankOperation(int * player, BankOperation
+    operation, uint32 tabId)
+documentation:
+  brief: Validates a guild bank operation for a player, checking permissions and item
+    restrictions.
+  description: The ValidateBankOperation method checks whether a specified player
+    is allowed to perform a given bank operation on a specific guild bank tab. It
+    verifies that the player has sufficient rank permissions, that the operation type
+    is valid, and that any item restrictions or cooldowns are respected. This method
+    is typically called before executing a bank transaction to ensure it complies
+    with guild rules and game mechanics. The validation includes checking if the player
+    is in the guild, has access to the specified tab, and meets any required conditions
+    for the operation.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). Must be a valid player GUID or nullptr.
+  - name: operation
+    description: The type of bank operation being performed, such as deposit, withdrawal,
+      or movement. Valid values are defined by the BankOperation enum.
+  - name: tabId
+    description: Identifier for the guild bank tab being accessed. Must be a valid
+      tab ID (0-9) or 255 for 'all tabs' if applicable.
+  returns: Returns true if the operation is valid and can proceed, false otherwise.
+    A return value of false indicates that the player lacks permission, the operation
+    is invalid, or other validation checks failed.
+  examples:
+  - title: Basic Validation Check
+    code: "int playerId = 12345;\nBankOperation op = BANK_OP_DEPOSIT;\nuint32 tabId\
+      \ = 0;\nbool isValid = guildBankManager->ValidateBankOperation(&playerId, op,\
+      \ tabId);\nif (isValid) {\n    // Proceed with bank operation\n}"
+    language: cpp
+  - title: Checking Withdrawal Permissions
+    code: "int playerId = 12345;\nBankOperation op = BANK_OP_WITHDRAW;\nuint32 tabId\
+      \ = 3;\nbool isValid = guildBankManager->ValidateBankOperation(&playerId, op,\
+      \ tabId);\nif (!isValid) {\n    // Send error message to player\n    SendGuildBankError(GUILD_BANK_ERROR_NO_PERMISSION);\n\
+      }"
+    language: cpp
+  notes: This method is part of the core guild bank system and should be called before
+    any actual bank transaction. It does not perform the operation itself, but only
+    validates its legality. The implementation may vary depending on the current guild
+    rank settings and configured bank tab permissions.
+  warnings: Do not call this method without first verifying that the player is actually
+    in the guild. Passing an invalid tabId or operation type can lead to undefined
+    behavior. Always check the return value before proceeding with the actual bank
+    operation.
+  related:
+  - GuildBankManager::PerformBankOperation
+  - GuildBankManager::GetTabPermissions
+  - GuildBankManager::IsPlayerInGuild
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T02:50:12.719702'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

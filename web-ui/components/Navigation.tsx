@@ -48,7 +48,7 @@ const navigation: NavItem[] = [
   // Development Tools
   { label: "Schema Explorer", href: "/schema-explorer", icon: <Database className="w-4 h-4" />, category: "tools" },
   { label: "AI Visualizer", href: "/ai-visualizer", icon: <Activity className="w-4 h-4" />, category: "tools" },
-  { label: "SAI Editor", href: "/sai-editor", icon: <FileCode className="w-4 h-4" />, category: "tools" },
+  { label: "SAI Editor", href: "/sai-editor-enhanced", icon: <FileCode className="w-4 h-4" />, category: "tools" },
   { label: "Map Picker", href: "/map-picker", icon: <Globe className="w-4 h-4" />, category: "tools" },
   { label: "3D Viewer", href: "/3d-viewer", icon: <Layers className="w-4 h-4" />, category: "tools" },
 

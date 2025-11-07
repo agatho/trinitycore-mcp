@@ -7,8 +7,8 @@
  * @module tools/pattern-detection-ml
  */
 
-import type { CombatLogEntry, CombatMetrics } from "./botcombatloganalyzer.js";
-import type { Decision, GameState } from "./decision-tree-analyzer.js";
+import type { CombatLogEntry, CombatMetrics } from "./botcombatloganalyzer";
+import type { Decision, GameState } from "./decision-tree-analyzer";
 
 // ============================================================================
 // TYPES

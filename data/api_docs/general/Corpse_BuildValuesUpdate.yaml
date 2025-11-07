@@ -1,0 +1,70 @@
+api:
+  class: Corpse
+  method: BuildValuesUpdate
+  signature: void Corpse::BuildValuesUpdate(int * data, int flags, const int * target)
+    const
+documentation:
+  brief: Populates update buffer with corpse data for client synchronization
+  description: The BuildValuesUpdate method constructs and fills an update packet
+    buffer with the current state information of a corpse object. This method is used
+    by the TrinityCore server to synchronize corpse data with connected clients, ensuring
+    that players see accurate visual representations and status information for corpses
+    in the game world. The method processes various corpse properties including position,
+    orientation, display ID, and owner information to build a complete update packet.
+    It's typically invoked during periodic updates or when a client requests specific
+    object state information.
+  parameters:
+  - name: data
+    description: Pointer to the buffer where update data will be written. This buffer
+      must be pre-allocated with sufficient space to hold all required update fields.
+  - name: flags
+    description: Update flags that determine which fields should be included in the
+      update packet. These flags control the granularity of the update and can specify
+      different object states or properties.
+  - name: target
+    description: Pointer to the target object for which the update is being built,
+      or nullptr if updating for all observers. This parameter influences how certain
+      fields are processed during the update construction.
+  returns: null
+  examples:
+  - title: Basic corpse update usage
+    code: 'Corpse* corpse = ...; // Get a corpse instance
+
+      int updateData[UPDATE_FIELDS_COUNT];
+
+      int flags = UPDATETYPE_VALUES;
+
+      const int* target = nullptr;
+
+      corpse->BuildValuesUpdate(updateData, flags, target);'
+    language: cpp
+  - title: Updating specific corpse properties for a player
+    code: 'Corpse* corpse = ...;
+
+      int updateData[UPDATE_FIELDS_COUNT];
+
+      int flags = UPDATETYPE_VALUES | UPDATEFLAG_HAS_POSITION;
+
+      const int* target = player->GetGUID().GetRawValue(); // Target player GUID
+
+      corpse->BuildValuesUpdate(updateData, flags, target);'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore and should
+    only be called when preparing updates for network transmission. The data buffer
+    must be large enough to accommodate all fields that may be written during the
+    update process. The method does not perform any network transmission itself, but
+    rather prepares the data structure for subsequent sending.
+  warnings: Calling this method with an insufficiently sized data buffer will result
+    in memory corruption. Ensure that the 'data' parameter points to a buffer of adequate
+    size before calling. The target parameter should be carefully managed to avoid
+    incorrect update targeting which could cause client-side issues.
+  related:
+  - GetUpdateData
+  - BuildOutOfRangeUpdate
+  - BuildCreateUpdate
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T16:35:15.399500'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

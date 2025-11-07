@@ -1,0 +1,61 @@
+api:
+  class: OutdoorPvP
+  method: HandleKill
+  signature: void OutdoorPvP::HandleKill(Player * killer, Unit * killed)
+documentation:
+  brief: Processes a kill event in an outdoor PvP zone, updating objectives and rewards
+    for the killer.
+  description: The HandleKill method is invoked when a player kills a unit within
+    an OutdoorPvP zone. This method manages the logic for awarding kills, updating
+    objective progress, and triggering related events such as capture point changes
+    or quest updates. It ensures that the kill contributes to the overall PvP dynamics
+    of the outdoor zone, including tracking player achievements and modifying the
+    state of the battleground environment. The method typically handles both player-versus-player
+    and player-versus-NPC kill scenarios within the context of outdoor PvP mechanics.
+  parameters:
+  - name: killer
+    description: Pointer to the Player object who performed the kill. Must be a valid
+      player instance with proper PvP state.
+  - name: killed
+    description: Pointer to the Unit object that was killed. Can be a player, NPC,
+      or creature, depending on the context of the kill.
+  returns: null
+  examples:
+  - title: Basic Kill Handling Example
+    code: "void MyOutdoorPvP::HandleKill(Player* killer, Unit* killed)\n{\n    //\
+      \ Process the kill event\n    if (killer && killed)\n    {\n        // Award\
+      \ kill credit to killer\n        killer->KilledMonsterCredit(killed->GetEntry());\n\
+      \        \n        // Update outdoor PvP objectives\n        this->UpdateObjectiveForKill(killer,\
+      \ killed);\n    }\n}"
+    language: cpp
+  - title: Advanced Kill Handling with Zone State Updates
+    code: "void MyOutdoorPvP::HandleKill(Player* killer, Unit* killed)\n{\n    if\
+      \ (!killer || !killed) return;\n\n    // Check if the kill affects capture points\n\
+      \    if (killed->IsPlayer())\n    {\n        // Handle player kill\n       \
+      \ killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_PLAYER, 1);\n\
+      \        this->OnPlayerKill(killer, static_cast<Player*>(killed));\n    }\n\
+      \    else\n    {\n        // Handle NPC/creature kill\n        this->OnCreatureKill(killer,\
+      \ killed);\n    }\n\n    // Update zone state and objectives\n    this->UpdateZoneState();\n\
+      }"
+    language: cpp
+  notes: This method is typically called from the core game loop when a kill event
+    occurs in an outdoor PvP area. It's important to ensure that both killer and killed
+    pointers are valid before processing, as invalid pointers can lead to crashes
+    or undefined behavior. The method may be overridden by specific OutdoorPvP implementations
+    to customize behavior for different zones.
+  warnings: Never call this method directly without verifying that the kill occurred
+    within a valid OutdoorPvP zone. Incorrect usage outside of proper PvP contexts
+    may result in incorrect objective tracking or quest progression issues. Also,
+    ensure that the killer and killed units are properly initialized before passing
+    them to this method.
+  related:
+  - UpdateObjectiveForKill
+  - OnPlayerKill
+  - OnCreatureKill
+  - UpdateZoneState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T07:09:55.784872'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

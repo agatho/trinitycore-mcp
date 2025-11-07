@@ -1,0 +1,78 @@
+api:
+  class: LootItem
+  method: ItemAllowedForPlayer
+  signature: bool LootItem::ItemAllowedForPlayer(const Player * player, const Loot
+    * loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+    const int & conditions)
+documentation:
+  brief: Determines whether a specific item is allowed for a player to receive in
+    a loot roll based on various game rules and conditions.
+  description: The ItemAllowedForPlayer method evaluates if a given item can be awarded
+    to a specific player during a loot event. It considers multiple factors including
+    quest requirements, loot rules (such as need-before-greed mechanics), usability
+    checks, and conditional restrictions. This function is crucial for maintaining
+    proper loot distribution in World of Warcraft's TrinityCore emulation, ensuring
+    that players only receive items they are eligible for according to game logic.
+    The method integrates with the broader loot system to enforce item restrictions,
+    faction-specific rules, and other gameplay constraints.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the item eligibility is being
+      checked. Must not be null.
+  - name: loot
+    description: Pointer to the Loot object representing the current loot context.
+      Used to access loot rules and group information.
+  - name: itemid
+    description: The unique identifier of the item being evaluated for eligibility.
+      Must correspond to a valid item in the game database.
+  - name: needs_quest
+    description: Boolean flag indicating whether the item requires a quest to be eligible.
+      If true, player must have completed the required quest.
+  - name: follow_loot_rules
+    description: Boolean flag determining if standard loot rules (need-before-greed,
+      group loot, etc.) should be enforced.
+  - name: strictUsabilityCheck
+    description: Boolean flag indicating whether to perform strict usability checks
+      such as level requirements and class restrictions.
+  - name: conditions
+    description: Reference to an integer representing additional conditional logic
+      or flags that may affect item eligibility. Negative values often indicate special
+      handling.
+  returns: Returns true if the item is allowed for the player based on all evaluated
+    conditions, false otherwise. The method returns false when any of the validation
+    checks fail.
+  examples:
+  - title: Basic usage in loot processing
+    code: "LootItem* lootItem = new LootItem();\nPlayer* player = ...; // Valid player\
+      \ object\nLoot* loot = ...; // Valid loot object\nuint32 itemId = 12345;\nbool\
+      \ allowed = lootItem->ItemAllowedForPlayer(player, loot, itemId, true, true,\
+      \ false, -1);\nif (allowed) {\n    // Proceed with awarding item to player\n\
+      }"
+    language: cpp
+  - title: Advanced usage with strict checks
+    code: "LootItem* lootItem = ...;\nPlayer* player = ...;\nLoot* loot = ...;\nuint32\
+      \ itemId = 98765;\nbool allowed = lootItem->ItemAllowedForPlayer(player, loot,\
+      \ itemId, false, true, true, 0);\n// This checks all standard rules including\
+      \ usability and strict level/class restrictions\nif (allowed) {\n    // Item\
+      \ can be awarded with full validation\n}"
+    language: cpp
+  notes: This method is part of the core loot system and should only be called during
+    active loot processing. It performs multiple database lookups and checks, so frequent
+    calls may impact performance in high-frequency scenarios. The conditions parameter
+    can accept negative values to indicate special handling or override behaviors.
+  warnings: Ensure that both player and loot parameters are valid pointers before
+    calling this method, as passing null pointers will likely cause crashes or undefined
+    behavior. Be cautious when using strictUsabilityCheck=true with items that have
+    complex requirements, as it may prevent legitimate players from receiving items
+    due to overly restrictive checks.
+  related:
+  - LootItem::FillLoot
+  - LootItem::IsAllowedForPlayer
+  - Player::CanUseItem
+  - Loot::IsLooted
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T09:19:28.776262'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

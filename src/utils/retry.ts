@@ -7,8 +7,8 @@
  * @module utils/retry
  */
 
-import { MCPError, ErrorSeverity, ErrorCategory } from "./error-handler.js";
-import { logger } from './logger.js';
+import { MCPError, ErrorSeverity, ErrorCategory } from "./error-handler";
+import { logger } from './logger';
 
 // ============================================================================
 // Types

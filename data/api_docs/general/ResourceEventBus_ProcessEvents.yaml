@@ -1,0 +1,56 @@
+api:
+  class: ResourceEventBus
+  method: ProcessEvents
+  signature: uint32 ResourceEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes pending resource events up to a specified limit within a given
+    time delta.
+  description: The ProcessEvents method is responsible for handling queued resource-related
+    events in the TrinityCore framework. It iterates through the event queue and executes
+    events that are due for processing, based on the time delta (diff) provided. The
+    method respects a maximum number of events to process per call (maxEvents), preventing
+    excessive CPU usage during a single execution cycle. This mechanism is crucial
+    for maintaining game state consistency and performance in scenarios involving
+    resource management such as item looting, currency changes, or quest progress
+    updates.
+  parameters:
+  - name: diff
+    description: Time delta in milliseconds since the last call to this method. Used
+      to determine which events are ready to be processed based on their scheduled
+      execution time.
+  - name: maxEvents
+    description: Maximum number of events to process during this invocation. Ensures
+      that event processing does not monopolize CPU cycles and allows for fair scheduling
+      across different systems.
+  returns: Returns the actual number of events processed during this call. This value
+    will be less than or equal to maxEvents, depending on how many events were available
+    and ready to execute.
+  examples:
+  - title: Basic Usage in Game Loop
+    code: 'uint32 diff = sWorld->GetLastTickTime();
+
+      uint32 processed = sResourceEventBus->ProcessEvents(diff, 100);
+
+      // Processed 100 or fewer events in this tick'
+    language: cpp
+  - title: Integration with Server Update Loop
+    code: "void WorldServer::Update(uint32 diff)\n{\n    sResourceEventBus->ProcessEvents(diff,\
+      \ 50);\n    // Other update logic\n}"
+    language: cpp
+  notes: This method is typically called from the main server update loop. It's designed
+    to be non-blocking and should not cause long delays in the game tick. The internal
+    event queue is thread-safe, but calling this method from multiple threads simultaneously
+    may lead to race conditions if not properly synchronized.
+  warnings: Calling ProcessEvents with a very high maxEvents value can cause performance
+    degradation or even frame drops during busy periods. It's recommended to keep
+    this value reasonable (e.g., between 10-100) to maintain responsiveness.
+  related:
+  - AddEvent
+  - QueueEvent
+  - ClearEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:55:05.647754'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

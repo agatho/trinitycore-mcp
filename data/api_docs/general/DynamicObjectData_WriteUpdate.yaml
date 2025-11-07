@@ -1,0 +1,73 @@
+api:
+  class: DynamicObjectData
+  method: WriteUpdate
+  signature: void DynamicObjectData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const DynamicObject * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes dynamic object data into a packet buffer for client updates.
+  description: The WriteUpdate method serializes the current state of a DynamicObject's
+    data fields into a ByteBuffer, which is then sent to a specific player client.
+    This method handles the encoding of changes based on a provided mask and considers
+    ownership relationships between the dynamic object and the receiving player. It
+    is typically invoked during packet construction for update messages in the World
+    of Warcraft protocol implementation. The method respects nested change masks and
+    can optionally ignore them, allowing for fine-grained control over what data gets
+    transmitted.
+  parameters:
+  - name: data
+    description: The ByteBuffer into which the serialized dynamic object data will
+      be written. This buffer is typically used to construct network packets sent
+      to clients.
+  - name: changesMask
+    description: An integer mask indicating which fields of the DynamicObject have
+      been modified and should be included in the update packet. Each bit corresponds
+      to a specific data field.
+  - name: ignoreNestedChangesMask
+    description: A boolean flag that determines whether nested change masks (e.g.,
+      for sub-components) should be considered when serializing updates. If true,
+      nested changes are ignored.
+  - name: owner
+    description: Pointer to the DynamicObject's owner, which may influence how data
+      is serialized or what parts of the object are sent based on visibility rules.
+  - name: receiver
+    description: Pointer to the Player who will receive this update packet. Used for
+      determining visibility and field-specific serialization logic.
+  returns: null
+  examples:
+  - title: Basic usage in update packet construction
+    code: 'DynamicObjectData dynamicObj;
+
+      ByteBuffer buffer;
+
+      int changesMask = 0x01;
+
+      Player* receiver = playerSession->GetPlayer();
+
+      Player* owner = nullptr; // or some valid owner
+
+
+      // Assume dynamicObj has been modified
+
+      dynamicObj.WriteUpdate(buffer, changesMask, false, owner, receiver);
+
+      '
+    language: cpp
+  notes: This method is part of the TrinityCore's network update system and is crucial
+    for synchronizing dynamic object states with clients. It must be called within
+    a valid session context where both owner and receiver are properly initialized.
+    Performance considerations include minimizing unnecessary data transmission by
+    using appropriate change masks.
+  warnings: Incorrectly setting the changesMask can result in incomplete or incorrect
+    updates being sent to players, potentially causing visual glitches or desynchronization.
+    Ensure that all relevant fields are marked as changed before calling this method.
+  related:
+  - GetUpdateData
+  - BuildValuesUpdate
+  - WriteCreateUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:46:55.195344'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

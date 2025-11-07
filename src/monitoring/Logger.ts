@@ -134,10 +134,6 @@ export class FileTransport implements LogTransport {
     this.flushInterval = setInterval(() => this.flush(), 5000);
   }
 
-  public getFilePath(): string {
-    return this.filePath;
-  }
-
   write(entry: LogEntry): void {
     if (entry.level < this.minLevel) return;
 
@@ -173,8 +169,6 @@ export class Logger extends EventEmitter {
   private minLevel: LogLevel = LogLevel.INFO;
   private hostname: string;
   private pid: number;
-  private logHistory: LogEntry[] = [];
-  private maxHistorySize: number = 10000;
 
   constructor(context?: string, minLevel: LogLevel = LogLevel.INFO) {
     super();
@@ -208,10 +202,9 @@ export class Logger extends EventEmitter {
     level: LogLevel,
     message: string,
     metadata?: any,
-    error?: Error,
-    traceId?: string
+    error?: Error
   ): LogEntry {
-    const entry: LogEntry = {
+    return {
       timestamp: new Date(),
       level,
       message,
@@ -219,34 +212,12 @@ export class Logger extends EventEmitter {
       metadata,
       stack: error?.stack,
       pid: this.pid,
-      hostname: this.hostname,
-      service: 'trinitycore-mcp',
-      environment: process.env.NODE_ENV || 'development'
+      hostname: this.hostname
     };
-
-    if (traceId) {
-      entry.traceId = traceId;
-    }
-
-    if (error) {
-      entry.error = {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      };
-    }
-
-    return entry;
   }
 
   private write(entry: LogEntry): void {
     if (entry.level < this.minLevel) return;
-
-    // Store in history
-    this.logHistory.push(entry);
-    if (this.logHistory.length > this.maxHistorySize) {
-      this.logHistory = this.logHistory.slice(-this.maxHistorySize);
-    }
 
     for (const transport of this.transports) {
       try {
@@ -259,32 +230,32 @@ export class Logger extends EventEmitter {
     this.emit('log', entry);
   }
 
-  public trace(message: string, metadata?: any, traceId?: string): void {
-    this.write(this.createEntry(LogLevel.TRACE, message, metadata, undefined, traceId));
+  public trace(message: string, metadata?: any): void {
+    this.write(this.createEntry(LogLevel.TRACE, message, metadata));
   }
 
-  public debug(message: string, metadata?: any, traceId?: string): void {
-    this.write(this.createEntry(LogLevel.DEBUG, message, metadata, undefined, traceId));
+  public debug(message: string, metadata?: any): void {
+    this.write(this.createEntry(LogLevel.DEBUG, message, metadata));
   }
 
-  public info(message: string, metadata?: any, traceId?: string): void {
-    this.write(this.createEntry(LogLevel.INFO, message, metadata, undefined, traceId));
+  public info(message: string, metadata?: any): void {
+    this.write(this.createEntry(LogLevel.INFO, message, metadata));
   }
 
-  public warn(message: string, metadata?: any, traceId?: string): void {
-    this.write(this.createEntry(LogLevel.WARN, message, metadata, undefined, traceId));
+  public warn(message: string, metadata?: any): void {
+    this.write(this.createEntry(LogLevel.WARN, message, metadata));
   }
 
-  public error(message: string, error?: Error | any, metadata?: any, traceId?: string): void {
+  public error(message: string, error?: Error | any, metadata?: any): void {
     const err = error instanceof Error ? error : undefined;
     const meta = error instanceof Error ? metadata : error;
-    this.write(this.createEntry(LogLevel.ERROR, message, meta, err, traceId));
+    this.write(this.createEntry(LogLevel.ERROR, message, meta, err));
   }
 
-  public fatal(message: string, error?: Error | any, metadata?: any, traceId?: string): void {
+  public fatal(message: string, error?: Error | any, metadata?: any): void {
     const err = error instanceof Error ? error : undefined;
     const meta = error instanceof Error ? metadata : error;
-    this.write(this.createEntry(LogLevel.FATAL, message, meta, err, traceId));
+    this.write(this.createEntry(LogLevel.FATAL, message, meta, err));
   }
 
   public child(context: string): Logger {
@@ -300,66 +271,6 @@ export class Logger extends EventEmitter {
 
   public getLevel(): LogLevel {
     return this.minLevel;
-  }
-
-  public getCurrentLogFile(): string | null {
-    for (const transport of this.transports) {
-      if (transport.name === 'file' && transport instanceof FileTransport) {
-        return transport.getFilePath();
-      }
-    }
-    return null;
-  }
-
-  public async queryLogs(query: LogQuery): Promise<LogEntry[]> {
-    let results = [...this.logHistory];
-
-    // Filter by level
-    if (query.level) {
-      const levelValue = LogLevel[query.level as keyof typeof LogLevel];
-      if (levelValue !== undefined) {
-        results = results.filter(entry => entry.level === levelValue);
-      }
-    }
-
-    // Filter by time range
-    if (query.startTime) {
-      results = results.filter(entry => entry.timestamp >= query.startTime!);
-    }
-    if (query.endTime) {
-      results = results.filter(entry => entry.timestamp <= query.endTime!);
-    }
-
-    // Filter by trace ID
-    if (query.traceId) {
-      results = results.filter(entry => entry.traceId === query.traceId);
-    }
-
-    // Sort by timestamp (most recent first)
-    results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-    // Apply limit
-    if (query.limit) {
-      results = results.slice(0, query.limit);
-    }
-
-    return results;
-  }
-
-  public performance(
-    level: LogLevel,
-    name: string,
-    duration: number,
-    message: string,
-    metadata?: any,
-    traceId?: string
-  ): void {
-    const entry = this.createEntry(level, message, metadata, undefined, traceId);
-    entry.performance = {
-      duration,
-      unit: 'ms'
-    };
-    this.write(entry);
   }
 
   public async flush(): Promise<void> {
@@ -389,6 +300,75 @@ export class Logger extends EventEmitter {
     await Promise.all(promises);
     this.transports = [];
     this.emit('closed');
+  }
+
+  /**
+   * Get current log file path (if FileTransport is configured)
+   */
+  public getCurrentLogFile(): string | null {
+    const fileTransport = this.transports.find(t => t.name === 'file') as FileTransport | undefined;
+    return fileTransport ? (fileTransport as any).filePath : null;
+  }
+
+  /**
+   * Query logs from file (if FileTransport is configured)
+   */
+  public async queryLogs(query: LogQuery): Promise<LogEntry[]> {
+    const logFile = this.getCurrentLogFile();
+    if (!logFile) {
+      return [];
+    }
+
+    try {
+      // Read log file
+      const content = await fs.promises.readFile(logFile, 'utf-8');
+      const lines = content.split('\n').filter(line => line.trim());
+
+      // Parse and filter logs
+      let logs: LogEntry[] = [];
+      for (const line of lines) {
+        try {
+          const entry = JSON.parse(line) as LogEntry;
+
+          // Convert timestamp string to Date if needed
+          if (typeof entry.timestamp === 'string') {
+            entry.timestamp = new Date(entry.timestamp);
+          }
+
+          // Apply filters
+          if (query.level && entry.level !== LogLevel[query.level as keyof typeof LogLevel]) {
+            continue;
+          }
+
+          if (query.startTime && entry.timestamp < query.startTime) {
+            continue;
+          }
+
+          if (query.endTime && entry.timestamp > query.endTime) {
+            continue;
+          }
+
+          if (query.traceId && entry.traceId !== query.traceId) {
+            continue;
+          }
+
+          logs.push(entry);
+        } catch (parseError) {
+          // Skip invalid JSON lines
+          continue;
+        }
+      }
+
+      // Apply limit
+      if (query.limit && query.limit > 0) {
+        logs = logs.slice(-query.limit);
+      }
+
+      return logs;
+    } catch (error) {
+      console.error('Error reading log file:', error);
+      return [];
+    }
   }
 }
 

@@ -1,0 +1,59 @@
+api:
+  class: ProfessionManager
+  method: CalculateSkillUpAmount
+  signature: uint16 ProfessionManager::CalculateSkillUpAmount(const RecipeInfo & recipe,
+    uint16 currentSkill) const
+documentation:
+  brief: Calculates the amount of skill points a player gains when successfully crafting
+    a recipe.
+  description: The CalculateSkillUpAmount method determines how many skill points
+    are awarded to a player upon successfully completing a crafting recipe. This calculation
+    is based on the recipe's inherent skill requirements and the player's current
+    skill level. The method ensures that players receive appropriate progression feedback
+    during crafting activities, with skill gains typically decreasing as the player
+    approaches the maximum skill cap for that recipe. The calculation considers both
+    the base skill requirement of the recipe and the player's existing proficiency
+    to determine a fair and balanced skill increment.
+  parameters:
+  - name: recipe
+    description: Reference to the RecipeInfo structure containing details about the
+      crafting recipe being processed, including its skill requirements and other
+      relevant properties.
+  - name: currentSkill
+    description: The player's current skill level for the profession associated with
+      the recipe, used as a basis for calculating the skill point gain.
+  returns: Returns a uint16 value representing the number of skill points to be added
+    to the player's skill level upon successful recipe completion. The value is typically
+    between 1 and 10, though it may vary based on game mechanics and player progression.
+  examples:
+  - title: Basic Skill Gain Calculation
+    code: "uint16 skillGain = professionManager.CalculateSkillUpAmount(recipeInfo,\
+      \ playerSkillLevel);\nif (skillGain > 0)\n{\n    player->UpdateSkill(skillId,\
+      \ skillGain);\n    ChatHandler(player->GetSession()).PSendSysMessage(\"You gained\
+      \ %u skill points.\", skillGain);\n}"
+    language: cpp
+  - title: Skill Gain with Conditional Logic
+    code: "uint16 currentSkill = player->GetSkillValue(skillId);\nuint16 skillGain\
+      \ = professionManager.CalculateSkillUpAmount(recipeInfo, currentSkill);\nif\
+      \ (skillGain > 0 && currentSkill < MAX_SKILL_VALUE)\n{\n    player->UpdateSkill(skillId,\
+      \ skillGain);\n    // Additional logic for skill cap handling\n}"
+    language: cpp
+  notes: This method is typically called during the crafting process after a successful
+    recipe completion. The calculation may be influenced by various factors such as
+    player bonuses, equipment effects, or special crafting conditions. The return
+    value should always be validated against skill caps to prevent overflow or unexpected
+    behavior.
+  warnings: Ensure that the currentSkill parameter does not exceed the maximum allowed
+    skill value for the profession, as this could lead to incorrect calculations or
+    potential integer overflow issues. This method assumes valid input parameters
+    and does not perform explicit validation of recipe data.
+  related:
+  - GetRecipeSkillLevel
+  - CanPlayerCraftRecipe
+  - UpdatePlayerSkill
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T00:27:14.761433'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

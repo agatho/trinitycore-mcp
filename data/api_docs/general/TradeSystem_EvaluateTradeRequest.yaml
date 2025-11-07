@@ -1,0 +1,62 @@
+api:
+  class: TradeSystem
+  method: EvaluateTradeRequest
+  signature: TradeDecision TradeSystem::EvaluateTradeRequest(Player * player, uint32
+    sessionId)
+documentation:
+  brief: Evaluates a trade request between two players and determines whether to accept
+    or reject the trade.
+  description: The EvaluateTradeRequest method is responsible for processing an incoming
+    trade request from another player. It validates the trade conditions, checks for
+    valid items, ensures both parties have sufficient inventory space, and verifies
+    that no prohibited items are being traded. The method returns a TradeDecision
+    enum indicating whether the trade should be accepted or rejected based on these
+    checks. This function is typically called when a player initiates a trade with
+    another player in World of Warcraft through the TrinityCore server implementation.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who initiated
+      the trade request
+  - name: sessionId
+    description: Unique identifier for the trade session used to track and manage
+      the trade between players
+  returns: Returns a TradeDecision enum value indicating whether the trade should
+    be accepted (TRADE_ACCEPTED) or rejected (TRADE_REJECTED). The method may also
+    return TRADE_CANCELLED if the trade was cancelled before evaluation.
+  examples:
+  - title: Basic Trade Request Evaluation
+    code: "TradeDecision decision = tradeSystem.EvaluateTradeRequest(player1, sessionId);\n\
+      if (decision == TRADE_ACCEPTED) {\n    // Proceed with trade execution\n   \
+      \ player1->GetSession()->SendTradeStatus(TRADE_STATUS_ACCEPTED);\n} else {\n\
+      \    // Reject the trade\n    player1->GetSession()->SendTradeStatus(TRADE_STATUS_REJECTED);\n\
+      }"
+    language: cpp
+  - title: Handling Trade Evaluation Results
+    code: "uint32 sessionId = 12345;\nPlayer* trader = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ 67890));\nif (trader) {\n    TradeDecision result = tradeSystem.EvaluateTradeRequest(trader,\
+      \ sessionId);\n    switch (result) {\n        case TRADE_ACCEPTED:\n       \
+      \     // Execute the trade\n            break;\n        case TRADE_REJECTED:\n\
+      \            // Notify player of rejection\n            trader->GetSession()->SendNotification(\"\
+      Trade request rejected.\");\n            break;\n        default:\n        \
+      \    // Handle error or cancellation\n            break;\n    }\n}"
+    language: cpp
+  notes: This method performs critical validation checks including item restrictions,
+    inventory space availability, and trade eligibility. It should be called before
+    any trade execution logic to prevent invalid trades from proceeding. The method
+    assumes that the player object is valid and properly initialized within the game
+    world.
+  warnings: Calling this method without proper session management or player validation
+    may lead to crashes or unexpected behavior. Ensure that the sessionId corresponds
+    to an active trade session, and that the player object hasn't been deleted or
+    invalidated before calling this function.
+  related:
+  - InitiateTrade
+  - ExecuteTrade
+  - CancelTrade
+  - SendTradeStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T00:37:24.896309'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

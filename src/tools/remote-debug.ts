@@ -7,8 +7,8 @@
  * @module remote-debug
  */
 
-import type { SOAPConnectionConfig } from "../types/soap.js";
-import { executeSOAPCommand } from "../soap/soap-client.js";
+import type { SOAPConnectionConfig } from "../types/soap";
+import { executeSOAPCommand } from "../soap/soap-client";
 
 // ============================================================================
 // Types

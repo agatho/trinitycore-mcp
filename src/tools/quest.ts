@@ -2,7 +2,7 @@
  * Quest data query tool
  */
 
-import { queryWorld } from "../database/connection.js";
+import { queryWorld } from "../database/connection";
 
 export interface QuestInfo {
   questId: number;
@@ -27,17 +27,18 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo> {
   try {
     const query = `
       SELECT
-        ID as questId,
-        LogTitle as title,
-        LogDescription as details,
-        QuestDescription as objectives,
-        QuestLevel as level,
-        MinLevel as minLevel,
-        QuestType as type,
-        RewardXPDifficulty as experience,
-        RewardMoney as money
-      FROM quest_template
-      WHERE ID = ?
+        qt.ID as questId,
+        qt.LogTitle as title,
+        qt.LogDescription as details,
+        qt.QuestDescription as objectives,
+        qta.MaxLevel as level,
+        qt.MinLevel as minLevel,
+        qt.QuestInfoID as type,
+        qt.RewardXPDifficulty as experience,
+        qt.RewardMoney as money
+      FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+      WHERE qt.ID = ?
       LIMIT 1
     `;
 

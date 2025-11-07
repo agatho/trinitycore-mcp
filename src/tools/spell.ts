@@ -3,9 +3,9 @@
  * Week 7: Enhanced with Spell.db2 integration via DB2CachedFileLoader
  */
 
-import { queryWorld } from "../database/connection.js";
-import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader.js";
-import { SchemaFactory } from "../parsers/schemas/SchemaFactory.js";
+import { queryWorld } from "../database/connection";
+import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader";
+import { SchemaFactory } from "../parsers/schemas/SchemaFactory";
 import * as path from "path";
 import * as fs from "fs";
 import {
@@ -15,14 +15,14 @@ import {
   isUnlimitedRange,
   getMaxEffectiveRange,
   type SpellRangeEntry
-} from "../data/spell-ranges.js";
-import { logger } from '../utils/logger.js';
+} from "../data/spell-ranges";
+import { logger } from '../utils/logger';
 import {
   parseAttributeBitfield,
   getAttributeFlagsByCategory,
   AttributeCategory,
   type AttributeFlag
-} from "../data/spell-attributes.js";
+} from "../data/spell-attributes";
 
 export interface SpellInfo {
   spellId: number;

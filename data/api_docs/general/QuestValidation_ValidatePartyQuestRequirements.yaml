@@ -1,0 +1,66 @@
+api:
+  class: QuestValidation
+  method: ValidatePartyQuestRequirements
+  signature: bool QuestValidation::ValidatePartyQuestRequirements(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Validates whether a player meets all party quest requirements for a given
+    quest ID.
+  description: The ValidatePartyQuestRequirements method checks if a specified player
+    (bot) satisfies all necessary conditions to participate in a party quest. This
+    includes verifying that the player has the required level, quest completion status,
+    and any other prerequisites defined by the quest's party requirements. The method
+    ensures that party members are properly validated before allowing them to engage
+    with shared quest content. It returns true if all requirements are met, false
+    otherwise. This validation is crucial for maintaining game balance and ensuring
+    players can only join quests they are eligible for within a group context.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate party requirements
+      for. Must be a valid quest ID registered in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose party
+      quest requirements are being validated. Must not be null and must represent
+      an active player character.
+  returns: Returns true if the player meets all party quest requirements for the specified
+    quest ID; otherwise returns false. A return value of false indicates that one
+    or more validation checks failed, preventing the player from participating in
+    the party quest.
+  examples:
+  - title: Basic Usage Example
+    code: "if (sQuestValidation->ValidatePartyQuestRequirements(12345, player)) {\n\
+      \    // Player can join the party quest\n    player->SendQuestUpdateAddItem(12345,\
+      \ 0, 1);\n} else {\n    // Player cannot participate in the quest\n    player->SendNotification(\"\
+      You do not meet the requirements to join this party quest.\");\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Checks
+    code: "uint32 questId = 67890;\nPlayer* player = session->GetPlayer();\nif (sQuestValidation->ValidatePartyQuestRequirements(questId,\
+      \ player)) {\n    // Additional checks for group members\n    Group* group =\
+      \ player->GetGroup();\n    if (group) {\n        for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n             itr != group->GetMemberSlots().end();\
+      \ ++itr)\n        {\n            Player* member = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \            if (member && !sQuestValidation->ValidatePartyQuestRequirements(questId,\
+      \ member)) {\n                player->SendNotification(\"Not all group members\
+      \ meet the quest requirements.\");\n                return;\n            }\n\
+      \        }\n    }\n    // Proceed with quest initiation\n}\nelse {\n    player->SendNotification(\"\
+      You do not meet the party quest requirements.\");\n}"
+    language: cpp
+  notes: This method performs multiple checks including level validation, quest completion
+    status, and any custom party-specific conditions defined in the quest template.
+    It is designed to be efficient and should not cause significant performance impact
+    during normal gameplay operations. The method assumes that the player object passed
+    is valid and represents an active character.
+  warnings: Ensure that the player pointer is valid and not null before calling this
+    method, as passing a null pointer will likely result in a crash or undefined behavior.
+    Also, be aware that quest IDs must exist in the database; invalid quest IDs may
+    lead to unexpected validation results or errors.
+  related:
+  - ValidateQuestRequirements
+  - IsPlayerEligibleForQuest
+  - CheckPartyQuestConditions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:13:56.704558'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

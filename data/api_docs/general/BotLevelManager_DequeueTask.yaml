@@ -1,0 +1,49 @@
+api:
+  class: BotLevelManager
+  method: DequeueTask
+  signature: std::shared_ptr<BotCreationTask> BotLevelManager::DequeueTask()
+documentation:
+  brief: Removes and returns the next bot creation task from the queue
+  description: The DequeueTask method retrieves and removes the next available bot
+    creation task from an internal queue. This method is typically used by the bot
+    management system to process tasks in a first-in-first-out manner. The returned
+    task contains all necessary information for creating a new bot, including level
+    requirements, class selection, and other configuration parameters. If the queue
+    is empty, the method will return a null shared pointer. This operation is thread-safe
+    and designed to prevent race conditions during concurrent bot creation processes.
+  parameters: []
+  returns: A std::shared_ptr<BotCreationTask> pointing to the next task in the queue,
+    or a null pointer if the queue is empty
+  examples:
+  - title: Basic usage of DequeueTask
+    code: "std::shared_ptr<BotCreationTask> task = botLevelManager->DequeueTask();\n\
+      if (task)\n{\n    // Process the bot creation task\n    task->Execute();\n}\n\
+      else\n{\n    // No tasks available\n    LOG_DEBUG(\"bot\", \"No bot creation\
+      \ tasks in queue\");\n}"
+    language: cpp
+  - title: Using DequeueTask in a loop to process all pending tasks
+    code: "while (true)\n{\n    std::shared_ptr<BotCreationTask> task = botLevelManager->DequeueTask();\n\
+      \    if (!task)\n        break;\n    \n    // Execute the task\n    if (task->Validate())\n\
+      \    {\n        task->Execute();\n        LOG_DEBUG(\"bot\", \"Executed bot\
+      \ creation task for level {}\", task->GetTargetLevel());\n    }\n    else\n\
+      \    {\n        LOG_ERROR(\"bot\", \"Invalid bot creation task encountered\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and can be called from multiple
+    threads concurrently. The internal queue implementation ensures that tasks are
+    processed in order without duplication. The returned task object remains valid
+    until explicitly destroyed or replaced by another call to DequeueTask.
+  warnings: Calling this method on an empty queue will return a null pointer, which
+    must be checked before dereferencing. Failure to check for null can lead to segmentation
+    faults. Additionally, if multiple threads are dequeuing tasks simultaneously,
+    ensure proper synchronization mechanisms are in place to avoid unexpected behavior.
+  related:
+  - EnqueueTask
+  - GetQueueSize
+  - IsQueueEmpty
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T05:44:04.752230'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

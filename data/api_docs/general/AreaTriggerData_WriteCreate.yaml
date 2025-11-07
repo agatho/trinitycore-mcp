@@ -1,0 +1,65 @@
+api:
+  class: AreaTriggerData
+  method: WriteCreate
+  signature: void AreaTriggerData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger create data into a ByteBuffer for client transmission.
+  description: The WriteCreate method serializes the area trigger's data into a ByteBuffer,
+    preparing it for network transmission to a specific player. This method is typically
+    invoked when a player enters an area trigger zone or when the server needs to
+    send initial area trigger state information to a client. It handles encoding of
+    field visibility flags and ensures that only relevant data fields are included
+    based on the visibility settings. The method takes into account the owner of the
+    area trigger (which could be a GameObject, Unit, or other entity) and the receiving
+    player to determine what data should be sent. This is part of the TrinityCore's
+    packet serialization system for dynamic world objects.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger create
+      data will be written. This buffer is typically used to construct network packets.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields of the area trigger should be
+      included in the packet. These flags control visibility and synchronization behavior
+      for different client views.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this data. This may be
+      null if no owner exists, or it could reference a GameObject or Unit that spawned
+      the area trigger.
+  - name: receiver
+    description: Pointer to the Player object who will receive this packet. Used to
+      determine appropriate field visibility and client-specific data handling.
+  returns: null
+  examples:
+  - title: Basic usage in area trigger creation
+    code: 'AreaTriggerData triggerData;
+
+      ByteBuffer packetData;
+
+      Player* player = ...; // Get player reference
+
+      AreaTrigger* owner = ...; // Get area trigger reference
+
+      triggerData.WriteCreate(packetData, 0x1, owner, player);
+
+      // Send packetData to player via WorldSession'
+    language: cpp
+  notes: This method is part of the internal serialization system and should not be
+    called directly by external code. It's used primarily within TrinityCore's core
+    networking and object update systems. The fieldVisibilityFlags parameter determines
+    which data fields are included, so incorrect flag values may cause client-side
+    issues or missing visual effects.
+  warnings: Incorrect usage of fieldVisibilityFlags can lead to incomplete or malformed
+    packets, potentially causing client-side errors or visual glitches. Ensure that
+    the owner pointer is valid and the receiver is a proper Player object before calling
+    this method.
+  related:
+  - AreaTriggerData::WriteUpdate
+  - AreaTriggerData::WriteDestroy
+  - AreaTrigger::BuildCreatePacket
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:38:54.394404'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

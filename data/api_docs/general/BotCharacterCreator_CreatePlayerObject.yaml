@@ -1,0 +1,79 @@
+api:
+  class: BotCharacterCreator
+  method: CreatePlayerObject
+  signature: CreateResult BotCharacterCreator::CreatePlayerObject(uint32 accountId,
+    uint8 race, uint8 classId, uint8 gender, const std::string & name, int & outGuid,
+    std::string & outErrorMsg)
+documentation:
+  brief: Creates a new player character object for the specified account with given
+    race, class, gender, and name.
+  description: The CreatePlayerObject method is responsible for creating a new player
+    character within the TrinityCore database. It validates the provided parameters
+    including account ID, race, class, gender, and character name to ensure they meet
+    game requirements. The method checks for name uniqueness, valid race/class combinations,
+    and account ownership before proceeding with character creation. Upon successful
+    creation, it returns the GUID of the newly created character and sets an empty
+    error message. If any validation fails or database operations encounter issues,
+    appropriate error messages are returned along with a failure result code.
+  parameters:
+  - name: accountId
+    description: Unique identifier of the account to which the new character will
+      belong. Must correspond to an existing account in the database.
+  - name: race
+    description: Race identifier for the new character (e.g., Human = 1, Orc = 2,
+      etc.). Must be a valid race ID supported by the game.
+  - name: classId
+    description: Class identifier for the new character (e.g., Warrior = 1, Mage =
+      8, etc.). Must be a valid class ID supported by the game.
+  - name: gender
+    description: Gender of the character (0 = Male, 1 = Female). Must be either 0
+      or 1.
+  - name: name
+    description: Desired name for the new character. Must be unique across all characters
+      in the database and follow naming rules (typically 2-12 alphanumeric characters).
+  - name: outGuid
+    description: Output parameter that will contain the globally unique identifier
+      (GUID) of the newly created character upon successful creation.
+  - name: outErrorMsg
+    description: Output parameter that will contain an error message if character
+      creation fails. Will be empty on success.
+  returns: Returns a CreateResult enum value indicating whether the operation succeeded
+    or failed, along with specific failure reasons such as invalid parameters, name
+    conflicts, or database errors.
+  examples:
+  - title: Basic Character Creation
+    code: "int guid;\nstd::string errorMsg;\nCreateResult result = creator.CreatePlayerObject(12345,\
+      \ RACE_HUMAN, CLASS_WARRIOR, GENDER_MALE, \"MyNewHero\", guid, errorMsg);\n\
+      if (result == CREATE_SUCCESS) {\n    std::cout << \"Character created with GUID:\
+      \ \" << guid << std::endl;\n} else {\n    std::cout << \"Failed to create character:\
+      \ \" << errorMsg << std::endl;\n}"
+    language: cpp
+  - title: Handling Different Creation Results
+    code: "int guid;\nstd::string errorMsg;\nCreateResult result = creator.CreatePlayerObject(12345,\
+      \ RACE_ORC, CLASS_MAGE, GENDER_FEMALE, \"ShadowWitch\", guid, errorMsg);\nswitch\
+      \ (result) {\ncase CREATE_SUCCESS:\n    std::cout << \"Character created successfully\
+      \ with GUID: \" << guid << std::endl;\n    break;\ncase CREATE_ERROR_NAME_EXISTS:\n\
+      \    std::cout << \"Character name already exists\" << std::endl;\n    break;\n\
+      case CREATE_ERROR_INVALID_RACE_CLASS:\n    std::cout << \"Invalid race/class\
+      \ combination\" << std::endl;\n    break;\ndefault:\n    std::cout << \"Unknown\
+      \ error occurred: \" << errorMsg << std::endl;\n    break;\n}"
+    language: cpp
+  notes: This method performs database operations and should be used carefully in
+    performance-critical sections. Character creation involves multiple validation
+    steps including checking account ownership, name uniqueness, and race/class compatibility.
+    The method is typically called during character creation UI flows or automated
+    bot character generation processes.
+  warnings: Do not call this method with invalid parameters as it may lead to database
+    corruption or inconsistent state. Ensure the account ID exists before calling
+    this method. Character names must be validated for length and allowed characters
+    before passing to this function.
+  related:
+  - GetPlayerGuid
+  - DeletePlayerObject
+  - ValidateCharacterName
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T05:59:47.738512'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

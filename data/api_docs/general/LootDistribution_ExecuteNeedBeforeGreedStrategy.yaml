@@ -1,0 +1,62 @@
+api:
+  class: LootDistribution
+  method: ExecuteNeedBeforeGreedStrategy
+  signature: void LootDistribution::ExecuteNeedBeforeGreedStrategy(Player * player,
+    const LootItem & item, LootRollType & decision)
+documentation:
+  brief: Processes a player's decision in a Need Before Greed loot roll, determining
+    whether to roll need or greed for an item.
+  description: The ExecuteNeedBeforeGreedStrategy method handles the logic for determining
+    a player's choice during a Need Before Greed (NBG) loot distribution. In this
+    system, players first have the opportunity to roll 'need' on an item before other
+    players can roll 'greed'. This method evaluates the player's decision based on
+    their current loot settings and the item being rolled. It updates the LootRollType
+    parameter with the appropriate decision (Need or Greed) that should be applied
+    to the current loot roll. The method is typically invoked during the loot distribution
+    phase when a player must make a choice between need and greed for an item.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is making the loot decision. Must
+      be a valid player instance with active loot session.
+  - name: item
+    description: Reference to the LootItem structure representing the item for which
+      the decision is being made. Contains information about the item's properties
+      and roll status.
+  - name: decision
+    description: Reference to a LootRollType variable that will be updated with the
+      player's final decision (either LOOT_ROLL_NEED or LOOT_ROLL_GREED).
+  returns: null
+  examples:
+  - title: Basic usage of Need Before Greed strategy
+    code: "void HandleLootDecision(Player* player, LootItem const& item, LootRollType&\
+      \ decision)\n{\n    LootDistribution lootDist;\n    lootDist.ExecuteNeedBeforeGreedStrategy(player,\
+      \ item, decision);\n}"
+    language: cpp
+  - title: Processing a player's loot choice with error handling
+    code: "void ProcessPlayerLootChoice(Player* player, LootItem const& item)\n{\n\
+      \    if (!player || !item.is_valid())\n        return;\n    \n    LootRollType\
+      \ decision = LOOT_ROLL_PASS;\n    LootDistribution lootDist;\n    lootDist.ExecuteNeedBeforeGreedStrategy(player,\
+      \ item, decision);\n    \n    // Apply the decision to the loot roll\n    if\
+      \ (decision == LOOT_ROLL_NEED || decision == LOOT_ROLL_GREED)\n    {\n     \
+      \   player->SendLootRoll(item.itemid, decision);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core loot distribution system and should only
+    be called during active loot sessions. The method assumes that the player has
+    already been validated for participation in the current loot roll and that the
+    item is eligible for NBG distribution. Performance-wise, this method is lightweight
+    as it primarily involves checking player settings and updating a single variable.
+  warnings: Ensure that the player pointer is valid before calling this method to
+    avoid undefined behavior. The item parameter must represent an actual loot item
+    in the current roll context; otherwise, results may be unpredictable. This method
+    does not perform any validation on the item or player state beyond basic null
+    checks.
+  related:
+  - LootDistribution::RollNeed
+  - LootDistribution::RollGreed
+  - Player::SendLootRoll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T09:32:26.313240'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

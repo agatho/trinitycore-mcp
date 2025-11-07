@@ -1,0 +1,74 @@
+api:
+  class: RoleOptimizer
+  method: OptimizeRolesForContent
+  signature: OptimizationResult RoleOptimizer::OptimizeRolesForContent(Group * group,
+    uint32 contentId, bool isDungeon, const OptimizationConstraints & constraints)
+documentation:
+  brief: Optimizes player roles within a group for specific content based on constraints
+    and dungeon type.
+  description: The OptimizeRolesForContent method analyzes the composition of a given
+    group and determines the most effective role distribution for a specified content
+    type, such as a dungeon or raid. It evaluates each player's capabilities, gear,
+    and class specialization to assign optimal roles like tank, healer, or damage
+    dealer. The method respects provided optimization constraints that may limit certain
+    role assignments or enforce specific configurations. This functionality is essential
+    for ensuring efficient group performance in World of Warcraft content where proper
+    role distribution directly impacts success rates. The method requires a valid
+    group object and content identifier to operate correctly.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing players to optimize roles
+      for. Must be a valid group with at least one member.
+  - name: contentId
+    description: Unique identifier for the content type (e.g., dungeon ID, raid ID)
+      that roles are being optimized for. Determines the specific rules and requirements
+      applied during optimization.
+  - name: isDungeon
+    description: Boolean flag indicating whether the content is a dungeon (true) or
+      a raid (false). Affects how roles are distributed and what constraints apply.
+  - name: constraints
+    description: Reference to OptimizationConstraints object containing rules and
+      limitations for role assignment. Defines parameters such as required number
+      of tanks/healers, class restrictions, or specific player role preferences.
+  returns: Returns an OptimizationResult object that contains the optimized role assignments
+    for each player in the group, along with any warnings or errors encountered during
+    optimization. The result structure typically includes a mapping of player GUIDs
+    to their assigned roles and metadata about the optimization process.
+  examples:
+  - title: Basic Role Optimization for Dungeon
+    code: "Group* dungeonGroup = sObjectMgr->GetGroupById(12345);\nOptimizationConstraints\
+      \ constraints;\nconstraints.minTanks = 1;\nconstraints.minHealers = 1;\nconstraints.maxDps\
+      \ = 7;\n\nOptimizationResult result = roleOptimizer->OptimizeRolesForContent(dungeonGroup,\
+      \ 123, true, constraints);\nif (result.success)\n{\n    for (auto& entry : result.roleAssignments)\n\
+      \    {\n        uint64 playerGuid = entry.first;\n        RoleType role = entry.second;\n\
+      \        // Process role assignments\n    }\n}"
+    language: cpp
+  - title: Advanced Optimization with Custom Constraints
+    code: "Group* raidGroup = sObjectMgr->GetGroupById(67890);\nOptimizationConstraints\
+      \ constraints;\nconstraints.minTanks = 2;\nconstraints.minHealers = 3;\nconstraints.maxDps\
+      \ = 15;\nconstraints.requiredClasses = {CLASS_WARRIOR, CLASS_PALADIN, CLASS_DRUID};\n\
+      \nOptimizationResult result = roleOptimizer->OptimizeRolesForContent(raidGroup,\
+      \ 456, false, constraints);\nif (result.success && !result.warnings.empty())\n\
+      {\n    for (const auto& warning : result.warnings)\n    {\n        sLog->outString(\"\
+      Optimization Warning: %s\", warning.c_str());\n    }\n}\nelse if (!result.success)\n\
+      {\n    sLog->outError(\"Failed to optimize roles for raid content\");\n}"
+    language: cpp
+  notes: This method performs complex role assignment logic that considers class capabilities,
+    gear levels, and player preferences. It may take several milliseconds to complete
+    depending on group size and complexity of constraints. The optimization process
+    is deterministic given the same inputs but can vary based on dynamic factors like
+    player availability or current equipment state.
+  warnings: Ensure that the provided Group object is valid and contains at least one
+    member before calling this method. Passing null or invalid group pointers will
+    likely cause crashes or undefined behavior. Also, make sure contentId corresponds
+    to an actual dungeon or raid entry in the game database.
+  related:
+  - GetOptimizationConstraints
+  - ValidateGroupComposition
+  - ApplyRoleAssignment
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:24:03.802236'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -7,7 +7,7 @@
 
 // Load environment variables from .env file
 import dotenv from "dotenv";
-import { logger } from './utils/logger.js';
+import { logger } from './utils/logger';
 dotenv.config();
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -17,13 +17,13 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { getSpellInfo } from "./tools/spell.js";
-import { getItemInfo } from "./tools/item.js";
-import { getQuestInfo } from "./tools/quest.js";
-import { queryDBC, queryAllDBC, getCacheStats, getGlobalCacheStats } from "./tools/dbc.js";
-import { getTrinityAPI } from "./tools/api.js";
-import { getOpcodeInfo } from "./tools/opcode.js";
-import { queryGameTable, listGameTables, getCombatRating, getBaseMana, getXPForLevel, getHpPerSta } from "./tools/gametable.js";
+import { getSpellInfo } from "./tools/spell";
+import { getItemInfo } from "./tools/item";
+import { getQuestInfo } from "./tools/quest";
+import { queryDBC, queryAllDBC, getCacheStats, getGlobalCacheStats } from "./tools/dbc";
+import { getTrinityAPI } from "./tools/api";
+import { getOpcodeInfo } from "./tools/opcode";
+import { queryGameTable, listGameTables, getCombatRating, getBaseMana, getXPForLevel, getHpPerSta } from "./tools/gametable";
 import {
   getCreatureFullInfo,
   searchCreatures,
@@ -32,7 +32,7 @@ import {
   getAllTrainers,
   getCreaturesByFaction,
   getCreatureStatistics
-} from "./tools/creature.js";
+} from "./tools/creature";
 import {
   calculateSpellDamage,
   calculateSpellHealing,
@@ -40,14 +40,14 @@ import {
   calculateStatWeights,
   calculateRotationDps,
   getOptimalSpell
-} from "./tools/spellcalculator.js";
+} from "./tools/spellcalculator";
 import {
   getPointsOfInterest,
   getGameObjectsByEntry,
   getCreatureSpawns,
   findNearbyCreatures,
   findNearbyGameObjects
-} from "./tools/worlddata.js";
+} from "./tools/worlddata";
 import {
   getQuestPrerequisites,
   traceQuestChain,
@@ -56,80 +56,80 @@ import {
   findQuestHubs,
   analyzeQuestObjectives,
   optimizeQuestPath
-} from "./tools/questchain.js";
+} from "./tools/questchain";
 import {
   getProfessionRecipes,
   calculateSkillUpPlan,
   findProfitableRecipes
-} from "./tools/profession.js";
+} from "./tools/profession";
 import {
   calculateItemScore,
   compareItems,
   findBestInSlot,
   optimizeGearSet,
   getDefaultStatWeights
-} from "./tools/gearoptimizer.js";
+} from "./tools/gearoptimizer";
 import {
   getClassSpecializations,
   getRecommendedTalentBuild,
   compareTalentTier,
   optimizeTalentBuild
-} from "./tools/talent.js";
+} from "./tools/talent";
 import {
   calculateMeleeDamage,
   calculateArmorMitigation,
   calculateThreat,
   calculateDiminishingReturns
-} from "./tools/combatmechanics.js";
+} from "./tools/combatmechanics";
 import {
   getBuffRecommendations,
   analyzeGroupBuffCoverage,
   optimizeConsumables
-} from "./tools/buffoptimizer.js";
+} from "./tools/buffoptimizer";
 import {
   getBossMechanics,
   getDungeonLayout,
   getOptimalGroupComposition,
   getMythicPlusStrategy
-} from "./tools/dungeonstrategy.js";
+} from "./tools/dungeonstrategy";
 import {
   getItemPricing,
   analyzeAuctionHouse,
   findArbitrageOpportunities,
   calculateProfessionProfitability,
   getGoldMakingStrategies
-} from "./tools/economy.js";
+} from "./tools/economy";
 import {
   getFactionInfo,
   calculateReputationStanding,
   getReputationGrindPath,
   getReputationRewards
-} from "./tools/reputation.js";
+} from "./tools/reputation";
 import {
   analyzeGroupComposition,
   coordinateCooldowns,
   createTacticalAssignments,
   optimizeGroupDps
-} from "./tools/coordination.js";
+} from "./tools/coordination";
 import {
   analyzeArenaComposition,
   getArenaStrategy,
   getBattlegroundStrategy,
   getPvPTalentBuild,
   getSoloShuffleStrategy
-} from "./tools/pvptactician.js";
+} from "./tools/pvptactician";
 import {
   optimizeQuestRoute,
   getOptimalLevelingPath,
   analyzeQuestReward,
   getDailyQuestCircuit
-} from "./tools/questroute.js";
+} from "./tools/questroute";
 import {
   getCollectionStatus,
   findMissingCollectibles,
   getFarmingRoute,
   createCompletionPlan
-} from "./tools/collection.js";
+} from "./tools/collection";
 import {
   searchPlayerbotWiki,
   getPlayerbotPattern,
@@ -137,7 +137,7 @@ import {
   getTroubleshootingGuide,
   getAPIReference,
   listDocumentationCategories
-} from "./tools/knowledge.js";
+} from "./tools/knowledge";
 import {
   generateBotComponent,
   generatePacketHandler,
@@ -145,19 +145,19 @@ import {
   validateGeneratedCode,
   listCodeTemplates,
   getTemplateInfo
-} from "./tools/codegen.js";
+} from "./tools/codegen";
 import {
   analyzeBotPerformance,
   simulateScaling,
   getOptimizationSuggestions,
   quickPerformanceAnalysis,
   findOptimalBotCount
-} from "./tools/performance.js";
+} from "./tools/performance";
 import {
   runTests,
   generateTestReport,
   analyzeCoverage
-} from "./tools/testing.js";
+} from "./tools/testing";
 import {
   listTables,
   getTableSchema,
@@ -169,7 +169,7 @@ import {
   getCreateTableStatement,
   findTablesWithoutPrimaryKey,
   analyzeTable
-} from "./tools/schema.js";
+} from "./tools/schema";
 import {
   findAPIUsageExamples,
   findClassDefinition,
@@ -179,7 +179,7 @@ import {
   findClassMethods,
   analyzeAPIComplexity,
   validateTrinityCorePathExport
-} from "./tools/apiexamples.js";
+} from "./tools/apiexamples";
 import {
   parseErrorOutput,
   parseBuildLog,
@@ -188,7 +188,7 @@ import {
   findRootCause,
   groupRelatedErrors,
   detectCompiler
-} from "./tools/builderrors.js";
+} from "./tools/builderrors";
 import {
   executeNaturalLanguageQuery,
   parseNaturalLanguageQuery,
@@ -199,7 +199,7 @@ import {
   exportQueryResults,
   getQueryHistory,
   clearQueryHistory
-} from "./tools/dataexplorer.js";
+} from "./tools/dataexplorer";
 import {
   getQuestInfo as getQuestMapperInfo,
   findQuestChain,
@@ -210,7 +210,7 @@ import {
   findCircularDependencies,
   getQuestRewards as getQuestMapperRewards,
   exportQuestChain
-} from "./tools/questmapper.js";
+} from "./tools/questmapper";
 import {
   getZoneInfo,
   analyzeMobStats,
@@ -221,7 +221,7 @@ import {
   findZonesByLevel,
   getLevelingPath as getZoneLevelingPath,
   exportZoneAnalysisMarkdown
-} from "./tools/zonedifficulty.js";
+} from "./tools/zonedifficulty";
 import {
   reviewFile,
   reviewFiles,
@@ -229,119 +229,119 @@ import {
   reviewProjectDirectory,
   generateReviewReport,
   getCodeReviewStats
-} from "./tools/codereview.js";
+} from "./tools/codereview";
 import {
   analyzeThreadSafety,
   analyzeFileThreadSafety,
   getThreadSafetyRecommendations
-} from "./tools/threadsafety.js";
+} from "./tools/threadsafety";
 import {
   analyzeMemoryLeaks
-} from "./tools/memoryleak.js";
+} from "./tools/memoryleak";
 import {
   analyzeAPIMigration,
   getAPIChangeDetails,
   isAPIDeprecated,
   getBreakingChanges,
   getSupportedVersions
-} from "./tools/apimigration.js";
+} from "./tools/apimigration";
 import {
   getCodeCompletionContext,
   getTypeInfo
-} from "./tools/codecompletion.js";
+} from "./tools/codecompletion";
 import {
   getBotState,
   getBotTimeline,
   setBreakpoint,
   exportBugReport
-} from "./tools/botdebugger.js";
+} from "./tools/botdebugger";
 import {
   simulateCombat,
   analyzeWhatIf
-} from "./tools/gamesimulator.js";
+} from "./tools/gamesimulator";
 import {
   getHealthStatus,
   getMetricsSnapshot,
   queryLogs,
   getLogFileLocation,
   getMonitoringStatus
-} from "./tools/monitoring.js";
+} from "./tools/monitoring";
 import {
   triggerBackup,
   verifyBackup,
   getSecurityStatus,
   listBackups
-} from "./tools/production.js";
+} from "./tools/production";
 import {
   checkCodeStyle,
   formatCode
-} from "./tools/codestyle.js";
+} from "./tools/codestyle";
 import {
   analyzeBotAI,
   formatAIAnalysisReport
-} from "./tools/botaianalyzer.js";
+} from "./tools/botaianalyzer";
 import {
   analyzeBotCombatLog,
   formatCombatAnalysisReport
-} from "./tools/botcombatloganalyzer.js";
+} from "./tools/botcombatloganalyzer";
 import {
   analyzeComprehensive,
   formatComprehensiveReportMarkdown,
   formatComprehensiveReportJSON,
   formatComprehensiveReportSummary
-} from "./tools/combatloganalyzer-advanced.js";
-import { CacheWarmer } from "./parsers/cache/CacheWarmer.js";
+} from "./tools/combatloganalyzer-advanced";
+import { CacheWarmer } from "./parsers/cache/CacheWarmer";
 import {
   listVMapFiles,
   getVMapFileInfo,
   testLineOfSight,
   findSpawnsInRadius
-} from "./tools/vmap-tools.js";
+} from "./tools/vmap-tools";
 import {
   listMMapFiles,
   getMMapFileInfo,
   findPath,
   isOnNavMesh
-} from "./tools/mmap-tools.js";
+} from "./tools/mmap-tools";
 import {
   exportAllDatabases,
   exportTables
-} from "./database/export-engine.js";
+} from "./database/export-engine";
 import {
   importFromDirectory,
   importFromFile
-} from "./database/import-engine.js";
+} from "./database/import-engine";
 import {
   quickBackup,
   quickRestore
-} from "./database/backup-restore.js";
+} from "./database/backup-restore";
 import {
   quickHealthCheck,
   fullHealthCheck,
   healthCheckWithFix
-} from "./database/health-checker.js";
+} from "./database/health-checker";
 import {
   compareDatabases
-} from "./database/diff-tool.js";
+} from "./database/diff-tool";
 import {
   generateTests,
   generateTestsForDirectory
-} from "./testing/ai-test-generator.js";
+} from "./testing/ai-test-generator";
 import {
   createTestFramework,
   describe,
   it,
   expect
-} from "./testing/test-framework.js";
+} from "./testing/test-framework";
 import {
   quickPerfTest,
   quickLoadTest
-} from "./testing/performance-tester.js";
+} from "./testing/performance-tester";
 import {
   getConfigManager,
   initializeConfig
-} from "./config/config-manager.js";
-import { createErrorResponse, ValidationError } from "./utils/error-handler.js";
+} from "./config/config-manager";
+import { createErrorResponse, ValidationError } from "./utils/error-handler";
 
 // MCP Server instance
 const server = new Server(

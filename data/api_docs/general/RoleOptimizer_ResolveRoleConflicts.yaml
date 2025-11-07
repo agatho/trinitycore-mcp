@@ -1,0 +1,62 @@
+api:
+  class: RoleOptimizer
+  method: ResolveRoleConflicts
+  signature: int RoleOptimizer::ResolveRoleConflicts(Group * group, const int & conflicts)
+documentation:
+  brief: Resolves role conflicts within a group by adjusting player roles to ensure
+    optimal team composition.
+  description: The ResolveRoleConflicts method analyzes the current role distribution
+    within a World of Warcraft group and identifies any conflicts where multiple players
+    are assigned to the same role or where roles are not optimally distributed. This
+    method is typically invoked during group formation or reorganization to maintain
+    balanced team dynamics. It evaluates each group member's role assignment and makes
+    adjustments to prevent overlap while ensuring all necessary roles are filled.
+    The method returns a count of resolved conflicts, allowing the calling code to
+    determine how many changes were made to achieve optimal role distribution.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing members whose roles need conflict
+      resolution. Must be a valid group instance with at least one member.
+  - name: conflicts
+    description: Reference to an integer representing the current number of role conflicts
+      detected in the group. This value is used as input to determine how many conflicts
+      need to be resolved.
+  returns: Returns an integer representing the number of role conflicts successfully
+    resolved by the method. A return value of 0 indicates no conflicts were found
+    or resolved, while a positive integer indicates the number of conflicts that were
+    adjusted.
+  examples:
+  - title: Basic usage in group management
+    code: "Group* myGroup = player->GetGroup();\nint currentConflicts = GetRoleConflicts(myGroup);\n\
+      int resolved = roleOptimizer.ResolveRoleConflicts(myGroup, currentConflicts);\n\
+      if (resolved > 0) {\n    // Log or notify that conflicts were resolved\n   \
+      \ sLog->outString(\"Resolved %d role conflicts in group.\", resolved);\n}"
+    language: cpp
+  - title: Integration with group creation logic
+    code: "void OnGroupCreated(Player* leader) {\n    Group* group = leader->GetGroup();\n\
+      \    if (!group) return;\n    \n    int initialConflicts = CountRoleConflicts(group);\n\
+      \    int resolvedConflicts = roleOptimizer.ResolveRoleConflicts(group, initialConflicts);\n\
+      \    \n    if (resolvedConflicts > 0) {\n        // Send updated role information\
+      \ to all group members\n        SendRoleUpdateToGroup(group);\n    }\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's group management system and assumes
+    that roles are already assigned to players within the group. The implementation
+    may modify player role assignments internally, potentially affecting combat performance
+    or raid positioning. It's recommended to call this method after any significant
+    group changes such as member additions, removals, or role modifications.
+  warnings: Calling this method on a null group pointer will result in undefined behavior.
+    Ensure that the group parameter is valid and contains at least one member before
+    invoking this method. Additionally, frequent calls to this method may cause performance
+    degradation in large groups due to the complexity of role conflict resolution
+    algorithms.
+  related:
+  - GetRoleConflicts
+  - CountRoleConflicts
+  - AssignRolesToGroup
+  - SendRoleUpdateToGroup
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:21:48.925419'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

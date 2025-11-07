@@ -1,0 +1,59 @@
+api:
+  class: InstanceMap
+  method: AddPlayerToMap
+  signature: bool InstanceMap::AddPlayerToMap(Player * player, bool initPlayer)
+documentation:
+  brief: Adds a player to the instance map, initializing their presence in the world.
+  description: The AddPlayerToMap method is responsible for integrating a Player object
+    into the InstanceMap's internal data structures and world state. This includes
+    updating the map's player list, triggering necessary initialization routines,
+    and ensuring the player is properly registered with the instance's tracking systems.
+    The method handles both the basic addition of the player to the map as well as
+    any required setup steps if initPlayer is set to true. It ensures that the player's
+    presence in the instance is correctly tracked for various game mechanics such
+    as instance cleanup, player tracking, and event handling.
+  parameters:
+  - name: player
+    description: Pointer to the Player object to be added to the map. Must not be
+      null and must represent a valid player instance.
+  - name: initPlayer
+    description: Boolean flag indicating whether to perform full player initialization.
+      If true, additional setup steps are executed including sending initial packets,
+      updating player state, and registering with instance systems. If false, only
+      basic map integration occurs.
+  returns: Returns true if the player was successfully added to the map and all required
+    operations completed without error. Returns false if the operation failed due
+    to invalid input, map state issues, or other internal errors.
+  examples:
+  - title: Basic Player Addition
+    code: "if (instanceMap->AddPlayerToMap(player, true)) {\n    // Player successfully\
+      \ added and initialized\n    sLog->outString(\"Player %s added to instance map.\"\
+      , player->GetName().c_str());\n} else {\n    // Failed to add player\n    sLog->outError(\"\
+      Failed to add player %s to instance map.\", player->GetName().c_str());\n}"
+    language: cpp
+  - title: Conditional Player Addition
+    code: "Player* currentPlayer = ObjectAccessor::FindPlayer(playerGuid);\nif (currentPlayer\
+      \ && instanceMap->AddPlayerToMap(currentPlayer, false)) {\n    // Player added\
+      \ without full initialization\n    // Useful for internal map operations where\
+      \ initialization is handled elsewhere\n    sLog->outString(\"Player %s added\
+      \ to map without initialization.\", currentPlayer->GetName().c_str());\n}"
+    language: cpp
+  notes: This method should only be called when the instance map is in a valid state
+    for player addition. The initPlayer parameter controls whether additional network
+    packets and state updates are sent to the client. When initPlayer is false, the
+    player will not receive full initialization packets which may cause visual or
+    gameplay inconsistencies if not handled properly by the calling code.
+  warnings: Calling this method with a null player pointer will likely result in a
+    crash or undefined behavior. Ensure that the player object is valid and properly
+    initialized before calling this method. The initPlayer flag should be used carefully
+    as it affects network traffic and client-side state updates.
+  related:
+  - RemovePlayerFromMap
+  - GetPlayerCount
+  - IsPlayerInMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:30:25.496063'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

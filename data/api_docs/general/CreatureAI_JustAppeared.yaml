@@ -1,0 +1,55 @@
+api:
+  class: CreatureAI
+  method: JustAppeared
+  signature: void CreatureAI::JustAppeared()
+documentation:
+  brief: Called when a creature first appears in the world, after it has been spawned
+    and initialized.
+  description: The JustAppeared method is invoked by the TrinityCore AI system when
+    a CreatureAI object is initialized and the associated creature has just become
+    visible in the game world. This method serves as an entry point for custom AI
+    logic that should execute immediately upon the creature's appearance, such as
+    setting initial states, registering events, or performing one-time setup operations.
+    It is called once per creature instance during its lifetime, typically after the
+    creature has been added to the world and all necessary initialization has completed.
+    The method does not accept any parameters and does not return a value, making
+    it suitable for executing side-effect operations without complex interactions.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Override Example
+    code: "class MyCustomCreatureAI : public CreatureAI\n{\npublic:\n    explicit\
+      \ MyCustomCreatureAI(Creature* creature) : CreatureAI(creature) {}\n\n    void\
+      \ JustAppeared() override\n    {\n        // Initialize creature behavior upon\
+      \ appearance\n        me->SetReactState(REACT_AGGRESSIVE);\n        me->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NOT_SELECTABLE);\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Event Registration
+    code: "class BossAI : public CreatureAI\n{\npublic:\n    explicit BossAI(Creature*\
+      \ creature) : CreatureAI(creature) {}\n\n    void JustAppeared() override\n\
+      \    {\n        // Start combat timer and register for events\n        me->SetReactState(REACT_DEFENSIVE);\n\
+      \        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);\n        me->CastSpell(me,\
+      \ SPELL_SUMMON_MINIONS, true);\n        events.ScheduleEvent(EVENT_CHECK_HEALTH,\
+      \ 1000);\n    }\n};"
+    language: cpp
+  notes: This method is called during the creature's initialization phase, after it
+    has been added to the world but before any AI tick processing begins. It is important
+    to note that this method may be called multiple times if a creature is despawned
+    and respawned, though typically only once per creature instance. The method should
+    not be used for heavy computations or long-running operations as it's part of
+    the initialization sequence.
+  warnings: Avoid performing operations that might cause the creature to become invalid
+    or trigger other AI events within JustAppeared, as this can lead to undefined
+    behavior. Do not attempt to modify creature state in a way that conflicts with
+    the game's internal systems during this brief initialization window.
+  related:
+  - UpdateAI
+  - Initialize
+  - OnSpawn
+  - JustDied
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:29:56.853745'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

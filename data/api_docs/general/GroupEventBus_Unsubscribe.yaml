@@ -1,0 +1,52 @@
+api:
+  class: GroupEventBus
+  method: Unsubscribe
+  signature: void GroupEventBus::Unsubscribe(BotAI * subscriber)
+documentation:
+  brief: Removes a BotAI subscriber from the GroupEventBus event system
+  description: The Unsubscribe method removes a specified BotAI subscriber from the
+    GroupEventBus, effectively disconnecting it from the event notification system.
+    This allows the AI to stop receiving group-related events and notifications that
+    would normally be dispatched through the bus. The method ensures proper cleanup
+    of internal tracking structures for the subscriber, preventing memory leaks or
+    dangling references. When a BotAI is unsubscribed, it will no longer receive updates
+    about group changes, member status updates, or other group-specific events that
+    are broadcast through this event bus.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that should be removed from the event
+      subscription system. Must not be null, otherwise behavior is undefined.
+  returns: None. This method returns void and performs no value return.
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'BotAI* myBot = new BotAI();
+
+      // ... subscribe bot to events ...
+
+      GroupEventBus::Instance()->Unsubscribe(myBot);
+
+      // myBot will no longer receive group events'
+    language: cpp
+  - title: Unsubscribe Before Deletion
+    code: "BotAI* bot = GetBotFromGroup();\nif (bot)\n{\n    GroupEventBus::Instance()->Unsubscribe(bot);\n\
+      \    delete bot;\n}"
+    language: cpp
+  notes: This method assumes that the GroupEventBus instance has already been initialized
+    and is accessible via Instance(). The internal implementation likely maintains
+    a collection of active subscribers and performs O(n) lookup to remove the specified
+    subscriber. It's recommended to call this before deleting BotAI instances to prevent
+    potential dangling pointer issues.
+  warnings: Calling Unsubscribe with a null pointer will result in undefined behavior.
+    Ensure that the BotAI instance being unsubscribed was previously subscribed to
+    avoid attempting to unsubscribe an already-unsubscribed entity, which may cause
+    internal consistency errors or crashes.
+  related:
+  - GroupEventBus::Subscribe
+  - GroupEventBus::Publish
+  - GroupEventBus::Instance
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T13:14:01.016955'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

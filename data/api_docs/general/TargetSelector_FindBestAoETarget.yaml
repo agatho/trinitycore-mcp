@@ -1,0 +1,54 @@
+api:
+  class: TargetSelector
+  method: FindBestAoETarget
+  signature: Unit * TargetSelector::FindBestAoETarget(uint32 spellId, uint32 minTargets)
+documentation:
+  brief: Selects the optimal area-of-effect target for a spell based on threat and
+    target priority.
+  description: The FindBestAoETarget method identifies and returns the most suitable
+    Unit target for an area-of-effect spell, considering factors such as threat level,
+    target priority, and proximity. This method is typically used by AI-controlled
+    creatures to determine which enemy unit should be targeted when casting AoE spells.
+    The selection process prioritizes targets with higher threat levels and ensures
+    that at least the minimum number of required targets are found within the spell's
+    range. If no valid targets are available or if the minimum target requirement
+    cannot be met, the method returns nullptr.
+  parameters:
+  - name: spellId
+    description: The identifier of the spell for which to find an optimal AoE target.
+      This determines the spell's range and targeting rules.
+  - name: minTargets
+    description: The minimum number of targets required for the spell to be cast successfully.
+      The method will only return a valid target if at least this many enemies are
+      within range.
+  returns: A pointer to the selected Unit target that best fits the criteria for area-of-effect
+    casting, or nullptr if no suitable target is found.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "Unit* target = selector->FindBestAoETarget(12345, 3);\nif (target)\n{\n\
+      \    // Cast spell on the selected target\n    me->CastSpell(target, 12345,\
+      \ true);\n}"
+    language: cpp
+  - title: Using with dynamic minimum targets
+    code: "uint32 minTargets = (me->GetHealthPct() < 50) ? 5 : 3;\nUnit* target =\
+      \ selector->FindBestAoETarget(67890, minTargets);\nif (target)\n{\n    me->CastSpell(target,\
+      \ 67890, true);\n}"
+    language: cpp
+  notes: This method is primarily used in AI logic for creature spell casting. It
+    evaluates targets based on threat table entries and proximity to the caster. The
+    method does not perform any direct spell casting; it only selects the target.
+    Performance may be impacted by large numbers of nearby enemies, as all potential
+    targets must be evaluated.
+  warnings: Ensure that the spellId provided corresponds to a valid AoE spell; otherwise,
+    the behavior may be undefined. Be cautious when using this method in high-frequency
+    AI loops, as it can be computationally expensive with many nearby targets.
+  related:
+  - FindBestTarget
+  - GetThreatList
+  - IsInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:22:51.015812'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

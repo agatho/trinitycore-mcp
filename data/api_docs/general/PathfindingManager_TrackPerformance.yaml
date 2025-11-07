@@ -1,0 +1,58 @@
+api:
+  class: PathfindingManager
+  method: TrackPerformance
+  signature: void PathfindingManager::TrackPerformance(std::chrono::microseconds duration,
+    bool successful, bool cached)
+documentation:
+  brief: Records pathfinding performance metrics including duration, success status,
+    and cache usage for analytical purposes.
+  description: The TrackPerformance method is used to log timing and outcome data
+    for pathfinding operations within the TrinityCore server. It captures how long
+    a pathfinding request took to complete, whether it was successful, and if the
+    result came from a cached source. This information is crucial for performance
+    monitoring, debugging, and optimizing AI behavior in World of Warcraft environments.
+    The method does not return any value but contributes to internal statistics tracking
+    that can be accessed via server tools or debug interfaces. It's typically called
+    after pathfinding computations are finished, either by the PathfindingManager
+    itself or by systems that utilize pathfinding services.
+  parameters:
+  - name: duration
+    description: The time taken to complete the pathfinding operation, measured in
+      microseconds. This value represents the actual computational time spent processing
+      the request.
+  - name: successful
+    description: A boolean flag indicating whether the pathfinding operation completed
+      successfully. True means a valid path was found and returned; false indicates
+      failure or no path available.
+  - name: cached
+    description: A boolean flag indicating if the result was retrieved from a cached
+      path instead of being computed fresh. True means a previously calculated path
+      was reused, which improves performance.
+  returns: null
+  examples:
+  - title: Basic Usage in Pathfinding Completion
+    code: "void SomeAI::OnPathComplete(PathResult result) {\n    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now()\
+      \ - m_startTime);\n    sPathfindingManager->TrackPerformance(duration, result.success,\
+      \ false);\n}"
+    language: cpp
+  - title: Tracking Cached Pathfinding Results
+    code: "void UnitAI::UpdateMovement() {\n    if (m_cachedPath) {\n        auto\
+      \ duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now()\
+      \ - m_lastPathTime);\n        sPathfindingManager->TrackPerformance(duration,\
+      \ true, true);\n    }\n}"
+    language: cpp
+  notes: This method is likely used in conjunction with performance profiling tools
+    or debug logging systems to monitor pathfinding efficiency. It may aggregate data
+    into internal statistics structures that are periodically dumped or exposed through
+    server commands for developers to analyze AI behavior and resource usage.
+  warnings: null
+  related:
+  - GetPath
+  - CalculatePath
+  - ClearCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:08:09.292296'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: SmartAI
+  method: OnGossipSelectCode
+  signature: bool SmartAI::OnGossipSelectCode(Player * player, uint32 menuId, uint32
+    gossipListId, const char * code)
+documentation:
+  brief: Handles gossip menu selection with a custom code input from the player
+  description: The OnGossipSelectCode method is invoked when a player selects an option
+    from a gossip menu that includes a text input field. This method allows SmartAI
+    to process custom user input provided during the gossip interaction, enabling
+    dynamic responses based on player-entered data. It is typically used in conjunction
+    with gossip menus that have the GossipOptionCode flag set, allowing for more interactive
+    and personalized NPC interactions. The method returns true if the action was successfully
+    handled, or false if it should fall back to default behavior.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who selected the gossip option and provided
+      the code input
+  - name: menuId
+    description: The unique identifier of the gossip menu that was displayed to the
+      player
+  - name: gossipListId
+    description: The specific entry ID within the gossip menu that was selected by
+      the player
+  - name: code
+    description: The string input provided by the player, which can be used for conditional
+      logic or further processing
+  returns: Returns true if the custom code input was successfully processed and handled
+    by the AI. Returns false if the input should be ignored or if default handling
+    should proceed.
+  examples:
+  - title: Basic Implementation
+    code: "bool SmartAI::OnGossipSelectCode(Player* player, uint32 menuId, uint32\
+      \ gossipListId, const char* code)\n{\n    if (menuId == 1001 && gossipListId\
+      \ == 1)\n    {\n        if (strcmp(code, \"secret\") == 0)\n        {\n    \
+      \        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, \"You found the secret!\"\
+      , GOSSIP_SENDER_MAIN, 2);\n            player->SEND_GOSSIP_MENU(907, me->GetGUID());\n\
+      \            return true;\n        }\n    }\n    return false;\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Conditions
+    code: "bool SmartAI::OnGossipSelectCode(Player* player, uint32 menuId, uint32\
+      \ gossipListId, const char* code)\n{\n    if (menuId == 1005 && gossipListId\
+      \ == 3)\n    {\n        std::string input = code;\n        if (input.length()\
+      \ >= 5 && input.length() <= 20)\n        {\n            // Process valid input\n\
+      \            player->PlayerTalkClass->ClearMenus();\n            player->PlayerTalkClass->SendGossipMenu(10001,\
+      \ me->GetGUID());\n            return true;\n        }\n    }\n    return false;\n\
+      }"
+    language: cpp
+  notes: This method is part of the SmartAI framework and is intended for use in custom
+    AI implementations. It should be overridden in derived classes to provide specific
+    behavior for handling code inputs. The 'code' parameter is a null-terminated C-string
+    that may contain any user-entered text, so validation is recommended before processing.
+  warnings: Ensure proper validation of the input string as it comes directly from
+    player interaction and could potentially contain malicious content or be empty.
+    Be cautious about using this method in high-frequency gossip menus to avoid performance
+    issues due to string comparisons.
+  related:
+  - OnGossipSelect
+  - OnGossipHello
+  - AddGossipItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:47:26.264394'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

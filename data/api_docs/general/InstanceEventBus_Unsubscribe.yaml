@@ -1,0 +1,59 @@
+api:
+  class: InstanceEventBus
+  method: Unsubscribe
+  signature: void InstanceEventBus::Unsubscribe(BotAI * subscriber)
+documentation:
+  brief: Removes a BotAI subscriber from the InstanceEventBus event system
+  description: The Unsubscribe method removes a specified BotAI subscriber from the
+    InstanceEventBus, effectively disconnecting it from the event notification system.
+    This allows the AI instance to stop receiving events related to instance-specific
+    activities such as boss encounters, loot distribution, or quest progress. The
+    method ensures proper cleanup of event subscriptions and prevents memory leaks
+    or dangling pointers that could occur if subscribers were not properly removed
+    before being destroyed. This is particularly important in TrinityCore's bot system
+    where multiple AI instances may be managing different aspects of player behavior
+    within the same instance.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that should be removed from event subscriptions.
+      Must not be null, and should point to a valid BotAI object that was previously
+      subscribed to events.
+  returns: None. This method performs no return operation.
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'BotAI* bot = new BotAI();
+
+      // ... subscribe bot to events ...
+
+      instanceEventBus.Subscribe(bot);
+
+      // ... later, when bot is no longer needed ...
+
+      instanceEventBus.Unsubscribe(bot);
+
+      // bot can now be safely deleted'
+    language: cpp
+  - title: Unsubscribe in Bot Cleanup Context
+    code: "void CleanupBot(BotAI* bot)\n{\n    if (bot)\n    {\n        instanceEventBus.Unsubscribe(bot);\n\
+      \        delete bot;\n    }\n}"
+    language: cpp
+  notes: This method is typically called automatically when a BotAI object is destroyed,
+    but explicit unsubscription is recommended for proper resource management. The
+    event bus maintains internal tracking of subscribers to ensure no duplicate or
+    invalid subscriptions occur. Performance considerations are minimal as this operation
+    involves simple list removal and pointer validation.
+  warnings: Calling Unsubscribe with a null pointer will likely cause undefined behavior
+    or crashes. Always verify that the BotAI instance is valid and was previously
+    subscribed before calling this method. Failing to unsubscribe can lead to memory
+    leaks or access violations if the BotAI object is destroyed while still registered
+    in the event system.
+  related:
+  - Subscribe
+  - Notify
+  - IsSubscribed
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T11:32:01.873530'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

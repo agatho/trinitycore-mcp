@@ -1,0 +1,57 @@
+api:
+  class: RoleAssignment
+  method: HasRoleConflict
+  signature: bool RoleAssignment::HasRoleConflict(Group * group, GroupRole role)
+documentation:
+  brief: Checks if a specified role conflicts with existing roles in the group.
+  description: The HasRoleConflict method determines whether assigning a specific
+    role to a player within a group would create a conflict with existing roles already
+    assigned to other members of that group. This is used during group management
+    operations, such as when a player attempts to take on a new role (like Main Tank
+    or Main Assist) that may already be occupied by another member. The method evaluates
+    the current role assignments in the group against the requested role to identify
+    potential conflicts. It's an essential part of maintaining proper group composition
+    and ensuring that roles like MT/MA are not duplicated within a group.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group where role conflict
+      checking is performed. Must be a valid group instance, otherwise behavior is
+      undefined.
+  - name: role
+    description: The GroupRole enum value indicating the role being checked for conflicts.
+      Valid values include GR_Role_None, GR_Role_Tank, GR_Role_MainAssist, etc., depending
+      on the TrinityCore version and group role definitions.
+  returns: Returns true if a conflict exists with the specified role in the given
+    group; otherwise returns false. A conflict occurs when the requested role is already
+    assigned to another member of the group.
+  examples:
+  - title: Basic Role Conflict Check
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nif (myGroup && myGroup->HasRoleConflict(myGroup,\
+      \ GR_Role_Tank)) {\n    // Handle role conflict\n    sLog->outString(\"Role\
+      \ conflict detected for Tank role in group %u\", groupId);\n}"
+    language: cpp
+  - title: Preventing Role Assignment Conflicts
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup && !playerGroup->HasRoleConflict(playerGroup,\
+      \ GR_Role_MainAssist)) {\n    // Safe to assign MA role\n    playerGroup->SetPlayerRole(player,\
+      \ GR_Role_MainAssist);\n} else {\n    // Notify player of conflict\n    player->SendSystemMessage(\"\
+      Main Assist role is already assigned in this group.\");\n}"
+    language: cpp
+  notes: This method likely iterates through all members of the group to check their
+    current role assignments. It's recommended to call this before attempting to assign
+    a new role to prevent invalid group configurations. The method assumes that roles
+    are mutually exclusive within a group, meaning only one player can hold a specific
+    role like MT or MA at any given time.
+  warnings: Calling this method with a null group pointer will likely result in undefined
+    behavior or crash. Always validate the group pointer before calling HasRoleConflict.
+    Additionally, be aware that this check does not account for dynamic role changes
+    during combat or other game states where roles might be temporarily overridden.
+  related:
+  - Group::SetPlayerRole
+  - Group::GetPlayerRole
+  - Group::HasAnyRole
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T10:17:16.507901'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

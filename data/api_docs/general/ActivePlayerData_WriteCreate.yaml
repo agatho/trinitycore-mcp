@@ -1,0 +1,61 @@
+api:
+  class: ActivePlayerData
+  method: WriteCreate
+  signature: void ActivePlayerData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes player data for creation packet to be sent to a specific receiver.
+  description: The WriteCreate method serializes the ActivePlayerData object into
+    a ByteBuffer, preparing it for inclusion in a player creation packet. This method
+    is typically used when sending initial player state information to other players
+    or to the player's own client. The serialization process respects field visibility
+    flags to determine which data fields should be included based on the relationship
+    between the owner and receiver players. It ensures that sensitive or private data
+    is only transmitted to appropriate recipients according to game rules and visibility
+    settings.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized player data will be
+      written. This buffer is typically used to construct network packets for transmission.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields should be included in the serialization.
+      These flags control visibility based on relationship between owner and receiver
+      (e.g., self, friend, guild member, etc.).
+  - name: owner
+    description: Pointer to the Player object that owns this data. Used to determine
+      what information can be shared with the receiver.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. Determines
+      visibility and access rights for the serialized fields.
+  returns: null
+  examples:
+  - title: Basic usage in packet creation
+    code: 'ByteBuffer data;
+
+      ActivePlayerData playerData;
+
+      playerData.WriteCreate(data, VISIBILITY_FLAG_NORMAL, ownerPlayer, receiverPlayer);
+
+      WorldPacket packet(SMSG_NEW_WORLD, data.size());
+
+      packet.append(data);
+
+      sendPacket(packet);'
+    language: cpp
+  notes: This method is part of the object serialization system in TrinityCore. It's
+    commonly used during player login and when sending updates to other players in
+    the same zone. The field visibility flags are crucial for maintaining game balance
+    and preventing information leakage.
+  warnings: Incorrect fieldVisibilityFlags can result in data being sent to unauthorized
+    players or missing critical information. Always validate that owner and receiver
+    pointers are valid before calling this method.
+  related:
+  - WriteUpdate
+  - WriteDestroy
+  - GetFieldVisibility
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:55:04.264871'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

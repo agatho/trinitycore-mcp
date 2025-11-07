@@ -1,0 +1,43 @@
+api:
+  class: Channel
+  method: List
+  signature: void Channel::List(const Player * player)
+documentation:
+  brief: Sends a list of players currently in the channel to the specified player.
+  description: The Channel::List method retrieves and sends a formatted list of all
+    players currently subscribed to the channel to the requesting player. This method
+    is typically invoked when a player uses the /list command in-game to see who else
+    is in the channel. The implementation handles formatting the player names into
+    a readable list and sending it via the appropriate network packet to the player's
+    client. It ensures that only players who are actually in the channel receive the
+    list, and respects any privacy or visibility settings of the players within the
+    channel.
+  parameters:
+  - name: player
+    description: A pointer to the Player object requesting the channel list. This
+      player must be subscribed to the channel for the list to be sent.
+  returns: null
+  examples:
+  - title: Basic usage in command handler
+    code: "void HandleChannelListCommand(ChatHandler* handler, const char* args)\n\
+      {\n    if (!args || !strlen(args))\n        return;\n\n    Channel* channel\
+      \ = sChatHandler->GetChannel(args);\n    if (channel)\n        channel->List(handler->GetPlayer());\n\
+      }"
+    language: cpp
+  notes: This method internally iterates through all members of the channel and formats
+    their names for display. It may be called from different threads, so internal
+    synchronization is likely required to prevent race conditions when accessing channel
+    member lists.
+  warnings: Ensure that the player pointer passed is valid and not null before calling
+    this method to avoid crashes. Also, be aware that calling this on a channel the
+    player isn't in may result in no action being taken or an empty list being sent.
+  related:
+  - Channel::Join
+  - Channel::Leave
+  - Channel::SendToAll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:33:47.375175'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

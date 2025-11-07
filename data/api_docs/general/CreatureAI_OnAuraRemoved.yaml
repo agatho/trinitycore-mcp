@@ -1,0 +1,53 @@
+api:
+  class: CreatureAI
+  method: OnAuraRemoved
+  signature: void CreatureAI::OnAuraRemoved(const AuraApplication * param0)
+documentation:
+  brief: Handles the event when an aura is removed from the creature
+  description: This method is called by the TrinityCore AI system when an aura application
+    is removed from the creature. It provides a hook for custom AI behavior when auras
+    are stripped, either through natural expiration, manual removal, or other game
+    mechanics. The method receives a pointer to the AuraApplication object that was
+    removed, allowing access to aura properties and effects. This callback is essential
+    for implementing dynamic AI responses to changing auras, such as triggering abilities,
+    resetting states, or modifying behavior based on aura presence.
+  parameters:
+  - name: param0
+    description: Pointer to the AuraApplication object that was removed from the creature.
+      This object contains information about the aura's properties, caster, and effects
+      at the time of removal.
+  returns: null
+  examples:
+  - title: Basic aura removal handler
+    code: "void CreatureAI::OnAuraRemoved(const AuraApplication* auraApp)\n{\n   \
+      \ if (auraApp->GetBase()->GetId() == 12345) // Example aura ID\n    {\n    \
+      \    // Reset some AI state when this specific aura is removed\n        m_isEnraged\
+      \ = false;\n    }\n}"
+    language: cpp
+  - title: Advanced aura removal with effect handling
+    code: "void CreatureAI::OnAuraRemoved(const AuraApplication* auraApp)\n{\n   \
+      \ const Aura* aura = auraApp->GetBase();\n    if (!aura) return;\n\n    // Check\
+      \ for specific aura effects\n    switch (aura->GetId())\n    {\n        case\
+      \ 54321:\n            // Restore normal movement speed\n            SetSpeed(MOVE_RUN,\
+      \ 1.0f);\n            break;\n        case 98765:\n            // Re-enable\
+      \ combat abilities\n            m_canAttack = true;\n            break;\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method is invoked during the aura removal process, so it's important
+    to avoid operations that might cause further aura modifications or recursive calls.
+    The AuraApplication pointer passed in is valid only for the duration of this method
+    call and should not be stored for later use.
+  warnings: Do not modify the creature's state in a way that could trigger additional
+    aura removals within this callback, as it may lead to stack overflow or undefined
+    behavior. Be aware that multiple auras can be removed simultaneously, so ensure
+    your implementation handles such cases gracefully.
+  related:
+  - OnAuraApply
+  - OnAuraUpdate
+  - OnAuraTick
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:22:30.351154'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

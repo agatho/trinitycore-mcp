@@ -1,0 +1,48 @@
+api:
+  class: CooldownEventBus
+  method: ClearUnitEvents
+  signature: void CooldownEventBus::ClearUnitEvents(int unitGuid)
+documentation:
+  brief: Clears all cooldown events associated with a specified unit GUID from the
+    cooldown event bus.
+  description: The ClearUnitEvents method removes all pending or active cooldown events
+    that are registered for a specific unit identified by its GUID. This function
+    is typically used during unit destruction, logout, or when resetting cooldown
+    states to ensure no stale events remain in the system. It helps maintain clean
+    state management and prevents potential memory leaks or incorrect behavior due
+    to outdated cooldown data. The method operates on the internal event bus structure
+    and does not directly interact with the game world objects themselves.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose cooldown events should
+      be cleared. This value must correspond to a valid unit in the game world, otherwise
+      the operation will have no effect.
+  returns: null
+  examples:
+  - title: Clearing cooldown events for a player
+    code: "void RemovePlayerCooldowns(Player* player)\n{\n    CooldownEventBus::ClearUnitEvents(player->GetGUID().GetRawValue());\n\
+      }"
+    language: cpp
+  - title: Using in unit cleanup routine
+    code: "void OnUnitDestroy(Unit* unit)\n{\n    // Clear any pending cooldown events\
+      \ before destruction\n    CooldownEventBus::ClearUnitEvents(unit->GetGUID().GetRawValue());\n\
+      \    // Proceed with normal destruction logic\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any thread context. It
+    assumes that the provided unitGuid is valid and corresponds to an existing unit
+    in the game world. The internal implementation likely uses a hash map or similar
+    data structure for efficient lookup and removal of events.
+  warnings: Calling this method with an invalid or non-existent unit GUID will result
+    in no operation being performed, but it may also indicate a logic error in calling
+    code if such GUIDs are expected to exist. Ensure that the GUID is valid before
+    invoking this method.
+  related:
+  - AddUnitCooldownEvent
+  - GetUnitCooldownEvents
+  - HasUnitCooldownEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:44:23.344282'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

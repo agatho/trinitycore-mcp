@@ -1,0 +1,55 @@
+api:
+  class: DeathHookIntegration
+  method: OnCorpsePreRemove
+  signature: bool DeathHookIntegration::OnCorpsePreRemove(Corpse * corpse)
+documentation:
+  brief: Handles pre-removal logic for corpses in the game world
+  description: The OnCorpsePreRemove method is invoked before a corpse is removed
+    from the game world. This hook allows custom modules to perform cleanup operations,
+    modify corpse data, or prevent removal based on specific conditions. The method
+    receives a pointer to the Corpse object that is about to be removed and returns
+    a boolean value indicating whether the removal should proceed. If the method returns
+    false, the corpse removal is cancelled; if it returns true, the removal proceeds
+    normally. This method is typically used in conjunction with death hook integrations
+    to extend or modify default corpse behavior.
+  parameters:
+  - name: corpse
+    description: Pointer to the Corpse object that is about to be removed from the
+      game world. This parameter must not be null, as it represents the actual corpse
+      instance being processed.
+  returns: Returns true to allow the corpse removal to proceed normally, or false
+    to cancel the removal operation. A return value of false prevents the corpse from
+    being destroyed and may trigger additional logic depending on the implementation.
+  examples:
+  - title: Basic Implementation
+    code: "bool DeathHookIntegration::OnCorpsePreRemove(Corpse* corpse)\n{\n    //\
+      \ Prevent removal if the player was killed by a specific mob\n    if (corpse->GetKillerGuid().GetEntry()\
+      \ == 12345)\n        return false;\n    \n    return true;\n}"
+    language: cpp
+  - title: Advanced Implementation with Logging
+    code: "bool DeathHookIntegration::OnCorpsePreRemove(Corpse* corpse)\n{\n    //\
+      \ Log information about the corpse being removed\n    if (corpse->GetOwnerGuid().IsPlayer())\n\
+      \    {\n        sLog->outInfo(LOG_FILTER_GENERAL, \"Corpse of player %s is being\
+      \ removed.\", \n                      corpse->GetOwnerGuid().ToString().c_str());\n\
+      \    }\n    \n    // Allow removal but perform cleanup\n    CleanupCorpseData(corpse);\n\
+      \    return true;\n}"
+    language: cpp
+  notes: This method is called during the corpse removal process, which occurs after
+    a player dies and before their corpse is destroyed. It's important to avoid performing
+    heavy operations in this hook as it can affect performance. The corpse object
+    passed to this method should not be deleted or modified in ways that could cause
+    memory corruption.
+  warnings: Avoid modifying the corpse object directly in this method unless absolutely
+    necessary, as doing so might lead to undefined behavior. Also, be cautious when
+    returning false from this method, as it may leave corpses in an inconsistent state
+    if not handled properly by other systems.
+  related:
+  - OnPlayerDeath
+  - OnCorpseRemove
+  - OnCorpseUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:50:02.433040'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

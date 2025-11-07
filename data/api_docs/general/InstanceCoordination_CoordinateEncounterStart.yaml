@@ -1,0 +1,60 @@
+api:
+  class: InstanceCoordination
+  method: CoordinateEncounterStart
+  signature: void InstanceCoordination::CoordinateEncounterStart(Group * group, uint32
+    encounterId)
+documentation:
+  brief: Coordinates the start of a dungeon encounter for a group of players.
+  description: The CoordinateEncounterStart method initiates the synchronization process
+    for starting a specific dungeon encounter within an instance. It ensures that
+    all players in the provided group are properly aligned with the encounter's start
+    conditions, including proper positioning, quest state updates, and potential cooldown
+    resets. This method is typically invoked when a group enters a dungeon or begins
+    a specific encounter, ensuring that all members of the group are synchronized
+    to the same encounter state. The method handles coordination between the client
+    and server to maintain consistency across all players in the group during the
+    encounter.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group of players initiating
+      the encounter. Must be a valid group with at least one member, and all members
+      must be within the same instance.
+  - name: encounterId
+    description: Unique identifier for the specific dungeon encounter being started.
+      This ID corresponds to the encounter definition in the database and determines
+      which encounter mechanics are activated.
+  returns: null
+  examples:
+  - title: Basic Encounter Start Coordination
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup && playerGroup->GetMembersCount()\
+      \ > 0)\n{\n    InstanceCoordination::CoordinateEncounterStart(playerGroup, 12345);\n\
+      }"
+    language: cpp
+  - title: Encounter Start with Validation
+    code: "Group* group = player->GetGroup();\nif (group && group->IsLeader(player))\n\
+      {\n    uint32 encounterId = sObjectMgr->GetDungeonEncounterIdForMapAndPosition(\n\
+      \        player->GetMapId(), player->GetPositionX(), player->GetPositionY());\n\
+      \    if (encounterId)\n    {\n        InstanceCoordination::CoordinateEncounterStart(group,\
+      \ encounterId);\n    }\n}"
+    language: cpp
+  notes: This method is part of the instance coordination system and relies on proper
+    group management. It assumes that all players in the group are already within
+    the same instance map. The method may trigger additional events or updates to
+    synchronize player states across the network. Performance considerations include
+    avoiding frequent calls during active encounters, as this could cause unnecessary
+    synchronization overhead.
+  warnings: Calling this method with an invalid group pointer or a non-existent encounterId
+    can lead to undefined behavior or client desynchronization. Ensure that all players
+    in the group are valid and within the same instance before calling this method.
+    This method should not be called during active encounters without proper state
+    management.
+  related:
+  - CoordinateEncounterEnd
+  - GetEncounterState
+  - UpdateGroupEncounterState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:48:19.422206'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

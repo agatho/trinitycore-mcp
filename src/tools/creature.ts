@@ -11,7 +11,7 @@
 import { queryWorld } from "../database/connection";
 import * as fs from "fs";
 import * as path from "path";
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // CREATURE CACHE (DBCD-generated JSON from Creature.db2)

@@ -156,7 +156,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     }));
 
     // Generate link edges from node.link field (visual representation of event chains)
-    const linkEdges = saiScript.nodes
+    const linkEdges: Edge[] = saiScript.nodes
       .filter((node) => node.type === 'event' && node.link && node.link > 0)
       .map((node) => {
         // Find target node by link ID
@@ -182,7 +182,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
         }
         return null;
       })
-      .filter((edge) => edge !== null);
+      .filter((edge): edge is Edge => edge !== null);
 
     setNodes(flowNodes);
     setEdges([...flowEdges, ...linkEdges]);
@@ -441,7 +441,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     // Record history before deletion
     historyManager.record(
       convertFromReactFlow(),
-      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)` as any,
+      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)`,
       'user'
     );
 
@@ -464,7 +464,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific node
   const handleDeleteNode = useCallback((nodeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}` as any, 'user');
+    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}`, 'user');
 
     setNodes((nds) => nds.filter(n => n.id !== nodeId));
     setEdges((eds) => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
@@ -478,7 +478,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific edge
   const handleDeleteEdge = useCallback((edgeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}` as any, 'user');
+    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}`, 'user');
     setEdges((eds) => eds.filter(e => e.id !== edgeId));
     toast.success('Connection deleted');
   }, [setEdges, convertFromReactFlow, historyManager]);
@@ -510,49 +510,6 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
     toast.success('Node duplicated');
   }, [nodes, setNodes]);
-
-  // Auto layout
-  const handleAutoLayout = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    const layoutedScript = autoLayout(currentScript);
-    convertToReactFlow(layoutedScript);
-    toast.success('Layout applied');
-  }, [convertFromReactFlow, convertToReactFlow]);
-
-
-  // Export SQL
-  const handleExportSQL = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    const sql = generateSQL(currentScript);
-
-    // Add to SQL history
-    sqlHistoryManager.addEntry(sql, currentScript, 'Manual SQL export');
-
-    // Download as file
-    const blob = new Blob([sql], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sai_${currentScript.entryOrGuid}_${Date.now()}.sql`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    if (onExport) {
-      onExport(sql);
-    }
-
-    toast.success('SQL exported');
-  }, [convertFromReactFlow, onExport, sqlHistoryManager]);
-
-
-  const handleSave = useCallback(() => {
-    const currentScript = convertFromReactFlow();
-    if (onSave) {
-      onSave(currentScript);
-      toast.success('Script saved');
-    }
-  }, [convertFromReactFlow, onSave]);
-
 
   // Keyboard event handler
   useEffect(() => {
@@ -627,6 +584,39 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [nodes, edges, setNodes, setEdges, handleDeleteSelected, handleDuplicateNode, handleSave, handleExportSQL, handleAutoLayout, onSave]);
+
+  // Auto layout
+  const handleAutoLayout = useCallback(() => {
+    const currentScript = convertFromReactFlow();
+    const layoutedScript = autoLayout(currentScript);
+    convertToReactFlow(layoutedScript);
+    toast.success('Layout applied');
+  }, [convertFromReactFlow, convertToReactFlow]);
+
+
+  // Export SQL
+  const handleExportSQL = useCallback(() => {
+    const currentScript = convertFromReactFlow();
+    const sql = generateSQL(currentScript);
+
+    // Add to SQL history
+    sqlHistoryManager.addEntry(sql, currentScript, 'Manual SQL export');
+
+    // Download as file
+    const blob = new Blob([sql], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sai_${currentScript.entryOrGuid}_${Date.now()}.sql`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    if (onExport) {
+      onExport(sql);
+    }
+
+    toast.success('SQL exported');
+  }, [convertFromReactFlow, onExport, sqlHistoryManager]);
 
   // Restore from SQL history
   const handleRestoreFromHistory = useCallback((restoredScript: SAIScript) => {
@@ -803,6 +793,158 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
             shortcut: 'Ctrl+V',
           },
           { separator: true, label: "", onClick: () => {} },
+          {
+            label: 'Select All',
+            onClick: () => {
+              setNodes((nds) => nds.map(n => ({ ...n, selected: true })));
+              setEdges((eds) => eds.map(e => ({ ...e, selected: true })));
+            },
+            shortcut: 'Ctrl+A',
+          },
+          {
+            label: 'Auto Layout',
+            icon: <Layers className="w-4 h-4" />,
+            onClick: handleAutoLayout,
+            shortcut: 'Ctrl+L',
+          },
+        ];
+
+      default:
+        return [];
+    }
+  }, [
+    contextMenu,
+    handleCopy,
+    handleCut,
+    handlePaste,
+    handleAutoLayout,
+    handleDeleteNode,
+    handleDeleteEdge,
+    handleDuplicateNode,
+    handleAddEvent,
+    handleAddAction,
+    handleAddTarget,
+    clipboard,
+    setNodes,
+    setEdges,
+  ]);
+
+  // Context menu handlers
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'node',
+      target: node,
+    });
+  }, []);
+
+  const onEdgeContextMenu = useCallback((event: React.MouseEvent, edge: Edge) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'edge',
+      target: edge,
+    });
+  }, []);
+
+  const onPaneContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'canvas',
+    });
+  }, []);
+
+  // Get context menu items based on type
+  const getContextMenuItems = useCallback((): ContextMenuItem[] => {
+    if (!contextMenu) return [];
+
+    switch (contextMenu.type) {
+      case 'node':
+        return [
+          {
+            label: 'Edit Properties',
+            icon: <Edit className="w-4 h-4" />,
+            onClick: () => setSelectedNode(contextMenu.target.data),
+            shortcut: 'Enter',
+          },
+          {
+            label: 'Duplicate',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => handleDuplicateNode(contextMenu.target.id),
+            shortcut: 'Ctrl+D',
+          },
+          { separator: true },
+          {
+            label: 'Copy',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and copy
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCopy, 50);
+            },
+            shortcut: 'Ctrl+C',
+          },
+          {
+            label: 'Cut',
+            icon: <Scissors className="w-4 h-4" />,
+            onClick: () => {
+              // Select this node and cut
+              setNodes((nds) => nds.map(n => ({ ...n, selected: n.id === contextMenu.target.id })));
+              setTimeout(handleCut, 50);
+            },
+            shortcut: 'Ctrl+X',
+          },
+          { separator: true },
+          {
+            label: 'Delete',
+            icon: <Trash2 className="w-4 h-4" />,
+            onClick: () => handleDeleteNode(contextMenu.target.id),
+            shortcut: 'Delete',
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'edge':
+        return [
+          {
+            label: 'Delete Connection',
+            icon: <Unlink className="w-4 h-4" />,
+            onClick: () => handleDeleteEdge(contextMenu.target.id),
+            variant: 'danger' as const,
+          },
+        ];
+
+      case 'canvas':
+        return [
+          {
+            label: 'Add Event',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddEvent,
+          },
+          {
+            label: 'Add Action',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddAction,
+          },
+          {
+            label: 'Add Target',
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleAddTarget,
+          },
+          { separator: true },
+          {
+            label: 'Paste',
+            icon: <Copy className="w-4 h-4" />,
+            onClick: handlePaste,
+            disabled: !clipboard,
+            shortcut: 'Ctrl+V',
+          },
+          { separator: true },
           {
             label: 'Select All',
             onClick: () => {

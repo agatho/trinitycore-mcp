@@ -1,0 +1,81 @@
+api:
+  class: ObjectData
+  method: WriteCreate
+  signature: void ObjectData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Object * owner, const Player * receiver) const
+documentation:
+  brief: Writes object creation data into a ByteBuffer for transmission to a specific
+    player.
+  description: The WriteCreate method serializes the object's initial state and fields
+    into a ByteBuffer, which is then sent to a specific player's client as part of
+    the object creation packet. This method handles visibility filtering based on
+    fieldVisibilityFlags, ensuring that only relevant data is transmitted to the receiver.
+    It takes into account the owner of the object for proper field visibility calculations
+    and ensures that the data is correctly formatted according to the World of Warcraft
+    protocol. The method is typically called during object spawning or when a player
+    first sees an object in their client.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized object creation data
+      will be written. This buffer will contain the complete packet data for object
+      creation.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields should be included in the creation
+      packet. These flags control visibility of different object fields based on player
+      perspective and object type.
+  - name: owner
+    description: Pointer to the Object that owns this data. Used for determining field
+      visibility and ownership-related data transmission. Can be null if no owner
+      exists.
+  - name: receiver
+    description: Pointer to the Player who will receive this object creation packet.
+      Used to determine what data should be visible to this specific player, including
+      stealth detection and faction-based visibility.
+  returns: void
+  examples:
+  - title: Basic usage for sending object creation to a player
+    code: 'ObjectData data;
+
+      Player* targetPlayer = ...;
+
+      Object* owningObject = ...;
+
+      ByteBuffer packetData;
+
+
+      // Write the object creation data into the buffer
+
+      // This would typically be called when spawning an object for a specific player
+
+      data.WriteCreate(packetData, VISIBILITY_FLAG_DEFAULT, owningObject, targetPlayer);
+
+
+      // Send the packet to the player''s client
+
+      WorldPacket packet(SMSG_CREATE_OBJECT, packetData.size());
+
+      packet.append(packetData);
+
+      targetPlayer->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the object serialization system in TrinityCore and
+    is crucial for proper network synchronization. The fieldVisibilityFlags parameter
+    controls what data gets sent to different players, implementing visibility rules
+    such as stealth detection, faction-based visibility, and object-specific restrictions.
+    The method assumes that the ByteBuffer is properly initialized and will handle
+    appending data to it.
+  warnings: Incorrect usage of fieldVisibilityFlags can cause objects to appear with
+    incorrect data or be invisible to players. The owner parameter must not be null
+    when ownership-based visibility rules are needed. Improper handling of the receiver
+    parameter may result in incorrect visibility for players, potentially causing
+    security issues or game mechanics bugs.
+  related:
+  - WriteUpdate
+  - WriteDestroy
+  - GetFieldVisibilityFlags
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:33:23.795324'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

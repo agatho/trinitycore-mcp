@@ -1,0 +1,58 @@
+api:
+  class: TargetSelector
+  method: SelectTargetByCriteria
+  signature: SelectionResult TargetSelector::SelectTargetByCriteria(SelectionCriteria
+    criteria, const SelectionContext & context)
+documentation:
+  brief: Selects a target based on specified selection criteria and context within
+    the AI system.
+  description: The SelectTargetByCriteria method is used in TrinityCore's AI framework
+    to choose an appropriate target for an entity (such as a creature or player) based
+    on predefined selection criteria and contextual information. This method evaluates
+    available targets according to rules defined by the SelectionCriteria parameter
+    and the current state provided by the SelectionContext, returning a SelectionResult
+    that indicates either a valid target or failure to find one. It is commonly used
+    in AI decision-making processes for spell casting, melee attacks, or other actions
+    requiring target selection. The method respects faction, health status, distance,
+    threat levels, and other configurable factors depending on the criteria set.
+  parameters: []
+  returns: Returns a SelectionResult object which contains either a valid target (GUID)
+    if one was successfully selected according to the given criteria, or an invalid
+    GUID (typically 0) indicating no suitable target could be found. The result also
+    includes metadata about why a selection was made or failed.
+  examples:
+  - title: Basic Target Selection for Spell Casting
+    code: "SelectionCriteria crit;\ncrit.SelectionType = SELECT_TARGET_RANDOM;\ncrit.MaxRange\
+      \ = 30.0f;\nSelectionContext context;\ncontext.Caster = me;\ncontext.Target\
+      \ = nullptr;\nSelectionResult result = SelectTargetByCriteria(crit, context);\n\
+      if (result.IsValid())\n{\n    // Cast spell on selected target\n    DoCast(result.GetGuid());\n\
+      }"
+    language: cpp
+  - title: Selecting the Highest Threat Target
+    code: "SelectionCriteria crit;\ncrit.SelectionType = SELECT_TARGET_TOPAGGRO;\n\
+      crit.MaxRange = 50.0f;\ncrit.MinHealthPct = 10.0f;\nSelectionContext context;\n\
+      context.Caster = me;\ncontext.Target = nullptr;\nSelectionResult result = SelectTargetByCriteria(crit,\
+      \ context);\nif (result.IsValid())\n{\n    // Attack the highest threat target\n\
+      \    AttackStart(result.GetGuid());\n}"
+    language: cpp
+  notes: This method is part of the core AI selection logic in TrinityCore and integrates
+    with the creature's threat table, faction settings, and various combat states.
+    It should be called during AI update cycles or event triggers rather than continuously
+    to avoid performance overhead. The SelectionCriteria structure allows for flexible
+    targeting rules including random, top aggro, lowest health, etc., making it highly
+    adaptable for different NPC behaviors.
+  warnings: Ensure that the SelectionContext is properly initialized before calling
+    this method, especially when using context-dependent criteria like threat or proximity.
+    Failure to do so may lead to incorrect target selection or undefined behavior.
+    Also note that this function does not perform any range checking beyond what's
+    specified in the criteria unless explicitly configured.
+  related:
+  - SelectTarget
+  - GetSelectionContext
+  - SetSelectionCriteria
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:12:13.130985'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

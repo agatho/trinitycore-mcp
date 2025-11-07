@@ -1,0 +1,48 @@
+api:
+  class: SpawnPriorityQueue
+  method: DequeueNextRequest
+  signature: std::optional<PrioritySpawnRequest> SpawnPriorityQueue::DequeueNextRequest()
+documentation:
+  brief: Removes and returns the highest priority spawn request from the queue.
+  description: The DequeueNextRequest method retrieves and removes the next spawn
+    request with the highest priority from the SpawnPriorityQueue. This method is
+    typically used in TrinityCore's AI or event handling systems to process pending
+    spawn requests in priority order. The queue maintains a sorted list of PrioritySpawnRequest
+    objects based on their assigned priority levels, ensuring that higher-priority
+    requests are handled before lower-priority ones. If the queue is empty, the method
+    returns an empty std::optional, indicating no requests are available for processing.
+  parameters: []
+  returns: A std::optional containing a PrioritySpawnRequest if the queue is not empty;
+    otherwise, an empty optional indicating no requests are available.
+  examples:
+  - title: Basic Usage
+    code: "SpawnPriorityQueue queue;\n// ... add some PrioritySpawnRequest objects\
+      \ to queue ...\nstd::optional<PrioritySpawnRequest> request = queue.DequeueNextRequest();\n\
+      if (request.has_value()) {\n    // Process the high-priority spawn request\n\
+      \    HandleSpawnRequest(request.value());\n} else {\n    // No requests available\n\
+      \    LOG_DEBUG(\"spawn\", \"No spawn requests in queue\");\n}"
+    language: cpp
+  - title: Integration with Spawn System
+    code: "void ProcessSpawnQueue() {\n    SpawnPriorityQueue& spawnQueue = GetSpawnQueue();\n\
+      \    while (auto request = spawnQueue.DequeueNextRequest()) {\n        // Execute\
+      \ the spawn logic for this request\n        if (!ExecuteSpawn(request.value()))\
+      \ {\n            // Re-queue failed requests with adjusted priority\n      \
+      \      spawnQueue.Enqueue(request.value());\n        }\n    }\n}"
+    language: cpp
+  notes: This method modifies the internal state of the SpawnPriorityQueue by removing
+    an element. The queue is expected to be thread-safe if used in a multi-threaded
+    environment, though specific locking mechanisms are implementation-dependent.
+    Performance is O(log n) due to potential re-sorting after removal.
+  warnings: Calling this method on an empty queue will return an empty optional. It's
+    important to always check for the presence of a value before dereferencing the
+    returned optional to avoid undefined behavior.
+  related:
+  - Enqueue
+  - IsEmpty
+  - Size
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:11:19.600645'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

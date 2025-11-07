@@ -1,0 +1,61 @@
+api:
+  class: EquipmentManager
+  method: HasWrongPrimaryStats
+  signature: bool EquipmentManager::HasWrongPrimaryStats(int * player, int * item)
+documentation:
+  brief: Checks if a player's equipped items have incorrect primary stats for their
+    class and level.
+  description: The HasWrongPrimaryStats method evaluates whether the items currently
+    equipped by a player meet the expected primary stat requirements based on their
+    character class, level, and item type. This function is typically used during
+    equipment validation or when checking for gear that doesn't conform to the standard
+    stat distribution expected for a given class. It ensures that players are not
+    using items with inappropriate stat allocations that could unbalance gameplay
+    or violate game rules. The method compares the equipped item's primary stats against
+    the baseline expectations defined by the TrinityCore engine for each class and
+    level combination.
+  parameters:
+  - name: player
+    description: Pointer to the player object whose equipment is being validated.
+      This parameter represents the character instance that owns the items being checked.
+  - name: item
+    description: Pointer to the item object being evaluated for primary stat compliance.
+      This represents the specific piece of equipment being validated against class
+      and level requirements.
+  returns: Returns true if the equipped item has incorrect primary stats for the player's
+    class and level, false otherwise. The method returns false when the item meets
+    all expected stat requirements or when either parameter is invalid.
+  examples:
+  - title: Basic Usage Example
+    code: "Player* player = ...; // Get player instance\nItem* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ EQUIPMENT_SLOT_MAINHAND);\nif (player->GetEquipmentManager()->HasWrongPrimaryStats(&player,\
+      \ &item)) {\n    // Handle incorrect stats case\n    sLog->outString(\"Player\
+      \ %s has wrong primary stats on equipped item.\", player->GetName().c_str());\n\
+      }"
+    language: cpp
+  - title: Advanced Validation with Multiple Items
+    code: "Player* player = ...;\nEquipmentManager* equipMgr = player->GetEquipmentManager();\n\
+      bool hasWrongStats = false;\nfor (int slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END;\
+      \ ++slot) {\n    Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);\n\
+      \    if (item && equipMgr->HasWrongPrimaryStats(&player, &item)) {\n       \
+      \ hasWrongStats = true;\n        break;\n    }\n}\nif (hasWrongStats) {\n  \
+      \  // Log or handle incorrect stat items\n}"
+    language: cpp
+  notes: This method may be computationally expensive as it involves comparing item
+    stats against class-specific requirements. It's recommended to cache results when
+    performing bulk validation checks. The function assumes valid player and item
+    pointers, though it will safely return false if either is null.
+  warnings: Calling this method with invalid or uninitialized player/item pointers
+    can lead to undefined behavior. Ensure proper null checking before calling. This
+    method may not account for temporary stat modifications from buffs or debuffs
+    that could affect the validation outcome.
+  related:
+  - GetEquippedItems
+  - ValidateItemStats
+  - CheckGearRequirements
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T14:34:41.724062'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

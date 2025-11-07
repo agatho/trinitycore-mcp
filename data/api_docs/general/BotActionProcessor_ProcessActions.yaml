@@ -1,0 +1,52 @@
+api:
+  class: BotActionProcessor
+  method: ProcessActions
+  signature: uint32 BotActionProcessor::ProcessActions(uint32 maxActionsPerFrame)
+documentation:
+  brief: Processes a batch of bot actions up to the specified maximum per frame
+  description: The ProcessActions method executes a set of queued bot actions within
+    the current game frame, limiting the number of actions processed based on the
+    provided maxActionsPerFrame parameter. This method is typically called during
+    the AI update cycle to handle bot decision-making and behavior execution. It ensures
+    that bot processing does not consume excessive CPU resources by capping the number
+    of actions executed per frame. The method returns the actual number of actions
+    processed, which may be less than the maximum if fewer actions are queued or if
+    processing limits are reached.
+  parameters: []
+  returns: Returns the actual number of bot actions that were successfully processed
+    during this call. This value will be equal to or less than the maxActionsPerFrame
+    parameter, depending on how many actions were queued and whether processing was
+    completed within the frame limit.
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void BotAI::UpdateAI()\n{\n    // Process up to 10 bot actions per frame\n\
+      \    uint32 processed = m_actionProcessor->ProcessActions(10);\n    if (processed\
+      \ == 0)\n    {\n        // No actions were processed, possibly due to no queued\
+      \ actions\n        return;\n    }\n    // Continue with other AI logic\n}"
+    language: cpp
+  - title: Dynamic Action Limit Based on Frame Time
+    code: "void BotAI::UpdateAI()\n{\n    // Calculate dynamic limit based on frame\
+      \ time to maintain performance\n    uint32 maxActions = std::min(50u, (uint32)(m_frameTime\
+      \ * 100));\n    uint32 processed = m_actionProcessor->ProcessActions(maxActions);\n\
+      \    // Log or track the number of actions processed\n    sLog->outDebug(LOG_FILTER_AI,\
+      \ \"Processed %u bot actions this frame\", processed);\n}"
+    language: cpp
+  notes: This method is designed to be called from within the main game loop or AI
+    update thread. It's important that the maxActionsPerFrame parameter is chosen
+    carefully to balance responsiveness with performance. The method may return immediately
+    if no actions are queued, and it's recommended to check the return value to determine
+    if any processing occurred.
+  warnings: Do not call this method from multiple threads simultaneously without proper
+    synchronization. Excessive calls to this method without appropriate frame limiting
+    can cause performance degradation. Be aware that some bot actions might fail or
+    be skipped due to game state constraints, which is reflected in the returned count.
+  related:
+  - BotActionProcessor::AddAction
+  - BotActionProcessor::ClearActions
+  - BotActionProcessor::GetActionCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T19:22:25.659295'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

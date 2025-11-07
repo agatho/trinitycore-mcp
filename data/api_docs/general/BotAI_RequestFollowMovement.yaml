@@ -1,0 +1,72 @@
+api:
+  class: BotAI
+  method: RequestFollowMovement
+  signature: bool BotAI::RequestFollowMovement(PlayerBotMovementPriority priority,
+    int targetGuid, float distance, const std::string & reason, const std::string
+    & sourceSystem)
+documentation:
+  brief: Requests the bot to begin following a target player with specified movement
+    priority and distance.
+  description: The RequestFollowMovement method initiates a follow behavior for a
+    bot AI, instructing it to move towards and maintain a specific distance from a
+    target player. This method is typically used in player-controlled bot systems
+    where bots need to dynamically follow players based on game events or commands.
+    The method accepts parameters that define the priority of the movement, the target
+    player's GUID, desired distance, and contextual information about why the movement
+    is being requested. It returns true if the request was successfully queued or
+    processed, false otherwise. This functionality is essential for implementing group
+    mechanics, escort quests, or dynamic player assistance systems within TrinityCore-based
+    World of Warcraft servers.
+  parameters:
+  - name: priority
+    description: Specifies the movement priority level (PlayerBotMovementPriority
+      enum) which determines how urgently the bot should follow the target. Higher
+      priority movements override lower ones.
+  - name: targetGuid
+    description: The unique identifier (GUID) of the player that the bot should follow.
+      This value must correspond to a valid Player object in the game world.
+  - name: distance
+    description: The desired distance the bot should maintain from the target player
+      during following. Values are typically in yards, with 0 indicating immediate
+      proximity.
+  - name: reason
+    description: A descriptive string explaining why this follow movement was requested.
+      Useful for debugging or logging purposes to track bot behavior.
+  - name: sourceSystem
+    description: Identifies the system or module that initiated this request, helping
+      with tracking and potential conflict resolution between different AI systems.
+  returns: Returns true if the movement request was successfully accepted and queued
+    for processing by the bot's AI system. Returns false if the request failed due
+    to invalid parameters, target unavailability, or internal system errors.
+  examples:
+  - title: Basic Follow Request
+    code: "if (botAI->RequestFollowMovement(PlayerBotMovementPriority::HIGH, playerGuid,\
+      \ 3.0f, \"Quest escort\", \"QuestSystem\")) {\n    // Movement request accepted\n\
+      } else {\n    // Handle failed request\n}"
+    language: cpp
+  - title: Advanced Follow with Priority Override
+    code: "PlayerBotMovementPriority priority = PlayerBotMovementPriority::MEDIUM;\n\
+      float distance = 5.0f;\nstd::string reason = \"Group formation\";\nstd::string\
+      \ source = \"GroupManager\";\n\nbool success = botAI->RequestFollowMovement(priority,\
+      \ targetGuid, distance, reason, source);\nif (success) {\n    // Bot will now\
+      \ follow at specified distance with given priority\n} else {\n    // Log error\
+      \ or fallback behavior\n}"
+    language: cpp
+  notes: This method is part of the PlayerBot AI framework and relies on the underlying
+    movement engine to execute the actual pathfinding. The bot's current state must
+    allow for movement changes, otherwise the request may be ignored. Multiple concurrent
+    follow requests can be queued, with higher priority ones taking precedence.
+  warnings: Ensure that the targetGuid corresponds to an active player object; otherwise,
+    the method will likely fail silently or return false. Be cautious when using high-priority
+    movements in rapid succession as they might interfere with other ongoing AI behaviors.
+  related:
+  - RequestMoveTo
+  - RequestStopMovement
+  - GetFollowTargetGuid
+  - SetMovementPriority
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T19:31:41.242023'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

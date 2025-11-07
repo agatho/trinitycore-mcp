@@ -1,0 +1,63 @@
+api:
+  class: GameObjectAI
+  method: SummonedCreatureDies
+  signature: void GameObjectAI::SummonedCreatureDies(Creature * param0, Unit * param1)
+documentation:
+  brief: Handles the event when a summoned creature dies within the GameObjectAI's
+    control.
+  description: 'The SummonedCreatureDies method is invoked by the GameObjectAI framework
+    when a creature that was summoned by this game object has died. This method allows
+    custom AI logic to be executed in response to the death of a summoned unit, such
+    as triggering additional effects, resetting timers, or managing summoning states.
+    It is part of the GameObject''s AI lifecycle management and provides an opportunity
+    for developers to implement specific behaviors tied to summoned creature deaths.
+    The method receives two parameters: the creature that died and the unit responsible
+    for its death, which can be used to determine the cause of death and react accordingly.'
+  parameters:
+  - name: param0
+    description: Pointer to the Creature object that has died. This represents the
+      summoned creature controlled by this GameObjectAI.
+  - name: param1
+    description: Pointer to the Unit object that caused the death of the summoned
+      creature. This could be a player, NPC, or any other unit capable of dealing
+      damage.
+  returns: null
+  examples:
+  - title: Basic Summoned Creature Death Handling
+    code: "void GameObjectAI::SummonedCreatureDies(Creature* summoned, Unit* killer)\n\
+      {\n    if (!summoned || !killer)\n        return;\n\n    // Log the death of\
+      \ a summoned creature\n    sLog->outString(\"Summoned creature %u died by %s.\"\
+      , summoned->GetEntry(), killer->GetName());\n\n    // Reset summoning timer\
+      \ or perform cleanup\n    m_summonTimer = 5000; // Re-summon after 5 seconds\n\
+      }"
+    language: cpp
+  - title: Advanced Summoned Creature Death with Conditional Logic
+    code: "void GameObjectAI::SummonedCreatureDies(Creature* summoned, Unit* killer)\n\
+      {\n    if (!summoned || !killer)\n        return;\n\n    // If the killer is\
+      \ a player, trigger quest completion or reward\n    if (Player* player = killer->ToPlayer())\n\
+      \    {\n        if (summoned->GetEntry() == NPC_BROKEN_GOBLIN)\n        {\n\
+      \            player->KilledMonsterCredit(NPC_BROKEN_GOBLIN);\n        }\n  \
+      \  }\n\n    // If the summoned creature was a specific type, reset summoning\
+      \ state\n    if (summoned->GetEntry() == NPC_SUMMONED_MINION)\n    {\n     \
+      \   m_minionCount--;\n        if (m_minionCount <= 0)\n        {\n         \
+      \   DoCast(SPELL_SUMMONING_COMPLETE);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from internal TrinityCore AI systems when
+    a summoned creature's health reaches zero. It should not be invoked directly by
+    custom code unless implementing a custom summoning system. The parameters passed
+    are guaranteed to be valid pointers, but developers should always check for null
+    values in case of unexpected conditions.
+  warnings: Do not modify the state of the summoned creature or killer after this
+    method is called, as they may already have been removed from memory. Avoid performing
+    heavy operations inside this method, as it's executed frequently during combat
+    scenarios and can impact performance if not optimized.
+  related:
+  - SummonedCreatureDespawn
+  - SummonedCreatureReachedHome
+  - JustSummoned
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T13:53:06.538460'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

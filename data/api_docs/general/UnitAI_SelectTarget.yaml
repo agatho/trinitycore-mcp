@@ -1,0 +1,68 @@
+api:
+  class: UnitAI
+  method: SelectTarget
+  signature: Unit * UnitAI::SelectTarget(SelectTargetMethod targetType, uint32 offset,
+    float dist, bool playerOnly, bool withTank, int32 aura)
+documentation:
+  brief: Selects a target unit based on specified criteria and returns a pointer to
+    the selected unit.
+  description: The SelectTarget method is used by AI-controlled units in TrinityCore
+    to identify and return a suitable target unit from the surrounding environment.
+    It allows for flexible targeting logic by specifying various selection methods,
+    distance constraints, and filtering options such as player-only or tank-based
+    targeting. The method evaluates potential targets based on the provided parameters
+    and returns a pointer to the selected target unit, or NULL if no valid target
+    is found within the specified criteria.
+  parameters:
+  - name: targetType
+    description: Specifies the selection method for choosing targets. Valid values
+      include SelectTargetMethod::SELECT_TARGET_RANDOM, SELECT_TARGET_NEAREST, SELECT_TARGET_FARTHEST,
+      and SELECT_TARGET_CLOSEST. Determines how the AI evaluates and selects targets
+      from available candidates.
+  - name: offset
+    description: Defines the offset index when selecting a target among multiple valid
+      candidates. For example, an offset of 0 selects the first valid target, 1 selects
+      the second, etc. Useful for cycling through targets or skipping certain candidates.
+  - name: dist
+    description: Sets the maximum distance (in yards) from the AI unit to consider
+      potential targets. A value of 0 means no distance limit is applied.
+  - name: playerOnly
+    description: When true, filters targets to include only player-controlled units.
+      When false, allows both player and non-player units to be considered as valid
+      targets.
+  - name: withTank
+    description: Controls whether the target selection should prioritize or exclude
+      tank-specific behavior. If true, targets may be selected with tanking mechanics
+      in mind; if false, tank-based targeting is ignored.
+  - name: aura
+    description: Specifies an aura ID to filter targets that must have this specific
+      aura applied. A value of -1 means no aura filtering is applied.
+  returns: Returns a pointer to the selected Unit object if a valid target is found
+    within the specified criteria, or NULL if no suitable target exists.
+  examples:
+  - title: Basic Target Selection
+    code: Unit* target = ai->SelectTarget(SelectTargetMethod::SELECT_TARGET_NEAREST,
+      0, 30.0f, true, false, -1);
+    language: cpp
+  - title: Select Farthest Player Target Within Distance
+    code: Unit* target = ai->SelectTarget(SelectTargetMethod::SELECT_TARGET_FARTHEST,
+      0, 50.0f, true, false, -1);
+    language: cpp
+  notes: This method is commonly used in AI scripts for creatures to dynamically select
+    targets during combat. The selection process considers unit visibility, threat,
+    and other factors depending on the target type. Performance can be affected by
+    large numbers of nearby units or complex filtering criteria.
+  warnings: Ensure that the offset parameter does not exceed the number of valid targets,
+    as this may lead to undefined behavior. Also, be cautious when using distance
+    limits with very small values, which might result in no targets being found even
+    if they are present.
+  related:
+  - GetVictim
+  - SetTarget
+  - AttackStart
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T00:12:57.225149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

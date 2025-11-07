@@ -1,0 +1,55 @@
+api:
+  class: PlayerDumpReader
+  method: LoadDump
+  signature: DumpReturn PlayerDumpReader::LoadDump(std::istream & input, int account,
+    std::string name, int guid)
+documentation:
+  brief: Loads and processes a player dump from an input stream into the database
+  description: The LoadDump method reads player data from a provided input stream
+    and imports it into the TrinityCore database for the specified account and character
+    name. It handles parsing of the dump format, validation of data integrity, and
+    creation of new entries in the appropriate tables. This method is typically used
+    for importing character data during server maintenance or migration operations.
+    The method requires valid account ID, character name, and GUID to properly associate
+    the imported data with existing or new database records.
+  parameters:
+  - name: input
+    description: Input stream containing the player dump data in a format compatible
+      with TrinityCore's import system
+  - name: account
+    description: The account ID to associate the character with. Must be a valid existing
+      account in the database
+  - name: name
+    description: The character name to assign to the imported data. Must be unique
+      within the account's roster
+  - name: guid
+    description: The globally unique identifier for the character. Should be a unique
+      value not currently in use in the database
+  returns: DumpReturn enum indicating success or failure of the import operation.
+    Possible values include DUMP_SUCCESS, DUMP_ERROR_INVALID_DATA, DUMP_ERROR_ACCOUNT_NOT_FOUND,
+    DUMP_ERROR_NAME_EXISTS, and DUMP_ERROR_DB_FAILURE
+  examples:
+  - title: Basic player dump loading
+    code: "std::ifstream file(\"player_dump.txt\");\nPlayerDumpReader reader;\nDumpReturn\
+      \ result = reader.LoadDump(file, 12345, \"MyCharacter\", 67890);\nif (result\
+      \ == DUMP_SUCCESS) {\n    std::cout << \"Character imported successfully\" <<\
+      \ std::endl;\n} else {\n    std::cout << \"Import failed with error code: \"\
+      \ << result << std::endl;\n}"
+    language: cpp
+  notes: This method performs validation checks on the input data to ensure database
+    integrity. It may throw exceptions if critical errors occur during parsing or
+    database operations. The method assumes that the input stream is properly formatted
+    and contains valid player data in TrinityCore's expected dump format.
+  warnings: Ensure that the account ID exists before calling this method, otherwise
+    it will likely fail with an account not found error. Also ensure that the character
+    name and GUID are unique to avoid conflicts in the database. Improperly formatted
+    input streams may cause undefined behavior or database corruption.
+  related:
+  - PlayerDumpReader::SaveDump
+  - PlayerDumpReader::ValidateDump
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T01:00:35.686296'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

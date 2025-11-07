@@ -1,0 +1,59 @@
+api:
+  class: ResourceCalculator
+  method: CalculateEnergyCost
+  signature: uint32 ResourceCalculator::CalculateEnergyCost(uint32 spellId, int *
+    caster)
+documentation:
+  brief: Calculates the energy cost for a specified spell based on caster data
+  description: The CalculateEnergyCost method determines the energy cost required
+    to cast a specific spell within the TrinityCore framework. It takes a spell identifier
+    and a pointer to the caster's data structure, then returns the appropriate energy
+    cost as defined by the game mechanics. This method is typically used during spell
+    casting validation to ensure the caster has sufficient energy resources before
+    executing the spell. The calculation may consider various factors such as spell
+    properties, caster class, level, and any applicable modifiers or buffs.
+  parameters:
+  - name: spellId
+    description: Unique identifier for the spell being cast. This value corresponds
+      to entries in the Spell.dbc database file and determines the base energy cost
+      of the spell.
+  - name: caster
+    description: Pointer to the caster's data structure, typically representing a
+      Unit or Player object. This parameter is used to access caster-specific properties
+      such as class, level, and current energy reserves for accurate cost calculation.
+  returns: Returns a uint32 value representing the calculated energy cost required
+    to cast the specified spell. A return value of zero indicates either no energy
+    cost or an invalid spell ID was provided.
+  examples:
+  - title: Basic Energy Cost Calculation
+    code: "uint32 cost = ResourceCalculator::CalculateEnergyCost(12345, &player);\n\
+      if (cost > 0) {\n    // Player has sufficient energy to cast the spell\n   \
+      \ player.ModifyPower(POWER_ENERGY, -static_cast<int32>(cost));\n}"
+    language: cpp
+  - title: Energy Cost Validation with Error Handling
+    code: "uint32 spellId = 98765;\nUnit* caster = player.GetSpellModOwner();\nuint32\
+      \ energyCost = ResourceCalculator::CalculateEnergyCost(spellId, &caster);\n\
+      if (energyCost == 0) {\n    // Invalid spell ID or no cost defined\n    SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);\n\
+      \    return;\n}\nif (player.GetPower(POWER_ENERGY) < energyCost) {\n    // Insufficient\
+      \ energy\n    SendCastResult(SPELL_FAILED_NO_POWER);\n    return;\n}\n// Proceed\
+      \ with spell casting"
+    language: cpp
+  notes: This method is part of the core resource management system in TrinityCore.
+    The actual energy cost calculation may be influenced by various factors including
+    player class, talents, buffs, debuffs, and server configuration settings. Developers
+    should ensure that the caster parameter points to a valid object before calling
+    this method to avoid undefined behavior.
+  warnings: Ensure that the spellId provided corresponds to an existing spell in the
+    database; otherwise, the method may return unexpected values or zero cost. The
+    caster pointer must not be null and should point to a valid Unit or Player object
+    for accurate calculations.
+  related:
+  - CalculateManaCost
+  - CalculateRageCost
+  - GetSpellPowerCost
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:59:58.526187'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

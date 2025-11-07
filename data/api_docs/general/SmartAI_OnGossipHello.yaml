@@ -1,0 +1,59 @@
+api:
+  class: SmartAI
+  method: OnGossipHello
+  signature: bool SmartAI::OnGossipHello(Player * player)
+documentation:
+  brief: Handles the player's interaction when greeting an NPC using SmartAI.
+  description: The OnGossipHello method is invoked when a player interacts with an
+    NPC that uses SmartAI, typically triggered by right-clicking or using the 'talk'
+    command. This method allows developers to define custom behavior during the initial
+    gossip interaction, such as displaying specific menu options, initiating quests,
+    or performing actions based on player state. It serves as the entry point for
+    custom gossip logic within the SmartAI framework and returns a boolean indicating
+    whether the gossip was handled successfully. The method is part of the SmartAI's
+    event handling system and integrates with the World of Warcraft's gossip system
+    to provide dynamic NPC interactions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the player who initiated
+      the gossip interaction. This parameter provides access to player data, quest
+      states, inventory, and other player-specific information needed for custom logic.
+  returns: Returns true if the gossip was successfully handled and processed by the
+    SmartAI implementation; returns false if the default gossip behavior should be
+    used or if an error occurred during processing.
+  examples:
+  - title: Basic Gossip Hello Implementation
+    code: "bool SmartAI::OnGossipHello(Player* player)\n{\n    AddGossipItemFor(player,\
+      \ GOSSIP_ICON_CHAT, \"I want to see my quests.\", GOSSIP_SENDER_MAIN, 1);\n\
+      \    AddGossipItemFor(player, GOSSIP_ICON_CHAT, \"Tell me about this place.\"\
+      , GOSSIP_SENDER_MAIN, 2);\n    SendGossipMenuFor(player, 10001, me->GetGUID());\n\
+      \    return true;\n}"
+    language: cpp
+  - title: Conditional Gossip Based on Player Quest State
+    code: "bool SmartAI::OnGossipHello(Player* player)\n{\n    if (player->HasQuest(12345))\n\
+      \    {\n        AddGossipItemFor(player, GOSSIP_ICON_CHAT, \"Complete quest.\"\
+      , GOSSIP_SENDER_MAIN, 3);\n    }\n    else\n    {\n        AddGossipItemFor(player,\
+      \ GOSSIP_ICON_CHAT, \"Start quest.\", GOSSIP_SENDER_MAIN, 4);\n    }\n    SendGossipMenuFor(player,\
+      \ 10002, me->GetGUID());\n    return true;\n}"
+    language: cpp
+  notes: The OnGossipHello method is called during the initial gossip interaction
+    and should not be used for long-running operations due to potential performance
+    implications. It's recommended to use this method primarily for setting up gossip
+    menus or checking simple conditions. The method runs in the context of the World
+    thread, so any blocking operations may affect server performance.
+  warnings: Avoid performing heavy computations or database queries directly within
+    OnGossipHello as it can block the game loop and cause lag. Always ensure that
+    SendGossipMenuFor is called after setting up gossip items to properly display
+    the menu to the player. Incorrect handling of return values may result in unexpected
+    behavior where default gossip is shown instead of custom interactions.
+  related:
+  - OnGossipSelect
+  - OnGossipSelectCode
+  - AddGossipItemFor
+  - SendGossipMenuFor
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:49:08.919051'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

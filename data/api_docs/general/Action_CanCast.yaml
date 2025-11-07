@@ -1,0 +1,54 @@
+api:
+  class: Action
+  method: CanCast
+  signature: bool Action::CanCast(BotAI * ai, uint32 spellId, ::Unit * target) const
+documentation:
+  brief: Determines whether a bot can cast a specified spell on a given target within
+    the context of the Action system.
+  description: The CanCast method evaluates if a bot, represented by the BotAI instance,
+    is capable of casting a specific spell identified by spellId onto a target Unit.
+    This check typically includes verifying spell availability, resource requirements
+    (mana, rage, energy), line of sight, target validity, and other game mechanics
+    such as cooldowns or state restrictions. It's commonly used in AI decision-making
+    to filter out invalid actions before attempting to execute them. The method is
+    const, meaning it does not modify the state of the Action object itself.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance that controls the bot performing the
+      action. Used to access AI context and spell information.
+  - name: spellId
+    description: Unique identifier of the spell to be cast. Must correspond to a valid
+      spell in the game's database.
+  - name: target
+    description: Pointer to the Unit that serves as the target for the spell. Can
+      be nullptr if the spell targets self or is area-of-effect.
+  returns: Returns true if the bot can cast the specified spell on the given target,
+    considering all relevant conditions; otherwise returns false.
+  examples:
+  - title: Basic usage in AI logic
+    code: "if (action.CanCast(ai, SPELL_FIREBALL, target)) {\n    // Proceed with\
+      \ casting Fireball\n    ai->DoAction(SPELL_FIREBALL);\n}"
+    language: cpp
+  - title: Checking spell availability before targeting
+    code: "uint32 spellId = SPELL_HEAL;\nUnit* target = ai->GetTarget();\nif (action.CanCast(ai,\
+      \ spellId, target) && target && target->IsAlive()) {\n    // Cast heal on alive\
+      \ target\n    ai->CastSpell(target, spellId);\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with other AI decision-making
+    logic to ensure that only valid actions are considered. It may internally call
+    functions like 'IsSpellReady', 'CanCastSpell', or check for target validity and
+    line of sight. Performance-wise, this check should be fast as it's often called
+    frequently during AI updates.
+  warnings: Ensure that the spellId is valid and registered in the game's spell system;
+    invalid IDs may lead to undefined behavior. Also, passing a nullptr for target
+    might be acceptable depending on spell type but should be handled carefully.
+  related:
+  - Action::Cast
+  - BotAI::CanCastSpell
+  - Unit::IsAlive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:56:48.789705'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

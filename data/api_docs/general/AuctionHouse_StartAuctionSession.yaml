@@ -1,0 +1,61 @@
+api:
+  class: AuctionHouse
+  method: StartAuctionSession
+  signature: uint32 AuctionHouse::StartAuctionSession(int * player, AuctionActionType
+    primaryAction)
+documentation:
+  brief: Initiates a new auction house session for the specified player, returning
+    a unique session identifier.
+  description: The StartAuctionSession method initializes an auction house interaction
+    session for a given player. It validates the player's eligibility and prepares
+    the necessary context for auction-related operations such as browsing items, placing
+    bids, or listing items for sale. The method returns a unique session ID that can
+    be used to track and manage the player's auction activities within the current
+    session. This function is typically invoked when a player opens the auction house
+    interface or attempts to perform an auction-related action that requires session
+    context.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). Must be a valid, logged-in player or NULL to indicate no active player.
+  - name: primaryAction
+    description: Enumeration value indicating the primary auction action type. Valid
+      values include browsing, placing bid, listing item, etc., as defined by AuctionActionType
+      enum.
+  returns: Returns a uint32 session identifier that uniquely identifies this auction
+    house session for the specified player. A return value of 0 typically indicates
+    failure to start the session.
+  examples:
+  - title: Basic Session Start
+    code: "int playerId = 12345;\nAuctionActionType action = AUCTION_ACTION_BROWSE;\n\
+      uint32 sessionId = auctionHouse->StartAuctionSession(&playerId, action);\nif\
+      \ (sessionId != 0) {\n    // Session started successfully\n    printf(\"Auction\
+      \ session started with ID: %u\\n\", sessionId);\n} else {\n    // Failed to\
+      \ start session\n    printf(\"Failed to start auction session\\n\");\n}"
+    language: cpp
+  - title: Session Start with Error Handling
+    code: "int* playerPtr = nullptr;\nAuctionActionType action = AUCTION_ACTION_LIST_ITEM;\n\
+      uint32 sessionId = auctionHouse->StartAuctionSession(playerPtr, action);\nif\
+      \ (sessionId == 0) {\n    // Handle invalid player or session error\n    LOG_ERROR(\"\
+      auction\", \"Could not start auction session for invalid player\");\n} else\
+      \ {\n    LOG_DEBUG(\"auction\", \"Session started successfully with ID: %u\"\
+      , sessionId);\n}"
+    language: cpp
+  notes: This method may perform internal validation checks on the player's state,
+    such as ensuring they are logged in and have access to the auction house. Session
+    IDs are typically managed internally by the AuctionHouse class and should not
+    be manually generated or reused.
+  warnings: Calling this method with a NULL player pointer will likely result in an
+    invalid session ID being returned. Ensure that the player is properly authenticated
+    before invoking this function. Incorrect usage of AuctionActionType may lead to
+    undefined behavior or improper auction house functionality.
+  related:
+  - EndAuctionSession
+  - GetAuctionSession
+  - ProcessAuctionAction
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:21:07.685465'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

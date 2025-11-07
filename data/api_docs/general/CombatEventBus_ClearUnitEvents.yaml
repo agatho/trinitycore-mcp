@@ -1,0 +1,48 @@
+api:
+  class: CombatEventBus
+  method: ClearUnitEvents
+  signature: void CombatEventBus::ClearUnitEvents(int unitGuid)
+documentation:
+  brief: Clears all combat events associated with a specified unit GUID from the event
+    bus.
+  description: The ClearUnitEvents method removes all registered combat events for
+    a given unit identifier (GUID) from the CombatEventBus. This function is typically
+    used during unit destruction, removal, or when resetting combat state to prevent
+    memory leaks and ensure accurate event handling. The method operates on the internal
+    event storage structure, invalidating any pending events tied to the specified
+    unit. It does not return any value and should be called before a unit is removed
+    from active combat to maintain system integrity.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose combat events need
+      to be cleared. This parameter must represent a valid existing unit in the game
+      world or the operation will have no effect.
+  returns: null
+  examples:
+  - title: Clearing Events for a Destroyed Unit
+    code: "void OnUnitDeath(Unit* unit)\n{\n    CombatEventBus::ClearUnitEvents(unit->GetGUID().GetRawValue());\n\
+      \    // Proceed with cleanup logic\n}"
+    language: cpp
+  - title: Resetting Combat State for a Player
+    code: "void ResetPlayerCombatState(Player* player)\n{\n    // Clear all combat\
+      \ events for the player\n    CombatEventBus::ClearUnitEvents(player->GetGUID().GetRawValue());\n\
+      \    // Reinitialize combat state\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and should not cause race conditions
+    when called from different threads. It internally uses locking mechanisms to protect
+    the event storage container. Performance impact is minimal as it only iterates
+    through events associated with a specific GUID.
+  warnings: Calling this method with an invalid or non-existent unit GUID will result
+    in no operation being performed, but it may mask underlying logic errors if not
+    validated beforehand. Ensure that unit GUIDs are valid before calling this function
+    to avoid silent failures.
+  related:
+  - RegisterUnitEvent
+  - ProcessEvents
+  - HasUnitEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:12:39.368075'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

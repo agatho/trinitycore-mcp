@@ -1,0 +1,54 @@
+api:
+  class: OutdoorPvP
+  method: HandlePlayerLeaveZone
+  signature: void OutdoorPvP::HandlePlayerLeaveZone(Player * player, int zone)
+documentation:
+  brief: Handles the event when a player leaves an outdoor PvP zone, updating relevant
+    game state and triggers associated actions.
+  description: The HandlePlayerLeaveZone method is invoked when a Player object exits
+    an OutdoorPvP zone. This function manages the necessary cleanup and state updates
+    required for outdoor PvP mechanics, such as removing player from active PvP tracking,
+    updating faction control status, and potentially triggering rewards or penalties
+    based on the player's previous activity in the zone. It ensures that the game
+    world accurately reflects the player's departure from the contested area and maintains
+    synchronization between client and server states.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who is leaving the outdoor PvP zone.
+      Must not be null.
+  - name: zone
+    description: Integer identifier representing the zone ID that the player is leaving.
+      This corresponds to a specific OutdoorPvP zone in the game world.
+  returns: null
+  examples:
+  - title: Basic usage in zone transition handler
+    code: "void ZoneHandler::OnPlayerLeaveZone(Player* player, uint32 zoneId)\n{\n\
+      \    if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr->GetOutdoorPvP(zoneId))\n \
+      \   {\n        outdoorPvP->HandlePlayerLeaveZone(player, zoneId);\n    }\n}"
+    language: cpp
+  - title: Integration with custom PvP logic
+    code: "void CustomOutdoorPvP::HandlePlayerLeaveZone(Player* player, int zone)\n\
+      {\n    // Perform standard OutdoorPvP cleanup\n    OutdoorPvP::HandlePlayerLeaveZone(player,\
+      \ zone);\n    \n    // Additional custom behavior\n    if (player->HasAura(SPELL_PVP_DEBUFF))\n\
+      \    {\n        player->RemoveAura(SPELL_PVP_DEBUFF);\n    }\n    \n    // Log\
+      \ the event\n    LOG_DEBUG(\"pvp\", \"Player {} left OutdoorPvP zone {}\", player->GetName(),\
+      \ zone);\n}"
+    language: cpp
+  notes: This method is typically called internally by the core game loop or zone
+    transition system. Developers should ensure that any custom overrides maintain
+    consistency with existing PvP state management to prevent desynchronization. The
+    method may be invoked multiple times during a single player's exit from a zone,
+    depending on how the zone boundaries are defined.
+  warnings: Calling this method without proper validation of the player pointer or
+    zone ID can lead to crashes or undefined behavior. It is recommended to verify
+    that the player is indeed in the specified zone before invoking this function.
+  related:
+  - HandlePlayerEnterZone
+  - UpdateOutdoorPvP
+  - HandleAreaTrigger
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T12:04:38.723760'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

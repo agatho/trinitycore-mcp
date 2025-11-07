@@ -1,0 +1,53 @@
+api:
+  class: WarlockAI
+  method: GetNearbyEnemyCount
+  signature: uint32 WarlockAI::GetNearbyEnemyCount(float range)
+documentation:
+  brief: Counts the number of nearby enemy units within a specified range for the
+    warlock AI.
+  description: The GetNearbyEnemyCount method calculates and returns the total number
+    of hostile units (enemies) that are currently within the defined range around
+    the warlock's AI-controlled unit. This method is typically used in AI decision-making
+    logic to determine enemy density, which can influence spell selection, movement
+    patterns, or tactical behavior. The range parameter defines the maximum distance
+    from the warlock's position where enemies are considered 'nearby'. This function
+    performs a spatial query against the current game world entities and filters them
+    based on their faction and visibility status. It is commonly used in conjunction
+    with other AI methods to implement adaptive combat strategies.
+  parameters:
+  - name: range
+    description: The maximum distance (in yards) from the warlock's position to consider
+      enemies as nearby. Must be a positive value greater than zero.
+  returns: Returns a uint32 representing the count of enemy units found within the
+    specified range. Returns 0 if no enemies are detected or if the range is invalid.
+  examples:
+  - title: Basic usage to determine enemy density
+    code: "uint32 enemyCount = warlockAI->GetNearbyEnemyCount(10.0f);\nif (enemyCount\
+      \ > 3)\n{\n    // Execute area-of-effect spell\n    warlockAI->DoCast(SPELL_SHADOW_BOLT_VOLLEY);\n\
+      }"
+    language: cpp
+  - title: Using enemy count for tactical decision making
+    code: "float range = 15.0f;\nuint32 nearbyEnemies = warlockAI->GetNearbyEnemyCount(range);\n\
+      if (nearbyEnemies >= 2)\n{\n    // Switch to more defensive behavior\n    warlockAI->SetReactState(REACT_DEFENSIVE);\n\
+      }\nelse if (nearbyEnemies == 0)\n{\n    // Move towards enemies or reposition\n\
+      \    warlockAI->DoMoveTo(enemyTarget);\n}"
+    language: cpp
+  notes: This method performs a spatial query using the game's internal entity management
+    system. It may have performance implications when called frequently in tight loops,
+    especially with large range values. The method considers only visible enemies
+    and respects faction-based hostility rules. Results are cached internally for
+    efficiency during single AI update cycles.
+  warnings: Calling this method with a very large range value can cause performance
+    degradation due to extensive entity scanning. Avoid calling it in high-frequency
+    loops without caching results. Ensure that the warlock unit is properly initialized
+    before calling this method, as it relies on valid position data.
+  related:
+  - GetNearbyEnemyList
+  - GetNearbyAllyCount
+  - GetNearbyUnitCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T08:54:09.735494'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

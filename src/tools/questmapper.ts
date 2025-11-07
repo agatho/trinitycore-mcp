@@ -6,7 +6,7 @@
  * Benefit: Humans can understand complex quest dependencies and progression paths visually.
  */
 
-import { queryWorld } from "../database/connection.js";
+import { queryWorld } from "../database/connection";
 
 /**
  * Quest information
@@ -64,17 +64,18 @@ export interface MermaidOptions {
 export async function getQuestInfo(questId: number): Promise<QuestInfo | null> {
   const rows = await queryWorld(
     `SELECT
-      ID as id,
-      LogTitle as title,
-      QuestLevel as level,
-      MinLevel as minLevel,
-      QuestType as type,
-      PrevQuestID as prevQuest,
-      NextQuestID as nextQuest,
-      ExclusiveGroup as exclusiveGroup,
-      BreadcrumbForQuestId as breadcrumbQuest
-     FROM quest_template
-     WHERE ID = ?`,
+      qt.ID as id,
+      qt.LogTitle as title,
+      qta.MaxLevel as level,
+      qt.MinLevel as minLevel,
+      qt.QuestInfoID as type,
+      qta.PrevQuestID as prevQuest,
+      qta.NextQuestID as nextQuest,
+      COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup,
+      qta.BreadcrumbForQuestId as breadcrumbQuest
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE qt.ID = ?`,
     [questId]
   );
 
@@ -379,11 +380,12 @@ export function generateMermaidDiagram(
  */
 export async function findQuestChainsByZone(zoneId: number): Promise<number[]> {
   const rows = await queryWorld(
-    `SELECT DISTINCT ID
-     FROM quest_template
-     WHERE (QuestSortID = ? OR ZoneOrSort = ?)
-       AND PrevQuestID = 0
-     ORDER BY QuestLevel, ID`,
+    `SELECT DISTINCT qt.ID
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE (qt.QuestSortID = ? OR qt.ZoneOrSort = ?)
+       AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
+     ORDER BY qta.MaxLevel, qt.ID`,
     [zoneId, zoneId]
   );
 
@@ -398,11 +400,12 @@ export async function findQuestChainsByLevel(
   maxLevel: number
 ): Promise<number[]> {
   const rows = await queryWorld(
-    `SELECT DISTINCT ID
-     FROM quest_template
-     WHERE QuestLevel BETWEEN ? AND ?
-       AND PrevQuestID = 0
-     ORDER BY QuestLevel, ID`,
+    `SELECT DISTINCT qt.ID
+     FROM quest_template qt
+     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+     WHERE qta.MaxLevel BETWEEN ? AND ?
+       AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
+     ORDER BY qta.MaxLevel, qt.ID`,
     [minLevel, maxLevel]
   );
 

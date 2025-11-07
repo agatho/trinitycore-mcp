@@ -1,0 +1,70 @@
+api:
+  class: PlayerDataElement
+  method: WriteCreate
+  signature: void PlayerDataElement::WriteCreate(ByteBuffer & data, const Player *
+    owner, const Player * receiver) const
+documentation:
+  brief: Writes player data element creation information to a ByteBuffer for transmission
+    to a client.
+  description: The WriteCreate method serializes the player data element's state into
+    a ByteBuffer, preparing it for network transmission to a specific receiver player.
+    This method is typically invoked during player initialization or when sending
+    updates about a player's state to other players in the world. The serialization
+    includes relevant player data fields that are necessary for the receiving client
+    to properly display or interact with the player object. The method takes into
+    account the owner (the player whose data is being written) and the receiver (the
+    player who will receive this data). This functionality is crucial for maintaining
+    synchronization of player states across the network in TrinityCore's multiplayer
+    environment.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized player data element
+      information will be written. This buffer is typically used for constructing
+      network packets.
+  - name: owner
+    description: Pointer to the Player object whose data element is being serialized.
+      This represents the source of the data being written.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. This parameter
+      may be used to determine visibility or specific data filtering for the receiving
+      client.
+  returns: null
+  examples:
+  - title: Basic Usage in Player Update Context
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Some player object
+
+      Player* receiver = ...; // Target player receiving update
+
+      playerDataElement.WriteCreate(data, owner, receiver);
+
+      // Send data over network to receiver'
+    language: cpp
+  - title: Integration with Player Movement Updates
+    code: "void HandlePlayerMove(Player* movingPlayer, Player* targetPlayer) {\n \
+      \   ByteBuffer updateData;\n    // Serialize player data for movement update\n\
+      \    movingPlayer->GetPlayerData()->WriteCreate(updateData, movingPlayer, targetPlayer);\n\
+      \    // Send movement packet to target player\n    targetPlayer->SendDirectMessage(&updateData);\n\
+      }"
+    language: cpp
+  notes: This method is part of the internal serialization system used by TrinityCore
+    for sending player-related data over the network. It's typically called automatically
+    during player creation or update events, but may also be invoked manually in custom
+    modules. The method assumes that all parameters are valid pointers to Player objects
+    and does not perform null checks.
+  warnings: Do not call this method with invalid or null player pointers as it will
+    likely cause crashes or undefined behavior. Ensure that both owner and receiver
+    players are properly initialized before calling this method. This method modifies
+    the provided ByteBuffer directly, so ensure thread safety if multiple threads
+    access the same buffer simultaneously.
+  related:
+  - WriteUpdate
+  - WriteDestroy
+  - GetPlayerData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T01:01:38.992150'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

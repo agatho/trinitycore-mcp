@@ -1,0 +1,72 @@
+api:
+  class: Loot
+  method: FillLoot
+  signature: bool Loot::FillLoot(uint32 lootId, const LootStore & store, Player *
+    lootOwner, bool personal, bool noEmptyError, uint16 lootMode, int context)
+documentation:
+  brief: Fills a loot container with items based on the specified loot store and owner.
+  description: The FillLoot method populates a loot container (typically a corpse
+    or chest) with items according to the provided loot store definition. It handles
+    the logic for determining which items should be added to the loot, considering
+    factors such as loot mode, personal loot settings, and the player who owns the
+    loot. This method is typically invoked when a creature dies or a container is
+    opened, and it ensures that the correct items are distributed to the appropriate
+    players based on game rules and loot settings. The method returns true if the
+    loot was successfully filled, or false if there was an error or no items were
+    added.
+  parameters:
+  - name: lootId
+    description: The unique identifier for the loot entry in the database. This ID
+      maps to a specific set of loot rules and items.
+  - name: store
+    description: Reference to the LootStore object that defines the possible items
+      and their drop rates or conditions for this loot.
+  - name: lootOwner
+    description: Pointer to the Player object who owns or is eligible to receive the
+      loot. This determines how items are distributed among group members.
+  - name: personal
+    description: Boolean flag indicating whether this is personal loot (items go directly
+      to the owner) rather than group loot.
+  - name: noEmptyError
+    description: Boolean flag that suppresses error messages when no items are added
+      to the loot container. If true, no error will be logged even if the loot is
+      empty.
+  - name: lootMode
+    description: The loot mode used for determining how items are distributed (e.g.,
+      free-for-all, round-robin, master loot).
+  - name: context
+    description: An integer value that may be used to pass additional context or flags
+      to the loot filling process, such as special loot conditions.
+  returns: Returns true if the loot container was successfully filled with items;
+    returns false if no items were added or an error occurred during the process.
+  examples:
+  - title: Basic usage of FillLoot
+    code: "Loot loot;\nLootStore store = sLootMgr->GetLootStore(LOOT_TYPE_CORPSE);\n\
+      Player* owner = player;\nbool result = loot.FillLoot(12345, store, owner, false,\
+      \ true, LOOT_MODE_GROUP, 0);\nif (result)\n    sLog->outString(\"Loot filled\
+      \ successfully.\");"
+    language: cpp
+  - title: Using FillLoot for personal loot
+    code: "Loot loot;\nLootStore store = sLootMgr->GetLootStore(LOOT_TYPE_CORPSE);\n\
+      Player* owner = player;\nbool result = loot.FillLoot(12345, store, owner, true,\
+      \ false, LOOT_MODE_FREE_FOR_ALL, 0);\nif (result)\n    sLog->outString(\"Personal\
+      \ loot filled successfully.\");"
+    language: cpp
+  notes: This method modifies the internal state of the Loot object and should only
+    be called when the loot container is ready to receive items. It interacts with
+    the global loot manager system, so performance can depend on how many loot entries
+    are defined in the database.
+  warnings: Ensure that the lootId corresponds to a valid entry in the database; otherwise,
+    the method may silently fail or produce unexpected results. Also, be cautious
+    when using personal loot settings, as they override normal group loot behavior
+    and may affect game balance.
+  related:
+  - Loot::ClearLoot
+  - Loot::GenerateLoot
+  - Loot::AddItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T10:09:36.055294'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

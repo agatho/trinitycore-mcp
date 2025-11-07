@@ -1,0 +1,59 @@
+api:
+  class: DeathHookIntegration
+  method: OnPlayerPostResurrection
+  signature: void DeathHookIntegration::OnPlayerPostResurrection(Player * player)
+documentation:
+  brief: Executes post-resurrection logic for a player, typically used to perform
+    cleanup or adjustments after a player has been resurrected.
+  description: The OnPlayerPostResurrection method is invoked after a player character
+    has completed the resurrection process in World of Warcraft. This hook allows
+    developers to implement custom behavior such as restoring player stats, applying
+    buffs, resetting cooldowns, or triggering quest events that should occur upon
+    resurrection. The method is called within the context of the TrinityCore server's
+    death system and provides access to the Player object immediately after resurrection
+    has been processed. It does not interfere with the core resurrection mechanics
+    but serves as a notification point for custom modules to react to the event.
+  parameters:
+  - name: player
+    description: A pointer to the Player object that has just been resurrected. This
+      parameter is guaranteed to be valid and fully initialized at the time of the
+      call.
+  returns: null
+  examples:
+  - title: Basic Resurrection Logic Implementation
+    code: "void DeathHookIntegration::OnPlayerPostResurrection(Player* player)\n{\n\
+      \    // Restore player's health and mana to full\n    player->SetHealth(player->GetMaxHealth());\n\
+      \    player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));\n\n    //\
+      \ Remove any resurrection-related debuffs\n    player->RemoveAura(12345); //\
+      \ Example aura ID\n}"
+    language: cpp
+  - title: Advanced Resurrection Event Handling
+    code: "void DeathHookIntegration::OnPlayerPostResurrection(Player* player)\n{\n\
+      \    // Check if player was resurrected at a graveyard\n    if (player->GetMap()->IsBattlegroundOrArena())\n\
+      \    {\n        // Apply special battleground resurrection effects\n       \
+      \ player->CastSpell(player, 32704, true); // Resurrection sickness\n    }\n\
+      \    else\n    {\n        // Normal resurrection logic\n        player->RemoveFlag(PLAYER_FLAGS,\
+      \ PLAYER_FLAG_UNK_1);\n        player->SendNotification(\"You have been resurrected.\"\
+      );\n    }\n}"
+    language: cpp
+  notes: This method is called after all standard resurrection operations are complete.
+    It's important to note that the player may still be in a temporary state (e.g.,
+    under resurrection sickness) and should not be assumed to be fully restored to
+    normal gameplay conditions. The method executes on the main server thread and
+    should avoid long-running operations to prevent blocking other players or game
+    updates.
+  warnings: Avoid performing operations that modify the player's position or state
+    in a way that could conflict with ongoing server processes. Do not attempt to
+    re-resurrect a player from within this hook, as it may lead to recursion issues
+    or undefined behavior. Be cautious when modifying player stats directly without
+    considering existing buffs or debuffs.
+  related:
+  - OnPlayerPreResurrection
+  - OnPlayerDeath
+  - OnPlayerEnterWorld
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:49:38.913152'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,76 @@
+api:
+  class: PathfindingAdapter
+  method: CalculateFormationPath
+  signature: bool PathfindingAdapter::CalculateFormationPath(Player * bot, Unit *
+    leader, const int & offset, MovementPath & path)
+documentation:
+  brief: Calculates a formation path for a bot player relative to a leader unit based
+    on a specified offset.
+  description: The CalculateFormationPath method computes a movement path for a bot
+    player that maintains a specific positional offset relative to a leader unit.
+    This functionality is typically used in group-based AI behavior where bots need
+    to follow a leader while maintaining a predefined formation. The method takes
+    into account the current positions of both the bot and the leader, calculates
+    an appropriate path using pathfinding algorithms, and stores the resulting waypoints
+    in the provided MovementPath object. The offset parameter determines how far the
+    bot should position itself from the leader in terms of distance and direction.
+    This method is essential for creating realistic group movement patterns in World
+    of Warcraft's TrinityCore environment.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will calculate
+      its formation path. Must not be null.
+  - name: leader
+    description: Pointer to the Unit object representing the leader unit that the
+      bot should follow. Must not be null.
+  - name: offset
+    description: Reference to an integer value specifying the offset distance for
+      the formation path. Positive values indicate distance ahead or behind, negative
+      values indicate lateral positioning.
+  - name: path
+    description: Reference to a MovementPath object where the calculated waypoints
+      will be stored. The path object is modified in-place with the resulting movement
+      coordinates.
+  returns: Returns true if the formation path was successfully calculated and stored
+    in the path parameter, false otherwise. Failure can occur due to invalid input
+    parameters, inability to find a valid path, or when the bot and leader are in
+    an impossible configuration for formation movement.
+  examples:
+  - title: Basic Formation Path Calculation
+    code: "Player* bot = ...; // Get bot player\nUnit* leader = ...; // Get leader\
+      \ unit\nMovementPath formationPath;\nint offset = 3;\nbool success = PathfindingAdapter::CalculateFormationPath(bot,\
+      \ leader, offset, formationPath);\nif (success) {\n    // Process the calculated\
+      \ path\n    for (auto& point : formationPath) {\n        // Move bot to each\
+      \ point in the path\n    }\n}"
+    language: cpp
+  - title: Formation Path with Dynamic Offset
+    code: "Player* bot = ...;\nUnit* leader = ...;\nMovementPath formationPath;\n\
+      int offset = 5; // Set offset to 5 yards\nif (PathfindingAdapter::CalculateFormationPath(bot,\
+      \ leader, offset, formationPath)) {\n    // Apply the path to bot's movement\n\
+      \    bot->GetMotionMaster()->Clear();\n    bot->GetMotionMaster()->MovePath(formationPath,\
+      \ false);\n} else {\n    // Handle failure case - perhaps fallback to simple\
+      \ follow behavior\n    bot->GetMotionMaster()->MoveFollow(leader, 0.0f, 0.0f);\n\
+      }"
+    language: cpp
+  notes: This method relies on the underlying pathfinding system of TrinityCore and
+    may be affected by terrain, obstacles, or other environmental factors. The offset
+    value is interpreted in game units (yards) and should typically be within reasonable
+    bounds to avoid unrealistic positioning. Performance considerations include the
+    complexity of pathfinding calculations, especially when dealing with multiple
+    bots in a group. This method assumes that both bot and leader are valid objects
+    and accessible within the current game context.
+  warnings: Ensure that both bot and leader parameters are valid non-null pointers
+    before calling this method to prevent crashes. The offset parameter should be
+    carefully chosen as extreme values may result in invalid or impossible paths.
+    Be aware that this method does not handle dynamic changes in leader position during
+    path execution - it calculates a static path based on the current positions.
+  related:
+  - CalculatePath
+  - GetFormationOffset
+  - MoveToFormationPosition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T06:55:40.162935'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

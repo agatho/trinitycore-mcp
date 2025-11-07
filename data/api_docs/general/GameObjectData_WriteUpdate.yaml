@@ -1,0 +1,70 @@
+api:
+  class: GameObjectData
+  method: WriteUpdate
+  signature: void GameObjectData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const GameObject * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes GameObject data changes into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method is responsible for serializing the current state
+    of a GameObject's data changes into a ByteBuffer, which is then sent over the
+    network to a specific player. This method is typically invoked during packet construction
+    for updates related to game object states such as position, orientation, display
+    ID, and other configurable properties. The changes are filtered based on the provided
+    changesMask, ensuring only relevant data is transmitted. It respects nested change
+    masks when ignoreNestedChangesMask is false, allowing fine-grained control over
+    what aspects of the GameObject are updated. This method plays a crucial role in
+    maintaining synchronization between server-side GameObject state and client-side
+    visualization.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets.
+  - name: changesMask
+    description: An integer mask indicating which fields of the GameObject have been
+      modified and should be included in the update. Each bit corresponds to a specific
+      field or property.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested change masks should be
+      considered. If true, nested changes are ignored; if false, nested changes may
+      affect the serialization behavior.
+  - name: owner
+    description: Pointer to the GameObject instance whose data is being serialized.
+      This parameter allows access to the actual object's state for serialization
+      purposes.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to determine visibility and specific player-related considerations during
+      serialization.
+  returns: null
+  examples:
+  - title: Basic usage in a GameObject update context
+    code: 'GameObjectData data;
+
+      ByteBuffer buffer;
+
+      Player* targetPlayer = ...; // some player
+
+      GameObject* gameObject = ...; // some game object
+
+      int changesMask = 0x1F; // example mask for multiple changes
+
+
+      data.WriteUpdate(buffer, changesMask, false, gameObject, targetPlayer);'
+    language: cpp
+  notes: This method is part of the internal update mechanism in TrinityCore and should
+    not be called directly unless implementing custom GameObject update logic. It
+    assumes that the provided ByteBuffer has sufficient capacity to hold the serialized
+    data.
+  warnings: null
+  related:
+  - GameObject::BuildValuesUpdateBlockForPlayer
+  - GameObject::SendUpdateToPlayer
+  - GameObjectData::GetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:10:03.865464'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

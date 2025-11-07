@@ -1,0 +1,77 @@
+api:
+  class: DynamicMapTree
+  method: getObjectHitPos
+  signature: bool DynamicMapTree::getObjectHitPos(const G3D::Vector3 & startPos, const
+    G3D::Vector3 & endPos, G3D::Vector3 & resultHitPos, float modifyDist, const PhaseShift
+    & phaseShift) const
+documentation:
+  brief: Calculates the hit position of a line segment against dynamic map geometry,
+    considering phase shifts and optional distance modification.
+  description: The getObjectHitPos method performs a raycast from a starting point
+    to an ending point within the dynamic map tree structure. It determines where
+    a line intersects with solid geometry, such as walls or obstacles, and returns
+    the precise intersection point. The method respects phase shifts, which are used
+    in World of Warcraft to handle different phases or zones that players can be in.
+    An optional distance modifier allows for fine-tuning of the hit position, useful
+    for avoiding clipping issues or adjusting collision detection behavior. This functionality
+    is essential for accurate movement, spell targeting, and line-of-sight calculations
+    in TrinityCore's 3D environment.
+  parameters:
+  - name: startPos
+    description: The starting 3D coordinates of the raycast (line segment) to test
+      against map geometry.
+  - name: endPos
+    description: The ending 3D coordinates of the raycast (line segment) to test against
+      map geometry.
+  - name: resultHitPos
+    description: Output parameter that will contain the calculated hit position if
+      a collision occurs. This represents the point where the line intersects with
+      solid geometry.
+  - name: modifyDist
+    description: An optional distance adjustment value applied to the hit position,
+      typically used to prevent objects from clipping into geometry or adjust precision
+      of collision detection.
+  - name: phaseShift
+    description: The phase shift information that specifies which phases or zones
+      should be considered during the raycast. This is crucial for handling phased
+      environments where certain geometry may only be visible in specific phases.
+  returns: Returns true if a valid hit position was found and calculated, false otherwise.
+    A return value of false typically indicates no collision occurred along the specified
+    line segment or that the operation failed due to invalid parameters or internal
+    errors.
+  examples:
+  - title: Basic usage for spell targeting
+    code: "G3D::Vector3 startPos(100.0f, 200.0f, 50.0f);\nG3D::Vector3 endPos(150.0f,\
+      \ 250.0f, 40.0f);\nG3D::Vector3 hitPos;\nPhaseShift phaseShift;\n\nif (dynamicMapTree->getObjectHitPos(startPos,\
+      \ endPos, hitPos, 0.0f, phaseShift)) {\n    // Use hitPos for spell targeting\
+      \ or visual effects\n    printf(\"Spell hits at (%.2f, %.2f, %.2f)\\n\", hitPos.x,\
+      \ hitPos.y, hitPos.z);\n} else {\n    // No obstacle was hit; spell travels\
+      \ unimpeded\n    printf(\"No obstruction found\\n\");\n}"
+    language: cpp
+  - title: Using distance modification to avoid clipping
+    code: "G3D::Vector3 startPos(0.0f, 0.0f, 10.0f);\nG3D::Vector3 endPos(0.0f, 0.0f,\
+      \ 0.0f);\nG3D::Vector3 hitPos;\nPhaseShift phaseShift;\n\n// Modify distance\
+      \ to slightly back off from the actual hit point\nif (dynamicMapTree->getObjectHitPos(startPos,\
+      \ endPos, hitPos, -0.5f, phaseShift)) {\n    // Adjusted hit position for smoother\
+      \ movement or visual effect\n    printf(\"Adjusted hit at (%.2f, %.2f, %.2f)\\\
+      n\", hitPos.x, hitPos.y, hitPos.z);\n}"
+    language: cpp
+  notes: This method relies on the internal structure of DynamicMapTree, which is
+    built from collision data loaded from map files. It's optimized for performance
+    by using spatial partitioning techniques like bounding volume hierarchies (BVH).
+    The phaseShift parameter must be correctly initialized to ensure that only relevant
+    geometry is considered during the raycast operation.
+  warnings: Ensure that both startPos and endPos are valid 3D coordinates within the
+    map's boundaries. Invalid or out-of-bounds positions may lead to unexpected behavior
+    or crashes. Also, be cautious with negative modifyDist values as they can cause
+    the hit position to be placed outside of expected bounds if not used carefully.
+  related:
+  - getIntersectionPosition
+  - isInLineOfSight
+  - getObjectHitPosWithPhase
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:09:00.253483'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

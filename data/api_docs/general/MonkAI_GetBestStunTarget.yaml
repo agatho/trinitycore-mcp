@@ -1,0 +1,49 @@
+api:
+  class: MonkAI
+  method: GetBestStunTarget
+  signature: int * MonkAI::GetBestStunTarget()
+documentation:
+  brief: Returns the GUID of the most suitable target for a stun ability based on
+    AI priority criteria.
+  description: The GetBestStunTarget method evaluates all available targets within
+    the MonkAI's current threat list or aggro range to determine the optimal candidate
+    for applying a stun effect. It considers factors such as target proximity, threat
+    level, and any applicable debuff status to select the most beneficial target for
+    the monk's stun ability. This method is typically used during combat decision-making
+    processes where the AI must prioritize which enemy to incapacitate first. The
+    returned value represents the unique identifier (GUID) of the selected target,
+    or NULL if no valid target exists within the specified conditions.
+  parameters: []
+  returns: A pointer to an integer representing the GUID of the best stun target.
+    Returns NULL if no suitable target is found.
+  examples:
+  - title: Basic usage in combat logic
+    code: "if (int* targetGuid = monkAI->GetBestStunTarget()) {\n    // Apply stun\
+      \ ability to the identified target\n    unit->CastSpell(targetGuid, STUN_SPELL_ID,\
+      \ true);\n} else {\n    // No valid target found, continue with other actions\n\
+      \    monkAI->DoNextAction();\n}"
+    language: cpp
+  - title: Integration with target selection logic
+    code: "Unit* target = ObjectAccessor::GetUnit(*me, *monkAI->GetBestStunTarget());\n\
+      if (target && target->IsInWorld()) {\n    if (me->CanSeeOrDetect(target) &&\
+      \ me->IsWithinLOS(target)) {\n        // Proceed with stun cast\n        DoCast(target,\
+      \ SPELL_STUN);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the MonkAI has already updated its internal target
+    list and threat calculations. The returned GUID should be validated against object
+    existence before attempting to use it in spell casting or movement commands. Performance
+    is optimized for frequent calls during combat, but may vary depending on the number
+    of valid targets.
+  warnings: The returned pointer may be NULL if no suitable target exists, so always
+    check for null before dereferencing. Using an invalid GUID can lead to crashes
+    or undefined behavior in TrinityCore's core systems.
+  related:
+  - GetNextTarget
+  - GetThreatList
+  - SelectBestTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T12:31:41.804962'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

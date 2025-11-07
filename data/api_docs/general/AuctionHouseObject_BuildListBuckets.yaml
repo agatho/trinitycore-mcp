@@ -1,0 +1,71 @@
+api:
+  class: AuctionHouseObject
+  method: BuildListBuckets
+  signature: void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionListBucketsResult
+    & listBucketsResult, const Player * player, int keys, int sorts) const
+documentation:
+  brief: Populates an auction list buckets result packet with auction house item data
+    based on player context, keys, and sorting options.
+  description: The BuildListBuckets method constructs a structured response for the
+    client's auction house browsing interface by gathering relevant auction items
+    from the auction house database. It filters and organizes these items according
+    to specified keys (such as item class, subclass, or quality) and applies sorting
+    criteria defined by the sorts parameter. This method is typically invoked when
+    a player opens the auction house UI or performs a search/filter operation. The
+    resulting data is populated into an AuctionListBucketsResult packet which gets
+    sent to the client for display in the auction house interface. The method respects
+    player permissions, faction restrictions, and item visibility rules as defined
+    by the auction house system.
+  parameters:
+  - name: listBucketsResult
+    description: Reference to a WorldPackets::AuctionHouse::AuctionListBucketsResult
+      packet object that will be populated with auction data. This packet structure
+      contains buckets of auctions organized by various criteria such as item type,
+      quality, or level.
+  - name: player
+    description: Pointer to the Player object representing the client who initiated
+      the auction house request. Used to determine player-specific filters, permissions,
+      and faction restrictions when building the auction list.
+  - name: keys
+    description: Integer value specifying the filtering criteria for organizing auction
+      items into buckets. Each bit in this integer represents a different key type
+      (e.g., item class, subclass, quality) that determines how auctions are grouped
+      in the result packet.
+  - name: sorts
+    description: Integer value indicating the sorting preferences for ordering auction
+      items within each bucket. Similar to keys, this parameter uses bit flags to
+      specify multiple sorting criteria such as price, time remaining, or item level.
+  returns: null
+  examples:
+  - title: Basic usage in auction house query
+    code: 'WorldPackets::AuctionHouse::AuctionListBucketsResult result;
+
+      Player* player = session->GetPlayer();
+
+      int keys = AUCTION_HOUSE_KEY_ITEM_CLASS | AUCTION_HOUSE_KEY_QUALITY;
+
+      int sorts = AUCTION_HOUSE_SORT_PRICE_ASC;
+
+      this->BuildListBuckets(result, player, keys, sorts);
+
+      session->SendPacket(result.Write());'
+    language: cpp
+  notes: This method is part of the auction house subsystem and directly interacts
+    with the database to retrieve auction data. It performs filtering and sorting
+    operations client-side in the packet structure rather than on the server's auction
+    item list, which may impact performance for large auctions. The keys and sorts
+    parameters use bit-flag constants that are defined within the auction house system.
+  warnings: The method assumes that the provided player object is valid and not null.
+    Incorrectly set keys or sorts flags can lead to unexpected bucket organization
+    or sorting behavior in the client UI. This method should only be called when the
+    player has proper access to the auction house functionality.
+  related:
+  - GetAuctionsByItem
+  - BuildListResult
+  - SendAuctionHouseList
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:13:14.493952'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

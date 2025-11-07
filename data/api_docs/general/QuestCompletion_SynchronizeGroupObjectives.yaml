@@ -1,0 +1,52 @@
+api:
+  class: QuestCompletion
+  method: SynchronizeGroupObjectives
+  signature: void QuestCompletion::SynchronizeGroupObjectives(Group * group, uint32
+    questId)
+documentation:
+  brief: Synchronizes quest objectives for all group members when a quest is completed.
+  description: The SynchronizeGroupObjectives method ensures that all players within
+    a specified group have their quest objective progress updated to match the current
+    state of the given quest. This is typically called when a quest is completed by
+    one member of the group, so that other group members' quest log and objective
+    tracking are properly updated. The method iterates through all online group members
+    and updates their individual quest progress for the specified quest ID. It's an
+    essential part of maintaining consistent quest state across group members in shared
+    quest scenarios.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players whose quest objectives
+      need synchronization. Must be a valid group instance, cannot be null.
+  - name: questId
+    description: The unique identifier of the quest for which objectives should be
+      synchronized. Must correspond to a valid quest in the game database.
+  returns: null
+  examples:
+  - title: Basic usage when quest is completed by group member
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup)\n{\n    QuestCompletion::SynchronizeGroupObjectives(playerGroup,\
+      \ 12345);\n}"
+    language: cpp
+  - title: Usage in quest completion handler
+    code: "void OnQuestComplete(Player* player, uint32 questId)\n{\n    Group* group\
+      \ = player->GetGroup();\n    if (group && group->GetMembersCount() > 1)\n  \
+      \  {\n        QuestCompletion::SynchronizeGroupObjectives(group, questId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically invoked automatically by the core when a group quest
+    is completed. It performs synchronization only for online players in the group
+    and does not affect offline members. The method assumes that the quest data is
+    already properly updated for the completing player before calling.
+  warnings: Calling this method with an invalid or null group pointer will result
+    in undefined behavior. Ensure the group exists and contains valid players before
+    invoking this method. Also, be cautious when calling this during quest completion
+    events as it may cause recursion issues if not handled carefully.
+  related:
+  - QuestCompletion::CompleteQuest
+  - Group::GetMembersCount
+  - Player::GetGroup
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T05:03:05.986829'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

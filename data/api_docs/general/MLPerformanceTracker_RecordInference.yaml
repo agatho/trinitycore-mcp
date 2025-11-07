@@ -1,0 +1,60 @@
+api:
+  class: MLPerformanceTracker
+  method: RecordInference
+  signature: void MLPerformanceTracker::RecordInference(uint32_t botGuid, uint64_t
+    durationUs)
+documentation:
+  brief: Records the duration of an AI inference operation for a specific bot.
+  description: The RecordInference method logs the time taken to complete a machine
+    learning inference task for a given bot identified by its GUID. This tracking
+    mechanism is used to monitor performance metrics and optimize AI behavior in the
+    game environment. The method stores the inference duration in microseconds, allowing
+    for precise measurement of processing time. It's typically called after an AI
+    decision-making process has completed, enabling developers to analyze how long
+    various bot behaviors take to execute and identify potential performance bottlenecks.
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot for which the inference duration
+      is being recorded. This value uniquely identifies a specific game entity in
+      the TrinityCore system.
+  - name: durationUs
+    description: The duration of the inference operation in microseconds. This represents
+      the time elapsed between the start and end of the AI processing task.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'MLPerformanceTracker tracker;
+
+      uint32_t botGuid = 12345;
+
+      uint64_t inferenceDuration = 45000; // 45 milliseconds
+
+      tracker.RecordInference(botGuid, inferenceDuration);'
+    language: cpp
+  - title: Integration with AI Processing Loop
+    code: "void BotAI::ProcessDecision()\n{\n    auto startTime = std::chrono::high_resolution_clock::now();\n\
+      \    // ... AI inference logic here ...\n    auto endTime = std::chrono::high_resolution_clock::now();\n\
+      \    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime\
+      \ - startTime).count();\n    \n    MLPerformanceTracker::Instance()->RecordInference(GetGUID(),\
+      \ duration.count());\n}"
+    language: cpp
+  notes: This method is designed to be called from within AI processing threads and
+    should not be used for real-time performance monitoring due to potential locking
+    mechanisms. The implementation likely uses thread-safe data structures internally
+    to handle concurrent access from multiple bots. Performance tracking data may
+    be aggregated or exported periodically for analysis.
+  warnings: Ensure that botGuid values are valid and correspond to existing bots in
+    the game world, as invalid GUIDs might cause unexpected behavior or errors in
+    the performance tracking system. Avoid calling this method too frequently in tight
+    loops as it could impact overall system performance due to potential synchronization
+    overhead.
+  related:
+  - GetPerformanceMetrics
+  - ResetPerformanceData
+  - ExportPerformanceReport
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T09:07:53.152456'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,64 @@
+api:
+  class: ShamanBaselineRotation
+  method: ExecuteRotation
+  signature: bool ShamanBaselineRotation::ExecuteRotation(int * bot, int * target,
+    BaselineRotationManager & manager)
+documentation:
+  brief: Executes the baseline rotation logic for a shaman bot, determining and applying
+    the appropriate spell sequence based on current combat state.
+  description: The ExecuteRotation method is responsible for running the core decision-making
+    process of a shaman's baseline AI behavior. It evaluates the current combat situation,
+    including player health, mana levels, target status, and available spells, then
+    selects and executes the most appropriate sequence of abilities to maximize damage
+    or utility. This method integrates with the BaselineRotationManager to coordinate
+    rotation state and timing. The method returns true if a valid rotation was executed
+    successfully, or false if no action could be taken due to invalid conditions or
+    resource constraints. It is typically called during each AI update cycle to maintain
+    optimal spell casting behavior.
+  parameters:
+  - name: bot
+    description: Pointer to the shaman bot's player data structure containing current
+      stats, spells, and state information.
+  - name: target
+    description: Pointer to the target entity data structure that the bot is engaging
+      in combat.
+  - name: manager
+    description: Reference to the BaselineRotationManager instance that tracks rotation
+      state, timing, and cooldowns for the current bot.
+  returns: Returns true if a spell or ability was successfully executed as part of
+    the rotation; returns false if no action could be taken due to insufficient resources,
+    invalid target, or other constraints.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void ShamanAI::UpdateAI()\n{\n    if (bot && target)\n    {\n        BaselineRotationManager\
+      \ manager;\n        if (!shamanRotation.ExecuteRotation(&bot, &target, manager))\n\
+      \        {\n            // No valid rotation could be executed\n           \
+      \ return;\n        }\n    }\n}"
+    language: cpp
+  - title: Integration with spell casting logic
+    code: "bool ShamanBaselineRotation::ExecuteRotation(int* bot, int* target, BaselineRotationManager&\
+      \ manager)\n{\n    if (!bot || !target) return false;\n    \n    // Evaluate\
+      \ current conditions\n    if (HasEnoughMana(bot, LIGHTNING_BOLT))\n    {\n \
+      \       CastSpell(bot, target, LIGHTNING_BOLT);\n        manager.SetLastCastTime(LIGHTNING_BOLT);\n\
+      \        return true;\n    }\n    \n    if (HasAvailableTotem(bot, EARTH_ELEMENTAL_TOTEM))\n\
+      \    {\n        CastTotem(bot, EARTH_ELEMENTAL_TOTEM);\n        manager.SetLastCastTime(EARTH_ELEMENTAL_TOTEM);\n\
+      \        return true;\n    }\n    \n    return false;\n}"
+    language: cpp
+  notes: This method assumes that the bot and target pointers are valid and properly
+    initialized. The BaselineRotationManager must be updated with appropriate cooldown
+    information to prevent invalid spell casting. Performance is optimized by caching
+    frequently accessed data such as mana levels and spell availability.
+  warnings: Do not call this method without ensuring that both bot and target parameters
+    are valid pointers. Failure to do so may result in segmentation faults or undefined
+    behavior. The rotation manager must be properly initialized before calling this
+    method to avoid incorrect timing logic.
+  related:
+  - ShamanBaselineRotation::Initialize
+  - BaselineRotationManager::UpdateCooldowns
+  - ShamanBaselineRotation::IsSpellAvailable
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T03:00:11.577959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

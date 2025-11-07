@@ -1,0 +1,57 @@
+api:
+  class: LFGMgr
+  method: FilterClassRoles
+  signature: uint8 LFGMgr::FilterClassRoles(Player * player, uint8 roles)
+documentation:
+  brief: Filters and returns valid LFG roles for a player based on their class and
+    specialization
+  description: The FilterClassRoles method determines which Looking For Group (LFG)
+    roles are appropriate for a given player based on their character's class and
+    specialization. This method ensures that players can only select roles that align
+    with their class capabilities, preventing invalid role assignments in group finder
+    systems. The filtering process considers class-specific role restrictions and
+    returns a bitmask of valid roles. This method is typically called during LFG queue
+    initialization or role assignment to maintain game balance and proper group composition.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for which LFG roles need to be filtered.
+      Must not be null.
+  - name: roles
+    description: Bitmask representing the candidate LFG roles to filter. Each bit
+      corresponds to a specific role type (e.g., tank, healer, damage).
+  returns: Returns a uint8 bitmask containing only the valid LFG roles that are appropriate
+    for the player's class and specialization. Invalid roles are masked out from the
+    input roles parameter.
+  examples:
+  - title: Filtering roles for a player
+    code: 'Player* player = ...; // Get player reference
+
+      uint8 candidateRoles = LFG_ROLE_TANK | LFG_ROLE_HEALER | LFG_ROLE_DAMAGE;
+
+      uint8 validRoles = sLFGMgr->FilterClassRoles(player, candidateRoles);
+
+      // validRoles now contains only roles appropriate for the player''s class'
+    language: cpp
+  - title: Checking role validity before queueing
+    code: "Player* player = ...;\nuint8 requestedRoles = LFG_ROLE_TANK | LFG_ROLE_DAMAGE;\n\
+      uint8 filteredRoles = sLFGMgr->FilterClassRoles(player, requestedRoles);\nif\
+      \ (filteredRoles != requestedRoles) {\n    // Some roles were invalid for this\
+      \ class\n    // Handle the filtered role set\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's LFG system and directly impacts group
+    formation logic. The filtering process considers both class restrictions and specialization-specific
+    role allowances. The implementation likely uses internal class-to-role mapping
+    tables to determine valid combinations.
+  warnings: Ensure the player parameter is valid and not null before calling this
+    method, as passing a null pointer will result in undefined behavior. The returned
+    bitmask may be zero if no roles are valid for the player's class.
+  related:
+  - GetLfgRoleMask
+  - IsPlayerInLfgQueue
+  - UpdateLfgRoles
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:10:38.291831'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

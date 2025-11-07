@@ -1,0 +1,49 @@
+api:
+  class: BossAI
+  method: JustEngagedWith
+  signature: void BossAI::JustEngagedWith(int * who)
+documentation:
+  brief: Called when the boss becomes engaged with a target, typically a player or
+    creature.
+  description: The JustEngagedWith method is invoked by the TrinityCore AI system
+    when a boss creature begins combat with a target entity. This method serves as
+    a hook for custom AI behavior during the initial engagement phase of a boss fight.
+    It allows developers to implement specific actions such as casting initial spells,
+    setting up combat mechanics, or triggering events that should occur immediately
+    upon engagement. The method is part of the BossAI base class and is typically
+    overridden by specific boss implementations to define unique engagement behaviors.
+  parameters:
+  - name: who
+    description: Pointer to an integer representing the identifier of the entity that
+      triggered the engagement. This usually corresponds to a GUID or similar unique
+      identifier for the engaged target.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "void BossGrimlok::JustEngagedWith(int* who)\n{\n    BossAI::JustEngagedWith(who);\n\
+      \    DoCast(SPELL_ENRAGE);\n    Talk(SAY_AGGRO);\n}"
+    language: cpp
+  - title: Advanced Engagement with Target Validation
+    code: "void BossHalion::JustEngagedWith(int* who)\n{\n    BossAI::JustEngagedWith(who);\n\
+      \    if (Unit* target = ObjectAccessor::GetUnit(*me, *who))\n    {\n       \
+      \ if (target->GetTypeId() == TYPEID_PLAYER)\n        {\n            DoCast(target,\
+      \ SPELL_FIERY_COMET);\n            events.ScheduleEvent(EVENT_FIERY_COMET, 10s);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is called only once per engagement and occurs before the boss
+    enters its regular combat AI loop. Developers should avoid performing heavy operations
+    in this function to prevent blocking the main game thread. The 'who' parameter
+    may be null or invalid if the engagement was triggered by non-unit entities.
+  warnings: Do not call BossAI::JustEngagedWith directly from custom code as it may
+    cause unexpected behavior. Always ensure that any overridden implementations properly
+    call the parent class method to maintain AI integrity.
+  related:
+  - EnterCombat
+  - UpdateAI
+  - IsEngaged
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T19:46:48.083667'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: GroupStateMachine
+  method: OnStateExit
+  signature: void GroupStateMachine::OnStateExit(GroupState state, StateCallback callback)
+documentation:
+  brief: Registers a callback function to be invoked when exiting a specific group
+    state.
+  description: The OnStateExit method allows registering a callback function that
+    will be executed whenever the group transitions out of a specified state. This
+    mechanism is used within the GroupStateMachine to manage state change events and
+    execute cleanup or notification logic. The callback receives the current state
+    and can perform actions such as sending updates to players, resetting flags, or
+    triggering other game mechanics. This method is typically used in conjunction
+    with OnStateEnter to provide complete state lifecycle management for group operations.
+  parameters:
+  - name: state
+    description: The GroupState enum value representing the state from which the callback
+      should be triggered when exiting.
+  - name: callback
+    description: A StateCallback function object that will be invoked when exiting
+      the specified group state. The callback signature typically takes the current
+      state as a parameter.
+  returns: null
+  examples:
+  - title: Registering an exit callback for a group state
+    code: "void MyGroupHandler::SetupStateCallbacks()\n{\n    GroupStateMachine& stateMachine\
+      \ = GetGroup()->GetStateMachine();\n    \n    // Register callback to be called\
+      \ when exiting GROUP_STATE_RAID\n    stateMachine.OnStateExit(GROUP_STATE_RAID,\
+      \ [](GroupState state)\n    {\n        // Perform cleanup or notification logic\n\
+      \        sLog->outInfo(LOG_FILTER_GENERAL, \"Exiting raid group state\");\n\
+      \    });\n}"
+    language: cpp
+  - title: Using OnStateExit with complex callback logic
+    code: "void RaidManager::OnRaidStateChanged(GroupState oldState, GroupState newState)\n\
+      {\n    // Register exit handler for previous state\n    if (oldState == GROUP_STATE_RAID)\n\
+      \    {\n        GetGroup()->GetStateMachine().OnStateExit(GROUP_STATE_RAID,\
+      \ [this](GroupState state)\n        {\n            // Notify players of raid\
+      \ exit\n            SendRaidUpdateToAllPlayers();\n            \n          \
+      \  // Reset raid-specific flags\n            ClearRaidFlags();\n           \
+      \ \n            // Log the event\n            sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Raid group state exited, cleanup completed\");\n        });\n    }\n}"
+    language: cpp
+  notes: This method is part of the group state management system in TrinityCore.
+    Callbacks registered via OnStateExit are executed synchronously during state transitions,
+    so performance-critical operations should be minimized within these callbacks.
+    The callback registration happens at runtime and affects only future state exits,
+    not already-occurred transitions.
+  warnings: Care must be taken when registering callbacks that modify the group or
+    state machine itself, as this can lead to undefined behavior or infinite loops
+    during state transitions. Avoid performing operations that might cause additional
+    state changes within exit callbacks.
+  related:
+  - OnStateEnter
+  - SetState
+  - GetState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T12:51:56.959228'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

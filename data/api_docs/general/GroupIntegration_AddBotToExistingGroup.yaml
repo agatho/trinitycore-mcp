@@ -1,0 +1,67 @@
+api:
+  class: GroupIntegration
+  method: AddBotToExistingGroup
+  signature: bool GroupIntegration::AddBotToExistingGroup(Group * group, uint32 botGuid,
+    GroupRole preferredRole)
+documentation:
+  brief: Adds a bot to an existing group with the specified preferred role.
+  description: The AddBotToExistingGroup method attempts to add a bot character, identified
+    by its GUID, to an already established player group. This functionality is typically
+    used in automated bot systems or AI-driven gameplay scenarios within TrinityCore-based
+    World of Warcraft servers. The method respects the group's role management system
+    and assigns the bot to the preferred role if possible, considering existing group
+    composition and role availability. It ensures that the bot is properly integrated
+    into the group structure, including updating group member lists and notifying
+    relevant subsystems.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the existing group to which
+      the bot will be added. Must not be null.
+  - name: botGuid
+    description: Unique identifier (GUID) of the bot character that is to be added
+      to the group. Must correspond to a valid bot in the database.
+  - name: preferredRole
+    description: The GroupRole enum value indicating the preferred role for the bot
+      within the group. Determines how the bot will be assigned (e.g., tank, healer,
+      damage dealer).
+  returns: Returns true if the bot was successfully added to the group with the specified
+    role; returns false otherwise. Failure may occur due to invalid inputs, full group
+    capacity, or role conflicts.
+  examples:
+  - title: Basic Usage
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nuint32 botGuid = 12345;\n\
+      bool success = GroupIntegration::AddBotToExistingGroup(myGroup, botGuid, GROUP_ROLE_TANK);\n\
+      if (success)\n    TC_LOG_INFO(\"group\", \"Bot successfully added to group.\"\
+      );"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "Group* targetGroup = sGroupMgr->GetGroupById(100);\nif (!targetGroup)\n\
+      {\n    TC_LOG_ERROR(\"group\", \"Invalid group ID provided.\");\n    return\
+      \ false;\n}\n\nuint32 botGuid = GetBotGuidForPlayer(playerGuid);\nif (!botGuid)\n\
+      {\n    TC_LOG_ERROR(\"group\", \"No valid bot GUID found for player.\");\n \
+      \   return false;\n}\n\nbool result = GroupIntegration::AddBotToExistingGroup(targetGroup,\
+      \ botGuid, GROUP_ROLE_HEALER);\nif (!result)\n{\n    TC_LOG_ERROR(\"group\"\
+      , \"Failed to add bot to group.\");\n    return false;\n}\nTC_LOG_INFO(\"group\"\
+      , \"Bot added successfully with healer role.\");"
+    language: cpp
+  notes: This method assumes that the Group object is valid and already initialized.
+    It does not perform any validation on whether the bot character exists or is properly
+    configured in the database. The preferredRole parameter must align with supported
+    roles defined in the GroupRole enum. Performance may be impacted if multiple bots
+    are added simultaneously to large groups.
+  warnings: Calling this method with a null group pointer will likely result in a
+    crash or undefined behavior. Ensure that the botGuid corresponds to an actual
+    existing bot character before calling this method. Adding too many bots to a single
+    group without proper management can lead to performance degradation or unexpected
+    gameplay mechanics.
+  related:
+  - Group::AddMember
+  - Group::RemoveMember
+  - Group::IsFull
+  - Group::GetMembers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:05:55.821576'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

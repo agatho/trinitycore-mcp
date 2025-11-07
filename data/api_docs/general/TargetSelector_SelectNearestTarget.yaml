@@ -1,0 +1,55 @@
+api:
+  class: TargetSelector
+  method: SelectNearestTarget
+  signature: SelectionResult TargetSelector::SelectNearestTarget(float maxRange, TargetValidation
+    validation)
+documentation:
+  brief: Selects the nearest valid target within a specified range using provided
+    validation criteria.
+  description: The SelectNearestTarget method identifies and returns the closest valid
+    target to the current unit within a given maximum range. It applies a validation
+    function to filter potential targets based on criteria such as hostility, visibility,
+    or health status. This method is commonly used in AI behavior trees for enemy
+    selection during combat. The method performs a search through nearby units, evaluates
+    each against the validation rules, and returns the nearest valid candidate. If
+    no valid target is found within range, it typically returns an invalid selection
+    result.
+  parameters:
+  - name: maxRange
+    description: Maximum distance in yards to search for targets. Targets beyond this
+      range are ignored.
+  - name: validation
+    description: TargetValidation function object that defines criteria for valid
+      targets. This function should return true for acceptable targets and false otherwise.
+  returns: SelectionResult containing the nearest valid target within range, or an
+    invalid result if no suitable target is found.
+  examples:
+  - title: Basic usage with lambda validation
+    code: "auto result = selector.SelectNearestTarget(30.0f, [](Unit* target) {\n\
+      \    return target->IsHostileTo(me);\n});\nif (result.IsValid()) {\n    // Use\
+      \ result.Get() to access the selected target\n}"
+    language: cpp
+  - title: Advanced usage with custom validation
+    code: "auto result = selector.SelectNearestTarget(40.0f, [](Unit* target) {\n\
+      \    return target->IsAlive() &&\n           target->IsHostileTo(me) &&\n  \
+      \         !target->HasAura(12345); // Not affected by specific debuff\n});\n\
+      if (result.IsValid()) {\n    // Proceed with attack logic\n}"
+    language: cpp
+  notes: This method performs a linear search through nearby units, so performance
+    may degrade with many nearby targets. The validation function is called for every
+    unit within range, so it should be kept efficient. The method does not consider
+    line of sight or other environmental factors unless explicitly included in the
+    validation criteria.
+  warnings: Ensure that the validation function does not perform expensive operations
+    as it's called frequently during target selection. Be cautious when using this
+    method in high-frequency AI loops to avoid performance bottlenecks.
+  related:
+  - SelectTarget
+  - SelectTargetInRange
+  - GetNextTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:14:52.643024'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: TerrainInfo
+  method: GetGrid
+  signature: GridMap * TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing)
+documentation:
+  brief: Retrieves the GridMap instance for a specified map and coordinates, loading
+    it if necessary.
+  description: The GetGrid method retrieves the GridMap object associated with a given
+    map ID and world coordinates. If the grid is not already loaded and the loadIfMissing
+    parameter is true, the method will automatically load the grid data from disk
+    or generate it as needed. This functionality is essential for terrain-based operations
+    such as pathfinding, line-of-sight calculations, and collision detection in World
+    of Warcraft's game world. The method ensures that grid data is available before
+    returning a pointer to it, making it a critical utility for subsystems that require
+    access to terrain information.
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map for which to retrieve the grid.
+      This corresponds to the Map.dbc entry ID.
+  - name: x
+    description: The X coordinate in world space for which to locate the grid cell.
+  - name: y
+    description: The Y coordinate in world space for which to locate the grid cell.
+  - name: loadIfMissing
+    description: Boolean flag indicating whether to load the grid if it is not already
+      present in memory. If true, the method will attempt to load the grid data; if
+      false, it will return nullptr if the grid is not loaded.
+  returns: A pointer to the GridMap object for the specified map and coordinates,
+    or nullptr if the grid could not be retrieved or loaded.
+  examples:
+  - title: Basic usage to get a grid
+    code: "GridMap* grid = terrainInfo->GetGrid(0, 100.0f, 200.0f, true);\nif (grid\
+      \ != nullptr) {\n    // Grid is available for use\n}"
+    language: cpp
+  - title: Checking grid availability without loading
+    code: "GridMap* grid = terrainInfo->GetGrid(1, 50.0f, 75.0f, false);\nif (grid\
+      \ == nullptr) {\n    // Grid not loaded and load was not requested\n    // Handle\
+      \ accordingly\n}"
+    language: cpp
+  notes: This method is thread-safe in most contexts but may involve disk I/O when
+    loading grids for the first time. Performance can be impacted by frequent calls
+    with loadIfMissing=true, especially during high-traffic scenarios. The grid coordinates
+    are typically derived from world coordinates using predefined grid sizes, usually
+    533.33333f units per grid cell.
+  warnings: Calling this method with loadIfMissing=true in performance-critical sections
+    may cause noticeable lag due to potential disk reads or memory allocations. Avoid
+    calling it repeatedly for the same coordinates without checking if the grid is
+    already loaded. Be cautious of memory usage when loading many grids simultaneously.
+  related:
+  - GetGridMap
+  - LoadGrid
+  - UnloadGrid
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T09:16:31.865337'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

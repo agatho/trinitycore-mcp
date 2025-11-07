@@ -25,8 +25,8 @@ import type {
   SymbolTable,
   Language,
   SymbolInfo,
-} from './types.js';
-import { logger } from '../utils/logger.js';
+} from './types';
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // SERENA MCP INTEGRATION TYPES

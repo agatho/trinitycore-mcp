@@ -1,0 +1,55 @@
+api:
+  class: InstanceEventBus
+  method: UnsubscribeCallback
+  signature: void InstanceEventBus::UnsubscribeCallback(uint32 subscriptionId)
+documentation:
+  brief: Removes a previously subscribed callback from the instance event bus using
+    its unique subscription ID.
+  description: The UnsubscribeCallback method removes a callback function that was
+    previously registered with the InstanceEventBus using SubscribeCallback. This
+    method takes a subscription ID as input and unregisters the corresponding callback,
+    preventing it from being invoked when events occur within the instance. The subscription
+    ID is typically obtained when calling SubscribeCallback and should be stored by
+    the caller to later unsubscribe. If an invalid or non-existent subscription ID
+    is provided, the method may silently ignore the request or throw an exception
+    depending on implementation details. This mechanism allows for dynamic management
+    of event handlers during runtime, which is essential for managing temporary or
+    conditional event processing in World of Warcraft instances.
+  parameters:
+  - name: subscriptionId
+    description: The unique identifier returned by SubscribeCallback when the callback
+      was registered. This ID is used to identify and remove the specific callback
+      subscription from the event bus.
+  returns: null
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'uint32 subscriptionId = instanceEventBus.SubscribeCallback(callbackFunction);
+
+      // ... some processing ...
+
+      instanceEventBus.UnsubscribeCallback(subscriptionId);'
+    language: cpp
+  - title: Unsubscribing in Event Handler Context
+    code: "void MyEventHandler(uint32 eventId, uint32 data) {\n    // Unsubscribe\
+      \ this handler after one use\n    instanceEventBus.UnsubscribeCallback(subscriptionId);\n\
+      }\nuint32 subscriptionId = instanceEventBus.SubscribeCallback(MyEventHandler);"
+    language: cpp
+  notes: The InstanceEventBus is designed to handle multiple subscribers for the same
+    event type. When unsubscribing, only the specific callback associated with the
+    provided subscription ID will be removed. The method should be thread-safe if
+    used in a multi-threaded environment, though this depends on the implementation
+    details of the underlying event bus system.
+  warnings: Attempting to unsubscribe using an invalid or already-used subscription
+    ID may result in undefined behavior or silently fail. Always ensure that subscription
+    IDs are properly tracked and not reused after unsubscribing. Failing to unsubscribe
+    can lead to memory leaks or unexpected behavior if callbacks continue to be invoked
+    after they should have been removed.
+  related:
+  - SubscribeCallback
+  - PublishEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:31:40.454219'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

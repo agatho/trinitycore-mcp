@@ -9,8 +9,8 @@ import {
   SearchResult,
   SearchOptions,
   DocumentCategory,
-} from './types.js';
-import { logger } from '../utils/logger.js';
+} from './types';
+import { logger } from '../utils/logger';
 
 export class SearchEngine {
   private index: MiniSearch<KnowledgeBaseDocument>;

@@ -1,0 +1,77 @@
+api:
+  class: GameObjectAssistActionData
+  method: WriteUpdate
+  signature: void GameObjectAssistActionData::WriteUpdate(ByteBuffer & data, bool
+    ignoreChangesMask, const GameObject * owner, const Player * receiver) const
+documentation:
+  brief: Writes update data for a game object assist action to a byte buffer.
+  description: The WriteUpdate method serializes the state and properties of a GameObjectAssistActionData
+    instance into a ByteBuffer, which is typically used for sending updates to players
+    in the game world. This method allows for efficient network transmission of game
+    object state changes, ensuring that clients receive accurate information about
+    assist actions related to game objects. The serialization process respects change
+    masks when ignoreChangesMask is false, only including fields that have changed
+    since the last update. When ignoreChangesMask is true, all fields are written
+    regardless of their change status. This method is commonly used in TrinityCore's
+    packet handling system for updating client-side representations of game objects.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets sent to
+      players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      If true, all fields are written to the buffer regardless of their change status.
+      If false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the GameObject that owns this assist action data. Used
+      to access object properties and state for serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. May be used to
+      determine specific field visibility or client-specific formatting.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      GameObjectAssistActionData assistData;
+
+      GameObject* gameObject = ...; // Get game object
+
+      Player* player = ...; // Get receiving player
+
+      assistData.WriteUpdate(data, false, gameObject, player);
+
+      // Send data through packet system'
+    language: cpp
+  - title: Force update with ignore mask
+    code: 'ByteBuffer fullUpdate;
+
+      GameObjectAssistActionData assistData;
+
+      GameObject* obj = ...;
+
+      Player* receiver = ...;
+
+      assistData.WriteUpdate(fullUpdate, true, obj, receiver);
+
+      // Send complete state regardless of changes'
+    language: cpp
+  notes: This method is part of TrinityCore's object update system and should be called
+    during the packet preparation phase. The implementation likely uses bitmasks to
+    track field changes efficiently. Developers should ensure proper synchronization
+    when accessing GameObject state from multiple threads.
+  warnings: Calling this method with an invalid GameObject or Player pointer may result
+    in undefined behavior. The ByteBuffer must be properly initialized before calling
+    this method. When ignoreChangesMask is true, performance may degrade due to unnecessary
+    serialization of unchanged fields.
+  related:
+  - ReadUpdate
+  - GetChangesMask
+  - SetChangesMask
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T03:10:56.346942'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

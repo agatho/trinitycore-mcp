@@ -1,0 +1,63 @@
+api:
+  class: SmartAI
+  method: DamageDealt
+  signature: void SmartAI::DamageDealt(Unit * doneTo, uint32 & damage, int param2)
+documentation:
+  brief: Handles damage dealt events in SmartAI, allowing for custom behavior when
+    a unit deals damage to another unit.
+  description: The DamageDealt method is a callback function within the SmartAI system
+    that gets invoked whenever a creature or NPC deals damage to another unit. This
+    method provides access to both the target unit that received the damage and the
+    amount of damage dealt, enabling developers to implement custom logic such as
+    triggering events, modifying damage values, or executing specific AI behaviors
+    based on the damage dealt. The method is part of the SmartAI framework which allows
+    for flexible and dynamic AI scripting in TrinityCore. It's important to note that
+    this method is typically used within the context of creature AI scripts where
+    custom actions need to be performed upon successful damage application.
+  parameters:
+  - name: doneTo
+    description: Pointer to the Unit object that received the damage. This represents
+      the target unit that was damaged by the AI-controlled creature.
+  - name: damage
+    description: Reference to a uint32 value representing the amount of damage that
+      was dealt. This parameter can be modified to change the actual damage amount
+      applied to the target.
+  - name: param2
+    description: Additional integer parameter that may contain contextual information
+      about the damage event, such as spell ID or effect type, depending on how the
+      AI script is configured.
+  returns: null
+  examples:
+  - title: Basic Damage Dealt Handler
+    code: "void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, int param2)\n{\n\
+      \    // Log when damage is dealt\n    if (doneTo)\n    {\n        GetCreature()->GetMap()->ScriptsStart(DBS_CREATURE_AI,\
+      \ 12345, GetCreature(), doneTo);\n    }\n}"
+    language: cpp
+  - title: Modify Damage Amount Based on Target
+    code: "void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, int param2)\n{\n\
+      \    // Double damage to players\n    if (doneTo && doneTo->IsPlayer())\n  \
+      \  {\n        damage *= 2;\n    }\n    // Reduce damage to bosses\n    else\
+      \ if (doneTo && doneTo->GetEntry() == 12345)\n    {\n        damage /= 2;\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is called during the damage application phase of combat, after
+    damage calculation but before the damage is actually applied to the target. The
+    'damage' parameter is passed by reference, allowing modification of the final
+    damage value that will be applied. Be cautious when modifying damage values as
+    it may affect game balance or cause unexpected behavior in combat systems.
+  warnings: Modifying the damage value directly can have unintended consequences on
+    gameplay mechanics and balance. Ensure that any modifications to damage are within
+    reasonable bounds and align with the intended AI behavior. Avoid performing heavy
+    operations or blocking calls within this method as it's called frequently during
+    combat events.
+  related:
+  - DamageTaken
+  - EnterCombat
+  - JustDied
+  - SpellHit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:57:36.806581'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

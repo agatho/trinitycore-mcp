@@ -1,0 +1,60 @@
+api:
+  class: ObjectiveTracker
+  method: HandleObjectiveConflicts
+  signature: void ObjectiveTracker::HandleObjectiveConflicts(Group * group, uint32
+    questId, uint32 objectiveIndex)
+documentation:
+  brief: Processes and resolves conflicts between quest objectives within a group
+    context.
+  description: The HandleObjectiveConflicts method manages and resolves inconsistencies
+    or overlapping requirements among quest objectives for a specified quest within
+    a group. This method ensures that conflicting objectives are properly handled,
+    preventing duplicate progress or invalid states in the objective tracker. It is
+    typically invoked when quest data changes or when group members' progress affects
+    shared objectives. The method operates on a specific quest ID and objective index
+    within the context of a group, adjusting internal tracking state to maintain consistency
+    across all group members.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the player group whose quest
+      objectives are being processed. Must not be null.
+  - name: questId
+    description: Unique identifier of the quest for which objective conflicts are
+      being resolved. Must correspond to a valid active quest in the group's tracker.
+  - name: objectiveIndex
+    description: Index of the specific objective within the quest that may have conflicts.
+      Used to identify and process the affected objective.
+  returns: null
+  examples:
+  - title: Basic usage in quest update handler
+    code: "void QuestUpdateHandler::OnQuestObjectiveChanged(Group* group, uint32 questId,\
+      \ uint32 objectiveIndex)\n{\n    ObjectiveTracker* tracker = group->GetObjectiveTracker();\n\
+      \    if (tracker)\n        tracker->HandleObjectiveConflicts(group, questId,\
+      \ objectiveIndex);\n}"
+    language: cpp
+  - title: Resolving conflicts after group member joins
+    code: "void GroupManager::OnMemberAdded(Group* group, Player* player)\n{\n   \
+      \ if (!group || !player) return;\n    \n    // Resolve any conflicting objectives\
+      \ for all active quests\n    for (auto& quest : player->GetQuestStatusMap())\n\
+      \    {\n        uint32 questId = quest.first;\n        if (quest.second.m_state\
+      \ & QUEST_STATE_COMPLETE)\n            continue;\n        \n        for (uint32\
+      \ i = 0; i < GetObjectiveCount(questId); ++i)\n        {\n            group->GetObjectiveTracker()->HandleObjectiveConflicts(group,\
+      \ questId, i);\n        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the provided group is valid and contains active
+    quest data. It modifies internal tracker state and may affect progress tracking
+    for all group members. The method does not directly communicate with the database
+    but updates in-memory objective states.
+  warnings: Calling this method with invalid parameters (null group, invalid questId,
+    or out-of-bounds objectiveIndex) can lead to undefined behavior or crashes. Ensure
+    that all inputs are validated before calling.
+  related:
+  - GetObjectiveTracker
+  - UpdateObjectiveProgress
+  - CheckQuestComplete
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:31:32.729173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

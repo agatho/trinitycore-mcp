@@ -1,0 +1,65 @@
+api:
+  class: MoveSpline
+  method: computePosition
+  signature: Location MoveSpline::computePosition(int32 time_point, int32 point_index)
+    const
+documentation:
+  brief: Calculates and returns the world position of a spline at a given time point
+    and waypoint index.
+  description: The computePosition method calculates the precise 3D coordinates (x,
+    y, z) of a movement spline at a specific point in time. It uses internal spline
+    interpolation to determine the exact location based on the provided time point
+    and waypoint index. This method is commonly used in TrinityCore's movement system
+    to accurately position units during pathfinding or animation sequences. The returned
+    Location object contains the world coordinates where the unit should be positioned
+    at the specified time. This functionality is essential for smooth character movement,
+    NPC pathing, and dynamic object positioning within the game world.
+  parameters:
+  - name: time_point
+    description: The time value in milliseconds representing the point along the spline
+      to calculate position for. This typically represents elapsed time since the
+      spline started.
+  - name: point_index
+    description: The waypoint index indicating which segment of the spline to use
+      for position calculation. This determines which pair of waypoints the interpolation
+      should occur between.
+  returns: A Location object containing the x, y, z coordinates representing the calculated
+    world position at the specified time point and waypoint index.
+  examples:
+  - title: Basic Position Calculation
+    code: 'MoveSpline spline;
+
+      // Assume spline has been initialized with waypoints
+
+      Location pos = spline.computePosition(500, 2);
+
+      // pos now contains the position at 500ms into the spline, using waypoint index
+      2'
+    language: cpp
+  - title: Using in Movement Update
+    code: "void UpdateMovement()\n{\n    MoveSpline* spline = GetMoveSpline();\n \
+      \   int32 currentTime = getMSTime();\n    int32 currentWaypoint = GetCurrentWaypointIndex();\n\
+      \    Location newPosition = spline->computePosition(currentTime, currentWaypoint);\n\
+      \    SetPosition(newPosition);\n}"
+    language: cpp
+  notes: This method performs spline interpolation using internal cubic or linear
+    interpolation depending on the spline type. The time_point parameter should typically
+    be within the bounds of the total spline duration. For optimal performance, avoid
+    calling this method excessively in tight loops. The method is const and thread-safe
+    when used with properly synchronized spline data.
+  warnings: Calling computePosition with invalid time_point or point_index values
+    may result in undefined behavior or incorrect positions. Ensure that the provided
+    parameters are within valid ranges for the current spline configuration. This
+    method should not be called on splines that have not been properly initialized
+    with waypoints.
+  related:
+  - GetSplineDuration
+  - GetCurrentWaypointIndex
+  - GetPointCount
+  - IsFinished
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T12:21:38.086742'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

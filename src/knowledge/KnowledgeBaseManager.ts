@@ -1,6 +1,6 @@
-import { SearchEngine } from './SearchEngine.js';
-import { DocumentIndexer } from './DocumentIndexer.js';
-import { KnowledgeBaseDocument, SearchResult, SearchOptions, DocumentCategory } from './types.js';
+import { SearchEngine } from './SearchEngine';
+import { DocumentIndexer } from './DocumentIndexer';
+import { KnowledgeBaseDocument, SearchResult, SearchOptions, DocumentCategory } from './types';
 
 export class KnowledgeBaseManager {
   private static instance: KnowledgeBaseManager;

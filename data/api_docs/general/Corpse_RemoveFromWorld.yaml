@@ -1,0 +1,46 @@
+api:
+  class: Corpse
+  method: RemoveFromWorld
+  signature: void Corpse::RemoveFromWorld()
+documentation:
+  brief: Removes the corpse object from the game world, making it no longer visible
+    to players and freeing associated resources.
+  description: The RemoveFromWorld method is responsible for removing a Corpse object
+    from the active game world. This function typically handles the cleanup of the
+    corpse's presence in the world state, ensuring that it is no longer rendered to
+    players and that any associated data structures are properly deallocated. The
+    method may also trigger related events or notifications necessary for maintaining
+    consistency within the game state. It is commonly called when a corpse expires,
+    is looted, or is intentionally destroyed by the server. This operation should
+    be performed carefully as it affects the integrity of player character data and
+    world object management.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic usage in corpse expiration
+    code: "void Corpse::Update(uint32 diff)\n{\n    if (m_time <= sWorld->GetGameTime())\n\
+      \    {\n        RemoveFromWorld();\n        AddObjectToRemoveList();\n    }\n\
+      }"
+    language: cpp
+  - title: Removing corpse after looting
+    code: "void Player::HandleLootCorpse(Corpse* corpse)\n{\n    // ... loot logic\
+      \ ...\n    corpse->RemoveFromWorld();\n    // ... cleanup logic ...\n}"
+    language: cpp
+  notes: This method should only be called on corpses that are currently in the world.
+    Calling it on already removed corpses may result in undefined behavior or crashes.
+    The function internally manages the removal from various subsystems including
+    the ObjectAccessor, grid management, and database cleanup if needed.
+  warnings: Never call RemoveFromWorld() directly on a corpse that has already been
+    removed from the world; doing so can cause memory corruption or double-free errors.
+    Also, ensure that all references to the corpse are cleared before calling this
+    method to prevent dangling pointers.
+  related:
+  - Corpse::IsInWorld
+  - Corpse::AddObjectToRemoveList
+  - Corpse::SaveToDB
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T16:33:36.075379'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

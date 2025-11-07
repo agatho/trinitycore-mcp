@@ -1,0 +1,63 @@
+api:
+  class: AuraEventBus
+  method: ClearUnitEvents
+  signature: void AuraEventBus::ClearUnitEvents(int unitGuid)
+documentation:
+  brief: Removes all aura events associated with a specified unit GUID from the event
+    bus.
+  description: The ClearUnitEvents method is responsible for purging all registered
+    aura events that are linked to a specific unit identified by its GUID. This function
+    ensures that no lingering event handlers or callbacks remain for the given unit,
+    which is essential for memory management and preventing potential dangling references
+    when units are removed or destroyed. The method operates within the context of
+    TrinityCore's aura system where events are tracked and managed through an event
+    bus architecture. It is typically invoked during unit cleanup, destruction, or
+    when resetting aura states to prevent memory leaks or unexpected behavior.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose aura events should
+      be cleared. This value must represent a valid unit in the game world, typically
+      obtained from GameObject, Creature, or Player objects.
+  returns: null
+  examples:
+  - title: Clearing Aura Events for a Player
+    code: 'AuraEventBus& eventBus = AuraEventBus::Instance();
+
+      Player* player = ...; // Assume player is valid
+
+      uint64 playerGuid = player->GetGUID();
+
+      eventBus.ClearUnitEvents(playerGuid);'
+    language: cpp
+  - title: Clearing Events Before Unit Destruction
+    code: 'AuraEventBus& eventBus = AuraEventBus::Instance();
+
+      Creature* creature = ...; // Assume creature is valid
+
+      uint64 creatureGuid = creature->GetGUID();
+
+      eventBus.ClearUnitEvents(creatureGuid);
+
+      // Proceed with creature destruction
+
+      creature->DeleteFromDB();'
+    language: cpp
+  notes: This method assumes that the provided unitGuid is valid and corresponds to
+    an existing unit in the game world. It's recommended to verify the existence of
+    a unit before calling this method to avoid unintended behavior. The implementation
+    likely uses internal data structures such as maps or hash tables to efficiently
+    locate and remove events associated with the given GUID.
+  warnings: Calling ClearUnitEvents on a non-existent unit GUID may lead to undefined
+    behavior if the underlying event bus implementation does not perform validation
+    checks. Always ensure that the unit exists in the game world before invoking this
+    method, especially when dealing with dynamically created or destroyed units.
+  related:
+  - RegisterUnitEvent
+  - UnregisterUnitEvent
+  - GetUnitEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:04:59.163679'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

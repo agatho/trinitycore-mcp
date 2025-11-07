@@ -1,0 +1,54 @@
+api:
+  class: LineOfSightManager
+  method: CheckSpellSpecificRequirements
+  signature: bool LineOfSightManager::CheckSpellSpecificRequirements(Unit * target,
+    uint32 spellId)
+documentation:
+  brief: Checks if spell-specific requirements are met for a target unit.
+  description: The CheckSpellSpecificRequirements method evaluates whether a given
+    spell can be cast on a specified target unit based on various spell-specific conditions.
+    This includes checking for valid target types, required aura states, spell restrictions,
+    and other contextual requirements that may prevent the spell from being cast.
+    The method is typically invoked during spell casting validation to ensure proper
+    game mechanics are enforced before allowing a spell to proceed.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target of the spell.
+      Must be a valid unit or nullptr.
+  - name: spellId
+    description: The unique identifier of the spell being checked. Must correspond
+      to a valid spell entry in the database.
+  returns: Returns true if all spell-specific requirements are satisfied for casting
+    the spell on the target, otherwise returns false.
+  examples:
+  - title: Basic Spell Requirement Check
+    code: "if (sLineOfSight->CheckSpellSpecificRequirements(targetUnit, 12345)) {\n\
+      \    // Proceed with spell casting\n    targetUnit->CastSpell(targetUnit, 12345,\
+      \ true);\n} else {\n    // Spell cannot be cast due to requirements not met\n\
+      \    targetUnit->SendSpellFailed(12345, SPELL_FAILED_BAD_TARGETS);\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Checks
+    code: "SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(98765);\nif (spellInfo\
+      \ && sLineOfSight->CheckSpellSpecificRequirements(targetUnit, 98765)) {\n  \
+      \  if (targetUnit->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT)) {\n        // Additional\
+      \ logic for shapeshifted targets\n        targetUnit->CastSpell(targetUnit,\
+      \ 98765, true);\n    }\n}"
+    language: cpp
+  notes: This method is part of the spell validation system and should be called before
+    initiating spell casting to prevent invalid actions. It does not perform line-of-sight
+    checks or target visibility validations; those are handled separately by other
+    methods in the LineOfSightManager class.
+  warnings: Ensure that both the target unit and spell ID are valid before calling
+    this method, as passing nullptr or an invalid spell ID may lead to undefined behavior
+    or crashes. This method is typically used internally during spell processing and
+    should not be called directly from external systems without proper validation.
+  related:
+  - CheckLOS
+  - IsInLineOfSight
+  - CanCastSpell
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T01:58:46.352516'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

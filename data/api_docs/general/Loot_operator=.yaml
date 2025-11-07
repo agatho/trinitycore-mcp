@@ -1,0 +1,53 @@
+api:
+  class: Loot
+  method: operator=
+  signature: Loot & Loot::operator=(Loot && param0)
+documentation:
+  brief: Moves ownership of loot data from one Loot object to another.
+  description: The operator= method performs a move assignment operation on Loot objects,
+    transferring all internal resources and state from the source Loot object (passed
+    as an rvalue reference) to the current object. This is typically used to efficiently
+    transfer loot data without unnecessary copying, especially when dealing with temporary
+    or newly created loot containers. The source object becomes invalid after the
+    operation and should not be used. In the context of TrinityCore's World of Warcraft
+    emulation, this method is essential for managing loot distribution systems where
+    loot objects are frequently moved between different containers or contexts during
+    creature looting, quest rewards, or auction house operations.
+  parameters: []
+  returns: A reference to the current Loot object after the move assignment has been
+    completed, enabling chained assignments.
+  examples:
+  - title: Basic Move Assignment
+    code: 'Loot sourceLoot;
+
+      // ... populate sourceLoot with loot data ...
+
+      Loot targetLoot = std::move(sourceLoot); // Uses operator=
+
+      // sourceLoot is now in a valid but undefined state'
+    language: cpp
+  - title: In Loot Distribution Context
+    code: "void DistributeLoot(Creature* creature, Player* player) {\n    Loot loot;\n\
+      \    creature->GenerateLoot(player, loot);\n    // Transfer loot to player's\
+      \ loot container\n    player->GetLoot()->operator=(std::move(loot));\n    //\
+      \ loot is now invalid and should not be used\n}"
+    language: cpp
+  notes: This method implements move semantics which is crucial for performance optimization
+    in systems handling frequent loot object creation and destruction. The move operation
+    transfers ownership of internal data structures rather than copying them, reducing
+    memory allocation overhead. Developers should ensure that the source Loot object
+    is not used after a move assignment to prevent undefined behavior.
+  warnings: After calling operator= with an rvalue reference, the source object becomes
+    in a valid but unspecified state. Using the source object afterward leads to undefined
+    behavior. This method should only be called with rvalue references (temporary
+    objects or those explicitly marked with std::move).
+  related:
+  - Loot::Loot()
+  - Loot::Clear()
+  - Loot::AddItem()
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T10:03:06.814542'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: QuestValidation
+  method: ValidateRaidQuestRequirements
+  signature: bool QuestValidation::ValidateRaidQuestRequirements(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player meets all raid quest requirements for a specified
+    quest ID.
+  description: The ValidateRaidQuestRequirements method checks if a given player has
+    met all necessary conditions to be eligible for a specific raid quest. This includes
+    verifying that the player's level, completed quests, faction status, and other
+    relevant criteria are satisfied. The method is typically used during quest acceptance
+    or validation phases in TrinityCore's quest system to ensure players can only
+    take on quests they are properly equipped for within the context of raid content.
+    It returns true if all requirements are met, false otherwise.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being validated. Must correspond
+      to a valid raid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose quest
+      requirements are being validated. Cannot be null.
+  returns: Returns true if all raid quest requirements are satisfied by the player,
+    false otherwise. A return value of false may indicate missing prerequisites, incorrect
+    level, or other disqualifying conditions.
+  examples:
+  - title: Basic usage to validate a player's eligibility for a raid quest
+    code: "if (sQuestValidation->ValidateRaidQuestRequirements(12345, player)) {\n\
+      \    // Player can accept the quest\n    player->AddQuest(12345);\n} else {\n\
+      \    // Player does not meet requirements\n    player->SendNotification(\"You\
+      \ do not meet the requirements for this quest.\");\n}"
+    language: cpp
+  - title: Using in a custom quest acceptance handler
+    code: "bool OnQuestAccept(Player* player, Quest const* quest) override {\n   \
+      \ uint32 questId = quest->GetQuestId();\n    if (!sQuestValidation->ValidateRaidQuestRequirements(questId,\
+      \ player)) {\n        player->SendQuestInvalidReason(QUEST_INVALID_REASON_NOT_HAVE_REQ);\n\
+      \        return false;\n    }\n    return true;\n}"
+    language: cpp
+  notes: This method likely performs database lookups and checks against the player's
+    current state including quest completion status, level requirements, and faction
+    alignment. It is recommended to cache results where possible for performance reasons
+    in high-frequency scenarios.
+  warnings: Ensure that the Player pointer is valid before calling this function to
+    avoid null pointer dereferences. The method assumes that the questId corresponds
+    to a valid raid quest entry; invalid IDs may lead to undefined behavior or incorrect
+    validation results.
+  related:
+  - ValidateQuestRequirements
+  - IsRaidQuest
+  - GetQuestLevelRequirement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:08:10.864474'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: DB2StorageBase
+  method: EraseRecord
+  signature: void DB2StorageBase::EraseRecord(uint32 id)
+documentation:
+  brief: Removes a record with the specified ID from the DB2 storage container.
+  description: The EraseRecord method removes a record identified by its unique ID
+    from the DB2 storage container. This operation is typically used during runtime
+    when dynamic modifications to game data are required, such as updating or removing
+    entries in creature templates, item prototypes, or other database-backed structures.
+    The method ensures that the internal data structure remains consistent after removal
+    and may trigger invalidation of cached references. It's important to note that
+    this method does not validate whether the ID exists before attempting removal,
+    which could lead to undefined behavior if called with an invalid ID.
+  parameters:
+  - name: id
+    description: The unique identifier of the record to be removed from the storage
+      container. This value must correspond to a valid entry in the DB2 file or the
+      method may cause undefined behavior.
+  returns: null
+  examples:
+  - title: Removing a creature template record
+    code: 'DB2StorageBase* creatureStorage = sDB2Manager->GetCreatureStorage();
+
+      creatureStorage->EraseRecord(12345);
+
+      // The creature template with ID 12345 is now removed from the storage.'
+    language: cpp
+  - title: Conditional record removal
+    code: "DB2StorageBase* itemStorage = sDB2Manager->GetItemStorage();\nuint32 itemId\
+      \ = 98765;\nif (itemStorage->HasRecord(itemId)) {\n    itemStorage->EraseRecord(itemId);\n\
+      \    // Item record successfully removed\n}"
+    language: cpp
+  notes: This method assumes that the ID passed is valid and corresponds to an existing
+    record. It performs direct removal without checking for dependencies or references,
+    so care must be taken when using it in systems where records might be referenced
+    elsewhere. The underlying storage mechanism may use hash maps or similar structures,
+    making this operation generally O(1) on average.
+  warnings: Calling EraseRecord with an invalid ID can result in undefined behavior
+    or corruption of internal data structures. Always ensure that the ID exists before
+    calling this method. Additionally, removing records during active gameplay or
+    while other systems are accessing them may lead to race conditions or crashes
+    if not properly synchronized.
+  related:
+  - HasRecord
+  - GetRecord
+  - Load
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:01:00.363233'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

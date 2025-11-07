@@ -1,0 +1,62 @@
+api:
+  class: DoubleBufferedSpatialGrid
+  method: QueryNearbyAreaTriggers
+  signature: int DoubleBufferedSpatialGrid::QueryNearbyAreaTriggers(const int & pos,
+    float radius) const
+documentation:
+  brief: Queries and returns the count of area triggers near a specified position
+    within a given radius.
+  description: The QueryNearbyAreaTriggers method searches through the spatial grid
+    to find all area trigger objects located within the specified radius from the
+    provided position. It leverages the double-buffered spatial grid structure for
+    efficient spatial queries, making it suitable for real-time game mechanics such
+    as detecting player proximity to quest zones, combat triggers, or environmental
+    effects. This method is typically used in conjunction with other spatial query
+    systems to manage dynamic gameplay elements that respond to player movement or
+    actions. The method does not modify any internal state and is safe for concurrent
+    access.
+  parameters:
+  - name: pos
+    description: The position (as an integer identifier) from which to query nearby
+      area triggers. This typically represents a grid cell index or spatial coordinate
+      within the double-buffered grid structure.
+  - name: radius
+    description: The radius in world units around the specified position to search
+      for area triggers. Must be a positive value; negative values may produce undefined
+      behavior.
+  returns: Returns an integer representing the number of area triggers found within
+    the specified radius from the given position. A return value of zero indicates
+    no area triggers were detected in the query area.
+  examples:
+  - title: Basic Usage Example
+    code: "int triggerCount = grid.QueryNearbyAreaTriggers(12345, 10.0f);\nif (triggerCount\
+      \ > 0)\n{\n    // Process nearby triggers\n    printf(\"Found %d area triggers\
+      \ near position 12345\\n\", triggerCount);\n}"
+    language: cpp
+  - title: Advanced Usage with Looping Through Triggers
+    code: "int pos = player->GetGridCoord();\nfloat radius = 5.0f;\nint count = grid.QueryNearbyAreaTriggers(pos,\
+      \ radius);\nif (count > 0)\n{\n    // Assuming there's a method to retrieve\
+      \ actual trigger objects\n    for (int i = 0; i < count; ++i)\n    {\n     \
+      \   AreaTrigger* trigger = grid.GetNearbyAreaTrigger(i);\n        if (trigger\
+      \ && trigger->IsEnabled())\n        {\n            trigger->HandlePlayerEnter(player);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is optimized for performance by utilizing a double-buffered spatial
+    grid, which allows it to efficiently query large numbers of objects without traversing
+    the entire world. It assumes that the input position and radius are valid and
+    within expected bounds. The method may not return all triggers if they are in
+    different grid cells or if the grid structure is not properly updated.
+  warnings: Ensure that the 'pos' parameter corresponds to a valid grid cell index;
+    otherwise, the behavior is undefined. Also, be cautious when using large radius
+    values as it can result in performance degradation due to scanning many grid cells.
+  related:
+  - QueryNearbyUnits
+  - QueryNearbyObjects
+  - GetAreaTriggerCount
+  - UpdateSpatialGrid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:36:12.194305'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

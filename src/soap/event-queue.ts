@@ -8,7 +8,7 @@
  */
 
 import { EventEmitter } from "events";
-import type { SOAPEvent } from "./websocket-server.js";
+import type { SOAPEvent } from "./websocket-server";
 import fs from "fs/promises";
 import path from "path";
 

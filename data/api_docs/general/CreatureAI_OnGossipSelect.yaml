@@ -1,0 +1,70 @@
+api:
+  class: CreatureAI
+  method: OnGossipSelect
+  signature: bool CreatureAI::OnGossipSelect(int * param0, int param1, int param2)
+documentation:
+  brief: Handles player gossip selection events for CreatureAI instances
+  description: The OnGossipSelect method is invoked when a player makes a selection
+    from a creature's gossip menu. This method serves as the primary handler for processing
+    player interactions with NPC dialogue options, allowing developers to define custom
+    behavior for different menu choices. The method typically returns true to indicate
+    successful handling of the selection, or false to allow default behavior to proceed.
+    It is part of the CreatureAI system that manages non-player character artificial
+    intelligence and interactive dialogue mechanics within TrinityCore.
+  parameters:
+  - name: param0
+    description: Pointer to an integer parameter that may represent the gossip menu
+      ID or selection index, used to identify which option was chosen by the player
+  - name: param1
+    description: Integer parameter representing additional context data, often used
+      for storing item IDs, quest IDs, or other related identifiers associated with
+      the selected gossip option
+  - name: param2
+    description: Integer parameter that typically holds the player's GUID (Global
+      Unique Identifier) to identify which specific player made the selection
+  returns: Returns true if the gossip selection was handled successfully and no further
+    processing should occur; returns false if default handling should continue or
+    if an error occurred during processing
+  examples:
+  - title: Basic Gossip Selection Handler
+    code: "bool CreatureAI::OnGossipSelect(int* param0, int param1, int param2)\n\
+      {\n    Player* player = GetPlayer();\n    if (!player)\n        return false;\n\
+      \n    switch (*param0)\n    {\n        case 1:\n            // Handle option\
+      \ 1\n            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, \"Next Option\",\
+      \ GOSSIP_SENDER_MAIN, 2);\n            player->SEND_GOSSIP_MENU(907, me->GetGUID());\n\
+      \            break;\n        case 2:\n            // Handle option 2\n     \
+      \       player->CLOSE_GOSSIP_MENU();\n            break;\n        default:\n\
+      \            return false;\n    }\n    return true;\n}"
+    language: cpp
+  - title: Advanced Gossip Selection with Quest Handling
+    code: "bool CreatureAI::OnGossipSelect(int* param0, int param1, int param2)\n\
+      {\n    Player* player = GetPlayer();\n    if (!player)\n        return false;\n\
+      \n    uint32 menuId = *param0;\n    uint32 questId = param1;\n    uint64 playerId\
+      \ = param2;\n\n    switch (menuId)\n    {\n        case 1001:\n            if\
+      \ (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)\n                player->PlayerTalkClass->SendQuestGiverQuestDetails(questId,\
+      \ me->GetGUID(), true);\n            else\n                player->PlayerTalkClass->SendQuestGiverOfferReward(questId,\
+      \ me->GetGUID(), true);\n            break;\n        case 1002:\n          \
+      \  if (player->HasItemCount(54321, 1))\n                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,\
+      \ \"Claim Reward\", GOSSIP_SENDER_MAIN, 3);\n            else\n            \
+      \    player->SEND_GOSSIP_MENU(907, me->GetGUID());\n            break;\n   \
+      \     default:\n            return false;\n    }\n    return true;\n}"
+    language: cpp
+  notes: This method is called during the gossip interaction flow in TrinityCore's
+    AI system. It should be implemented carefully to avoid infinite loops or incorrect
+    menu navigation. The parameters are passed from the client-side gossip selection
+    and may vary depending on how the gossip menu was constructed using AddGossipItem
+    functions.
+  warnings: Improper handling of gossip selections can cause players to get stuck
+    in menus or experience unexpected behavior. Always ensure proper validation of
+    input parameters before processing them, especially when dealing with player GUIDs
+    and quest states.
+  related:
+  - OnGossipHello
+  - OnGossipSelectOption
+  - GetPlayer
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T16:20:57.459481'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: World
+  method: RemoveBanCharacter
+  signature: bool World::RemoveBanCharacter(const std::string & name)
+documentation:
+  brief: Removes a character ban from the database by character name
+  description: The RemoveBanCharacter method removes a previously applied ban on a
+    character from the database. This function is typically used by administrative
+    tools or commands to lift restrictions placed on a player's character. The method
+    searches for an active ban record associated with the specified character name
+    and deletes it from the ban list. If no ban exists for the character, the operation
+    has no effect. This method interacts directly with the database to ensure consistency
+    between the in-game state and persistent storage.
+  parameters:
+  - name: name
+    description: The exact case-sensitive name of the character whose ban is to be
+      removed. Must correspond to a valid character that currently exists in the database.
+  returns: Returns true if the ban was successfully found and removed from the database;
+    returns false if no active ban was found for the specified character or if an
+    error occurred during the database operation.
+  examples:
+  - title: Basic Usage
+    code: "if (sWorld->RemoveBanCharacter(\"PlayerName\")) {\n    sLog->outString(\"\
+      Successfully unbanned character PlayerName.\");\n} else {\n    sLog->outString(\"\
+      No active ban found for character PlayerName.\");\n}"
+    language: cpp
+  - title: Using with Command Handler
+    code: "void HandleUnbanCharacterCommand(ChatHandler* handler, const char* args)\
+      \ {\n    if (!*args) {\n        handler->SendSysMessage(\"Usage: .unban character\
+      \ <name>\");\n        return;\n    }\n    std::string name = args;\n    if (sWorld->RemoveBanCharacter(name))\
+      \ {\n        handler->PSendSysMessage(\"Character %s has been unbanned.\", name.c_str());\n\
+      \    } else {\n        handler->PSendSysMessage(\"No active ban found for character\
+      \ %s.\", name.c_str());\n    }\n}"
+    language: cpp
+  notes: This method performs a direct database operation and may have performance
+    implications when called frequently. It is recommended to use this function only
+    in administrative contexts where immediate database consistency is required. The
+    method assumes that the character name provided is valid and exists in the database.
+  warnings: Ensure that the character name passed matches exactly with the one stored
+    in the database, including case sensitivity. Incorrectly formatted names may result
+    in failed lookups. This function does not validate whether the character is currently
+    online or offline; it only operates on the database records.
+  related:
+  - BanCharacter
+  - IsCharacterBanned
+  - GetBanList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-05T23:37:17.083503'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

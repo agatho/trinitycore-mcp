@@ -1,0 +1,78 @@
+api:
+  class: World
+  method: SendZoneMessage
+  signature: bool World::SendZoneMessage(uint32 zone, const WorldPacket * packet,
+    WorldSession * self, int team)
+documentation:
+  brief: Sends a packet to all players within a specified zone, optionally excluding
+    a specific session and filtering by team.
+  description: The SendZoneMessage method broadcasts a WorldPacket to all connected
+    players within a given zone. It supports optional filtering by team (Alliance
+    or Horde) and can exclude a specific session from receiving the message. This
+    is commonly used for zone-wide announcements, area triggers, or localized game
+    events. The method returns true if the packet was successfully queued for sending
+    to at least one player, false otherwise. Players in the specified zone are identified
+    through their current map and zone data, and the packet is sent asynchronously
+    via their respective WorldSession objects.
+  parameters:
+  - name: zone
+    description: The zone ID to send the message to. This corresponds to the zone
+      identifier used internally by TrinityCore's map system.
+  - name: packet
+    description: A pointer to the WorldPacket that will be sent to players in the
+      specified zone. The packet must be properly constructed before calling this
+      method.
+  - name: self
+    description: Optional pointer to a WorldSession to exclude from receiving the
+      message. If null, no session is excluded.
+  - name: team
+    description: Team filter for the message. Valid values are 0 (all players), 1
+      (Alliance only), or 2 (Horde only). Use -1 to send to all players regardless
+      of team.
+  returns: Returns true if at least one player in the zone received the packet, false
+    if no players were found in the zone or if sending failed.
+  examples:
+  - title: Send a zone-wide announcement
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_YOUR_ANNOUNCEMENT);
+
+      packet << uint32(0); // Language
+
+      packet << "Zone Announcement";
+
+      World::SendZoneMessage(1234, &packet, nullptr, 0);'
+    language: cpp
+  - title: Send a team-specific message to players in a zone
+    code: 'WorldPacket packet(SMSG_MESSAGE_CHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_HORDE_ANNOUNCEMENT);
+
+      packet << uint32(0); // Language
+
+      packet << "Horde Zone Message";
+
+      World::SendZoneMessage(1234, &packet, nullptr, 2); // Horde only'
+    language: cpp
+  notes: This method operates on the global World object and is typically used in
+    game logic or event handling where zone-based communication is required. It does
+    not block execution; instead, it queues packets for asynchronous delivery. The
+    zone ID must be valid and correspond to an actual zone in the game world.
+  warnings: Ensure that the packet passed to this method is properly constructed before
+    calling SendZoneMessage, as malformed packets may cause client-side errors or
+    disconnects. Avoid sending large or frequent packets via this method to prevent
+    performance degradation.
+  related:
+  - SendGlobalMessage
+  - SendPlayerMessage
+  - SendMapMessage
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-05T23:31:53.308814'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

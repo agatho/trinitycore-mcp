@@ -1,0 +1,54 @@
+api:
+  class: CombatAI
+  method: JustEngagedWith
+  signature: void CombatAI::JustEngagedWith(int * who)
+documentation:
+  brief: Handles the event when a creature engages with a target in combat.
+  description: The JustEngagedWith method is called when a creature's AI transitions
+    into combat mode and begins engaging with a specific target. This method is typically
+    invoked by the core's combat system when an NPC enters combat state, usually triggered
+    by aggro or player interaction. It allows custom AI implementations to perform
+    actions such as initializing combat behavior, setting up spell casting, or triggering
+    special events upon engagement. The method serves as a key entry point for combat-related
+    logic in creature AI scripts.
+  parameters:
+  - name: who
+    description: Pointer to an integer representing the target entity that initiated
+      combat. This typically corresponds to the GUID of the player or creature that
+      triggered the engagement.
+  returns: null
+  examples:
+  - title: Basic Combat Engagement Handler
+    code: "void MyCreatureAI::JustEngagedWith(int* who)\n{\n    // Log the engagement\n\
+      \    if (who)\n        sLog->outString(\"Creature engaged with target ID: %d\"\
+      , *who);\n    \n    // Start combat behavior\n    DoCast(SPELL_ENGAGEMENT_SPELL);\n\
+      }"
+    language: cpp
+  - title: Advanced Combat Engagement with Target Validation
+    code: "void AdvancedCreatureAI::JustEngagedWith(int* who)\n{\n    if (!who ||\
+      \ *who == 0)\n        return;\n    \n    // Validate target is a player\n  \
+      \  Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ *who));\n    if (target && target->IsAlive())\n    {\n        // Initialize\
+      \ combat-specific behavior\n        _combatStarted = true;\n        _targetGUID\
+      \ = *who;\n        \n        // Start combat timer or AI logic\n        events.ScheduleEvent(EVENT_COMBAT_START,\
+      \ 1000);\n    }\n}"
+    language: cpp
+  notes: This method is part of the CombatAI base class and is expected to be overridden
+    by custom AI implementations. The 'who' parameter points to a GUID value that
+    identifies the entity initiating combat. It's important to validate this pointer
+    before dereferencing it, as null or invalid values may occur in edge cases.
+  warnings: Ensure proper validation of the 'who' parameter before using its value,
+    as it might be null or invalid in certain scenarios. Avoid performing heavy operations
+    within this method since it's called during combat state transitions and can impact
+    performance.
+  related:
+  - EnterCombat
+  - JustDied
+  - UpdateAI
+  - AttackStart
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:17:24.429636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

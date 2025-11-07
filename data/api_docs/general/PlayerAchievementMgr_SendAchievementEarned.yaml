@@ -1,0 +1,58 @@
+api:
+  class: PlayerAchievementMgr
+  method: SendAchievementEarned
+  signature: void PlayerAchievementMgr::SendAchievementEarned(const AchievementEntry
+    * achievement) const
+documentation:
+  brief: Sends an achievement earned message to the player's client
+  description: The SendAchievementEarned method is responsible for notifying the player's
+    client that a specific achievement has been earned. This method is typically called
+    internally by the achievement system when a player meets all the criteria required
+    to unlock an achievement. It constructs and sends a packet containing the achievement
+    data to the player's client, triggering the visual and auditory feedback associated
+    with earning achievements in World of Warcraft. The method does not perform any
+    validation on the achievement entry itself, assuming it has already been verified
+    as valid by the calling code.
+  parameters:
+  - name: achievement
+    description: Pointer to the AchievementEntry structure containing the achievement
+      data to be sent to the client. Must not be null and should point to a valid
+      achievement entry that has been properly initialized.
+  returns: null
+  examples:
+  - title: Basic usage in achievement unlock logic
+    code: "void Player::HandleAchievementUnlock(uint32 achievementId)\n{\n    if (const\
+      \ AchievementEntry* entry = sAchievementMgr->GetAchievement(achievementId))\n\
+      \    {\n        m_achievementManager->SendAchievementEarned(entry);\n      \
+      \  // Additional logic for unlocking related achievements or rewards\n    }\n\
+      }"
+    language: cpp
+  - title: Sending achievement with error handling
+    code: "void Player::OnQuestComplete(Quest const* quest)\n{\n    // ... Quest completion\
+      \ logic ...\n    \n    if (quest && quest->GetAchievementId() > 0)\n    {\n\
+      \        if (const AchievementEntry* achievement = sAchievementMgr->GetAchievement(quest->GetAchievementId()))\n\
+      \        {\n            m_achievementManager->SendAchievementEarned(achievement);\n\
+      \        }\n        else\n        {\n            // Log error or handle invalid\
+      \ achievement ID\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the internal achievement system and should only be
+    called after ensuring that the achievement has been properly validated and unlocked.
+    The method assumes that all necessary checks for achievement eligibility have
+    already been performed by the calling code. It's important to note that this method
+    does not update any database records or perform additional logic beyond sending
+    the client packet.
+  warnings: Do not call this method with a null pointer for the achievement parameter
+    as it will likely cause a crash or undefined behavior. Always validate that the
+    achievement entry is valid before calling this method. This method should only
+    be used in contexts where achievement unlocking has already been confirmed and
+    validated.
+  related:
+  - PlayerAchievementMgr::UpdateAchievementCriteria
+  - PlayerAchievementMgr::CheckAllAchievements
+  - PlayerAchievementMgr::SendAchievementInfo
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T06:17:32.984834'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

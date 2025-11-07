@@ -1,0 +1,76 @@
+api:
+  class: ChallengeModeData
+  method: WriteUpdate
+  signature: void ChallengeModeData::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes challenge mode data into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of challenge mode
+    data into a ByteBuffer, preparing it for network transmission. This method is
+    typically used when sending updates about challenge mode progress, rewards, or
+    statistics to players. The serialization process respects the changes mask unless
+    explicitly ignored, and can be tailored for specific receivers. It's commonly
+    invoked during player login, challenge mode completion, or periodic update cycles
+    within the TrinityCore framework.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where the serialized challenge mode data will
+      be written. This buffer is typically used for constructing network packets.
+  - name: ignoreChangesMask
+    description: When true, all challenge mode data fields are serialized regardless
+      of change tracking status. When false, only changed fields are included in the
+      update.
+  - name: owner
+    description: The player object whose challenge mode data is being serialized.
+      This represents the source of the data being sent.
+  - name: receiver
+    description: The player object who will receive this update. Used to determine
+      if any specific filtering or formatting is required for the target player.
+  returns: null
+  examples:
+  - title: Basic usage in player login
+    code: 'ByteBuffer data;
+
+      ChallengeModeData challengeData;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = owner;
+
+      challengeData.WriteUpdate(data, false, owner, receiver);
+
+      session->SendPacket(&data);'
+    language: cpp
+  - title: Force update with all fields
+    code: 'ByteBuffer data;
+
+      ChallengeModeData challengeData;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = nullptr; // Send to all
+
+      challengeData.WriteUpdate(data, true, owner, receiver);
+
+      session->SendPacket(&data);'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore and integrates
+    with the changes tracking mechanism. It's crucial for maintaining synchronization
+    between server-side challenge mode data and client-side UI elements. The method
+    assumes that the ByteBuffer has sufficient capacity or will be resized appropriately
+    during serialization.
+  warnings: Calling this method without proper initialization of the ByteBuffer may
+    lead to undefined behavior. Ensure that the owner player object is valid and properly
+    initialized before calling WriteUpdate, as invalid pointers can cause crashes.
+  related:
+  - GetChallengeModeData
+  - SetChallengeModeData
+  - IsChallengeModeActive
+  - UpdateChallengeModeProgress
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:52:56.681265'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

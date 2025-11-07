@@ -7,7 +7,7 @@
  * @module db-client
  */
 
-import type { DatabaseConfig } from "../types/database.js";
+import type { DatabaseConfig } from "../types/database";
 import mysql from "mysql2/promise";
 
 // ============================================================================
