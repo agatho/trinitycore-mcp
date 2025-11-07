@@ -199,16 +199,17 @@ export interface QuestFlowAnalysis {
 export async function getQuestPrerequisites(questId: number): Promise<QuestPrerequisites> {
   const query = `
     SELECT
-      ID as questId, QuestTitle as name, MinLevel as minLevel, MaxLevel as maxLevel,
-      QuestLevel as questLevel, PrevQuestID as previousQuestRequired,
-      BreadcrumbForQuestId as breadcrumbFrom, RequiredClasses as requiredClasses,
-      RequiredRaces as requiredRaces, AllowableClasses as allowableClasses,
-      AllowableRaces as allowableRaces, RequiredFactionId1 as requiredFaction,
-      RequiredFactionValue1 as requiredFactionRep, RequiredSkillId as requiredSkill,
-      RequiredSkillPoints as requiredSkillValue, SourceItemId as sourceItemId,
-      ExclusiveGroup as exclusiveGroup
-    FROM quest_template
-    WHERE ID = ?
+      qt.ID as questId, qt.QuestTitle as name, MinLevel as minLevel, MaxLevel as maxLevel,
+      qt.QuestLevel as questLevel, qta.PrevQuestID as previousQuestRequired,
+      qt.BreadcrumbForQuestId as breadcrumbFrom, qt.RequiredClasses as requiredClasses,
+      qt.RequiredRaces as requiredRaces, qt.AllowableClasses as allowableClasses,
+      qt.AllowableRaces as allowableRaces, qt.RequiredFactionId1 as requiredFaction,
+      qt.RequiredFactionValue1 as requiredFactionRep, qt.RequiredSkillId as requiredSkill,
+      qt.RequiredSkillPoints as requiredSkillValue, qt.SourceItemId as sourceItemId,
+      COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup
+    FROM quest_template qt
+    LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+    WHERE qt.ID = ?
   `;
 
   const results = await queryWorld(query, [questId]);
@@ -273,11 +274,12 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
 
     const query = `
       SELECT
-        ID as questId, QuestTitle as name, QuestLevel as level,
-        PrevQuestID as previousQuest, NextQuestID as nextQuest,
-        BreadcrumbForQuestId as breadcrumbQuest, ExclusiveGroup as exclusiveGroup
-      FROM quest_template
-      WHERE ID = ?
+        qt.ID as questId, qt.QuestTitle as name, qt.QuestLevel as level,
+        qta.PrevQuestID as previousQuest, qta.NextQuestID as nextQuest,
+        qt.BreadcrumbForQuestId as breadcrumbQuest, COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup
+      FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+      WHERE qt.ID = ?
     `;
 
     const results = await queryWorld(query, [currentQuestId]);
@@ -323,12 +325,13 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
   const query = `
     SELECT DISTINCT qt.ID
     FROM quest_template qt
+    LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     INNER JOIN creature_queststarter cqs ON qt.ID = cqs.quest
     INNER JOIN creature c ON cqs.id = c.id
     WHERE c.zoneId = ?
-      AND (qt.PrevQuestID = 0 OR qt.PrevQuestID IS NULL)
-      AND qt.NextQuestID IS NOT NULL
-      AND qt.NextQuestID != 0
+      AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
+      AND qta.NextQuestID IS NOT NULL
+      AND qta.NextQuestID != 0
     LIMIT 50
   `;
 
@@ -995,6 +998,7 @@ export async function optimizeQuestPath(
            qt.MinLevel, qt.QuestLevel, qt.RewardXPDifficulty,
            qt.RewardMoney
     FROM quest_template qt
+    LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     INNER JOIN creature_queststarter cqs ON qt.ID = cqs.quest
     INNER JOIN creature c ON cqs.id = c.id
     WHERE c.zoneId = ?
