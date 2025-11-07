@@ -206,11 +206,22 @@ export default function QuestChainsPage() {
     }
   };
 
-const handleMapChange = (mapId: string) => {    setSelectedMap(mapId);    setSelectedZone('); // Reset zone when map changes  };  // Filter zones by selected map  const filteredZones = useMemo(() => {    if (!selectedMap) return zones;    return zones.filter(zone => zone.mapId.toString() === selectedMap);  }, [zones, selectedMap]);
+const handleMapChange = (mapId: string) => {
+    setSelectedMap(mapId);
+    setSelectedZone(''); // Reset zone when map changes
+  };
+
+  // Filter zones by selected map
+  const filteredZones = useMemo(() => {
+    if (!selectedMap) return zones;
+    return zones.filter(zone => zone.mapId.toString() === selectedMap);
+  }, [zones, selectedMap]);
   const handleZoneChange = (zoneId: string) => {
     setSelectedZone(zoneId);
     if (zoneId) {
-      // Extract zoneId from composite key "mapId-zoneId"      const zoneIdNum = parseInt(zoneId.split('-')[1]);      fetchQuestChainsInZone(zoneIdNum);
+      // Extract zoneId from composite key "mapId-zoneId"
+      const zoneIdNum = parseInt(zoneId.split('-')[1]);
+      fetchQuestChainsInZone(zoneIdNum);
     }
   };
 
