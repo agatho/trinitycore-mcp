@@ -93,18 +93,30 @@ export default function SettingsDashboard() {
   const [saving, setSaving] = useState<boolean>(false);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [envFileExists, setEnvFileExists] = useState<boolean>(false);
+  const [envFiles, setEnvFiles] = useState<{ webUI: boolean; mcpServer: boolean }>({ webUI: false, mcpServer: false });
+  const [showRestartInfo, setShowRestartInfo] = useState<boolean>(false);
 
   // Load configuration on mount
   useEffect(() => {
     loadConfig();
   }, []);
 
-  const loadConfig = async () => {
+  const loadConfig = async (reload = false) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/config");
+      const url = reload ? "/api/config?reload=true" : "/api/config";
+      const response = await fetch(url);
       const data = await response.json();
       setConfig(data.config);
+      setEnvFileExists(data.envFileExists);
+      if (data.envFiles) {
+        setEnvFiles(data.envFiles);
+      }
+      if (reload && data.reloaded) {
+        setSuccessMessage("Configuration reloaded from .env.local!");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      }
     } catch (error) {
       console.error("Failed to load configuration:", error);
     } finally {
@@ -112,15 +124,17 @@ export default function SettingsDashboard() {
     }
   };
 
-  const saveConfig = async () => {
+  const saveConfig = async (persist = false) => {
     if (!config) return;
 
     setSaving(true);
     setValidation(null);
     setSuccessMessage("");
+    setShowRestartInfo(false);
 
     try {
-      const response = await fetch("/api/config", {
+      const url = persist ? "/api/config?persist=true" : "/api/config";
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
@@ -131,8 +145,14 @@ export default function SettingsDashboard() {
       if (data.success) {
         setValidation(data.validation);
         if (data.validation.valid) {
-          setSuccessMessage("Configuration saved successfully!");
-          setTimeout(() => setSuccessMessage(""), 3000);
+          setSuccessMessage(data.message || "Configuration saved successfully!");
+          if (persist) {
+            setShowRestartInfo(true);
+          }
+          setTimeout(() => {
+            setSuccessMessage("");
+            if (!persist) setShowRestartInfo(false);
+          }, persist ? 10000 : 3000);
         }
       } else {
         setValidation({
@@ -222,12 +242,78 @@ export default function SettingsDashboard() {
         <p className="text-gray-600">
           Configure database connections, file paths, server settings, and more
         </p>
+        <div className="mt-2 flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500">Web-UI:</span>
+            {envFiles.webUI ? (
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                .env.local exists
+              </span>
+            ) : (
+              <span className="text-sm text-orange-600 flex items-center gap-1">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                No .env.local
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500">MCP Server:</span>
+            {envFiles.mcpServer ? (
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                .env exists
+              </span>
+            ) : (
+              <span className="text-sm text-orange-600 flex items-center gap-1">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                No .env
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Success Message */}
       {successMessage && (
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           {successMessage}
+        </div>
+      )}
+
+      {/* Restart Information */}
+      {showRestartInfo && (
+        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded">
+          <h3 className="font-bold mb-2">Restart Required</h3>
+          <p className="mb-2">
+            Changes have been saved to both <strong>web-ui/.env.local</strong> and <strong>root .env</strong> files.
+            Both services need to be restarted to apply changes.
+          </p>
+          <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-300">
+            <h4 className="font-semibold text-sm mb-2">How to restart services:</h4>
+
+            <div className="mb-3">
+              <p className="font-semibold text-xs mb-1">Web-UI (Next.js):</p>
+              <ul className="text-sm space-y-1 list-disc list-inside ml-3">
+                <li><strong>Dev:</strong> <code className="px-1 bg-blue-200 rounded">cd web-ui && npm run dev</code></li>
+                <li><strong>Prod:</strong> <code className="px-1 bg-blue-200 rounded">cd web-ui && npm run build && npm start</code></li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-semibold text-xs mb-1">MCP Server:</p>
+              <ul className="text-sm space-y-1 list-disc list-inside ml-3">
+                <li><strong>If standalone:</strong> Restart the MCP server process</li>
+                <li><strong>If via Claude:</strong> Reload the MCP server in Claude settings</li>
+                <li><strong>Docker:</strong> <code className="px-1 bg-blue-200 rounded">docker-compose restart</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-3 p-2 bg-yellow-50 border border-yellow-300 rounded text-xs">
+            <strong>Note:</strong> The MCP server will automatically use the new settings when spawned by the web-ui.
+            Only restart the MCP server if you're running it standalone outside of the web-ui.
+          </div>
         </div>
       )}
 
@@ -847,30 +933,77 @@ export default function SettingsDashboard() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button
-          onClick={saveConfig}
+          onClick={() => saveConfig(false)}
+          disabled={saving}
+          className="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400"
+          title="Save changes temporarily (lost on restart)"
+        >
+          {saving ? "Saving..." : "Save (Memory Only)"}
+        </button>
+
+        <button
+          onClick={() => saveConfig(true)}
           disabled={saving}
           className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+          title="Save changes to both .env files (persisted)"
         >
-          {saving ? "Saving..." : "Save Settings"}
+          {saving ? "Saving..." : "Save & Persist to Both .env Files"}
+        </button>
+
+        <button
+          onClick={() => loadConfig(true)}
+          disabled={loading}
+          className="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
+          title="Reload configuration from .env files"
+        >
+          {loading ? "Loading..." : "Reload from .env Files"}
         </button>
 
         <button
           onClick={resetConfig}
           disabled={saving}
-          className="px-6 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:bg-gray-400"
+          className="px-6 py-3 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:bg-gray-400"
+          title="Reset all settings to default values"
         >
           Reset to Defaults
         </button>
+      </div>
 
-        <button
-          onClick={loadConfig}
-          disabled={loading}
-          className="px-6 py-3 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:bg-gray-100"
-        >
-          Reload
-        </button>
+      {/* Help Section */}
+      <div className="mt-6 p-4 bg-gray-100 border border-gray-300 rounded">
+        <h3 className="font-bold text-gray-800 mb-2">Configuration Help</h3>
+        <div className="text-sm text-gray-700 space-y-2">
+          <p>
+            <strong>Save (Memory Only):</strong> Saves changes temporarily. Changes will be lost when services restart.
+          </p>
+          <p>
+            <strong>Save & Persist:</strong> Saves changes to BOTH:
+          </p>
+          <ul className="list-disc list-inside ml-4 mb-2">
+            <li><code className="px-1 bg-gray-200 rounded">web-ui/.env.local</code> - Used by Next.js web-ui for direct database queries</li>
+            <li><code className="px-1 bg-gray-200 rounded">.env</code> (root) - Used by standalone MCP server</li>
+          </ul>
+          <p>
+            Changes are permanent but require restarting both services to take full effect.
+          </p>
+          <p>
+            <strong>Reload from .env Files:</strong> Discards current changes and reloads configuration from both .env files.
+          </p>
+          <p>
+            <strong>Reset to Defaults:</strong> Resets all settings to their default values (does not modify .env files).
+          </p>
+          <p className="mt-3 pt-3 border-t border-gray-300">
+            <strong>Architecture:</strong>
+          </p>
+          <ul className="list-disc list-inside ml-4 text-xs">
+            <li>The web-ui spawns the MCP server and passes environment variables</li>
+            <li>Some features query the database directly (use web-ui/.env.local)</li>
+            <li>Other features use the MCP server (which can use root .env if run standalone)</li>
+            <li>This settings page keeps both files synchronized</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
