@@ -509,7 +509,7 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
   query += `
     )
     AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
-    LIMIT 100
+    LIMIT 500
   `;
 
   const starters = await queryWorld(query, [zoneId]);
