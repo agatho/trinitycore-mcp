@@ -17,6 +17,153 @@ import {
   type StatPriority
 } from "../data/stat-priorities";
 
+
+// ============================================================================
+// ZONE BOUNDARY DEFINITIONS
+// ============================================================================
+
+/**
+ * Zone boundaries for coordinate-based detection
+ * Fallback for creatures with incorrect/missing zoneId
+ *
+ * Auto-generated from database coordinate analysis
+ * Covers ALL zones with quests across all maps
+ *
+ * Key format: "zoneId_mapId" to handle phased/instanced zones
+ */
+interface ZoneBoundary {
+  zoneId: number;
+  map: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
+const ZONE_BOUNDARIES: Record<string, ZoneBoundary> = {
+  '1_0': { zoneId: 1, map: 0, minX: -5622, maxX: -5062, minY: -883, maxY: -473 }, // 14 quests
+  '3_0': { zoneId: 3, map: 0, minX: -6703, maxX: -6703, minY: -2451, maxY: -2451 }, // 1 quests
+  '4_0': { zoneId: 4, map: 0, minX: -11812, maxX: -11013, minY: -3632, maxY: -3096 }, // 18 quests
+  '8_0': { zoneId: 8, map: 0, minX: -9785, maxX: -9783, minY: -3846, maxY: -3835 }, // 2 quests
+  '10_0': { zoneId: 10, map: 0, minX: -10512, maxX: -10512, minY: -1266, maxY: -1266 }, // 1 quests
+  '11_0': { zoneId: 11, map: 0, minX: -3817, maxX: -3817, minY: -769, maxY: -769 }, // 1 quests
+  '12_0': { zoneId: 12, map: 0, minX: -9500, maxX: -8700, minY: -250, maxY: 500 }, // 26 quests + Northshire Abbey (zoneId=0)
+  '33_0': { zoneId: 33, map: 0, minX: -12368, maxX: -11321, minY: -196, maxY: 163 }, // 2 quests
+  '38_0': { zoneId: 38, map: 0, minX: -5387, maxX: -5387, minY: -2882, maxY: -2882 }, // 1 quests
+  '40_0': { zoneId: 40, map: 0, minX: -10542, maxX: -9855, minY: 1018, maxY: 1276 }, // 2 quests
+  '44_0': { zoneId: 44, map: 0, minX: -9301, maxX: -9301, minY: -2323, maxY: -2323 }, // 1 quests
+  '45_0': { zoneId: 45, map: 0, minX: -1242, maxX: -1019, minY: -3555, maxY: -2525 }, // 2 quests
+  '46_0': { zoneId: 46, map: 0, minX: -8389, maxX: -7642, minY: -2775, maxY: -2139 }, // 2 quests
+  '47_0': { zoneId: 47, map: 0, minX: -599, maxX: 267, minY: -4617, maxY: -2118 }, // 2 quests
+  '85_0': { zoneId: 85, map: 0, minX: 1573, maxX: 2603, minY: -535, maxY: 383 }, // 14 quests
+  '130_0': { zoneId: 130, map: 0, minX: 460, maxX: 1431, minY: 1010, maxY: 1527 }, // 17 quests
+  '139_0': { zoneId: 139, map: 0, minX: 2251, maxX: 2375, minY: -5651, maxY: -5284 }, // 5 quests
+  '267_0': { zoneId: 267, map: 0, minX: -52, maxX: 147, minY: -879, maxY: -209 }, // 2 quests
+  '1519_0': { zoneId: 1519, map: 0, minX: -9053, maxX: -7880, minY: 204, maxY: 1329 }, // 56 quests
+  '1537_0': { zoneId: 1537, map: 0, minX: -5046, maxX: -4830, minY: -1173, maxY: -816 }, // 7 quests
+  '4706_0': { zoneId: 4706, map: 0, minX: -928, maxX: -916, minY: 1630, maxY: 1632 }, // 10 quests
+  '4922_0': { zoneId: 4922, map: 0, minX: -5351, maxX: -2527, minY: -6791, maxY: -3183 }, // 208 quests
+  '5287_0': { zoneId: 5287, map: 0, minX: -14470, maxX: -14314, minY: 462, maxY: 510 }, // 3 quests
+  '6454_0': { zoneId: 6454, map: 0, minX: 1740, maxX: 1757, minY: 1641, maxY: 1704 }, // 1 quests
+  '14046_0': { zoneId: 14046, map: 0, minX: 1779, maxX: 2050, minY: 213, maxY: 276 }, // 15 quests
+  '14_1': { zoneId: 14, map: 1, minX: 253, maxX: 1862, minY: -5462, maxY: -4408 }, // 19 quests
+  '15_1': { zoneId: 15, map: 1, minX: -3809, maxX: -3134, minY: -4537, maxY: -2842 }, // 2 quests
+  '16_1': { zoneId: 16, map: 1, minX: 2664, maxX: 2664, minY: -6169, maxY: -6169 }, // 1 quests
+  '17_1': { zoneId: 17, map: 1, minX: -1031, maxX: -388, minY: -3766, maxY: -2591 }, // 5 quests
+  '141_1': { zoneId: 141, map: 1, minX: 9837, maxX: 9851, minY: 948, maxY: 991 }, // 4 quests
+  '148_1': { zoneId: 148, map: 1, minX: 7354, maxX: 7415, minY: -259, maxY: -224 }, // 3 quests
+  '215_1': { zoneId: 215, map: 1, minX: -2346, maxX: -2317, minY: -375, maxY: -344 }, // 3 quests
+  '331_1': { zoneId: 331, map: 1, minX: 2341, maxX: 2759, minY: -2556, maxY: -438 }, // 2 quests
+  '357_1': { zoneId: 357, map: 1, minX: -4461, maxX: -4381, minY: 240, maxY: 2177 }, // 2 quests
+  '400_1': { zoneId: 400, map: 1, minX: -6098, maxX: -6093, minY: -3879, maxY: -3875 }, // 2 quests
+  '405_1': { zoneId: 405, map: 1, minX: -1708, maxX: 180, minY: 1304, maxY: 3099 }, // 2 quests
+  '406_1': { zoneId: 406, map: 1, minX: 957, maxX: 1175, minY: 418, maxY: 990 }, // 2 quests
+  '440_1': { zoneId: 440, map: 1, minX: -7220, maxX: -7053, minY: -3831, maxY: -3732 }, // 5 quests
+  '493_1': { zoneId: 493, map: 1, minX: 8002, maxX: 8002, minY: -2680, maxY: -2680 }, // 2 quests
+  '616_1': { zoneId: 616, map: 1, minX: 4081, maxX: 5703, minY: -4978, maxY: -1509 }, // 163 quests
+  '618_1': { zoneId: 618, map: 1, minX: 6707, maxX: 6812, minY: -4747, maxY: -4600 }, // 5 quests
+  '1377_1': { zoneId: 1377, map: 1, minX: -6831, maxX: -6827, minY: 730, maxY: 736 }, // 2 quests
+  '1637_1': { zoneId: 1637, map: 1, minX: 1577, maxX: 1925, minY: -4722, maxY: -4067 }, // 44 quests
+  '1638_1': { zoneId: 1638, map: 1, minX: -1336, maxX: -971, minY: -79, maxY: 204 }, // 7 quests
+  '1657_1': { zoneId: 1657, map: 1, minX: 9868, maxX: 10055, minY: 2111, maxY: 2500 }, // 7 quests
+  '5034_1': { zoneId: 5034, map: 1, minX: -9758, maxX: -9758, minY: -914, maxY: -914 }, // 5 quests
+  '5695_1': { zoneId: 5695, map: 1, minX: -8413, maxX: -8411, minY: 1481, maxY: 1486 }, // 27 quests
+  '6453_1': { zoneId: 6453, map: 1, minX: -1149, maxX: -1149, minY: -5441, maxY: -5441 }, // 4 quests
+  '2597_30': { zoneId: 2597, map: 30, minX: -1320, maxX: 729, minY: -638, maxY: -3 }, // 25 quests
+  '719_48': { zoneId: 719, map: 48, minX: -847, maxX: -159, minY: -473, maxY: 74 }, // 2 quests
+  '2437_389': { zoneId: 2437, map: 389, minX: -300, maxX: -14, minY: -60, maxY: 221 }, // 8 quests
+  '3430_530': { zoneId: 3430, map: 530, minX: 9292, maxX: 9545, minY: -7268, maxY: -6783 }, // 12 quests
+  '3433_530': { zoneId: 3433, map: 530, minX: 7580, maxX: 7580, minY: -6769, maxY: -6769 }, // 1 quests
+  '3487_530': { zoneId: 3487, map: 530, minX: 9557, maxX: 9758, minY: -7494, maxY: -7116 }, // 2 quests
+  '3519_530': { zoneId: 3519, map: 530, minX: -1801, maxX: -1785, minY: 4914, maxY: 4935 }, // 2 quests
+  '3523_530': { zoneId: 3523, map: 530, minX: 2976, maxX: 3074, minY: 3595, maxY: 3683 }, // 3 quests
+  '3524_530': { zoneId: 3524, map: 530, minX: -4307, maxX: -4185, minY: -12598, maxY: -11333 }, // 11 quests
+  '3525_530': { zoneId: 3525, map: 530, minX: -2035, maxX: -2035, minY: -11896, maxY: -11896 }, // 1 quests
+  '3557_530': { zoneId: 3557, map: 530, minX: -4046, maxX: -3811, minY: -11904, maxY: -11615 }, // 4 quests
+  '3703_530': { zoneId: 3703, map: 530, minX: -2176, maxX: -1748, minY: 5303, maxY: 5769 }, // 3 quests
+  '4080_530': { zoneId: 4080, map: 530, minX: 12664, maxX: 12808, minY: -7091, maxY: -6875 }, // 6 quests
+  '6455_530': { zoneId: 6455, map: 530, minX: 10058, maxX: 10489, minY: -6372, maxY: -5820 }, // 7 quests
+  '67_571': { zoneId: 67, map: 571, minX: 6192, maxX: 6194, minY: -1059, maxY: -1058 }, // 3 quests
+  '4395_571': { zoneId: 4395, map: 571, minX: 5664, maxX: 5943, minY: 531, maxY: 767 }, // 4 quests
+  '4131_585': { zoneId: 4131, map: 585, minX: 17, maxX: 17, minY: 0, maxY: 0 }, // 3 quests
+  '5004_643': { zoneId: 5004, map: 643, minX: -617, maxX: -617, minY: 809, maxY: 809 }, // 2 quests
+  '5042_646': { zoneId: 5042, map: 646, minX: -234, maxX: 2386, minY: -631, maxY: 1996 }, // 120 quests
+  '4720_648': { zoneId: 4720, map: 648, minX: 495, maxX: 2393, minY: 1225, maxY: 3852 }, // 69 quests
+  '4737_648': { zoneId: 4737, map: 648, minX: -8435, maxX: -7841, minY: 1277, maxY: 1903 }, // 35 quests
+  '4714_654': { zoneId: 4714, map: 654, minX: -2460, maxX: -1288, minY: 977, maxY: 2608 }, // 60 quests
+  '4755_654': { zoneId: 4755, map: 654, minX: -1808, maxX: -1399, minY: 1297, maxY: 1726 }, // 40 quests
+  '5416_730': { zoneId: 5416, map: 730, minX: 837, maxX: 852, minY: 1039, maxY: 1055 }, // 2 quests
+  '5042_747': { zoneId: 5042, map: 747, minX: 29, maxX: 49, minY: 8, maxY: 11 }, // 7 quests
+  '5736_860': { zoneId: 5736, map: 860, minX: 1380, maxX: 1462, minY: 3217, maxY: 3466 }, // 12 quests
+  '5785_870': { zoneId: 5785, map: 870, minX: 3116, maxX: 3179, minY: -760, maxY: -697 }, // 4 quests
+  '5844_940': { zoneId: 5844, map: 940, minX: 3943, maxX: 4927, minY: 159, maxY: 462 }, // 1 quests
+  '5861_974': { zoneId: 5861, map: 974, minX: -4418, maxX: -4091, minY: 6279, maxY: 6395 }, // 9 quests
+  '6052_1001': { zoneId: 6052, map: 1001, minX: 838, maxX: 838, minY: 619, maxY: 619 }, // 4 quests
+  '6109_1004': { zoneId: 6109, map: 1004, minX: 961, maxX: 1122, minY: 523, maxY: 605 }, // 4 quests
+  '6066_1007': { zoneId: 6066, map: 1007, minX: 204, maxX: 204, minY: 103, maxY: 103 }, // 4 quests
+  '6719_1116': { zoneId: 6719, map: 1116, minX: 1511, maxX: 2363, minY: 294, maxY: 462 }, // 10 quests
+  '6720_1116': { zoneId: 6720, map: 1116, minX: 5435, maxX: 5540, minY: 4949, maxY: 5012 }, // 4 quests
+  '7004_1116': { zoneId: 7004, map: 1116, minX: 5611, maxX: 5629, minY: 4521, maxY: 4534 }, // 18 quests
+  '7078_1116': { zoneId: 7078, map: 1116, minX: 1928, maxX: 1936, minY: 322, maxY: 340 }, // 5 quests
+  '7078_1158': { zoneId: 7078, map: 1158, minX: 1842, maxX: 1942, minY: 97, maxY: 330 }, // 35 quests
+  '7334_1220': { zoneId: 7334, map: 1220, minX: -875, maxX: 1136, minY: 5597, maxY: 6859 }, // 32 quests
+  '7502_1220': { zoneId: 7502, map: 1220, minX: -877, maxX: -794, minY: 4286, maxY: 4594 }, // 7 quests
+  '7558_1220': { zoneId: 7558, map: 1220, minX: 2906, maxX: 2906, minY: 7678, maxY: 7678 }, // 1 quests
+  '7025_1265': { zoneId: 7025, map: 1265, minX: 3835, maxX: 4192, minY: -2787, maxY: -2372 }, // 22 quests
+  '7813_1479': { zoneId: 7813, map: 1479, minX: 1060, maxX: 1060, minY: 7225, maxY: 7225 }, // 1 quests
+  '7705_1481': { zoneId: 7705, map: 1481, minX: 825, maxX: 1458, minY: 1631, maxY: 3203 }, // 13 quests
+  '8567_1643': { zoneId: 8567, map: 1643, minX: 727, maxX: 1443, minY: -443, maxY: -424 }, // 2 quests
+  '8717_1643': { zoneId: 8717, map: 1643, minX: 1012, maxX: 1141, minY: -625, maxY: -479 }, // 10 quests
+  '8721_1643': { zoneId: 8721, map: 1643, minX: -1152, maxX: 426, minY: 1184, maxY: 2401 }, // 36 quests
+  '9042_1643': { zoneId: 9042, map: 1643, minX: 2519, maxX: 2519, minY: -769, maxY: -769 }, // 2 quests
+  '9359_1860': { zoneId: 9359, map: 1860, minX: 464, maxX: 502, minY: 1452, maxY: 1471 }, // 1 quests
+  '9415_1865': { zoneId: 9415, map: 1865, minX: 2138, maxX: 2138, minY: 3319, maxY: 3319 }, // 1 quests
+  '10028_2081': { zoneId: 10028, map: 2081, minX: 1632, maxX: 1632, minY: 525, maxY: 525 }, // 1 quests
+  '10424_2175': { zoneId: 10424, map: 2175, minX: -435, maxX: 232, minY: -2639, maxY: -2283 }, // 32 quests
+  '10413_2222': { zoneId: 10413, map: 2222, minX: -1940, maxX: -1891, minY: 7650, maxY: 7755 }, // 2 quests
+  '10534_2222': { zoneId: 10534, map: 2222, minX: -4346, maxX: -4090, minY: -4635, maxY: -3923 }, // 6 quests
+  '10565_2222': { zoneId: 10565, map: 2222, minX: -1834, maxX: -1790, minY: 1125, maxY: 1157 }, // 4 quests
+  '10424_2261': { zoneId: 10424, map: 2261, minX: -13, maxX: 38, minY: -1, maxY: 6 }, // 4 quests
+  '12825_2268': { zoneId: 12825, map: 2268, minX: 702, maxX: 702, minY: 619, maxY: 619 }, // 1 quests
+  '12952_2297': { zoneId: 12952, map: 2297, minX: 426, maxX: 426, minY: -2124, maxY: -2124 }, // 3 quests
+  '10424_2369': { zoneId: 10424, map: 2369, minX: -11, maxX: -4, minY: 1, maxY: 12 }, // 3 quests
+  '13536_2374': { zoneId: 13536, map: 2374, minX: -4254, maxX: -4254, minY: 730, maxY: 730 }, // 1 quests
+  '13646_2444': { zoneId: 13646, map: 2444, minX: -5087, maxX: -2318, minY: -3338, maxY: 4093 }, // 16 quests
+  '13862_2444': { zoneId: 13862, map: 2444, minX: 63, maxX: 310, minY: -1044, maxY: -904 }, // 7 quests
+  '14717_2552': { zoneId: 14717, map: 2552, minX: 607, maxX: 1965, minY: -3102, maxY: -1232 }, // 15 quests
+  '14771_2552': { zoneId: 14771, map: 2552, minX: 2608, maxX: 3213, minY: -3072, maxY: -2221 }, // 10 quests
+  '15336_2738': { zoneId: 15336, map: 2738, minX: 1324, maxX: 1330, minY: -1042, maxY: -1040 }, // 5 quests
+  '15781_2738': { zoneId: 15781, map: 2738, minX: -868, maxX: -806, minY: -97, maxY: -80 }, // 16 quests
+  '15509_2785': { zoneId: 15509, map: 2785, minX: 5752, maxX: 5778, minY: -3024, maxY: -3024 }, // 1 quests
+};
+
+/**
+ * Get all zone boundaries for a given zoneId (may span multiple maps)
+ */
+function getZoneBoundaries(zoneId: number): ZoneBoundary[] {
+  return Object.values(ZONE_BOUNDARIES).filter(b => b.zoneId === zoneId);
+}
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -199,9 +346,9 @@ export interface QuestFlowAnalysis {
 export async function getQuestPrerequisites(questId: number): Promise<QuestPrerequisites> {
   const query = `
     SELECT
-      qt.ID as questId, qt.QuestTitle as name, MinLevel as minLevel, MaxLevel as maxLevel,
-      qt.QuestLevel as questLevel, qta.PrevQuestID as previousQuestRequired,
-      qt.BreadcrumbForQuestId as breadcrumbFrom, qt.RequiredClasses as requiredClasses,
+      qt.ID as questId, qt.LogTitle as name, qta.MaxLevel as minLevel, qta.MaxLevel as maxLevel,
+      qta.MaxLevel as questLevel, qta.PrevQuestID as previousQuestRequired,
+      qta.BreadcrumbForQuestId as breadcrumbFrom, qta.AllowableClasses as requiredClasses,
       qt.RequiredRaces as requiredRaces, qt.AllowableClasses as allowableClasses,
       qt.AllowableRaces as allowableRaces, qt.RequiredFactionId1 as requiredFaction,
       qt.RequiredFactionValue1 as requiredFactionRep, qt.RequiredSkillId as requiredSkill,
@@ -224,7 +371,7 @@ export async function getQuestPrerequisites(questId: number): Promise<QuestPrere
   let previousQuestName: string | undefined;
   if (quest.previousQuestRequired && quest.previousQuestRequired !== 0) {
     const prevQuest = await queryWorld(
-      "SELECT QuestTitle as name FROM quest_template WHERE ID = ?",
+      "SELECT LogTitle as name FROM quest_template WHERE ID = ?",
       [quest.previousQuestRequired]
     );
     previousQuestName = prevQuest[0]?.name;
@@ -274,9 +421,9 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
 
     const query = `
       SELECT
-        qt.ID as questId, qt.QuestTitle as name, qt.QuestLevel as level,
+        qt.ID as questId, qt.LogTitle as name, qta.MaxLevel as level,
         qta.PrevQuestID as previousQuest, qta.NextQuestID as nextQuest,
-        qt.BreadcrumbForQuestId as breadcrumbQuest, COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup
+        qta.BreadcrumbForQuestId as breadcrumbQuest, COALESCE(qta.ExclusiveGroup, 0) as exclusiveGroup
       FROM quest_template qt
       LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       WHERE qt.ID = ?
@@ -292,7 +439,16 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
       depth
     });
 
-    currentQuestId = quest.nextQuest && quest.nextQuest !== 0 ? quest.nextQuest : null;
+    // TrinityCore chains use PrevQuestID (backwards), not NextQuestID (always 0)
+    // Find the next quest that has the current quest as its prerequisite
+    const nextQuery = `
+      SELECT ID
+      FROM quest_template_addon
+      WHERE PrevQuestID = ?
+      LIMIT 1
+    `;
+    const nextResults = await queryWorld(nextQuery, [currentQuestId]);
+    currentQuestId = nextResults && nextResults.length > 0 ? nextResults[0].ID : null;
     depth++;
   }
 
@@ -322,19 +478,46 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
  */
 export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[]> {
   // Find all quests in zone that are potential chain starters
-  // Removed NextQuestID requirement - many chains only use PrevQuestID
-  const query = `
+  // Uses both zoneId AND coordinate-based detection as fallback
+  const boundaries = getZoneBoundaries(zoneId);
+
+  let query = `
     SELECT DISTINCT qt.ID
     FROM quest_template qt
     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     INNER JOIN creature_queststarter cqs ON qt.ID = cqs.quest
     INNER JOIN creature c ON cqs.id = c.id
-    WHERE c.zoneId = ?
-      AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
+    WHERE (
+      c.zoneId = ?
+  `;
+
+  // Add coordinate-based detection for all boundaries (handles multi-map zones)
+  // ALWAYS check both correct zoneId AND zoneId=0 within coordinates (database quality issues)
+  if (boundaries.length > 0) {
+    for (const boundary of boundaries) {
+      query += `
+      OR (
+        c.map = ${boundary.map}
+        AND c.position_x BETWEEN ${boundary.minX} AND ${boundary.maxX}
+        AND c.position_y BETWEEN ${boundary.minY} AND ${boundary.maxY}
+        AND (c.zoneId = ${zoneId} OR c.zoneId = 0)
+      )
+    `;
+    }
+  }
+
+  query += `
+    )
+    AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
     LIMIT 100
   `;
 
   const starters = await queryWorld(query, [zoneId]);
+
+  console.log(`[DEBUG] findQuestChainsInZone(${zoneId}): Found ${starters.length} starter quests`);
+  if (starters.length > 0 && starters.length <= 5) {
+    console.log('[DEBUG] Starter quest IDs:', starters.map((s: any) => s.ID));
+  }
 
   const chains: QuestChain[] = [];
 
@@ -347,6 +530,7 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
       }
     } catch (error) {
       // Skip invalid chains
+      console.log(`[DEBUG] Failed to trace chain for quest ${starter.ID}:`, error instanceof Error ? error.message : String(error));
       continue;
     }
   }
@@ -360,7 +544,7 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
 export async function getQuestRewards(questId: number, classId?: number): Promise<QuestReward> {
   const query = `
     SELECT
-      ID as questId, QuestTitle as name,
+      ID as questId, LogTitle as name,
       RewardXPDifficulty as rewardXPDifficulty, RewardMoney as rewardMoney,
       RewardBonusMoney as rewardMoneyDifficulty
     FROM quest_template
@@ -886,7 +1070,7 @@ export async function findQuestHubs(zoneId: number, minQuestCount: number = 3): 
     SELECT
       c.zoneId, c.map as mapId, c.position_x as x, c.position_y as y,
       COUNT(DISTINCT cqs.quest) as questCount,
-      MIN(qt.MinLevel) as minLevel, MAX(qt.MinLevel) as maxLevel
+      MIN(qta.MaxLevel) as minLevel, MAX(qta.MaxLevel) as maxLevel
     FROM creature c
     INNER JOIN creature_queststarter cqs ON c.id = cqs.id
     INNER JOIN quest_template qt ON cqs.quest = qt.ID
@@ -994,17 +1178,17 @@ export async function optimizeQuestPath(
 ): Promise<QuestFlowAnalysis> {
   // Get available quests in level range
   const query = `
-    SELECT DISTINCT qt.ID as questId, qt.QuestTitle as name,
-           qt.MinLevel, qt.QuestLevel, qt.RewardXPDifficulty,
+    SELECT DISTINCT qt.ID as questId, qt.LogTitle as name,
+           qta.MaxLevel as MinLevel, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty,
            qt.RewardMoney
     FROM quest_template qt
     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     INNER JOIN creature_queststarter cqs ON qt.ID = cqs.quest
     INNER JOIN creature c ON cqs.id = c.id
     WHERE c.zoneId = ?
-      AND qt.MinLevel <= ?
-      AND qt.QuestLevel <= ? + 5
-    ORDER BY qt.QuestLevel, qt.ID
+      AND qta.MaxLevel <= ?
+      AND qta.MaxLevel <= ? + 5
+    ORDER BY qta.MaxLevel, qt.ID
     LIMIT ?
   `;
 
