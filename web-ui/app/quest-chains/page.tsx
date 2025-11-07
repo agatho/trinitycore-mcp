@@ -63,12 +63,16 @@ interface Quest {
 }
 
 interface Zone {
-  id: number;
+  id: string; // Composite key: "mapId-zoneId"
+  zoneId: number;
+  mapId: number;
   name: string;
+  mapName: string;
   questCount: number;
   minLevel: number;
   maxLevel: number;
 }
+interface Map {  id: number;  name: string;  zoneCount: number;}
 
 interface QuestChain {
   chainId: string;
@@ -84,6 +88,8 @@ interface QuestChain {
 export default function QuestChainsPage() {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [zones, setZones] = useState<Zone[]>([]);
+  const [maps, setMaps] = useState<Map[]>([]);
+  const [selectedMap, setSelectedMap] = useState<string>('');
   const [selectedZone, setSelectedZone] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
@@ -108,6 +114,7 @@ export default function QuestChainsPage() {
 
       if (data.zones) {
         setZones(data.zones);
+}      if (data.maps) {        setMaps(data.maps);
       }
     } catch (err: any) {
       console.error('Failed to fetch zones:', err);
@@ -199,10 +206,11 @@ export default function QuestChainsPage() {
     }
   };
 
+const handleMapChange = (mapId: string) => {    setSelectedMap(mapId);    setSelectedZone('); // Reset zone when map changes  };  // Filter zones by selected map  const filteredZones = useMemo(() => {    if (!selectedMap) return zones;    return zones.filter(zone => zone.mapId.toString() === selectedMap);  }, [zones, selectedMap]);
   const handleZoneChange = (zoneId: string) => {
     setSelectedZone(zoneId);
     if (zoneId) {
-      fetchQuestChainsInZone(parseInt(zoneId));
+      // Extract zoneId from composite key "mapId-zoneId"      const zoneIdNum = parseInt(zoneId.split('-')[1]);      fetchQuestChainsInZone(zoneIdNum);
     }
   };
 
@@ -461,14 +469,14 @@ export default function QuestChainsPage() {
                 Loading zones...
               </div>
             ) : (
-              <Select onValueChange={handleZoneChange} value={selectedZone}>
+              <Select onValueChange={handleZoneChange} value={selectedZone} disabled={!selectedMap}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a zone to view quest chains..." />
+                  <SelectValue placeholder="Choose a zone..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {zones.map((zone) => (
+                  {filteredZones.map((zone) => (
                     <SelectItem key={zone.id} value={zone.id.toString()}>
-                      {zone.name} ({zone.questCount} quests, Lv {zone.minLevel}-{zone.maxLevel})
+                      {zone.name} ({zone.questCount} quests)
                     </SelectItem>
                   ))}
                 </SelectContent>
