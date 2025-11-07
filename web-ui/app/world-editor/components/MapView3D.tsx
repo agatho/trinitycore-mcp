@@ -15,6 +15,7 @@ import { ControlsManager } from '@/lib/three/controls-manager';
 import { LightingManager } from '@/lib/three/lighting-manager';
 import { VMapMeshLoader } from '@/lib/three/vmap-mesh-loader';
 import { MMapMeshLoader } from '@/lib/three/mmap-mesh-loader';
+import { TerrainMeshLoader } from '@/lib/three/terrain-mesh-loader';
 import { SpawnMarkerManager } from '@/lib/three/spawn-marker-manager';
 import { RaycasterManager } from '@/lib/three/raycaster-manager';
 import { SyncManager } from '@/lib/three/sync-manager';
@@ -24,6 +25,10 @@ import { MultiSelectManager } from '@/lib/three/multi-select-manager';
 import { WaypointVisualizer } from '@/lib/three/waypoint-visualizer';
 import { RoadEditor } from '@/lib/three/road-editor';
 import { MeasurementTools } from '@/lib/three/measurement-tools';
+import { TimeOfDaySystem } from '@/lib/three/time-of-day-system';
+import { getPerformanceMonitor } from '@/lib/performance-monitor';
+import { PerformanceDashboard } from './PerformanceDashboard';
+import { TimeOfDayControl } from './TimeOfDayControl';
 
 interface MapView3DProps {
   state: WorldEditorState;
@@ -43,8 +48,10 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
     scene?: SceneManager;
     controls?: ControlsManager;
     lighting?: LightingManager;
+    timeOfDay?: TimeOfDaySystem;
     vmapLoader?: VMapMeshLoader;
     mmapLoader?: MMapMeshLoader;
+    terrainLoader?: TerrainMeshLoader;
     spawnMarkers?: SpawnMarkerManager;
     raycaster?: RaycasterManager;
     sync?: SyncManager;
@@ -61,6 +68,11 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
   const [activeTool, setActiveTool] = useState<ActiveTool>('spawn');
   const [fps, setFps] = useState(60);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Time of Day state
+  const [currentTime, setCurrentTime] = useState(12); // Noon
+  const [autoProgress, setAutoProgress] = useState(false);
+  const [timeSpeed, setTimeSpeed] = useState(0.5);
 
   /**
    * Initialize Three.js scene
@@ -123,6 +135,13 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
 
       const measurement = new MeasurementTools(scene.getScene());
 
+      // Time of Day System
+      const timeOfDay = new TimeOfDaySystem(lighting, {
+        currentTime: 12,
+        timeSpeed: 0.5,
+        autoProgress: false,
+      });
+
       const vmapLoader = new VMapMeshLoader({
         heightColors: true,
         wireframe: false,
@@ -135,11 +154,20 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
         colorByWalkability: true,
       });
 
+      const terrainLoader = new TerrainMeshLoader({
+        heightColors: true,
+        wireframe: false,
+        opacity: 1.0,
+        heightScale: 1.0,
+        showTileBoundaries: false,
+      });
+
       // Store in ref
       managersRef.current = {
         scene,
         controls,
         lighting,
+        timeOfDay,
         spawnMarkers,
         raycaster,
         sync,
@@ -151,6 +179,7 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
         measurement,
         vmapLoader,
         mmapLoader,
+        terrainLoader,
         terrainGroup: new THREE.Group(),
       };
 
@@ -161,11 +190,21 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
       controls.enable();
       raycaster.enable();
 
+      // Get performance monitor
+      const perfMonitor = getPerformanceMonitor();
+
       // Start animation
       scene.on('update', (data: { delta: number }) => {
         controls.update(data.delta);
         highlight.update(data.delta);
         waypoints.update(data.delta);
+
+        // Update time of day system
+        timeOfDay.update(data.delta);
+        setCurrentTime(timeOfDay.getTime());
+
+        // Update performance monitor with renderer metrics
+        perfMonitor.updateFrame(scene.getRenderer());
 
         // Update FPS
         const stats = scene.getStats();
@@ -199,6 +238,7 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
       m.measurement?.dispose();
       m.vmapLoader?.dispose();
       m.mmapLoader?.dispose();
+      m.terrainLoader?.dispose();
     };
   }, []);
 
@@ -324,6 +364,28 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
   }, [state.mmapData]);
 
   /**
+   * Load Terrain mesh when .map data changes
+   */
+  useEffect(() => {
+    if (!state.mapData || !managersRef.current.scene || !managersRef.current.terrainLoader) return;
+
+    console.log('[MapView3D] Loading Terrain mesh...');
+
+    try {
+      const result = managersRef.current.terrainLoader.load(state.mapData);
+      result.group.userData.isTerrainMesh = true;
+      managersRef.current.scene.add(result.group);
+
+      // Set as terrain layer for raycasting
+      managersRef.current.raycaster?.setTerrainLayer(result.group);
+
+      console.log('[MapView3D] Terrain loaded:', result.tiles.size, 'tiles');
+    } catch (error) {
+      console.error('[MapView3D] Error loading Terrain:', error);
+    }
+  }, [state.mapData]);
+
+  /**
    * Update spawn markers when coordinates change
    */
   useEffect(() => {
@@ -415,20 +477,25 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
         ))}
       </div>
 
-      {/* Stats */}
-      <div className="absolute bottom-4 left-4 bg-slate-800/90 backdrop-blur border border-slate-600 rounded-lg p-3">
-        <div className="text-xs text-slate-300 space-y-1">
-          <div>FPS: {fps}</div>
-          <div>Spawns: {state.coordinates.filter(c => c.type === 'spawn').length}</div>
-          <div>Selected: {state.selectedItems.size}</div>
-          <div className={state.vmapData ? 'text-green-400' : 'text-slate-500'}>
-            VMap: {state.vmapData ? '✓' : '✗'}
-          </div>
-          <div className={state.mmapData ? 'text-green-400' : 'text-slate-500'}>
-            MMap: {state.mmapData ? '✓' : '✗'}
-          </div>
-        </div>
-      </div>
+      {/* Performance Dashboard */}
+      <PerformanceDashboard position="bottom-left" compact={false} />
+
+      {/* Time of Day Control */}
+      <TimeOfDayControl
+        currentTime={currentTime}
+        onTimeChange={(time) => managersRef.current.timeOfDay?.setTime(time)}
+        autoProgress={autoProgress}
+        onAutoProgressChange={(enabled) => {
+          setAutoProgress(enabled);
+          managersRef.current.timeOfDay?.setAutoProgress(enabled);
+        }}
+        timeSpeed={timeSpeed}
+        onTimeSpeedChange={(speed) => {
+          setTimeSpeed(speed);
+          managersRef.current.timeOfDay?.setTimeSpeed(speed);
+        }}
+        position="top-left"
+      />
 
       {/* Controls help */}
       <div className="absolute bottom-4 right-4 bg-slate-800/90 backdrop-blur border border-slate-600 rounded-lg p-3">

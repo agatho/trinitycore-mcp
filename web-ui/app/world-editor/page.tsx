@@ -54,6 +54,7 @@ import { loadMapData } from '@/lib/map-parser';
 import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import { MapView2D } from './components/MapView2D';
 import { MapView3D } from './components/MapView3D';
+import { UndoRedoPanel } from './components/UndoRedoPanel';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
@@ -400,6 +401,9 @@ export default function WorldEditorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+      {/* Undo/Redo Panel (Global) */}
+      <UndoRedoPanel position="top-right" />
+
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
         <div className="mb-6">
