@@ -23,25 +23,28 @@ type Tool = 'select' | 'spawn' | 'waypoint' | 'road' | 'transition';
 
 export function MapView2D({ state, actions, width = 1200, height = 800 }: MapView2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mapImage, setMapImage] = useState<HTMLImageElement | null>(null);
   const [currentTool, setCurrentTool] = useState<Tool>('spawn');
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0, z: 0 });
 
-  // Load map image when selected map changes
+  // Auto-load map image when selected map changes (if not manually uploaded)
   useEffect(() => {
+    if (state.mapImage) return; // Use manually uploaded image if available
+
     const loadMap = async () => {
       try {
         const img = await loadMapImage(state.selectedMap);
-        setMapImage(img);
+        if (img) {
+          actions.setMapImage(img);
+        }
       } catch (error) {
         console.error('Failed to load map:', error);
-        setMapImage(null);
+        actions.setMapImage(null);
       }
     };
     loadMap();
-  }, [state.selectedMap]);
+  }, [state.selectedMap, state.mapImage]);
 
   // Draw everything on canvas
   const draw = useCallback(() => {
@@ -62,9 +65,9 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
     ctx.scale(camera2D.scale, camera2D.scale);
 
     // Draw background map image
-    if (mapImage) {
+    if (state.mapImage) {
       ctx.globalAlpha = 0.8;
-      ctx.drawImage(mapImage, 0, 0, width / camera2D.scale, height / camera2D.scale);
+      ctx.drawImage(state.mapImage, 0, 0, width / camera2D.scale, height / camera2D.scale);
       ctx.globalAlpha = 1.0;
     } else {
       // Draw "no map loaded" message

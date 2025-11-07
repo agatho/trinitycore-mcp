@@ -146,6 +146,20 @@ export default function WorldEditorPage() {
     }
   };
 
+  // Handle map image upload
+  const handleMapImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => actions.setMapImage(img);
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Handle MMap file upload
   const handleMMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -443,6 +457,30 @@ export default function WorldEditorPage() {
                   PiP
                 </Button>
               </div>
+            </div>
+
+            <div className="h-6 w-px bg-slate-600" />
+
+            {/* Map Image Upload */}
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleMapImageUpload}
+                className="hidden"
+                id="map-image-upload"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('map-image-upload')?.click()}
+              >
+                <Upload className="w-3 h-3 mr-2" />
+                {state.mapImage ? 'Change Map Image' : 'Upload Map Image'}
+              </Button>
+              {state.mapImage && (
+                <CheckCircle className="w-4 h-4 text-green-400" />
+              )}
             </div>
 
             <div className="h-6 w-px bg-slate-600" />

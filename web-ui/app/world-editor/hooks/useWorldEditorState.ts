@@ -28,6 +28,7 @@ export interface Camera3DState {
 export interface WorldEditorState {
   // Map and data
   selectedMap: number;
+  mapImage: HTMLImageElement | null;
   coordinates: MapCoordinate[];
   roads: Road[];
   transitions: ZoneTransition[];
@@ -64,6 +65,7 @@ export interface WorldEditorState {
 export interface WorldEditorActions {
   // Map actions
   setSelectedMap: (mapId: number) => void;
+  setMapImage: (image: HTMLImageElement | null) => void;
 
   // Coordinate actions
   addCoordinate: (coord: MapCoordinate) => void;
@@ -129,6 +131,7 @@ const DEFAULT_LAYERS: Layer[] = [
 export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
   // State
   const [selectedMap, setSelectedMap] = useState(0);
+  const [mapImage, setMapImage] = useState<HTMLImageElement | null>(null);
   const [coordinates, setCoordinates] = useState<MapCoordinate[]>([]);
   const [roads, setRoads] = useState<Road[]>([]);
   const [transitions, setTransitions] = useState<ZoneTransition[]>([]);
@@ -246,6 +249,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
 
   const state: WorldEditorState = {
     selectedMap,
+    mapImage,
     coordinates,
     roads,
     transitions,
@@ -269,6 +273,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
 
   const actions: WorldEditorActions = {
     setSelectedMap,
+    setMapImage,
     addCoordinate,
     updateCoordinate,
     removeCoordinate,
