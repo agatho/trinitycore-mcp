@@ -58,7 +58,7 @@ export const EnhancedMiniMap: React.FC<EnhancedMiniMapProps> = ({ className }) =
   };
 
   // Get node stroke color for selected/hovered states
-  const getNodeStrokeColor = (node: any): string => {
+  const getNodeStrokeColor = (node: any): string | undefined => {
     if (node.selected) {
       return '#3b82f6'; // Blue stroke for selected
     }
@@ -84,7 +84,7 @@ export const EnhancedMiniMap: React.FC<EnhancedMiniMapProps> = ({ className }) =
       return '#d97706'; // Dark amber stroke
     }
 
-    return '#64748b'; // Default gray stroke
+    return undefined;
   };
 
   // Get node class name for additional styling

@@ -868,7 +868,7 @@ export class SecurityManager extends EventEmitter {
 
     return {
       rateLimits: {
-        active: this.tokenBuckets.size + this.slidingWindows.size + 
+        active: this.tokenBuckets.size + this.slidingWindows.size +
                 this.fixedWindows.size + this.leakyBuckets.size,
         blocked: this.blockedIPs.size
       },

@@ -179,13 +179,13 @@ const CustomEdge: React.FC<EdgeProps<CustomEdgeData>> = ({
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               pointerEvents: 'all',
-              borderColor: edgeColor,
             }}
             className={`
               px-2 py-1 rounded-md text-xs font-medium transition-all duration-200
               ${selected || isHovered ? 'opacity-100 scale-110' : 'opacity-75'}
               bg-white dark:bg-gray-800 border-2 shadow-lg
             `}
+            style={{ borderColor: edgeColor }}
           >
             {data?.label && <div className="text-gray-700 dark:text-gray-300">{data.label}</div>}
             {data?.executionCount !== undefined && (
