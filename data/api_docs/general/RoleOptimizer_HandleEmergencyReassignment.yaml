@@ -1,0 +1,68 @@
+api:
+  class: RoleOptimizer
+  method: HandleEmergencyReassignment
+  signature: OptimizationResult RoleOptimizer::HandleEmergencyReassignment(Group *
+    group, uint32 leavingPlayerGuid, const int & availableReplacements)
+documentation:
+  brief: Performs an emergency reassignment of group members when a player leaves,
+    attempting to maintain optimal role distribution.
+  description: The HandleEmergencyReassignment method is designed to manage group
+    composition changes in response to a player leaving a group. It evaluates the
+    current group's role distribution and attempts to redistribute roles among remaining
+    players to ensure optimal gameplay balance. This method is typically invoked when
+    a player disconnects or leaves a group unexpectedly, and it aims to preserve the
+    group's effectiveness by reassigning roles such as tank, healer, and damage dealer
+    positions. The method considers available replacements and attempts to maintain
+    the integrity of the group's tactical setup while ensuring all necessary roles
+    are filled.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that is undergoing emergency reassignment.
+      This represents the current group state before any role changes occur.
+  - name: leavingPlayerGuid
+    description: The unique identifier (GUID) of the player who is leaving the group.
+      This value determines which member will be removed from the group during the
+      reassignment process.
+  - name: availableReplacements
+    description: An integer representing the number of available replacement players
+      that can take on roles previously held by the leaving player. A negative value
+      indicates no replacements are available, while a positive value indicates how
+      many additional players could potentially fill roles.
+  returns: Returns an OptimizationResult enum indicating the success or failure state
+    of the emergency reassignment operation. Possible values may include SUCCESS,
+    FAILURE, INSUFFICIENT_PLAYERS, or ROLE_CONFLICT depending on the outcome of the
+    role redistribution process.
+  examples:
+  - title: Basic usage in group management
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nuint32 playerGuid =\
+      \ 12345;\nint replacements = 2;\nOptimizationResult result = roleOptimizer.HandleEmergencyReassignment(myGroup,\
+      \ playerGuid, replacements);\nif (result == OptimizationResult::SUCCESS) {\n\
+      \    // Group roles successfully reassigned\n}"
+    language: cpp
+  - title: Handling emergency reassignment with no replacements
+    code: "Group* group = sGroupMgr->GetGroupById(54321);\nuint32 leavingPlayer =\
+      \ 98765;\nint replacements = -1; // No replacements available\nOptimizationResult\
+      \ result = roleOptimizer.HandleEmergencyReassignment(group, leavingPlayer, replacements);\n\
+      if (result == OptimizationResult::FAILURE) {\n    // Log that reassignment failed\
+      \ due to lack of replacements\n}"
+    language: cpp
+  notes: This method assumes that the group is already in a valid state and that role
+    assignments have been properly initialized. It does not perform any validation
+    on whether the leaving player actually exists in the group before attempting reassignment.
+    The method may modify internal group data structures and should be called only
+    when appropriate for the current game context.
+  warnings: Calling this method without proper group state validation can lead to
+    inconsistent role assignments or invalid group configurations. It is recommended
+    to verify that the leaving player is indeed part of the group before invoking
+    this method. Additionally, if replacements are not properly accounted for, the
+    method may fail to maintain optimal group composition.
+  related:
+  - GetGroupRoles
+  - ReassignRoles
+  - ValidateGroupComposition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:25:01.089036'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

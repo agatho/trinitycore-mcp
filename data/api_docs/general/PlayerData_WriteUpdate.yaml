@@ -1,0 +1,73 @@
+api:
+  class: PlayerData
+  method: WriteUpdate
+  signature: void PlayerData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes player data changes into a ByteBuffer for network transmission
+    to a specific receiver.
+  description: The WriteUpdate method is responsible for serializing the player's
+    data changes into a ByteBuffer format suitable for sending over the network. It
+    takes into account the changes mask to determine which fields should be included
+    in the update, and optionally ignores nested changes masks if specified. This
+    method is typically invoked when updating a player's state to other players in
+    the game world, such as during movement updates or status changes. The owner parameter
+    represents the player whose data is being updated, while the receiver indicates
+    the target player who will receive this update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer object where the serialized update data
+      will be written.
+  - name: changesMask
+    description: An integer mask indicating which fields of the player data have changed
+      and should be included in the update.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested changes masks should
+      be ignored during serialization.
+  - name: owner
+    description: Pointer to the Player object whose data is being updated; represents
+      the source of the update.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update; used for
+      determining visibility and filtering.
+  returns: null
+  examples:
+  - title: Basic usage in a player movement update
+    code: 'ByteBuffer data;
+
+      int changesMask = PLAYER_UPDATE_FLAG_POSITION;
+
+      Player* owner = player;
+
+      Player* receiver = targetPlayer;
+
+      playerData.WriteUpdate(data, changesMask, false, owner, receiver);'
+    language: cpp
+  - title: Updating player with nested changes mask ignored
+    code: 'ByteBuffer data;
+
+      int changesMask = PLAYER_UPDATE_FLAG_LIVING | PLAYER_UPDATE_FLAG_STRENGTH;
+
+      Player* owner = player;
+
+      Player* receiver = targetPlayer;
+
+      playerData.WriteUpdate(data, changesMask, true, owner, receiver);'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet update system and is crucial
+    for maintaining synchronization between server-side player state and client-side
+    representations. It uses internal field serialization logic based on the provided
+    changes mask to minimize bandwidth usage by only sending necessary data.
+  warnings: Incorrectly setting the changesMask can result in incomplete updates or
+    unnecessary network traffic. The receiver parameter should be carefully validated
+    to ensure proper visibility checks are applied.
+  related:
+  - Player::BuildUpdateData
+  - Player::SendUpdateToPlayer
+  - Player::GetChangesMask
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T01:03:32.471728'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

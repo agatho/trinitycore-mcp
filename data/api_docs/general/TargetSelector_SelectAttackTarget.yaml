@@ -1,0 +1,55 @@
+api:
+  class: TargetSelector
+  method: SelectAttackTarget
+  signature: SelectionResult TargetSelector::SelectAttackTarget(float maxRange)
+documentation:
+  brief: Selects the most threatening target within the specified maximum range for
+    attack.
+  description: The SelectAttackTarget method is used by AI-controlled creatures to
+    identify and select an appropriate target for attacking based on threat level,
+    distance, and other combat-related factors. It evaluates all valid targets within
+    the given maximum range and returns the one with the highest priority for engagement.
+    This method typically integrates with the creature's threat table and target selection
+    logic to ensure optimal combat behavior. The selection process considers factors
+    such as target hostility, distance, threat amount, and any applicable targeting
+    rules or restrictions.
+  parameters:
+  - name: maxRange
+    description: The maximum distance (in yards) within which the method will consider
+      potential targets for attack. Targets beyond this range are ignored during selection.
+  returns: A SelectionResult object containing information about the selected target,
+    including whether a valid target was found and the target's GUID if applicable.
+    Returns an invalid result if no suitable target exists within range.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "if (SelectionResult result = SelectAttackTarget(50.0f); result.IsValid())\n\
+      {\n    // Engage the selected target\n    Attack(result.GetTargetGuid());\n\
+      }\nelse\n{\n    // No valid target found\n    DoNothing();\n}"
+    language: cpp
+  - title: Using selection result for advanced targeting logic
+    code: "SelectionResult result = SelectAttackTarget(30.0f);\nif (result.IsValid())\n\
+      {\n    Unit* target = ObjectAccessor::GetUnit(*me, result.GetTargetGuid());\n\
+      \    if (target && target->IsInWorld() && !target->HasFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NON_ATTACKABLE))\n    {\n        // Proceed with attack logic\n\
+      \        me->SetTarget(result.GetTargetGuid());\n        me->Attack(target,\
+      \ true);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during AI update cycles to determine the
+    next target for an NPC. It relies on internal threat management systems and may
+    be influenced by target priority modifiers or special AI behaviors. Performance-wise,
+    it should be used judiciously in frequently executed code paths to avoid unnecessary
+    computation.
+  warnings: Ensure that the maxRange parameter is set appropriately to prevent excessive
+    processing of distant targets. Calling this method without proper checks for valid
+    target conditions can lead to errors if the returned GUID is used without verification.
+  related:
+  - GetThreatList
+  - AddThreat
+  - RemoveThreat
+  - SelectTarget
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:21:49.006444'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

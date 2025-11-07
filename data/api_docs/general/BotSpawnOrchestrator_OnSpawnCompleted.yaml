@@ -1,0 +1,53 @@
+api:
+  class: BotSpawnOrchestrator
+  method: OnSpawnCompleted
+  signature: void BotSpawnOrchestrator::OnSpawnCompleted(bool success, int guid, const
+    int & request)
+documentation:
+  brief: Handles completion of bot spawning operations and updates internal state
+    accordingly
+  description: The OnSpawnCompleted method is invoked when a bot spawning operation
+    has finished, either successfully or with failure. It processes the result of
+    the spawn attempt, updating the orchestrator's internal tracking of spawned bots
+    and potentially triggering subsequent actions based on the success or failure
+    of the operation. This method plays a crucial role in the bot management system
+    by ensuring proper state transitions and cleanup after spawn operations. The method
+    is typically called as a callback from asynchronous spawn processes within the
+    TrinityCore framework.
+  parameters:
+  - name: success
+    description: Boolean flag indicating whether the bot spawning operation completed
+      successfully (true) or failed (false)
+  - name: guid
+    description: The unique identifier (GUID) of the spawned bot entity, or -1 if
+      the operation failed
+  - name: request
+    description: Reference to an integer representing the original spawn request identifier
+      used to track this specific spawning operation
+  returns: void
+  examples:
+  - title: Basic usage in spawn completion handler
+    code: "void BotSpawnOrchestrator::OnSpawnCompleted(bool success, int guid, const\
+      \ int & request)\n{\n    if (success)\n    {\n        // Mark bot as successfully\
+      \ spawned\n        m_spawnedBots[guid] = true;\n        sLog->outString(\"Bot\
+      \ with GUID %d spawned successfully.\", guid);\n    }\n    else\n    {\n   \
+      \     // Handle spawn failure\n        sLog->outError(\"Failed to spawn bot\
+      \ for request %d\", request);\n        m_pendingRequests.erase(request);\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is designed to be called from asynchronous contexts, so thread
+    safety considerations should be taken into account when accessing shared data
+    structures. The method assumes that the GUID parameter is valid and corresponds
+    to an actual bot entity if success is true.
+  warnings: Ensure that all internal state updates are properly synchronized if this
+    method can be called from multiple threads. Failure to handle race conditions
+    may lead to inconsistent bot tracking or memory corruption.
+  related:
+  - BotSpawnOrchestrator::SpawnBot
+  - BotSpawnOrchestrator::OnSpawnFailed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T05:15:31.129018'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

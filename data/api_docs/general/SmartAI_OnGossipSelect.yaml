@@ -1,0 +1,61 @@
+api:
+  class: SmartAI
+  method: OnGossipSelect
+  signature: bool SmartAI::OnGossipSelect(Player * player, uint32 menuId, uint32 gossipListId)
+documentation:
+  brief: Handles player selection from a gossip menu in SmartAI.
+  description: The OnGossipSelect method is invoked when a player selects an option
+    from a gossip menu presented by a creature using SmartAI. This method processes
+    the selected menu ID and gossip list ID to determine the appropriate action, such
+    as triggering quest events, sending additional menus, or performing custom behaviors.
+    It integrates with the TrinityCore's gossip system to enable dynamic interaction
+    between players and NPCs. The method returns true if the selection was handled
+    successfully, or false if the selection could not be processed.
+  parameters:
+  - name: player
+    description: Pointer to the Player object who selected the gossip option. This
+      parameter is required and must not be null.
+  - name: menuId
+    description: The unique identifier of the gossip menu that was displayed to the
+      player. Used to distinguish between different menus for the same NPC.
+  - name: gossipListId
+    description: The ID of the specific option selected by the player within the gossip
+      menu. This ID corresponds to the entry in the gossip_menu_option table.
+  returns: Returns true if the gossip selection was successfully processed and handled,
+    false otherwise. A return value of false may indicate that no action was taken
+    or an error occurred during processing.
+  examples:
+  - title: Basic Gossip Selection Handling
+    code: "bool SmartAI::OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)\n\
+      {\n    if (menuId == 1001 && gossipListId == 1)\n    {\n        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,\
+      \ \"I want to see the quests.\", GOSSIP_SENDER_MAIN, 1);\n        player->SEND_GOSSIP_MENU(907,\
+      \ me->GetGUID());\n        return true;\n    }\n    return false;\n}"
+    language: cpp
+  - title: Advanced Gossip Selection with Quest Logic
+    code: "bool SmartAI::OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)\n\
+      {\n    switch (gossipListId)\n    {\n        case 1:\n            if (player->GetQuestStatus(5001)\
+      \ == QUEST_STATUS_INCOMPLETE)\n                player->PlayerTalkClass->SendQuestGiverQuestDetails(quest,\
+      \ me->GetGUID(), true);\n            break;\n        case 2:\n            player->CLOSE_GOSSIP_MENU();\n\
+      \            if (player->GetQuestStatus(5001) == QUEST_STATUS_COMPLETE)\n  \
+      \              player->AreaExploredOrEventHappens(5001);\n            break;\n\
+      \        default:\n            return false;\n    }\n    return true;\n}"
+    language: cpp
+  notes: This method is part of the SmartAI framework and is automatically called
+    by the TrinityCore server when a player interacts with a gossip menu. It should
+    not be called directly from other code unless you're implementing custom AI logic.
+    Ensure that all menu IDs and gossip list IDs match those defined in your database
+    tables.
+  warnings: Improper handling of menuId or gossipListId values can lead to unexpected
+    behavior or missing interactions. Always validate input parameters before using
+    them. Be cautious when modifying the gossip menu structure, as incorrect IDs may
+    prevent proper selection handling.
+  related:
+  - OnGossipHello
+  - OnGossipSelectCode
+  - SendGossipMenu
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:48:35.344866'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

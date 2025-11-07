@@ -1,0 +1,57 @@
+api:
+  class: QuestPickup
+  method: ShareQuestPickup
+  signature: bool QuestPickup::ShareQuestPickup(Group * group, uint32 questId, Player
+    * initiator)
+documentation:
+  brief: Shares a quest pickup with all members of a group.
+  description: The ShareQuestPickup method broadcasts a quest pickup notification
+    to all players within the specified group. This functionality is used in World
+    of Warcraft's TrinityCore server implementation to ensure that when one player
+    initiates a quest pickup, other group members are informed and can potentially
+    receive the same quest if they meet the requirements. The method handles the distribution
+    of quest-related data across group members and ensures synchronization of quest
+    state between players.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players who will receive
+      the quest pickup notification. Must be a valid group instance.
+  - name: questId
+    description: The unique identifier of the quest being picked up. This ID must
+      correspond to a valid quest in the game database.
+  - name: initiator
+    description: Pointer to the Player object who initiated the quest pickup. This
+      player will be excluded from the broadcast if they are part of the group.
+  returns: Returns true if the quest pickup was successfully shared with all group
+    members, false otherwise. The method may return false if the group is invalid
+    or if no valid players exist in the group.
+  examples:
+  - title: Basic Quest Pickup Sharing
+    code: "Group* group = player->GetGroup();\nif (group)\n{\n    bool result = QuestPickup::ShareQuestPickup(group,\
+      \ 12345, player);\n    if (result)\n        TC_LOG_DEBUG(LOG_FILTER_NETWORKIO,\
+      \ \"Quest pickup shared successfully.\");\n}"
+    language: cpp
+  - title: Conditional Quest Pickup Sharing
+    code: "if (player->GetGroup() && player->GetGroup()->GetMembersCount() > 1)\n\
+      {\n    uint32 questId = player->GetQuestStatus(12345)->GetQuestId();\n    if\
+      \ (questId != 0)\n    {\n        QuestPickup::ShareQuestPickup(player->GetGroup(),\
+      \ questId, player);\n    }\n}"
+    language: cpp
+  notes: This method is typically called when a player picks up a quest that should
+    be available to their group members. It's important to note that the initiator
+    player is excluded from receiving the notification to prevent duplicate processing.
+    The method assumes that all players in the group are within the same instance
+    or zone for proper synchronization.
+  warnings: Ensure that the group pointer is valid before calling this method, as
+    passing a null pointer will result in undefined behavior. Also, verify that the
+    questId corresponds to an actual quest in the database to avoid invalid data transmission.
+  related:
+  - GetGroup
+  - GetQuestStatus
+  - SendQuestPushToParty
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:39:53.672104'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

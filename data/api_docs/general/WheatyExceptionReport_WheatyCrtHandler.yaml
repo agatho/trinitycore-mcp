@@ -1,0 +1,61 @@
+api:
+  class: WheatyExceptionReport
+  method: WheatyCrtHandler
+  signature: void WheatyExceptionReport::WheatyCrtHandler(const wchar_t * expression,
+    const wchar_t * function, const wchar_t * file, unsigned int line, uintptr_t pReserved)
+documentation:
+  brief: Handles CRT (C Runtime Library) assertion failures by logging detailed exception
+    information for debugging purposes in TrinityCore.
+  description: The WheatyCrtHandler method is a custom CRT assertion handler used
+    within TrinityCore to capture and log detailed information when a C Runtime Library
+    assertion fails. This function is typically installed as the global CRT error
+    handler using _set_error_mode or similar mechanisms. It receives details about
+    the failing assertion including the expression that failed, the function where
+    it occurred, the source file, and line number. The method logs this information
+    to aid in debugging crashes and unexpected behavior during development and testing
+    of the TrinityCore server. This handler is particularly useful for identifying
+    issues in core server components where assertions may be triggered due to invalid
+    data or programming errors.
+  parameters:
+  - name: expression
+    description: The expression that failed the assertion check, typically a string
+      representation of the condition that evaluated to false.
+  - name: function
+    description: The name of the function where the assertion failure occurred, as
+      a wide character string.
+  - name: file
+    description: The source file name where the assertion failed, represented as a
+      wide character string.
+  - name: line
+    description: The line number in the source file where the assertion failure occurred.
+  - name: pReserved
+    description: Reserved parameter for future use by the CRT, typically set to zero.
+  returns: null
+  examples:
+  - title: Basic Usage in Exception Handling Setup
+    code: "#include <windows.h>\n#include \"WheatyExceptionReport.h\"\n\nint main()\
+      \ {\n    // Install the custom CRT handler\n    _set_error_mode(_OUT_TO_STDERR);\n\
+      \    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);\n    _CrtSetReportFile(_CRT_ERROR,\
+      \ _CRTDBG_FILE_STDERR);\n    \n    // Set up Wheaty exception reporting\n  \
+      \  WheatyExceptionReport::WheatyCrtHandler = &WheatyExceptionReport::WheatyCrtHandler;\n\
+      \    \n    // Your server code here\n    return 0;\n}"
+    language: cpp
+  notes: This method is primarily used for debugging and development purposes. It
+    should not be called directly by regular game logic. The handler may be invoked
+    during assertion failures in core TrinityCore systems such as database operations,
+    memory management, or network handling. When enabled, it logs detailed crash information
+    to the console or log files which can help developers identify root causes of
+    server instability.
+  warnings: Do not modify or override this handler without understanding its implications
+    for server stability. Incorrectly handling assertion failures may lead to silent
+    failures or crashes. This handler is intended for debugging environments and should
+    typically be disabled in production builds.
+  related:
+  - WheatyExceptionReport::GenerateReport
+  - WheatyExceptionReport::WriteMiniDump
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-05T23:49:07.556931'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

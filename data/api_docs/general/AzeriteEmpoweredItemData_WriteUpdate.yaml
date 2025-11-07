@@ -1,0 +1,67 @@
+api:
+  class: AzeriteEmpoweredItemData
+  method: WriteUpdate
+  signature: void AzeriteEmpoweredItemData::WriteUpdate(ByteBuffer & data, const int
+    & changesMask, bool ignoreNestedChangesMask, const AzeriteEmpoweredItem * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes Azerite empowered item data into a ByteBuffer for client update
+    packets.
+  description: The WriteUpdate method serializes the state of an AzeriteEmpoweredItemData
+    object into a ByteBuffer, preparing it for transmission to a client. This method
+    is typically used when sending updates about Azerite empowered items to players,
+    such as changes in Azerite powers or progress. The serialization respects the
+    provided changes mask to only include relevant data fields, optimizing network
+    traffic. It requires an owner (the item) and receiver (player) to determine what
+    data should be sent based on player-specific visibility rules.
+  parameters:
+  - name: data
+    description: The ByteBuffer to which the serialized Azerite empowered item data
+      will be written.
+  - name: changesMask
+    description: An integer mask indicating which fields of the AzeriteEmpoweredItemData
+      have changed and should be included in the update.
+  - name: ignoreNestedChangesMask
+    description: A boolean flag that determines whether nested changes masks should
+      be ignored during serialization. When true, all data is serialized regardless
+      of nested change flags.
+  - name: owner
+    description: Pointer to the AzeriteEmpoweredItem that owns this data. Used to
+      determine item-specific properties and state for serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Used to apply
+      player-specific visibility rules and filtering.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      int changesMask = 0x01;
+
+      AzeriteEmpoweredItemData itemData;
+
+      Player* player = ...; // Get player reference
+
+      itemData.WriteUpdate(data, changesMask, false, &item, player);
+
+      // Send ''data'' as part of a packet to the player'
+    language: cpp
+  notes: This method is typically called internally by TrinityCore's update system
+    when constructing packets for Azerite empowered item updates. The changesMask
+    parameter allows efficient partial updates, reducing bandwidth usage. The owner
+    and receiver parameters are crucial for proper serialization of player-specific
+    data like unlocked Azerite powers or progress.
+  warnings: Incorrect use of the changesMask can result in incomplete or incorrect
+    data being sent to clients. Always ensure that the mask correctly reflects which
+    fields have actually changed. Improper handling of the ignoreNestedChangesMask
+    flag may cause excessive data transmission or missing updates.
+  related:
+  - GetAzeritePower
+  - SetAzeritePower
+  - IsAzeritePowerUnlocked
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:26:53.932800'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

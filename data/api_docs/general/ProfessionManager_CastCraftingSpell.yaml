@@ -1,0 +1,61 @@
+api:
+  class: ProfessionManager
+  method: CastCraftingSpell
+  signature: bool ProfessionManager::CastCraftingSpell(int * player, const RecipeInfo
+    & recipe)
+documentation:
+  brief: Attempts to cast a crafting spell for the specified recipe on the given player.
+  description: The CastCraftingSpell method is responsible for executing the process
+    of crafting an item based on a provided recipe. It verifies that the player has
+    the necessary skills, resources, and prerequisites to craft the item. The method
+    handles the spell casting logic, including checking if the player can learn or
+    already knows the recipe, validating required materials, and applying the crafting
+    outcome. This function is typically invoked during the crafting workflow in TrinityCore's
+    game mechanics when a player initiates the creation of an item from a recipe.
+  parameters:
+  - name: player
+    description: Pointer to the player object that will perform the crafting action.
+      Must be a valid pointer to a Player instance.
+  - name: recipe
+    description: Reference to the RecipeInfo structure containing details about the
+      recipe to be crafted, including item ID, required skills, materials, and other
+      crafting parameters.
+  returns: Returns true if the crafting spell was successfully cast and the item was
+    created or the player's skill was updated; otherwise returns false if the casting
+    failed due to invalid conditions such as missing resources, insufficient skill
+    level, or other preconditions not met.
+  examples:
+  - title: Basic Crafting Spell Casting
+    code: "Player* player = ...;\nRecipeInfo recipe = GetRecipeById(12345);\nbool\
+      \ success = sProfessionManager->CastCraftingSpell(&player, recipe);\nif (success)\n\
+      {\n    // Crafting completed successfully\n    sWorld->SendWorldText(LANG_CRAFTING_SUCCESS);\n\
+      }\nelse\n{\n    // Crafting failed\n    sWorld->SendWorldText(LANG_CRAFTING_FAILED);\n\
+      }"
+    language: cpp
+  - title: Crafting with Skill Validation
+    code: "Player* player = ...;\nRecipeInfo recipe = GetRecipeById(67890);\nif (player->GetSkillValue(SKILL_ENGINERING)\
+      \ >= recipe.RequiredSkillValue)\n{\n    bool result = sProfessionManager->CastCraftingSpell(&player,\
+      \ recipe);\n    if (!result)\n    {\n        ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You cannot craft this item at the moment.\");\n    }\n}\nelse\n{\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Your skill level is insufficient to craft this item.\");\n}"
+    language: cpp
+  notes: This method assumes that all preconditions for crafting (such as player state,
+    inventory availability, and recipe validity) have been checked before calling.
+    It does not perform these checks internally but relies on the caller to ensure
+    they are met. The method may trigger additional events or updates in the game
+    world such as skill progression, item creation, or resource depletion.
+  warnings: Ensure that the player pointer is valid and not null before calling this
+    function. Also, be cautious when passing recipe data directly from external sources
+    without validation, as invalid recipes can cause unexpected behavior or crashes.
+    This method should only be called in a context where the player is actively engaged
+    in crafting activity.
+  related:
+  - GetRecipeById
+  - CanPlayerCraft
+  - UpdatePlayerSkill
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T00:26:43.936786'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

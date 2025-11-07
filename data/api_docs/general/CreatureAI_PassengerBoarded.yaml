@@ -1,0 +1,64 @@
+api:
+  class: CreatureAI
+  method: PassengerBoarded
+  signature: void CreatureAI::PassengerBoarded(int * param0, int param1, bool param2)
+documentation:
+  brief: Handles the event when a passenger is boarded onto a creature.
+  description: The PassengerBoarded method is invoked by the TrinityCore AI system
+    when a unit (typically a player) successfully mounts or boards a creature that
+    has passenger capabilities. This method is part of the CreatureAI interface and
+    allows custom AI implementations to react to passenger boarding events. It is
+    typically used in conjunction with vehicle-based creatures such as mounts, siege
+    vehicles, or other interactive mobs where units can board and ride. The method
+    provides information about the passenger, the seat they are boarding into, and
+    whether this is a forced or voluntary boarding action.
+  parameters:
+  - name: param0
+    description: Pointer to an integer representing the passenger's GUID or identifier.
+      This value may be used to track or identify the specific unit that boarded the
+      creature.
+  - name: param1
+    description: Integer representing the seat index where the passenger is boarding.
+      Seat indices are typically defined in the creature's vehicle template and determine
+      which position the passenger occupies on the vehicle.
+  - name: param2
+    description: Boolean flag indicating whether the boarding was forced (true) or
+      voluntary (false). This can be used to differentiate between scripted mount
+      events and player-initiated boarding actions.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "void MyCreatureAI::PassengerBoarded(int* passengerGuid, int seatId, bool\
+      \ isForced)\n{\n    if (isForced)\n        DoCast(SPELL_FORCED_BOARDING);\n\
+      \    else\n        DoCast(SPELL_VOLUNTARY_BOARDING);\n\n    // Log boarding\
+      \ event\n    sLog->outString(\"Passenger %u boarded creature at seat %d\", *passengerGuid,\
+      \ seatId);\n}"
+    language: cpp
+  - title: Advanced Event Handling with Seat Logic
+    code: "void AdvancedCreatureAI::PassengerBoarded(int* passengerGuid, int seatId,\
+      \ bool isForced)\n{\n    // Check if the creature has specific behavior for\
+      \ different seats\n    switch (seatId)\n    {\n        case 0:\n           \
+      \ // Driver seat\n            SetReactState(REACT_AGGRESSIVE);\n           \
+      \ break;\n        case 1:\n            // Passenger seat\n            DoCast(SPELL_SEAT_BOOST);\n\
+      \            break;\n        default:\n            break;\n    }\n\n    // Trigger\
+      \ quest event if needed\n    if (Player* player = ObjectAccessor::FindPlayer(*passengerGuid))\n\
+      \        player->KilledMonsterCredit(m_creature->GetEntry());\n}"
+    language: cpp
+  notes: This method is called from the core AI system during passenger boarding logic.
+    It's important to note that the GUID passed in param0 might be a pointer to an
+    internal identifier, so direct dereferencing should be handled carefully. Additionally,
+    this method may be invoked multiple times if multiple passengers board the same
+    creature.
+  warnings: Ensure that any actions taken within this method do not cause infinite
+    loops or recursive calls. Be cautious when modifying creature state during boarding
+    events as it can affect vehicle mechanics and player experience.
+  related:
+  - PassengerRemoved
+  - IsBoarding
+  - GetVehicleKit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:15:44.675569'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

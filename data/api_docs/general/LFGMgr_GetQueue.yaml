@@ -1,0 +1,50 @@
+api:
+  class: LFGMgr
+  method: GetQueue
+  signature: LFGQueue & LFGMgr::GetQueue(int guid)
+documentation:
+  brief: Retrieves the LFG queue associated with the specified GUID.
+  description: The GetQueue method retrieves a reference to the LFG (Looking for Group)
+    queue corresponding to the provided GUID. This method is used internally by the
+    TrinityCore server to manage player group finding requests and queue states. The
+    GUID typically represents a player's unique identifier within the game world.
+    The returned LFGQueue reference allows access to all queue-related data such as
+    players in the queue, dungeon information, and queue status. This method assumes
+    that a valid queue exists for the given GUID; otherwise, behavior is undefined.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose LFG queue is to
+      be retrieved. Must be a valid player GUID within the game world.
+  returns: A reference to the LFGQueue associated with the specified GUID. The reference
+    is guaranteed to be valid if the GUID corresponds to an active queue entry.
+  examples:
+  - title: Retrieve and modify LFG queue
+    code: 'LFGQueue& queue = lfgMgr.GetQueue(playerGuid);
+
+      queue.SetDungeonId(1234);
+
+      queue.SetStatus(LFG_STATUS_WAITING);'
+    language: cpp
+  - title: Check if player is in LFG queue
+    code: "uint64 playerGuid = player->GetGUID();\ntry {\n    LFGQueue& queue = lfgMgr.GetQueue(playerGuid);\n\
+      \    // Player is in queue\n} catch (const std::exception&) {\n    // Player\
+      \ not found in any queue\n}"
+    language: cpp
+  notes: This method performs a lookup operation on an internal data structure, so
+    repeated calls with the same GUID may have performance implications. The returned
+    reference should be used carefully as it directly modifies the underlying queue
+    state. Ensure that the GUID passed is valid and corresponds to an actual player
+    in the game world.
+  warnings: Calling this method with an invalid or non-existent GUID can lead to undefined
+    behavior or crashes. Always verify that a queue exists for the given GUID before
+    calling this method, especially when dealing with dynamic player data.
+  related:
+  - LFGMgr::AddPlayerToQueue
+  - LFGMgr::RemovePlayerFromQueue
+  - LFGMgr::GetPlayerQueue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T10:51:08.431711'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: CombatSpecializationBase
+  method: OnInterruptSuccess
+  signature: void CombatSpecializationBase::OnInterruptSuccess(::Unit * target)
+documentation:
+  brief: Handles the successful interruption of a spell cast by the target unit.
+  description: The OnInterruptSuccess method is invoked when a combat specialization
+    successfully interrupts an enemy's spell casting. This method typically executes
+    after a successful interrupt attempt, allowing custom behavior to be defined for
+    what happens when a spell is interrupted. It is part of the combat specialization
+    system in TrinityCore, which enables class-specific or specialization-based combat
+    mechanics. The method receives a pointer to the target unit whose spell cast was
+    interrupted, and can perform actions such as applying effects, modifying unit
+    state, or triggering additional abilities.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target whose spell casting
+      was interrupted. This parameter must not be null and should represent a valid
+      unit in the game world.
+  returns: void
+  examples:
+  - title: Basic Interrupt Success Handler
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnInterruptSuccess(Unit* target) override {\n        // Apply a debuff\
+      \ to the interrupted target\n        target->AddAura(12345, target); // Example\
+      \ aura ID\n        // Log the event\n        sLog->outString(\"Spell interrupted\
+      \ on %s\", target->GetName().c_str());\n    }\n};"
+    language: cpp
+  - title: Advanced Interrupt with Conditional Logic
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnInterruptSuccess(Unit* target) override {\n        if (target &&\
+      \ target->IsPlayer()) {\n            // Apply a different effect for players\n\
+      \            target->AddAura(67890, target);\n        } else {\n           \
+      \ // Apply a generic effect for NPCs\n            target->CastSpell(target,\
+      \ 54321, true);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is typically called from within the core interrupt logic of TrinityCore.
+    Developers should ensure that any effects applied during this method do not cause
+    recursion or infinite loops. The target parameter is guaranteed to be a valid
+    Unit object at the time of invocation.
+  warnings: Do not modify the target unit's state in a way that could invalidate the
+    interrupt process or cause crashes. Avoid performing heavy operations within this
+    method as it may affect performance during combat.
+  related:
+  - OnInterruptFailed
+  - OnSpellCast
+  - OnDamageDealt
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:01:22.686376'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

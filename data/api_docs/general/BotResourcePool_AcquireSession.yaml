@@ -1,0 +1,52 @@
+api:
+  class: BotResourcePool
+  method: AcquireSession
+  signature: std::shared_ptr<BotSession> BotResourcePool::AcquireSession(uint32 accountId)
+documentation:
+  brief: Acquires and returns a bot session for the specified account ID, managing
+    resource allocation and lifecycle.
+  description: The AcquireSession method retrieves or creates a BotSession associated
+    with the given account ID. It manages the lifecycle of bot sessions within the
+    resource pool, ensuring that each account receives a valid session instance. This
+    method is typically used when a bot needs to interact with the game world or perform
+    actions on behalf of a player account. The returned session may be newly created
+    or previously allocated, depending on internal pooling logic. The method handles
+    thread safety and resource management internally, making it safe for concurrent
+    access from multiple threads.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the player account for which to acquire
+      a bot session. Must be a valid, non-zero account ID that exists in the database.
+  returns: A std::shared_ptr<BotSession> pointing to the acquired or newly created
+    bot session for the specified account. Returns nullptr if the account ID is invalid
+    or if session creation fails due to resource constraints.
+  examples:
+  - title: Basic Session Acquisition
+    code: "uint32 accountId = 12345;\nstd::shared_ptr<BotSession> session = botResourcePool->AcquireSession(accountId);\n\
+      if (session)\n{\n    // Use the session to perform bot operations\n    session->DoSomething();\n\
+      }"
+    language: cpp
+  - title: Session Usage with Error Handling
+    code: "uint32 accountId = 12345;\nstd::shared_ptr<BotSession> session = botResourcePool->AcquireSession(accountId);\n\
+      if (!session)\n{\n    sLog->outError(\"Failed to acquire bot session for account\
+      \ %u\", accountId);\n    return false;\n}\n\n// Perform operations using the\
+      \ acquired session\nsession->Update();\nreturn true;"
+    language: cpp
+  notes: This method is thread-safe and designed to be called concurrently from multiple
+    threads. Internally, it manages a pool of bot sessions to minimize resource allocation
+    overhead. The returned session object should not be manually deleted; it will
+    be automatically released back into the pool when the shared_ptr goes out of scope.
+  warnings: Do not store references or pointers to the returned BotSession beyond
+    the scope where the shared_ptr is valid, as this may lead to dangling references.
+    Avoid calling AcquireSession with invalid account IDs (e.g., zero) as it may cause
+    undefined behavior or exceptions.
+  related:
+  - ReleaseSession
+  - GetSessionCount
+  - IsSessionActive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T18:17:18.695099'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

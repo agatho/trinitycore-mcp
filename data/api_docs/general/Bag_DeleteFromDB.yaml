@@ -1,0 +1,48 @@
+api:
+  class: Bag
+  method: DeleteFromDB
+  signature: void Bag::DeleteFromDB(int trans)
+documentation:
+  brief: Removes the bag and its contents from the database using an optional transaction.
+  description: The DeleteFromDB method removes a Bag object and all of its contained
+    items from the database. This operation is typically used when a bag is being
+    destroyed or deleted from a player's inventory. The method accepts an optional
+    transaction parameter which allows the deletion to be part of a larger database
+    transaction, ensuring atomicity across multiple related operations. When no transaction
+    is provided (or trans = -1), the method performs the deletion directly without
+    wrapping it in a transaction. This function is crucial for maintaining data consistency
+    in the game world when items are removed from player inventories.
+  parameters:
+  - name: trans
+    description: Optional database transaction identifier. If provided (non-negative
+      value), the deletion will be executed within the specified transaction context.
+      If -1, no transaction is used and the operation proceeds directly.
+  returns: null
+  examples:
+  - title: Basic Bag Deletion
+    code: "Bag* bag = player->GetBag(0);\nif (bag)\n{\n    bag->DeleteFromDB();\n}"
+    language: cpp
+  - title: Bag Deletion with Transaction
+    code: "TransactionPtr trans = new Transaction();\nBag* bag = player->GetBag(1);\n\
+      if (bag)\n{\n    bag->DeleteFromDB(trans);\n}\ntrans->Execute();"
+    language: cpp
+  notes: This method should only be called on bags that are no longer referenced in
+    memory to prevent dangling pointers. The deletion process will also recursively
+    remove all items contained within the bag from the database. It is recommended
+    to call this method before deleting the Bag object itself to ensure proper cleanup.
+  warnings: Calling DeleteFromDB on a bag that is still actively used or referenced
+    elsewhere in the code may lead to undefined behavior or crashes. Always verify
+    that no other systems are accessing the bag before calling this method. Additionally,
+    if using transactions, ensure they are properly committed or rolled back after
+    calling this function.
+  related:
+  - Bag::SaveToDB
+  - Bag::LoadFromDB
+  - Player::AddItem
+  - Player::RemoveItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T20:49:28.196401'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

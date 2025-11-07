@@ -1,0 +1,58 @@
+api:
+  class: CombatSpecializationBase
+  method: OnDamageTaken
+  signature: void CombatSpecializationBase::OnDamageTaken(::Unit * attacker, uint32
+    damage)
+documentation:
+  brief: Handles damage received by a unit during combat, allowing for specialization-specific
+    reactions.
+  description: The OnDamageTaken method is invoked whenever a unit receives damage
+    in combat. This virtual method serves as a hook for combat specializations to
+    implement custom behavior when damage is inflicted upon the unit. It provides
+    access to both the attacker and the amount of damage dealt, enabling developers
+    to create specialized combat mechanics such as damage reduction, counterattacks,
+    or retaliation effects. The method is typically called from within the core combat
+    system during damage application, and implementations should be efficient to avoid
+    performance degradation in high-frequency combat scenarios.
+  parameters:
+  - name: attacker
+    description: Pointer to the Unit object that caused the damage. May be nullptr
+      if the damage source is not a unit (e.g., environment effects).
+  - name: damage
+    description: The amount of damage dealt to the unit. This value represents the
+      final damage after all modifiers, reductions, and calculations have been applied.
+  returns: null
+  examples:
+  - title: Basic Damage Reaction Implementation
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnDamageTaken(Unit* attacker, uint32 damage) override {\n        //\
+      \ Example: Apply a buff when taking damage\n        if (damage > 0) {\n    \
+      \        GetOwner()->AddAura(SPELL_DAMAGE_BUFF, GetOwner());\n        }\n  \
+      \  }\n};"
+    language: cpp
+  - title: Damage Threshold Trigger
+    code: "class CriticalHitSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnDamageTaken(Unit* attacker, uint32 damage) override {\n        //\
+      \ Example: Trigger special effect when taking high damage\n        if (damage\
+      \ >= 1000) {\n            GetOwner()->CastSpell(attacker, SPELL_CRITICAL_HIT_EFFECT,\
+      \ true);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the combat processing phase and should not perform
+    heavy operations or blocking calls. It's recommended to avoid modifying the unit's
+    health directly within this function unless necessary, as it may interfere with
+    the core combat system. The attacker parameter can be null, so always validate
+    before use.
+  warnings: Do not call methods that modify the combat state or health of the unit
+    directly from this method without careful consideration, as it may cause race
+    conditions or unexpected behavior. Avoid performing expensive computations in
+    this handler to maintain performance during high-frequency combat events.
+  related:
+  - OnDamageDealt
+  - OnCombatEnter
+  - OnCombatExit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:04:07.689437'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

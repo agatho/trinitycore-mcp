@@ -1,0 +1,57 @@
+api:
+  class: CombatSpecializationBase
+  method: ShouldRefreshDoT
+  signature: bool CombatSpecializationBase::ShouldRefreshDoT(::Unit * target, uint32
+    spellId, uint32 threshold) const
+documentation:
+  brief: Determines whether a DoT spell should be refreshed on the target based on
+    duration and threshold.
+  description: The ShouldRefreshDoT method evaluates if a Damage over Time (DoT) spell
+    currently applied to a target should be refreshed. It checks the remaining duration
+    of the existing DoT against a specified threshold value. If the remaining time
+    is less than or equal to the threshold, the method returns true, indicating that
+    refreshing the DoT would be beneficial. This logic is commonly used in combat
+    specializations to optimize spell usage and ensure maximum damage output by avoiding
+    unnecessary refreshes when the DoT is still effective.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object (player or creature) that currently has
+      the DoT applied. Must not be null.
+  - name: spellId
+    description: The ID of the spell being evaluated for refresh. Used to identify
+      which specific DoT effect is being checked.
+  - name: threshold
+    description: The time threshold in milliseconds below which a DoT should be refreshed.
+      If remaining duration is less than or equal to this value, refresh is recommended.
+  returns: Returns true if the DoT spell should be refreshed based on the current
+    duration and threshold; otherwise returns false.
+  examples:
+  - title: Basic Usage in Combat Logic
+    code: "if (player->GetCombatSpecialization()->ShouldRefreshDoT(target, SPELL_FIREBALL_DOT,\
+      \ 2000)) {\n    // Refresh the DoT spell\n    player->CastSpell(target, SPELL_FIREBALL_DOT,\
+      \ true);\n}"
+    language: cpp
+  - title: Using with Dynamic Threshold
+    code: "uint32 remainingTime = target->GetAuraDuration(SPELL_SHADOW_WORD_PAIN);\n\
+      uint32 threshold = 3000; // 3 seconds\nif (player->GetCombatSpecialization()->ShouldRefreshDoT(target,\
+      \ SPELL_SHADOW_WORD_PAIN, threshold)) {\n    player->CastSpell(target, SPELL_SHADOW_WORD_PAIN,\
+      \ true);\n}"
+    language: cpp
+  notes: This method relies on the target's aura system to determine current DoT duration.
+    Ensure that the spell ID corresponds to a valid DoT spell with an active aura
+    on the target. The threshold value should be chosen carefully to balance between
+    optimal damage output and avoiding excessive spell usage.
+  warnings: Do not call this method without verifying that the target actually has
+    the specified DoT spell applied, as it may lead to incorrect behavior or errors
+    in the aura system. Also, ensure the target pointer is valid before calling to
+    prevent crashes.
+  related:
+  - GetAuraDuration
+  - HasAura
+  - CastSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:30:30.923171'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

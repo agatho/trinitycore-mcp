@@ -3,9 +3,9 @@
  * Phase 5 - Week 4: Performance Analysis & Optimization
  */
 
-import { PerformanceAnalyzer, MetricsOptions, MetricsSnapshot, PerformanceReport } from '../performance/PerformanceAnalyzer.js';
-import { ScalingSimulator, SimulationConfig, SimulationResult, BaselineMetrics, ResourceLimits } from '../performance/ScalingSimulator.js';
-import { OptimizationSuggester, OptimizationResult, SuggestionFilters } from '../performance/OptimizationSuggester.js';
+import { PerformanceAnalyzer, MetricsOptions, MetricsSnapshot, PerformanceReport } from '../performance/PerformanceAnalyzer';
+import { ScalingSimulator, SimulationConfig, SimulationResult, BaselineMetrics, ResourceLimits } from '../performance/ScalingSimulator';
+import { OptimizationSuggester, OptimizationResult, SuggestionFilters } from '../performance/OptimizationSuggester';
 import * as fs from 'fs/promises';
 
 // Global instances

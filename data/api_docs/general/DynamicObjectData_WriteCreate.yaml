@@ -1,0 +1,65 @@
+api:
+  class: DynamicObjectData
+  method: WriteCreate
+  signature: void DynamicObjectData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const DynamicObject * owner, const Player * receiver) const
+documentation:
+  brief: Writes dynamic object creation data into a ByteBuffer for transmission to
+    a client.
+  description: The WriteCreate method serializes the state of a DynamicObject instance
+    into a ByteBuffer, preparing it for network transmission to a specific player
+    client. This method is typically invoked during the initial spawn of a dynamic
+    object such as area effects, traps, or environmental effects in World of Warcraft.
+    It handles encoding of object fields based on visibility flags and ensures that
+    only relevant data is sent to the receiver. The method respects fieldVisibilityFlags
+    to determine which data fields should be included in the packet, and it uses the
+    owner reference to properly associate the object with its creator. This is a core
+    part of the TrinityCore's object synchronization system for dynamic game elements.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized object data will be
+      written. This buffer is typically used to construct network packets sent to
+      players.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields of the dynamic object should
+      be included in the packet. These flags control visibility and synchronization
+      behavior based on client requirements and object state.
+  - name: owner
+    description: Pointer to the DynamicObject instance whose data is being written.
+      This represents the actual object being serialized for network transmission.
+  - name: receiver
+    description: Pointer to the Player object who will receive this packet. Used to
+      determine appropriate field visibility and client-specific data handling.
+  returns: null
+  examples:
+  - title: Basic usage in dynamic object spawning
+    code: 'ByteBuffer data;
+
+      int visibilityFlags = 0x1;
+
+      Player* receiver = player;
+
+      DynamicObject* obj = new DynamicObject();
+
+      obj->WriteCreate(data, visibilityFlags, obj, receiver);
+
+      // Send ''data'' to client via packet system'
+    language: cpp
+  notes: This method is part of the internal object synchronization mechanism in TrinityCore.
+    It should only be called when preparing data for network transmission. The method
+    assumes that all necessary field values are already set on the DynamicObject instance
+    before calling.
+  warnings: Improper use of visibility flags may result in incomplete or incorrect
+    client-side object rendering. Ensure that the owner parameter points to a valid
+    DynamicObject instance, as dereferencing an invalid pointer will cause undefined
+    behavior.
+  related:
+  - DynamicObject::BuildCreateUpdate
+  - DynamicObject::WriteUpdate
+  - DynamicObject::GetTypeId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:47:19.718585'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

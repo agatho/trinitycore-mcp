@@ -1,0 +1,55 @@
+api:
+  class: AdaptiveDifficulty
+  method: GetOrCreateProfile
+  signature: std::shared_ptr<PlayerSkillProfile> AdaptiveDifficulty::GetOrCreateProfile(int
+    guid)
+documentation:
+  brief: Retrieves or creates a player skill profile for the specified GUID.
+  description: The GetOrCreateProfile method is responsible for fetching an existing
+    PlayerSkillProfile associated with a given player GUID, or creating a new one
+    if it does not already exist. This method ensures that each player has a unique
+    skill profile which can be used to track their progression and abilities within
+    the game. The returned shared pointer provides managed access to the profile,
+    allowing safe usage across different parts of the codebase without worrying about
+    memory management. This functionality is essential for maintaining consistent
+    player data during gameplay sessions.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player for whom to retrieve or
+      create a skill profile. Must be a valid, non-zero integer representing an existing
+      player in the game world.
+  returns: A std::shared_ptr<PlayerSkillProfile> pointing to either the existing player
+    skill profile associated with the provided GUID, or a newly created one if no
+    such profile existed before. Returns nullptr if the input GUID is invalid or if
+    memory allocation fails.
+  examples:
+  - title: Basic Usage Example
+    code: "std::shared_ptr<PlayerSkillProfile> profile = adaptiveDifficulty->GetOrCreateProfile(12345);\n\
+      if (profile)\n{\n    // Use the player's skill profile\n    profile->SetSkillLevel(SKILL_FIRST_AID,\
+      \ 100);\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "int playerId = player->GetGUID().GetCounter();\nstd::shared_ptr<PlayerSkillProfile>\
+      \ profile = adaptiveDifficulty->GetOrCreateProfile(playerId);\nif (!profile)\n\
+      {\n    sLog->outError(\"Failed to retrieve or create skill profile for player\
+      \ %d\", playerId);\n    return false;\n}\n// Proceed with using the profile\n\
+      profile->UpdateSkillProgress();\nreturn true;"
+    language: cpp
+  notes: This method uses internal caching mechanisms to avoid redundant object creation.
+    It is thread-safe when used within the TrinityCore framework's locking model.
+    The returned shared_ptr automatically handles reference counting, ensuring that
+    profiles are not prematurely destroyed while still in use.
+  warnings: Do not assume that all returned profiles will have initialized skill data.
+    Always validate profile contents before accessing specific skill levels or progress
+    values. Also, be cautious about potential performance impacts if this method is
+    called excessively in tight loops without caching the result.
+  related:
+  - GetProfile
+  - CreateProfile
+  - RemoveProfile
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:50:34.572606'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

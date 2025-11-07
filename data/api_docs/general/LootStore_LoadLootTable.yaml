@@ -1,0 +1,47 @@
+api:
+  class: LootStore
+  method: LoadLootTable
+  signature: uint32 LootStore::LoadLootTable()
+documentation:
+  brief: Loads and initializes the loot table data for the LootStore instance.
+  description: The LoadLootTable method is responsible for loading all loot definitions
+    from the database into memory for the specific LootStore instance. It typically
+    reads loot templates, item probabilities, and drop rules associated with game
+    objects, creatures, or quests. This method is essential for populating the internal
+    data structures required to determine what items can be dropped during loot generation
+    events. The method returns a count of successfully loaded loot entries, which
+    helps in verifying that all expected loot data has been properly initialized.
+    It should be called during server startup or when reloading loot data dynamically.
+  parameters: []
+  returns: Returns the number of loot entries successfully loaded into the LootStore.
+    A return value of zero may indicate an empty loot table or a database loading
+    error.
+  examples:
+  - title: Basic usage during server initialization
+    code: "LootStore store;\nuint32 loadedEntries = store.LoadLootTable();\nif (loadedEntries\
+      \ > 0)\n{\n    printf(\"Loaded %u loot entries\\n\", loadedEntries);\n}"
+    language: cpp
+  - title: Checking for successful load in a dynamic reload scenario
+    code: "LootStore* store = sLootMgr->GetLootStore(LOOT_TYPE_CREATURE);\nuint32\
+      \ count = store->LoadLootTable();\nif (count == 0)\n{\n    sLog->outError(LOG_FILTER_SERVER_LOADING,\
+      \ \"Failed to load creature loot table\");\n}\nelse\n{\n    sLog->outString(\"\
+      Creature loot table reloaded with %u entries\", count);\n}"
+    language: cpp
+  notes: This method is typically called once during server initialization or when
+    reloading loot data. It performs database queries to fetch all relevant loot templates
+    and populates internal containers. The method may be blocking while performing
+    database I/O operations, so it's recommended to call it during server startup
+    rather than at runtime.
+  warnings: Calling this method multiple times without proper cleanup can lead to
+    memory leaks or duplicate entries in the loot store. Ensure that any existing
+    data is properly cleared before reloading.
+  related:
+  - LoadLootTemplates
+  - GetLootFor
+  - Clear
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T09:16:07.963207'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

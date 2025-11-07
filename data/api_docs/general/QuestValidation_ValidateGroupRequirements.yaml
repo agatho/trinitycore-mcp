@@ -1,0 +1,58 @@
+api:
+  class: QuestValidation
+  method: ValidateGroupRequirements
+  signature: bool QuestValidation::ValidateGroupRequirements(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player meets all group requirements for a specified quest.
+  description: The ValidateGroupRequirements method checks if the given player satisfies
+    all necessary group conditions required to accept or complete a specific quest.
+    This includes verifying that the player is in a valid group state, has the appropriate
+    group size, and meets any faction or level-based group restrictions imposed by
+    the quest. The method ensures that game mechanics such as quest gating and group-based
+    rewards are properly enforced within the TrinityCore framework.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate group requirements
+      for. Must correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the player whose group
+      requirements are being validated. Cannot be null.
+  returns: Returns true if all group requirements for the specified quest are met
+    by the player; otherwise, returns false.
+  examples:
+  - title: Basic Usage Example
+    code: "if (QuestValidation::ValidateGroupRequirements(12345, player)) {\n    //\
+      \ Player can proceed with quest\n    player->CompleteQuest(12345);\n} else {\n\
+      \    // Player does not meet group requirements\n    player->SendNotification(\"\
+      You do not meet the group requirements for this quest.\");\n}"
+    language: cpp
+  - title: Advanced Usage with Group Validation
+    code: "uint32 questId = 67890;\nPlayer* bot = player;\nif (QuestValidation::ValidateGroupRequirements(questId,\
+      \ bot)) {\n    // Proceed with quest logic\n    if (bot->GetGroup()) {\n   \
+      \     // Ensure all group members meet requirements\n        for (GroupReference*\
+      \ ref = bot->GetGroup()->GetFirstMember(); ref; ref = ref->next()) {\n     \
+      \       Player* member = ref->getSource();\n            if (!QuestValidation::ValidateGroupRequirements(questId,\
+      \ member)) {\n                bot->SendNotification(\"One or more group members\
+      \ do not meet requirements.\");\n                return;\n            }\n  \
+      \      }\n    }\n    // All validations passed\n    bot->CompleteQuest(questId);\n\
+      }"
+    language: cpp
+  notes: This method relies on internal quest data and group state information. It
+    performs checks against the player's current group membership, group size, and
+    faction alignment as defined in the quest template. The method does not modify
+    any game state but only evaluates conditions.
+  warnings: Ensure that the 'bot' parameter is a valid Player pointer before calling
+    this function to avoid null pointer exceptions. Also note that this validation
+    may fail if the player is not currently in a group when the quest requires one,
+    or if the group composition doesn't meet specific quest criteria.
+  related:
+  - ValidateQuestRequirements
+  - IsPlayerInValidGroup
+  - GetQuestGroupSizeRequirement
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:16:45.135019'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

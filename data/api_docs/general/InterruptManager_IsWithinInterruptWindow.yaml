@@ -1,0 +1,56 @@
+api:
+  class: InterruptManager
+  method: IsWithinInterruptWindow
+  signature: bool InterruptManager::IsWithinInterruptWindow(const InterruptTarget
+    & target, float executionTime)
+documentation:
+  brief: Determines whether a target is within the interrupt window for spell interruption.
+  description: The IsWithinInterruptWindow method evaluates if a given target is currently
+    within the time frame during which a spell can be interrupted. This functionality
+    is crucial for determining valid interrupt opportunities in combat mechanics,
+    particularly when dealing with abilities that have specific timing windows for
+    interruption. The method considers both the execution time of the spell and the
+    target's current state to make this determination.
+  parameters:
+  - name: target
+    description: The InterruptTarget object representing the entity to check for interrupt
+      eligibility. This typically contains information about the target's current
+      spell casting state, duration, and other relevant properties.
+  - name: executionTime
+    description: A float value representing the time in seconds when the interrupt
+      attempt occurs. This is used to calculate whether the target's spell is still
+      within its interruptible window based on the current execution context.
+  returns: Returns true if the target is currently within the interrupt window, allowing
+    for a successful interruption; otherwise returns false if the target is outside
+    the valid time frame or if the conditions for interruption are not met.
+  examples:
+  - title: Basic usage to check interrupt eligibility
+    code: "if (interruptManager.IsWithinInterruptWindow(target, currentTime)) {\n\
+      \    // Proceed with interrupt logic\n    target.InterruptSpell();\n}"
+    language: cpp
+  - title: Using within a combat handler to validate interrupt timing
+    code: "void CombatHandler::ProcessInterrupt(const InterruptTarget& target) {\n\
+      \    float currentExecutionTime = GetGameTime();\n    if (interruptManager.IsWithinInterruptWindow(target,\
+      \ currentExecutionTime)) {\n        // Perform the actual spell interruption\n\
+      \        target.InterruptSpell();\n        SendInterruptMessage(target);\n \
+      \   } else {\n        // Notify player that interrupt failed due to timing\n\
+      \        SendInvalidInterruptMessage(target);\n    }\n}"
+    language: cpp
+  notes: This method relies on accurate time tracking and proper state management
+    of the target's spell casting. Developers should ensure that executionTime is
+    synchronized with the game's internal clock to maintain consistent behavior across
+    different server environments.
+  warnings: Incorrect handling of executionTime can lead to inconsistent interrupt
+    behavior, potentially causing spells to be interrupted at inappropriate times
+    or not interrupted when they should be. Always validate that target states are
+    properly initialized before calling this method.
+  related:
+  - InterruptTarget::GetSpellCastTime
+  - InterruptTarget::IsCasting
+  - InterruptManager::InterruptSpell
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:21:32.643378'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

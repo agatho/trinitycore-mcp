@@ -1,0 +1,64 @@
+api:
+  class: SmartGameObjectAI
+  method: OnLootStateChanged
+  signature: void SmartGameObjectAI::OnLootStateChanged(uint32 state, Unit * unit)
+documentation:
+  brief: Handles the state change of a game object's loot, triggered when loot availability
+    or status is modified.
+  description: The OnLootStateChanged method is invoked within the SmartGameObjectAI
+    class to notify the AI behavior when the loot state of a game object has changed.
+    This typically occurs when a player interacts with a lootable object such as a
+    chest or container, and the state transitions from 'not looted' to 'looted', or
+    when the loot is reset after a certain time or event. The method receives the
+    new state value and the unit (player) that triggered the change, allowing for
+    custom AI logic to be executed based on these conditions. This method is part
+    of the smart AI system in TrinityCore which enables dynamic and context-aware
+    behavior for game objects.
+  parameters:
+  - name: state
+    description: The new loot state value indicating the current status of the object's
+      loot. Common values include 0 (not looted), 1 (looted), or other custom states
+      depending on the implementation.
+  - name: unit
+    description: Pointer to the Unit object (typically a Player) that caused the loot
+      state change. May be nullptr if the state change is not triggered by a specific
+      unit.
+  returns: null
+  examples:
+  - title: Basic implementation override
+    code: "void SmartGameObjectAI::OnLootStateChanged(uint32 state, Unit* unit)\n\
+      {\n    if (state == 1) // Looted\n    {\n        // Trigger custom event or\
+      \ quest update\n        if (unit && unit->GetTypeId() == TYPEID_PLAYER)\n  \
+      \      {\n            Player* player = unit->ToPlayer();\n            player->KilledMonsterCredit(12345);\n\
+      \        }\n    }\n}"
+    language: cpp
+  - title: Advanced example with multiple state handling
+    code: "void SmartGameObjectAI::OnLootStateChanged(uint32 state, Unit* unit)\n\
+      {\n    switch (state)\n    {\n        case 0: // Not looted\n            //\
+      \ Reset any timers or conditions\n            break;\n        case 1: // Looted\n\
+      \            // Award loot and trigger events\n            if (unit && unit->GetTypeId()\
+      \ == TYPEID_PLAYER)\n            {\n                Player* player = unit->ToPlayer();\n\
+      \                // Spawn additional NPCs or items\n                DoSpawnCreature(12345,\
+      \ 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);\n            }\n   \
+      \         break;\n        default:\n            // Handle custom states\n  \
+      \          break;\n    }\n}"
+    language: cpp
+  notes: This method is part of the SmartAI framework and is intended to be overridden
+    by custom AI implementations. It's called from within the core game logic when
+    loot state changes occur, so it should avoid heavy computations or blocking operations.
+    The state parameter may vary depending on how the object's loot system is implemented
+    in the specific GameObject type.
+  warnings: Ensure that any modifications to the GameObject's state or behavior do
+    not cause infinite loops or race conditions. Be cautious when accessing unit data,
+    as the pointer might be invalid if the unit has been destroyed or despawned before
+    the method executes.
+  related:
+  - OnLootStateChange
+  - GetLootState
+  - SetLootState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:23:48.552842'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

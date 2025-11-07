@@ -1,0 +1,57 @@
+api:
+  class: CreatureAI
+  method: OnCharmed
+  signature: void CreatureAI::OnCharmed(bool isNew)
+documentation:
+  brief: Called when the creature is charmed by a player or NPC, allowing custom AI
+    behavior during the charm state.
+  description: The OnCharmed method is invoked when a CreatureAI object is notified
+    that its associated creature has been charmed by another unit. This method serves
+    as a hook for custom AI implementations to respond to the charm event, such as
+    modifying behavior, resetting objectives, or triggering specific actions. The
+    isNew parameter indicates whether this is the first time the creature has been
+    charmed or if it's a re-charm after being uncharmed previously. This method is
+    part of the CreatureAI framework in TrinityCore and allows developers to extend
+    default charm mechanics with custom logic.
+  parameters:
+  - name: isNew
+    description: Boolean flag indicating whether this is the initial charm event (true)
+      or a re-charm after being uncharmed (false).
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void OnCharmed(bool\
+      \ isNew) override {\n        if (isNew) {\n            // Perform actions on\
+      \ first charm\n            me->SetReactState(REACT_PASSIVE);\n        } else\
+      \ {\n            // Handle re-charm scenario\n            me->SetReactState(REACT_AGGRESSIVE);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Advanced Charm Handling with State Tracking
+    code: "class AdvancedCreatureAI : public CreatureAI {\nprivate:\n    bool m_isCharmed\
+      \ = false;\n\npublic:\n    void OnCharmed(bool isNew) override {\n        if\
+      \ (isNew) {\n            m_isCharmed = true;\n            // Custom logic for\
+      \ first charm\n            me->AddUnitState(UNIT_STATE_CHARMED);\n         \
+      \   me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);\n        } else\
+      \ {\n            // Handle re-charm after uncharming\n            m_isCharmed\
+      \ = true;\n            me->RemoveUnitState(UNIT_STATE_CHARMED);\n        }\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is called from within the core AI update loop and should not
+    perform heavy operations that could block the game thread. The isNew parameter
+    allows for different behaviors based on whether the creature was charmed for the
+    first time or re-charmed, which can be useful for maintaining consistent state
+    across charm cycles.
+  warnings: Do not call methods that modify the creature's charm state directly from
+    within OnCharmed, as this may cause recursion or undefined behavior. Be cautious
+    with modifying unit flags or states in a way that could conflict with the core
+    charm system.
+  related:
+  - OnUncharmed
+  - IsCharmed
+  - GetCharmer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:21:43.172767'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

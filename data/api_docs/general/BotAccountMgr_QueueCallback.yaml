@@ -1,0 +1,49 @@
+api:
+  class: BotAccountMgr
+  method: QueueCallback
+  signature: void BotAccountMgr::QueueCallback(std::function<void ()> callback)
+documentation:
+  brief: Schedules a callback function to be executed in the bot account manager's
+    processing queue.
+  description: The QueueCallback method allows developers to defer execution of a
+    provided callback function until the bot account manager processes its internal
+    queue. This is typically used for thread-safe operations that need to be performed
+    within the context of the main game loop or a dedicated bot management thread.
+    The callback will be executed asynchronously, ensuring that time-consuming tasks
+    don't block the primary game thread. This method is essential for integrating
+    asynchronous operations into the TrinityCore bot system without causing race conditions
+    or performance issues.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Callback Scheduling
+    code: "BotAccountMgr::instance()->QueueCallback([]() {\n    // Perform some bot-related\
+      \ task\n    sLog->outString(\"Executing queued bot task\");\n});"
+    language: cpp
+  - title: Complex Bot Operation with Callback
+    code: "BotAccountMgr::instance()->QueueCallback([accountId, characterName]() {\n\
+      \    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(accountId,\
+      \ 0, HIGHGUID_PLAYER)))\n    {\n        sLog->outString(\"Processing bot account\
+      \ %u for character %s\", accountId, characterName.c_str());\n        // Perform\
+      \ complex bot logic here\n    }\n});"
+    language: cpp
+  notes: This method is designed to be thread-safe and should only be called from
+    threads other than the main game thread. The callback function will be executed
+    in the context of the bot manager's processing thread, so any shared resources
+    accessed within the callback must be properly synchronized. The queue mechanism
+    ensures that callbacks are processed in order but may introduce slight delays
+    depending on system load.
+  warnings: Avoid performing long-running operations inside the callback as it can
+    block other queued tasks. Do not assume that the callback will execute immediately;
+    it's queued for later execution. Be cautious about accessing game objects directly
+    from within the callback without proper locking mechanisms.
+  related:
+  - BotAccountMgr::Initialize
+  - BotAccountMgr::Update
+  - BotAccountMgr::AddAccount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:03:02.539133'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

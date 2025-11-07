@@ -1,0 +1,70 @@
+api:
+  class: LineOfSightManager
+  method: GenerateCacheKey
+  signature: std::string LineOfSightManager::GenerateCacheKey(int sourceGuid, int
+    targetGuid, LoSCheckType checkType)
+documentation:
+  brief: Generates a unique cache key string based on source GUID, target GUID, and
+    line-of-sight check type for efficient LOS result caching.
+  description: The GenerateCacheKey method constructs a deterministic cache key used
+    by the LineOfSightManager to store and retrieve previously computed line-of-sight
+    results. This key is formed by combining the source GUID, target GUID, and the
+    specific LoSCheckType enum value into a single string format. The generated key
+    ensures that LOS calculations for identical source-target pairs with the same
+    check type can be quickly retrieved from cache rather than recomputed. This optimization
+    is crucial in TrinityCore's performance-sensitive systems where frequent LOS checks
+    occur during AI behavior, spell casting, and movement validation.
+  parameters:
+  - name: sourceGuid
+    description: The unique identifier (GUID) of the entity initiating the line-of-sight
+      check. Must be a valid GameObject, Creature, or Player GUID.
+  - name: targetGuid
+    description: The unique identifier (GUID) of the entity being checked for line-of-sight
+      visibility. Must be a valid GameObject, Creature, or Player GUID.
+  - name: checkType
+    description: An enum value indicating the type of line-of-sight check to perform.
+      Valid values include LOS_CHECK_NORMAL, LOS_CHECK_IGNORE_HEIGHT, etc., as defined
+      in LoSCheckType enumeration.
+  returns: A std::string representing a unique cache key constructed from the input
+    parameters. The format typically follows a pattern like "sourceGuid_targetGuid_checkType"
+    to ensure uniqueness for different combinations of inputs.
+  examples:
+  - title: Basic Cache Key Generation
+    code: 'LineOfSightManager losManager;
+
+      int sourceGuid = 12345;
+
+      int targetGuid = 67890;
+
+      LoSCheckType checkType = LOS_CHECK_NORMAL;
+
+      std::string cacheKey = losManager.GenerateCacheKey(sourceGuid, targetGuid, checkType);
+
+      // Resulting key might be something like "12345_67890_NORMAL"'
+    language: cpp
+  - title: Using Cache Key for LOS Lookup
+    code: "LineOfSightManager losManager;\nint sourceGuid = 12345;\nint targetGuid\
+      \ = 67890;\nLoSCheckType checkType = LOS_CHECK_IGNORE_HEIGHT;\nstd::string cacheKey\
+      \ = losManager.GenerateCacheKey(sourceGuid, targetGuid, checkType);\n// Later\
+      \ in code, use this key to check if LOS result exists in cache\nif (cache.find(cacheKey)\
+      \ != cache.end()) {\n    // Use cached result\n} else {\n    // Perform actual\
+      \ LOS calculation and store result\n}"
+    language: cpp
+  notes: This method is designed to be fast and deterministic. It should not perform
+    any heavy computations or I/O operations. The cache key format must remain consistent
+    across server restarts for effective caching. Developers should ensure that GUID
+    values are properly validated before calling this method.
+  warnings: Ensure that sourceGuid and targetGuid are valid identifiers from the game
+    world to avoid unexpected behavior. Using invalid GUIDs may lead to incorrect
+    cache keys or collisions. The method assumes all inputs are valid and does not
+    perform input validation internally.
+  related:
+  - LineOfSightManager::CheckLoS
+  - LineOfSightManager::GetCachedResult
+  - LineOfSightManager::StoreCachedResult
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T01:55:03.670428'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

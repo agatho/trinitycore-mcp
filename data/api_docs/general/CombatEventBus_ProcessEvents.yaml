@@ -1,0 +1,49 @@
+api:
+  class: CombatEventBus
+  method: ProcessEvents
+  signature: uint32 CombatEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes combat events in the event bus up to a specified limit.
+  description: The ProcessEvents method iterates through queued combat-related events
+    and executes their associated handlers. It is typically called during the game
+    loop to ensure timely processing of combat actions such as damage calculations,
+    spell casts, and status effects. The method respects a maximum event count to
+    prevent performance degradation by limiting how many events are processed per
+    tick. This ensures that combat processing does not monopolize CPU cycles and maintains
+    smooth gameplay.
+  parameters:
+  - name: diff
+    description: Time elapsed since last call in milliseconds, used for timing-based
+      event processing.
+  - name: maxEvents
+    description: Maximum number of events to process in this call. Prevents excessive
+      CPU usage during high-combat situations.
+  returns: Returns the actual number of events processed during this invocation, which
+    may be less than maxEvents if fewer events were queued.
+  examples:
+  - title: Basic event processing in game loop
+    code: uint32 eventsProcessed = combatEventBus.ProcessEvents(diff, 100);
+    language: cpp
+  - title: Dynamic event handling with performance control
+    code: 'uint32 maxEvents = std::min(500u, combatEventBus.GetQueuedEventCount());
+
+      uint32 processed = combatEventBus.ProcessEvents(diff, maxEvents);'
+    language: cpp
+  notes: This method is designed to be called regularly from the main game loop. It's
+    important to pass accurate time deltas (diff) for proper timing of events. The
+    method does not block execution; it processes events asynchronously within the
+    game tick.
+  warnings: Do not call this method with a maxEvents value of zero, as it may lead
+    to unexpected behavior or infinite loops in certain implementations. Also, ensure
+    that event handlers do not introduce long-running operations that could delay
+    other events.
+  related:
+  - GetQueuedEventCount
+  - QueueEvent
+  - ClearEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:11:56.672283'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

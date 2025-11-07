@@ -1,0 +1,58 @@
+api:
+  class: CombatSpecializationBase
+  method: OnInterruptFailed
+  signature: void CombatSpecializationBase::OnInterruptFailed(::Unit * target)
+documentation:
+  brief: Handles the event when an interrupt attempt fails on a target unit
+  description: The OnInterruptFailed method is invoked when a combat specialization's
+    interrupt ability fails to successfully interrupt an enemy target. This method
+    is typically called as part of the combat system's interrupt mechanics, where
+    a player or creature attempts to interrupt another unit's spell casting or ability
+    usage. The method may perform cleanup operations, trigger visual effects, update
+    combat state, or log the failed interrupt attempt for debugging purposes. It serves
+    as a callback mechanism in the combat specialization system to handle unsuccessful
+    interrupt scenarios.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object that was targeted for interruption. This
+      represents the unit whose spell casting or ability usage failed to be interrupted.
+      The target must be a valid Unit instance, typically an enemy unit in combat.
+  returns: null
+  examples:
+  - title: Basic interrupt failure handling
+    code: "class MyCombatSpecialization : public CombatSpecializationBase {\npublic:\n\
+      \    void OnInterruptFailed(Unit* target) override {\n        // Log the failed\
+      \ interrupt attempt\n        if (target) {\n            sLog->outInfo(LOG_FILTER_GENERAL,\
+      \ \"Interrupt failed on target: %s\", target->GetName().c_str());\n        }\n\
+      \        // Perform any cleanup or state updates\n        // ...\n    }\n};"
+    language: cpp
+  - title: Advanced interrupt failure with visual feedback
+    code: "class AdvancedCombatSpecialization : public CombatSpecializationBase {\n\
+      public:\n    void OnInterruptFailed(Unit* target) override {\n        if (!target\
+      \ || !target->IsInWorld())\n            return;\n        \n        // Send a\
+      \ visual effect to indicate failure\n        target->SendSpellVisual(45678);\
+      \ // Example spell visual ID\n        \n        // Play sound effect\n     \
+      \   target->PlayDistanceSound(12345); // Example sound ID\n        \n      \
+      \  // Log for debugging\n        sLog->outDebug(LOG_FILTER_COMBAT, \"Interrupt\
+      \ failed on %s (GUID: %u)\", target->GetName().c_str(), target->GetGUID().GetCounter());\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is part of the combat specialization system and should be overridden
+    in derived classes to implement custom interrupt failure behavior. The target
+    parameter may be null in edge cases, so proper null checking is recommended. This
+    method is typically called from within the core combat interrupt logic and should
+    not perform heavy operations that could impact performance.
+  warnings: Ensure that the target pointer is valid before using it, as it might be
+    null in certain edge cases. Avoid performing expensive operations in this method
+    since it's called frequently during combat. Be aware that this method may be invoked
+    from different threads depending on the combat system implementation.
+  related:
+  - OnInterruptSuccess
+  - OnInterrupt
+  - CanInterrupt
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T17:01:47.108165'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

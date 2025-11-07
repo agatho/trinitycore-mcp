@@ -1,0 +1,79 @@
+api:
+  class: LFGMgr
+  method: GetCompatibleDungeons
+  signature: void LFGMgr::GetCompatibleDungeons(LfgDungeonSet * dungeons, const int
+    & players, LfgLockPartyMap * lockMap, int * playersMissingRequirement, bool isContinue)
+documentation:
+  brief: Fills a set of compatible LFG dungeons based on player count, lock map, and
+    requirements.
+  description: The GetCompatibleDungeons method populates a provided set of LFG (Looking
+    For Group) dungeons with those that are compatible with the specified number of
+    players, considering any existing lock mappings. It evaluates dungeon requirements
+    such as player count, level ranges, and group composition to determine which dungeons
+    can be joined by the given party. This method is used internally by the LFG system
+    to filter valid dungeon options for players seeking group content. The method
+    modifies the provided dungeons set in-place and may also update a counter for
+    players missing specific requirements.
+  parameters:
+  - name: dungeons
+    description: Pointer to a set that will be filled with compatible LFG dungeon
+      IDs. This set is modified in-place.
+  - name: players
+    description: The number of players in the group for which compatibility is being
+      checked.
+  - name: lockMap
+    description: Pointer to a map containing lock information for party members. Used
+      to determine if certain dungeons are locked due to previous selections or restrictions.
+  - name: playersMissingRequirement
+    description: Pointer to an integer that will be updated with the number of players
+      who do not meet specific dungeon requirements (e.g., level, gear).
+  - name: isContinue
+    description: Boolean flag indicating whether this is a continuation of a previous
+      LFG search. Affects how certain restrictions are applied.
+  returns: null
+  examples:
+  - title: Basic usage to get compatible dungeons for a group of 5 players
+    code: 'LfgDungeonSet dungeons;
+
+      LfgLockPartyMap lockMap;
+
+      int missingPlayers = 0;
+
+      LFGMgr::instance()->GetCompatibleDungeons(&dungeons, 5, &lockMap, &missingPlayers,
+      false);
+
+      // Dungeons now contains all compatible LFG dungeons for a group of 5 players'
+    language: cpp
+  - title: Using GetCompatibleDungeons with lock map and checking missing requirements
+    code: 'LfgDungeonSet dungeons;
+
+      LfgLockPartyMap lockMap;
+
+      lockMap[12345] = 100; // Player ID 12345 locked to dungeon 100
+
+      int missingPlayers = 0;
+
+      LFGMgr::instance()->GetCompatibleDungeons(&dungeons, 3, &lockMap, &missingPlayers,
+      true);
+
+      // Dungeons filtered based on group size and lock map, with missingPlayers updated'
+    language: cpp
+  notes: This method is part of the internal LFG system logic and should not be called
+    directly by external modules unless implementing custom LFG behavior. The method
+    assumes valid input parameters and modifies the provided containers in-place without
+    returning them.
+  warnings: Ensure that the provided dungeon set and lock map are properly initialized
+    before calling this method, as invalid or uninitialized data can lead to undefined
+    behavior. The playersMissingRequirement parameter is updated by reference and
+    should be checked after the call to determine if any group members are excluded
+    due to requirements.
+  related:
+  - LFGMgr::JoinLfg
+  - LFGMgr::GetDungeonGroup
+  - LFGMgr::IsPlayerLocked
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T10:53:23.616984'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

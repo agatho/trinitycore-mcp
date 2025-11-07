@@ -1,0 +1,57 @@
+api:
+  class: GroupIntegration
+  method: RemoveBotFromGroup
+  signature: void GroupIntegration::RemoveBotFromGroup(Group * group, uint32 botGuid)
+documentation:
+  brief: Removes a specified bot from a group in the World of Warcraft instance.
+  description: The RemoveBotFromGroup method is responsible for removing a bot character,
+    identified by its GUID, from a specified group within the TrinityCore framework.
+    This function ensures that the bot is properly ejected from the group, updating
+    internal group structures and notifying relevant systems. It is typically used
+    in automated bot management systems where bots need to be dynamically added or
+    removed from player groups. The method assumes that the group exists and contains
+    the specified bot; otherwise, behavior may be undefined. This operation affects
+    group composition and can trigger updates to group loot settings, roles, and other
+    group-related mechanics.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the bot will be removed. Must
+      be a valid group instance; null pointer results in undefined behavior.
+  - name: botGuid
+    description: Unique identifier (GUID) of the bot character to be removed from
+      the group. Must correspond to an existing bot within the group, otherwise the
+      operation may fail silently or cause inconsistencies.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: 'Group* myGroup = sGroupMgr->GetGroupById(groupId);
+
+      uint32 botGuid = 123456;
+
+      GroupIntegration::RemoveBotFromGroup(myGroup, botGuid);'
+    language: cpp
+  - title: Safe Removal with Validation
+    code: "if (Group* group = sGroupMgr->GetGroupById(groupId))\n{\n    if (group->IsMember(botGuid))\n\
+      \    {\n        GroupIntegration::RemoveBotFromGroup(group, botGuid);\n    }\n\
+      }"
+    language: cpp
+  notes: This method modifies internal group state and should be called carefully
+    to avoid race conditions in multi-threaded environments. Ensure that the group
+    pointer is valid before calling this function. The removal process may also trigger
+    updates to group loot settings or roles, so it's important to ensure proper synchronization
+    if other systems depend on these values.
+  warnings: Calling this method with an invalid group pointer or a botGuid not present
+    in the group can lead to undefined behavior or crashes. Always validate inputs
+    before invoking this function. Additionally, removing bots from groups may affect
+    gameplay mechanics such as loot distribution or quest progression if the bot was
+    participating in those activities.
+  related:
+  - AddBotToGroup
+  - Group::RemoveMember
+  - Group::IsMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:00:04.482472'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: RoleAssignment
+  method: CalculateRoleSynergy
+  signature: float RoleAssignment::CalculateRoleSynergy(Player * player, GroupRole
+    role, Group * group)
+documentation:
+  brief: Calculates the synergy score for a player's role within a group based on
+    team composition and player attributes.
+  description: The CalculateRoleSynergy method evaluates how well a player's assigned
+    role fits within the context of their current group. It takes into account various
+    factors such as the player's class, specialization, gear level, and the overall
+    makeup of the group to determine an effectiveness multiplier. This synergy score
+    is used internally by TrinityCore to optimize group assignments, loot distribution,
+    and encounter difficulty scaling. The method requires a valid player object and
+    group context to perform calculations, returning a float value that represents
+    the normalized synergy between the player's role and their group's needs.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose role synergy is being calculated.
+      Must be a valid player with an active session and group membership.
+  - name: role
+    description: The GroupRole enum value representing the player's assigned role
+      within the group (e.g., TANK, HEALER, DAMAGE).
+  - name: group
+    description: Pointer to the Group object containing the player and other group
+      members. Must be a valid group with at least one member.
+  returns: Returns a float value between 0.0f and 1.0f representing the calculated
+    synergy score. A value of 1.0f indicates perfect role synergy, while values closer
+    to 0.0f indicate poor fit or redundancy in the group's composition.
+  examples:
+  - title: Basic Usage Example
+    code: "float synergy = roleAssignment->CalculateRoleSynergy(player, GROUP_ROLE_TANK,\
+      \ player->GetGroup());\nif (synergy > 0.8f) {\n    // Player is well-suited\
+      \ for their assigned tank role\n}"
+    language: cpp
+  - title: Synergy-Based Role Optimization
+    code: "Group* group = player->GetGroup();\nif (group && group->IsLeader(player))\
+      \ {\n    float currentSynergy = roleAssignment->CalculateRoleSynergy(player,\
+      \ player->GetRole(), group);\n    // Adjust role assignment if synergy is low\n\
+      \    if (currentSynergy < 0.5f) {\n        // Consider reassigning role for\
+      \ better group balance\n    }\n}"
+    language: cpp
+  notes: This method performs internal calculations involving player statistics, group
+    composition analysis, and role balancing algorithms. It may be computationally
+    expensive when called frequently on large groups. The synergy score is not cached
+    and will be recalculated each time the method is invoked.
+  warnings: Ensure that both player and group parameters are valid before calling
+    this method to avoid segmentation faults. Calling with a null player or group
+    pointer will likely result in undefined behavior or crashes.
+  related:
+  - GetPlayerRole
+  - SetPlayerRole
+  - GetGroupComposition
+  - RecalculateGroupRoles
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:43:10.697980'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: QuestPickup
+  method: CoordinateGroupQuestPickup
+  signature: void QuestPickup::CoordinateGroupQuestPickup(Group * group, uint32 questId)
+documentation:
+  brief: Coordinates quest pickup for all members of a group.
+  description: The CoordinateGroupQuestPickup method handles the distribution and
+    processing of quest pickup events for all players within a specified group. This
+    method ensures that each group member receives the appropriate quest-related updates,
+    including quest acceptance, objective tracking, and reward eligibility. It is
+    typically invoked when a group leader initiates a quest pickup or when a group
+    member joins a quest that was already started by another group member. The method
+    manages synchronization of quest states across multiple players and ensures consistent
+    game state updates for all participants in the group.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players who will receive
+      the quest pickup coordination. Must be a valid group instance with at least
+      one member.
+  - name: questId
+    description: The unique identifier of the quest to be picked up by the group members.
+      Must correspond to a valid quest in the game database.
+  returns: null
+  examples:
+  - title: Basic Group Quest Pickup
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup)\n{\n    QuestPickup::CoordinateGroupQuestPickup(playerGroup,\
+      \ 12345);\n}"
+    language: cpp
+  - title: Conditional Group Quest Pickup
+    code: "Group* group = player->GetGroup();\nif (group && group->GetLeaderGuid()\
+      \ == player->GetGUID())\n{\n    uint32 questId = 67890;\n    if (player->CanTakeQuest(questId,\
+      \ false))\n    {\n        QuestPickup::CoordinateGroupQuestPickup(group, questId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the group members are within the same zone and have
+    appropriate quest access. It does not validate whether individual players can
+    actually accept the quest - this should be handled beforehand. The method may
+    trigger additional internal events such as quest update notifications and group
+    synchronization messages.
+  warnings: Do not call this method with a null group pointer as it will likely cause
+    a crash. Ensure that the questId is valid and exists in the database before calling
+    to avoid unexpected behavior. This method should only be called when the group
+    is fully formed and all members are present in the same world instance.
+  related:
+  - Group::GetMembers
+  - Player::CanTakeQuest
+  - Quest::GetQuestId
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:49:18.143911'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

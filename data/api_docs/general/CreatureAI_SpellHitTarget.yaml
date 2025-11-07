@@ -1,0 +1,59 @@
+api:
+  class: CreatureAI
+  method: SpellHitTarget
+  signature: void CreatureAI::SpellHitTarget(WorldObject * param0, const int * param1)
+documentation:
+  brief: Handles the event when a creature is hit by a spell targeting a specific
+    WorldObject.
+  description: The SpellHitTarget method is invoked by the TrinityCore AI system when
+    a creature's AI logic needs to respond to a spell that has targeted and affected
+    a specific WorldObject. This method allows custom AI behavior to be implemented
+    in response to spells hitting targets, such as triggering special effects, modifying
+    target state, or initiating follow-up actions. It is part of the CreatureAI base
+    class and can be overridden by derived AI classes to implement creature-specific
+    logic. The method provides access to both the spell information (via the int pointer)
+    and the target object that was hit.
+  parameters:
+  - name: param0
+    description: Pointer to the WorldObject that was hit by the spell. This can be
+      a Player, Creature, GameObject, or any other object derived from WorldObject.
+  - name: param1
+    description: Pointer to an integer representing the spell ID or effect information
+      associated with the spell that hit the target.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI\n{\npublic:\n    void SpellHitTarget(WorldObject*\
+      \ target, const int* spellId) override\n    {\n        if (target && spellId)\n\
+      \        {\n            // Example: Log the spell hit\n            sLog->outString(\"\
+      Creature %u was hit by spell %d\", GetCreature()->GetGUID().GetCounter(), *spellId);\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Conditional Behavior Based on Spell ID
+    code: "void MyCreatureAI::SpellHitTarget(WorldObject* target, const int* spellId)\n\
+      {\n    if (!target || !spellId) return;\n\n    switch (*spellId)\n    {\n  \
+      \      case 12345:\n            // Special behavior for spell ID 12345\n   \
+      \         DoCast(target, SPELL_SPECIAL_EFFECT);\n            break;\n      \
+      \  case 67890:\n            // Another behavior for spell ID 67890\n       \
+      \     me->SetReactState(REACT_AGGRESSIVE);\n            break;\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within the core AI update loop or during
+    spell execution logic. It's important to validate that both parameters are not
+    null before using them, as invalid pointers may lead to crashes. The spell ID
+    passed in param1 can be used to determine which specific spell caused the hit
+    event.
+  warnings: Do not modify or delete the WorldObject pointer directly within this method
+    unless you have explicit permission and proper safeguards. Be cautious of potential
+    recursion if this method triggers additional spell casts that might call SpellHitTarget
+    again.
+  related:
+  - SpellHit
+  - SpellHitTarget
+  - JustDied
+  - UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:14:33.574962'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -8,7 +8,7 @@
  */
 
 import { queryWorld } from "../database/connection";
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS

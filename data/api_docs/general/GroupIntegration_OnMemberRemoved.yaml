@@ -1,0 +1,54 @@
+api:
+  class: GroupIntegration
+  method: OnMemberRemoved
+  signature: void GroupIntegration::OnMemberRemoved(Group * group, Player * member)
+documentation:
+  brief: Handles cleanup and notifications when a player is removed from a group
+  description: The OnMemberRemoved method is invoked when a player is removed from
+    a group, either through explicit removal, disbanding, or leaving. This method
+    performs necessary cleanup operations such as updating group member counts, notifying
+    other members of the change, and potentially triggering quest or achievement updates
+    related to group participation. The method ensures that the group state remains
+    consistent after member removal and handles any required internal bookkeeping
+    for the TrinityCore framework.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the member was removed. Must
+      be a valid group instance, otherwise behavior is undefined.
+  - name: member
+    description: Pointer to the Player object that was removed from the group. Must
+      represent a valid player in the game world.
+  returns: null
+  examples:
+  - title: Basic usage in group management
+    code: "void MyGroupHandler::HandlePlayerLeave(Group* group, Player* player)\n\
+      {\n    // Perform custom logic before removal\n    if (group && player)\n  \
+      \  {\n        group->RemoveMember(player->GetGUID());\n        GroupIntegration::OnMemberRemoved(group,\
+      \ player);\n    }\n}"
+    language: cpp
+  - title: Integration with custom group systems
+    code: "class CustomGroupSystem\n{\npublic:\n    void OnPlayerRemovedFromGroup(Group*\
+      \ group, Player* player)\n    {\n        // Update custom tracking systems\n\
+      \        UpdatePlayerTracking(player);\n        \n        // Notify external\
+      \ services\n        SendGroupUpdateNotification(group, player);\n        \n\
+      \        // Call base implementation\n        GroupIntegration::OnMemberRemoved(group,\
+      \ player);\n    }\n};"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework when
+    group membership changes occur. Developers should not directly invoke this method
+    unless implementing custom group behavior. The method assumes that the group and
+    member parameters are valid and properly initialized.
+  warnings: Calling this method with null pointers for either parameter may lead to
+    undefined behavior or crashes. Ensure proper validation of group and player objects
+    before calling. This method modifies internal group state, so calling it outside
+    of appropriate framework contexts can cause inconsistencies.
+  related:
+  - Group::RemoveMember
+  - Group::AddMember
+  - OnMemberAdded
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T13:00:29.603472'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

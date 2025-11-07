@@ -1,0 +1,58 @@
+api:
+  class: LootDistribution
+  method: ExecuteUpgradePriorityStrategy
+  signature: void LootDistribution::ExecuteUpgradePriorityStrategy(Player * player,
+    const LootItem & item, LootRollType & decision)
+documentation:
+  brief: Processes a loot item decision based on upgrade priority strategy for a player.
+  description: The ExecuteUpgradePriorityStrategy method determines whether a player
+    should roll for a specific loot item based on an upgrade priority system. This
+    strategy evaluates the item's value relative to what the player already has, considering
+    factors like item level, quality, and potential upgrades. The method modifies
+    the LootRollType decision parameter to indicate whether the player should pass,
+    roll need, or roll greed for the item. It is typically invoked during loot distribution
+    when a player's role or gear state makes an upgrade decision relevant.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the loot decision is being
+      made. Must be a valid player instance with active loot session.
+  - name: item
+    description: Reference to the LootItem structure representing the item being considered
+      for loot. Contains item information such as item level, quality, and potential
+      value.
+  - name: decision
+    description: Reference to a LootRollType variable that will be updated with the
+      decision result. Possible values are LOOT_ROLL_PASS, LOOT_ROLL_NEED, or LOOT_ROLL_GREED
+      based on upgrade priority logic.
+  returns: null
+  examples:
+  - title: Basic usage in loot distribution
+    code: "void HandleLootRoll(Player* player, LootItem& item) {\n    LootRollType\
+      \ decision = LOOT_ROLL_PASS;\n    lootDist.ExecuteUpgradePriorityStrategy(player,\
+      \ item, decision);\n    // Process the decision\n    switch (decision) {\n \
+      \       case LOOT_ROLL_NEED:\n            player->SendLootRoll(item.lootId,\
+      \ item.itemid, 1, LOOT_ROLL_NEED);\n            break;\n        case LOOT_ROLL_GREED:\n\
+      \            player->SendLootRoll(item.lootId, item.itemid, 1, LOOT_ROLL_GREED);\n\
+      \            break;\n        default:\n            player->SendLootRoll(item.lootId,\
+      \ item.itemid, 1, LOOT_ROLL_PASS);\n            break;\n    }\n}"
+    language: cpp
+  notes: This method assumes that the player has an active loot session and that the
+    item is valid for consideration. The upgrade priority logic may consider factors
+    such as current gear level, class specialization, and item type to determine if
+    a roll is beneficial. Performance is generally good but can be impacted by complex
+    item evaluation logic in high-density loot scenarios.
+  warnings: Ensure that player and item parameters are valid before calling this method
+    to prevent crashes. The decision parameter will always be modified, so it should
+    not be used for other purposes after the call. This method does not validate whether
+    the player is eligible to receive the item or if the item is actually available
+    for loot.
+  related:
+  - LootDistribution::RollForItem
+  - LootDistribution::ProcessLootDecision
+  - Player::SendLootRoll
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T09:31:58.987583'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

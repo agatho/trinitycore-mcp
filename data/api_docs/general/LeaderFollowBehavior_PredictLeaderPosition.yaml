@@ -1,0 +1,70 @@
+api:
+  class: LeaderFollowBehavior
+  method: PredictLeaderPosition
+  signature: int LeaderFollowBehavior::PredictLeaderPosition(Player * leader, float
+    timeAhead)
+documentation:
+  brief: Predicts the future position of the leader player based on their movement
+    trajectory and a specified time ahead.
+  description: The PredictLeaderPosition method calculates where the leader player
+    will be located at a given time in the future, taking into account their current
+    movement direction, speed, and any ongoing actions that might affect their position.
+    This functionality is primarily used in AI behaviors for followers to determine
+    optimal positioning or pathing when following a leader. The method returns an
+    integer value representing the prediction result status, which can indicate success,
+    failure, or other specific conditions related to the prediction process. It's
+    commonly employed in group mechanics such as raid coordination, escort quests,
+    or any scenario where NPCs or players need to maintain formation or follow a moving
+    target.
+  parameters:
+  - name: leader
+    description: Pointer to the Player object representing the leader whose future
+      position is being predicted. Must not be null.
+  - name: timeAhead
+    description: Floating-point value indicating how many seconds ahead in time to
+      predict the leader's position. Should be a positive value; negative values may
+      lead to undefined behavior.
+  returns: 'Returns an integer representing the outcome of the prediction:
+
+    - 0: Success, valid position was predicted
+
+    - Non-zero: Failure or error condition (specific codes depend on internal implementation)
+
+    May return -1 if leader is invalid or null, or other negative values for different
+    failure states'
+  examples:
+  - title: Basic usage to predict leader's future position
+    code: "Player* leader = ...; // Assume valid player pointer\nfloat timeAhead =\
+      \ 2.0f; // Predict 2 seconds ahead\nint result = behavior->PredictLeaderPosition(leader,\
+      \ timeAhead);\nif (result == 0) {\n    // Position prediction successful\n \
+      \   // Use predicted coordinates for follower AI logic\n}"
+    language: cpp
+  - title: Using prediction in a follow behavior loop
+    code: "void UpdateFollowBehavior() {\n    if (!leader || !follower)\n        return;\n\
+      \    \n    float timeAhead = 1.5f;\n    int predictionResult = PredictLeaderPosition(leader,\
+      \ timeAhead);\n    \n    if (predictionResult == 0) {\n        // Proceed with\
+      \ movement toward predicted position\n        MoveToPredictedPosition();\n \
+      \   } else {\n        // Handle failure case - perhaps fallback to current position\n\
+      \        MoveToCurrentPosition();\n    }\n}"
+    language: cpp
+  notes: This method assumes the leader is actively moving and has valid movement
+    data. If the leader is stationary or not moving, the prediction may be inaccurate
+    or return a failure code. The implementation likely uses physics-based calculations
+    including velocity, acceleration, and possibly pathfinding to estimate position.
+    Performance-wise, this operation should be lightweight but could become more expensive
+    if frequent calls are made with high time-ahead values.
+  warnings: Do not call this method without ensuring the leader pointer is valid.
+    Passing null or invalid player pointers may cause crashes or undefined behavior.
+    The timeAhead parameter must be positive; negative values can lead to incorrect
+    predictions or errors. This function should only be called during active gameplay
+    scenarios where the leader's movement data is reliable.
+  related:
+  - GetLeaderPosition
+  - SetFollowDistance
+  - UpdateFollowerPosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T10:26:20.668421'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryWorld } from '@/../../src/database/connection';
+import { queryWorld } from '@/../src/database/connection';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
         c.zoneId as zoneId,
         CONCAT('Zone ', c.zoneId) as name,
         COUNT(DISTINCT cqs.quest) as questCount,
-        MIN(qt.MinLevel) as minLevel,
-        MAX(qt.MinLevel) as maxLevel,
+        0 as minLevel,
+        0 as maxLevel,
         c.map as mapId
       FROM creature c
       INNER JOIN creature_queststarter cqs ON c.id = cqs.id

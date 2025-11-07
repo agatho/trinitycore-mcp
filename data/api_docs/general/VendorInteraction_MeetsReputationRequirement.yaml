@@ -1,0 +1,58 @@
+api:
+  class: VendorInteraction
+  method: MeetsReputationRequirement
+  signature: bool VendorInteraction::MeetsReputationRequirement(Player * player, uint32
+    vendorGuid)
+documentation:
+  brief: Checks if a player meets the required reputation level to interact with a
+    vendor.
+  description: The MeetsReputationRequirement method evaluates whether a given player
+    has sufficient reputation with the faction associated with a specific vendor.
+    This check is crucial for determining if a player can access vendor services,
+    such as purchasing items or receiving quest rewards that are faction-restricted.
+    The method typically retrieves the vendor's faction information and compares it
+    against the player's current reputation level for that faction. It ensures game
+    balance by preventing players from accessing high-level vendor content without
+    meeting prerequisite reputation requirements.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose reputation will be checked against
+      the vendor's faction requirements. Must not be null.
+  - name: vendorGuid
+    description: The unique identifier (GUID) of the vendor being checked. Used to
+      retrieve the vendor's faction information from the game database.
+  returns: Returns true if the player's reputation level meets or exceeds the minimum
+    required for the vendor; otherwise returns false. A return value of false typically
+    prevents the player from accessing vendor services.
+  examples:
+  - title: Basic Reputation Check
+    code: "Player* player = ...;\nuint32 vendorGuid = ...;\nif (VendorInteraction::MeetsReputationRequirement(player,\
+      \ vendorGuid)) {\n    // Player can interact with the vendor\n    player->GetSession()->SendListInventory(vendorGuid);\n\
+      } else {\n    // Player cannot interact with the vendor\n    player->SendEquipError(EQUIP_ERR_REPUTATION_REQUIREMENT_NOT_MET);\n\
+      }"
+    language: cpp
+  - title: Conditional Vendor Interaction
+    code: "Player* player = ...;\nuint32 vendorGuid = ...;\nVendorInteraction vendorInteraction;\n\
+      if (vendorInteraction.MeetsReputationRequirement(player, vendorGuid)) {\n  \
+      \  // Proceed with vendor interaction logic\n    vendorInteraction.ProcessVendorTransaction(player,\
+      \ vendorGuid);\n} else {\n    // Handle insufficient reputation case\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You do not have sufficient reputation to interact with this vendor.\");\n}"
+    language: cpp
+  notes: This method likely involves database lookups to retrieve vendor faction data
+    and player reputation values. It may cache results for performance optimization
+    in high-frequency scenarios. The method assumes that the vendor GUID corresponds
+    to a valid NPC entry in the creature_template table with faction information.
+  warnings: Ensure that both player and vendorGuid parameters are valid before calling
+    this method. Passing null player pointers or invalid vendor GUIDs can lead to
+    undefined behavior or crashes. This method should not be used for non-vendor NPCs
+    as it may not properly handle their faction requirements.
+  related:
+  - GetVendorFactionRequirement
+  - CheckReputationLevel
+  - ProcessVendorTransaction
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T00:00:16.632298'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

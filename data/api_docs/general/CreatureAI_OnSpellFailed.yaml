@@ -1,0 +1,60 @@
+api:
+  class: CreatureAI
+  method: OnSpellFailed
+  signature: void CreatureAI::OnSpellFailed(const int * param0)
+documentation:
+  brief: Handles spell failure events for the creature AI, allowing custom behavior
+    when a spell fails to cast.
+  description: The OnSpellFailed method is invoked by the TrinityCore framework when
+    a creature's spell attempt results in a failure. This method provides an opportunity
+    for custom AI logic to execute in response to failed spell casts, such as adjusting
+    the creature's state, triggering alternative actions, or logging the event. It
+    is part of the CreatureAI class and is typically overridden by custom AI implementations
+    to provide specific behavior. The method receives a pointer to an integer parameter
+    that represents the spell ID of the failed spell. This allows developers to differentiate
+    between various spell failures and implement conditional logic based on the specific
+    spell that failed.
+  parameters:
+  - name: param0
+    description: Pointer to an integer representing the spell ID of the failed spell.
+      This value can be used to determine which spell caused the failure and customize
+      AI behavior accordingly.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void OnSpellFailed(const\
+      \ int* spellId) override {\n        if (spellId && *spellId == 12345) {\n  \
+      \          // Handle failure of a specific spell\n            Talk(0);\n   \
+      \     }\n    }\n};"
+    language: cpp
+  - title: Advanced Spell Failure Handling with Logging
+    code: "class AdvancedCreatureAI : public CreatureAI {\npublic:\n    void OnSpellFailed(const\
+      \ int* spellId) override {\n        if (!spellId) return;\n        \n      \
+      \  uint32 failedSpellId = *spellId;\n        \n        // Log the failure\n\
+      \        sLog->outString(\"Creature %u failed to cast spell %u\", GetCreature()->GetGUID().GetCounter(),\
+      \ failedSpellId);\n        \n        // Adjust AI behavior based on spell type\n\
+      \        switch (failedSpellId) {\n            case 1001:\n                //\
+      \ Handle failure of healing spell\n                SetReactState(REACT_AGGRESSIVE);\n\
+      \                break;\n            case 1002:\n                // Handle failure\
+      \ of attack spell\n                DoCast(me, 1003); // Cast alternative spell\n\
+      \                break;\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the core AI update loop and should avoid
+    heavy computations or blocking operations. The spell ID passed to this function
+    is guaranteed to be valid if the method is invoked, but it's good practice to
+    check for null pointers. Custom implementations of this method should not modify
+    the creature's state in ways that could cause instability or infinite loops.
+  warnings: Do not attempt to call methods that modify the creature's spell cast state
+    from within OnSpellFailed, as this may lead to undefined behavior or stack corruption.
+    Avoid performing complex operations that could block the game loop, as this method
+    is called frequently during AI updates.
+  related:
+  - CreatureAI::OnSpellCast
+  - CreatureAI::OnSpellFinished
+  - CreatureAI::UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:16:57.597851'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: InstanceEventBus
+  method: Subscribe
+  signature: void InstanceEventBus::Subscribe(BotAI * subscriber, const int & types)
+documentation:
+  brief: Registers a BotAI subscriber to receive instance event notifications of specified
+    types.
+  description: The Subscribe method allows a BotAI instance to register itself with
+    the InstanceEventBus to receive notifications about specific types of instance
+    events. This mechanism enables bots to react to game events such as instance creation,
+    player entry, or completion. The method takes a pointer to the subscribing BotAI
+    object and a bitmask representing the event types the subscriber wishes to receive.
+    Once subscribed, the bot will be notified through its event handling callbacks
+    when matching events occur within the instance context.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that wants to subscribe to instance
+      events. Must not be null.
+  - name: types
+    description: Bitmask of event types to subscribe to. Each bit represents a different
+      instance event type (e.g., creation, player enter, completion). Valid values
+      depend on the defined event type constants in the InstanceEventBus system.
+  returns: null
+  examples:
+  - title: Basic Subscription Example
+    code: 'BotAI* myBot = new BotAI();
+
+      int eventTypes = INSTANCE_EVENT_CREATE | INSTANCE_EVENT_PLAYER_ENTER;
+
+      instanceEventBus.Subscribe(myBot, eventTypes);'
+    language: cpp
+  - title: Full Event Subscription Example
+    code: "class MyBot : public BotAI {\npublic:\n    void HandleInstanceEvent(int\
+      \ eventType) override {\n        // Handle instance events\n    }\n};\n\nMyBot*\
+      \ bot = new MyBot();\nint allEvents = INSTANCE_EVENT_CREATE | INSTANCE_EVENT_PLAYER_ENTER\
+      \ |\n                INSTANCE_EVENT_PLAYER_LEAVE | INSTANCE_EVENT_COMPLETE;\n\
+      instanceEventBus.Subscribe(bot, allEvents);"
+    language: cpp
+  notes: The subscription is typically managed internally by the InstanceEventBus
+    and should not be called directly unless implementing custom event handling logic.
+    The types parameter uses a bitmask system where each bit corresponds to an event
+    type defined in the system. Subscribers will receive events asynchronously when
+    they occur, so implementations should be thread-safe if necessary.
+  warnings: Ensure that the BotAI subscriber pointer remains valid for the duration
+    of the subscription, as dangling pointers can cause crashes. Avoid subscribing
+    to too many event types unnecessarily, as this may impact performance. The method
+    does not validate whether the subscriber is already registered; duplicate subscriptions
+    may lead to unexpected behavior.
+  related:
+  - Unsubscribe
+  - Publish
+  - GetInstanceEventBus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T11:33:53.600268'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

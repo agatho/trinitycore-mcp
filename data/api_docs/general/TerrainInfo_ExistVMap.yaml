@@ -1,0 +1,60 @@
+api:
+  class: TerrainInfo
+  method: ExistVMap
+  signature: bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
+documentation:
+  brief: Checks whether a VMap (Virtual Map) exists for the specified map and grid
+    coordinates.
+  description: The ExistVMap method determines if a Virtual Map tile is available
+    for the given map ID and grid coordinates. This functionality is essential for
+    determining whether terrain data, including height maps and collision information,
+    is loaded and accessible for navigation and gameplay mechanics. The method typically
+    checks internal VMap caches or file systems to verify the presence of map data
+    before allowing operations that depend on it. It's commonly used in pathfinding,
+    line-of-sight calculations, and object placement logic within the TrinityCore
+    framework.
+  parameters:
+  - name: mapid
+    description: The unique identifier of the map (e.g., 0 for Eastern Kingdoms, 1
+      for Kalimdor). Valid values are defined by the game's map database.
+  - name: gx
+    description: The grid X coordinate (typically ranging from 0 to 63 for standard
+      maps). Represents the horizontal grid position within the map.
+  - name: gy
+    description: The grid Y coordinate (typically ranging from 0 to 63 for standard
+      maps). Represents the vertical grid position within the map.
+  returns: Returns true if a VMap tile exists for the specified map and grid coordinates,
+    false otherwise. A return value of false may indicate that the grid is outside
+    valid map boundaries or that the VMap data has not been loaded.
+  examples:
+  - title: Check if VMap exists at specific grid coordinates
+    code: "if (TerrainInfo::ExistVMap(0, 10, 15)) {\n    // Proceed with operations\
+      \ requiring VMap data\n    printf(\"VMap exists at grid (10, 15)\\n\");\n} else\
+      \ {\n    // Handle case where VMap is not available\n    printf(\"No VMap data\
+      \ for grid (10, 15)\\n\");\n}"
+    language: cpp
+  - title: Use in pathfinding pre-check
+    code: "bool CanNavigate(uint32 mapId, int32 xGrid, int32 yGrid) {\n    // Pre-check\
+      \ if VMap exists before attempting navigation\n    if (!TerrainInfo::ExistVMap(mapId,\
+      \ xGrid, yGrid)) {\n        return false; // Cannot navigate without VMap data\n\
+      \    }\n    // Proceed with pathfinding logic\n    return true;\n}"
+    language: cpp
+  notes: This method is performance-sensitive as it may trigger file I/O or cache
+    lookups depending on how VMap data is managed. It's recommended to cache results
+    when checking multiple grids in sequence. The method assumes valid map IDs and
+    grid coordinates, though invalid inputs might result in undefined behavior or
+    false negatives.
+  warnings: Using this method with invalid map IDs or out-of-bounds grid coordinates
+    may lead to incorrect results or internal errors. Always validate input parameters
+    before calling this function. Be cautious when using it in high-frequency loops
+    as repeated checks can impact performance.
+  related:
+  - TerrainInfo::GetHeight
+  - TerrainInfo::IsInLineOfSight
+  - TerrainInfo::LoadMap
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T01:06:15.970997'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

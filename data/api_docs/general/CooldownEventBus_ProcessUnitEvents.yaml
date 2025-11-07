@@ -1,0 +1,63 @@
+api:
+  class: CooldownEventBus
+  method: ProcessUnitEvents
+  signature: uint32 CooldownEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes cooldown events for a specified unit, updating their cooldown timers
+    and returning the time until the next event.
+  description: The ProcessUnitEvents method is responsible for managing and updating
+    cooldown timers associated with a specific unit in the game world. It iterates
+    through all active cooldown events for the given unit, processes them based on
+    the elapsed time (diff parameter), and removes expired cooldowns. This method
+    ensures that abilities and spells are properly cooled down according to their
+    cooldown periods. The method is typically called from the main game loop or event
+    processing system to maintain real-time cooldown state updates for all units in
+    the world. It handles both global and spell-specific cooldowns, ensuring proper
+    synchronization of cooldown states across the game environment.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose cooldown events are
+      to be processed. This parameter identifies which specific unit's cooldown timers
+      should be updated and checked.
+  - name: diff
+    description: The time difference in milliseconds since the last processing cycle.
+      This value represents how much time has passed since the previous cooldown update,
+      used to accurately advance cooldown timers.
+  returns: Returns the number of milliseconds until the next scheduled cooldown event
+    for the unit. If no events remain, returns 0 or a large timeout value indicating
+    no immediate processing is needed.
+  examples:
+  - title: Basic cooldown event processing
+    code: 'uint32 nextEvent = cooldownBus.ProcessUnitEvents(playerGuid, 50);
+
+      // Processed cooldowns for player with GUID playerGuid
+
+      // nextEvent indicates when to process again (in milliseconds)'
+    language: cpp
+  - title: Integration with game loop
+    code: "void GameLoop()\n{\n    while (running)\n    {\n        uint32 diff = GetTimeDiff(lastUpdate);\n\
+      \        // Process all units' cooldown events\n        for (auto& unit : units)\n\
+      \        {\n            uint32 nextEvent = cooldownBus.ProcessUnitEvents(unit->GetGUID(),\
+      \ diff);\n            if (nextEvent > 0)\n                scheduleNextUpdate(unit->GetGUID(),\
+      \ nextEvent);\n        }\n        lastUpdate = getMSTime();\n    }\n}"
+    language: cpp
+  notes: This method is performance-critical and should be called efficiently to avoid
+    blocking the main game thread. The implementation likely uses optimized data structures
+    like priority queues or hash maps for fast cooldown lookup and processing. It's
+    designed to handle multiple concurrent units and their cooldowns without significant
+    overhead.
+  warnings: Improper handling of the diff parameter can cause incorrect cooldown timing,
+    leading to abilities becoming available too early or remaining on cooldown longer
+    than intended. Ensure that the diff value accurately reflects real time passage
+    for correct behavior.
+  related:
+  - AddCooldown
+  - RemoveCooldown
+  - HasCooldown
+  - GetRemainingCooldown
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T16:42:25.861320'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

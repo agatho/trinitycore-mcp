@@ -1,0 +1,56 @@
+api:
+  class: TerrainInfo
+  method: UnloadMMapInstance
+  signature: void TerrainInfo::UnloadMMapInstance(uint32 mapId, uint32 instanceId)
+documentation:
+  brief: Unloads a specific instance of the NavMesh for the given map and instance
+    ID.
+  description: 'The UnloadMMapInstance method is responsible for releasing memory
+    and resources associated with a particular instance of the Navigation Mesh (NavMesh)
+    used by the TrinityCore server''s pathfinding system. This function ensures that
+    when a player leaves a specific instance or zone, the corresponding NavMesh data
+    is properly deallocated to prevent memory leaks and maintain optimal performance.
+    The method takes two parameters: mapId which identifies the map type, and instanceId
+    which specifies the unique instance of that map. It is typically called during
+    instance cleanup or when a player exits a dungeon or raid.'
+  parameters:
+  - name: mapId
+    description: The unique identifier of the map for which the NavMesh instance should
+      be unloaded. This corresponds to the Map ID used internally by TrinityCore.
+  - name: instanceId
+    description: The unique instance identifier for the specific instance of the map.
+      This allows multiple instances of the same map (e.g., multiple dungeon runs)
+      to have their own separate NavMesh data that can be individually managed.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: "TerrainInfo* terrain = sTerrainMgr->GetTerrainInfo(0, 1234);\nif (terrain)\n\
+      {\n    terrain->UnloadMMapInstance(1, 5678);\n}"
+    language: cpp
+  - title: Usage during instance cleanup
+    code: "void OnPlayerLeaveInstance(Player* player)\n{\n    uint32 mapId = player->GetMapId();\n\
+      \    uint32 instanceId = player->GetInstanceId();\n    \n    if (mapId && instanceId)\n\
+      \    {\n        TerrainInfo* terrain = sTerrainMgr->GetTerrainInfo(mapId, instanceId);\n\
+      \        if (terrain)\n        {\n            terrain->UnloadMMapInstance(mapId,\
+      \ instanceId);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the Navigation Mesh system used for AI pathfinding
+    and movement in World of Warcraft. It's crucial to call this function when instances
+    are no longer needed to prevent memory leaks. The NavMesh data is typically loaded
+    on-demand when players enter an instance, and this method handles the cleanup
+    process.
+  warnings: Calling this method with invalid mapId or instanceId values may lead to
+    undefined behavior or crashes. Ensure that the provided IDs correspond to actual
+    loaded instances before calling this function. Also note that this function does
+    not validate whether the specified NavMesh instance is currently loaded; it simply
+    attempts to unload it.
+  related:
+  - LoadMMapInstance
+  - GetMMapInstance
+  - HasMMapInstance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T01:05:44.334915'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

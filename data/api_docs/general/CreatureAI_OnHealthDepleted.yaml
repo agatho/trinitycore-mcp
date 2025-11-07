@@ -1,0 +1,60 @@
+api:
+  class: CreatureAI
+  method: OnHealthDepleted
+  signature: void CreatureAI::OnHealthDepleted(int * param0, bool param1)
+documentation:
+  brief: Handles the event when a creature's health is depleted to zero, typically
+    triggering death mechanics and AI behavior.
+  description: The OnHealthDepleted method is a virtual callback function in the CreatureAI
+    class that is invoked when a creature's health drops to zero. This method serves
+    as the primary hook for custom AI logic during a creature's death sequence. It
+    allows developers to implement unique behaviors such as special animations, loot
+    distribution, quest completion, or triggering other game events upon the creature's
+    demise. The method is typically called internally by the TrinityCore framework
+    when the creature's health reaches zero and before the creature is removed from
+    the world. This function can be overridden in custom AI implementations to extend
+    or modify default death behavior.
+  parameters:
+  - name: param0
+    description: Pointer to an integer representing the amount of damage that caused
+      the health depletion, or nullptr if not applicable.
+  - name: param1
+    description: Boolean flag indicating whether the creature's death was caused by
+      a player-controlled source (true) or environment/other (false).
+  returns: void
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void OnHealthDepleted(int*\
+      \ damage, bool byPlayer) override {\n        // Custom behavior on death\n \
+      \       if (byPlayer) {\n            // Player killed the creature\n       \
+      \     me->SummonGameObject(GO_TREASURE_CHEST, me->GetPosition(), Quaternion(),\
+      \ 300);\n        }\n        // Call base implementation if needed\n        CreatureAI::OnHealthDepleted(damage,\
+      \ byPlayer);\n    }\n};"
+    language: cpp
+  - title: Advanced Death Event Handling
+    code: "class BossCreatureAI : public CreatureAI {\npublic:\n    void OnHealthDepleted(int*\
+      \ damage, bool byPlayer) override {\n        // Trigger boss-specific death\
+      \ sequence\n        if (me->GetEntry() == BOSS_ID) {\n            me->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NON_ATTACKABLE);\n            me->SetReactState(REACT_PASSIVE);\n\
+      \            me->CastSpell(me, SPELL_DEATH_ANIMATION, true);\n            //\
+      \ Announce death to players\n            DoZoneInCombat();\n        }\n    \
+      \    CreatureAI::OnHealthDepleted(damage, byPlayer);\n    }\n};"
+    language: cpp
+  notes: This method is part of the AI lifecycle and should not be called directly
+    unless implementing custom AI logic. The parameters may be null or have default
+    values depending on how the creature died. It's recommended to call the base implementation
+    if custom behavior extends rather than replaces the default functionality.
+  warnings: Overriding this method without calling the parent implementation may prevent
+    standard death mechanics from executing, such as loot generation or quest updates.
+    Be cautious when modifying creature state within this callback as it can affect
+    game balance and stability.
+  related:
+  - CreatureAI::OnDeath
+  - CreatureAI::UpdateAI
+  - CreatureAI::JustDied
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:19:53.617302'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

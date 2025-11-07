@@ -1,0 +1,60 @@
+api:
+  class: GameObjectAI
+  method: Damaged
+  signature: void GameObjectAI::Damaged(WorldObject * param0, uint32 param1)
+documentation:
+  brief: Handles damage events received by a game object AI instance
+  description: The Damaged method is invoked when a GameObjectAI instance receives
+    damage from a WorldObject. This method serves as an event handler that allows
+    custom behavior to be defined when the game object is damaged. It provides access
+    to both the source of the damage (WorldObject) and the amount of damage dealt
+    (uint32). The method is typically overridden in custom GameObject AI implementations
+    to define specific responses to damage events, such as triggering visual effects,
+    playing sounds, or changing the object's state.
+  parameters:
+  - name: param0
+    description: Pointer to the WorldObject that caused the damage. This can be a
+      player, creature, or any other game entity capable of dealing damage.
+  - name: param1
+    description: The amount of damage dealt to the GameObject. This value represents
+      the damage points or health points subtracted from the object's current health.
+  returns: null
+  examples:
+  - title: Basic Damage Handling Implementation
+    code: "class MyGameObjectAI : public GameObjectAI\n{\npublic:\n    void Damaged(WorldObject*\
+      \ attacker, uint32 damage) override\n    {\n        // Log the damage event\n\
+      \        sLog->outString(\"GameObject damaged by %s for %u damage.\", attacker->GetName().c_str(),\
+      \ damage);\n        \n        // Trigger a visual effect or sound\n        if\
+      \ (damage > 100)\n            PlayCustomEffect();\n    }\n};"
+    language: cpp
+  - title: Advanced Damage Handling with State Changes
+    code: "class DestructibleGameObjectAI : public GameObjectAI\n{\npublic:\n    void\
+      \ Damaged(WorldObject* attacker, uint32 damage) override\n    {\n        //\
+      \ Reduce health or trigger destruction logic\n        if (GetHealth() <= damage)\n\
+      \        {\n            // Object is destroyed\n            Destroy();\n   \
+      \         return;\n        }\n        \n        // Apply damage to object\n\
+      \        ModifyHealth(-int32(damage));\n        \n        // Play hit animation\
+      \ or sound\n        if (attacker->GetTypeId() == TYPEID_PLAYER)\n        {\n\
+      \            Player* player = static_cast<Player*>(attacker);\n            player->SendPlaySpellVisual(12345);\
+      \ // Visual effect for player\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the GameObject AI system in TrinityCore and is called
+    automatically by the core when damage events occur. Developers should ensure that
+    any custom implementation does not cause performance bottlenecks or infinite recursion.
+    The WorldObject parameter may be nullptr if the damage source is invalid, so null
+    checks are recommended.
+  warnings: Do not call methods that modify the GameObject's health directly within
+    this method unless necessary, as it might lead to inconsistent state. Be cautious
+    with recursive calls or modifications that could affect the object's destruction
+    sequence.
+  related:
+  - UpdateAI
+  - Initialize
+  - IsInCombat
+  - GetHealth
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T14:02:22.645454'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

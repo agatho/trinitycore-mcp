@@ -7,9 +7,9 @@
  * @module backup-restore
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import { DatabaseExportEngine, type ExportResult, ExportFormat } from "./export-engine.js";
-import { DatabaseImportEngine, type ImportResult } from "./import-engine.js";
+import type { DatabaseConfig } from "../types/database";
+import { DatabaseExportEngine, type ExportResult, ExportFormat } from "./export-engine";
+import { DatabaseImportEngine, type ImportResult } from "./import-engine";
 import { EventEmitter } from "events";
 import fs from "fs/promises";
 import path from "path";

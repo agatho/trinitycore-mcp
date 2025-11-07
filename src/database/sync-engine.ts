@@ -7,8 +7,8 @@
  * @module sync-engine
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import { executeQuery, executeBatch, executeTransaction } from "./db-client.js";
+import type { DatabaseConfig } from "../types/database";
+import { executeQuery, executeBatch, executeTransaction } from "./db-client";
 import { EventEmitter } from "events";
 
 // ============================================================================

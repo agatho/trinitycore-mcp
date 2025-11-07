@@ -1,0 +1,53 @@
+api:
+  class: CreatureAI
+  method: OnChannelFinished
+  signature: void CreatureAI::OnChannelFinished(const int * param0)
+documentation:
+  brief: Called when a creature's channeling spell completes or is interrupted
+  description: This method is invoked by the TrinityCore AI system when a creature
+    finishes channeling a spell, whether naturally or due to interruption. It serves
+    as a callback mechanism for custom AI implementations to handle post-channeling
+    logic such as resetting states, triggering additional actions, or managing spell
+    cooldowns. The method is part of the CreatureAI base class and can be overridden
+    in derived AI classes to provide custom behavior when channeling ends.
+  parameters:
+  - name: param0
+    description: Pointer to an integer parameter that may represent the channel ID,
+      spell ID, or completion status. Value is typically set by the core engine during
+      channel finish events.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void OnChannelFinished(const\
+      \ int* param0) override {\n        // Handle channel completion\n        if\
+      \ (param0 && *param0 == 12345) {\n            // Perform specific action when\
+      \ channel with ID 12345 finishes\n            DoSomething();\n        }\n  \
+      \  }\n};"
+    language: cpp
+  - title: Advanced Channel Handling with State Management
+    code: "class AdvancedCreatureAI : public CreatureAI {\nprivate:\n    bool isChanneling;\n\
+      public:\n    void OnChannelFinished(const int* param0) override {\n        if\
+      \ (isChanneling) {\n            isChanneling = false;\n            // Reset\
+      \ AI state\n            SetReactState(REACT_PASSIVE);\n            // Trigger\
+      \ next phase of AI logic\n            StartNextPhase();\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This method is typically called from the core's spell handling system when
+    a channeling spell ends. The parameter may contain contextual information about
+    the channeling event, such as spell ID or channel type. Developers should ensure
+    that any overridden implementation does not block or perform heavy operations
+    that could impact server performance.
+  warnings: Do not modify creature state directly in this method without proper locking
+    mechanisms if the AI is accessed from multiple threads. Avoid calling methods
+    that may cause recursive calls to AI system functions, which could lead to stack
+    overflow or undefined behavior.
+  related:
+  - OnChannelUpdate
+  - OnSpellCasted
+  - OnEnterCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T16:22:05.951190'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

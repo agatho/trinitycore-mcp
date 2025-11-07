@@ -1,0 +1,63 @@
+api:
+  class: SmartAI
+  method: SummonedCreatureDies
+  signature: void SmartAI::SummonedCreatureDies(Creature * summon, Unit * killer)
+documentation:
+  brief: Handles the event when a summoned creature dies, allowing for custom AI behavior
+    in response to summon deaths.
+  description: 'The SummonedCreatureDies method is invoked by the SmartAI system when
+    a creature that was summoned by this AI instance is killed. This method allows
+    developers to implement custom logic such as triggering additional actions, modifying
+    quest progress, or managing summon-related states. It is typically used within
+    SmartAI scripts to define how the AI should react when one of its summoned minions
+    is defeated. The method receives two parameters: the summoned creature that died
+    and the unit responsible for killing it. This functionality is essential for creating
+    complex AI behaviors involving summoned creatures, such as those found in boss
+    encounters or scripted events.'
+  parameters:
+  - name: summon
+    description: Pointer to the Creature object that has died. This represents the
+      summoned creature controlled by this SmartAI instance.
+  - name: killer
+    description: Pointer to the Unit object that caused the death of the summon. This
+      can be a player, NPC, or any other unit capable of dealing damage.
+  returns: null
+  examples:
+  - title: Basic Summoned Creature Death Handling
+    code: "void SmartAI::SummonedCreatureDies(Creature* summon, Unit* killer)\n{\n\
+      \    // Log the event\n    sLog->outString(\"Summoned creature %u was killed\
+      \ by %s\", summon->GetEntry(), killer->GetName().c_str());\n    \n    // Trigger\
+      \ a quest update or other logic here\n    if (killer->GetTypeId() == TYPEID_PLAYER)\n\
+      \    {\n        Player* player = killer->ToPlayer();\n        // Example: Increase\
+      \ quest credit\n        player->KilledMonsterCredit(summon->GetEntry());\n \
+      \   }\n}"
+    language: cpp
+  - title: Advanced Summoned Creature Death with Conditional Logic
+    code: "void SmartAI::SummonedCreatureDies(Creature* summon, Unit* killer)\n{\n\
+      \    // Check if the summon was a specific type\n    switch (summon->GetEntry())\n\
+      \    {\n        case 12345: // Example summon entry\n            // Perform\
+      \ special action when this summon dies\n            DoAction(ACTION_SUMMON_DIED);\n\
+      \            break;\n        case 67890:\n            // Another behavior for\
+      \ different summon type\n            if (killer->GetTypeId() == TYPEID_PLAYER)\n\
+      \                killer->ToPlayer()->SendNotification(\"A summon has fallen!\"\
+      );\n            break;\n    }\n    \n    // Reset summon timer or state if needed\n\
+      \    m_summonTimer = 0;\n}"
+    language: cpp
+  notes: This method is part of the SmartAI event system and is automatically called
+    by the core when a summoned creature dies. Developers should ensure that any logic
+    within this function does not cause infinite loops or excessive resource usage,
+    especially if multiple summons are involved. The method may be called from different
+    threads depending on how the summon was created and managed.
+  warnings: Be cautious when modifying or accessing the summon object after it has
+    died, as some data might become invalid. Also, ensure that the killer parameter
+    is properly validated before use to prevent crashes or unexpected behavior.
+  related:
+  - SummonedCreatureDespawn
+  - JustDied
+  - EnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T02:38:39.536784'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

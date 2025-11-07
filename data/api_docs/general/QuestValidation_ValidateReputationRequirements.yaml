@@ -1,0 +1,57 @@
+api:
+  class: QuestValidation
+  method: ValidateReputationRequirements
+  signature: bool QuestValidation::ValidateReputationRequirements(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Validates if a player meets the reputation requirements for a specified quest.
+  description: The ValidateReputationRequirements method checks whether the given
+    player has sufficient reputation with factions required to start or complete a
+    specific quest. It evaluates the player's current standing with each faction listed
+    in the quest's reputation requirements and returns true if all conditions are
+    met, otherwise false. This validation is typically used during quest acceptance
+    or completion to ensure players meet prerequisites before proceeding. The method
+    accesses the quest database entry for the specified questId and compares it against
+    the player's current reputation values stored in their character data.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate reputation requirements
+      for. Must correspond to a valid quest entry in the database.
+  - name: bot
+    description: Pointer to the Player object representing the character whose reputation
+      is being validated against the quest requirements. Cannot be null.
+  returns: Returns true if the player has sufficient reputation with all required
+    factions, false otherwise. If the quest does not have any reputation requirements,
+    the method will return true by default.
+  examples:
+  - title: Basic Reputation Validation
+    code: "if (QuestValidation::ValidateReputationRequirements(12345, player)) {\n\
+      \    // Player meets all reputation requirements\n    player->SendAreaTriggerMessage(\"\
+      You meet the reputation requirements.\");\n} else {\n    // Player does not\
+      \ meet reputation requirements\n    player->SendAreaTriggerMessage(\"You do\
+      \ not meet the required reputation.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void OnQuestAccept(Player* player, Quest const* quest) {\n    if (!QuestValidation::ValidateReputationRequirements(quest->GetQuestId(),\
+      \ player)) {\n        player->SendQuestInvalidReason(QUEST_INVALID_REPUTATION);\n\
+      \        return;\n    }\n    // Proceed with normal quest acceptance logic\n\
+      }"
+    language: cpp
+  notes: This method relies on the internal quest database and player reputation data
+    structures. It assumes that the player's reputation values are up-to-date and
+    synchronized with the server state. Performance is generally low impact as it
+    performs simple comparisons against cached faction standings.
+  warnings: Ensure that the questId parameter corresponds to an actual existing quest
+    in the database, otherwise behavior may be undefined. The method does not handle
+    cases where a player's reputation data might be corrupted or out of sync with
+    the server state.
+  related:
+  - GetQuestReputationRequirements
+  - ValidateQuestRequirements
+  - CheckPlayerReputation
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:07:44.576878'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,73 @@
+api:
+  class: DPSPositioning
+  method: CalculateBackstabPosition
+  signature: int DPSPositioning::CalculateBackstabPosition(Unit * target, float requiredAngle)
+documentation:
+  brief: Calculates and returns the optimal backstab position relative to the target
+    for a DPS class.
+  description: The CalculateBackstabPosition method determines the appropriate positioning
+    angle required for a player to perform a successful backstab attack on a target.
+    This method evaluates the target's orientation, the player's current position,
+    and the specified required angle to compute a suitable backstab position. It is
+    typically used by rogue or other stealth-based DPS classes to ensure they are
+    positioned correctly behind their target before executing a backstab ability.
+    The method returns an integer value representing the calculated positioning state
+    or error code.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target enemy for the
+      backstab attack. Must not be null.
+  - name: requiredAngle
+    description: The minimum angle in degrees that must be behind the target for a
+      successful backstab. Typically ranges from 150 to 180 degrees for optimal positioning.
+  returns: 'Returns an integer value indicating the result of the position calculation:
+
+    - 0: Success, valid backstab position calculated
+
+    - -1: Invalid target provided
+
+    - -2: Target is not in a valid state for positioning
+
+    - -3: Required angle is outside acceptable range (e.g., less than 0 or greater
+    than 360)
+
+    - -4: Player and target are too far apart to execute backstab
+
+    - -5: Internal error during calculation'
+  examples:
+  - title: Basic usage of CalculateBackstabPosition
+    code: "Unit* target = player->GetVictim();\nint result = dpsPositioning->CalculateBackstabPosition(target,\
+      \ 180.0f);\nif (result == 0) {\n    // Proceed with backstab attack\n    player->CastSpell(target,\
+      \ BACKSTAB_SPELL_ID, true);\n} else {\n    // Handle error condition\n    sLog->outError(\"\
+      Failed to calculate backstab position: %d\", result);\n}"
+    language: cpp
+  - title: Advanced usage with angle validation
+    code: "Unit* target = player->GetVictim();\nfloat requiredAngle = 175.0f;\n\n\
+      if (requiredAngle < 0 || requiredAngle > 360) {\n    sLog->outError(\"Invalid\
+      \ required angle: %f\", requiredAngle);\n    return;\n}\n\nint result = dpsPositioning->CalculateBackstabPosition(target,\
+      \ requiredAngle);\nswitch (result) {\n    case 0:\n        // Position is valid,\
+      \ proceed with attack\n        player->CastSpell(target, BACKSTAB_SPELL_ID,\
+      \ true);\n        break;\n    case -1:\n        sLog->outError(\"Invalid target\
+      \ provided\");\n        break;\n    case -4:\n        sLog->outError(\"Target\
+      \ is too far for backstab\");\n        break;\n    default:\n        sLog->outError(\"\
+      Backstab positioning failed with code: %d\", result);\n        break;\n}"
+    language: cpp
+  notes: This method relies on accurate positioning data from the TrinityCore physics
+    engine and may be affected by terrain, collision detection, or movement state.
+    The calculated position is typically used to determine whether a player can perform
+    a backstab without being detected by the target. It's recommended to call this
+    method before attempting to cast a backstab spell to ensure proper positioning.
+  warnings: Ensure that the target pointer is valid and not null before calling this
+    method, as passing a null pointer may lead to undefined behavior or crashes. The
+    requiredAngle parameter should be within the valid range of 0-360 degrees; values
+    outside this range will result in error code -3.
+  related:
+  - CalculatePositioning
+  - IsInBackstabRange
+  - GetTargetAngle
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T15:57:53.354778'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

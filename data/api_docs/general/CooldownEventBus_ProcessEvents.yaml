@@ -1,0 +1,57 @@
+api:
+  class: CooldownEventBus
+  method: ProcessEvents
+  signature: uint32 CooldownEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes cooldown events in the CooldownEventBus, updating active cooldowns
+    and returning the number of events handled.
+  description: The ProcessEvents method is responsible for iterating through queued
+    cooldown events within the CooldownEventBus and executing their associated logic.
+    It updates the state of cooldowns based on elapsed time and handles any necessary
+    callbacks or notifications. This method is typically called during game loop iterations
+    to ensure that cooldowns are properly managed and that affected abilities or items
+    can be re-enabled when their cooldown periods expire. The method respects a maximum
+    event limit to prevent performance degradation during high-load scenarios.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last call to this method.
+      Used to calculate how much time has passed for cooldown updates.
+  - name: maxEvents
+    description: The maximum number of events to process in this invocation. Helps
+      control CPU usage and prevents excessive processing during busy periods.
+  returns: Returns the actual number of cooldown events processed during this call.
+    This value will be less than or equal to maxEvents, depending on how many events
+    were available to process.
+  examples:
+  - title: Basic Usage in Game Loop
+    code: 'uint32 diff = sGameEventMgr->GetUpdateDiff();
+
+      uint32 processed = sCooldownEventBus->ProcessEvents(diff, 100);
+
+      // ''processed'' contains the number of cooldown events handled
+
+      '
+    language: cpp
+  - title: Performance-Optimized Event Processing
+    code: "uint32 diff = GetMSTimeDiff(lastUpdate, getMSTime());\nuint32 maxEvents\
+      \ = 50; // Limit to avoid blocking the main thread\nuint32 handled = cooldownBus->ProcessEvents(diff,\
+      \ maxEvents);\nif (handled >= maxEvents)\n{\n    // Log warning: too many events\
+      \ processed, consider increasing maxEvents or reducing frequency\n}\n"
+    language: cpp
+  notes: This method is designed to be called regularly from the main game loop. It's
+    important that diff accurately reflects time passed since last call for correct
+    cooldown behavior. The CooldownEventBus may internally queue events, and this
+    method processes them in order of expiration.
+  warnings: Calling this method with a very high maxEvents value can cause performance
+    hiccups if there are many active cooldowns. Avoid calling it from within critical
+    sections or high-frequency loops without proper throttling.
+  related:
+  - AddCooldownEvent
+  - RemoveCooldownEvent
+  - GetCooldownForItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:42:51.352580'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

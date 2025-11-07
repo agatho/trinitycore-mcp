@@ -1,0 +1,50 @@
+api:
+  class: SocialEventBus
+  method: ProcessEvents
+  signature: uint32 SocialEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes pending social events in the event bus up to a specified limit
+  description: The ProcessEvents method iterates through queued social events and
+    executes them based on their type and timing. It is typically called during the
+    game loop to handle time-based social interactions such as friend requests, guild
+    invitations, or other player-to-player communications. The method respects a maximum
+    event count to prevent performance degradation by limiting how many events are
+    processed per tick. Events are removed from the queue after successful processing.
+  parameters:
+  - name: diff
+    description: Time elapsed since last call in milliseconds, used to determine event
+      timing and execution
+  - name: maxEvents
+    description: Maximum number of events to process in this invocation; prevents
+      excessive processing overhead
+  returns: Returns the actual number of events processed during this call, which may
+    be less than maxEvents if fewer were queued or if processing was limited by internal
+    constraints.
+  examples:
+  - title: Basic Usage in Game Loop
+    code: 'uint32 processed = sSocialEventBus->ProcessEvents(diff, 100);
+
+      // Processes up to 100 events with time delta ''diff'''
+    language: cpp
+  - title: Performance-Conscious Event Handling
+    code: "uint32 diff = getMSTime();\nuint32 processed = sSocialEventBus->ProcessEvents(diff,\
+      \ 50);\nif (processed > 40) {\n    // Log warning: high event load detected\n\
+      }"
+    language: cpp
+  notes: This method is designed to be called regularly from the main game loop. It's
+    important to pass accurate time deltas (diff) for proper event timing. The internal
+    queue management ensures that events are not duplicated or skipped unless explicitly
+    handled by the event system.
+  warnings: Do not call this method with a maxEvents value of zero, as it may cause
+    unexpected behavior or infinite loops in certain implementations. Also, ensure
+    diff is always non-negative to avoid incorrect event scheduling.
+  related:
+  - AddEvent
+  - HasEvents
+  - ClearEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:17:04.745684'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

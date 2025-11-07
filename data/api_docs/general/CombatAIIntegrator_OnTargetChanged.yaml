@@ -1,0 +1,54 @@
+api:
+  class: CombatAIIntegrator
+  method: OnTargetChanged
+  signature: void CombatAIIntegrator::OnTargetChanged(int * newTarget)
+documentation:
+  brief: Updates the combat AI's target reference when the current target changes.
+  description: The OnTargetChanged method is invoked by the CombatAIIntegrator to
+    notify the AI system of a change in the current combat target. This method is
+    typically called internally by the TrinityCore framework when a creature or player's
+    target is updated during combat. It allows the AI to react to target changes,
+    potentially recalculating behavior patterns, adjusting threat levels, or updating
+    attack priorities. The method accepts a pointer to an integer representing the
+    new target's identifier and ensures that all relevant AI subsystems are synchronized
+    with the updated target information.
+  parameters:
+  - name: newTarget
+    description: Pointer to an integer representing the unique identifier (GUID) of
+      the new combat target. This value should be a valid pointer to an integer, typically
+      containing the GUID of the creature or player that has become the new target.
+  returns: null
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CombatAIIntegrator::OnTargetChanged(int* newTarget)\n{\n    if (newTarget\
+      \ && *newTarget != m_currentTarget)\n    {\n        m_currentTarget = *newTarget;\n\
+      \        // Trigger behavior changes based on new target\n        OnNewTargetAcquired();\n\
+      \    }\n}"
+    language: cpp
+  - title: Integration with combat state management
+    code: "void CombatAIIntegrator::OnTargetChanged(int* newTarget)\n{\n    if (!newTarget)\n\
+      \        return;\n\n    int targetId = *newTarget;\n    if (targetId != m_currentTarget)\n\
+      \    {\n        // Log the target change for debugging\n        sLog->outDebug(LOG_FILTER_AI,\
+      \ \"CombatAI: Target changed from %d to %d\", m_currentTarget, targetId);\n\
+      \        \n        // Update internal state\n        m_currentTarget = targetId;\n\
+      \        \n        // Reset combat timers and re-evaluate actions\n        ResetCombatTimers();\n\
+      \        EvaluateCombatActions();\n    }\n}"
+    language: cpp
+  notes: This method is part of the internal AI framework and should not be called
+    directly by custom AI scripts. The implementation assumes that the pointer to
+    newTarget is valid and points to a meaningful GUID value. It's designed to handle
+    target transitions smoothly without causing performance bottlenecks or memory
+    issues.
+  warnings: Avoid dereferencing the newTarget pointer without checking for null, as
+    this may lead to segmentation faults. Ensure that the target ID passed in newTarget
+    is valid and corresponds to an existing entity in the game world.
+  related:
+  - OnNewTargetAcquired
+  - ResetCombatTimers
+  - EvaluateCombatActions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T17:15:20.846137'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

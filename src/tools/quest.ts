@@ -2,7 +2,7 @@
  * Quest data query tool
  */
 
-import { queryWorld } from "../database/connection.js";
+import { queryWorld } from "../database/connection";
 
 export interface QuestInfo {
   questId: number;

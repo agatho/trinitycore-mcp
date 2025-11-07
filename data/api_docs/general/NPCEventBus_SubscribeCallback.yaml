@@ -1,0 +1,58 @@
+api:
+  class: NPCEventBus
+  method: SubscribeCallback
+  signature: uint32 NPCEventBus::SubscribeCallback(EventHandler handler, const int
+    & types)
+documentation:
+  brief: Registers a callback handler for specific NPC event types and returns a unique
+    subscription ID.
+  description: The SubscribeCallback method allows systems to register event handlers
+    that will be invoked when certain NPC-related events occur. It takes an EventHandler
+    function pointer and a bitmask of event types to subscribe to, returning a unique
+    identifier that can later be used to unsubscribe. This mechanism is commonly used
+    in TrinityCore's AI and event system to manage dynamic behavior changes for NPCs
+    based on game events such as combat, movement, or interaction. The method ensures
+    thread-safe registration and maintains internal tracking of active subscriptions.
+  parameters:
+  - name: handler
+    description: A function pointer to the event handler that will be called when
+      matching events occur. This must be a valid callable that matches the EventHandler
+      signature.
+  - name: types
+    description: A bitmask representing the types of NPC events to subscribe to. Individual
+      event type constants should be combined using bitwise OR operations to specify
+      multiple event types.
+  returns: Returns a unique uint32 identifier for the subscription that can be used
+    later with UnsubscribeCallback to remove the handler. A return value of 0 typically
+    indicates an error or invalid parameters.
+  examples:
+  - title: Basic Subscription Example
+    code: "uint32 subscriptionId = eventBus.SubscribeCallback(&MyEventHandler, NPC_EVENT_COMBAT\
+      \ | NPC_EVENT_MOVE);\nif (subscriptionId != 0)\n{\n    // Successfully subscribed\n\
+      }"
+    language: cpp
+  - title: Advanced Subscription with Multiple Event Types
+    code: "auto handler = [](const NPCEvent& event) {\n    // Handle the event\n};\n\
+      uint32 id = eventBus.SubscribeCallback(handler, NPC_EVENT_COMBAT | NPC_EVENT_DIE\
+      \ | NPC_EVENT_SPELL_CAST);\n// Use id for potential unsubscription later\n"
+    language: cpp
+  notes: The subscription ID returned by this method is unique within the context
+    of a single NPCEventBus instance. The EventHandler function should be designed
+    to handle events efficiently and avoid blocking operations, as it may be called
+    from different threads or during critical game loops. Internal tracking of subscriptions
+    uses atomic operations for thread safety.
+  warnings: Do not call SubscribeCallback with invalid event type masks, as this could
+    lead to undefined behavior or missed events. Always check the return value for
+    zero, which indicates failure. Repeatedly subscribing the same handler without
+    unsubscribing first will result in multiple active handlers being triggered for
+    each event.
+  related:
+  - UnsubscribeCallback
+  - PublishEvent
+  - GetSubscriptionCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T08:01:30.398594'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

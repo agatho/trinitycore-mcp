@@ -1,0 +1,62 @@
+api:
+  class: QuestValidation
+  method: ValidateInventorySpace
+  signature: bool QuestValidation::ValidateInventorySpace(uint32 questId, Player *
+    bot)
+documentation:
+  brief: Checks if a player has sufficient inventory space to accept quest rewards
+  description: The ValidateInventorySpace method determines whether a player has enough
+    free inventory slots to receive all possible rewards for a given quest. This validation
+    is crucial for quest acceptance and reward distribution in World of Warcraft's
+    TrinityCore emulation. The method evaluates the player's current inventory state,
+    including bags and backpack space, against the expected reward items from the
+    specified quest. It ensures that players cannot accept quests they cannot complete
+    due to inventory constraints, maintaining game balance and preventing item loss
+    or corruption.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being validated for inventory
+      space requirements
+  - name: bot
+    description: Pointer to the Player object whose inventory space is being checked
+      for quest rewards
+  returns: Returns true if the player has sufficient inventory space to accept all
+    possible quest rewards, false otherwise. A return value of false typically prevents
+    quest acceptance or reward distribution.
+  examples:
+  - title: Basic Inventory Space Validation
+    code: "uint32 questId = 12345;\nPlayer* player = ...; // Get player reference\n\
+      if (QuestValidation::ValidateInventorySpace(questId, player)) {\n    // Player\
+      \ can accept and complete the quest\n    player->AddQuest(questId);\n} else\
+      \ {\n    // Notify player they lack inventory space\n    player->SendNotification(\"\
+      Not enough inventory space for this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Acceptance System
+    code: "bool Player::CanAcceptQuest(uint32 questId) {\n    if (!QuestValidation::ValidateInventorySpace(questId,\
+      \ this)) {\n        return false;\n    }\n    // Additional quest acceptance\
+      \ logic here\n    return true;\n}\n\nvoid Player::AcceptQuest(uint32 questId)\
+      \ {\n    if (CanAcceptQuest(questId)) {\n        // Proceed with quest acceptance\n\
+      \        AddQuest(questId);\n    } else {\n        SendNotification(\"Cannot\
+      \ accept quest: Insufficient inventory space.\");\n    }\n}"
+    language: cpp
+  notes: This method considers all potential reward items including items, gold, and
+    experience rewards. It accounts for both main backpack slots and bag inventory
+    spaces. The validation is performed at the time of quest acceptance rather than
+    when rewards are claimed, preventing potential issues with item loss. Performance-wise,
+    this check involves iterating through quest reward data structures and checking
+    player inventory contents.
+  warnings: This method should be called before allowing a player to accept a quest
+    that might have substantial rewards. Failure to validate inventory space can lead
+    to corrupted quest states or lost items if the player's inventory fills up during
+    quest completion. The method does not account for temporary inventory changes
+    that might occur between validation and actual reward distribution.
+  related:
+  - QuestValidation::ValidateQuestRewards
+  - Player::HasInventorySpace
+  - Quest::GetRewards
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:16:18.222560'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

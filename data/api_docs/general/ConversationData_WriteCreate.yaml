@@ -1,0 +1,74 @@
+api:
+  class: ConversationData
+  method: WriteCreate
+  signature: void ConversationData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Conversation * owner, const Player * receiver) const
+documentation:
+  brief: Writes conversation creation data into a byte buffer for network transmission
+    to a specific player.
+  description: The WriteCreate method serializes the conversation data into a ByteBuffer
+    format suitable for sending over the network to inform a client about a new conversation.
+    It takes into account field visibility flags, the owning conversation object,
+    and the receiving player to determine what data should be included in the packet.
+    This method is typically used during the initial synchronization of conversations
+    when a player enters a zone or interacts with an NPC that initiates a conversation.
+    The method ensures that only relevant fields are sent based on visibility rules
+    and the context of the receiver.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized conversation data
+      will be written. This buffer is typically used for constructing network packets.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields of the conversation should be
+      included in the packet. These flags control visibility based on player state,
+      quest progress, or other game conditions.
+  - name: owner
+    description: Pointer to the Conversation object that contains the data to be serialized.
+      This represents the actual conversation being created and sent to the client.
+  - name: receiver
+    description: Pointer to the Player object who will receive this conversation data.
+      Used to determine appropriate field visibility and context-specific information.
+  returns: null
+  examples:
+  - title: Basic usage in a conversation handler
+    code: 'ByteBuffer data;
+
+      ConversationData convData;
+
+      convData.WriteCreate(data, VISIBILITY_DEFAULT, &conversation, player);
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  - title: Sending conversation with custom visibility flags
+    code: 'ByteBuffer buffer;
+
+      int customFlags = VISIBILITY_QUEST_COMPLETE | VISIBILITY_PLAYER_FRIENDLY;
+
+      convData.WriteCreate(buffer, customFlags, &myConversation, targetPlayer);
+
+      WorldPacket packet(SMSG_UPDATE_CONVERSATION, buffer.size());
+
+      packet.append(buffer);
+
+      targetPlayer->SendPacket(&packet);'
+    language: cpp
+  notes: This method is part of the TrinityCore's networking system for handling dynamic
+    conversation data. It's designed to be efficient by only including necessary fields
+    based on visibility flags, reducing bandwidth usage. The method assumes that all
+    required data has been properly initialized in the Conversation object before
+    calling.
+  warnings: Do not call this method with a null owner or receiver pointer as it will
+    likely cause segmentation faults. Ensure that fieldVisibilityFlags are valid and
+    correspond to expected game states. Incorrect visibility flags may result in incomplete
+    or misleading conversation data being sent to players.
+  related:
+  - ConversationData::WriteUpdate
+  - ConversationData::WriteDestroy
+  - Conversation::GetId
+  - Conversation::GetPlayerCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T04:21:53.375471'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

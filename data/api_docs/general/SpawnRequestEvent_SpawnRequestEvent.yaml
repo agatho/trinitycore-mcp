@@ -1,0 +1,60 @@
+api:
+  class: SpawnRequestEvent
+  method: SpawnRequestEvent
+  signature: void SpawnRequestEvent::SpawnRequestEvent(int req, std::function<void
+    (bool, int)> cb)
+documentation:
+  brief: Initiates a spawn request event with the specified request ID and callback
+    function.
+  description: 'The SpawnRequestEvent method is used to trigger a spawn request within
+    the TrinityCore framework, typically for handling dynamic object or creature spawning.
+    It accepts a request identifier and a callback function that will be executed
+    upon completion of the spawn operation. The callback receives two parameters:
+    a boolean indicating success or failure of the spawn request, and an integer representing
+    the result code or identifier associated with the spawned entity. This method
+    is commonly used in game event systems, quest handling, or scripted object spawning
+    scenarios where asynchronous behavior is required.'
+  parameters:
+  - name: req
+    description: An integer identifier for the spawn request. This value typically
+      represents a unique request ID or type that determines what should be spawned
+      (e.g., creature, game object, etc.). Valid values are implementation-specific
+      but generally correspond to predefined spawn types or quest-related identifiers.
+  - name: cb
+    description: 'A std::function callback that will be invoked when the spawn request
+      completes. The callback takes two parameters: a boolean indicating whether the
+      operation succeeded (true) or failed (false), and an integer result code or
+      identifier related to the spawned entity.'
+  returns: null
+  examples:
+  - title: Basic Spawn Request with Callback
+    code: "SpawnRequestEvent(1001, [](bool success, int result) {\n    if (success)\
+      \ {\n        std::cout << \"Spawn successful, result: \" << result << std::endl;\n\
+      \    } else {\n        std::cout << \"Spawn failed with result: \" << result\
+      \ << std::endl;\n    }\n});"
+    language: cpp
+  - title: Spawn Request in Quest Event Handler
+    code: "void OnQuestAccept(Player* player, Quest const* quest) override {\n   \
+      \ SpawnRequestEvent(2005, [player](bool success, int result) {\n        if (success\
+      \ && result > 0) {\n            // Spawn creature or object based on result\n\
+      \            player->SummonCreature(result, player->GetPositionX(), player->GetPositionY(),\
+      \ player->GetPositionZ(), 0);\n        }\n    });\n}"
+    language: cpp
+  notes: This method is asynchronous in nature and does not block execution. The callback
+    function may be executed on a different thread depending on the internal implementation
+    of TrinityCore's event handling system. Developers should ensure that any resources
+    accessed within the callback are thread-safe or properly synchronized.
+  warnings: Ensure that the request ID passed to this method corresponds to valid
+    spawn configurations in the database, otherwise the callback will likely receive
+    a failure status. Avoid performing heavy operations inside the callback function
+    as it may impact performance of the game loop.
+  related:
+  - SpawnRequestEvent::CancelSpawnRequest
+  - SpawnRequestEvent::GetSpawnStatus
+  - SpawnRequestEvent::SetSpawnCallback
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T07:07:27.164196'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

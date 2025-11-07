@@ -7,9 +7,9 @@
  * @module diff-tool
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import { DatabaseExportEngine, type TableSchema, type ColumnSchema, type IndexSchema } from "./export-engine.js";
-import { executeQuery } from "./db-client.js";
+import type { DatabaseConfig } from "../types/database";
+import { DatabaseExportEngine, type TableSchema, type ColumnSchema, type IndexSchema } from "./export-engine";
+import { executeQuery } from "./db-client";
 import fs from "fs/promises";
 
 // ============================================================================

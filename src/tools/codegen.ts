@@ -4,11 +4,11 @@
  */
 
 import * as path from 'path';
-import { CodeGenerator, GeneratedCode } from '../codegen/CodeGenerator.js';
-import { CppValidator, validateCppFile } from '../codegen/CppValidator.js';
+import { CodeGenerator, GeneratedCode } from '../codegen/CodeGenerator';
+import { CppValidator, validateCppFile } from '../codegen/CppValidator';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 const execAsync = promisify(exec);
 

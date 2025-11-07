@@ -1,0 +1,59 @@
+api:
+  class: Loot
+  method: OnLootOpened
+  signature: void Loot::OnLootOpened(Map * map, Player * looter)
+documentation:
+  brief: Handles the event when a player opens a loot container, triggering loot processing
+    and distribution.
+  description: The OnLootOpened method is invoked when a player successfully opens
+    a loot container such as a chest, corpse, or treasure bag. This method orchestrates
+    the core loot mechanics including determining available items, checking looting
+    permissions, and initiating the loot distribution process to the participating
+    players. The method ensures that proper loot rules are followed according to the
+    game's looting system (need before greed, round-robin, etc.) and updates the container
+    state accordingly. It is typically called internally by the core game loop when
+    a player interacts with a lootable object.
+  parameters:
+  - name: map
+    description: Pointer to the Map object where the loot container resides. Used
+      to access map-specific looting rules and to broadcast loot events to players
+      in the area.
+  - name: looter
+    description: Pointer to the Player object who opened the loot container. This
+      player becomes the initial looter and may be assigned as the first to roll for
+      items or receive direct loot depending on the loot mode.
+  returns: null
+  examples:
+  - title: Basic usage in loot container handler
+    code: "void GameEvent::HandleLootOpen(Player* player, GameObject* go)\n{\n   \
+      \ if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_LOOTABLE)\n    {\n        Loot*\
+      \ loot = go->GetLoot();\n        loot->OnLootOpened(player->GetMap(), player);\n\
+      \    }\n}"
+    language: cpp
+  - title: Custom loot handling with additional checks
+    code: "void CustomLootHandler::OnPlayerLootOpen(Player* player, Loot* loot)\n\
+      {\n    // Validate looter is in the same map\n    if (!player->GetMap() || !loot)\n\
+      \        return;\n    \n    // Perform custom checks before opening loot\n \
+      \   if (player->HasAura(SPELL_LOOT_LOCKOUT))\n        return;\n    \n    //\
+      \ Call original method to process loot\n    loot->OnLootOpened(player->GetMap(),\
+      \ player);\n}"
+    language: cpp
+  notes: This method is part of the internal loot system and should not be called
+    directly from external modules without proper context. The method modifies the
+    internal state of the Loot object, including marking items as looted or distributed.
+    It assumes that all preconditions for looting have been validated by the caller.
+  warnings: Do not call this method with invalid or null pointers; doing so may result
+    in undefined behavior or crashes. Ensure that the map and player parameters are
+    valid before invoking this method, especially when overriding or extending default
+    loot behavior.
+  related:
+  - Loot::AddItem
+  - Loot::Roll
+  - Loot::NotifyPlayersLootRemoved
+  - Loot::Clear
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T10:06:28.661013'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

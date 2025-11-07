@@ -1,0 +1,51 @@
+api:
+  class: RoleAssignment
+  method: HandleRoleEmergency
+  signature: void RoleAssignment::HandleRoleEmergency(Group * group, uint32 disconnectedPlayerGuid)
+documentation:
+  brief: Handles emergency role assignment for a disconnected player in a group
+  description: The HandleRoleEmergency method is responsible for reassigning roles
+    within a group when a player disconnects unexpectedly. It ensures that group leadership
+    and other role-based responsibilities are properly transferred to remaining group
+    members. This method typically gets invoked during group management operations
+    when a player's connection is lost or terminated. The implementation evaluates
+    the current group composition, identifies any missing roles, and assigns appropriate
+    replacements based on group hierarchy and player availability.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the disconnected player and
+      remaining members
+  - name: disconnectedPlayerGuid
+    description: The globally unique identifier (GUID) of the player who has disconnected
+      from the group
+  returns: null
+  examples:
+  - title: Basic usage in group management
+    code: "void HandlePlayerDisconnect(Group* group, uint32 playerGuid)\n{\n    if\
+      \ (group)\n    {\n        RoleAssignment roleAssign;\n        roleAssign.HandleRoleEmergency(group,\
+      \ playerGuid);\n    }\n}"
+    language: cpp
+  - title: Integration with player logout handling
+    code: "void OnPlayerLogout(Player* player)\n{\n    Group* group = player->GetGroup();\n\
+      \    if (group && group->IsMember(player->GetGUID()))\n    {\n        RoleAssignment\
+      \ roleAssign;\n        roleAssign.HandleRoleEmergency(group, player->GetGUID());\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the group object is valid and contains at least
+    one remaining member after the disconnection. It may trigger role change notifications
+    to other group members. The implementation should be called only when a player
+    has actually disconnected, not during normal group operations.
+  warnings: Calling this method with an invalid group pointer or non-existent player
+    GUID can lead to undefined behavior. Ensure that the group is properly validated
+    before invoking this method. This method modifies group state and may affect leadership
+    roles, so it should be used carefully in concurrent environments.
+  related:
+  - Group::RemoveMember
+  - Group::ChangeLeader
+  - RoleAssignment::AssignRoles
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:39:55.039128'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

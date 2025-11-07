@@ -1,0 +1,61 @@
+api:
+  class: BotAI
+  method: OnGroupEvent
+  signature: void BotAI::OnGroupEvent(const GroupEvent & event)
+documentation:
+  brief: Handles group-related events for bot AI behavior
+  description: The OnGroupEvent method is a core callback function in the BotAI class
+    that processes and responds to various group-related events within the TrinityCore
+    framework. This method is invoked whenever significant changes occur in a bot's
+    group membership or group dynamics, such as joining or leaving a group, member
+    disconnections, or group leader changes. It allows the bot AI to adapt its behavior
+    dynamically based on group status, ensuring proper coordination with other players
+    and maintaining effective group performance during raids, dungeons, or player-vs-player
+    scenarios. The method typically updates internal state variables, recalculates
+    priorities, and may trigger specific actions like repositioning, switching roles,
+    or adjusting combat strategies.
+  parameters:
+  - name: event
+    description: A constant reference to a GroupEvent object containing details about
+      the group event that occurred. This includes information such as the event type
+      (e.g., JOINED_GROUP, LEFT_GROUP, LEADER_CHANGED), affected group members, and
+      contextual data relevant to the event.
+  returns: null
+  examples:
+  - title: Basic Event Handling
+    code: "void BotAI::OnGroupEvent(const GroupEvent& event)\n{\n    switch (event.GetType())\n\
+      \    {\n        case GROUP_EVENT_JOINED:\n            // Bot has joined a new\
+      \ group\n            sLog->outString(\"Bot %u joined a group.\", GetBot()->GetGUID().GetCounter());\n\
+      \            break;\n        case GROUP_EVENT_LEFT:\n            // Bot has\
+      \ left the current group\n            sLog->outString(\"Bot %u left the group.\"\
+      , GetBot()->GetGUID().GetCounter());\n            break;\n        default:\n\
+      \            break;\n    }\n}"
+    language: cpp
+  - title: Dynamic Behavior Adjustment
+    code: "void BotAI::OnGroupEvent(const GroupEvent& event)\n{\n    if (event.GetType()\
+      \ == GROUP_EVENT_LEADER_CHANGED)\n    {\n        // Update bot's role based\
+      \ on new group leader\n        if (event.GetNewLeaderGuid() == GetBot()->GetGUID())\n\
+      \        {\n            SetRole(BOT_ROLE_LEADER);\n        }\n        else\n\
+      \        {\n            SetRole(BOT_ROLE_MEMBER);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the core game loop or group management
+    systems within TrinityCore. Developers should ensure that event handling logic
+    does not block or perform heavy computations, as it may affect overall server
+    performance. The method should be designed to handle all possible group events
+    gracefully without causing crashes or inconsistent states.
+  warnings: Improper handling of group events can lead to bots becoming disconnected
+    from groups unexpectedly or failing to respond correctly to leadership changes.
+    Avoid performing expensive operations within this method that could block the
+    game thread, and always validate event data before processing to prevent potential
+    memory access violations.
+  related:
+  - GetGroup()
+  - IsInGroup()
+  - SetRole()
+  - GetBot()
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T19:38:14.388941'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

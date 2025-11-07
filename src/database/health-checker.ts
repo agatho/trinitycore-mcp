@@ -6,8 +6,8 @@
  * @module health-checker
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import { executeQuery, testConnection } from "./db-client.js";
+import type { DatabaseConfig } from "../types/database";
+import { executeQuery, testConnection } from "./db-client";
 
 // ============================================================================
 // Types

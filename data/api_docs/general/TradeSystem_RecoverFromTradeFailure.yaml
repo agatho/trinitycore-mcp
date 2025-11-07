@@ -1,0 +1,49 @@
+api:
+  class: TradeSystem
+  method: RecoverFromTradeFailure
+  signature: void TradeSystem::RecoverFromTradeFailure(uint32 sessionId)
+documentation:
+  brief: Restores player inventory and clears trade state after a failed trade session.
+  description: The RecoverFromTradeFailure method is responsible for handling cleanup
+    operations when a trade between two players fails. It ensures that any items that
+    were temporarily moved to the trade window are returned to their original owners'
+    inventories, and it clears the associated trade session data from memory. This
+    method is typically invoked when a trade is cancelled, rejected, or encounters
+    an error during the trading process. The method uses the provided session ID to
+    locate and restore the correct trade state for both parties involved.
+  parameters:
+  - name: sessionId
+    description: Unique identifier for the trade session that failed. This ID corresponds
+      to a specific trade transaction between two players and is used to retrieve
+      and restore the trade state.
+  returns: null
+  examples:
+  - title: Basic Usage in Trade Failure Handler
+    code: "void HandleTradeRejected(Player* player, uint32 sessionId)\n{\n    // Perform\
+      \ any necessary logging or notifications\n    sTradeSystem->RecoverFromTradeFailure(sessionId);\n\
+      \    // Additional cleanup logic can follow\n}"
+    language: cpp
+  - title: Using in Trade Session Cleanup
+    code: "void TradeSession::OnTradeFailed(uint32 sessionId)\n{\n    // Notify both\
+      \ players of the failure\n    SendTradeStatus(TRADE_STATUS_TRADE_BUSY);\n  \
+      \  \n    // Restore all items to their original owners\n    sTradeSystem->RecoverFromTradeFailure(sessionId);\n\
+      \    \n    // Clear the session data\n    RemoveSession(sessionId);\n}"
+    language: cpp
+  notes: This method assumes that the trade session exists and is valid. It performs
+    inventory restoration by moving items back to their original containers, which
+    may trigger item update packets to be sent to players. The method does not handle
+    database synchronization directly; it focuses on in-memory state recovery.
+  warnings: Calling this method with an invalid or non-existent session ID may result
+    in undefined behavior or crashes. Ensure that the sessionId is validated before
+    calling this method. Additionally, this method should only be called when a trade
+    failure has been confirmed to prevent unnecessary inventory manipulation.
+  related:
+  - TradeSystem::StartTrade
+  - TradeSystem::AcceptTrade
+  - TradeSystem::CancelTrade
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T00:26:50.858272'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

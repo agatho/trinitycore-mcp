@@ -1,0 +1,59 @@
+api:
+  class: KitingManager
+  method: GenerateCircularWaypoints
+  signature: int KitingManager::GenerateCircularWaypoints(Unit * target, float radius,
+    uint32 points)
+documentation:
+  brief: Generates a set of circular waypoints around a target unit for kiting behavior.
+  description: The GenerateCircularWaypoints method creates a series of evenly distributed
+    waypoints in a circular pattern around a specified target unit. This functionality
+    is typically used by AI-controlled creatures or players to perform kiting maneuvers,
+    maintaining optimal distance from an enemy while moving in a circular path. The
+    method calculates the positions based on the target's location, a given radius,
+    and the number of desired waypoints. It returns the total count of generated waypoints,
+    which can be used for subsequent pathfinding or movement logic.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object around which the circular waypoints will
+      be generated. This represents the center point of the circle.
+  - name: radius
+    description: Floating-point value representing the radius of the circular path
+      in yards. Determines how far from the target unit the waypoints are placed.
+  - name: points
+    description: Unsigned 32-bit integer specifying the number of waypoints to generate
+      along the circular path. Must be a positive value; typically between 4 and 36
+      for practical kiting behavior.
+  returns: An integer representing the total number of waypoints successfully generated.
+    Returns 0 if the input parameters are invalid or insufficient memory is available.
+  examples:
+  - title: Basic Usage for Kiting AI
+    code: "Unit* target = player->GetVictim();\nint waypointCount = kitingManager->GenerateCircularWaypoints(target,\
+      \ 10.0f, 8);\nif (waypointCount > 0) {\n    // Proceed with path following logic\n\
+      }"
+    language: cpp
+  - title: Using Generated Waypoints for Movement
+    code: "Unit* target = creature->GetVictim();\nuint32 numPoints = 12;\nfloat radius\
+      \ = 15.0f;\nint count = kitingManager->GenerateCircularWaypoints(target, radius,\
+      \ numPoints);\nif (count == static_cast<int>(numPoints)) {\n    // Pathfinding\
+      \ logic using generated waypoints\n    for (uint32 i = 0; i < numPoints; ++i)\
+      \ {\n        Position waypoint = kitingManager->GetWaypoint(i);\n        creature->GetMotionMaster()->MovePoint(i,\
+      \ waypoint);\n    }\n}"
+    language: cpp
+  notes: The method assumes that the target unit is valid and accessible. The generated
+    waypoints are stored internally within the KitingManager instance and can be retrieved
+    using GetWaypoint() or similar accessors. Performance may degrade with very high
+    point counts due to trigonometric calculations required for positioning.
+  warnings: Ensure that the target pointer is not null before calling this method,
+    as it will likely cause a crash or undefined behavior. Also, avoid setting points
+    to extremely large values (e.g., >100) which could lead to excessive memory usage
+    or performance issues.
+  related:
+  - GetWaypoint
+  - ClearWaypoints
+  - IsKitingActive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:20:30.791841'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

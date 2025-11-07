@@ -1,0 +1,63 @@
+api:
+  class: Bag
+  method: BuildValuesUpdate
+  signature: void Bag::BuildValuesUpdate(int * data, int flags, const int * target)
+    const
+documentation:
+  brief: Populates update buffer with bag's object and dynamic properties for client
+    synchronization
+  description: The BuildValuesUpdate method constructs the data required to synchronize
+    a Bag object's state with clients. It fills the provided data array with the object's
+    fields and dynamic properties according to the specified flags and target context.
+    This method is typically invoked during packet building for update messages sent
+    to players, ensuring that the client has an accurate representation of the bag's
+    current state including its contents, owner, and other relevant attributes. The
+    method operates on the principle of incremental updates, only including fields
+    that have changed or are required by the update flags.
+  parameters:
+  - name: data
+    description: Pointer to an integer array where the update data will be written.
+      This buffer must be pre-allocated with sufficient space to hold all relevant
+      field values for the bag object.
+  - name: flags
+    description: Integer flags that determine which fields and properties should be
+      included in the update. These flags control the granularity of the update, specifying
+      whether to include object fields, dynamic properties, or specific attribute
+      types.
+  - name: target
+    description: Pointer to an integer array representing the target context for the
+      update. This parameter may be used to determine which specific fields should
+      be included based on the viewing player's perspective or other contextual factors.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: "int updateData[MAX_OBJECT_FIELDS];\nint flags = UPDATEFLAG_ALL;\nconst\
+      \ int* target = nullptr;\nBag* bag = player->GetBag(0);\nif (bag)\n{\n    bag->BuildValuesUpdate(updateData,\
+      \ flags, target);\n    // Send updateData to client\n}"
+    language: cpp
+  - title: Building selective updates for specific players
+    code: "int updateData[MAX_OBJECT_FIELDS];\nint flags = UPDATEFLAG_LIVING;\nconst\
+      \ int* target = &player->GetGUID().GetRawValue();\nBag* bag = player->GetBag(0);\n\
+      if (bag)\n{\n    bag->BuildValuesUpdate(updateData, flags, target);\n    //\
+      \ Send update to specific player\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when preparing updates for network transmission. The data buffer
+    size must be sufficient to accommodate all fields that may be written based on
+    the provided flags. The method does not perform any validation on the input parameters,
+    so callers must ensure valid memory access.
+  warnings: Incorrectly sized data buffers or invalid flag combinations can lead to
+    memory corruption or client-side desynchronization issues. Always verify that
+    the target parameter points to valid memory and that the update buffer is properly
+    allocated before calling this method.
+  related:
+  - Object::BuildValuesUpdate
+  - Unit::BuildValuesUpdate
+  - Player::BuildValuesUpdate
+  - Object::BuildUpdateData
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-06T20:50:26.630051'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

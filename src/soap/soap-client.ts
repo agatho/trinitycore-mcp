@@ -8,7 +8,7 @@
  */
 
 import * as net from "net";
-import type { SOAPConnectionConfig, SOAPCommandResult } from "../types/soap.js";
+import type { SOAPConnectionConfig, SOAPCommandResult } from "../types/soap";
 
 /**
  * Execute SOAP command options

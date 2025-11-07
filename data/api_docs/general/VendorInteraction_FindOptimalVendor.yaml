@@ -1,0 +1,63 @@
+api:
+  class: VendorInteraction
+  method: FindOptimalVendor
+  signature: uint32 VendorInteraction::FindOptimalVendor(Player * player, VendorType
+    preferredType, float maxDistance)
+documentation:
+  brief: Finds and returns the GUID of the most optimal vendor for a player based
+    on type and distance.
+  description: The FindOptimalVendor method searches for the best available vendor
+    for a given player, considering their preferred vendor type and maximum allowed
+    distance. It evaluates nearby vendors to determine which one is most suitable
+    based on criteria such as vendor type match, proximity, and potentially other
+    internal factors like vendor availability or player reputation. This method is
+    typically used in quest systems or player interaction logic where the game needs
+    to automatically select an appropriate vendor for purchasing items, services,
+    or completing transactions. The method requires a valid Player object and will
+    return 0 if no suitable vendor is found within the specified constraints.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the optimal vendor is being
+      searched. Must be a valid player instance, otherwise behavior is undefined.
+  - name: preferredType
+    description: The preferred vendor type to search for (e.g., VENDOR_TYPE_TRADE,
+      VENDOR_TYPE_REPAIR). Determines which category of vendors to prioritize in the
+      search.
+  - name: maxDistance
+    description: Maximum distance (in yards) within which vendors will be considered.
+      Vendors beyond this range are ignored during selection.
+  returns: Returns the GUID (unique identifier) of the selected vendor if a suitable
+    one is found within the specified constraints. Returns 0 if no appropriate vendor
+    exists within range or if parameters are invalid.
+  examples:
+  - title: Find nearest trade vendor
+    code: "Player* player = ...; // Assume valid player\nuint32 vendorGuid = VendorInteraction::FindOptimalVendor(player,\
+      \ VENDOR_TYPE_TRADE, 50.0f);\nif (vendorGuid != 0)\n{\n    // Proceed with interaction\
+      \ using the found vendor GUID\n}"
+    language: cpp
+  - title: Find optimal repair vendor within 30 yards
+    code: "Player* player = ...; // Assume valid player\nuint32 vendorGuid = VendorInteraction::FindOptimalVendor(player,\
+      \ VENDOR_TYPE_REPAIR, 30.0f);\nif (vendorGuid != 0)\n{\n    Creature* vendor\
+      \ = ObjectAccessor::GetCreature(*player, vendorGuid);\n    if (vendor && vendor->IsVendor())\n\
+      \    {\n        // Initiate repair interaction\n        player->GetSession()->SendListInventory(vendorGuid);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method internally uses spatial queries to locate nearby vendors and
+    may perform distance calculations. Performance can be affected by the number of
+    NPCs in the area. The method assumes that vendor data is properly initialized
+    and available in the game world. It does not handle vendor availability or item
+    stock checks directly; those are handled separately during interaction.
+  warnings: Passing invalid Player pointers or negative maxDistance values may lead
+    to undefined behavior. The method returns 0 for both no vendors found and error
+    conditions, so callers should verify player validity before calling. This method
+    is not thread-safe and should only be called from the main game thread.
+  related:
+  - GetVendorList
+  - IsVendorAvailable
+  - SendVendorList
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T00:02:44.994727'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

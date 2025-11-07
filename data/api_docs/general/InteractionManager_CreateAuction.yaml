@@ -1,0 +1,72 @@
+api:
+  class: InteractionManager
+  method: CreateAuction
+  signature: bool InteractionManager::CreateAuction(Player * bot, Creature * auctioneer,
+    Item * item, uint32 bid, uint32 buyout, uint32 duration)
+documentation:
+  brief: Creates a new auction listing for an item through the specified auctioneer.
+  description: The CreateAuction method allows a bot player to list an item for sale
+    on the auction house by interacting with a creature acting as an auctioneer. It
+    takes an item, sets bid and buyout prices, and defines the auction duration. The
+    method handles the necessary game mechanics such as item ownership validation,
+    auction house fees, and updating the auction database. This function is typically
+    used in automated bot systems or AI-driven gameplay scenarios where players need
+    to programmatically manage their inventory through auctions.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will create
+      the auction. Must be a valid player instance with sufficient permissions and
+      items.
+  - name: auctioneer
+    description: Pointer to the Creature object acting as the auctioneer. This creature
+      must be a valid auction house NPC and within interaction range of the bot.
+  - name: item
+    description: Pointer to the Item object that will be auctioned. Must be a valid
+      item owned by the bot and not already listed on the auction house.
+  - name: bid
+    description: The minimum bid amount required for the auction. Must be a positive
+      integer representing copper coins (10000 = 1 gold).
+  - name: buyout
+    description: The buyout price for the item, or 0 if no buyout is set. Must be
+      equal to or greater than the bid amount.
+  - name: duration
+    description: Duration of the auction in seconds (3600 = 1 hour). Valid values
+      are typically 1800 (30 min), 3600 (1 hour), 7200 (2 hours), or 21600 (6 hours).
+  returns: Returns true if the auction was successfully created and added to the auction
+    house system. Returns false if any precondition fails, such as invalid item ownership,
+    insufficient funds, or invalid auction parameters.
+  examples:
+  - title: Basic Auction Creation
+    code: "Player* bot = ...;\nCreature* auctioneer = ...;\nItem* item = ...;\nuint32\
+      \ bid = 10000; // 1 gold\nuint32 buyout = 50000; // 5 gold\nuint32 duration\
+      \ = 3600; // 1 hour\nbool success = bot->GetInteractionManager()->CreateAuction(bot,\
+      \ auctioneer, item, bid, buyout, duration);\nif (success)\n    TC_LOG_INFO(\"\
+      auction\", \"Auction created successfully\");"
+    language: cpp
+  - title: Creating Auction Without Buyout
+    code: "Player* bot = ...;\nCreature* auctioneer = ...;\nItem* item = ...;\nuint32\
+      \ bid = 5000; // 50 silver\nuint32 buyout = 0; // No buyout\nuint32 duration\
+      \ = 7200; // 2 hours\nbool success = bot->GetInteractionManager()->CreateAuction(bot,\
+      \ auctioneer, item, bid, buyout, duration);\nif (success)\n    TC_LOG_INFO(\"\
+      auction\", \"Auction created without buyout\");"
+    language: cpp
+  notes: This method internally validates that the bot has ownership of the item and
+    that it's not already listed on the auction house. It also calculates and deducts
+    the auction house fee from the bot's inventory before creating the listing. The
+    method assumes proper synchronization with the game world state and may require
+    the player to be in a valid state (not in combat, etc.) for successful execution.
+  warnings: Ensure that the item being auctioned is not soulbound or otherwise restricted
+    from being sold. Attempting to create an auction with invalid parameters (e.g.,
+    buyout < bid) will result in failure. This method should only be called when the
+    bot has sufficient funds to cover both the item and the auction house fees.
+  related:
+  - GetAuctionHouse
+  - CancelAuction
+  - BidOnAuction
+  - GetAuctionsByItem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:39:16.706400'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

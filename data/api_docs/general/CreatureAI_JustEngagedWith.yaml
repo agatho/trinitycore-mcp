@@ -1,0 +1,52 @@
+api:
+  class: CreatureAI
+  method: JustEngagedWith
+  signature: void CreatureAI::JustEngagedWith(int * param0)
+documentation:
+  brief: Called when the creature enters combat with a target
+  description: The JustEngagedWith method is invoked by the TrinityCore AI system
+    when a CreatureAI object's associated creature transitions into combat mode and
+    engages with a target. This method serves as a hook for custom AI behavior during
+    the initial engagement phase, allowing developers to implement specific actions
+    such as casting spells, playing animations, or triggering events upon entering
+    combat. The method is typically called once per combat encounter and occurs after
+    the creature has successfully engaged its target but before any combat logic begins.
+  parameters:
+  - name: param0
+    description: Pointer to an integer representing the target's identifier or combat
+      state. This parameter may be null if no valid target exists at the time of engagement.
+  returns: void
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void JustEngagedWith(int*\
+      \ param0) override {\n        // Cast a spell on engagement\n        if (param0\
+      \ && *param0 > 0) {\n            DoCast(SPELL_ENGAGEMENT_SPELL);\n        }\n\
+      \    }\n};"
+    language: cpp
+  - title: Advanced Engagement with Target Validation
+    code: "class AdvancedCreatureAI : public CreatureAI {\npublic:\n    void JustEngagedWith(int*\
+      \ param0) override {\n        if (!param0 || *param0 <= 0) {\n            return;\
+      \ // No valid target\n        }\n        \n        Unit* target = ObjectAccessor::GetUnit(*me,\
+      \ ObjectGuid::Create<HighGuid::Player>(*param0));\n        if (target && target->IsAlive())\
+      \ {\n            // Perform actions specific to the engaged target\n       \
+      \     DoCast(target, SPELL_INITIAL_SPELL);\n            Talk(SAY_ENGAGED);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the CreatureAI lifecycle and is called only once per
+    combat entry. It's important to note that param0 may be null or invalid, so proper
+    validation should always occur before dereferencing. The method is executed within
+    the context of the creature's AI thread and should not block for extended periods.
+  warnings: Avoid performing heavy computations or blocking operations in this method
+    as it can impact combat responsiveness. Also, ensure that any spell casting or
+    actions performed here do not cause infinite loops or unintended behavior during
+    combat transitions.
+  related:
+  - EnterCombat
+  - JustDied
+  - UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:29:10.282771'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

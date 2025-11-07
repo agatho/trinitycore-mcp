@@ -7,7 +7,7 @@
  * @module tools/decision-tree-analyzer
  */
 
-import type { CombatLogEntry, SuboptimalDecision } from "./botcombatloganalyzer.js";
+import type { CombatLogEntry, SuboptimalDecision } from "./botcombatloganalyzer";
 
 // ============================================================================
 // TYPES

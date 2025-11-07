@@ -1,0 +1,58 @@
+api:
+  class: BotAI
+  method: OnResourceEvent
+  signature: void BotAI::OnResourceEvent(const ResourceEvent & event)
+documentation:
+  brief: Handles resource-related events for bot AI behavior.
+  description: The OnResourceEvent method is a core callback function in the BotAI
+    class that processes and responds to various resource-related events within the
+    game world. This method is invoked when bots encounter changes in resource availability,
+    such as mining nodes depleting, herbalism plants regrowing, or gathering locations
+    becoming accessible. It allows the bot AI to dynamically adjust its behavior based
+    on resource state changes, ensuring efficient resource collection and strategic
+    decision-making. The method typically integrates with the bot's decision-making
+    system to prioritize actions based on current resource conditions.
+  parameters:
+  - name: event
+    description: A constant reference to a ResourceEvent object containing details
+      about the resource event that occurred, including event type, location, and
+      affected resources.
+  returns: null
+  examples:
+  - title: Basic Resource Event Handling
+    code: "void BotAI::OnResourceEvent(const ResourceEvent& event)\n{\n    switch\
+      \ (event.type)\n    {\n        case RESOURCE_EVENT_DEPLETED:\n            //\
+      \ Switch to alternative resource gathering location\n            bot->SetCurrentTarget(nullptr);\n\
+      \            break;\n        case RESOURCE_EVENT_RESTORED:\n            // Resume\
+      \ resource gathering\n            bot->SetCurrentTarget(event.location);\n \
+      \           break;\n    }\n}"
+    language: cpp
+  - title: Advanced Resource Event with AI Logic
+    code: "void BotAI::OnResourceEvent(const ResourceEvent& event)\n{\n    if (event.type\
+      \ == RESOURCE_EVENT_DEPLETED)\n    {\n        // Update bot's resource map\n\
+      \        bot->GetResourceMap().UpdateNodeStatus(event.location, NODE_STATUS_UNAVAILABLE);\n\
+      \        \n        // Find nearest alternative resource\n        auto alternative\
+      \ = bot->FindClosestAvailableResource(event.location);\n        if (alternative)\n\
+      \        {\n            bot->MoveToLocation(alternative);\n        }\n     \
+      \   else\n        {\n            // No alternatives found, wait or perform other\
+      \ task\n            bot->SetState(BOT_STATE_IDLE);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the game's main event loop and should
+    not block execution for extended periods. The ResourceEvent object passed to this
+    method is read-only and should not be modified directly. Implementations should
+    be optimized for performance as this method may be called frequently during active
+    gameplay.
+  warnings: Avoid performing heavy computations or database operations within this
+    method as it can impact overall game performance. Do not modify the event object
+    directly, as it may cause undefined behavior. Ensure proper state management to
+    prevent bots from getting stuck in resource-related loops.
+  related:
+  - OnUpdate
+  - OnEvent
+  - HandleResourceGather
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T19:34:46.854505'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,59 @@
+api:
+  class: AuctionEventBus
+  method: Unsubscribe
+  signature: void AuctionEventBus::Unsubscribe(BotAI * subscriber)
+documentation:
+  brief: Removes a specified BotAI subscriber from the auction event bus.
+  description: The Unsubscribe method removes a given BotAI instance from the internal
+    list of subscribers within the AuctionEventBus. This allows for dynamic management
+    of event listeners, ensuring that only active and relevant AI instances receive
+    auction-related notifications. The method ensures that the specified subscriber
+    is no longer notified of auction events such as item listings, bids, or sales.
+    It's typically used when an AI bot is deactivated, removed, or needs to stop receiving
+    auction updates. This mechanism supports efficient resource management by preventing
+    unnecessary event propagation to inactive subscribers.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that should be removed from the auction
+      event bus subscription list. Must not be null.
+  returns: None. The method performs an in-place modification of the internal subscriber
+    list.
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'BotAI* myBot = new BotAI();
+
+      // Assume bot is already subscribed
+
+      AuctionEventBus::Instance()->Unsubscribe(myBot);
+
+      // myBot will no longer receive auction events'
+    language: cpp
+  - title: Unsubscribe Before Deletion
+    code: 'BotAI* bot = GetActiveBot();
+
+      AuctionEventBus::Instance()->Unsubscribe(bot);
+
+      // Safe to delete the bot now
+
+      delete bot;'
+    language: cpp
+  notes: The AuctionEventBus maintains a list of active subscribers, and this method
+    performs a linear search to find and remove the specified subscriber. It is recommended
+    to avoid calling Unsubscribe on already-unsubscribed or null pointers to prevent
+    undefined behavior. The implementation likely uses a container like std::vector
+    or std::set internally for managing subscribers.
+  warnings: Calling Unsubscribe with a null pointer will result in undefined behavior.
+    Ensure that the BotAI instance being unsubscribed was previously subscribed to
+    avoid potential logic errors. If multiple threads access the AuctionEventBus,
+    synchronization may be required to prevent race conditions during subscription
+    changes.
+  related:
+  - Subscribe
+  - Publish
+  - IsSubscribed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:34:26.686102'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,56 @@
+api:
+  class: BattlegroundAI
+  method: DefendGate
+  signature: bool BattlegroundAI::DefendGate(int * player)
+documentation:
+  brief: Defends a gate during battleground events, returning true if successful.
+  description: The DefendGate method is used by BattlegroundAI to handle the defensive
+    actions related to gates in battleground scenarios. This method typically manages
+    the logic for defending specific gate structures within a battleground, such as
+    those found in Warsong Gulch or Alterac Valley. It may involve checking if a gate
+    is under attack, determining whether it can be defended, and updating the state
+    of the battleground accordingly. The method returns true when the gate defense
+    operation was successfully initiated or completed, and false otherwise. This functionality
+    is crucial for maintaining the integrity of battleground objectives and ensuring
+    proper game progression during combat.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player ID attempting to defend
+      the gate. This parameter may be used to track which player initiated the defense
+      action or to validate permissions for gate defense operations.
+  returns: Returns true if the gate defense operation was successfully handled, false
+    otherwise. A return value of false might indicate that the gate is already defended,
+    the player lacks permission, or the operation failed due to game state constraints.
+  examples:
+  - title: Basic Gate Defense Usage
+    code: "if (bgAI->DefendGate(&playerId)) {\n    // Gate defense initiated successfully\n\
+      \    sWorld->SendServerMessage(SERVER_MSG_STRING, \"Gate defense started.\"\
+      , nullptr);\n} else {\n    // Failed to initiate gate defense\n    sWorld->SendServerMessage(SERVER_MSG_STRING,\
+      \ \"Failed to defend gate.\", nullptr);\n}"
+    language: cpp
+  - title: Gate Defense with Player Validation
+    code: "Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ playerId));\nif (player && player->GetMap()->IsBattleground()) {\n    Battleground*\
+      \ bg = player->GetBattleground();\n    if (bg && bg->GetBgTeam(player->GetTeamId())\
+      \ == TEAM_ALLIANCE) {\n        if (bgAI->DefendGate(&playerId)) {\n        \
+      \    // Successfully defended the gate\n            player->AddItem(ItemTemplate::CreateItem(34567,\
+      \ 1), true);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the battleground AI system and should only be called
+    during active battleground events. The player parameter may be modified internally
+    to reflect the actual defending player or team. Implementation details depend
+    on the specific battleground type and its objectives.
+  warnings: Calling this method outside of a valid battleground context can lead to
+    undefined behavior. Ensure that the battleground is properly initialized and that
+    the player has appropriate permissions before invoking this method. Incorrect
+    usage may cause game state inconsistencies or crashes.
+  related:
+  - BattlegroundAI::AttackGate
+  - BattlegroundAI::HandleGateEvent
+  - Battleground::GetBgTeam
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T20:21:46.129274'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

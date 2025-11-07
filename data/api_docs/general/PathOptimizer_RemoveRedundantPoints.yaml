@@ -1,0 +1,62 @@
+api:
+  class: PathOptimizer
+  method: RemoveRedundantPoints
+  signature: uint32 PathOptimizer::RemoveRedundantPoints(MovementPath & path, Map
+    * map)
+documentation:
+  brief: Removes redundant waypoints from a movement path to optimize navigation.
+  description: 'The RemoveRedundantPoints method processes a MovementPath object and
+    eliminates unnecessary intermediate waypoints that do not contribute to the overall
+    movement trajectory. This optimization reduces path data size, improves performance,
+    and ensures smoother AI movement in World of Warcraft. The method operates on
+    the provided path in-place, modifying it directly. It takes into account the map
+    context to ensure spatial accuracy when determining point redundancy. Precondition:
+    The MovementPath must be valid and populated with at least two waypoints. Postcondition:
+    The path will contain only essential waypoints that define the movement trajectory.'
+  parameters:
+  - name: path
+    description: Reference to a MovementPath object containing the waypoints to be
+      optimized. The path is modified in-place.
+  - name: map
+    description: Pointer to the Map object where the movement occurs. Used for spatial
+      validation and context during optimization.
+  returns: Returns the number of waypoints removed from the path during optimization.
+    A return value of zero indicates no redundant points were found or removed.
+  examples:
+  - title: Basic Path Optimization
+    code: 'MovementPath path;
+
+      // ... populate path with waypoints ...
+
+      Map* map = player->GetMap();
+
+      uint32 removedPoints = optimizer.RemoveRedundantPoints(path, map);
+
+      TC_LOG_DEBUG("movement", "Removed %u redundant points from path", removedPoints);'
+    language: cpp
+  - title: Optimization with Error Handling
+    code: "MovementPath path;\nMap* map = player->GetMap();\nif (!path.empty() &&\
+      \ map)\n{\n    uint32 removed = optimizer.RemoveRedundantPoints(path, map);\n\
+      \    if (removed > 0)\n        TC_LOG_DEBUG(\"movement\", \"Optimized path:\
+      \ %u points removed\", removed);\n}\nelse\n{\n    TC_LOG_ERROR(\"movement\"\
+      , \"Invalid path or map for optimization\");\n}"
+    language: cpp
+  notes: This method is typically called during AI pathfinding to reduce computational
+    overhead and improve movement efficiency. The optimization algorithm considers
+    both spatial proximity and directional consistency of waypoints. Performance is
+    generally O(n) where n is the number of waypoints in the path.
+  warnings: Modifying a MovementPath in-place may affect other systems that reference
+    the same path object. Ensure proper synchronization if multiple threads access
+    the path concurrently. This method does not validate the integrity of the original
+    path structure beyond basic waypoint existence.
+  related:
+  - GetPath
+  - SetPath
+  - OptimizePath
+  - ValidatePath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T06:57:16.504706'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

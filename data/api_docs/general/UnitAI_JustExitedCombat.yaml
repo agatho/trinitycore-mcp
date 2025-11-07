@@ -1,0 +1,50 @@
+api:
+  class: UnitAI
+  method: JustExitedCombat
+  signature: void UnitAI::JustExitedCombat()
+documentation:
+  brief: Called when a unit exits combat state, allowing for custom behavior execution.
+  description: The JustExitedCombat method is a virtual callback function in the UnitAI
+    class that is invoked whenever a unit transitions out of combat mode. This method
+    serves as a hook for AI implementations to perform cleanup operations, reset flags,
+    or trigger specific behaviors when an NPC or creature is no longer engaged in
+    combat. It is typically called after the unit's combat state has been fully updated
+    and all related systems have processed the exit from combat. The method does not
+    take any parameters and does not return a value, making it suitable for side-effect
+    based operations such as resetting AI states or triggering events.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Override Example
+    code: "class MyAI : public UnitAI {\npublic:\n    void JustExitedCombat() override\
+      \ {\n        // Reset custom AI flags\n        m_hasBeenInCombat = false;\n\
+      \        // Perform cleanup tasks\n        if (m_target)\n            m_target\
+      \ = nullptr;\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Event Triggering
+    code: "class AdvancedAI : public UnitAI {\npublic:\n    void JustExitedCombat()\
+      \ override {\n        // Notify other systems about combat exit\n        if\
+      \ (m_combatTimer > 0)\n            m_combatTimer = 0;\n        \n        //\
+      \ Trigger a custom event\n        if (GetUnit()->GetTypeId() == TYPEID_UNIT)\
+      \ {\n            Unit* unit = GetUnit();\n            unit->SendAIEventAround(AI_EVENT_COMBAT_EXIT,\
+      \ nullptr, unit);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the AI framework and should only be overridden in
+    custom AI implementations. It is called after the combat state has been fully
+    processed by the core systems. Developers should avoid performing heavy operations
+    or blocking calls within this method as it may impact performance during frequent
+    combat transitions.
+  warnings: Do not call this method directly from outside the AI system; it's intended
+    to be invoked internally by the core game engine upon combat exit. Overriding
+    this method without proper consideration of the unit's state can lead to unexpected
+    behavior or crashes.
+  related:
+  - JustEnteredCombat
+  - UpdateAI
+  - IsInCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T00:14:51.858701'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

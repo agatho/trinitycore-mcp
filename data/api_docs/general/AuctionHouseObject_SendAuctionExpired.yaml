@@ -1,0 +1,59 @@
+api:
+  class: AuctionHouseObject
+  method: SendAuctionExpired
+  signature: void AuctionHouseObject::SendAuctionExpired(const AuctionPosting * auction,
+    int trans) const
+documentation:
+  brief: Sends an auction expired message to the player who posted the auction.
+  description: The SendAuctionExpired method is responsible for notifying the owner
+    of an auction that their item has expired without being sold. This method is typically
+    invoked when an auction reaches its expiration time and no bidder has placed a
+    bid that meets or exceeds the minimum bid amount. The function constructs and
+    sends a specific packet to the player's client, informing them that their auction
+    has ended and providing details about the outcome. It plays a crucial role in
+    maintaining the integrity of the auction house system by ensuring players are
+    properly notified of expired auctions.
+  parameters:
+  - name: auction
+    description: Pointer to the AuctionPosting object representing the expired auction.
+      This parameter must not be null and should point to a valid auction entry in
+      the auction house system.
+  - name: trans
+    description: Transaction identifier used for tracking the auction operation. This
+      value is typically used internally by the TrinityCore framework for logging
+      and transaction management purposes.
+  returns: null
+  examples:
+  - title: Basic Usage in Auction Expiration Logic
+    code: "void HandleAuctionExpiration(AuctionPosting* expiredAuction, int transactionId)\
+      \ {\n    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionHouseObject();\n\
+      \    auctionHouse->SendAuctionExpired(expiredAuction, transactionId);\n}"
+    language: cpp
+  - title: Integration with Auction House Cleanup Process
+    code: "void AuctionHouseObject::ProcessExpiredAuctions() {\n    for (auto it =\
+      \ m_auctions.begin(); it != m_auctions.end();) {\n        if (it->IsExpired())\
+      \ {\n            SendAuctionExpired(&(*it), GetTransactionId());\n         \
+      \   it = m_auctions.erase(it);\n        } else {\n            ++it;\n      \
+      \  }\n    }\n}"
+    language: cpp
+  notes: This method is part of the core auction house functionality and should only
+    be called when an auction has actually expired. The method does not perform any
+    validation on whether the auction is truly expired; it assumes this check has
+    already been performed. It's important to note that the transaction ID parameter
+    may be used for logging or debugging purposes but doesn't affect the actual auction
+    state.
+  warnings: Calling this method with a null auction pointer will likely result in
+    a crash or undefined behavior. Ensure proper validation of the auction object
+    before calling this function. Also, be cautious about calling this method multiple
+    times for the same auction as it may lead to duplicate notifications being sent
+    to players.
+  related:
+  - SendAuctionOutbid
+  - SendAuctionSuccessful
+  - SendAuctionCancelled
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:09:56.071127'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

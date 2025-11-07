@@ -1,0 +1,61 @@
+api:
+  class: AreaTriggerMovementScript
+  method: WriteUpdate
+  signature: void AreaTriggerMovementScript::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger movement data into a byte buffer for client synchronization.
+  description: The WriteUpdate method is responsible for serializing the current state
+    of an area trigger's movement data into a ByteBuffer format suitable for network
+    transmission to a specific player client. This method handles the construction
+    of update packets that inform clients about changes in area trigger positions,
+    orientations, and other relevant movement properties. It is typically invoked
+    during the update cycle when area trigger states need to be synchronized with
+    connected players. The method respects change masks to optimize bandwidth usage
+    by only sending data that has actually changed since the last update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized movement data will
+      be written. This buffer is used to construct the network packet containing area
+      trigger updates.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when writing
+      updates. When true, all data fields are written regardless of their change status;
+      when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the AreaTrigger object whose movement data is being serialized.
+      This represents the specific area trigger instance being updated.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine which player-specific data should be included in the serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update Cycle
+    code: "void MyAreaTriggerScript::OnUpdate(AreaTrigger* trigger, Player* player)\n\
+      {\n    ByteBuffer data;\n    trigger->GetScript()->WriteUpdate(data, false,\
+      \ trigger, player);\n    // Send data to player\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  - title: Forcing Full Update with Ignore Mask
+    code: "void ForceFullUpdate(AreaTrigger* trigger, Player* player)\n{\n    ByteBuffer\
+      \ fullData;\n    trigger->GetScript()->WriteUpdate(fullData, true, trigger,\
+      \ player);\n    // Send complete state regardless of changes\n    player->SendDirectMessage(&fullData);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's area trigger system and is called
+    automatically during update cycles. It should not be invoked directly in most
+    cases unless implementing custom movement synchronization logic. The implementation
+    may use internal change tracking to minimize bandwidth usage.
+  warnings: Direct invocation of this method without proper understanding of its internal
+    state management can lead to incorrect synchronization or performance issues.
+    Always ensure that the AreaTrigger and Player objects remain valid during execution.
+  related:
+  - AreaTriggerMovementScript::ReadUpdate
+  - AreaTrigger::GetScript
+  - Player::SendDirectMessage
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T06:36:55.718439'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

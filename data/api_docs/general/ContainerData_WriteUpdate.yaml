@@ -1,0 +1,76 @@
+api:
+  class: ContainerData
+  method: WriteUpdate
+  signature: void ContainerData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Bag * owner, const Player * receiver) const
+documentation:
+  brief: Serializes container data changes into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of a ContainerData
+    object into a ByteBuffer, encoding only the fields that have changed according
+    to the provided changesMask. This method is typically used during packet construction
+    for sending container updates to players in the World of Warcraft client. It respects
+    nested change masks when ignoreNestedChangesMask is false and includes owner and
+    receiver context for proper serialization. The method ensures that only relevant
+    data is transmitted, optimizing network bandwidth usage.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized container update data
+      will be written. This buffer is typically used to construct network packets.
+  - name: changesMask
+    description: An integer mask indicating which fields of the container have been
+      modified and should be included in the update. Each bit corresponds to a specific
+      field in the container.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested change masks (e.g., for
+      items within the container) should be ignored during serialization. If true,
+      all nested changes are included regardless of their individual mask status.
+  - name: owner
+    description: Pointer to the Bag object that owns this container data. Used for
+      context and validation during serialization, particularly when dealing with
+      item ownership checks.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to determine visibility and access permissions for the container data being
+      sent.
+  returns: null
+  examples:
+  - title: Basic Container Update Serialization
+    code: 'ByteBuffer updateData;
+
+      int changesMask = CONTAINER_FIELD_NUM_BAGS | CONTAINER_FIELD_SLOT_0;
+
+      ContainerData containerData;
+
+      containerData.WriteUpdate(updateData, changesMask, false, bag, player);
+
+      // updateData now contains the serialized container update packet'
+    language: cpp
+  - title: Ignoring Nested Changes for Performance
+    code: 'ByteBuffer updateData;
+
+      int changesMask = CONTAINER_FIELD_NUM_BAGS;
+
+      ContainerData containerData;
+
+      containerData.WriteUpdate(updateData, changesMask, true, bag, player);
+
+      // All nested changes are included regardless of individual masks for efficiency'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and integrates
+    with the packet handling framework. It must be called within a valid game context
+    where both owner and receiver pointers are valid. The changesMask parameter should
+    be constructed using predefined field masks from the container update protocol.
+  warnings: Calling this method without valid owner or receiver parameters may lead
+    to undefined behavior or crashes. Ensure that the changesMask accurately reflects
+    only the fields that have actually changed to avoid unnecessary data transmission.
+  related:
+  - ContainerData::BuildValuesUpdate
+  - ContainerData::BuildCreateUpdate
+  - ContainerData::GetChangesMask
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T04:22:45.024754'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

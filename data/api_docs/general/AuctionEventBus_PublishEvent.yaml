@@ -1,0 +1,54 @@
+api:
+  class: AuctionEventBus
+  method: PublishEvent
+  signature: bool AuctionEventBus::PublishEvent(const AuctionEvent & event)
+documentation:
+  brief: Publishes an auction event to all registered subscribers in the auction event
+    bus.
+  description: The PublishEvent method dispatches a given AuctionEvent to all currently
+    registered listeners within the AuctionEventBus. This method is typically used
+    in the context of World of Warcraft's auction house system to notify interested
+    parties about events such as new auctions being listed, bids being placed, or
+    auctions expiring. The method returns true if the event was successfully published
+    to at least one subscriber, and false if no subscribers were registered or if
+    the publishing process failed for some reason. This is a core part of the event-driven
+    architecture used in TrinityCore's auction system.
+  parameters:
+  - name: event
+    description: The AuctionEvent object containing the details of the auction event
+      to be published. This includes information such as the auction ID, item details,
+      bid amount, bidder information, and event type (e.g., listing, bid, expiration).
+  returns: Returns true if the event was successfully published to at least one subscriber;
+    returns false if no subscribers are registered or if the publishing operation
+    failed.
+  examples:
+  - title: Basic Event Publishing
+    code: "AuctionEvent event;\nevent.auctionId = 12345;\nevent.eventType = AUCTION_EVENT_LISTING;\n\
+      event.itemId = 45678;\nbool success = auctionEventBus.PublishEvent(event);\n\
+      if (success) {\n    // Event was published successfully\n}"
+    language: cpp
+  - title: Publishing Bid Event
+    code: "AuctionEvent bidEvent;\nbidEvent.auctionId = 12345;\nbidEvent.eventType\
+      \ = AUCTION_EVENT_BID;\nbidEvent.bidAmount = 100000;\nbidEvent.bidderName =\
+      \ \"Player123\";\nbool success = auctionEventBus.PublishEvent(bidEvent);\nif\
+      \ (!success) {\n    // Handle case where no listeners were registered\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and can be called from any thread
+    context. It uses a standard observer pattern implementation, where subscribers
+    register themselves with the event bus using a corresponding Subscribe method.
+    The event bus maintains a list of registered listeners and iterates through them
+    when PublishEvent is invoked.
+  warnings: Ensure that all AuctionEvent objects passed to this method are properly
+    initialized before publishing, as malformed events may cause issues in subscriber
+    handling. Also, be aware that if no subscribers are registered, the method will
+    return false even though the call itself succeeded.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - ProcessEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T21:36:49.535808'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

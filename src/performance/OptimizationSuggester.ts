@@ -7,7 +7,7 @@
  */
 
 import * as fs from 'fs/promises';
-import { PerformanceReport, Bottleneck } from './PerformanceAnalyzer.js';
+import { PerformanceReport, Bottleneck } from './PerformanceAnalyzer';
 
 // ============================================================================
 // Type Definitions

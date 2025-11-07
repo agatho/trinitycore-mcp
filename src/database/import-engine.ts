@@ -7,9 +7,9 @@
  * @module import-engine
  */
 
-import type { DatabaseConfig } from "../types/database.js";
-import { executeQuery, executeBatch, executeTransaction } from "./db-client.js";
-import { ExportFormat, type TableSchema } from "./export-engine.js";
+import type { DatabaseConfig } from "../types/database";
+import { executeQuery, executeBatch, executeTransaction } from "./db-client";
+import { ExportFormat, type TableSchema } from "./export-engine";
 import fs from "fs/promises";
 import path from "path";
 

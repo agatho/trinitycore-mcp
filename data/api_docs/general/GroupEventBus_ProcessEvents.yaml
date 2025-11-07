@@ -1,0 +1,56 @@
+api:
+  class: GroupEventBus
+  method: ProcessEvents
+  signature: uint32 GroupEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes pending group events up to a specified limit within the given time
+    delta
+  description: The ProcessEvents method handles the execution of queued group-related
+    events such as member joins, leaves, invitations, and other group state changes.
+    It processes these events in the order they were queued, respecting a maximum
+    event count limit to prevent performance degradation. The method is typically
+    called from the main game loop or update cycle to ensure timely handling of group
+    operations. This method ensures that group synchronization and event propagation
+    occur correctly without blocking the main thread for extended periods.
+  parameters:
+  - name: diff
+    description: Time delta in milliseconds since last call, used to determine how
+      much time has passed for event processing
+  - name: maxEvents
+    description: Maximum number of events to process in this call, preventing excessive
+      processing overhead
+  returns: Returns the actual number of events processed during this invocation, which
+    may be less than maxEvents if fewer events were queued or if processing was limited
+    by time constraints
+  examples:
+  - title: Basic event processing in game loop
+    code: "void GameWorld::Update(uint32 diff)\n{\n    // Process up to 100 group\
+      \ events per update cycle\n    uint32 processed = sGroupEventBus->ProcessEvents(diff,\
+      \ 100);\n    // Additional world updates...\n}"
+    language: cpp
+  - title: Processing with dynamic event limits
+    code: "void GroupManager::UpdateGroupEvents()\n{\n    uint32 diff = getMSTimeDiff(lastEventTime,\
+      \ getMSTime());\n    lastEventTime = getMSTime();\n    \n    // Process events\
+      \ but limit to 50 to avoid blocking\n    uint32 processed = sGroupEventBus->ProcessEvents(diff,\
+      \ 50);\n    \n    if (processed > 0)\n        TC_LOG_DEBUG(\"group\", \"Processed\
+      \ {} group events\", processed);\n}"
+    language: cpp
+  notes: This method is designed to be called regularly from the main game update
+    loop. It's important to note that processing time may vary depending on the number
+    of queued events and their complexity. The method does not block execution but
+    may defer event processing if too many events are pending. Event processing order
+    is maintained as events were added to the queue.
+  warnings: Calling this method with very high maxEvents values can cause performance
+    spikes during busy periods. It's recommended to use moderate limits (e.g., 50-100)
+    to balance responsiveness with system stability. Avoid calling this method from
+    within event handlers to prevent potential deadlocks or infinite recursion.
+  related:
+  - GroupEventBus::AddEvent
+  - GroupEventBus::HasEvents
+  - GroupEventBus::ClearEvents
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T13:16:59.848995'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

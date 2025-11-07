@@ -1,0 +1,48 @@
+api:
+  class: QuestEventBus
+  method: ClearUnitEvents
+  signature: void QuestEventBus::ClearUnitEvents(int unitGuid)
+documentation:
+  brief: Clears all quest events associated with a specific unit GUID from the event
+    bus.
+  description: The ClearUnitEvents method removes all pending or active quest events
+    that are registered for a given unit identifier. This is typically used when a
+    unit (such as a player, NPC, or GameObject) is destroyed, removed from the world,
+    or when quest state needs to be reset for that specific unit. The method ensures
+    no lingering event references remain in the system, preventing potential memory
+    leaks or invalid event triggers. It operates on the internal event mapping structure
+    of the QuestEventBus and does not return any value.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose quest events should
+      be cleared. This is typically a 32-bit integer representing the object's ID
+      in the game world.
+  returns: null
+  examples:
+  - title: Clearing Quest Events for a Player
+    code: 'Player* player = ...;
+
+      questEventBus->ClearUnitEvents(player->GetGUID().GetCounter());'
+    language: cpp
+  - title: Clearing Events When Removing an NPC
+    code: "Creature* npc = ...;\nif (npc)\n{\n    questEventBus->ClearUnitEvents(npc->GetGUID().GetCounter());\n\
+      \    npc->RemoveFromWorld();\n}"
+    language: cpp
+  notes: This method is designed to be efficient and thread-safe for use in multi-threaded
+    environments. It internally locks the event bus data structure during cleanup
+    to prevent race conditions. The method does not validate whether the unit actually
+    exists or has any events; it simply clears all entries associated with the GUID.
+  warnings: Calling this method on a unit GUID that is still actively involved in
+    active quests may lead to unexpected behavior if those events are expected to
+    complete or trigger later. Ensure proper synchronization and state management
+    before calling this function.
+  related:
+  - AddUnitEvent
+  - HasUnitEvents
+  - ProcessUnitEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T05:01:16.860979'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

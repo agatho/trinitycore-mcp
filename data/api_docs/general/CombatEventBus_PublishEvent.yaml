@@ -1,0 +1,53 @@
+api:
+  class: CombatEventBus
+  method: PublishEvent
+  signature: bool CombatEventBus::PublishEvent(const CombatEvent & event)
+documentation:
+  brief: Publishes a combat event to all registered listeners in the combat event
+    bus
+  description: The PublishEvent method dispatches a CombatEvent to all subscribers
+    of the CombatEventBus. This method is used within the TrinityCore framework to
+    propagate combat-related events such as damage dealt, healing performed, or ability
+    casts across various systems and modules that have registered interest in combat
+    data. The method ensures that all registered event handlers receive the event
+    in a thread-safe manner. It returns true if the event was successfully published
+    to at least one listener, or false if no listeners were registered or if the publishing
+    process failed.
+  parameters:
+  - name: event
+    description: The CombatEvent object containing the combat data to be published.
+      This object must be properly initialized with valid combat information including
+      source, target, event type, and relevant parameters.
+  returns: True if the event was successfully published to one or more listeners;
+    false if no listeners were registered or if publishing failed.
+  examples:
+  - title: Basic Combat Event Publishing
+    code: "CombatEvent damageEvent;\ndamageEvent.type = CombatEventType::DAMAGE;\n\
+      damageEvent.source = playerGuid;\ndamageEvent.target = targetGuid;\ndamageEvent.value\
+      \ = 100;\nbool success = combatBus.PublishEvent(damageEvent);\nif (success)\
+      \ {\n    // Event was published successfully\n}"
+    language: cpp
+  - title: Publishing Healing Event
+    code: "CombatEvent healEvent;\nhealEvent.type = CombatEventType::HEAL;\nhealEvent.source\
+      \ = healerGuid;\nhealEvent.target = targetGuid;\nhealEvent.value = 250;\nhealEvent.isCritical\
+      \ = true;\nbool success = combatBus.PublishEvent(healEvent);\nif (!success)\
+      \ {\n    // Handle case where no listeners were registered\n}"
+    language: cpp
+  notes: This method operates in a thread-safe manner and is designed to be called
+    from any thread context. The event bus maintains a list of registered subscribers,
+    and all events are delivered asynchronously to prevent blocking the calling thread.
+    Performance considerations include the number of registered listeners, as each
+    event will be dispatched to every registered handler.
+  warnings: Ensure that CombatEvent objects passed to this method are properly initialized
+    before publishing to avoid undefined behavior or data corruption. Avoid publishing
+    events from within event handlers to prevent potential deadlocks or infinite recursion.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - ProcessEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:10:25.666146'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: CreatureAI
+  method: WaypointPathEnded
+  signature: void CreatureAI::WaypointPathEnded(int param0, int param1)
+documentation:
+  brief: Called when a creature's waypoint path has been fully traversed and the path
+    is complete.
+  description: The WaypointPathEnded method is invoked by the TrinityCore AI system
+    when a CreatureAI object finishes executing its assigned waypoint path. This method
+    serves as a callback mechanism that allows custom AI logic to be executed upon
+    completion of a path traversal, such as triggering events, resetting the creature's
+    state, or initiating a new behavior sequence. It is typically used in conjunction
+    with waypoint-based movement systems where creatures follow predefined paths through
+    the game world. The method does not take any parameters and should be overridden
+    in derived AI classes to implement custom behavior upon path completion.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyCreatureAI : public CreatureAI\n{\npublic:\n    void WaypointPathEnded(int\
+      \ /*param0*/, int /*param1*/) override\n    {\n        // Custom logic when\
+      \ path ends\n        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);\n\
+      \        Talk(0); // Speak a message\n    }\n};"
+    language: cpp
+  - title: Path Completion with State Reset
+    code: "class PatrolGuardAI : public CreatureAI\n{\npublic:\n    void WaypointPathEnded(int\
+      \ /*param0*/, int /*param1*/) override\n    {\n        // Reset patrol state\n\
+      \        me->SetWalk(false);\n        me->SetHomePosition(me->GetPosition());\n\
+      \        me->GetMotionMaster()->MoveTargetedHome();\n        \n        // Optionally\
+      \ trigger quest completion or other events\n        if (Creature* questGiver\
+      \ = me->FindNearestCreature(12345, 10.0f))\n        {\n            questGiver->AI()->Talk(1);\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the CreatureAI interface and is automatically called
+    by the core AI system when a waypoint path completes. Developers should ensure
+    that any custom logic implemented in this method does not block or cause long-running
+    operations, as it may affect overall performance. The parameters are present in
+    the signature but are not used within the base implementation.
+  warnings: Do not call this method directly from outside the AI system; it is intended
+    for internal use only. Overriding this method without proper consideration of
+    game state can lead to unexpected behavior or infinite loops if not handled correctly.
+  related:
+  - CreatureAI::WaypointStarted
+  - CreatureAI::MovementInform
+  - CreatureAI::UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:11:42.089141'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

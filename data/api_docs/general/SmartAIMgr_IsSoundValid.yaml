@@ -1,0 +1,60 @@
+api:
+  class: SmartAIMgr
+  method: IsSoundValid
+  signature: bool SmartAIMgr::IsSoundValid(const SmartScriptHolder & e, uint32 entry)
+documentation:
+  brief: Validates whether a sound ID is valid within the SmartAI system for a given
+    entry
+  description: The IsSoundValid method checks if a specified sound ID is valid and
+    properly configured within the SmartAI system for a given creature or game object
+    entry. This validation ensures that the sound will play correctly without causing
+    errors or missing audio assets. The method typically performs checks against internal
+    sound databases and verifies that the sound ID corresponds to an actual sound
+    file that has been loaded into the game's resource system. It is commonly used
+    during AI script execution to prevent invalid sound references from being triggered,
+    which could lead to broken audio events or performance issues.
+  parameters:
+  - name: e
+    description: Reference to a SmartScriptHolder structure containing the AI script
+      data and context information for validation
+  - name: entry
+    description: The unique identifier (entry ID) of the creature or game object that
+      the sound is associated with, used to validate against the appropriate sound
+      database
+  returns: Returns true if the sound ID is valid and can be played successfully, false
+    otherwise. A return value of false indicates either an invalid sound ID, missing
+    sound file, or configuration error in the SmartAI script.
+  examples:
+  - title: Basic Sound Validation
+    code: "if (sSmartAIMgr->IsSoundValid(e, entry)) {\n    // Proceed with playing\
+      \ the sound\n    e->GetSource()->PlaySound(e->GetSoundId());\n} else {\n   \
+      \ // Handle invalid sound case\n    sLog->outError(\"Invalid sound ID %u for\
+      \ entry %u\", e->GetSoundId(), entry);\n}"
+    language: cpp
+  - title: Sound Validation in AI Script
+    code: "void CreatureAI::UpdateAI(uint32 diff) {\n    if (m_soundTimer <= diff)\
+      \ {\n        if (sSmartAIMgr->IsSoundValid(m_currentScript, m_creature->GetEntry()))\
+      \ {\n            DoPlaySound(m_currentScript->GetSoundId());\n        }\n  \
+      \      m_soundTimer = 5000; // Reset timer\n    } else {\n        m_soundTimer\
+      \ -= diff;\n    }\n}"
+    language: cpp
+  notes: This method performs database lookups and should not be called excessively
+    in performance-critical code paths. The validation includes checking against loaded
+    sound files, ensuring proper sound categories, and verifying that the sound ID
+    exists in the game's sound database for the specific entry type.
+  warnings: Calling this method with invalid or uninitialized SmartScriptHolder structures
+    may lead to undefined behavior. Always ensure that the SmartScriptHolder contains
+    valid data before calling IsSoundValid. Additionally, note that this validation
+    does not guarantee runtime playback success, as external factors such as audio
+    device availability or sound system limitations may still affect actual sound
+    playback.
+  related:
+  - SmartAIMgr::GetSoundId
+  - SmartAIMgr::PlaySound
+  - SmartAIMgr::IsSpellValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:30:40.698925'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

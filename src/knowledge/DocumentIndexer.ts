@@ -4,8 +4,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import MarkdownIt from 'markdown-it';
-import { KnowledgeBaseDocument, CodeExample, DocumentCategory, DifficultyLevel } from './types.js';
-import { logger } from '../utils/logger.js';
+import { KnowledgeBaseDocument, CodeExample, DocumentCategory, DifficultyLevel } from './types';
+import { logger } from '../utils/logger';
 
 export class DocumentIndexer {
   private md: MarkdownIt;

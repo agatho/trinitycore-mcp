@@ -1,0 +1,63 @@
+api:
+  class: Loot
+  method: LootItemInSlot
+  signature: LootItem * Loot::LootItemInSlot(uint32 lootListId, const Player * player,
+    NotNormalLootItem ** ffaItem)
+documentation:
+  brief: Retrieves a loot item from a specific slot in the loot list for a player.
+  description: The LootItemInSlot method fetches a LootItem object from a specified
+    loot list ID and player context. It is used to access individual items within
+    a player's loot window, particularly useful when processing or examining loot
+    before distribution. The method may also handle special case items such as FFA
+    (Free For All) loot through the optional ffaItem parameter. This functionality
+    is integral to the game's loot system where players receive items from creatures,
+    chests, or other sources and must be able to access individual items for distribution
+    or processing.
+  parameters:
+  - name: lootListId
+    description: The unique identifier of the loot list from which to retrieve an
+      item. This ID corresponds to a specific set of loot associated with a creature,
+      game object, or other loot source.
+  - name: player
+    description: Pointer to the Player object for whom the loot is being accessed.
+      This parameter determines the context and ownership of the loot items.
+  - name: ffaItem
+    description: Optional pointer to a NotNormalLootItem pointer that will be set
+      if the retrieved item is a Free For All loot item. This allows special handling
+      for items that are not distributed normally among group members.
+  returns: Returns a pointer to a LootItem object representing the item found at the
+    specified slot in the loot list. Returns NULL if no valid item is found or if
+    the parameters are invalid.
+  examples:
+  - title: Basic Usage
+    code: "LootItem* item = loot->LootItemInSlot(12345, player, nullptr);\nif (item)\n\
+      {\n    // Process the loot item\n    sLog->outString(\"Found loot item: %u\"\
+      , item->itemid);\n}"
+    language: cpp
+  - title: Handling FFA Items
+    code: "NotNormalLootItem* ffa = nullptr;\nLootItem* item = loot->LootItemInSlot(12345,\
+      \ player, &ffa);\nif (item)\n{\n    if (ffa)\n    {\n        // Handle Free\
+      \ For All item specially\n        sLog->outString(\"FFA Item found: %u\", item->itemid);\n\
+      \    }\n    else\n    {\n        // Normal loot processing\n        sLog->outString(\"\
+      Normal loot item: %u\", item->itemid);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core loot management system in TrinityCore. It
+    assumes that the player has an active loot session with the specified loot list
+    ID and that the necessary data structures are properly initialized. The method
+    does not perform any automatic item distribution or removal from the loot list;
+    it only retrieves a reference to the item for further processing.
+  warnings: Ensure that the lootListId corresponds to an actual active loot session,
+    otherwise the method may return NULL without error. Also, be cautious when using
+    the ffaItem parameter as it can point to memory that is managed by the loot system
+    and should not be manually freed.
+  related:
+  - Loot::AddItem
+  - Loot::FillLoot
+  - Loot::ClearLoot
+  - Player::SendLoot
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T10:08:09.083697'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

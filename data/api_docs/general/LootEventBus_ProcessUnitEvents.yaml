@@ -1,0 +1,60 @@
+api:
+  class: LootEventBus
+  method: ProcessUnitEvents
+  signature: uint32 LootEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes loot events for a specified unit, updating loot state and handling
+    event triggers.
+  description: The ProcessUnitEvents method is responsible for managing and executing
+    loot-related events associated with a given unit in the TrinityCore framework.
+    It iterates through active loot events for the specified unit, evaluates their
+    conditions, and executes appropriate actions such as awarding loot, triggering
+    quest events, or updating loot state. This method is typically called during game
+    loop updates to ensure timely processing of loot-related activities. The method
+    operates on a per-unit basis using the unit's GUID to identify which events should
+    be processed. It returns the number of events successfully processed, allowing
+    the caller to track event execution counts.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose loot events need to
+      be processed. This value is used to locate the appropriate event data associated
+      with the unit.
+  - name: diff
+    description: The time difference in milliseconds since the last update. Used to
+      determine how much time has passed for event timing calculations and cooldowns.
+  returns: Returns a uint32 value representing the number of loot events successfully
+    processed for the specified unit during this execution cycle. A return value of
+    zero indicates no events were processed or that the unit had no active loot events.
+  examples:
+  - title: Basic Usage Example
+    code: 'uint32 processedEvents = lootEventBus.ProcessUnitEvents(playerGuid, 50);
+
+      // Processes all loot events for player with GUID ''playerGuid'' over a 50ms
+      time interval'
+    language: cpp
+  - title: Integration with Game Loop
+    code: "void GameWorld::Update(uint32 diff)\n{\n    // Process loot events for\
+      \ all units\n    for (auto& unit : m_units)\n    {\n        uint32 processed\
+      \ = lootEventBus.ProcessUnitEvents(unit->GetGUID(), diff);\n        if (processed\
+      \ > 0)\n        {\n            // Log or handle event processing\n        }\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is typically invoked from within the main game loop or update
+    system. It's important to note that this method may modify the state of loot events,
+    potentially removing completed events from processing. The 'diff' parameter should
+    accurately reflect the time elapsed since the last call to ensure proper event
+    timing and cooldown calculations.
+  warnings: Calling this method with an invalid or non-existent unit GUID could lead
+    to undefined behavior or crashes. Ensure that the unit exists and is valid before
+    calling this method. Additionally, frequent calls to this method without proper
+    throttling may impact performance in high-traffic scenarios.
+  related:
+  - GetUnitLootEvents
+  - AddLootEvent
+  - RemoveLootEvent
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T09:23:15.474122'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

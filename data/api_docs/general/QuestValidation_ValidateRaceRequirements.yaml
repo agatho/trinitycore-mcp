@@ -1,0 +1,55 @@
+api:
+  class: QuestValidation
+  method: ValidateRaceRequirements
+  signature: bool QuestValidation::ValidateRaceRequirements(uint32 questId, Player
+    * bot)
+documentation:
+  brief: Validates whether a player meets the race requirements for a given quest
+  description: The ValidateRaceRequirements method checks if the specified player
+    character's race is allowed to take on the quest identified by the provided quest
+    ID. This validation ensures that quests with race-specific restrictions are only
+    available to players of the correct race as defined in the game's quest database.
+    The method performs a lookup against internal quest data and returns true if the
+    player's race is permitted, or false otherwise. This function is typically used
+    during quest acceptance or availability checks within the TrinityCore framework.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest to validate race requirements
+      for. Must be a valid quest ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the character whose race
+      will be validated against the quest's requirements. Cannot be null.
+  returns: Returns true if the player's race is allowed to accept the quest, false
+    if the player's race does not meet the quest's race requirements or if the quest
+    has no race restrictions.
+  examples:
+  - title: Basic Usage
+    code: "if (QuestValidation::ValidateRaceRequirements(12345, player)) {\n    //\
+      \ Player can accept the quest\n    player->AddQuest(12345);\n} else {\n    //\
+      \ Player cannot accept the quest due to race restrictions\n    player->SendNotification(\"\
+      You do not meet the race requirements for this quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "bool CanPlayerAcceptQuest(Player* player, uint32 questId) {\n    if (!player\
+      \ || !sObjectMgr->GetQuestTemplate(questId))\n        return false;\n    \n\
+      \    // Validate race requirements first\n    if (!QuestValidation::ValidateRaceRequirements(questId,\
+      \ player))\n        return false;\n    \n    // Additional validation logic\
+      \ can follow...\n    return true;\n}"
+    language: cpp
+  notes: This method relies on the internal quest template data and assumes that race
+    restrictions are properly defined in the database. The player object must be fully
+    initialized with valid race information. Performance is generally low impact as
+    it performs a simple lookup operation.
+  warnings: Ensure that the questId parameter corresponds to an existing quest in
+    the database, otherwise behavior may be undefined. The bot parameter must not
+    be null or the method will likely crash or produce incorrect results.
+  related:
+  - ValidateClassRequirements
+  - ValidateLevelRequirements
+  - ValidateQuestAvailability
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:08:37.083041'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,71 @@
+api:
+  class: World
+  method: SendGlobalMessage
+  signature: void World::SendGlobalMessage(const WorldPacket * packet, WorldSession
+    * self, int team)
+documentation:
+  brief: Sends a global message packet to all players in the world, optionally filtered
+    by team.
+  description: The SendGlobalMessage method broadcasts a WorldPacket to all connected
+    players in the world. It can optionally filter recipients based on team affiliation
+    (Alliance or Horde) when the 'team' parameter is specified. This method is typically
+    used for system-wide announcements, such as server maintenance notifications,
+    global chat messages, or important game events that should be visible to every
+    player. The method handles the distribution of the packet across all active sessions
+    and ensures proper serialization for network transmission. It does not require
+    any specific preconditions beyond having a valid WorldPacket and active sessions.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket containing the message data to be sent
+      globally. This packet must be properly constructed with valid opcode and payload
+      before being passed to this method.
+  - name: self
+    description: Pointer to the WorldSession that originated the message, or NULL
+      if the message is system-generated. If provided, this session will not receive
+      the message to prevent echo.
+  - name: team
+    description: 'Integer value indicating team filtering: 0 for all players, 1 for
+      Alliance only, 2 for Horde only. Default behavior (all players) when set to
+      0.'
+  returns: null
+  examples:
+  - title: Send a global announcement to all players
+    code: 'WorldPacket packet(SMSG_MESSAGECHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_GLOBAL_ANNOUNCEMENT);
+
+      packet << std::string("Server will restart in 5 minutes.");
+
+      World::SendGlobalMessage(&packet, nullptr, 0);'
+    language: cpp
+  - title: Send a team-specific message to Alliance players only
+    code: 'WorldPacket packet(SMSG_MESSAGECHAT);
+
+      packet << uint8(CHAT_MSG_SYSTEM);
+
+      packet << uint32(LANG_ALLIANCE_ANNOUNCEMENT);
+
+      packet << std::string("Alliance event starting soon.");
+
+      World::SendGlobalMessage(&packet, nullptr, 1);'
+    language: cpp
+  notes: This method uses the global WorldSession manager to iterate through all active
+    sessions. Performance may be impacted when many players are online. The packet
+    is cloned for each session to avoid data races during concurrent sends. It's recommended
+    to use pre-constructed packets with appropriate opcodes to minimize overhead.
+  warnings: Do not call this method from within a packet processing context without
+    proper synchronization, as it could cause deadlocks or inconsistent session states.
+    Ensure the WorldPacket is fully constructed before passing it to avoid sending
+    malformed data.
+  related:
+  - SendGlobalText
+  - SendWorldText
+  - SendZoneMessage
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-05T23:33:32.693336'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

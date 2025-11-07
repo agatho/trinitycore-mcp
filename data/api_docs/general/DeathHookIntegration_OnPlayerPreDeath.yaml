@@ -1,0 +1,52 @@
+api:
+  class: DeathHookIntegration
+  method: OnPlayerPreDeath
+  signature: void DeathHookIntegration::OnPlayerPreDeath(Player * player)
+documentation:
+  brief: Executes pre-death logic for a player, allowing modifications or cancellations
+    before the death event is processed.
+  description: The OnPlayerPreDeath method is invoked just before a player's death
+    occurs in the game world. This hook allows developers to intercept and modify
+    the death process, such as preventing death under certain conditions, applying
+    temporary buffs, or triggering custom events. It serves as a critical integration
+    point for plugins or modifications that need to react to or influence player death
+    mechanics. The method is called during the pre-death phase of the player's lifecycle,
+    before any death-related effects are applied.
+  parameters:
+  - name: player
+    description: Pointer to the Player object representing the character about to
+      die. This parameter must not be null and represents the active player instance
+      in the game world.
+  returns: null
+  examples:
+  - title: Prevent Death if Player Has Invulnerability Buff
+    code: "void DeathHookIntegration::OnPlayerPreDeath(Player* player)\n{\n    if\
+      \ (player->HasAura(12345)) // Assume 12345 is an invulnerability aura\n    {\n\
+      \        player->RemoveAura(12345);\n        player->SendSystemMessage(\"You\
+      \ are temporarily invulnerable!\");\n        return; // Death is prevented by\
+      \ returning early\n    }\n}"
+    language: cpp
+  - title: Log Player Death Event with Custom Data
+    code: "void DeathHookIntegration::OnPlayerPreDeath(Player* player)\n{\n    uint32\
+      \ mapId = player->GetMapId();\n    Position pos = player->GetPosition();\n \
+      \   sLog->outString(\"Player %s died at map %u, X: %.2f, Y: %.2f, Z: %.2f\"\
+      , \n                    player->GetName().c_str(), mapId, pos.GetPositionX(),\
+      \ \n                    pos.GetPositionY(), pos.GetPositionZ());\n}"
+    language: cpp
+  notes: This method is called from within the core game loop and should not perform
+    heavy operations that could block or delay player actions. It's recommended to
+    avoid calling methods that may cause additional death events or recursive calls.
+    The player object passed in is guaranteed to be valid during this call.
+  warnings: Modifying or canceling the death event may lead to unexpected behavior
+    if not handled carefully. Ensure that any logic applied here doesn't interfere
+    with core game mechanics or create exploits. Avoid performing database operations
+    directly within this method as it might impact performance.
+  related:
+  - OnPlayerDeath
+  - OnPlayerKilledByCreature
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:48:31.733528'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

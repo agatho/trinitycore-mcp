@@ -1,0 +1,55 @@
+api:
+  class: GameEventMgr
+  method: hasCreatureActiveEventExcept
+  signature: bool GameEventMgr::hasCreatureActiveEventExcept(int creature_guid, uint16
+    event_id)
+documentation:
+  brief: Checks if a creature has an active game event running, excluding a specified
+    event ID.
+  description: The hasCreatureActiveEventExcept method determines whether a specific
+    creature is currently involved in any active game event, with the exception of
+    a given event ID. This functionality is commonly used in TrinityCore's GameEvent
+    system to manage creature behavior during seasonal or holiday events. The method
+    evaluates the creature's current event state and returns true if at least one
+    event is active for the creature, excluding the specified event ID. It helps prevent
+    conflicts when multiple overlapping events might affect the same creature, allowing
+    developers to selectively exclude certain events from consideration.
+  parameters:
+  - name: creature_guid
+    description: The unique identifier (GUID) of the creature to check for active
+      events. This should be a valid creature GUID within the game world.
+  - name: event_id
+    description: The event ID to exclude from the check. If any other events are active
+      for this creature, the method will return true regardless of this exclusion.
+  returns: Returns true if the creature has at least one active game event running,
+    excluding the specified event ID. Returns false if no events are active or if
+    only the excluded event is active.
+  examples:
+  - title: Check if a creature has any active events except event 10
+    code: "if (sGameEventMgr->hasCreatureActiveEventExcept(12345, 10)) {\n    // Creature\
+      \ has an active event other than event 10\n    // Perform some action based\
+      \ on this condition\n}"
+    language: cpp
+  - title: Use in creature AI to determine event-based behavior
+    code: "class MyCreatureAI : public CreatureAI {\npublic:\n    void UpdateAI(uint32\
+      \ diff) override {\n        if (sGameEventMgr->hasCreatureActiveEventExcept(me->GetGUID().GetCounter(),\
+      \ 5)) {\n            // Creature is affected by an event other than event 5\n\
+      \            // Execute event-specific logic here\n        }\n    }\n};"
+    language: cpp
+  notes: This method relies on TrinityCore's internal game event tracking system.
+    The implementation likely uses a map or set structure to store active events per
+    creature. Performance is generally good for typical usage, but frequent calls
+    with many creatures may impact performance in high-traffic areas.
+  warnings: Ensure that the creature_guid parameter refers to an existing creature
+    in the world; otherwise behavior is undefined. Be cautious when using this method
+    in loops or high-frequency update contexts as it may involve map lookups.
+  related:
+  - GameEventMgr::hasCreatureActiveEvent
+  - GameEventMgr::isActiveEvent
+  - GameEventMgr::GetActiveEventList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:13:39.952727'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

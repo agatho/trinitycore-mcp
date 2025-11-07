@@ -1,0 +1,53 @@
+api:
+  class: BotPacketRelay
+  method: CleanupForGroup
+  signature: void BotPacketRelay::CleanupForGroup(Player * bot, Group * group)
+documentation:
+  brief: Removes bot-related packet relay entries for a specified bot and group
+  description: The CleanupForGroup method is responsible for cleaning up packet relay
+    data associated with a specific bot within a given group. This function ensures
+    that stale or obsolete relay entries are removed from the system, preventing memory
+    leaks and maintaining the integrity of the packet relay mechanism. It typically
+    gets invoked when a bot leaves a group or when group membership changes occur.
+    The method operates on internal data structures that track which bots are relaying
+    packets for which groups, ensuring proper cleanup without affecting other active
+    group members or relay operations.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot whose packet relay
+      entries should be cleaned up. Must not be null.
+  - name: group
+    description: Pointer to the Group object representing the group context for which
+      cleanup should occur. Must not be null.
+  returns: null
+  examples:
+  - title: Basic Cleanup Usage
+    code: 'Player* myBot = ...; // Assume bot is initialized
+
+      Group* myGroup = ...; // Assume group is initialized
+
+      BotPacketRelay::CleanupForGroup(myBot, myGroup);'
+    language: cpp
+  - title: Cleanup in Group Leave Scenario
+    code: "void OnPlayerLeaveGroup(Player* player, Group* group)\n{\n    if (player->IsBot())\n\
+      \    {\n        BotPacketRelay::CleanupForGroup(player, group);\n    }\n}"
+    language: cpp
+  notes: This method likely interacts with internal hash maps or lists that store
+    packet relay mappings. It's important to ensure that both the bot and group pointers
+    are valid before calling this function to avoid undefined behavior. The cleanup
+    process may involve iterating through relay entries and removing those associated
+    with the specified bot and group combination.
+  warnings: Calling this method with null pointers for either parameter will likely
+    result in a crash or undefined behavior. Ensure proper validation of input parameters
+    before invocation. This method should only be called when it's safe to modify
+    internal relay structures, as concurrent access could lead to race conditions.
+  related:
+  - BotPacketRelay::AddRelay
+  - BotPacketRelay::RemoveRelay
+  - BotPacketRelay::ProcessPackets
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T18:58:47.167349'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

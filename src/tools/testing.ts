@@ -3,9 +3,9 @@
  * Phase 5 - Week 5: Testing Automation
  */
 
-import { TestRunner, TestRunConfig, TestRunResult } from '../testing/TestRunner.js';
-import { TestReporter, ReportConfig, ReportSummary } from '../testing/TestReporter.js';
-import { CoverageAnalyzer, CoverageOptions, CoverageReport } from '../testing/CoverageAnalyzer.js';
+import { TestRunner, TestRunConfig, TestRunResult } from '../testing/TestRunner';
+import { TestReporter, ReportConfig, ReportSummary } from '../testing/TestReporter';
+import { CoverageAnalyzer, CoverageOptions, CoverageReport } from '../testing/CoverageAnalyzer';
 import * as fs from 'fs/promises';
 
 // Global instances

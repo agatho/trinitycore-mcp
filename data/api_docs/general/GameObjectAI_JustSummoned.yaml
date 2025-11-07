@@ -1,0 +1,61 @@
+api:
+  class: GameObjectAI
+  method: JustSummoned
+  signature: void GameObjectAI::JustSummoned(Creature * param0)
+documentation:
+  brief: Called when a creature is summoned by this game object AI.
+  description: The JustSummoned method is invoked by the TrinityCore framework whenever
+    a Creature is successfully summoned through this GameObject's AI behavior. This
+    callback allows the AI to perform specific actions or logic immediately after
+    a creature has been summoned, such as initializing the summoned creature's state,
+    setting up combat behavior, or triggering additional events. The method is part
+    of the GameObjectAI class and is typically overridden in custom AI implementations
+    to provide specialized summoning behavior. It is important to note that this method
+    is only called for creatures summoned via this specific game object's AI system,
+    not for all summoned creatures in general.
+  parameters:
+  - name: param0
+    description: Pointer to the Creature object that was summoned by this game object
+      AI. This parameter represents the summoned creature and can be used to access
+      its properties, methods, or perform actions on it.
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "class MyGameObjectAI : public GameObjectAI\n{\npublic:\n    void JustSummoned(Creature*\
+      \ summoned) override\n    {\n        // Example: Set the summoned creature to\
+      \ attack the nearest player\n        if (summoned)\n        {\n            summoned->SetReactState(REACT_AGGRESSIVE);\n\
+      \            summoned->AI()->AttackStart(Unit::GetClosestPlayer(summoned, 50.0f));\n\
+      \        }\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Summon Tracking
+    code: "class BossGameObjectAI : public GameObjectAI\n{\nprivate:\n    std::vector<Creature*>\
+      \ m_summonedCreatures;\npublic:\n    void JustSummoned(Creature* summoned) override\n\
+      \    {\n        if (summoned)\n        {\n            // Store reference to\
+      \ summoned creature for later management\n            m_summonedCreatures.push_back(summoned);\n\
+      \            \n            // Set custom AI behavior\n            summoned->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NOT_SELECTABLE);\n            summoned->SetReactState(REACT_PASSIVE);\n\
+      \            \n            // Trigger event or send message to nearby players\n\
+      \            if (summoned->GetMap())\n            {\n                summoned->GetMap()->SendZoneUnderAttackMessage(summoned->GetZoneId(),\
+      \ 0, \"A minion has been summoned!\");\n            }\n        }\n    }\n};"
+    language: cpp
+  notes: This method is called during the game object's AI update cycle and should
+    not perform heavy operations that could block the main thread. The summoned creature
+    parameter is guaranteed to be valid at the time of this call, but it may not yet
+    have fully initialized its AI or combat state. Developers should ensure any necessary
+    initialization or setup logic for the summoned creature is handled appropriately
+    within this method.
+  warnings: Be cautious when modifying or destroying the summoned creature within
+    this callback as it might lead to undefined behavior if other systems are still
+    referencing it. Also, avoid calling methods that may recursively trigger AI callbacks
+    from within JustSummoned, which could cause stack overflow issues.
+  related:
+  - GameObjectAI::UpdateAI
+  - GameObjectAI::InitializeAI
+  - GameObjectAI::SummonedCreatureDespawn
+  - GameObjectAI::OnSummoned
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T14:00:59.205258'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

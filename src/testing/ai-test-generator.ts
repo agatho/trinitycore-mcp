@@ -9,7 +9,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import type { TestSuite } from "./test-framework.js";
+import type { TestSuite } from "./test-framework";
 
 // ============================================================================
 // Types

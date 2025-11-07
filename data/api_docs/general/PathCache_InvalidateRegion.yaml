@@ -1,0 +1,52 @@
+api:
+  class: PathCache
+  method: InvalidateRegion
+  signature: void PathCache::InvalidateRegion(const int & center, float radius)
+documentation:
+  brief: Invalidates pathfinding cache for a specified region around a center point.
+  description: The InvalidateRegion method clears cached pathfinding data within a
+    given radius from a specified center point in the game world. This is typically
+    used when terrain changes, objects are added or removed, or when pathfinding data
+    becomes stale due to dynamic world events. The method ensures that subsequent
+    path requests in the invalidated region will recalculate paths using current world
+    state rather than cached data. This helps maintain accurate navigation for NPCs
+    and players in a dynamically changing game environment.
+  parameters:
+  - name: center
+    description: The center point of the region to invalidate, represented as an integer
+      identifier (likely a grid cell or zone ID).
+  - name: radius
+    description: The radius around the center point defining the area to invalidate,
+      measured in world units.
+  returns: null
+  examples:
+  - title: Invalidating a Region Around Player Position
+    code: 'int playerZone = GetPlayer()->GetZoneId();
+
+      float radius = 50.0f;
+
+      PathCache::Instance()->InvalidateRegion(playerZone, radius);'
+    language: cpp
+  - title: Invalidating Region After Object Placement
+    code: "void OnGameObjectAdd(GameObject* go) {\n    int zoneId = go->GetZoneId();\n\
+      \    float radius = 30.0f;\n    PathCache::Instance()->InvalidateRegion(zoneId,\
+      \ radius);\n}"
+    language: cpp
+  notes: This method operates on a cached pathfinding system that stores precomputed
+    paths for performance reasons. Invalidating regions prevents using outdated path
+    data when the world state changes. The implementation likely uses spatial partitioning
+    to efficiently determine which cached paths fall within the invalidation radius.
+  warnings: Calling this method frequently can cause performance degradation as it
+    forces recalculation of pathfinding data. Avoid invalidating large regions unnecessarily,
+    especially during high-traffic periods. Ensure that the center parameter corresponds
+    to a valid world region identifier to avoid undefined behavior.
+  related:
+  - PathCache::GetPath
+  - PathCache::Update
+  - PathCache::Clear
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T07:03:11.258773'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

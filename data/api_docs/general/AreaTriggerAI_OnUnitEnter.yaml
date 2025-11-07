@@ -1,0 +1,57 @@
+api:
+  class: AreaTriggerAI
+  method: OnUnitEnter
+  signature: void AreaTriggerAI::OnUnitEnter(Unit * unit)
+documentation:
+  brief: Handles the event when a unit enters the area trigger's effect zone
+  description: The OnUnitEnter method is a virtual callback function in the AreaTriggerAI
+    class that is invoked whenever a Unit (player or creature) enters the area trigger's
+    active zone. This method serves as the primary hook for implementing custom behavior
+    when units interact with area triggers, such as applying effects, triggering events,
+    or initiating quests. The method is called by the core game engine during the
+    update cycle when collision detection determines that a unit has entered the trigger's
+    bounds. Developers can override this method in custom AI implementations to define
+    specific actions to occur upon unit entry.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that triggered the area trigger. This
+      can be a Player, Creature, or any other Unit subclass. The pointer is guaranteed
+      to be valid during the method execution and should not be modified or deleted
+      by the implementing code.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyAreaTriggerAI : public AreaTriggerAI\n{\npublic:\n    explicit\
+      \ MyAreaTriggerAI(AreaTrigger* trigger) : AreaTriggerAI(trigger) {}\n\n    void\
+      \ OnUnitEnter(Unit* unit) override\n    {\n        if (unit->IsPlayer())\n \
+      \       {\n            unit->CastSpell(unit, 12345, true); // Cast a spell on\
+      \ player\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Implementation with Conditional Logic
+    code: "class QuestTriggerAI : public AreaTriggerAI\n{\npublic:\n    explicit QuestTriggerAI(AreaTrigger*\
+      \ trigger) : AreaTriggerAI(trigger) {}\n\n    void OnUnitEnter(Unit* unit) override\n\
+      \    {\n        if (!unit || !unit->IsPlayer())\n            return;\n\n   \
+      \     Player* player = unit->ToPlayer();\n        if (player->GetQuestStatus(54321)\
+      \ == QUEST_STATUS_INCOMPLETE)\n        {\n            player->AreaExploredOrEventHappens(54321);\n\
+      \            player->SendUpdateWorldState(2000, 1); // Update UI element\n \
+      \       }\n    }\n};"
+    language: cpp
+  notes: The OnUnitEnter method is called from the game's main update loop and should
+    avoid heavy computations or blocking operations. It is recommended to use this
+    method for immediate actions rather than delayed effects. The unit parameter will
+    be valid only during the execution of this method, so any references to it must
+    be used immediately.
+  warnings: Do not delete or modify the AreaTrigger object within this method as it
+    may cause undefined behavior. Be cautious when casting the Unit pointer to specific
+    types (like Player) and always verify the cast is valid using IsPlayer() or similar
+    methods before proceeding with type-specific operations.
+  related:
+  - OnUnitExit
+  - OnUnitUpdate
+  - OnAreaTrigger
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T22:03:24.767931'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

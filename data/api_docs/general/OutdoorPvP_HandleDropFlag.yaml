@@ -1,0 +1,58 @@
+api:
+  class: OutdoorPvP
+  method: HandleDropFlag
+  signature: bool OutdoorPvP::HandleDropFlag(Player * player, int spellId)
+documentation:
+  brief: Handles the dropping of a flag during Outdoor PvP events, determining if
+    the action is valid and updating the PvP state accordingly.
+  description: The HandleDropFlag method processes the event when a player drops a
+    flag in an Outdoor PvP zone. This typically occurs during battlegrounds or territorial
+    control scenarios where players carry flags representing team ownership. The method
+    validates whether the drop action is permissible based on game rules, such as
+    ensuring the player has the appropriate flag item and is within the correct zone.
+    It updates internal state tracking for the OutdoorPvP system to reflect that the
+    flag has been dropped, potentially triggering subsequent events like flag capture
+    or respawn timers. The method returns true if the flag drop was successfully processed,
+    false otherwise.
+  parameters:
+  - name: player
+    description: Pointer to the Player object attempting to drop the flag. Must be
+      a valid player instance in an active OutdoorPvP zone.
+  - name: spellId
+    description: The spell ID associated with the flag drop action. Used to determine
+      which flag type is being dropped and validate against allowed spell IDs for
+      Outdoor PvP mechanics.
+  returns: Returns true if the flag drop was successfully handled and processed by
+    the OutdoorPvP system, false if the operation failed due to invalid conditions
+    such as incorrect zone state or player status.
+  examples:
+  - title: Basic Flag Drop Handling
+    code: "if (outdoorPvP->HandleDropFlag(player, 23333)) {\n    // Flag drop was\
+      \ successful\n    SendFlagDroppedMessage(player);\n} else {\n    // Flag drop\
+      \ failed\n    SendFlagDropFailedMessage(player);\n}"
+    language: cpp
+  - title: Integration with Spell Casting System
+    code: "void Player::HandleSpellCast(Spell* spell) {\n    if (spell->GetSpellInfo()->Id\
+      \ == 23333 && IsInOutdoorPvPZone()) {\n        OutdoorPvP* pvp = GetMap()->GetOutdoorPvP();\n\
+      \        if (pvp && pvp->HandleDropFlag(this, spell->GetSpellInfo()->Id)) {\n\
+      \            // Proceed with flag drop logic\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically invoked as part of the broader OutdoorPvP system's
+    event handling mechanism. It assumes that the player has already validated their
+    ability to drop a flag through other means (e.g., spell casting checks). The method
+    may modify internal state variables and trigger callbacks or events related to
+    flag movement in the PvP zone.
+  warnings: Ensure that the player is in a valid OutdoorPvP zone before calling this
+    method, as invalid calls can lead to undefined behavior. Also, verify that the
+    spellId corresponds to an actual flag-related spell; otherwise, incorrect processing
+    may occur.
+  related:
+  - HandlePickupFlag
+  - HandleReturnFlag
+  - UpdateOutdoorPvP
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:10:20.335970'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

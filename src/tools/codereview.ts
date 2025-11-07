@@ -11,14 +11,14 @@ import {
   createCodeReviewOrchestrator,
   type CodeReviewConfig,
   type CodeReviewResult,
-} from "../code-review/index.js";
-import { logger } from '../utils/logger.js';
+} from "../code-review/index";
+import { logger } from '../utils/logger';
 import type {
   IssueSeverity,
   RuleCategory,
   CompilerType,
-} from "../code-review/types.js";
-import type { LLMConfig } from "../code-review/AIReviewEngine.js";
+} from "../code-review/types";
+import type { LLMConfig } from "../code-review/AIReviewEngine";
 
 /**
  * Review a single file for code quality issues

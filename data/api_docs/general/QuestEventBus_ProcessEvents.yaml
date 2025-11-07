@@ -1,0 +1,52 @@
+api:
+  class: QuestEventBus
+  method: ProcessEvents
+  signature: uint32 QuestEventBus::ProcessEvents(uint32 diff, uint32 maxEvents)
+documentation:
+  brief: Processes queued quest events up to a specified maximum count within a given
+    time delta.
+  description: The ProcessEvents method is responsible for executing pending quest-related
+    events that have been scheduled for execution. It iterates through the event queue,
+    processing events based on their scheduled time and type. The method accepts a
+    time delta (diff) to determine how much time has passed since last processing
+    and a maximum number of events (maxEvents) to prevent excessive processing in
+    a single call. This ensures that quest events are handled efficiently without
+    blocking the main game loop for extended periods. Events may include quest start,
+    completion, objective updates, or other triggers that occur during gameplay.
+  parameters:
+  - name: diff
+    description: Time delta in milliseconds since last event processing. Used to determine
+      which events should be executed based on their scheduled timing.
+  - name: maxEvents
+    description: Maximum number of events to process in this call. Prevents excessive
+      CPU usage by limiting batch size of event execution.
+  returns: Returns the actual number of events processed during this invocation. This
+    value will be less than or equal to the maxEvents parameter, depending on how
+    many events were available to process.
+  examples:
+  - title: Basic usage in game loop
+    code: 'uint32 processed = sQuestEventBus->ProcessEvents(diff, 100);
+
+      // Process up to 100 quest events in this frame'
+    language: cpp
+  - title: Integration with World update cycle
+    code: "void World::Update(uint32 diff)\n{\n    // ... other updates ...\n    sQuestEventBus->ProcessEvents(diff,\
+      \ 50);\n    // ... other updates ...\n}"
+    language: cpp
+  notes: This method is typically called from the main game update loop. The diff
+    parameter should reflect the actual time elapsed since last call to maintain proper
+    event timing. Events are processed in order of their scheduled execution time,
+    and processing stops once maxEvents is reached or queue is empty.
+  warnings: Calling this method with a very large maxEvents value can cause performance
+    hiccups if many events are queued. Ensure diff parameter accurately reflects real
+    elapsed time to maintain proper quest event timing.
+  related:
+  - AddEvent
+  - RemoveEvent
+  - HasEvents
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:59:58.054699'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,82 @@
+api:
+  class: DelveData
+  method: WriteUpdate
+  signature: void DelveData::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes delve data update information to a ByteBuffer for transmission to
+    a player.
+  description: The WriteUpdate method serializes the current state of delve data into
+    a ByteBuffer, preparing it for network transmission to a specific player. This
+    method is typically used in World of Warcraft's TrinityCore server implementation
+    to synchronize delve-related information between the server and client. The serialization
+    process respects change masks unless explicitly overridden by the ignoreChangesMask
+    parameter. The owner parameter specifies the player whose delve data is being
+    serialized, while the receiver parameter indicates which player will receive this
+    data. This method plays a crucial role in maintaining synchronization of delve
+    mechanics such as dungeon exploration progress, quest tracking, and other player-specific
+    delve-related data.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized delve data update
+      will be written. This buffer is typically used for constructing network packets
+      sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking masks should
+      be ignored during serialization. When true, all data fields are written regardless
+      of their change status; when false, only changed fields are serialized based
+      on the internal change mask.
+  - name: owner
+    description: Pointer to the Player object whose delve data is being serialized.
+      This represents the source of the data being sent to another player.
+  - name: receiver
+    description: Pointer to the Player object who will receive this delve data update.
+      Used for determining what specific information should be included in the update
+      based on visibility rules.
+  returns: null
+  examples:
+  - title: Basic usage for sending delve data update
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Player with delve data
+
+      Player* receiver = ...; // Target player receiving the update
+
+      DelveData delveData;
+
+      delveData.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' buffer to receiver via network'
+    language: cpp
+  - title: Forcing all data to be sent regardless of changes
+    code: 'ByteBuffer fullUpdate;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      DelveData delveData;
+
+      delveData.WriteUpdate(fullUpdate, true, owner, receiver);
+
+      // This sends complete delve data even if nothing changed'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore and should
+    be called during player update cycles. The ByteBuffer parameter must be properly
+    initialized before calling this method. Performance considerations include avoiding
+    unnecessary full updates when only partial changes exist, which is why ignoreChangesMask
+    exists.
+  warnings: Calling this method with incorrect player pointers can lead to undefined
+    behavior or data corruption. Ensure that both owner and receiver parameters are
+    valid Player objects before calling. The method assumes proper initialization
+    of the ByteBuffer parameter.
+  related:
+  - DelveData::ReadUpdate
+  - DelveData::ResetChanges
+  - DelveData::HasChanges
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T03:58:26.983356'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: BotLevelManager
+  method: QueueMainThreadTask
+  signature: void BotLevelManager::QueueMainThreadTask(std::shared_ptr<BotCreationTask>
+    task)
+documentation:
+  brief: Queues a bot creation task to be executed on the main thread for processing.
+  description: The QueueMainThreadTask method is responsible for scheduling bot creation
+    tasks to be executed in the main thread context. This ensures that any operations
+    involving game object creation, player interaction, or other thread-sensitive
+    activities are properly synchronized with the game's primary execution thread.
+    The method accepts a shared pointer to a BotCreationTask object, which encapsulates
+    all necessary data and logic required for creating a bot. This design pattern
+    prevents potential race conditions and maintains the integrity of TrinityCore's
+    multi-threaded environment while allowing asynchronous task submission.
+  parameters:
+  - name: task
+    description: A shared pointer to a BotCreationTask object containing the details
+      and logic for creating a bot. The task must be valid and properly initialized
+      before being queued.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'std::shared_ptr<BotCreationTask> creationTask = std::make_shared<BotCreationTask>(playerGuid,
+      botClass);
+
+      botLevelManager->QueueMainThreadTask(creationTask);'
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "try {\n    std::shared_ptr<BotCreationTask> task = std::make_shared<BotCreationTask>(playerGuid,\
+      \ botClass);\n    if (task) {\n        botLevelManager->QueueMainThreadTask(task);\n\
+      \    }\n} catch (const std::exception& e) {\n    // Handle exception\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and should be called from any thread
+    context. The actual execution of the task will occur on the main thread during
+    the next processing cycle, ensuring that all game state modifications happen in
+    a controlled environment.
+  warnings: Ensure that the BotCreationTask object passed to this method remains valid
+    until it is processed by the main thread. Avoid passing temporary or destroyed
+    objects as they may lead to undefined behavior.
+  related:
+  - GetNextBotId
+  - ProcessQueuedTasks
+  - IsMainThreadTaskQueued
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T05:42:49.419289'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,69 @@
+api:
+  class: World
+  method: SendGlobalGMMessage
+  signature: void World::SendGlobalGMMessage(const WorldPacket * packet, WorldSession
+    * self, int team)
+documentation:
+  brief: Sends a global GM message to all players in the world, optionally filtered
+    by team.
+  description: The SendGlobalGMMessage method broadcasts a specified WorldPacket to
+    all connected players in the world. It is primarily used by Game Masters (GMs)
+    to communicate important messages or announcements to players. The method allows
+    filtering of recipients based on team affiliation, which can be useful for sending
+    targeted messages to either Alliance or Horde players. This function ensures that
+    the message is delivered consistently across all sessions and respects the team-based
+    filtering mechanism.
+  parameters:
+  - name: packet
+    description: A pointer to the WorldPacket containing the message data to be sent
+      to all players. The packet should be properly formatted with the appropriate
+      opcode and payload for GM messages.
+  - name: self
+    description: Pointer to the WorldSession of the GM sending the message. This is
+      used to prevent the GM from receiving their own message, unless explicitly intended.
+  - name: team
+    description: An integer value indicating which team(s) should receive the message.
+      Valid values are typically 0 for both teams, 1 for Alliance only, and 2 for
+      Horde only.
+  returns: null
+  examples:
+  - title: Send a GM message to all players
+    code: 'WorldPacket packet(SMSG_GM_MESSAGECHAT);
+
+      packet << uint8(GM_CHAT_TYPE_NORMAL);
+
+      packet << uint32(0);
+
+      packet << "This is a global GM announcement.";
+
+      world->SendGlobalGMMessage(&packet, session, 0);'
+    language: cpp
+  - title: Send a GM message to only Alliance players
+    code: 'WorldPacket packet(SMSG_GM_MESSAGECHAT);
+
+      packet << uint8(GM_CHAT_TYPE_NORMAL);
+
+      packet << uint32(0);
+
+      packet << "This is an Alliance-only GM announcement.";
+
+      world->SendGlobalGMMessage(&packet, session, 1);'
+    language: cpp
+  notes: The method internally iterates through all active sessions and sends the
+    packet to each one, excluding the sender's session if provided. It uses the team
+    filtering logic to determine which players should receive the message. This function
+    is typically called from GM command handlers or administrative systems.
+  warnings: Ensure that the WorldPacket passed in is correctly formatted for GM messages;
+    incorrect packet structures may cause client-side errors or unexpected behavior.
+    Also, be cautious when using team filtering as it may not work correctly if the
+    team values are outside expected ranges (0, 1, or 2).
+  related:
+  - SendGlobalMessage
+  - SendPlayerGroupMessage
+  - SendZoneMessage
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-05T23:33:59.816180'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,54 @@
+api:
+  class: QuestEventBus
+  method: ProcessUnitEvents
+  signature: uint32 QuestEventBus::ProcessUnitEvents(int unitGuid, uint32 diff)
+documentation:
+  brief: Processes quest events associated with a specific unit GUID, updating quest
+    states and handling event triggers.
+  description: The ProcessUnitEvents method is responsible for iterating through all
+    active quest events linked to a given unit identifier (GUID), evaluating their
+    conditions, and executing appropriate actions such as advancing quest progress
+    or triggering quest-related scripts. This method typically runs during the game
+    loop at regular intervals, ensuring that quest-related events are properly handled
+    in real-time. It is commonly invoked by the core game engine when processing updates
+    for units such as players, NPCs, or game objects involved in active quests. The
+    method returns a count of processed events, which can be used for performance
+    monitoring or debugging purposes.
+  parameters:
+  - name: unitGuid
+    description: The unique identifier (GUID) of the unit whose quest events are to
+      be processed. This typically corresponds to a player, NPC, or game object currently
+      involved in one or more quests.
+  - name: diff
+    description: The time delta (in milliseconds) since the last call to this method.
+      Used to determine how much time has passed for event timing and condition evaluation.
+  returns: Returns a uint32 value representing the number of quest events successfully
+    processed for the specified unit during this invocation.
+  examples:
+  - title: Basic usage in a game loop
+    code: "uint32 eventsProcessed = sQuestEventBus->ProcessUnitEvents(playerGuid,\
+      \ diff);\n// Log or use the result for performance tracking\nif (eventsProcessed\
+      \ > 0)\n{\n    sLog->outDebug(LOG_FILTER_GENERAL, \"Processed %u quest events\
+      \ for player %u\", eventsProcessed, playerGuid);\n}"
+    language: cpp
+  - title: Integration with core update loop
+    code: "void World::Update(uint32 diff)\n{\n    // Other updates...\n    sQuestEventBus->ProcessUnitEvents(player->GetGUID(),\
+      \ diff);\n    // Continue with other systems\n}"
+    language: cpp
+  notes: This method is part of the internal quest event system and should not be
+    called directly by custom scripts or modules unless explicitly required. It's
+    designed to be invoked from within the core update cycle, ensuring thread safety
+    through proper locking mechanisms in TrinityCore's architecture.
+  warnings: Calling this method manually outside of the intended update context may
+    lead to inconsistent quest states or race conditions. Always ensure that unit
+    data is valid and accessible before calling this function.
+  related:
+  - GetQuestEventsForUnit
+  - AddQuestEvent
+  - RemoveQuestEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T04:59:34.087757'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

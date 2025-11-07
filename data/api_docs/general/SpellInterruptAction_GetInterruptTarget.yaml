@@ -1,0 +1,58 @@
+api:
+  class: SpellInterruptAction
+  method: GetInterruptTarget
+  signature: ::Unit * SpellInterruptAction::GetInterruptTarget(BotAI * ai, int targetGuid)
+    const
+documentation:
+  brief: Retrieves the target unit that a spell interrupt action should be applied
+    to.
+  description: The GetInterruptTarget method is used within the BotAI framework to
+    determine which Unit should be targeted for a spell interruption. This method
+    takes a BotAI instance and a target GUID as parameters, and returns a pointer
+    to the corresponding Unit object. It is typically invoked during spell casting
+    or interrupt logic where the AI needs to identify a valid unit to interrupt. The
+    method relies on the internal state of the BotAI to resolve the GUID into an actual
+    game object. This functionality is crucial for proper AI behavior when dealing
+    with spell interruption mechanics in TrinityCore-based World of Warcraft servers.
+  parameters:
+  - name: ai
+    description: Pointer to the BotAI instance that manages the bot's behavior and
+      state. Used to access the AI's internal data structures and methods.
+  - name: targetGuid
+    description: The unique identifier (GUID) of the target unit to be interrupted.
+      This GUID corresponds to a specific game object in the world, typically representing
+      an enemy or ally that is casting a spell.
+  returns: Pointer to the Unit object corresponding to the provided targetGuid. Returns
+    nullptr if no valid unit can be found for the given GUID, indicating that the
+    target is either invalid, out of scope, or not currently present in the game world.
+  examples:
+  - title: Basic usage in spell interrupt logic
+    code: "Unit* target = interruptAction.GetInterruptTarget(ai, targetGuid);\nif\
+      \ (target && target->IsInWorld()) {\n    // Proceed with interrupting the target's\
+      \ spell\n    ai->GetSpellHistory()->InterruptCurrentSpell(target);\n}"
+    language: cpp
+  - title: Safe handling of potential null return
+    code: "Unit* target = interruptAction.GetInterruptTarget(ai, targetGuid);\nif\
+      \ (!target) {\n    // Handle case where target is invalid or not found\n   \
+      \ ai->GetBot()->Say(\"Invalid target for spell interrupt.\");\n    return;\n\
+      }\n// Proceed with valid target\nai->GetSpellHistory()->InterruptSpell(target);"
+    language: cpp
+  notes: This method assumes that the BotAI instance has proper access to the game
+    world and can resolve GUIDs to Unit objects. It may perform internal lookups or
+    caching operations, so repeated calls with the same parameters might be optimized
+    by the AI framework. The returned Unit pointer is only valid while the target
+    unit remains in the game world.
+  warnings: Ensure that the targetGuid parameter is valid and corresponds to an actual
+    unit in the game world before calling this method. Failure to check for null returns
+    may lead to crashes or undefined behavior when attempting to access properties
+    of a non-existent unit.
+  related:
+  - SpellInterruptAction::Execute
+  - BotAI::GetSpellHistory
+  - Unit::IsInWorld
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T23:28:36.655320'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

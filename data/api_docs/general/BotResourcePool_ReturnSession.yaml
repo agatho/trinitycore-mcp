@@ -1,0 +1,53 @@
+api:
+  class: BotResourcePool
+  method: ReturnSession
+  signature: void BotResourcePool::ReturnSession(int botGuid)
+documentation:
+  brief: Returns a bot session to the resource pool, making it available for reuse
+    by other bots.
+  description: The ReturnSession method is responsible for releasing a bot session
+    back into the BotResourcePool, allowing the system to reclaim and redistribute
+    that session for use by other bots. This method typically handles cleanup operations
+    such as resetting the bot's state, clearing any temporary data, and updating internal
+    tracking structures to mark the session as available. It plays a crucial role
+    in resource management within TrinityCore's bot framework, ensuring efficient
+    utilization of bot sessions without unnecessary overhead or resource leaks. The
+    method assumes that the provided botGuid corresponds to an active session that
+    was previously acquired via GetSession().
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot whose session is being returned
+      to the pool. This must correspond to a valid bot that has an active session
+      in the resource pool.
+  returns: None. This method does not return any value.
+  examples:
+  - title: Basic Usage Example
+    code: 'BotResourcePool pool;
+
+      // Assume we have a bot with GUID 12345
+
+      pool.ReturnSession(12345);'
+    language: cpp
+  - title: Usage in Bot Lifecycle Management
+    code: "class BotManager {\npublic:\n    void HandleBotCompletion(uint32 botGuid)\
+      \ {\n        // Perform cleanup tasks specific to the bot\n        CleanupBotData(botGuid);\n\
+      \        \n        // Return session to pool for reuse\n        resourcePool.ReturnSession(botGuid);\n\
+      \    }\n};"
+    language: cpp
+  notes: This method should only be called after a bot session has been properly initialized
+    and used. It is recommended that developers verify the existence of the bot session
+    before calling this method to avoid potential errors or undefined behavior. The
+    implementation may involve locking mechanisms if thread safety is required.
+  warnings: Calling ReturnSession with an invalid or non-existent botGuid can lead
+    to undefined behavior or resource corruption. Always ensure that the bot GUID
+    corresponds to a valid and active session before invoking this method.
+  related:
+  - GetSession
+  - AcquireSession
+  - IsSessionAvailable
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T18:14:58.710564'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

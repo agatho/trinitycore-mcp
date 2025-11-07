@@ -1,0 +1,51 @@
+api:
+  class: SocialEventBus
+  method: PublishEvent
+  signature: bool SocialEventBus::PublishEvent(const SocialEvent & event)
+documentation:
+  brief: Publishes a social event to all registered listeners in the social event
+    bus.
+  description: The PublishEvent method dispatches a given SocialEvent to all subscribers
+    of the social event bus. This mechanism allows various subsystems within TrinityCore
+    to communicate social-related events such as player interactions, guild activities,
+    or group actions without tight coupling. The method returns true if the event
+    was successfully published to at least one listener, and false if no listeners
+    were registered to receive the event. This function is typically used in conjunction
+    with SubscribeEvent to implement a publish-subscribe pattern for social game mechanics.
+  parameters:
+  - name: event
+    description: The SocialEvent object containing the event data to be published.
+      This object must be properly initialized with valid event type and associated
+      data before being passed to this method.
+  returns: True if the event was successfully published to at least one registered
+    listener; false if no listeners were available to receive the event.
+  examples:
+  - title: Basic Event Publishing
+    code: "SocialEvent event;\nevent.Type = SOCIAL_EVENT_GUILD_CHAT;\nevent.Data =\
+      \ \"Hello everyone!\";\nbool result = socialEventBus.PublishEvent(event);\n\
+      if (result)\n{\n    // Event was published successfully\n}"
+    language: cpp
+  - title: Publishing Player Join Event
+    code: "SocialEvent joinEvent;\njoinEvent.Type = SOCIAL_EVENT_PLAYER_JOIN;\njoinEvent.Data\
+      \ = \"Player joined the group\";\njoinEvent.SenderGuid = player->GetGUID();\n\
+      bool success = socialEventBus.PublishEvent(joinEvent);\nif (!success)\n{\n \
+      \   // No listeners were registered for this event type\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and can be called from any thread
+    context. The event bus maintains a list of registered subscribers, and each subscriber
+    will receive the event in the order they were registered. Performance considerations
+    include avoiding frequent publishing of large events or events with high frequency,
+    as this may impact overall system responsiveness.
+  warnings: Ensure that the SocialEvent object passed to this method is fully initialized
+    before calling PublishEvent, as invalid or incomplete data may lead to unexpected
+    behavior in subscribers. Also, be cautious about publishing events too frequently,
+    which could cause performance degradation in high-traffic scenarios.
+  related:
+  - SubscribeEvent
+  - UnsubscribeEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:16:16.542486'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: QuestRequirementAnalyzer
+  method: EstimateTimeToEligibility
+  signature: uint32 QuestRequirementAnalyzer::EstimateTimeToEligibility(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Estimates the time required for a bot player to become eligible for a specified
+    quest based on current game state and requirements.
+  description: The EstimateTimeToEligibility method calculates how long a bot player
+    must wait before they can accept a given quest. This estimation takes into account
+    various eligibility factors such as level requirements, quest completion status,
+    faction standing, item inventory, and other prerequisite conditions. The returned
+    value represents the estimated time in seconds until the player meets all necessary
+    criteria to begin the quest. This method is primarily used by automated questing
+    systems or AI bots to determine optimal timing for quest acquisition. It does
+    not modify any game state but provides a predictive value based on current player
+    data and quest requirements.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest for which eligibility time is
+      being estimated. Must be a valid quest ID present in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the bot player whose eligibility
+      status is being evaluated. The player must be valid and in a connected state.
+  returns: Returns a uint32 value representing the estimated time in seconds until
+    the player becomes eligible for the specified quest. A return value of 0 indicates
+    that the player is already eligible or the quest requirements are fully met.
+  examples:
+  - title: Basic usage to check eligibility time
+    code: "uint32 timeToEligibility = analyzer.EstimateTimeToEligibility(12345, botPlayer);\n\
+      if (timeToEligibility == 0) {\n    // Player is already eligible\n    printf(\"\
+      Player can start the quest immediately.\");\n} else {\n    // Wait for estimated\
+      \ time before attempting to accept\n    printf(\"Estimated wait time: %u seconds\"\
+      , timeToEligibility);\n}"
+    language: cpp
+  - title: Using with automated questing logic
+    code: "uint32 questId = 67890;\nPlayer* bot = GetBotPlayer();\nuint32 waitTime\
+      \ = analyzer.EstimateTimeToEligibility(questId, bot);\nif (waitTime > 0) {\n\
+      \    // Schedule a delayed action to accept the quest\n    scheduler.AddDelayedAction(waitTime,\
+      \ [questId, bot]() {\n        bot->AddQuest(questId);\n    });\n} else {\n \
+      \   // Accept immediately\n    bot->AddQuest(questId);\n}"
+    language: cpp
+  notes: This method performs a comprehensive check of all quest requirements including
+    level, faction, items, and previous quest completions. It may involve database
+    lookups or complex calculations depending on the quest's complexity. The estimation
+    is based on current player state and does not account for dynamic changes that
+    might occur during the wait period.
+  warnings: The returned time estimate may become invalid if external conditions change
+    (e.g., player levels up, items are acquired, or faction standings shift). Always
+    re-evaluate eligibility after waiting periods. This method should not be used
+    in performance-critical sections due to potential database queries and complex
+    logic evaluation.
+  related:
+  - GetQuestEligibilityStatus
+  - CheckQuestRequirements
+  - CalculateQuestTimeRequirement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T04:37:51.800908'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

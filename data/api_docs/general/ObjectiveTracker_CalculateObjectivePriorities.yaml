@@ -1,0 +1,60 @@
+api:
+  class: ObjectiveTracker
+  method: CalculateObjectivePriorities
+  signature: int ObjectiveTracker::CalculateObjectivePriorities(Player * bot)
+documentation:
+  brief: Calculates and assigns priority levels to player objectives within the objective
+    tracker system.
+  description: The CalculateObjectivePriorities method determines the relative importance
+    of various objectives assigned to a player character, typically used in quest
+    management and objective tracking systems. This method evaluates each active objective
+    based on criteria such as quest type, completion status, time sensitivity, and
+    player progression. It assigns numerical priority values that influence how objectives
+    are displayed and processed by the game client. The method is commonly invoked
+    during player login, quest updates, or when new objectives become available. It
+    ensures that important or time-sensitive objectives are prioritized for display
+    and completion.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object whose objectives need priority calculation.
+      This parameter represents the target character for which objective priorities
+      will be determined.
+  returns: Returns an integer value representing the total number of objectives that
+    had their priorities recalculated. A return value of zero indicates no objectives
+    were processed, while positive values indicate the count of updated objectives.
+  examples:
+  - title: Basic Usage Example
+    code: 'Player* player = ...; // Get player reference
+
+      int priorityCount = objectiveTracker->CalculateObjectivePriorities(player);
+
+      // priorityCount now contains number of objectives with recalculated priorities'
+    language: cpp
+  - title: Integration with Quest System
+    code: "void UpdatePlayerObjectives(Player* player)\n{\n    ObjectiveTracker* tracker\
+      \ = player->GetObjectiveTracker();\n    if (tracker)\n    {\n        int updatedCount\
+      \ = tracker->CalculateObjectivePriorities(player);\n        if (updatedCount\
+      \ > 0)\n        {\n            // Notify client of updated objectives\n    \
+      \        player->SendUpdateWorldState(PLAYER_OBJECTIVE_UPDATE, updatedCount);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called during critical game state transitions such
+    as login, quest acceptance, or when objective states change. The priority calculation
+    logic may vary based on the specific implementation of the objective tracker and
+    can be influenced by player level, faction, and current quest progression. Performance-wise,
+    this operation should be lightweight since it's designed to handle multiple objectives
+    efficiently.
+  warnings: Ensure that the Player pointer passed is valid and not null before calling
+    this method, as passing an invalid pointer could lead to undefined behavior. The
+    method modifies internal objective state, so calling it during active quest processing
+    might cause race conditions if not properly synchronized.
+  related:
+  - GetObjectiveTracker
+  - UpdateObjectivePriorities
+  - GetActiveObjectives
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:36:21.241693'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

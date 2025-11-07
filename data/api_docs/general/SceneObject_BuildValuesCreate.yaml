@@ -1,0 +1,77 @@
+api:
+  class: SceneObject
+  method: BuildValuesCreate
+  signature: void SceneObject::BuildValuesCreate(int * data, int flags, const int
+    * target) const
+documentation:
+  brief: Populates the data buffer with create packet values for a scene object
+  description: The BuildValuesCreate method is responsible for constructing the initial
+    state data that will be sent to clients when a scene object is created. This method
+    prepares the object's fields in a format suitable for network transmission, typically
+    used in the creation of GameObject or DynamicObject packets. It fills the provided
+    data array with the appropriate field values based on the object's current state
+    and flags. The method is commonly invoked during the object initialization phase
+    when the scene object is being added to the world and needs to be synchronized
+    with client instances.
+  parameters:
+  - name: data
+    description: Pointer to an integer array that will be filled with the object's
+      field values for the create packet. This buffer must be pre-allocated with sufficient
+      space to hold all required fields.
+  - name: flags
+    description: Integer flags that determine which fields should be included in the
+      data buffer. These flags control the serialization behavior and can indicate
+      various object states or visibility settings.
+  - name: target
+    description: Pointer to an integer array representing the target object's data,
+      used for reference during field population. This parameter may be NULL if no
+      target data is required for this operation.
+  returns: null
+  examples:
+  - title: Basic usage of BuildValuesCreate
+    code: 'SceneObject* sceneObj = new SceneObject();
+
+      int createData[100];
+
+      int flags = 0x01;
+
+      sceneObj->BuildValuesCreate(createData, flags, nullptr);
+
+      // createData now contains the serialized object fields for client creation'
+    language: cpp
+  - title: Using BuildValuesCreate with target reference
+    code: 'SceneObject* sceneObj = new SceneObject();
+
+      int createData[100];
+
+      int flags = 0x03;
+
+      int targetData[50] = {0};
+
+      targetData[0] = 12345;
+
+      sceneObj->BuildValuesCreate(createData, flags, targetData);
+
+      // The method uses targetData to populate certain fields in createData'
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework during
+    object creation and synchronization. Developers should ensure that the data buffer
+    passed to this method has sufficient capacity to accommodate all required field
+    values. The flags parameter may influence which fields are populated, so understanding
+    the flag definitions is important for correct usage.
+  warnings: Incorrectly sized data buffers can lead to memory corruption or undefined
+    behavior. The target parameter must be properly initialized if used, otherwise
+    passing NULL is safe but may affect field population. This method should not be
+    called on objects that are already in the world as it's designed for initial creation
+    packets only.
+  related:
+  - BuildValuesUpdate
+  - BuildValuesDestroy
+  - GetGUID
+  - IsInWorld
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:15:52.612088'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

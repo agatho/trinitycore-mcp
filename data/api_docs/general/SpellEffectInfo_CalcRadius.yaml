@@ -1,0 +1,65 @@
+api:
+  class: SpellEffectInfo
+  method: CalcRadius
+  signature: float SpellEffectInfo::CalcRadius(WorldObject * caster, int targetIndex,
+    Spell * spell) const
+documentation:
+  brief: Calculates the radius of a spell effect based on caster, target index, and
+    spell data.
+  description: The CalcRadius method computes the effective radius of a spell effect
+    for a given caster, target index, and spell instance. This calculation takes into
+    account various factors such as spell effect parameters, caster's attributes,
+    and target-specific modifiers. The returned float value represents the radius
+    in yards that defines the area of effect for the spell. This method is crucial
+    for determining how far a spell's influence extends, particularly for area-of-effect
+    spells like fireballs or healing circles. It ensures proper game balance by dynamically
+    calculating radius values based on contextual factors rather than static values.
+  parameters:
+  - name: caster
+    description: Pointer to the WorldObject that is casting the spell. This can be
+      a player, creature, or any game entity capable of casting spells. Must not be
+      null for valid calculations.
+  - name: targetIndex
+    description: Integer index representing which target the radius calculation is
+      being performed for. Used to differentiate between multiple targets in multi-target
+      spells. Typically ranges from 0 to number of targets - 1.
+  - name: spell
+    description: Pointer to the Spell instance that contains the spell data and configuration.
+      Required for accessing spell effect parameters and other relevant spell properties
+      during radius calculation.
+  returns: A float value representing the calculated radius in yards. This value determines
+    the spatial extent of the spell effect area. Returns 0.0f if calculation fails
+    or parameters are invalid.
+  examples:
+  - title: Basic usage for calculating spell effect radius
+    code: "float radius = spellEffect->CalcRadius(caster, 0, spell);\nif (radius >\
+      \ 0.0f)\n{\n    // Use calculated radius for area effect logic\n    LOG_DEBUG(\"\
+      spell\", \"Spell effect radius: {} yards\", radius);\n}"
+    language: cpp
+  - title: Using radius in area-of-effect spell handling
+    code: "void HandleAreaEffectSpell(Spell* spell)\n{\n    WorldObject* caster =\
+      \ spell->GetCaster();\n    if (!caster) return;\n\n    for (int i = 0; i < spell->GetTargetsCount();\
+      \ ++i)\n    {\n        float radius = spell->GetSpellInfo()->GetEffect(0)->CalcRadius(caster,\
+      \ i, spell);\n        // Apply effects within calculated radius\n        ApplyAreaEffects(caster,\
+      \ radius);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during spell execution when determining the
+    actual area of effect. The calculation may involve interpolation between base
+    and maximum values based on caster's level or spell power. It's important to note
+    that this function might be called multiple times per spell depending on the number
+    of targets affected. The radius calculation can vary based on spell modifiers,
+    talents, and other game mechanics.
+  warnings: Ensure that all input parameters (caster, targetIndex, spell) are valid
+    before calling this method to avoid undefined behavior. The returned radius value
+    should be validated before use in spatial calculations to prevent potential issues
+    with zero or negative values.
+  related:
+  - SpellEffectInfo::GetRadius
+  - SpellEffectInfo::CalculateEffectValue
+  - Spell::GetSpellInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T02:05:25.316950'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

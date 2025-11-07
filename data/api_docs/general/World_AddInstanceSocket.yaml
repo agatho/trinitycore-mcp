@@ -1,0 +1,53 @@
+api:
+  class: World
+  method: AddInstanceSocket
+  signature: void World::AddInstanceSocket(std::weak_ptr<WorldSocket> sock, uint64
+    connectToKey)
+documentation:
+  brief: Adds a new socket connection to the world instance for handling client connections.
+  description: The AddInstanceSocket method registers a new weak pointer to a WorldSocket
+    object with the world instance, associating it with a unique connection key. This
+    allows the world server to manage and route network traffic from connected clients.
+    The method is typically invoked during the connection establishment phase when
+    a new client socket is created and needs to be tracked by the world server for
+    further processing. It plays a crucial role in the networking subsystem of TrinityCore,
+    enabling proper handling of concurrent player connections and their associated
+    socket resources.
+  parameters:
+  - name: sock
+    description: A weak pointer to the WorldSocket object representing the client
+      connection to be added to the world instance. This parameter should not be null
+      and must point to a valid socket that has been properly initialized.
+  - name: connectToKey
+    description: A 64-bit unique identifier used to associate the socket with a specific
+      connection context. This key is typically generated during the authentication
+      process and helps in identifying and managing different client sessions within
+      the world server.
+  returns: null
+  examples:
+  - title: Basic usage of AddInstanceSocket
+    code: 'std::weak_ptr<WorldSocket> newSocket = std::make_shared<WorldSocket>(...);
+
+      uint64 connectionKey = GenerateUniqueConnectionKey();
+
+      World::instance()->AddInstanceSocket(newSocket, connectionKey);'
+    language: cpp
+  notes: This method is part of the core networking infrastructure and should only
+    be called from within the network handling threads. The use of weak_ptr ensures
+    that the socket object can be safely managed without preventing garbage collection
+    when no strong references remain. The connection key must be unique to avoid conflicts
+    in session management.
+  warnings: Calling this method with a null or invalid socket pointer may lead to
+    undefined behavior or crashes. Ensure that the socket has been properly initialized
+    before adding it to the world instance. Improper use of connection keys can result
+    in connection handling issues and potential security vulnerabilities.
+  related:
+  - World::RemoveInstanceSocket
+  - World::GetSocketByConnectionKey
+  - World::GetAllSockets
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-05T23:43:51.086619'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,50 @@
+api:
+  class: BotAI
+  method: OnCombatStart
+  signature: void BotAI::OnCombatStart(::Unit * target)
+documentation:
+  brief: Initializes bot AI behavior when entering combat with a target unit
+  description: The OnCombatStart method is invoked by the TrinityCore framework when
+    a bot character begins combat with a specified target unit. This method serves
+    as the entry point for custom combat logic within the BotAI system, allowing developers
+    to define specific behaviors such as spell casting, movement patterns, or tactical
+    decisions upon entering combat. The method receives a pointer to the target Unit
+    that triggered the combat state and is typically called during the initial phase
+    of combat engagement. It's important to note that this method may be invoked multiple
+    times during a single combat session if the bot switches targets or re-enters
+    combat with different enemies.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the enemy target that initiated
+      combat. This parameter is guaranteed to be valid and non-null when the method
+      is called, though it may represent various types of units including players,
+      creatures, or game objects depending on the bot's combat context.
+  returns: null
+  examples:
+  - title: Basic Combat Start Implementation
+    code: "void BotAI::OnCombatStart(Unit* target)\n{\n    // Log that combat has\
+      \ started\n    sLog->outString(\"Bot %u entered combat with %s\", GetBot()->GetGUID().GetCounter(),\
+      \ target->GetName());\n    \n    // Perform initial combat actions\n    if (target\
+      \ && target->IsPlayer())\n    {\n        // Cast a basic spell on player targets\n\
+      \        if (SpellInfo* spell = sSpellMgr->GetSpellInfo(12345))\n        {\n\
+      \            DoCast(target, spell);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the BotAI framework's core event handling system and
+    should not be overridden lightly. The target parameter will always be a valid
+    Unit object when this method is called. Developers should ensure that any actions
+    taken within this method do not block or delay the AI thread for extended periods,
+    as it can impact overall performance.
+  warnings: Avoid performing heavy computations or blocking operations in this method
+    as it's called frequently during combat transitions. Also, be cautious about calling
+    methods that might recursively trigger additional combat events, which could lead
+    to stack overflow or unexpected behavior.
+  related:
+  - OnCombatEnd
+  - UpdateAI
+  - EnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T19:39:07.141636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

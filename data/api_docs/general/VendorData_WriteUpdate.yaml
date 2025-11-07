@@ -1,0 +1,72 @@
+api:
+  class: VendorData
+  method: WriteUpdate
+  signature: void VendorData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Creature * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes vendor data changes into a network packet for transmission to
+    a client.
+  description: The WriteUpdate method serializes the current state of vendor data
+    changes into a ByteBuffer, which is then sent to a specific player client. This
+    method is typically used during vendor interactions to update the client's view
+    of available items and their properties. The serialization respects the provided
+    changes mask to only include modified fields, optimizing network traffic. The
+    owner parameter specifies the creature (vendor) whose data is being updated, while
+    the receiver parameter indicates which player should receive this update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized vendor data will be
+      written. This buffer is typically used to construct the network packet sent
+      to the client.
+  - name: changesMask
+    description: An integer mask indicating which fields of the vendor data have been
+      modified and should be included in the update. Each bit corresponds to a specific
+      field in the vendor data structure.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested changes masks should
+      be ignored during serialization. When true, nested structures are not checked
+      for modifications.
+  - name: owner
+    description: Pointer to the Creature object representing the vendor whose data
+      is being updated. This parameter identifies the source of the vendor data.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine client-specific serialization behavior and permissions.
+  returns: null
+  examples:
+  - title: Basic Vendor Update Serialization
+    code: 'ByteBuffer data;
+
+      int changesMask = 0x01;
+
+      VendorData vendorData;
+
+      vendorData.WriteUpdate(data, changesMask, false, vendorCreature, targetPlayer);'
+    language: cpp
+  - title: Vendor Update with Nested Changes Ignored
+    code: 'ByteBuffer updateBuffer;
+
+      int mask = 0x0F;
+
+      bool ignoreNested = true;
+
+      vendorData.WriteUpdate(updateBuffer, mask, ignoreNested, vendorCreature, player);'
+    language: cpp
+  notes: This method is part of the World of Warcraft TrinityCore server's object
+    update system. It should only be called when vendor data has actually changed
+    to avoid unnecessary network traffic. The changesMask parameter is crucial for
+    performance optimization as it prevents sending unchanged data to clients.
+  warnings: Calling this method without proper validation of the changesMask can result
+    in incorrect client behavior or missing updates. Always ensure that the mask accurately
+    reflects which fields have been modified before calling this function.
+  related:
+  - VendorData::BuildUpdate
+  - VendorData::GetChangesMask
+  - VendorData::SetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T23:01:40.379483'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

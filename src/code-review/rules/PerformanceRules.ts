@@ -25,8 +25,8 @@ import {
   ClassSymbol,
   CodeFix,
   IssueSeverity,
-} from '../types.js';
-import { logger } from '../../utils/logger.js';
+} from '../types';
+import { logger } from '../../utils/logger';
 
 // ============================================================================
 // HELPER FUNCTIONS

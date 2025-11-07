@@ -1,0 +1,52 @@
+api:
+  class: CooldownEventBus
+  method: PublishEvent
+  signature: bool CooldownEventBus::PublishEvent(const CooldownEvent & event)
+documentation:
+  brief: Publishes a cooldown event to all registered listeners in the cooldown event
+    bus.
+  description: The PublishEvent method dispatches a CooldownEvent to all subscribers
+    of the CooldownEventBus. This method is used within the TrinityCore framework
+    to notify systems about cooldown changes, such as when a spell or ability enters
+    or exits its cooldown period. The event is delivered synchronously to all registered
+    listeners, ensuring that dependent systems can react appropriately to cooldown
+    state changes. This mechanism supports the game's cooldown management system and
+    helps maintain synchronization between various subsystems like player actions,
+    spell casting, and UI updates.
+  parameters:
+  - name: event
+    description: The CooldownEvent object containing information about the cooldown
+      change, including the affected unit, ability ID, and cooldown duration.
+  returns: Returns true if the event was successfully published to at least one listener;
+    returns false if no listeners were registered or if the publication failed for
+    any reason.
+  examples:
+  - title: Basic Event Publishing
+    code: "CooldownEvent cooldownEvent;\ncooldownEvent.unit = playerUnit;\ncooldownEvent.abilityId\
+      \ = 12345;\ncooldownEvent.duration = 30000; // 30 seconds\nbool success = cooldownEventBus.PublishEvent(cooldownEvent);\n\
+      if (success) {\n    // Event was published successfully\n}"
+    language: cpp
+  - title: Handling Event Publication Result
+    code: "CooldownEvent event;\nevent.unit = playerUnit;\nevent.abilityId = 98765;\n\
+      event.duration = 15000; // 15 seconds\n\nif (!cooldownEventBus.PublishEvent(event))\
+      \ {\n    // Log warning: No listeners for this cooldown event\n    sLog->outError(\"\
+      Failed to publish cooldown event for ability %u\", event.abilityId);\n}"
+    language: cpp
+  notes: This method operates synchronously and may block execution until all registered
+    listeners have processed the event. It is recommended to avoid long-running operations
+    within event handlers to maintain game performance. The CooldownEventBus maintains
+    a list of weak references to listeners, so deregistered listeners are automatically
+    removed from the notification list.
+  warnings: Do not call PublishEvent from within an event handler to prevent potential
+    deadlocks or infinite recursion. Ensure that the CooldownEvent object passed is
+    valid and properly initialized before publishing to avoid undefined behavior.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - HasListeners
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T16:42:00.076286'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

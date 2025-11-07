@@ -1,0 +1,62 @@
+api:
+  class: TankPositioning
+  method: CalculateCleaveAvoidancePosition
+  signature: int TankPositioning::CalculateCleaveAvoidancePosition(Unit * target,
+    float cleaveAngle)
+documentation:
+  brief: Calculates and returns the optimal position to avoid cleave damage from an
+    enemy target based on the specified cleave angle.
+  description: The CalculateCleaveAvoidancePosition method determines a safe location
+    for a unit to move away from an enemy that is using a cleave ability. This method
+    evaluates the target's orientation and the cleave angle to compute a position
+    that minimizes damage risk. It is typically used in AI logic for tank units to
+    avoid area-of-effect attacks. The method takes into account the target's current
+    facing direction and calculates a position at a safe distance, perpendicular to
+    the cleave direction. This ensures the unit can maintain aggro while avoiding
+    unnecessary damage from cleave mechanics.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the enemy target that is
+      casting or using a cleave ability. Must not be null.
+  - name: cleaveAngle
+    description: The angle of the cleave attack in degrees, typically ranging from
+      30 to 120 degrees. Defines the arc within which cleave damage will be applied.
+  returns: Returns an integer value representing the calculated avoidance position
+    index or identifier. A return value of 0 typically indicates failure or no valid
+    position found. Positive values indicate successful calculation and a valid avoidance
+    position, while negative values may indicate error conditions or special cases.
+  examples:
+  - title: Basic usage for tank positioning
+    code: "Unit* target = unit->GetVictim();\nfloat cleaveAngle = 90.0f;\nint avoidancePos\
+      \ = tankPositioning->CalculateCleaveAvoidancePosition(target, cleaveAngle);\n\
+      if (avoidancePos > 0)\n{\n    // Move to calculated avoidance position\n   \
+      \ unit->GetMotionMaster()->MovePoint(avoidancePos, safeX, safeY, safeZ);\n}"
+    language: cpp
+  - title: Advanced usage with dynamic cleave angle
+    code: "Unit* target = unit->GetVictim();\nfloat baseCleaveAngle = 60.0f;\n// Adjust\
+      \ for target's current stance or spell effects\nfloat adjustedAngle = baseCleaveAngle\
+      \ + (target->GetFloatValue(UNIT_FIELD_COMBATREACH) * 2.0f);\nint avoidancePos\
+      \ = tankPositioning->CalculateCleaveAvoidancePosition(target, adjustedAngle);\n\
+      if (avoidancePos > 0)\n{\n    // Apply positioning logic\n    Position safePos;\n\
+      \    GetSafePositionForAvoidance(avoidancePos, &safePos);\n    unit->GetMotionMaster()->MovePoint(avoidancePos,\
+      \ safePos.GetPositionX(), safePos.GetPositionY(), safePos.GetPositionZ());\n\
+      }"
+    language: cpp
+  notes: This method assumes the target is a valid Unit with proper orientation data.
+    The calculation involves trigonometric operations and may be performance-intensive
+    when called frequently during combat. The method should only be called when the
+    unit has a valid target and the cleave angle is within expected ranges.
+  warnings: Ensure that the target parameter is not null before calling this method,
+    as it will likely cause a crash or undefined behavior. The cleaveAngle parameter
+    should be validated to prevent extreme values that could result in invalid positioning
+    calculations.
+  related:
+  - GetSafePositionForAvoidance
+  - CalculateTargetFacing
+  - GetCleaveDamageRadius
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T01:34:20.138075'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

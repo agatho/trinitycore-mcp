@@ -1,0 +1,63 @@
+api:
+  class: VendorData
+  method: WriteCreate
+  signature: void VendorData::WriteCreate(ByteBuffer & data, int fieldVisibilityFlags,
+    const Creature * owner, const Player * receiver) const
+documentation:
+  brief: Writes vendor data into a ByteBuffer for client synchronization during creature
+    creation.
+  description: The WriteCreate method serializes the vendor data associated with a
+    Creature object into a provided ByteBuffer. This is typically used when sending
+    initial vendor information to a Player client upon creature spawn or when constructing
+    update packets for visibility. The method respects field visibility flags to determine
+    which data fields should be included in the packet, and may consider the owner
+    (creature) and receiver (player) for conditional data inclusion. It's part of
+    the TrinityCore's packet serialization system for dynamic object data updates.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized vendor data will be
+      written. This buffer is typically used to construct network packets sent to
+      clients.
+  - name: fieldVisibilityFlags
+    description: Integer flag indicating which fields of the vendor data should be
+      included in the packet. These flags control visibility and synchronization behavior
+      based on client requirements.
+  - name: owner
+    description: Pointer to the Creature object whose vendor data is being serialized.
+      This represents the source of the data being written.
+  - name: receiver
+    description: Pointer to the Player object who will receive this packet. Used for
+      conditional field inclusion based on player-specific settings or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      int visibilityFlags = VENDOR_DATA_VISIBLE;
+
+      Creature* vendor = ...; // some creature with vendor data
+
+      Player* player = ...; // target player
+
+      vendor->GetVendorData()->WriteCreate(data, visibilityFlags, vendor, player);
+
+      // Send ''data'' to player as part of an update packet'
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore update system
+    when constructing packets for client synchronization. Developers should ensure
+    that the ByteBuffer is properly initialized and that visibility flags are correctly
+    set according to the intended behavior.
+  warnings: Incorrect fieldVisibilityFlags may result in incomplete or invalid vendor
+    data being sent to clients, potentially causing display issues or synchronization
+    errors. The method assumes valid pointers for owner and receiver; passing null
+    pointers can lead to undefined behavior.
+  related:
+  - VendorData::WriteUpdate
+  - VendorData::BuildValuesUpdate
+  - Creature::GetVendorData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T23:02:04.054353'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

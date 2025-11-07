@@ -1,0 +1,56 @@
+api:
+  class: InterruptManager
+  method: CastInterruptSpell
+  signature: bool InterruptManager::CastInterruptSpell(uint32 spellId, Unit * target)
+documentation:
+  brief: Interrupts a spell cast on the target unit and applies the specified interrupt
+    spell.
+  description: The CastInterruptSpell method attempts to interrupt an ongoing spell
+    cast by the target unit and applies a specified interrupt spell effect. This method
+    is typically used in combat scenarios where a player or creature needs to break
+    another unit's spell casting. The function checks if the target is currently casting
+    a spell, validates the provided spell ID for interrupt capability, and then proceeds
+    to apply the interrupt effect. It returns true if the interruption was successful,
+    false otherwise. The method respects game mechanics such as spell immunity, casting
+    state validation, and target eligibility for interruption.
+  parameters:
+  - name: spellId
+    description: The ID of the spell to be used as an interrupt effect. This should
+      correspond to a valid spell entry in the database that has interrupt properties.
+  - name: target
+    description: Pointer to the Unit object whose spell casting is to be interrupted.
+      Must not be null and must be a valid unit in the game world.
+  returns: Returns true if the spell interruption was successfully applied, false
+    if the operation failed due to invalid parameters, target not casting, or other
+    failure conditions.
+  examples:
+  - title: Basic Spell Interruption
+    code: "if (interruptManager->CastInterruptSpell(1766, targetUnit)) {\n    // Successfully\
+      \ interrupted the target's spell\n    targetUnit->SendSpellLog(SPELL_LOG_INTERRUPT);\n\
+      }"
+    language: cpp
+  - title: Conditional Interruption with Validation
+    code: "if (targetUnit && targetUnit->IsCasting()) {\n    uint32 interruptSpellId\
+      \ = 1766; // Mind Blast interrupt\n    if (interruptManager->CastInterruptSpell(interruptSpellId,\
+      \ targetUnit)) {\n        // Interrupt successful, send appropriate messages\n\
+      \        targetUnit->SendSpellLog(SPELL_LOG_INTERRUPT);\n        targetUnit->SetCastingState(CAST_STATE_NONE);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the spell ID provided corresponds to a valid interrupt
+    spell in the database. It does not validate whether the spell actually interrupts
+    casts; it simply applies the spell effect as an interrupt. Performance-wise, this
+    function should be used judiciously during combat events to avoid excessive overhead.
+  warnings: Ensure that the target unit is valid and actively casting before calling
+    this method. Passing a null pointer or a non-casting unit may result in undefined
+    behavior or failed interruption attempts. Also, verify that the spell ID corresponds
+    to an actual interrupt spell to prevent incorrect gameplay mechanics.
+  related:
+  - Unit::IsCasting
+  - Unit::SetCastingState
+  - Spell::SendSpellLog
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T02:30:36.661123'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

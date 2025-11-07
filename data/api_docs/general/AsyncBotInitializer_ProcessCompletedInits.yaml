@@ -1,0 +1,48 @@
+api:
+  class: AsyncBotInitializer
+  method: ProcessCompletedInits
+  signature: size_t AsyncBotInitializer::ProcessCompletedInits(size_t maxToProcess)
+documentation:
+  brief: Processes a batch of completed asynchronous bot initializations and returns
+    the number of items handled.
+  description: The ProcessCompletedInits method is responsible for handling the completion
+    of asynchronous initialization tasks for game bots. It processes up to a specified
+    maximum number of completed initializations from an internal queue or list, updating
+    their states and performing any necessary post-initialization logic. This method
+    is typically called during the game loop or at specific intervals to ensure that
+    bot initialization tasks are properly managed without blocking the main thread.
+    The method ensures that asynchronous operations do not accumulate indefinitely
+    and helps maintain performance by processing results in batches.
+  parameters: []
+  returns: The number of completed initializations that were successfully processed
+    during this call. Returns zero if no initializations were available to process
+    or if the maximum limit was reached.
+  examples:
+  - title: Basic usage in game loop
+    code: "void GameLoop() {\n    AsyncBotInitializer* initializer = AsyncBotInitializer::Get();\n\
+      \    size_t processed = initializer->ProcessCompletedInits(10);\n    // Handle\
+      \ the number of bots initialized\n}"
+    language: cpp
+  - title: Processing all available initializations
+    code: "size_t ProcessAll() {\n    AsyncBotInitializer* initializer = AsyncBotInitializer::Get();\n\
+      \    size_t total = 0;\n    size_t batch;\n    do {\n        batch = initializer->ProcessCompletedInits(100);\n\
+      \        total += batch;\n    } while (batch > 0);\n    return total;\n}"
+    language: cpp
+  notes: This method is designed to be non-blocking and should be called frequently
+    in the game loop to prevent accumulation of pending initializations. It's important
+    to understand that this method may not process all available initializations if
+    maxToProcess is limited, so it should typically be called repeatedly until no
+    more items are returned.
+  warnings: Calling this method with a very high maxToProcess value might cause performance
+    hiccups if many bots complete initialization simultaneously. Ensure proper synchronization
+    if this method is called from multiple threads.
+  related:
+  - AsyncBotInitializer::AddInitialization
+  - AsyncBotInitializer::IsInitialized
+  - AsyncBotInitializer::GetPendingCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:39:28.071525'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

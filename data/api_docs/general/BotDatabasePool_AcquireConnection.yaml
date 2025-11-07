@@ -1,0 +1,55 @@
+api:
+  class: BotDatabasePool
+  method: AcquireConnection
+  signature: size_t BotDatabasePool::AcquireConnection()
+documentation:
+  brief: Acquires and returns the index of an available database connection from the
+    bot database connection pool.
+  description: The AcquireConnection method is responsible for retrieving an available
+    database connection from the internal connection pool managed by the BotDatabasePool
+    class. This method ensures thread-safe access to database resources by managing
+    connection availability and preventing race conditions. It typically blocks or
+    waits if no connections are currently available, depending on the pool's configuration.
+    The returned size_t value represents the index of the acquired connection within
+    the pool, which can then be used to perform database operations. This mechanism
+    is crucial for efficient resource utilization in TrinityCore's bot system, where
+    multiple bot instances may require concurrent database access without creating
+    excessive overhead.
+  parameters: []
+  returns: Returns a size_t value representing the index of the acquired database
+    connection within the BotDatabasePool. This index can be used to identify and
+    utilize the specific connection for database operations. If no connection is available,
+    the method may block or return an invalid index depending on pool configuration.
+  examples:
+  - title: Basic Usage Example
+    code: "size_t connectionIndex = botDatabasePool.AcquireConnection();\nif (connectionIndex\
+      \ != INVALID_CONNECTION_INDEX)\n{\n    // Use the connection for database operations\n\
+      \    // ... perform database queries ...\n    // Release the connection when\
+      \ done\n}"
+    language: cpp
+  - title: Usage with Connection Management
+    code: "class BotDatabaseManager\n{\npublic:\n    size_t GetConnection()\n    {\n\
+      \        return m_pool.AcquireConnection();\n    }\n    \n    void ReleaseConnection(size_t\
+      \ index)\n    {\n        // Implementation to release connection back to pool\n\
+      \    }\n    \nprivate:\n    BotDatabasePool m_pool;\n};"
+    language: cpp
+  notes: This method is designed to be thread-safe and should be used by multiple
+    bot threads concurrently. The underlying pool implementation likely uses mutexes
+    or similar synchronization primitives to manage access. Performance considerations
+    include potential blocking behavior when all connections are in use, which may
+    impact bot response times if not properly configured with sufficient connection
+    capacity.
+  warnings: Improper handling of acquired connections can lead to resource leaks or
+    deadlocks. Always ensure that connections obtained via AcquireConnection() are
+    properly released back to the pool when no longer needed. Failure to do so may
+    exhaust available connections and cause subsequent operations to block indefinitely.
+  related:
+  - ReleaseConnection
+  - GetConnectionCount
+  - IsConnectionAvailable
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T05:54:12.583385'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

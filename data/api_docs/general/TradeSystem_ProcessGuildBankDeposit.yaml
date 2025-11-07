@@ -1,0 +1,64 @@
+api:
+  class: TradeSystem
+  method: ProcessGuildBankDeposit
+  signature: void TradeSystem::ProcessGuildBankDeposit(Player * player, uint32 itemGuid,
+    uint32 count)
+documentation:
+  brief: Processes a guild bank deposit transaction for a player, transferring items
+    from the player's inventory to the guild bank.
+  description: The ProcessGuildBankDeposit method handles the logic for depositing
+    items from a player's inventory into the guild bank. It validates that the player
+    has sufficient permissions and items available, updates the player's inventory,
+    and modifies the guild bank storage accordingly. This method is typically invoked
+    when a player interacts with a guild banker to deposit items. The method ensures
+    proper synchronization between the player's inventory and the guild's shared storage
+    system, maintaining item counts and preventing invalid transactions such as depositing
+    non-stackable items or attempting to deposit more items than available in the
+    player's inventory.
+  parameters:
+  - name: player
+    description: Pointer to the Player object initiating the guild bank deposit. Must
+      be a valid player with an active session and guild membership.
+  - name: itemGuid
+    description: The unique identifier (GUID) of the item being deposited. This value
+      identifies which specific item from the player's inventory will be moved to
+      the guild bank.
+  - name: count
+    description: The number of items to deposit from the specified item stack. Must
+      be a positive integer and cannot exceed the quantity of that item available
+      in the player's inventory.
+  returns: null
+  examples:
+  - title: Basic guild bank deposit
+    code: 'Player* player = ...; // Assume valid player object
+
+      uint32 itemGuid = 12345;
+
+      uint32 count = 10;
+
+      TradeSystem::ProcessGuildBankDeposit(player, itemGuid, count);'
+    language: cpp
+  - title: Deposit multiple items with validation
+    code: "Player* player = ...;\nuint32 itemGuid = 67890;\nuint32 count = player->GetItemCount(itemGuid);\n\
+      if (count > 0)\n{\n    TradeSystem::ProcessGuildBankDeposit(player, itemGuid,\
+      \ count);\n}"
+    language: cpp
+  notes: This method assumes that all preconditions are met before being called, including
+    player authentication, guild membership, and proper item availability. The implementation
+    should handle concurrent access safely through TrinityCore's locking mechanisms.
+    Performance considerations include inventory updates and database synchronization
+    for the guild bank storage.
+  warnings: Calling this method without validating player permissions or item availability
+    may result in inconsistent state between player inventory and guild bank. Ensure
+    that itemGuid corresponds to an actual item in the player's inventory before calling
+    this function.
+  related:
+  - ProcessGuildBankWithdraw
+  - ValidateGuildBankAccess
+  - UpdatePlayerInventory
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T00:29:18.241494'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

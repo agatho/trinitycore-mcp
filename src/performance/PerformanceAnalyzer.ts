@@ -15,7 +15,7 @@ import si from 'systeminformation';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { create, all } from 'mathjs';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 const math = create(all);
 

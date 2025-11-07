@@ -1,0 +1,88 @@
+api:
+  class: RoleOptimizer
+  method: ValidateConstraints
+  signature: bool RoleOptimizer::ValidateConstraints(const int & assignments, const
+    int & players, const OptimizationConstraints & constraints)
+documentation:
+  brief: Validates whether the given role assignments meet the specified optimization
+    constraints.
+  description: The ValidateConstraints method checks if a set of role assignments
+    for players adheres to the defined optimization constraints. This method is typically
+    used in group composition systems, such as those found in World of Warcraft's
+    raid and dungeon finding tools, where specific roles (like tank, healer, damage
+    dealer) must be assigned according to certain rules or limits. It ensures that
+    the distribution of roles among players satisfies all constraint requirements
+    before proceeding with further optimization logic.
+  parameters:
+  - name: assignments
+    description: An integer representing the current role assignments for players.
+      This value typically encodes the assignment information in a bitmask or similar
+      compact form, where each bit or group of bits corresponds to a specific player's
+      assigned role.
+  - name: players
+    description: An integer indicating the total number of players involved in the
+      role assignment process. This parameter defines the scope of the validation
+      and is used to determine how many roles should be checked against the constraints.
+  - name: constraints
+    description: A reference to an OptimizationConstraints object that contains the
+      rules or limits that must be satisfied by the assignments. These constraints
+      might include minimum/maximum role counts, role exclusivity requirements, or
+      other group composition rules.
+  returns: Returns true if all the role assignments comply with the provided optimization
+    constraints; otherwise, returns false. A return value of false indicates that
+    at least one constraint has been violated by the given assignments.
+  examples:
+  - title: Basic Validation Example
+    code: 'OptimizationConstraints constraints;
+
+      constraints.minTanks = 1;
+
+      constraints.maxHealers = 3;
+
+      int assignments = 0b11001; // Example bitmask
+
+      int players = 5;
+
+      bool isValid = roleOptimizer.ValidateConstraints(assignments, players, constraints);
+
+      // isValid will be true if the assignments satisfy all constraints'
+    language: cpp
+  - title: Advanced Validation with Multiple Constraints
+    code: 'OptimizationConstraints constraints;
+
+      constraints.minTanks = 1;
+
+      constraints.maxHealers = 2;
+
+      constraints.minDPS = 3;
+
+      constraints.roleExclusions = {Role::Tank, Role::Healer}; // Cannot have both
+      tank and healer roles
+
+      int assignments = 0b10101; // Example bitmask with valid distribution
+
+      int players = 5;
+
+      bool isValid = roleOptimizer.ValidateConstraints(assignments, players, constraints);
+
+      // isValid will be true if all constraints are met'
+    language: cpp
+  notes: This method assumes that the assignments parameter is properly formatted
+    and represents a valid set of role assignments. The OptimizationConstraints object
+    should be pre-configured with appropriate values before calling this method. Performance-wise,
+    this method performs a series of checks on the assignments against the constraints,
+    so it may become more expensive as the number of constraints increases.
+  warnings: Ensure that the assignments integer accurately reflects the current state
+    of role distribution among players. Incorrectly formatted assignments can lead
+    to false validation results. Also, be cautious when using large numbers of players
+    or complex constraint sets, as this could impact performance.
+  related:
+  - GetOptimalAssignments
+  - ApplyConstraints
+  - ResetConstraints
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T03:20:42.324015'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

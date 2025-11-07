@@ -1,0 +1,85 @@
+api:
+  class: ActivePlayerData
+  method: WriteUpdate
+  signature: void ActivePlayerData::WriteUpdate(ByteBuffer & data, const int & changesMask,
+    bool ignoreNestedChangesMask, const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes player update data to a ByteBuffer based on changes mask and ownership
+    context
+  description: The WriteUpdate method serializes player data into a ByteBuffer for
+    network transmission, typically used when sending updates to clients about player
+    state changes. It processes the changesMask to determine which fields should be
+    included in the update packet, respecting the owner and receiver player contexts.
+    The method handles nested change masks and ensures that only relevant data is
+    sent based on the player's visibility rules and update requirements. This function
+    is crucial for maintaining efficient network communication between the server
+    and clients in World of Warcraft's TrinityCore implementation.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used to construct network packets sent to
+      players.
+  - name: changesMask
+    description: Integer mask indicating which player fields have changed and should
+      be included in the update. Each bit represents a specific field or group of
+      fields that require updating.
+  - name: ignoreNestedChangesMask
+    description: Boolean flag that determines whether nested change masks should be
+      processed. When true, nested changes are ignored during serialization.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the data being
+      updated. This is typically the player whose state is being serialized.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used for
+      determining visibility and access rights during serialization.
+  returns: null
+  examples:
+  - title: Basic Update Writing Example
+    code: 'ByteBuffer data;
+
+      int changesMask = PLAYER_UPDATE_FIELD_HEALTH | PLAYER_UPDATE_FIELD_LEVEL;
+
+      Player* owner = player->GetOwner();
+
+      Player* receiver = player;
+
+      activePlayerData.WriteUpdate(data, changesMask, false, owner, receiver);'
+    language: cpp
+  - title: Advanced Update with Nested Mask Handling
+    code: 'ByteBuffer data;
+
+      int changesMask = PLAYER_UPDATE_FIELD_MONEY | PLAYER_UPDATE_FIELD_FLAGS;
+
+      Player* owner = player;
+
+      Player* receiver = player;
+
+      activePlayerData.WriteUpdate(data, changesMask, true, owner, receiver);
+
+      // Send data to client
+
+      WorldPacket packet(SMSG_UPDATE_OBJECT, data.size());
+
+      packet.append(data); // Append serialized data to packet
+
+      receiver->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore and is typically
+    called during player movement or state change events. The implementation respects
+    visibility rules, meaning only fields that the receiver should see are included
+    in the packet. Performance-wise, this method should be efficient as it avoids
+    serializing unnecessary data based on the changes mask.
+  warnings: Incorrect changesMask values can result in incomplete or incorrect update
+    packets being sent to clients, potentially causing visual glitches or game state
+    inconsistencies. The owner and receiver parameters must not be null pointers,
+    otherwise the behavior is undefined.
+  related:
+  - GetUpdateData
+  - BuildValuesUpdate
+  - WriteCreateUpdate
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T06:53:49.799007'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

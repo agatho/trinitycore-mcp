@@ -1,0 +1,53 @@
+api:
+  class: ActionFactory
+  method: RegisterAction
+  signature: void ActionFactory::RegisterAction(const std::string & name, std::function<std::shared_ptr<Action>
+    ()> creator)
+documentation:
+  brief: Registers a new action creator function with the specified name in the ActionFactory.
+  description: The RegisterAction method allows developers to register custom action
+    creators with the ActionFactory. This enables dynamic creation of action objects
+    by name, which is commonly used in AI behavior trees and quest systems within
+    TrinityCore. The method takes a string identifier and a std::function that returns
+    a shared pointer to an Action object. Once registered, actions can be instantiated
+    using the factory's lookup mechanism. This registration process is typically performed
+    during server initialization or module loading to make new actions available for
+    use in various game systems.
+  parameters:
+  - name: name
+    description: A unique string identifier for the action being registered. This
+      name will be used to look up and instantiate the action later.
+  - name: creator
+    description: A std::function that takes no parameters and returns a std::shared_ptr<Action>.
+      This function is called when an action needs to be instantiated by name.
+  returns: null
+  examples:
+  - title: Basic Action Registration
+    code: "class MoveAction : public Action {\npublic:\n    void Execute() override\
+      \ {\n        // Movement logic\n    }\n};\n\n// Registering a new action\nActionFactory::Instance()->RegisterAction(\"\
+      move\", []() {\n    return std::make_shared<MoveAction>();\n});"
+    language: cpp
+  - title: Registering Multiple Actions
+    code: "ActionFactory::Instance()->RegisterAction(\"attack\", []() {\n    return\
+      \ std::make_shared<AttackAction>();\n});\n\nActionFactory::Instance()->RegisterAction(\"\
+      heal\", []() {\n    return std::make_shared<HealAction>();\n});\n\nActionFactory::Instance()->RegisterAction(\"\
+      cast_spell\", []() {\n    return std::make_shared<CastSpellAction>();\n});"
+    language: cpp
+  notes: The ActionFactory is typically implemented as a singleton, so calls should
+    be made to the instance returned by ActionFactory::Instance(). The creator function
+    should not throw exceptions; if it does, it may cause unexpected behavior in action
+    instantiation. Registration order may matter for certain systems that rely on
+    action lookup sequences.
+  warnings: Registering an action with a name that already exists will overwrite the
+    previous registration, potentially causing unexpected behavior if existing references
+    to the old action type are still active. Avoid registering actions from multiple
+    threads simultaneously without proper synchronization.
+  related:
+  - ActionFactory::GetAction
+  - ActionFactory::HasAction
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T22:35:15.296873'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

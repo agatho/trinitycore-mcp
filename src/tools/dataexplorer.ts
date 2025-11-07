@@ -6,7 +6,7 @@
  * Benefit: Humans can explore data without writing SQL, getting instant insights and visualizations.
  */
 
-import { queryWorld, queryAuth, queryCharacters } from "../database/connection.js";
+import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
 
 /**
  * Query result with metadata

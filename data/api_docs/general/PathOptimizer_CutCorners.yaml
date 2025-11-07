@@ -1,0 +1,77 @@
+api:
+  class: PathOptimizer
+  method: CutCorners
+  signature: uint32 PathOptimizer::CutCorners(MovementPath & path, Map * map, float
+    maxCutDistance)
+documentation:
+  brief: Optimizes a movement path by removing unnecessary corners to improve efficiency.
+  description: The CutCorners method optimizes a given movement path by identifying
+    and eliminating redundant or inefficient turns, thereby reducing the overall path
+    length and improving movement performance. This optimization is particularly useful
+    in World of Warcraft's TrinityCore environment where efficient AI pathfinding
+    is crucial for NPC behavior and player movement. The method operates on a provided
+    MovementPath object and uses the specified map context to determine valid paths
+    and obstacles. It modifies the path in-place, removing corners that fall within
+    the maximum cut distance threshold. The optimization process evaluates each segment
+    of the path to determine if a direct line between two points would be valid and
+    shorter than the current path.
+  parameters:
+  - name: path
+    description: Reference to the MovementPath object containing the path to be optimized.
+      This path will be modified in-place by removing unnecessary corners.
+  - name: map
+    description: Pointer to the Map object that provides spatial context for path
+      validation. Used to check for obstacles and terrain validity during optimization.
+  - name: maxCutDistance
+    description: Maximum distance threshold used to determine which corners can be
+      safely removed. Corners within this distance from a straight line will be eliminated.
+  returns: Returns the number of corners successfully removed from the path during
+    optimization. A return value of zero indicates no corners were eligible for removal.
+  examples:
+  - title: Basic Path Optimization
+    code: 'MovementPath path;
+
+      // ... populate path with waypoints ...
+
+      Map* map = player->GetMap();
+
+      uint32 removedCorners = optimizer.CutCorners(path, map, 2.0f);
+
+      printf("Removed %u corners from the path\n", removedCorners);'
+    language: cpp
+  - title: Optimization with Performance Monitoring
+    code: 'MovementPath originalPath = player->GetMoveSpline()->GetPath();
+
+      Map* map = player->GetMap();
+
+      uint32 startTime = getMSTime();
+
+      uint32 removed = optimizer.CutCorners(originalPath, map, 1.5f);
+
+      uint32 endTime = getMSTime();
+
+      printf("Optimized path in %u ms, removed %u corners\n", (endTime - startTime),
+      removed);'
+    language: cpp
+  notes: This method modifies the input path object directly. The optimization process
+    considers map boundaries and obstacles to ensure that removed corners do not create
+    invalid paths. Performance is generally good for small to medium-sized paths,
+    but large complex paths may take longer to process. The maxCutDistance parameter
+    should be tuned based on the specific requirements of your movement system - smaller
+    values result in more aggressive optimization while larger values preserve more
+    path detail.
+  warnings: Care must be taken when using very small maxCutDistance values as they
+    might remove valid waypoints that are necessary for proper navigation around obstacles.
+    The method assumes that the input path is already valid and does not perform initial
+    validation of the path structure. If the path contains invalid segments, the behavior
+    may be unpredictable.
+  related:
+  - OptimizePath
+  - SimplifyPath
+  - ValidatePath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T06:59:19.879304'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

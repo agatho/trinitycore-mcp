@@ -1,0 +1,64 @@
+api:
+  class: KitingUtils
+  method: FindSafestNearbyPosition
+  signature: int KitingUtils::FindSafestNearbyPosition(const int & current, const
+    int & threats, float radius)
+documentation:
+  brief: Calculates and returns the safest nearby position based on threat levels
+    and radius.
+  description: The FindSafestNearbyPosition method determines the optimal escape location
+    for a unit by evaluating surrounding positions within a specified radius. It considers
+    the current position and threat levels from nearby enemies to identify the safest
+    spot that minimizes danger. This utility is commonly used in kiting behavior where
+    units need to maintain distance from threats while continuing to attack or move.
+    The method evaluates multiple candidate positions and selects the one with the
+    lowest aggregated threat level within the given radius.
+  parameters:
+  - name: current
+    description: The current position identifier or index of the unit's location in
+      the threat map. This typically represents the unit's current grid cell or spatial
+      reference point.
+  - name: threats
+    description: A bitmask or identifier representing the threat levels from nearby
+      enemies. This parameter defines which areas are considered dangerous and should
+      be avoided during position selection.
+  - name: radius
+    description: The search radius in yards around the current position to evaluate
+      potential safe locations. Larger values will consider more surrounding positions
+      but may reduce performance.
+  returns: Returns an integer identifier representing the safest nearby position index
+    or grid cell that minimizes threat exposure within the specified radius. A return
+    value of -1 typically indicates no safe position was found or an error occurred
+    during evaluation.
+  examples:
+  - title: Basic usage for kiting behavior
+    code: "int safestPos = KitingUtils::FindSafestNearbyPosition(currentPos, threatMask,\
+      \ 10.0f);\nif (safestPos != -1) {\n    // Move to the safest position\n    unit->MoveTo(safestPos);\n\
+      }"
+    language: cpp
+  - title: Advanced usage with dynamic threat evaluation
+    code: "float radius = 15.0f;\nint currentPos = unit->GetCurrentGridIndex();\n\
+      int threatLevel = GetThreatMask(unit);\nint safestPos = KitingUtils::FindSafestNearbyPosition(currentPos,\
+      \ threatLevel, radius);\nif (safestPos != -1 && safestPos != currentPos) {\n\
+      \    // Only move if a better position exists\n    unit->SetDestination(safestPos);\n\
+      \    unit->StartMovement();\n}"
+    language: cpp
+  notes: This method is primarily used in AI pathfinding and kiting logic for NPC
+    units. The implementation likely uses grid-based spatial partitioning to efficiently
+    evaluate nearby positions. Performance may degrade with large radius values due
+    to increased position evaluations. The method assumes that threat levels are pre-calculated
+    and provided as a bitmask or index.
+  warnings: The method may return -1 if no safe positions are found within the specified
+    radius, which should be handled gracefully in calling code. Using very large radius
+    values can significantly impact performance during evaluation. Ensure that current
+    position and threat parameters are valid before calling to avoid undefined behavior.
+  related:
+  - GetThreatMask
+  - CalculateThreatLevel
+  - EvaluatePositionSafety
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T11:05:10.550189'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

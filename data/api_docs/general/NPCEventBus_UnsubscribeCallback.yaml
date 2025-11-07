@@ -1,0 +1,52 @@
+api:
+  class: NPCEventBus
+  method: UnsubscribeCallback
+  signature: void NPCEventBus::UnsubscribeCallback(uint32 subscriptionId)
+documentation:
+  brief: Removes a previously subscribed callback from the NPC event bus using its
+    unique subscription ID.
+  description: The UnsubscribeCallback method removes a callback function that was
+    previously registered with the NPCEventBus using SubscribeCallback. This method
+    takes a subscription ID as input and unregisters the associated callback, preventing
+    it from being invoked when events occur. The subscription ID is typically returned
+    by the SubscribeCallback method when a new subscription is created. Once unsubscribed,
+    the callback will no longer receive notifications for events on the event bus.
+    This mechanism allows for dynamic management of event listeners in the game's
+    NPC system, enabling efficient cleanup and preventing memory leaks or unwanted
+    behavior from stale callbacks.
+  parameters:
+  - name: subscriptionId
+    description: The unique identifier returned by SubscribeCallback when registering
+      a callback. This ID is used to identify and remove the specific subscription
+      from the event bus.
+  returns: null
+  examples:
+  - title: Basic Unsubscribe Usage
+    code: 'uint32 mySubscriptionId = npcEventBus.SubscribeCallback(callbackFunction);
+
+      // ... some time later ...
+
+      npcEventBus.UnsubscribeCallback(mySubscriptionId);'
+    language: cpp
+  - title: Unsubscribing in Event Handler Cleanup
+    code: "void OnNPCDeath(Unit* unit)\n{\n    if (unit->GetEntry() == 12345)\n  \
+      \  {\n        npcEventBus.UnsubscribeCallback(subscriptionId);\n    }\n}"
+    language: cpp
+  notes: The method assumes that the subscription ID is valid and corresponds to an
+    existing subscription. If an invalid or already-unsubscribed ID is passed, behavior
+    may be undefined or result in no-op operations. The event bus implementation should
+    handle duplicate unsubscription gracefully without throwing exceptions.
+  warnings: Passing an invalid subscription ID to this method could lead to unexpected
+    behavior or errors. Always ensure that the subscription ID was obtained from a
+    successful SubscribeCallback call and has not already been unsubscribed. Failure
+    to properly manage subscriptions can result in memory leaks or dangling pointers
+    if callbacks reference objects that are destroyed.
+  related:
+  - SubscribeCallback
+  - PublishEvent
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-06T08:00:50.089582'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: AuctionHouse
+  method: BuyoutAuction
+  signature: bool AuctionHouse::BuyoutAuction(int * player, uint32 auctionId)
+documentation:
+  brief: Processes the purchase of an auction item using its buyout price
+  description: The BuyoutAuction method handles the transaction when a player purchases
+    an auction item at its fixed buyout price. This method verifies the auction exists,
+    checks if the player has sufficient funds, and completes the transfer of ownership
+    from the auction house to the buyer. The method ensures that the auction is still
+    active and valid for purchase before processing the transaction. It also updates
+    the auction house database and sends appropriate notifications to both the buyer
+    and seller.
+  parameters:
+  - name: player
+    description: Pointer to the player object attempting to buy out the auction
+  - name: auctionId
+    description: Unique identifier of the auction to be purchased
+  returns: Returns true if the auction was successfully purchased and the transaction
+    completed, false otherwise. The method will return false if the auction does not
+    exist, is already sold, or if the player lacks sufficient funds.
+  examples:
+  - title: Basic Auction Buyout
+    code: "Player* player = session->GetPlayer();\nuint32 auctionId = 12345;\nbool\
+      \ success = auctionHouse->BuyoutAuction(&player, auctionId);\nif (success)\n\
+      {\n    ChatHandler(player->GetSession()).SendSysMessage(\"Auction purchased\
+      \ successfully.\");\n}"
+    language: cpp
+  - title: Safe Auction Buyout with Error Handling
+    code: "Player* player = session->GetPlayer();\nuint32 auctionId = 12345;\nif (auctionHouse->BuyoutAuction(&player,\
+      \ auctionId))\n{\n    // Handle successful purchase\n    player->ModifyMoney(-buyoutPrice);\n\
+      \    ChatHandler(player->GetSession()).SendSysMessage(\"Item purchased successfully.\"\
+      );\n}\nelse\n{\n    // Handle failed purchase\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Failed to purchase auction item.\");\n}"
+    language: cpp
+  notes: This method assumes that all validation checks (funds, auction status, etc.)
+    are performed before calling. The method may trigger database updates and network
+    messages to notify players of the transaction. It's important to ensure proper
+    locking mechanisms are in place when called from concurrent threads.
+  warnings: Calling this method without verifying that the auction is still active
+    or that the player has sufficient funds may result in inconsistent state. The
+    method does not perform any validation on the player object itself, so callers
+    should ensure it's a valid player pointer.
+  related:
+  - GetAuction
+  - PlaceAuction
+  - CancelAuction
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T21:30:33.672750'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

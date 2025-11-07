@@ -1,0 +1,76 @@
+api:
+  class: ObjectiveTracker
+  method: FindObjectiveTargetLocation
+  signature: int ObjectiveTracker::FindObjectiveTargetLocation(Player * bot, const
+    QuestObjectiveData & objective)
+documentation:
+  brief: Finds and returns the location of a quest objective target for the specified
+    player bot.
+  description: The FindObjectiveTargetLocation method is used to determine the geographic
+    coordinates or entity reference of a specific quest objective target associated
+    with a given player bot. This method is typically invoked during automated quest
+    progression or quest tracking logic within the TrinityCore framework. It processes
+    the provided quest objective data and attempts to locate the relevant target,
+    which could be a creature, game object, or item required for quest completion.
+    The method returns an integer identifier that represents the found location or
+    target, with specific values indicating success, failure, or special conditions
+    such as invalid objectives or missing target data.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot for which the objective
+      target location is being searched. This parameter must not be null and should
+      represent a valid player instance within the game world.
+  - name: objective
+    description: Reference to a QuestObjectiveData structure containing information
+      about the specific quest objective whose target location needs to be found.
+      This includes details such as objective type, target ID, and associated quest
+      data.
+  returns: 'An integer value representing the outcome of the search operation:
+
+    - Returns a positive integer if the target location is successfully identified.
+
+    - Returns zero or negative values to indicate failure conditions such as invalid
+    objective data, missing targets, or internal errors.
+
+    - Specific return codes may vary based on implementation details within TrinityCore''s
+    quest tracking system.'
+  examples:
+  - title: Basic Usage Example
+    code: "Player* bot = ...; // Assume initialized player bot\nQuestObjectiveData\
+      \ objective = ...; // Assume populated objective data\nint locationId = ObjectiveTracker::FindObjectiveTargetLocation(bot,\
+      \ objective);\nif (locationId > 0)\n{\n    // Proceed with navigation or interaction\
+      \ logic\n    printf(\"Found target at location ID: %d\\n\", locationId);\n}\n\
+      else\n{\n    // Handle failure case\n    printf(\"Failed to find objective target.\\\
+      n\");\n}"
+    language: cpp
+  - title: Integration with Quest Tracking System
+    code: "void ProcessQuestObjective(Player* bot, uint32 questId)\n{\n    Quest const*\
+      \ quest = sObjectMgr->GetQuestTemplate(questId);\n    if (!quest) return;\n\n\
+      \    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)\n    {\n        if (quest->ObjectiveType[i]\
+      \ == QUEST_OBJECTIVE_TYPE_NONE) continue;\n\n        QuestObjectiveData objective;\n\
+      \        // Populate objective data from quest template\n        int targetLocation\
+      \ = ObjectiveTracker::FindObjectiveTargetLocation(bot, objective);\n       \
+      \ if (targetLocation > 0)\n        {\n            // Use targetLocation for\
+      \ pathfinding or interaction\n            bot->GetMotionMaster()->MovePoint(targetLocation,\
+      \ /* coordinates */);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the internal quest tracking system and may be subject
+    to changes in future versions of TrinityCore. The exact meaning of returned integer
+    values depends on the implementation details of the objective tracker and how
+    it maps objectives to world locations or entities. Developers should ensure that
+    the provided Player object and QuestObjectiveData are valid before calling this
+    method to avoid undefined behavior.
+  warnings: Calling this method with invalid or null parameters can lead to crashes
+    or undefined behavior. Ensure that both 'bot' and 'objective' parameters are properly
+    initialized and valid. The method may not handle all edge cases gracefully, so
+    error checking around return values is recommended.
+  related:
+  - GetObjectiveTracker
+  - UpdateObjectiveTracker
+  - IsObjectiveComplete
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T07:32:10.376002'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

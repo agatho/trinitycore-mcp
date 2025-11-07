@@ -1,0 +1,62 @@
+api:
+  class: DungeonBehavior
+  method: EnterDungeon
+  signature: bool DungeonBehavior::EnterDungeon(Group * group, uint32 dungeonId)
+documentation:
+  brief: Attempts to register a group for entry into a specified dungeon instance.
+  description: The EnterDungeon method is responsible for processing group entry into
+    a dungeon instance within the TrinityCore framework. It validates whether the
+    provided group can enter the specified dungeon, considering factors such as group
+    composition, instance limits, and player requirements. The method handles the
+    necessary game state transitions to prepare the group for dungeon entry, including
+    checking if the dungeon is available, managing instance creation or reuse, and
+    ensuring that all players in the group meet the prerequisites for entering the
+    dungeon. This method is typically invoked when a player or group attempts to enter
+    a dungeon via the dungeon finder or direct dungeon entry system.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the player group attempting
+      to enter the dungeon. Must be a valid group with at least one member, and all
+      members must be in the same map for the operation to proceed.
+  - name: dungeonId
+    description: Unique identifier of the dungeon instance to enter. This ID corresponds
+      to entries in the game's dungeon database, such as those found in the `dungeon_template`
+      table. Must represent a valid dungeon with available instances or one that can
+      be created.
+  returns: Returns true if the group was successfully registered for entry into the
+    specified dungeon, or false if the operation failed due to invalid parameters,
+    insufficient permissions, instance limits, or other game logic constraints.
+  examples:
+  - title: Basic Dungeon Entry
+    code: "Group* playerGroup = ...; // Assume this is a valid group\nuint32 dungeonEntryId\
+      \ = 1234;\nif (playerGroup && dungeonEntryId)\n{\n    bool success = dungeonBehavior->EnterDungeon(playerGroup,\
+      \ dungeonEntryId);\n    if (success)\n        sLog->outString(\"Group successfully\
+      \ entered dungeon.\");\n    else\n        sLog->outString(\"Failed to enter\
+      \ dungeon.\");\n}"
+    language: cpp
+  - title: Dungeon Entry with Validation
+    code: "Group* playerGroup = ...;\nuint32 dungeonId = 5678;\nif (playerGroup &&\
+      \ playerGroup->GetMembersCount() > 0)\n{\n    if (dungeonBehavior->EnterDungeon(playerGroup,\
+      \ dungeonId))\n    {\n        // Proceed with dungeon-specific logic\n     \
+      \   sLog->outString(\"Starting dungeon encounter.\");\n    }\n    else\n   \
+      \ {\n        // Handle failure case\n        sLog->outString(\"Cannot enter\
+      \ dungeon - check requirements.\");\n    }\n}"
+    language: cpp
+  notes: This method may trigger internal instance creation or assignment logic depending
+    on the dungeon type and server configuration. The group must be in a valid state
+    (e.g., not already in an instance) before calling this method. It is recommended
+    to validate group status and player readiness before invoking EnterDungeon.
+  warnings: Calling this method with an invalid Group pointer or invalid dungeonId
+    may result in undefined behavior or server crashes. Always ensure that the group
+    contains valid players and that the dungeonId exists in the database before calling
+    this function.
+  related:
+  - LeaveDungeon
+  - GetDungeonStatus
+  - IsGroupAllowedInDungeon
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T15:24:03.240523'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

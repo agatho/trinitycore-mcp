@@ -7,8 +7,8 @@
  * @module tools/performance-comparison
  */
 
-import type { CombatMetrics, AbilityUsage } from "./botcombatloganalyzer.js";
-import { logger } from '../utils/logger.js';
+import type { CombatMetrics, AbilityUsage } from "./botcombatloganalyzer";
+import { logger } from '../utils/logger';
 
 // ============================================================================
 // TYPES

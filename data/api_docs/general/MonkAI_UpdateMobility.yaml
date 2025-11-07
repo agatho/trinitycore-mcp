@@ -1,0 +1,53 @@
+api:
+  class: MonkAI
+  method: UpdateMobility
+  signature: void MonkAI::UpdateMobility(int * target)
+documentation:
+  brief: Updates the mobility state of a monk AI unit based on target conditions.
+  description: The UpdateMobility method in the MonkAI class manages the movement
+    behavior and positioning logic for a monk AI-controlled creature. This method
+    evaluates the current target's status, distance, and threat level to determine
+    appropriate mobility actions such as approaching, retreating, or maintaining position.
+    It integrates with the broader AI system to ensure proper combat positioning and
+    tactical movement patterns specific to monk class mechanics in World of Warcraft.
+    The method typically executes during each AI update cycle and modifies the unit's
+    movement state accordingly.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the target identifier or index.
+      This parameter is used to determine the current target for mobility calculations
+      and movement decisions.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void DummyAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO,\
+      \ 0))\n    {\n        int targetId = target->GetGUID().GetRawValue();\n    \
+      \    UpdateMobility(&targetId);\n    }\n}"
+    language: cpp
+  - title: Integration with Monk-Specific Movement Logic
+    code: "void MonkAI::UpdateMobility(int* target)\n{\n    if (!target || *target\
+      \ <= 0) return;\n    \n    Unit* unit = me->GetVictim();\n    if (!unit) return;\n\
+      \    \n    float distance = me->GetDistance(unit);\n    \n    // Adjust movement\
+      \ based on distance and target state\n    if (distance > 15.0f)\n        me->GetMotionMaster()->MoveChase(unit);\n\
+      \    else if (distance < 5.0f)\n        me->GetMotionMaster()->MoveBackward(unit,\
+      \ 5.0f);\n}"
+    language: cpp
+  notes: This method is typically called from within the AI update loop and should
+    not be invoked directly unless implementing custom mobility behaviors. The target
+    parameter must point to a valid integer identifier for proper operation. Performance
+    considerations include avoiding excessive pathfinding calculations during frequent
+    updates.
+  warnings: Incorrect handling of the target pointer may lead to undefined behavior
+    or crashes. Ensure that the target value is properly initialized before passing
+    it to this method. This method modifies the AI unit's movement state, so calling
+    it inappropriately can disrupt normal combat flow.
+  related:
+  - UpdateAI
+  - SelectTarget
+  - GetMotionMaster
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T01:37:52.899556'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

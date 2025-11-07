@@ -1,0 +1,53 @@
+api:
+  class: Channel
+  method: LeaveNotify
+  signature: void Channel::LeaveNotify(const Player * player)
+documentation:
+  brief: Notifies players in a channel when a player leaves the channel
+  description: The LeaveNotify method sends a notification message to all players
+    currently in the channel, informing them that a specific player has left. This
+    method is typically invoked when a player disconnects from the game or explicitly
+    leaves a channel. It ensures that channel members are aware of membership changes
+    and maintains synchronization between the client and server regarding channel
+    state. The method does not perform any validation on the player parameter, assuming
+    it's a valid pointer to a Player object that was previously part of the channel.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is leaving the channel. Must be
+      a valid pointer to a Player instance that was previously a member of this channel.
+  returns: null
+  examples:
+  - title: Basic usage when player disconnects
+    code: "void HandlePlayerDisconnect(Player* player)\n{\n    // Remove player from\
+      \ all channels they're in\n    for (auto& channel : player->GetChannels())\n\
+      \    {\n        if (channel)\n        {\n            channel->LeaveNotify(player);\n\
+      \        }\n    }\n}"
+    language: cpp
+  - title: Explicit channel leave scenario
+    code: "void PlayerLeavesChannel(Player* player, Channel* channel)\n{\n    // Perform\
+      \ any necessary cleanup\n    channel->RemovePlayer(player);\n    \n    // Notify\
+      \ other members\n    channel->LeaveNotify(player);\n    \n    // Send confirmation\
+      \ to leaving player\n    WorldPacket data(SMSG_CHANNEL_NOTIFY, 1 + 10);\n  \
+      \  data << uint8(CHAT_MSG_LEAVE);\n    data << channel->GetName();\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  notes: This method is part of the channel management system and should only be called
+    after ensuring that the player has been removed from the internal channel member
+    list. The notification sent to other players includes the player's name and indicates
+    they have left the channel. This method does not handle the actual removal of
+    the player from the channel's internal data structures; it only sends notifications.
+  warnings: Do not call this method without first removing the player from the channel's
+    member list, as doing so may result in inconsistent state where players are notified
+    of leaving but still appear in the channel. Also, ensure that the player pointer
+    is valid before calling to avoid undefined behavior.
+  related:
+  - Channel::JoinNotify
+  - Channel::AddPlayer
+  - Channel::RemovePlayer
+  - Channel::SendToAll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T17:34:13.351923'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

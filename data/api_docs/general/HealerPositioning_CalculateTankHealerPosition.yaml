@@ -1,0 +1,64 @@
+api:
+  class: HealerPositioning
+  method: CalculateTankHealerPosition
+  signature: int HealerPositioning::CalculateTankHealerPosition(Player * tank, Unit
+    * threat, const CombatPositionContext & context)
+documentation:
+  brief: Calculates optimal healer positioning relative to tank and threat unit based
+    on combat context.
+  description: The CalculateTankHealerPosition method determines the ideal positional
+    relationship between a healer and a tank in a combat scenario, taking into account
+    the current threat situation and contextual combat data. This method is typically
+    used in AI-driven healing behaviors to ensure that healers maintain appropriate
+    distance and positioning for effective healing while minimizing risk from incoming
+    threats. The calculation considers factors such as threat level, positioning constraints,
+    and combat context to return a position index or identifier that can be used by
+    the healer's movement logic. It assumes valid input parameters and does not perform
+    explicit validation of player or unit states.
+  parameters:
+  - name: tank
+    description: Pointer to the Player object representing the tank in combat. Must
+      be a valid player instance with proper combat state.
+  - name: threat
+    description: Pointer to the Unit object representing the current threat target.
+      May be null if no direct threat exists, but should not be invalid.
+  - name: context
+    description: Reference to a CombatPositionContext structure containing contextual
+      data about the combat environment including positioning rules, threat levels,
+      and distance constraints.
+  returns: Returns an integer representing the calculated optimal healer position
+    index or identifier. A positive value typically indicates a valid position, while
+    zero or negative values may indicate failure or no positioning required.
+  examples:
+  - title: Basic usage in healer AI
+    code: "int pos = healerPositioning->CalculateTankHealerPosition(tankPlayer, threatUnit,\
+      \ combatContext);\nif (pos > 0) {\n    // Move to calculated position\n    healer->MoveToPosition(pos);\n\
+      }"
+    language: cpp
+  - title: Using result for positioning decision
+    code: "CombatPositionContext ctx;\nctx.maxDistance = 10.0f;\nctx.minDistance =\
+      \ 3.0f;\nctx.threatLevel = THREAT_HIGH;\n\nint position = healerPos.CalculateTankHealerPosition(playerTank,\
+      \ threatTarget, ctx);\nswitch (position) {\n    case 1: // Front position\n\
+      \        healer->MoveToFront();\n        break;\n    case 2: // Side position\n\
+      \        healer->MoveToSide();\n        break;\n    default:\n        healer->StayInPlace();\n\
+      }"
+    language: cpp
+  notes: This method is part of a larger positioning system and assumes that the provided
+    units are in valid combat state. The CombatPositionContext should be pre-populated
+    with appropriate values for threat level, distance constraints, and other relevant
+    combat parameters. Performance is optimized for frequent calls during active combat
+    scenarios.
+  warnings: Do not pass null pointers for tank or context; doing so may result in
+    undefined behavior. Ensure that the threat unit pointer is valid and represents
+    an actual combat target. The method does not validate the state of the tank player,
+    so callers should ensure it's in a valid combat-ready state before calling.
+  related:
+  - GetHealerPosition
+  - SetCombatContext
+  - AdjustPositionForThreat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T11:57:24.043016'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

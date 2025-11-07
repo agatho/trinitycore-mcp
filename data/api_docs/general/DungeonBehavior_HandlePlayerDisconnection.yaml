@@ -1,0 +1,58 @@
+api:
+  class: DungeonBehavior
+  method: HandlePlayerDisconnection
+  signature: void DungeonBehavior::HandlePlayerDisconnection(Group * group, Player
+    * disconnectedPlayer)
+documentation:
+  brief: Handles the disconnection of a player from a dungeon group, managing group
+    state and player removal.
+  description: The HandlePlayerDisconnection method is responsible for managing the
+    cleanup and state updates when a player disconnects from a dungeon group. This
+    includes removing the disconnected player from the group, updating group member
+    counts, and potentially triggering dungeon-specific logic such as rescheduling
+    or notifying other players. The method ensures that the group remains in a consistent
+    state after a player's disconnection, preventing issues with group synchronization
+    and quest progression. It is typically invoked by the core game loop when a player's
+    session ends unexpectedly or when they log out during a dungeon encounter.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the dungeon group from which
+      the player disconnected. Must not be null.
+  - name: disconnectedPlayer
+    description: Pointer to the Player object representing the player who disconnected.
+      Must not be null and must be a member of the provided group.
+  returns: null
+  examples:
+  - title: Basic Usage in Game Logic
+    code: "void HandlePlayerLogout(Player* player)\n{\n    Group* group = player->GetGroup();\n\
+      \    if (group && group->isDungeon())\n    {\n        sDungeonBehavior->HandlePlayerDisconnection(group,\
+      \ player);\n    }\n}"
+    language: cpp
+  - title: Integration with Custom Dungeon System
+    code: "class MyDungeonSystem\n{\npublic:\n    void OnPlayerDisconnect(Player*\
+      \ player)\n    {\n        Group* group = player->GetGroup();\n        if (group\
+      \ && group->isDungeon() && group->IsLeader(player))\n        {\n           \
+      \ // Transfer leadership before handling disconnection\n            group->RemoveMember(player->GetGUID());\n\
+      \            sDungeonBehavior->HandlePlayerDisconnection(group, player);\n \
+      \       }\n    }\n};"
+    language: cpp
+  notes: This method assumes that the provided group and player are valid and that
+    the player is actually a member of the group. It does not perform any validation
+    checks on these parameters. The implementation may involve asynchronous operations
+    or deferred cleanup, so immediate state changes might not be visible until the
+    next game tick.
+  warnings: Calling this method with invalid parameters (null pointers or non-group
+    members) can lead to undefined behavior or crashes. Ensure that the player is
+    indeed part of the group before calling this function. Also, note that this method
+    may trigger additional callbacks or events in the dungeon system, so be cautious
+    when calling it during sensitive operations.
+  related:
+  - Group::RemoveMember
+  - Group::isDungeon
+  - Player::GetGroup
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T15:18:22.262196'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -7,7 +7,7 @@
  * @module utils/error-handler
  */
 
-import { logger } from './logger.js';
+import { logger } from './logger';
 
 
 // ============================================================================

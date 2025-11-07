@@ -7,12 +7,12 @@
  * @module tools/recommendation-engine
  */
 
-import type { SuboptimalDecision, MissedOpportunity } from "./botcombatloganalyzer.js";
-import type { DecisionTreeAnalysis } from "./decision-tree-analyzer.js";
-import type { CooldownAnalysis, ProcAnalysis } from "./cooldown-tracker.js";
-import type { CombatMechanicsReport } from "./combat-mechanics-analyzer.js";
-import type { PatternDetectionResult } from "./pattern-detection-ml.js";
-import type { PerformanceReport } from "./performance-comparison.js";
+import type { SuboptimalDecision, MissedOpportunity } from "./botcombatloganalyzer";
+import type { DecisionTreeAnalysis } from "./decision-tree-analyzer";
+import type { CooldownAnalysis, ProcAnalysis } from "./cooldown-tracker";
+import type { CombatMechanicsReport } from "./combat-mechanics-analyzer";
+import type { PatternDetectionResult } from "./pattern-detection-ml";
+import type { PerformanceReport } from "./performance-comparison";
 
 // ============================================================================
 // TYPES

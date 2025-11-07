@@ -1,0 +1,83 @@
+api:
+  class: DPSPositioning
+  method: CalculateRangedDPSPosition
+  signature: int DPSPositioning::CalculateRangedDPSPosition(Unit * target, float optimalRange,
+    const CombatPositionContext & context)
+documentation:
+  brief: Calculates and returns the optimal ranged DPS positioning for a unit relative
+    to its target within a specified combat context.
+  description: The CalculateRangedDPSPosition method determines the best positional
+    strategy for a ranged damage dealer (DPS) unit in relation to its target. It evaluates
+    various factors such as the unit's current position, the target's location, and
+    contextual combat data to compute an optimal distance for maintaining maximum
+    damage output while minimizing vulnerability. This method is typically used by
+    AI systems or automated positioning logic within the TrinityCore framework to
+    guide NPC or player behavior during combat scenarios. The result indicates a recommended
+    positioning state that can be interpreted as a movement direction or distance
+    adjustment needed to achieve optimal DPS efficiency.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit object that the ranged DPS unit is engaging
+      in combat. Must not be null.
+  - name: optimalRange
+    description: The desired or recommended distance from the target for optimal ranged
+      DPS performance. This value defines the ideal range within which the unit should
+      maintain its position.
+  - name: context
+    description: A CombatPositionContext object containing additional data about the
+      combat environment, including terrain, obstacles, and other situational factors
+      that may affect positioning decisions.
+  returns: 'An integer value representing the calculated optimal ranged DPS position
+    state. Possible return values include:
+
+    - 0: Position is already optimal
+
+    - Positive value: Indicates movement required in a forward direction (away from
+    target)
+
+    - Negative value: Indicates movement required in a backward direction (toward
+    target)
+
+    - -1 or other negative values: Error condition indicating positioning could not
+    be determined'
+  examples:
+  - title: Basic usage of CalculateRangedDPSPosition
+    code: "#include \"DPSPositioning.h\"\n\nvoid ExampleUsage(Unit* player, Unit*\
+      \ target) {\n    CombatPositionContext context;\n    // Initialize context with\
+      \ current combat data\n    int result = DPSPositioning::CalculateRangedDPSPosition(target,\
+      \ 25.0f, context);\n    \n    if (result > 0) {\n        // Move forward\n \
+      \       player->MoveForward(result);\n    } else if (result < 0) {\n       \
+      \ // Move backward\n        player->MoveBackward(-result);\n    }\n}"
+    language: cpp
+  - title: Advanced usage with dynamic context
+    code: "#include \"DPSPositioning.h\"\n\nvoid AdvancedExample(Unit* player, Unit*\
+      \ target) {\n    CombatPositionContext context;\n    context.terrainType = TERRAIN_TYPE_OPEN;\n\
+      \    context.obstacleCount = 0;\n    context.isInMeleeRange = false;\n    \n\
+      \    float optimalDistance = 30.0f;\n    int result = DPSPositioning::CalculateRangedDPSPosition(target,\
+      \ optimalDistance, context);\n    \n    switch (result) {\n        case 0:\n\
+      \            // Already at optimal position\n            break;\n        case\
+      \ -1:\n            // Error occurred\n            sLog->outError(\"Failed to\
+      \ calculate positioning\");\n            break;\n        default:\n        \
+      \    // Apply movement adjustment\n            player->AdjustPosition(result);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies heavily on accurate target and context data. Ensure that
+    the Unit pointers are valid and the CombatPositionContext is properly initialized
+    before calling this function. The calculation may involve complex pathfinding
+    or distance evaluation logic depending on the implementation details of the underlying
+    system.
+  warnings: Do not pass null pointers for 'target' or 'context'; doing so will likely
+    result in undefined behavior or crashes. The method assumes that both units are
+    within a valid combat state and that the context reflects current battlefield
+    conditions.
+  related:
+  - GetCombatPositionContext
+  - AdjustPosition
+  - MoveForward
+  - MoveBackward
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T15:55:16.188130'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

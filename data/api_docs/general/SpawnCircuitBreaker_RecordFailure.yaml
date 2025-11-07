@@ -1,0 +1,52 @@
+api:
+  class: SpawnCircuitBreaker
+  method: RecordFailure
+  signature: void SpawnCircuitBreaker::RecordFailure(int reason)
+documentation:
+  brief: Records a failure reason in the spawn circuit breaker to track and prevent
+    excessive spawn attempts.
+  description: The RecordFailure method logs a specific failure reason within the
+    SpawnCircuitBreaker class, which is used to monitor and control spawn operations
+    in World of Warcraft's TrinityCore environment. This mechanism helps prevent infinite
+    loops or excessive resource consumption during creature or game object spawning
+    by tracking repeated failures. The method updates internal counters or states
+    based on the provided reason code, potentially triggering circuit breaker logic
+    that limits further spawn attempts until a reset condition is met. This is particularly
+    useful in dynamic world environments where spawn points may become invalid or
+    overloaded.
+  parameters:
+  - name: reason
+    description: An integer value representing the specific type of failure that occurred
+      during a spawn attempt. Valid values typically correspond to predefined constants
+      such as SPAWN_FAILURE_INVALID_POSITION, SPAWN_FAILURE_TOO_MANY_OBJECTS, or SPAWN_FAILURE_TIMEOUT.
+      The exact meaning of each reason code should be defined within the SpawnCircuitBreaker
+      implementation.
+  returns: null
+  examples:
+  - title: Recording a spawn failure due to invalid position
+    code: 'SpawnCircuitBreaker breaker;
+
+      breaker.RecordFailure(SPAWN_FAILURE_INVALID_POSITION);'
+    language: cpp
+  - title: Using RecordFailure in a spawn attempt handler
+    code: "if (!TrySpawnCreature(creatureId, position)) {\n    breaker.RecordFailure(SPAWN_FAILURE_TIMEOUT);\n\
+      \    // Additional logic to handle circuit breaker state\n}"
+    language: cpp
+  notes: This method is typically called internally by spawn-related systems within
+    TrinityCore. It may increment internal failure counters and could trigger threshold-based
+    circuit breaker behavior depending on the implementation details. The 'reason'
+    parameter should be carefully chosen from a predefined set of constants to ensure
+    meaningful tracking.
+  warnings: Calling RecordFailure with an invalid or undefined reason code might lead
+    to unexpected behavior or incorrect circuit breaker state management. Ensure that
+    all failure reasons are properly defined and documented within the codebase.
+  related:
+  - Reset
+  - IsTripped
+  - GetFailureCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T02:12:39.086117'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: GroupStateMachine
+  method: ForceState
+  signature: void GroupStateMachine::ForceState(GroupState newState)
+documentation:
+  brief: Immediately transitions the group state machine to the specified new state
+    without validation.
+  description: The ForceState method directly sets the internal state of a GroupStateMachine
+    instance to the provided GroupState value. This method bypasses normal state transition
+    logic and validation checks, making it a powerful but potentially dangerous operation.
+    It is typically used for emergency state resets, debugging, or when immediate
+    state changes are required regardless of current group conditions. The method
+    does not perform any sanity checks on the new state value, so callers must ensure
+    that the provided state is valid for the current context. This can be particularly
+    useful in scenarios where a group needs to be forcibly reset to a known baseline
+    state during server maintenance or when handling corrupted group data.
+  parameters:
+  - name: newState
+    description: The target GroupState value to force the state machine into. Must
+      be a valid enum value from the GroupState enumeration. This parameter is required
+      and cannot be ignored.
+  returns: null
+  examples:
+  - title: Force group to idle state
+    code: 'GroupStateMachine* groupSM = player->GetGroup()->GetGroupStateMachine();
+
+      groupSM->ForceState(GROUP_STATE_IDLE);'
+    language: cpp
+  - title: Emergency group reset
+    code: "if (group->IsInCombat()) {\n    // Force group to a clean state regardless\
+      \ of combat status\n    group->GetGroupStateMachine()->ForceState(GROUP_STATE_NONE);\n\
+      }"
+    language: cpp
+  notes: This method should be used sparingly as it can lead to inconsistent group
+    states if not properly managed. It's recommended to use this only in controlled
+    environments such as server-side debugging or emergency recovery scenarios. The
+    method does not trigger any state change events or callbacks, so dependent systems
+    may not be notified of the transition.
+  warnings: Using ForceState can cause unexpected behavior in group operations if
+    the new state is incompatible with current group conditions. It bypasses all normal
+    validation and should never be called during active gameplay operations without
+    careful consideration of side effects. Improper usage may lead to crashes or inconsistent
+    group member states.
+  related:
+  - GetState
+  - TransitionToState
+  - Update
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-06T12:53:29.643076'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

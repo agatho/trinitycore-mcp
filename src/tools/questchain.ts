@@ -15,7 +15,7 @@ import {
   ContentType as StatPriorityContentType,
   StatType,
   type StatPriority
-} from "../data/stat-priorities.js";
+} from "../data/stat-priorities";
 
 // ============================================================================
 // TYPE DEFINITIONS

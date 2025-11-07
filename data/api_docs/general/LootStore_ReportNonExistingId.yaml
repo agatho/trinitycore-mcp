@@ -1,0 +1,63 @@
+api:
+  class: LootStore
+  method: ReportNonExistingId
+  signature: void LootStore::ReportNonExistingId(uint32 lootId, const char * ownerType,
+    uint32 ownerId) const
+documentation:
+  brief: Logs a warning message when a loot entry ID is referenced but does not exist
+    in the loot store.
+  description: The ReportNonExistingId method is used to log a warning whenever a
+    loot ID is attempted to be accessed or referenced, but no corresponding loot entry
+    exists within the LootStore. This typically occurs during loot processing when
+    an item or group references a loot template that has been removed, deleted, or
+    never existed in the database. The method helps developers and administrators
+    identify missing loot data that could cause issues with game mechanics such as
+    quest rewards, creature drops, or loot table integrity. It is primarily used for
+    debugging and maintaining data consistency within the TrinityCore system.
+  parameters:
+  - name: lootId
+    description: The unique identifier of the loot entry that does not exist in the
+      store. This ID typically corresponds to a template or entry in the loot database
+      tables.
+  - name: ownerType
+    description: A string describing the type of entity that owns or references this
+      loot ID, such as 'creature', 'gameobject', or 'item'. Used for categorizing
+      and filtering log messages.
+  - name: ownerId
+    description: The unique identifier of the owner entity (e.g., creature entry ID,
+      game object ID) that references the non-existing loot ID. Helps trace back which
+      object is causing the issue.
+  returns: null
+  examples:
+  - title: Basic usage in loot processing
+    code: 'LootStore store;
+
+      // Simulate finding a reference to a non-existent loot ID
+
+      store.ReportNonExistingId(12345, "creature", 1001);'
+    language: cpp
+  - title: Integration with logging system
+    code: "void ProcessLootTemplate(uint32 lootId, uint32 ownerEntry)\n{\n    if (!sLootStore.LookupEntry(lootId))\n\
+      \    {\n        sLog->outError(\"Loot ID %u referenced by creature %u does not\
+      \ exist in loot store.\", lootId, ownerEntry);\n        sLootStore.ReportNonExistingId(lootId,\
+      \ \"creature\", ownerEntry);\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the loot system when a lookup
+    fails. It does not modify any data but only reports the issue via logging. Developers
+    should ensure that all loot IDs referenced in game data are valid and exist in
+    their respective loot stores to avoid performance penalties or incorrect behavior
+    during loot distribution.
+  warnings: Calling this method with invalid parameters (e.g., null ownerType) may
+    result in malformed log messages. Always validate input before calling this function,
+    especially when integrating it into automated systems or custom loot processing
+    logic.
+  related:
+  - LootStore::LookupEntry
+  - LootStore::LoadLootTemplates
+  - LootStore::GetLootFor
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T09:15:47.907813'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

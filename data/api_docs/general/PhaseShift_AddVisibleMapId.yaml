@@ -1,0 +1,62 @@
+api:
+  class: PhaseShift
+  method: AddVisibleMapId
+  signature: bool PhaseShift::AddVisibleMapId(uint32 visibleMapId, const TerrainSwapInfo
+    * visibleMapInfo, int32 references)
+documentation:
+  brief: Adds a visible map ID to the phase shift, updating terrain swap information
+    and reference counting.
+  description: The AddVisibleMapId method integrates a new map ID into the current
+    phase shift context, associating it with optional terrain swap information. It
+    manages reference counting for the map ID, allowing multiple systems to track
+    usage. This functionality is essential for controlling which maps are visible
+    to players based on their current phase or game state. The method returns true
+    if the map ID was successfully added or updated, and false if it fails due to
+    invalid parameters or internal constraints.
+  parameters:
+  - name: visibleMapId
+    description: The unique identifier of the map that should become visible in the
+      current phase shift context. Must be a valid map ID from the game's map database.
+  - name: visibleMapInfo
+    description: Optional pointer to terrain swap information for the specified map.
+      Can be null if no special terrain swap is required for this map.
+  - name: references
+    description: The number of references to add for this map ID. If negative, it
+      may reduce reference count; if zero or positive, it increases it. Controls how
+      many times the map is considered active in the phase.
+  returns: Returns true if the map ID was successfully added or updated within the
+    phase shift context. Returns false if the operation failed due to invalid parameters
+    or internal constraints such as exceeding maximum allowed references.
+  examples:
+  - title: Basic Usage
+    code: 'PhaseShift phase;
+
+      phase.AddVisibleMapId(1234, nullptr, 1); // Adds map ID 1234 with no terrain
+      swap info and one reference'
+    language: cpp
+  - title: With Terrain Swap Info
+    code: 'TerrainSwapInfo swapInfo;
+
+      swapInfo.SwapMapId = 5678;
+
+      phase.AddVisibleMapId(1234, &swapInfo, 2); // Adds map with terrain swap and
+      two references'
+    language: cpp
+  notes: This method is typically used internally by the core game systems to manage
+    visibility of maps during phase transitions. It's important to ensure that the
+    provided map ID exists in the game's map database, otherwise behavior may be undefined.
+    Reference counting helps prevent premature removal of maps from the visible set.
+  warnings: Passing a null pointer for visibleMapInfo is valid and will not cause
+    errors, but passing an invalid visibleMapId may lead to unexpected visibility
+    behavior or crashes. Be cautious with negative reference values as they can reduce
+    active references below zero, potentially causing issues in phase management logic.
+  related:
+  - RemoveVisibleMapId
+  - HasVisibleMapId
+  - GetVisibleMapIds
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-06T06:21:12.109187'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

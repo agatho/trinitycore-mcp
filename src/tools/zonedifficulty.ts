@@ -6,7 +6,7 @@
  * Benefit: Humans can determine if a zone is appropriate for their character level and playstyle.
  */
 
-import { queryWorld } from "../database/connection.js";
+import { queryWorld } from "../database/connection";
 
 /**
  * Zone information
