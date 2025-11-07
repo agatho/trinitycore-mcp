@@ -141,9 +141,16 @@ export default function HomePage() {
       color: "text-red-400",
     },
     {
+      name: "World Editor",
+      icon: Map,
+      description: "Professional 3D world editor with VMap/MMap visualization, spawn placement, and terrain editing",
+      href: "/world-editor",
+      color: "text-cyan-500",
+    },
+    {
       name: "Map Coordinate Picker",
       icon: Map,
-      description: "Advanced map editor using TrinityCore coordinate system. Select WoW maps or upload custom images.",
+      description: "Advanced 2D map editor using TrinityCore coordinate system. Select WoW maps or upload custom images.",
       href: "/map-picker-enhanced",
       color: "text-sky-400",
     },
@@ -294,7 +301,7 @@ export default function HomePage() {
               <div className="text-sm text-slate-400">MCP Tools</div>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-4xl font-bold text-purple-400">21</div>
+              <div className="text-4xl font-bold text-purple-400">22</div>
               <div className="text-sm text-slate-400">WebUI Pages</div>
             </div>
             <div className="text-center space-y-2">
