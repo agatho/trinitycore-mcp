@@ -1,0 +1,52 @@
+api:
+  class: MonkAI
+  method: GetLowestHealthEnemy
+  signature: int * MonkAI::GetLowestHealthEnemy()
+documentation:
+  brief: Returns the unique identifier (GUID) of the lowest health enemy target within
+    the MonkAI's current threat list.
+  description: The GetLowestHealthEnemy method identifies and returns the GUID of
+    the enemy target with the lowest current health value among all valid targets
+    in the MonkAI's threat table. This method is typically used by monk AI scripts
+    to prioritize healing or damage output on the most vulnerable enemies. The returned
+    GUID can be used to retrieve detailed target information through other TrinityCore
+    APIs such as ObjectAccessor::GetObjectByTypeGUID(). The method performs a linear
+    scan of all current targets and returns nullptr if no valid enemy targets are
+    present. This functionality is essential for implementing intelligent targeting
+    logic in monk AI behavior trees.
+  parameters: []
+  returns: A pointer to an int representing the GUID of the lowest health enemy target,
+    or nullptr if no valid targets exist within the AI's current scope.
+  examples:
+  - title: Basic usage to get and process the lowest health enemy
+    code: "int* lowestTargetGUID = monkAI->GetLowestHealthEnemy();\nif (lowestTargetGUID\
+      \ != nullptr)\n{\n    Unit* target = ObjectAccessor::GetUnit(*me, *lowestTargetGUID);\n\
+      \    if (target && target->IsAlive())\n    {\n        // Perform action on the\
+      \ lowest health enemy\n        me->CastSpell(target, SPELL_MEDITATION, true);\n\
+      \    }\n}"
+    language: cpp
+  - title: Using the returned GUID to determine if target is valid before acting
+    code: "int* targetGUID = monkAI->GetLowestHealthEnemy();\nif (targetGUID != nullptr\
+      \ && *targetGUID != 0)\n{\n    Unit* enemy = ObjectAccessor::GetUnit(*me, *targetGUID);\n\
+      \    if (enemy && enemy->IsInWorld() && enemy->IsAlive())\n    {\n        //\
+      \ Execute logic only when target is valid\n        if (me->CanReachWithMeleeAttack(enemy))\n\
+      \        {\n            me->Attack(enemy, true);\n        }\n    }\n}"
+    language: cpp
+  notes: This method assumes that the MonkAI has already populated its threat list
+    with valid enemy targets. The returned GUID is only valid within the current session
+    and may become invalid if the target dies or is removed from the world. Performance-wise,
+    this method operates in O(n) time where n is the number of current targets in
+    the AI's threat table.
+  warnings: The returned pointer may be null when no valid enemies are present, so
+    always check for nullptr before dereferencing. Never assume that the GUID points
+    to a live target without verifying with ObjectAccessor::GetUnit().
+  related:
+  - GetHighestHealthEnemy
+  - GetNearestEnemy
+  - GetThreatList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T12:30:24.931504'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

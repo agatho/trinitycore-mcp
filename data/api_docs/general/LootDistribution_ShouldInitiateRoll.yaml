@@ -1,0 +1,61 @@
+api:
+  class: LootDistribution
+  method: ShouldInitiateRoll
+  signature: bool LootDistribution::ShouldInitiateRoll(Group * group, const LootItem
+    & item)
+documentation:
+  brief: Determines whether a loot roll should be initiated for a given group and
+    item in the context of World of Warcraft's loot distribution system.
+  description: The ShouldInitiateRoll method evaluates if a loot roll should commence
+    for a specific item within a group. This decision is based on various factors
+    such as the group's loot rules, item quality, player roles, and the current state
+    of the loot distribution process. The method ensures that loot is distributed
+    fairly according to the game's rules, particularly when dealing with items that
+    require rolling (such as rare or epic items). It checks whether the group has
+    a valid loot master, if the item meets criteria for rolling, and if the roll conditions
+    are appropriate for the current loot distribution phase.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the player group that will
+      participate in the loot roll. Must not be null.
+  - name: item
+    description: Reference to the LootItem structure containing details about the
+      item being considered for rolling. This includes item properties, quality, and
+      distribution settings.
+  returns: Returns true if a loot roll should be initiated for the given group and
+    item; otherwise returns false. A return value of false typically indicates that
+    the item is either auto-rolled or already assigned to a specific player.
+  examples:
+  - title: Basic usage in loot distribution logic
+    code: "if (lootDistribution->ShouldInitiateRoll(group, item)) {\n    // Start\
+      \ a loot roll for this item\n    group->SendLootRoll(item.guid);\n} else {\n\
+      \    // Item is already assigned or auto-rolled\n    SendLootResult(item.guid,\
+      \ LOOT_RESULT_SPAWNED);\n}"
+    language: cpp
+  - title: Integration with loot master validation
+    code: "bool shouldRoll = lootDistribution->ShouldInitiateRoll(group, item);\n\
+      if (shouldRoll && group->GetLootMaster() == player) {\n    // Only the loot\
+      \ master can initiate rolls\n    group->StartLootRoll(item.guid);\n} else if\
+      \ (!shouldRoll) {\n    // Skip rolling and assign directly\n    group->AssignLootToPlayer(player,\
+      \ item.guid);\n}"
+    language: cpp
+  notes: This method is part of the core loot distribution system in TrinityCore.
+    It relies on internal state tracking of groups and items to determine eligibility
+    for rolling. The implementation may vary depending on the configured loot rules
+    (e.g., free-for-all, round-robin, master loot). Developers should be aware that
+    this method does not perform actual rolling but merely determines if rolling is
+    appropriate.
+  warnings: Ensure that both group and item parameters are valid before calling this
+    method to avoid undefined behavior. Incorrect handling of return values may lead
+    to improper loot assignment or skipped rolls in the game's loot system.
+  related:
+  - LootDistribution::Roll
+  - LootDistribution::AssignLoot
+  - Group::GetLootMaster
+  - Group::SendLootRoll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T12:55:34.026850'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: LootDistribution
+  method: IsWeaponUpgrade
+  signature: bool LootDistribution::IsWeaponUpgrade(Player * player, const LootItem
+    & item)
+documentation:
+  brief: Determines whether a loot item represents an upgrade for the player's current
+    weapon.
+  description: The IsWeaponUpgrade method evaluates whether a given loot item, represented
+    by a LootItem structure, provides an improvement over the player's currently equipped
+    weapon. This check is typically used during loot distribution to determine if
+    a new weapon item should be considered as an upgrade for the player's existing
+    main-hand or off-hand weapon. The method compares weapon statistics such as damage,
+    speed, and item level against the player's current equipped weapon to make this
+    determination. It is commonly invoked in the context of loot rolling and item
+    evaluation systems within TrinityCore's loot management framework.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose equipped weapon will be compared
+      against the loot item. Must not be null.
+  - name: item
+    description: Reference to the LootItem structure representing the potential weapon
+      upgrade. The item must be a weapon type (weapon class) for this method to return
+      true.
+  returns: Returns true if the loot item is a weapon that provides an upgrade over
+    the player's currently equipped weapon, false otherwise. An upgrade is determined
+    by comparing weapon stats such as damage per second, item level, and other relevant
+    attributes.
+  examples:
+  - title: Basic Usage in Loot Distribution
+    code: "if (lootDist.IsWeaponUpgrade(player, lootItem)) {\n    // This item is\
+      \ an upgrade for the player's current weapon\n    player->SendNotification(\"\
+      New weapon upgrade found!\");\n}"
+    language: cpp
+  - title: Checking Weapon Upgrade Before Rolling
+    code: "LootItem* lootItem = &loot->items[0];\nif (lootDist.IsWeaponUpgrade(player,\
+      \ *lootItem)) {\n    // Prioritize rolling for this item as it's an upgrade\n\
+      \    player->GetSession()->SendNotification(\"This weapon is an upgrade!\");\n\
+      } else {\n    // Proceed with normal loot distribution logic\n    player->GetSession()->SendNotification(\"\
+      Not an upgrade, proceeding normally.\");\n}"
+    language: cpp
+  notes: The method relies on internal weapon comparison logic that considers item
+    level, damage statistics, and weapon speed. It may not account for all edge cases
+    such as weapon enchantments or special bonuses that could affect actual performance.
+    The implementation assumes that the player has a valid weapon equipped in either
+    main-hand or off-hand slot.
+  warnings: This method should only be called with valid Player and LootItem objects;
+    passing null pointers will result in undefined behavior. Additionally, it does
+    not consider temporary buffs or gear modifications that might affect real-world
+    weapon performance but are not reflected in the static item data used for comparison.
+  related:
+  - LootDistribution::RollLoot
+  - Player::CanEquipItem
+  - Item::GetItemLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T12:56:36.324700'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
