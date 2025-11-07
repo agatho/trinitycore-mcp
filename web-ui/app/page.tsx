@@ -134,17 +134,24 @@ export default function HomePage() {
       color: "text-emerald-400",
     },
     {
+      name: "Combat Log Analyzer",
+      icon: Activity,
+      description: "ML-based combat analysis with DPS charts & recommendations",
+      href: "/combat-log-analyzer",
+      color: "text-red-400",
+    },
+    {
       name: "Map Coordinate Picker",
       icon: Map,
-      description: "Visual map editor with HTML5 Canvas",
-      href: "/map-picker",
+      description: "Advanced map editor with undo/redo, pathfinding, measurements",
+      href: "/map-picker-enhanced",
       color: "text-sky-400",
     },
     {
       name: "SAI Editor",
       icon: Workflow,
-      description: "Visual Smart AI script builder",
-      href: "/sai-editor",
+      description: "Visual Smart AI script builder with templates & validation",
+      href: "/sai-editor-enhanced",
       color: "text-blue-400",
     },
     {
