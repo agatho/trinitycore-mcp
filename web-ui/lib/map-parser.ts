@@ -1,10 +1,12 @@
 /**
  * TrinityCore .map File Parser
  *
- * Parses terrain height map files (.map) extracted by TrinityCore map extractor.
+ * Parses terrain height map files (.map) extracted by TrinityCore mapextractor.
  * These files contain height data, area information, and liquid data.
  *
- * File format:
+ * File format (from mapextractor):
+ * - Folder: maps/
+ * - Naming: <mapId><x><y>.map (e.g., 00032048.map = map 000, grid 32,48)
  * - Header with offsets and sizes
  * - Area map (grid of zone IDs)
  * - Height map (129x129 grid of heights)
@@ -92,6 +94,12 @@ const GRID_PART_SIZE = 129;
 
 /**
  * Parse a single .map file
+ *
+ * TrinityCore naming convention: <mapId><x><y>.map
+ * - mapId: 3 digits (000-999)
+ * - x: 2 digits (00-63)
+ * - y: 2 digits (00-63)
+ * Example: 00032048.map = Map 0, Grid (32, 48)
  */
 export function parseMapFile(
   buffer: ArrayBuffer,
@@ -100,10 +108,10 @@ export function parseMapFile(
   const view = new DataView(buffer);
   let offset = 0;
 
-  // Parse filename to get coordinates: <mapId>_<x>_<y>.map
-  const match = filename.match(/(\d+)_(\d+)_(\d+)\.map/);
+  // Parse filename: <mapId><x><y>.map (e.g., 00032048.map)
+  const match = filename.match(/(\d{3})(\d{2})(\d{2})\.map/);
   if (!match) {
-    throw new Error(`Invalid map filename format: ${filename}`);
+    throw new Error(`Invalid map filename format: ${filename} (expected format: <mapId><x><y>.map, e.g., 00032048.map)`);
   }
 
   const mapId = parseInt(match[1], 10);

@@ -154,7 +154,8 @@ async function listCollisionFiles(
       }
 
       // Find all .mmtile files for this map
-      const tilePattern = new RegExp(`^\\d{4}\\.mmtile$`);
+      // Format: <mapId><x><y>.mmtile (e.g., 0003248.mmtile = map 000, tile 32,48)
+      const tilePattern = new RegExp(`^${mapIdPadded}\\d{4}\\.mmtile$`);
       for (const file of dirContents) {
         if (tilePattern.test(file)) {
           const stats = await fs.stat(path.join(basePath, file));

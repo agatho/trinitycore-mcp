@@ -235,10 +235,19 @@ export default function WorldEditorPage() {
       const tileBuffers = new Map<string, ArrayBuffer>();
 
       for (const tileFile of tileFiles) {
-        const match = tileFile.name.match(/(\d{2})(\d{2})\.mmtile/);
+        // TrinityCore format: <mapId><x><y>.mmtile (e.g., 0003248.mmtile)
+        const match = tileFile.name.match(/(\d{3})(\d{2})(\d{2})\.mmtile/);
         if (match) {
-          const tileX = parseInt(match[1], 10);
-          const tileY = parseInt(match[2], 10);
+          const fileMapId = parseInt(match[1], 10);
+          const tileX = parseInt(match[2], 10);
+          const tileY = parseInt(match[3], 10);
+
+          // Verify mapId matches selected map
+          if (fileMapId !== state.selectedMap) {
+            console.warn(`Skipping ${tileFile.name}: mapId ${fileMapId} doesn't match selected map ${state.selectedMap}`);
+            continue;
+          }
+
           const buffer = await tileFile.arrayBuffer();
           tileBuffers.set(`${tileX}_${tileY}`, buffer);
         }
