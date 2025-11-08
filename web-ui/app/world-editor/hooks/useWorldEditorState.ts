@@ -9,6 +9,7 @@ import { useState, useCallback } from 'react';
 import type { MapCoordinate, Road, ZoneTransition, WaypointPath } from '@/lib/map-editor';
 import type { VMapData } from '@/lib/vmap-types';
 import type { MMapData } from '@/lib/mmap-types';
+import type { MapDataCollection } from '@/lib/map-parser';
 import type { Layer, Measurement, Annotation } from '@/lib/map-editor-enhanced';
 
 export type ViewMode = 'split' | 'tabbed' | 'pip';
@@ -28,6 +29,7 @@ export interface Camera3DState {
 export interface WorldEditorState {
   // Map and data
   selectedMap: number;
+  mapImage: HTMLImageElement | null;
   coordinates: MapCoordinate[];
   roads: Road[];
   transitions: ZoneTransition[];
@@ -38,9 +40,11 @@ export interface WorldEditorState {
   // Collision data
   vmapData: VMapData | null;
   mmapData: MMapData | null;
+  mapData: MapDataCollection | null;
   collisionDataStatus: {
     vmap: 'none' | 'loading' | 'loaded' | 'error';
     mmap: 'none' | 'loading' | 'loaded' | 'error';
+    map: 'none' | 'loading' | 'loaded' | 'error';
     message?: string;
   };
 
@@ -64,6 +68,7 @@ export interface WorldEditorState {
 export interface WorldEditorActions {
   // Map actions
   setSelectedMap: (mapId: number) => void;
+  setMapImage: (image: HTMLImageElement | null) => void;
 
   // Coordinate actions
   addCoordinate: (coord: MapCoordinate) => void;
@@ -92,6 +97,7 @@ export interface WorldEditorActions {
   // Collision data actions
   setVMapData: (data: VMapData | null) => void;
   setMMapData: (data: MMapData | null) => void;
+  setMapData: (data: MapDataCollection | null) => void;
   setCollisionDataStatus: (status: WorldEditorState['collisionDataStatus']) => void;
 
   // Selection actions
@@ -129,6 +135,7 @@ const DEFAULT_LAYERS: Layer[] = [
 export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
   // State
   const [selectedMap, setSelectedMap] = useState(0);
+  const [mapImage, setMapImage] = useState<HTMLImageElement | null>(null);
   const [coordinates, setCoordinates] = useState<MapCoordinate[]>([]);
   const [roads, setRoads] = useState<Road[]>([]);
   const [transitions, setTransitions] = useState<ZoneTransition[]>([]);
@@ -138,9 +145,11 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
 
   const [vmapData, setVMapData] = useState<VMapData | null>(null);
   const [mmapData, setMMapData] = useState<MMapData | null>(null);
+  const [mapData, setMapData] = useState<MapDataCollection | null>(null);
   const [collisionDataStatus, setCollisionDataStatus] = useState<WorldEditorState['collisionDataStatus']>({
     vmap: 'none',
     mmap: 'none',
+    map: 'none',
   });
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -246,6 +255,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
 
   const state: WorldEditorState = {
     selectedMap,
+    mapImage,
     coordinates,
     roads,
     transitions,
@@ -254,6 +264,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     measurements,
     vmapData,
     mmapData,
+    mapData,
     collisionDataStatus,
     selectedItems,
     layers,
@@ -269,6 +280,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
 
   const actions: WorldEditorActions = {
     setSelectedMap,
+    setMapImage,
     addCoordinate,
     updateCoordinate,
     removeCoordinate,
@@ -287,6 +299,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     setTransitions,
     setVMapData,
     setMMapData,
+    setMapData,
     setCollisionDataStatus,
     selectItem,
     deselectItem,

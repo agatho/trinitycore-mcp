@@ -260,10 +260,17 @@ async function autoLoadMMap(
     const tileBuffers = new Map<string, ArrayBuffer>();
 
     for (const tileFile of tileFiles) {
-      const match = tileFile.filename.match(/(\d{2})(\d{2})\.mmtile/);
+      // TrinityCore format: <mapId><x><y>.mmtile (e.g., 00003248.mmtile)
+      const match = tileFile.filename.match(/(\d{4})(\d{2})(\d{2})\.mmtile/);
       if (match) {
-        const tileX = parseInt(match[1], 10);
-        const tileY = parseInt(match[2], 10);
+        const fileMapId = parseInt(match[1], 10);
+        const tileX = parseInt(match[2], 10);
+        const tileY = parseInt(match[3], 10);
+
+        // Verify mapId matches
+        if (fileMapId !== mapId) {
+          continue;
+        }
 
         const tileResponse = await fetch(`/api/collision-data?mapId=${mapId}&type=mmap&action=download&filename=${tileFile.filename}`);
         const tileBuffer = await tileResponse.arrayBuffer();

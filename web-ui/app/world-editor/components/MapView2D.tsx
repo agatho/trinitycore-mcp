@@ -29,19 +29,23 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0, z: 0 });
 
-  // Load map image when selected map changes
+  // Auto-load map image when selected map changes (if not manually uploaded)
   useEffect(() => {
+    if (state.mapImage) return; // Use manually uploaded image if available
+
     const loadMap = async () => {
       try {
         const img = await loadMapImage(state.selectedMap);
-        setMapImage(img);
+        if (img) {
+          actions.setMapImage(img);
+        }
       } catch (error) {
         console.error('Failed to load map:', error);
-        setMapImage(null);
+        actions.setMapImage(null);
       }
     };
     loadMap();
-  }, [state.selectedMap]);
+  }, [state.selectedMap, state.mapImage]);
 
   // Draw everything on canvas
   const draw = useCallback(() => {
@@ -62,9 +66,9 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
     ctx.scale(camera2D.scale, camera2D.scale);
 
     // Draw background map image
-    if (mapImage) {
+    if (state.mapImage) {
       ctx.globalAlpha = 0.8;
-      ctx.drawImage(mapImage, 0, 0, width / camera2D.scale, height / camera2D.scale);
+      ctx.drawImage(state.mapImage, 0, 0, width / camera2D.scale, height / camera2D.scale);
       ctx.globalAlpha = 1.0;
     } else {
       // Draw "no map loaded" message
@@ -226,12 +230,13 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
 
     // Auto-detect height if enabled and collision data is available
     let z = 0;
-    if (state.autoDetectHeight && (state.vmapData || state.mmapData)) {
+    if (state.autoDetectHeight && (state.mapData || state.vmapData || state.mmapData)) {
       const heightResult = getHeightAtPosition(
         wowCoords.x,
         wowCoords.y,
         state.vmapData || undefined,
         state.mmapData || undefined,
+        state.mapData || undefined,
         {
           preferVMap: true,
           searchRadius: 10.0,
@@ -286,12 +291,13 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
 
       // Query height at cursor position if collision data is available
       let z = 0;
-      if ((state.vmapData || state.mmapData) && state.autoDetectHeight) {
+      if ((state.mapData || state.vmapData || state.mmapData) && state.autoDetectHeight) {
         const heightResult = getHeightAtPosition(
           wow.x,
           wow.y,
           state.vmapData || undefined,
           state.mmapData || undefined,
+          state.mapData || undefined,
           {
             preferVMap: true,
             searchRadius: 10.0,

@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Map,
+  Map as MapIcon,
   Box,
   Layout,
   Maximize2,
@@ -50,9 +50,11 @@ import { WoWMaps, generateSpawnSQL, generateWaypointSQL, exportMapData } from '@
 import { useWorldEditorState, type ViewMode } from './hooks/useWorldEditorState';
 import { loadVMapData } from '@/lib/vmap-parser';
 import { loadMMapData } from '@/lib/mmap-parser';
+import { loadMapData } from '@/lib/map-parser';
 import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import { MapView2D } from './components/MapView2D';
 import { MapView3D } from './components/MapView3D';
+import { UndoRedoPanel } from './components/UndoRedoPanel';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
@@ -146,6 +148,66 @@ export default function WorldEditorPage() {
     }
   };
 
+  // Handle map image upload
+  const handleMapImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => actions.setMapImage(img);
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle TrinityCore .map file upload
+  const handleMapFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    actions.setCollisionDataStatus({ ...state.collisionDataStatus, map: 'loading', message: 'Loading .map files...' });
+
+    try {
+      const fileBuffers = new Map<string, ArrayBuffer>();
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.name.endsWith('.map')) {
+          const buffer = await file.arrayBuffer();
+          fileBuffers.set(file.name, buffer);
+        }
+      }
+
+      if (fileBuffers.size === 0) {
+        throw new Error('No .map files found. Please select TrinityCore terrain map files.');
+      }
+
+      const mapInfo = Object.values(WoWMaps).find(m => m.id === state.selectedMap);
+      const mapName = mapInfo?.name || `Map ${state.selectedMap}`;
+
+      const mapData = loadMapData(state.selectedMap, mapName, fileBuffers, {
+        verbose: true,
+        maxTiles: 100,
+      });
+
+      actions.setMapData(mapData);
+      actions.setCollisionDataStatus({
+        ...state.collisionDataStatus,
+        map: 'loaded',
+        message: `Map loaded: ${mapData.tiles.size} tiles`,
+      });
+    } catch (error: any) {
+      console.error('Failed to load .map files:', error);
+      actions.setCollisionDataStatus({
+        ...state.collisionDataStatus,
+        map: 'error',
+        message: `Map error: ${error.message}`,
+      });
+    }
+  };
+
   // Handle MMap file upload
   const handleMMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -174,10 +236,19 @@ export default function WorldEditorPage() {
       const tileBuffers = new Map<string, ArrayBuffer>();
 
       for (const tileFile of tileFiles) {
-        const match = tileFile.name.match(/(\d{2})(\d{2})\.mmtile/);
+        // TrinityCore format: <mapId><x><y>.mmtile (e.g., 00003248.mmtile)
+        const match = tileFile.name.match(/(\d{4})(\d{2})(\d{2})\.mmtile/);
         if (match) {
-          const tileX = parseInt(match[1], 10);
-          const tileY = parseInt(match[2], 10);
+          const fileMapId = parseInt(match[1], 10);
+          const tileX = parseInt(match[2], 10);
+          const tileY = parseInt(match[3], 10);
+
+          // Verify mapId matches selected map
+          if (fileMapId !== state.selectedMap) {
+            console.warn(`Skipping ${tileFile.name}: mapId ${fileMapId} doesn't match selected map ${state.selectedMap}`);
+            continue;
+          }
+
           const buffer = await tileFile.arrayBuffer();
           tileBuffers.set(`${tileX}_${tileY}`, buffer);
         }
@@ -251,7 +322,7 @@ export default function WorldEditorPage() {
             <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <Map className="w-4 h-4" />
+                  <MapIcon className="w-4 h-4" />
                   2D Map View
                 </h3>
               </div>
@@ -274,7 +345,7 @@ export default function WorldEditorPage() {
           <Tabs value={state.activeView} onValueChange={(v) => actions.setActiveView(v as '2d' | '3d')} className="h-full">
             <TabsList className="grid grid-cols-2 w-[400px]">
               <TabsTrigger value="2d" className="flex items-center gap-2">
-                <Map className="w-4 h-4" />
+                <MapIcon className="w-4 h-4" />
                 2D Map
               </TabsTrigger>
               <TabsTrigger value="3d" className="flex items-center gap-2">
@@ -311,7 +382,7 @@ export default function WorldEditorPage() {
             <div className="absolute bottom-6 right-6 w-80 h-60 bg-slate-800 border-2 border-slate-600 rounded-lg p-2 shadow-2xl">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-xs font-semibold text-white flex items-center gap-1">
-                  <Map className="w-3 h-3" />
+                  <MapIcon className="w-3 h-3" />
                   2D Minimap
                 </h4>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -330,6 +401,9 @@ export default function WorldEditorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
+      {/* Undo/Redo Panel (Global) */}
+      <UndoRedoPanel position="top-right" />
+
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -447,8 +521,59 @@ export default function WorldEditorPage() {
 
             <div className="h-6 w-px bg-slate-600" />
 
+            {/* Map Image Upload */}
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleMapImageUpload}
+                className="hidden"
+                id="map-image-upload"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('map-image-upload')?.click()}
+              >
+                <Upload className="w-3 h-3 mr-2" />
+                {state.mapImage ? 'Change Map Image' : 'Upload Map Image'}
+              </Button>
+              {state.mapImage && (
+                <CheckCircle className="w-4 h-4 text-green-400" />
+              )}
+            </div>
+
+            <div className="h-6 w-px bg-slate-600" />
+
             {/* Collision Data Status */}
             <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept=".map"
+                  onChange={handleMapFileUpload}
+                  className="hidden"
+                  id="map-upload"
+                  multiple
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('map-upload')?.click()}
+                  disabled={state.collisionDataStatus.map === 'loading'}
+                  title="Upload TrinityCore .map terrain height files"
+                >
+                  <Upload className="w-3 h-3 mr-2" />
+                  {state.collisionDataStatus.map === 'loading' ? 'Loading .map...' : 'Upload .map'}
+                </Button>
+                {state.collisionDataStatus.map === 'loaded' && (
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                )}
+                {state.collisionDataStatus.map === 'error' && (
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                )}
+              </div>
+
               <div className="flex items-center gap-2">
                 {/* Auto-load status indicator */}
                 {autoLoadResult.status.vmap === 'checking' && (
@@ -553,6 +678,9 @@ export default function WorldEditorPage() {
               <div>Selected: {state.selectedItems.size}</div>
             </div>
             <div className="flex gap-4">
+              <div className={state.mapData ? 'text-green-400' : ''}>
+                Map: {state.mapData ? `${state.mapData.tiles.size} tiles` : 'Not loaded'}
+              </div>
               <div className={state.vmapData ? 'text-green-400' : ''}>
                 VMap: {state.vmapData ? `${state.vmapData.allSpawns.length} spawns` : 'Not loaded'}
               </div>
