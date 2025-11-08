@@ -1,0 +1,88 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop, 'claude/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: web-ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web-ui
+        run: npm ci
+
+      - name: Run linter
+        working-directory: ./web-ui
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run tests
+        working-directory: ./web-ui
+        run: npm run test:run
+
+      - name: Generate coverage report
+        working-directory: ./web-ui
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./web-ui/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Archive coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.node-version }}
+          path: web-ui/coverage/
+          retention-days: 30
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: web-ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web-ui
+        run: npm ci
+
+      - name: Build project
+        working-directory: ./web-ui
+        run: npm run build
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: web-ui/.next/
+          retention-days: 7
