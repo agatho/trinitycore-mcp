@@ -5,6 +5,7 @@ import { AlertCircle, RefreshCw, Home, HelpCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
+import { Logger } from "@/lib/logger";
 
 interface Props {
   children: ReactNode;
@@ -31,7 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error("Error caught by boundary:", error, errorInfo);
+    // Log error using centralized logger
+    Logger.error("ErrorBoundary", error, {
+      componentStack: errorInfo.componentStack,
+      errorInfo,
+    });
+
     this.setState({
       error,
       errorInfo,
