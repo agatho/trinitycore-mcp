@@ -22,7 +22,7 @@ import * as fs from "fs/promises";
 
 const execAsync = promisify(exec);
 
-const TRINITY_CORE_PATH = process.env.TRINITY_CORE_PATH || "C:\\TrinityBots\\TrinityCore";
+const TRINITY_CORE_PATH = process.env.TRINITY_CORE_PATH || "";
 
 export interface CodeLocation {
   file: string;
