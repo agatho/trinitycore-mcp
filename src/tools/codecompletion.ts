@@ -26,7 +26,7 @@ const execAsync = promisify(exec);
  * TrinityCore path configuration
  */
 const TRINITY_CORE_PATH =
-  process.env.TRINITY_CORE_PATH || "C:\\TrinityBots\\TrinityCore";
+  process.env.TRINITY_CORE_PATH || "";
 
 /**
  * Code context information
