@@ -74,9 +74,24 @@ export default function MapExtractionPanel() {
     try {
       const res = await fetch('/api/maps/list');
       const data = await res.json();
-      setMaps(data);
+
+      // Check if response is an error object
+      if (data.error) {
+        console.error('Error loading maps:', data.error);
+        setMaps([]); // Set empty array on error
+        return;
+      }
+
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setMaps(data);
+      } else {
+        console.error('Invalid maps data format:', data);
+        setMaps([]);
+      }
     } catch (error) {
       console.error('Failed to load maps:', error);
+      setMaps([]); // Ensure maps is always an array
     } finally {
       setLoading(false);
     }
@@ -222,8 +237,13 @@ export default function MapExtractionPanel() {
       <div className="bg-gray-800 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-white mb-3">Available Maps</h3>
 
-        <div className="space-y-2">
-          {maps.map(map => {
+        {maps.length === 0 ? (
+          <div className="text-gray-400 text-center py-4">
+            No maps available. {!wowInfo?.valid && 'Please configure WOW_PATH.'}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {maps.map(map => {
             const status = extractionStatus.get(map.id);
 
             return (
@@ -277,7 +297,8 @@ export default function MapExtractionPanel() {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Legal Notice */}

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  Map,
+  Map as MapIcon,
   Plus,
   Download,
   Upload,
@@ -1199,7 +1199,7 @@ export default function EnhancedMapPickerPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Map className="w-8 h-8 text-blue-400" />
+              <MapIcon className="w-8 h-8 text-blue-400" />
               <div>
                 <h1 className="text-3xl font-bold text-white">Enhanced Map Editor</h1>
                 <p className="text-slate-400">
