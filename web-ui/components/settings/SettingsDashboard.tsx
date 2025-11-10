@@ -97,6 +97,7 @@ export default function SettingsDashboard() {
   const [envFileExists, setEnvFileExists] = useState<boolean>(false);
   const [envFiles, setEnvFiles] = useState<{ webUI: boolean; mcpServer: boolean }>({ webUI: false, mcpServer: false });
   const [showRestartInfo, setShowRestartInfo] = useState<boolean>(false);
+  const [reloadInfo, setReloadInfo] = useState<string>("");
 
   // Load configuration on mount
   useEffect(() => {
@@ -105,6 +106,7 @@ export default function SettingsDashboard() {
 
   const loadConfig = async (reload = false) => {
     setLoading(true);
+    setReloadInfo("");
     try {
       const url = reload ? "/api/config?reload=true" : "/api/config";
       const response = await fetch(url);
@@ -115,11 +117,28 @@ export default function SettingsDashboard() {
         setEnvFiles(data.envFiles);
       }
       if (reload && data.reloaded) {
-        setSuccessMessage("Configuration reloaded from .env.local!");
-        setTimeout(() => setSuccessMessage(""), 3000);
+        const reloadedFiles = [];
+        if (data.envFiles?.webUI) reloadedFiles.push("web-ui/.env.local");
+        if (data.envFiles?.mcpServer) reloadedFiles.push("root .env");
+
+        const reloadMsg = reloadedFiles.length > 0
+          ? `Configuration reloaded from: ${reloadedFiles.join(", ")}`
+          : "Configuration reloaded (no .env files found)";
+
+        setSuccessMessage(reloadMsg);
+        setReloadInfo("✅ Web-UI configuration updated. Note: Changes to database, paths, and WOW_PATH take effect immediately. Server settings require restart.");
+        setTimeout(() => {
+          setSuccessMessage("");
+          setReloadInfo("");
+        }, 8000);
       }
     } catch (error) {
       console.error("Failed to load configuration:", error);
+      setValidation({
+        valid: false,
+        errors: [`Failed to reload configuration: ${(error as Error).message}`],
+        warnings: [],
+      });
     } finally {
       setLoading(false);
     }
@@ -279,6 +298,30 @@ export default function SettingsDashboard() {
       {successMessage && (
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
           {successMessage}
+        </div>
+      )}
+
+      {/* Reload Information */}
+      {reloadInfo && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-300 text-blue-800 rounded">
+          <div className="flex items-start gap-2">
+            <div className="flex-1">
+              {reloadInfo}
+            </div>
+          </div>
+          <div className="mt-3 text-sm">
+            <p className="font-semibold mb-1">Hot-reloadable (takes effect immediately):</p>
+            <ul className="list-disc list-inside ml-3 text-xs space-y-1">
+              <li>Database settings (reconnects automatically)</li>
+              <li>Data paths (WOW_PATH, VMAP_PATH, etc.)</li>
+              <li>Logging configuration</li>
+            </ul>
+            <p className="font-semibold mt-2 mb-1">Requires restart:</p>
+            <ul className="list-disc list-inside ml-3 text-xs space-y-1">
+              <li>Server host/port settings</li>
+              <li>WebSocket port configuration</li>
+            </ul>
+          </div>
         </div>
       )}
 
@@ -501,7 +544,7 @@ export default function SettingsDashboard() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  WoW Installation Path
+                  WoW Installation Path <span className="text-green-600 text-xs font-normal">● Hot-reloadable</span>
                 </label>
                 <input
                   type="text"
@@ -511,7 +554,8 @@ export default function SettingsDashboard() {
                   placeholder="C:\Program Files (x86)\World of Warcraft\_retail_ or /Applications/World of Warcraft/_retail_"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Path to World of Warcraft retail installation directory (required for map extraction from CASC)
+                  Path to World of Warcraft retail installation directory (required for map extraction from CASC).
+                  Changes take effect immediately after saving.
                 </p>
               </div>
 
