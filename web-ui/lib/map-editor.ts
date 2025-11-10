@@ -209,7 +209,7 @@ export const WoWMaps = {
 
   // Shadowlands Maps
   SHADOWLANDS: {
-    id: 2222,
+    id: 1543,
     name: 'Shadowlands (The Maw)',
     expansion: 'shadowlands',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -217,7 +217,7 @@ export const WoWMaps = {
     hasImage: false,
   },
   ARDENWEALD: {
-    id: 2222,
+    id: 1565,
     name: 'Ardenweald',
     expansion: 'shadowlands',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
