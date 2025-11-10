@@ -10,6 +10,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
+import { logger } from '../utils/logger.js';
+import { DatabaseError } from '../database/errors.js';
 import { Logger } from '../lib/logger.js';
 import { FileSystemError } from '../lib/errors.js';
 
@@ -95,7 +97,7 @@ export class MapTiler {
     const metadata = await image.metadata();
 
     if (!metadata.width || !metadata.height) {
-      throw new FileSystemError(inputPath, 'Could not read image dimensions');
+      throw new DatabaseError(`Could not read image dimensions for ${inputPath}`);
     }
 
     const { width, height } = metadata;

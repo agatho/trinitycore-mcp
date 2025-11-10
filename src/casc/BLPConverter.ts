@@ -91,11 +91,10 @@ export class BLPConverter {
       // Write PNG file
       await this.writePNG(png, pngPath);
 
-      Logger.debug('BLPConverter', `Converted ${blpPath} to ${pngPath} (${width}x${height})`);
+      logger.debug('BLPConverter', `Converted ${blpPath} to ${pngPath} (${width}x${height})`);
     } catch (error: any) {
-      throw new FileSystemError(
-        blpPath,
-        `Failed to convert BLP to PNG: ${error.message}`
+      throw new DatabaseError(
+        `Failed to convert BLP to PNG (${blpPath}): ${error.message}`
       );
     }
   }

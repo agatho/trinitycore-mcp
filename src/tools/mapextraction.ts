@@ -11,6 +11,7 @@ import fs from 'fs/promises';
 import { CASCReader, MapQuality, getCASCReader } from '../casc/CASCReader.js';
 import { BLPConverter } from '../casc/BLPConverter.js';
 import { MapTiler, TileMetadata } from '../casc/MapTiler.js';
+import { logger } from '../utils/logger.js';
 import { Logger } from '../lib/logger.js';
 
 /**
@@ -39,6 +40,7 @@ export async function extractMapTextures(args: {
 }): Promise<ExtractionStatus> {
   const { mapId, quality = 'all', enableTiling = true, tileSize = 256 } = args;
 
+  logger.info('MapExtraction', `Starting extraction for map ${mapId}, quality: ${quality}`);
   Logger.info('MapExtraction', `Starting extraction for map ${mapId}, quality: ${quality}`);
 
   const status: ExtractionStatus = {
