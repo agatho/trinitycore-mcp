@@ -9,8 +9,8 @@
 
 import mysql from 'mysql2/promise';
 import type { DatabaseConfig } from '../types/database';
-import { Logger } from '../../web-ui/lib/logger';
-import { DatabaseError } from '../../web-ui/lib/errors';
+import { logger } from '../utils/logger';
+import { DatabaseError } from './errors';
 
 // ============================================================================
 // Types
@@ -114,7 +114,7 @@ class ManagedPool {
       this.startHealthCheck();
     }
 
-    Logger.info('DBPool', `Pool created for ${this.getPoolId()}`, {
+    logger.info(`DBPool: Pool created for ${this.getPoolId()}`, {
       maxConnections: this.config.maxConnections,
       minConnections: this.config.minConnections,
     });
@@ -144,26 +144,26 @@ class ManagedPool {
    */
   private setupEventHandlers(): void {
     this.pool.on('connection', (connection) => {
-      Logger.debug('DBPool', `New connection created for ${this.getPoolId()}`);
+      logger.debug(`DBPool: New connection created for ${this.getPoolId()}`);
 
       // Set session variables if needed
-      connection.query('SET SESSION sql_mode = "TRADITIONAL"', (err) => {
+      connection.query('SET SESSION sql_mode = "TRADITIONAL"', (err: any) => {
         if (err) {
-          Logger.warn('DBPool', 'Failed to set SQL mode', { error: err.message });
+          logger.warn('DBPool: Failed to set SQL mode', { error: err.message });
         }
       });
     });
 
     this.pool.on('acquire', () => {
-      Logger.debug('DBPool', `Connection acquired from ${this.getPoolId()}`);
+      logger.debug(`DBPool: Connection acquired from ${this.getPoolId()}`);
     });
 
     this.pool.on('release', () => {
-      Logger.debug('DBPool', `Connection released to ${this.getPoolId()}`);
+      logger.debug(`DBPool: Connection released to ${this.getPoolId()}`);
     });
 
     this.pool.on('enqueue', () => {
-      Logger.debug('DBPool', `Connection request queued for ${this.getPoolId()}`);
+      logger.debug(`DBPool: Connection request queued for ${this.getPoolId()}`);
     });
   }
 
@@ -190,7 +190,7 @@ class ManagedPool {
       const duration = Date.now() - startTime;
       this.recordQuerySuccess(duration);
 
-      Logger.debug('DBPool', `Query executed successfully`, {
+      logger.debug(`DBPool: Query executed successfully`, {
         poolId: this.getPoolId(),
         duration,
         query: query.substring(0, 100),
@@ -202,7 +202,7 @@ class ManagedPool {
 
       // Check if we should retry
       if (retries > 0 && this.isRetryableError(error)) {
-        Logger.warn('DBPool', `Query failed, retrying... (${retries} attempts left)`, {
+        logger.warn(`DBPool: Query failed, retrying... (${retries} attempts left)`, {
           error: error.message,
           query: query.substring(0, 100),
         });
@@ -212,16 +212,21 @@ class ManagedPool {
       }
 
       // Log and throw wrapped error
-      Logger.error('DBPool', error, {
+      logger.error(`DBPool: Query execution failed`, {
         poolId: this.getPoolId(),
         query: query.substring(0, 100),
         params,
+        error: error.message,
       });
 
       throw new DatabaseError(
-        'query execution',
-        error.message,
-        error.sqlState || error.code
+        `Query execution failed: ${error.message}`,
+        {
+          code: error.sqlState || error.code,
+          query: query.substring(0, 100),
+          params,
+          cause: error,
+        }
       );
     }
   }
@@ -237,7 +242,7 @@ class ManagedPool {
 
     try {
       await connection.beginTransaction();
-      Logger.debug('DBPool', 'Transaction started', {
+      logger.debug(`DBPool: Transaction started`, {
         poolId: this.getPoolId(),
         queries: queries.length,
       });
@@ -250,7 +255,7 @@ class ManagedPool {
       }
 
       await connection.commit();
-      Logger.info('DBPool', 'Transaction committed', {
+      logger.info(`DBPool: Transaction committed`, {
         poolId: this.getPoolId(),
         queries: queries.length,
       });
@@ -260,15 +265,18 @@ class ManagedPool {
       await connection.rollback();
       this.recordQueryFailure();
 
-      Logger.error('DBPool', error, {
+      logger.error(`DBPool: Batch transaction failed`, {
         poolId: this.getPoolId(),
         operation: 'batch transaction',
+        error: error.message,
       });
 
       throw new DatabaseError(
-        'batch transaction',
-        error.message,
-        error.sqlState || error.code
+        `Batch transaction failed: ${error.message}`,
+        {
+          code: error.sqlState || error.code,
+          cause: error,
+        }
       );
     } finally {
       connection.release();
@@ -285,14 +293,14 @@ class ManagedPool {
 
     try {
       await connection.beginTransaction();
-      Logger.debug('DBPool', 'Custom transaction started', {
+      logger.debug(`DBPool: Custom transaction started`, {
         poolId: this.getPoolId(),
       });
 
       const result = await callback(connection);
       await connection.commit();
 
-      Logger.info('DBPool', 'Custom transaction committed', {
+      logger.info(`DBPool: Custom transaction committed`, {
         poolId: this.getPoolId(),
       });
 
@@ -300,15 +308,18 @@ class ManagedPool {
     } catch (error: any) {
       await connection.rollback();
 
-      Logger.error('DBPool', error, {
+      logger.error(`DBPool: Custom transaction failed`, {
         poolId: this.getPoolId(),
         operation: 'custom transaction',
+        error: error.message,
       });
 
       throw new DatabaseError(
-        'custom transaction',
-        error.message,
-        error.sqlState || error.code
+        `Custom transaction failed: ${error.message}`,
+        {
+          code: error.sqlState || error.code,
+          cause: error,
+        }
       );
     } finally {
       connection.release();
@@ -327,15 +338,16 @@ class ManagedPool {
       this.healthy = true;
       this.lastHealthCheck = Date.now();
 
-      Logger.debug('DBPool', `Health check passed for ${this.getPoolId()}`);
+      logger.debug(`DBPool: Health check passed for ${this.getPoolId()}`);
       return true;
     } catch (error: any) {
       this.healthy = false;
       this.lastHealthCheck = Date.now();
 
-      Logger.error('DBPool', error, {
+      logger.error(`DBPool: Health check failed`, {
         poolId: this.getPoolId(),
         operation: 'health check',
+        error: error.message,
       });
 
       return false;
@@ -394,11 +406,12 @@ class ManagedPool {
 
     try {
       await this.pool.end();
-      Logger.info('DBPool', `Pool closed for ${this.getPoolId()}`);
+      logger.info(`DBPool: Pool closed for ${this.getPoolId()}`);
     } catch (error: any) {
-      Logger.error('DBPool', error, {
+      logger.error(`DBPool: Failed to close pool`, {
         poolId: this.getPoolId(),
         operation: 'close pool',
+        error: error.message,
       });
       throw error;
     }
@@ -496,7 +509,7 @@ export class DatabasePoolManager {
     await Promise.all(closePromises);
     this.pools.clear();
 
-    Logger.info('DBPool', 'All pools closed');
+    logger.info('DBPool: All pools closed');
   }
 
   /**

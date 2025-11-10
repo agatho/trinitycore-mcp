@@ -52,7 +52,7 @@ export interface APISearchResult {
  * Configuration for codebase path
  */
 const TRINITY_CORE_PATH =
-  process.env.TRINITY_CORE_PATH || "C:\\TrinityBots\\TrinityCore";
+  process.env.TRINITY_CORE_PATH || "";
 
 /**
  * Check if TrinityCore path exists
