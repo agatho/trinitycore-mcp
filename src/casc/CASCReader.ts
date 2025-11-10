@@ -14,6 +14,7 @@ import { DatabaseError } from '../database/errors.js';
 import { CASCIndexReader } from './CASCIndexReader.js';
 import { CASCEncodingReader } from './CASCEncodingReader.js';
 import { CASCDataReader } from './CASCDataReader.js';
+import { CASCRootReader } from './CASCRootReader.js';
 
 /**
  * CASC configuration
@@ -69,6 +70,7 @@ export class CASCReader {
   private indexReader: CASCIndexReader | null = null;
   private encodingReader: CASCEncodingReader | null = null;
   private dataReader: CASCDataReader | null = null;
+  private rootReader: CASCRootReader | null = null;
 
   constructor(config: CASCConfig) {
     this.config = {
@@ -115,6 +117,7 @@ export class CASCReader {
     this.indexReader = new CASCIndexReader();
     this.encodingReader = new CASCEncodingReader();
     this.dataReader = new CASCDataReader(this.dataPath);
+    this.rootReader = new CASCRootReader();
 
     // Load index files
     logger.info('CASCReader', 'Loading CASC index files...');
@@ -132,6 +135,23 @@ export class CASCReader {
       }
     } catch (error) {
       logger.warn('CASCReader', 'Failed to load encoding file', { error: error as Error });
+    }
+
+    // Load root file if available
+    try {
+      const rootHash = await this.findRootFileHash();
+      if (rootHash) {
+        logger.info('CASCReader', 'Loading CASC root file...');
+        const rootData = await this.extractRootFile(rootHash);
+        if (rootData) {
+          this.rootReader.parseRootFile(rootData, this.config.locale);
+          logger.info('CASCReader', `Root file loaded: ${this.rootReader.getFileCount()} files`);
+        }
+      } else {
+        logger.warn('CASCReader', 'Root file not found, file path extraction will be limited');
+      }
+    } catch (error) {
+      logger.warn('CASCReader', 'Failed to load root file', { error: error as Error });
     }
 
     this.initialized = true;
@@ -253,14 +273,20 @@ export class CASCReader {
   /**
    * List files in CASC storage by path pattern
    *
-   * Note: This is a simplified implementation. Full implementation would
-   * parse CASC root files and encoding tables.
+   * Uses root file when available, otherwise falls back to known paths
    */
   private async listCASCFiles(pathPattern: string): Promise<string[]> {
     logger.debug('CASCReader', `Listing CASC files: ${pathPattern}`);
 
-    // TODO: Implement full CASC root file parsing
-    // For now, return known map texture paths
+    // If root file is loaded, use it to list files
+    if (this.rootReader) {
+      const files = this.rootReader.listFiles(pathPattern);
+      logger.debug('CASCReader', `Found ${files.length} files matching ${pathPattern} in root`);
+      return files;
+    }
+
+    // Fallback to known paths
+    logger.debug('CASCReader', 'Root file not loaded, using known paths');
     return this.getKnownMapTexturePaths(pathPattern);
   }
 
@@ -325,13 +351,11 @@ export class CASCReader {
 
     try {
       // Step 1: Get content hash for file path
-      // In a full implementation, we would parse the root file to map paths to hashes
-      // For now, we'll try to extract by hash if provided in the file name
-      const contentHash = this.extractHashFromPath(cascPath);
+      let contentHash = this.getContentHashForPath(cascPath);
 
       if (!contentHash) {
         throw new DatabaseError(
-          `Cannot determine content hash for ${cascPath}. Root file parsing not yet implemented.`
+          `Cannot determine content hash for ${cascPath}. File not found in root or encoding tables.`
         );
       }
 
@@ -376,20 +400,34 @@ export class CASCReader {
   }
 
   /**
-   * Extract content hash from file path
-   * Some CASC paths include the hash in the filename (e.g., md5abc123.blp)
+   * Get content hash for a file path
+   * Tries multiple methods: root file lookup, hash extraction from filename
+   *
+   * @param cascPath - File path in CASC
+   * @returns Content hash or null if not found
    */
-  private extractHashFromPath(cascPath: string): Buffer | null {
-    const fileName = path.basename(cascPath);
+  private getContentHashForPath(cascPath: string): Buffer | null {
+    // Method 1: Look up in root file (if loaded)
+    if (this.rootReader) {
+      const rootHash = this.rootReader.findByPath(cascPath);
+      if (rootHash) {
+        logger.debug('CASCReader', `Found content hash in root file for ${cascPath}`);
+        return rootHash;
+      }
+    }
 
-    // Match md5{hex} pattern (common for minimap files)
+    // Method 2: Extract hash from filename (common for minimap files: md5abc123.blp)
+    const fileName = path.basename(cascPath);
     const md5Match = fileName.match(/md5([0-9a-f]{32})/i);
     if (md5Match) {
+      logger.debug('CASCReader', `Extracted hash from filename: ${cascPath}`);
       return Buffer.from(md5Match[1], 'hex');
     }
 
-    // For other files, we would need to parse the root file
-    // which maps file paths to content hashes
+    // Method 3: Try looking up by file ID (if available)
+    // This would require parsing the filename for an ID, or having a separate mapping
+
+    logger.warn('CASCReader', `Could not find content hash for ${cascPath}`);
     return null;
   }
 
@@ -440,6 +478,113 @@ export class CASCReader {
     }
 
     return null;
+  }
+
+  /**
+   * Find root file hash in build configuration
+   *
+   * The root file hash is stored in .build.info or build config files
+   * For now, we'll try to extract it from the latest build info
+   */
+  private async findRootFileHash(): Promise<Buffer | null> {
+    try {
+      const buildInfoPath = path.join(this.config.wowPath, 'Data', '.build.info');
+
+      // Check if .build.info exists
+      try {
+        await fs.access(buildInfoPath);
+      } catch {
+        logger.warn('CASCReader', '.build.info not found');
+        return null;
+      }
+
+      // Parse .build.info file
+      const buildInfoContent = await fs.readFile(buildInfoPath, 'utf8');
+      const lines = buildInfoContent.split('\n').filter(l => l.trim());
+
+      if (lines.length < 2) {
+        logger.warn('CASCReader', '.build.info has invalid format');
+        return null;
+      }
+
+      // First line is header with column names
+      const headers = lines[0].split('|');
+      const rootIndex = headers.indexOf('Root');
+
+      if (rootIndex === -1) {
+        logger.warn('CASCReader', 'Root column not found in .build.info');
+        return null;
+      }
+
+      // Find the row for our product (wow, wowt, etc.)
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split('|');
+        const productValue = values[headers.indexOf('Product')] || '';
+
+        if (productValue === this.config.product) {
+          const rootHash = values[rootIndex];
+          if (rootHash && rootHash.length === 32) {
+            logger.debug('CASCReader', `Found root hash: ${rootHash}`);
+            return Buffer.from(rootHash, 'hex');
+          }
+        }
+      }
+
+      // If we didn't find a matching product, use the last (most recent) entry
+      const lastLine = lines[lines.length - 1];
+      const values = lastLine.split('|');
+      const rootHash = values[rootIndex];
+
+      if (rootHash && rootHash.length === 32) {
+        logger.debug('CASCReader', `Using most recent root hash: ${rootHash}`);
+        return Buffer.from(rootHash, 'hex');
+      }
+    } catch (error) {
+      logger.warn('CASCReader', 'Error finding root file hash', { error: error as Error });
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract root file from CASC using its hash
+   *
+   * @param contentHash - Content hash of root file
+   * @returns Root file data or null if extraction fails
+   */
+  private async extractRootFile(contentHash: Buffer): Promise<Buffer | null> {
+    try {
+      if (!this.indexReader || !this.encodingReader || !this.dataReader) {
+        throw new Error('CASC readers not initialized');
+      }
+
+      // Look up encoding key
+      const encodingKey = this.encodingReader.getEncodingKey(contentHash);
+      if (!encodingKey) {
+        logger.warn('CASCReader', 'Root file not found in encoding table');
+        return null;
+      }
+
+      // Find data location in index
+      const indexEntry = this.indexReader.findEntry(encodingKey);
+      if (!indexEntry) {
+        logger.warn('CASCReader', 'Root file not found in index');
+        return null;
+      }
+
+      // Read and decompress data
+      logger.debug('CASCReader', `Extracting root file from archive ${indexEntry.archive}`);
+      const rootData = await this.dataReader.readData(
+        indexEntry.archive,
+        indexEntry.offset,
+        indexEntry.size
+      );
+
+      return rootData;
+    } catch (error) {
+      logger.warn('CASCReader', 'Failed to extract root file', { error: error as Error });
+      return null;
+    }
   }
 
   /**
