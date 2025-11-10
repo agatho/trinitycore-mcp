@@ -103,7 +103,7 @@ function writeEnvFileInternal(env: Record<string, string>, filePath: string, hea
     // Group by category for better organization
     const categories = {
       'Database Configuration': ['DB_HOST', 'DB_PORT', 'DB_USERNAME', 'DB_PASSWORD', 'DB_WORLD_DATABASE', 'DB_AUTH_DATABASE', 'DB_CHARACTERS_DATABASE'],
-      'TrinityCore Data Paths': ['TRINITY_ROOT', 'GT_PATH', 'DBC_PATH', 'DB2_PATH', 'VMAP_PATH', 'MMAP_PATH', 'MAP_FILES_PATH'],
+      'TrinityCore Data Paths': ['TRINITY_ROOT', 'WOW_PATH', 'GT_PATH', 'DBC_PATH', 'DB2_PATH', 'VMAP_PATH', 'MMAP_PATH', 'MAP_FILES_PATH'],
       'MCP Server Configuration': ['MCP_HOST', 'MCP_PORT'],
       'WebSocket Configuration': ['WEBSOCKET_PORT', 'WEBSOCKET_MAX_CLIENTS', 'WEBSOCKET_HEARTBEAT_INTERVAL', 'WEBSOCKET_TIMEOUT_MS', 'WEBSOCKET_RATE_LIMIT'],
       'Testing Configuration': ['TESTING_ENABLED', 'TESTING_AUTO_GENERATE', 'TESTING_COVERAGE_THRESHOLD', 'TESTING_PERFORMANCE_BASELINES'],
@@ -115,7 +115,7 @@ function writeEnvFileInternal(env: Record<string, string>, filePath: string, hea
       const categoryVars = keys.filter(key => env[key] !== undefined);
       if (categoryVars.length > 0) {
         lines.push(`# ${category}`);
-        lines.push(...Array(70).fill('=').join(''));
+        lines.push(Array(70).fill('=').join(''));
         lines.push('');
 
         for (const key of categoryVars) {
@@ -134,7 +134,7 @@ function writeEnvFileInternal(env: Record<string, string>, filePath: string, hea
     const remaining = Object.keys(env).filter(key => !categorizedKeys.has(key));
     if (remaining.length > 0) {
       lines.push('# Other Configuration');
-      lines.push(...Array(70).fill('=').join(''));
+      lines.push(Array(70).fill('=').join(''));
       lines.push('');
       for (const key of remaining) {
         const value = env[key];
@@ -184,7 +184,7 @@ export function writeMCPServerEnv(env: Record<string, string>): void {
   }
 
   // Copy other vars directly
-  const directCopyKeys = ['TRINITY_ROOT', 'GT_PATH', 'DBC_PATH', 'DB2_PATH', 'VMAP_PATH', 'MMAP_PATH', 'MCP_PORT', 'MCP_HOST'];
+  const directCopyKeys = ['TRINITY_ROOT', 'WOW_PATH', 'GT_PATH', 'DBC_PATH', 'DB2_PATH', 'VMAP_PATH', 'MMAP_PATH', 'MCP_PORT', 'MCP_HOST'];
   for (const key of directCopyKeys) {
     if (env[key] !== undefined) {
       mcpEnv[key] = env[key];
