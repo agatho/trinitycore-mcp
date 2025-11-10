@@ -175,7 +175,16 @@ export default function MapExtractionPanel() {
     <div className="p-4 space-y-4">
       {/* WoW Installation Status */}
       <div className="bg-gray-800 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-white mb-3">WoW Installation</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-white">WoW Installation</h3>
+          <button
+            onClick={loadWoWInfo}
+            className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+            title="Refresh WoW installation status"
+          >
+            🔄 Refresh
+          </button>
+        </div>
 
         {!wowInfo ? (
           <div className="text-gray-400">Loading...</div>
@@ -190,21 +199,28 @@ export default function MapExtractionPanel() {
             </div>
             {!wowInfo.configured && (
               <div className="text-xs text-yellow-400">
-                Auto-detected. Set WOW_PATH in .env to persist.
+                Auto-detected. Set WOW_PATH in Settings to persist.
               </div>
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
               <span className="text-red-400">No WoW Installation Found</span>
             </div>
-            <div className="text-sm text-gray-400">
-              Set WOW_PATH in .env to your WoW retail installation directory.
+            <div className="text-sm text-gray-300 bg-gray-900 rounded p-3 space-y-2">
+              <p className="font-semibold">To configure WOW_PATH:</p>
+              <ol className="list-decimal list-inside space-y-1 text-xs">
+                <li>Go to <a href="/settings" className="text-blue-400 hover:text-blue-300 underline">Settings → Data Paths</a></li>
+                <li>Enter your WoW retail installation path</li>
+                <li>Click "Save & Persist to Both .env Files"</li>
+                <li>Click "Reload from .env Files"</li>
+                <li>Return here and click "Refresh"</li>
+              </ol>
             </div>
-            <div className="text-xs text-gray-500">
-              Example: WOW_PATH=C:\Program Files (x86)\World of Warcraft\_retail_
+            <div className="text-xs text-gray-500 bg-gray-900 rounded p-2">
+              <strong>Example:</strong> C:\Program Files (x86)\World of Warcraft\_retail_
             </div>
           </div>
         )}
