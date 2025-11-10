@@ -15,8 +15,6 @@ import { CASCIndexReader } from './CASCIndexReader.js';
 import { CASCEncodingReader } from './CASCEncodingReader.js';
 import { CASCDataReader } from './CASCDataReader.js';
 import { CASCRootReader } from './CASCRootReader.js';
-import { Logger } from '../lib/logger.js';
-import { FileSystemError } from '../lib/errors.js';
 
 /**
  * CASC configuration
@@ -89,7 +87,7 @@ export class CASCReader {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    Logger.info('CASCReader', `Initializing CASC reader for: ${this.config.wowPath}`);
+    logger.info('CASCReader', `Initializing CASC reader for: ${this.config.wowPath}`);
 
     // Verify WoW installation
     const dataDir = path.join(this.config.wowPath, 'Data');
@@ -182,7 +180,7 @@ export class CASCReader {
       await this.initialize();
     }
 
-    Logger.info('CASCReader', `Extracting map textures for map ${mapId}, quality: ${quality}`);
+    logger.info('CASCReader', `Extracting map textures for map ${mapId}, quality: ${quality}`);
 
     const extractedFiles: string[] = [];
     const mapNames = await this.getMapNames();
@@ -204,7 +202,7 @@ export class CASCReader {
       extractedFiles.push(...files);
     }
 
-    Logger.info('CASCReader', `Extracted ${extractedFiles.length} map texture files`);
+    logger.info('CASCReader', `Extracted ${extractedFiles.length} map texture files`);
     return extractedFiles;
   }
 
@@ -247,7 +245,7 @@ export class CASCReader {
             const outputPath = await this.extractFile(file, mapId, quality);
             files.push(outputPath);
           } catch (error) {
-            Logger.warn('CASCReader', `Failed to extract ${file}`, { error });
+            logger.warn('CASCReader', `Failed to extract ${file}`, { error });
           }
         }
       }
@@ -345,7 +343,7 @@ export class CASCReader {
     // Check if already extracted
     try {
       await fs.access(outputPath);
-      Logger.debug('CASCReader', `File already extracted: ${outputPath}`);
+      logger.debug('CASCReader', `File already extracted: ${outputPath}`);
       return outputPath;
     } catch {
       // File doesn't exist, extract it

@@ -12,8 +12,6 @@ import path from 'path';
 import sharp from 'sharp';
 import { logger } from '../utils/logger.js';
 import { DatabaseError } from '../database/errors.js';
-import { Logger } from '../lib/logger.js';
-import { FileSystemError } from '../lib/errors.js';
 
 /**
  * Tiling options
@@ -87,7 +85,7 @@ export class MapTiler {
    * @returns Tile metadata
    */
   async tileImage(inputPath: string, outputDir: string): Promise<TileMetadata> {
-    Logger.info('MapTiler', `Tiling image: ${inputPath}`);
+    logger.info('MapTiler', `Tiling image: ${inputPath}`);
 
     // Create output directory
     await fs.mkdir(outputDir, { recursive: true });
@@ -108,7 +106,7 @@ export class MapTiler {
     const rows = Math.ceil(height / tileSize);
     const totalTiles = cols * rows;
 
-    Logger.info(
+    logger.info(
       'MapTiler',
       `Image size: ${width}x${height}, Grid: ${cols}x${rows} (${totalTiles} tiles)`
     );
@@ -141,7 +139,7 @@ export class MapTiler {
     // Save metadata
     await this.saveMetadata(outputDir, tileMetadata);
 
-    Logger.info('MapTiler', `Tiling complete: ${totalTiles} tiles generated`);
+    logger.info('MapTiler', `Tiling complete: ${totalTiles} tiles generated`);
     return tileMetadata;
   }
 
@@ -159,7 +157,7 @@ export class MapTiler {
     const scaledWidth = Math.floor(originalWidth * scale);
     const scaledHeight = Math.floor(originalHeight * scale);
 
-    Logger.debug(
+    logger.debug(
       'MapTiler',
       `Generating zoom level ${zoom}: ${scaledWidth}x${scaledHeight}`
     );
@@ -196,7 +194,7 @@ export class MapTiler {
     }
 
     await Promise.all(tiles);
-    Logger.debug('MapTiler', `Zoom level ${zoom} complete: ${cols}x${rows} tiles`);
+    logger.debug('MapTiler', `Zoom level ${zoom} complete: ${cols}x${rows} tiles`);
   }
 
   /**
@@ -322,7 +320,7 @@ export class MapTiler {
         const metadata = await this.tileImage(inputPath, outputDir);
         results.set(mapId, metadata);
       } catch (error) {
-        Logger.error('MapTiler', error, { mapId, inputPath });
+        logger.error('MapTiler', error, { mapId, inputPath });
       }
     }
 

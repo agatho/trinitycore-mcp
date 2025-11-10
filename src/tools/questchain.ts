@@ -16,6 +16,7 @@ import {
   StatType,
   type StatPriority
 } from "../data/stat-priorities";
+import { logger } from "../utils/logger";
 
 
 // ============================================================================
@@ -442,13 +443,17 @@ export async function traceQuestChain(startQuestId: number): Promise<QuestChain>
     try {
       objectives = await analyzeQuestObjectives(currentQuestId);
     } catch (err) {
-      console.log(`[DEBUG] Could not fetch objectives for quest ${currentQuestId}:`, err instanceof Error ? err.message : String(err));
+      logger.debug('QuestChain', `Could not fetch objectives for quest ${currentQuestId}`, {
+        error: err instanceof Error ? err.message : String(err)
+      });
     }
 
     try {
       rewards = await getQuestRewards(currentQuestId);
     } catch (err) {
-      console.log(`[DEBUG] Could not fetch rewards for quest ${currentQuestId}:`, err instanceof Error ? err.message : String(err));
+      logger.debug('QuestChain', `Could not fetch rewards for quest ${currentQuestId}`, {
+        error: err instanceof Error ? err.message : String(err)
+      });
     }
 
     nodes.push({
@@ -533,9 +538,11 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
 
   const starters = await queryWorld(query, [zoneId]);
 
-  console.log(`[DEBUG] findQuestChainsInZone(${zoneId}): Found ${starters.length} starter quests`);
+  logger.debug('QuestChain', `findQuestChainsInZone(${zoneId}): Found ${starters.length} starter quests`);
   if (starters.length > 0 && starters.length <= 5) {
-    console.log('[DEBUG] Starter quest IDs:', starters.map((s: any) => s.ID));
+    logger.debug('QuestChain', 'Starter quest IDs', {
+      questIds: starters.map((s: any) => s.ID)
+    });
   }
 
   const chains: QuestChain[] = [];
@@ -549,7 +556,9 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
       }
     } catch (error) {
       // Skip invalid chains
-      console.log(`[DEBUG] Failed to trace chain for quest ${starter.ID}:`, error instanceof Error ? error.message : String(error));
+      logger.debug('QuestChain', `Failed to trace chain for quest ${starter.ID}`, {
+        error: error instanceof Error ? error.message : String(error)
+      });
       continue;
     }
   }
