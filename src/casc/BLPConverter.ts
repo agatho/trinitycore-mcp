@@ -9,8 +9,8 @@
 
 import fs from 'fs/promises';
 import { PNG } from 'pngjs';
-import { logger } from '../utils/logger.js';
-import { DatabaseError } from '../database/errors.js';
+import { Logger } from '../lib/logger.js';
+import { FileSystemError } from '../lib/errors.js';
 
 /**
  * BLP format version
@@ -63,7 +63,7 @@ export class BLPConverter {
     pngPath: string,
     mipLevel: number = 0
   ): Promise<void> {
-    logger.debug('BLPConverter', `Converting ${blpPath} to ${pngPath}`);
+    Logger.debug('BLPConverter', `Converting ${blpPath} to ${pngPath}`);
 
     try {
       // Read BLP file
@@ -74,8 +74,9 @@ export class BLPConverter {
 
       // Validate mip level
       if (mipLevel >= header.mipOffsets.length) {
-        throw new DatabaseError(
-          `Invalid mip level ${mipLevel} for ${blpPath}. Max: ${header.mipOffsets.length - 1}`
+        throw new FileSystemError(
+          blpPath,
+          `Invalid mip level ${mipLevel}. Max: ${header.mipOffsets.length - 1}`
         );
       }
 
@@ -232,7 +233,7 @@ export class BLPConverter {
       pixels[i + 3] = 255; // A
     }
 
-    logger.warn(
+    Logger.warn(
       'BLPConverter',
       'DXT decompression not fully implemented. Output will be pink placeholder.'
     );
@@ -295,7 +296,7 @@ export class BLPConverter {
         await this.convertToPNG(blpFile, pngPath, mipLevel);
         outputFiles.push(pngPath);
       } catch (error) {
-        logger.error('BLPConverter', error, { file: blpFile });
+        Logger.error('BLPConverter', error, { file: blpFile });
       }
     }
 

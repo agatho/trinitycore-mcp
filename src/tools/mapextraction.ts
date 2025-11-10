@@ -12,6 +12,7 @@ import { CASCReader, MapQuality, getCASCReader } from '../casc/CASCReader.js';
 import { BLPConverter } from '../casc/BLPConverter.js';
 import { MapTiler, TileMetadata } from '../casc/MapTiler.js';
 import { logger } from '../utils/logger.js';
+import { Logger } from '../lib/logger.js';
 
 /**
  * Map extraction status
@@ -40,6 +41,7 @@ export async function extractMapTextures(args: {
   const { mapId, quality = 'all', enableTiling = true, tileSize = 256 } = args;
 
   logger.info('MapExtraction', `Starting extraction for map ${mapId}, quality: ${quality}`);
+  Logger.info('MapExtraction', `Starting extraction for map ${mapId}, quality: ${quality}`);
 
   const status: ExtractionStatus = {
     mapId,
@@ -68,7 +70,7 @@ export async function extractMapTextures(args: {
       throw new Error(`No map textures found for map ${mapId}`);
     }
 
-    logger.info('MapExtraction', `Extracted ${blpFiles.length} BLP files`);
+    Logger.info('MapExtraction', `Extracted ${blpFiles.length} BLP files`);
 
     status.status = 'converting';
     status.progress = 40;
@@ -79,7 +81,7 @@ export async function extractMapTextures(args: {
 
     const pngFiles = await BLPConverter.convertBatch(blpFiles, outputDir);
 
-    logger.info('MapExtraction', `Converted ${pngFiles.length} PNG files`);
+    Logger.info('MapExtraction', `Converted ${pngFiles.length} PNG files`);
 
     status.status = 'tiling';
     status.progress = 70;
@@ -108,17 +110,17 @@ export async function extractMapTextures(args: {
       const metadata = await tiler.tileImage(mainMapFile, tilesOutputDir);
 
       status.metadata = metadata;
-      logger.info('MapExtraction', `Tiled map into ${metadata.totalTiles} tiles`);
+      Logger.info('MapExtraction', `Tiled map into ${metadata.totalTiles} tiles`);
     }
 
     status.status = 'completed';
     status.progress = 100;
 
-    logger.info('MapExtraction', `Map ${mapId} extraction completed successfully`);
+    Logger.info('MapExtraction', `Map ${mapId} extraction completed successfully`);
 
     return status;
   } catch (error: any) {
-    logger.error('MapExtraction', error, { mapId });
+    Logger.error('MapExtraction', error, { mapId });
 
     status.status = 'error';
     status.error = error.message;
@@ -266,10 +268,10 @@ export async function deleteExtractedMap(args: { mapId: number }): Promise<boole
       }
     }
 
-    logger.info('MapExtraction', `Deleted extracted data for map ${mapId}`);
+    Logger.info('MapExtraction', `Deleted extracted data for map ${mapId}`);
     return true;
   } catch (error: any) {
-    logger.error('MapExtraction', error, { mapId });
+    Logger.error('MapExtraction', error, { mapId });
     return false;
   }
 }
