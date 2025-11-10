@@ -98,6 +98,8 @@ export default function SettingsDashboard() {
   const [envFiles, setEnvFiles] = useState<{ webUI: boolean; mcpServer: boolean }>({ webUI: false, mcpServer: false });
   const [showRestartInfo, setShowRestartInfo] = useState<boolean>(false);
   const [reloadInfo, setReloadInfo] = useState<string>("");
+  const [diagnostic, setDiagnostic] = useState<any>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState<boolean>(false);
 
   // Load configuration on mount
   useEffect(() => {
@@ -243,6 +245,17 @@ export default function SettingsDashboard() {
     setConfig({ ...config, logging: { ...config.logging, ...updates } });
   };
 
+  const runDiagnostic = async () => {
+    try {
+      const response = await fetch("/api/config/diagnose");
+      const data = await response.json();
+      setDiagnostic(data.diagnostic);
+      setShowDiagnostic(true);
+    } catch (error) {
+      console.error("Failed to run diagnostic:", error);
+    }
+  };
+
   if (loading || !config) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -292,7 +305,57 @@ export default function SettingsDashboard() {
             )}
           </div>
         </div>
+        <button
+          onClick={runDiagnostic}
+          className="mt-3 px-4 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700"
+        >
+          🔍 Run Configuration Diagnostic
+        </button>
       </div>
+
+      {/* Diagnostic Information */}
+      {showDiagnostic && diagnostic && (
+        <div className="mb-4 p-4 bg-purple-50 border border-purple-300 rounded">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-bold text-purple-900">Configuration Diagnostic</h3>
+            <button
+              onClick={() => setShowDiagnostic(false)}
+              className="text-purple-600 hover:text-purple-800"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="text-sm space-y-2">
+            <div>
+              <strong>Environment Files:</strong>
+              <ul className="list-disc list-inside ml-3 text-xs mt-1">
+                <li>web-ui/.env.local: {diagnostic.envFiles.webUI ? '✅ Exists' : '❌ Not found'}</li>
+                <li>root .env: {diagnostic.envFiles.mcpServer ? '✅ Exists' : '❌ Not found'}</li>
+              </ul>
+            </div>
+            <div>
+              <strong>WOW_PATH Status:</strong>
+              <ul className="list-disc list-inside ml-3 text-xs mt-1">
+                <li>From process.env: {diagnostic.wowPath.fromProcessEnv || '(not set)'}</li>
+                <li>From .env files: {diagnostic.wowPath.fromEnvFile || '(not set)'}</li>
+                <li>Directory exists: {diagnostic.wowPath.exists ? '✅ Yes' : '❌ No'}</li>
+                <li>Valid CASC installation: {diagnostic.wowPath.cascValid ? '✅ Yes' : '❌ No'}</li>
+              </ul>
+            </div>
+            {!diagnostic.envFiles.webUI && !diagnostic.envFiles.mcpServer && (
+              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-300 rounded text-xs">
+                <strong>⚠️ No .env files found!</strong>
+                <p className="mt-1">You need to:</p>
+                <ol className="list-decimal list-inside ml-2 mt-1">
+                  <li>Enter your configuration values in the forms below</li>
+                  <li>Click "Save & Persist to Both .env Files"</li>
+                  <li>Click "Reload from .env Files"</li>
+                </ol>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Success Message */}
       {successMessage && (
