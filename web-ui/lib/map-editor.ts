@@ -148,6 +148,102 @@ export const WoWMaps = {
     imageUrl: '/maps/northrend.jpg',
     hasImage: false,
   },
+
+  // Cataclysm Maps
+  DEEPHOLM: {
+    id: 646,
+    name: 'Deepholm',
+    expansion: 'cataclysm',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/deepholm.jpg',
+    hasImage: false,
+  },
+
+  // MoP Maps
+  PANDARIA: {
+    id: 860,
+    name: 'Pandaria',
+    expansion: 'mop',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/pandaria.jpg',
+    hasImage: false,
+  },
+
+  // WoD Maps
+  DRAENOR: {
+    id: 870,
+    name: 'Draenor',
+    expansion: 'wod',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/draenor.jpg',
+    hasImage: false,
+  },
+
+  // Legion Maps
+  BROKEN_ISLES: {
+    id: 1116,
+    name: 'Broken Isles',
+    expansion: 'legion',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/broken_isles.jpg',
+    hasImage: false,
+  },
+
+  // BfA Maps
+  KUL_TIRAS: {
+    id: 1643,
+    name: 'Kul Tiras',
+    expansion: 'bfa',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/kul_tiras.jpg',
+    hasImage: false,
+  },
+  ZANDALAR: {
+    id: 1642,
+    name: 'Zandalar',
+    expansion: 'bfa',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/zandalar.jpg',
+    hasImage: false,
+  },
+
+  // Shadowlands Maps
+  SHADOWLANDS: {
+    id: 2222,
+    name: 'Shadowlands (The Maw)',
+    expansion: 'shadowlands',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/shadowlands.jpg',
+    hasImage: false,
+  },
+  ARDENWEALD: {
+    id: 2222,
+    name: 'Ardenweald',
+    expansion: 'shadowlands',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/ardenweald.jpg',
+    hasImage: false,
+  },
+
+  // Dragonflight Maps
+  DRAGON_ISLES: {
+    id: 2444,
+    name: 'Dragon Isles',
+    expansion: 'dragonflight',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/dragon_isles.jpg',
+    hasImage: false,
+  },
+
+  // The War Within Maps
+  KHAZ_ALGAR: {
+    id: 2552,
+    name: 'Khaz Algar (The War Within)',
+    expansion: 'tww',
+    coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
+    imageUrl: '/maps/khaz_algar.jpg',
+    hasImage: false,
+  },
 } as const;
 
 /**

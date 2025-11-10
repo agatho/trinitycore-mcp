@@ -23,7 +23,6 @@ type Tool = 'select' | 'spawn' | 'waypoint' | 'road' | 'transition';
 
 export function MapView2D({ state, actions, width = 1200, height = 800 }: MapView2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mapImage, setMapImage] = useState<HTMLImageElement | null>(null);
   const [currentTool, setCurrentTool] = useState<Tool>('spawn');
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
