@@ -27,6 +27,7 @@ interface DatabaseConfig {
 
 interface DataPathsConfig {
   trinityRoot: string;
+  wowPath: string;
   gtPath: string;
   dbcPath: string;
   db2Path: string;
@@ -495,6 +496,22 @@ export default function SettingsDashboard() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Path to TrinityCore source code root directory
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  WoW Installation Path
+                </label>
+                <input
+                  type="text"
+                  value={config.dataPaths.wowPath}
+                  onChange={(e) => updateDataPaths({ wowPath: e.target.value })}
+                  className="w-full p-2 border rounded bg-white text-gray-900"
+                  placeholder="C:\Program Files (x86)\World of Warcraft\_retail_ or /Applications/World of Warcraft/_retail_"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Path to World of Warcraft retail installation directory (required for map extraction from CASC)
                 </p>
               </div>
 

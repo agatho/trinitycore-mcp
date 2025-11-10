@@ -18,6 +18,7 @@ interface DatabaseConfig {
 
 interface DataPathsConfig {
   trinityRoot: string;
+  wowPath: string;
   gtPath: string;
   dbcPath: string;
   db2Path: string;
@@ -80,6 +81,7 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
   },
   dataPaths: {
     trinityRoot: process.env.TRINITY_ROOT || "./",
+    wowPath: process.env.WOW_PATH || "",
     gtPath: process.env.GT_PATH || "./data/gt",
     dbcPath: process.env.DBC_PATH || "./data/dbc",
     db2Path: process.env.DB2_PATH || "./data/db2",
