@@ -38,6 +38,7 @@ export interface DatabaseConfig {
  */
 export interface DataPathsConfig {
   trinityRoot: string;
+  wowPath: string;
   gtPath: string;
   dbcPath: string;
   db2Path: string;
@@ -127,6 +128,7 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
   },
   dataPaths: {
     trinityRoot: "./",
+    wowPath: "",
     gtPath: "./data/gt",
     dbcPath: "./data/dbc",
     db2Path: "./data/db2",
@@ -232,6 +234,9 @@ export class ConfigManager extends EventEmitter {
     // Data paths configuration
     if (process.env.TRINITY_ROOT) {
       this.config.dataPaths.trinityRoot = process.env.TRINITY_ROOT;
+    }
+    if (process.env.WOW_PATH) {
+      this.config.dataPaths.wowPath = process.env.WOW_PATH;
     }
     if (process.env.GT_PATH) {
       this.config.dataPaths.gtPath = process.env.GT_PATH;
