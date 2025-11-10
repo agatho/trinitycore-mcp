@@ -9,8 +9,8 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { Logger } from '../lib/logger.js';
-import { FileSystemError } from '../lib/errors.js';
+import { logger } from '../utils/logger.js';
+import { DatabaseError } from '../database/errors.js';
 
 /**
  * CASC configuration
@@ -79,16 +79,15 @@ export class CASCReader {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    Logger.info('CASCReader', `Initializing CASC reader for: ${this.config.wowPath}`);
+    logger.info('CASCReader', `Initializing CASC reader for: ${this.config.wowPath}`);
 
     // Verify WoW installation
     const dataDir = path.join(this.config.wowPath, 'Data');
     try {
       await fs.access(dataDir);
     } catch (error) {
-      throw new FileSystemError(
-        dataDir,
-        'WoW Data directory not found. Please check WOW_PATH configuration.'
+      throw new DatabaseError(
+        `WoW Data directory not found: ${dataDir}. Please check WOW_PATH configuration.`
       );
     }
 
@@ -101,14 +100,13 @@ export class CASCReader {
       await fs.access(this.dataPath);
       await fs.access(this.indicesPath);
     } catch (error) {
-      throw new FileSystemError(
-        dataDir,
-        'Invalid CASC structure. This may not be a retail WoW installation.'
+      throw new DatabaseError(
+        `Invalid CASC structure in ${dataDir}. This may not be a retail WoW installation.`
       );
     }
 
     this.initialized = true;
-    Logger.info('CASCReader', 'CASC reader initialized successfully');
+    logger.info('CASCReader', 'CASC reader initialized successfully');
   }
 
   /**
@@ -133,15 +131,14 @@ export class CASCReader {
       await this.initialize();
     }
 
-    Logger.info('CASCReader', `Extracting map textures for map ${mapId}, quality: ${quality}`);
+    logger.info('CASCReader', `Extracting map textures for map ${mapId}, quality: ${quality}`);
 
     const extractedFiles: string[] = [];
     const mapNames = await this.getMapNames();
     const mapName = mapNames.get(mapId);
 
     if (!mapName) {
-      throw new FileSystemError(
-        `map_${mapId}`,
+      throw new DatabaseError(
         `Map ID ${mapId} not found in CASC`
       );
     }
@@ -156,7 +153,7 @@ export class CASCReader {
       extractedFiles.push(...files);
     }
 
-    Logger.info('CASCReader', `Extracted ${extractedFiles.length} map texture files`);
+    logger.info('CASCReader', `Extracted ${extractedFiles.length} map texture files`);
     return extractedFiles;
   }
 
@@ -199,7 +196,7 @@ export class CASCReader {
             const outputPath = await this.extractFile(file, mapId, quality);
             files.push(outputPath);
           } catch (error) {
-            Logger.warn('CASCReader', `Failed to extract ${file}`, { error });
+            logger.warn('CASCReader', `Failed to extract ${file}`, { error });
           }
         }
       }
@@ -231,7 +228,7 @@ export class CASCReader {
    * parse CASC root files and encoding tables.
    */
   private async listCASCFiles(pathPattern: string): Promise<string[]> {
-    Logger.debug('CASCReader', `Listing CASC files: ${pathPattern}`);
+    logger.debug('CASCReader', `Listing CASC files: ${pathPattern}`);
 
     // TODO: Implement full CASC root file parsing
     // For now, return known map texture paths
@@ -267,7 +264,7 @@ export class CASCReader {
     mapId: number,
     quality: MapQuality
   ): Promise<string> {
-    Logger.debug('CASCReader', `Extracting file: ${cascPath}`);
+    logger.debug('CASCReader', `Extracting file: ${cascPath}`);
 
     // Output path structure
     const outputDir = path.join(
@@ -287,7 +284,7 @@ export class CASCReader {
     // Check if already extracted
     try {
       await fs.access(outputPath);
-      Logger.debug('CASCReader', `File already extracted: ${outputPath}`);
+      logger.debug('CASCReader', `File already extracted: ${outputPath}`);
       return outputPath;
     } catch {
       // File doesn't exist, extract it
@@ -300,9 +297,8 @@ export class CASCReader {
     // 3. Decompress BLTE-encoded data
     // 4. Write to output file
 
-    throw new FileSystemError(
-      cascPath,
-      'CASC file extraction not yet implemented. Use external CASC extractor for now.'
+    throw new DatabaseError(
+      `CASC file extraction not yet implemented for ${cascPath}. Use external CASC extractor for now.`
     );
   }
 
