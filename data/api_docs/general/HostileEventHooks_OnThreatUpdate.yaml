@@ -1,0 +1,58 @@
+api:
+  class: HostileEventHooks
+  method: OnThreatUpdate
+  signature: void HostileEventHooks::OnThreatUpdate(int * hostile, int * target, float
+    threat)
+documentation:
+  brief: Updates threat values for hostile targets in the game world
+  description: The OnThreatUpdate method is invoked when a creature's threat level
+    changes toward a target. This hook allows custom modules to intercept and modify
+    threat calculations or perform actions based on threat updates. The method receives
+    pointers to the hostile unit's current threat value and the target's threat value,
+    along with the new threat amount being applied. It is typically called during
+    combat events when units gain or lose threat through damage dealt, healing received,
+    or other threat-generating actions.
+  parameters:
+  - name: hostile
+    description: Pointer to an integer representing the current threat value of the
+      hostile unit. This value may be modified by the hook implementation.
+  - name: target
+    description: Pointer to an integer representing the current threat value of the
+      target unit. This value may be modified by the hook implementation.
+  - name: threat
+    description: Float value indicating the amount of threat being applied or updated.
+      Negative values may represent threat reduction.
+  returns: null
+  examples:
+  - title: Basic Threat Modification Example
+    code: "void HostileEventHooks::OnThreatUpdate(int* hostile, int* target, float\
+      \ threat)\n{\n    // Reduce incoming threat by 25%\n    *hostile = static_cast<int>(*hostile\
+      \ * 0.75f);\n    *target = static_cast<int>(*target * 0.75f);\n}"
+    language: cpp
+  - title: Threat-Based Action Trigger
+    code: "void HostileEventHooks::OnThreatUpdate(int* hostile, int* target, float\
+      \ threat)\n{\n    if (threat > 1000.0f)\n    {\n        // Trigger special behavior\
+      \ when high threat is applied\n        // e.g., cast a spell or change AI state\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is called from within combat logic and should not perform heavy
+    operations that could impact performance. The pointers passed to this method are
+    valid only during the scope of the call, so any modifications must be done immediately.
+    It's recommended to use this hook for lightweight threat adjustments rather than
+    complex calculations.
+  warnings: Modifying threat values directly can cause unexpected behavior in combat
+    mechanics. Ensure that changes don't create impossible or exploitable situations
+    such as negative threat values or unbalanced targeting behavior. Avoid modifying
+    the target pointer unless you understand the full implications of changing another
+    unit's threat state.
+  related:
+  - OnDamageDealt
+  - OnHealReceived
+  - OnCombatStart
+  - OnCombatStop
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T03:09:10.401304'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

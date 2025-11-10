@@ -1,0 +1,54 @@
+api:
+  class: InteractionManager
+  method: GetInteractionContext
+  signature: InteractionContext * InteractionManager::GetInteractionContext(Player
+    * bot)
+documentation:
+  brief: Retrieves the interaction context associated with a specified bot player.
+  description: The GetInteractionContext method retrieves the InteractionContext object
+    that manages the current interaction state for a given bot player. This context
+    typically holds information about ongoing dialogues, quest states, NPC interactions,
+    and other interactive elements within the game world. The method is commonly used
+    by AI systems to determine how a bot should respond to various in-game events
+    or user inputs. It ensures that each bot maintains its own isolated interaction
+    state, preventing conflicts between different bots or players interacting with
+    the same NPCs.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot for which to retrieve
+      the interaction context. Must not be null.
+  returns: A pointer to the InteractionContext associated with the specified bot player,
+    or nullptr if no context exists for the given player.
+  examples:
+  - title: Basic usage to check interaction state
+    code: "InteractionContext* context = interactionManager->GetInteractionContext(botPlayer);\n\
+      if (context != nullptr) {\n    // Proceed with interaction logic\n    context->ProcessNextDialogue();\n\
+      } else {\n    // Handle case where no interaction is active\n    botPlayer->SendSystemMessage(\"\
+      No active interaction.\");\n}"
+    language: cpp
+  - title: Using context to determine next action
+    code: "InteractionContext* context = interactionManager->GetInteractionContext(bot);\n\
+      if (context && context->IsDialogueActive()) {\n    // Bot continues dialogue\n\
+      \    context->AdvanceDialogue();\n} else if (context && context->HasQuestOffer())\
+      \ {\n    // Bot accepts quest\n    context->AcceptQuest();\n} else {\n    //\
+      \ Bot performs default behavior\n    bot->MoveToTarget(target);\n}"
+    language: cpp
+  notes: This method assumes that each Player object has a unique association with
+    an InteractionContext. The returned pointer should be used carefully as it may
+    become invalid if the interaction context is destroyed or reset during gameplay.
+    It's recommended to check for null returns before using the context.
+  warnings: Never assume that the returned InteractionContext pointer is valid without
+    checking for nullptr. Accessing a destroyed or uninitialized context can lead
+    to undefined behavior and crashes. Also, be aware that multiple bots may share
+    the same NPC interaction, so context management must account for concurrent access
+    scenarios.
+  related:
+  - SetInteractionContext
+  - ClearInteractionContext
+  - HasInteractionContext
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T13:31:44.055366'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

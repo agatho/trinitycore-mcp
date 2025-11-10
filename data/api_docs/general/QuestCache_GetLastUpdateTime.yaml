@@ -1,0 +1,50 @@
+api:
+  class: QuestCache
+  method: GetLastUpdateTime
+  signature: uint32 QuestCache::GetLastUpdateTime() const
+documentation:
+  brief: Returns the last update time of the quest cache in seconds since epoch.
+  description: The GetLastUpdateTime method retrieves the timestamp indicating when
+    the QuestCache was last modified or updated. This value is typically used to determine
+    if cached quest data needs refreshing, especially in multiplayer environments
+    where quest states may change frequently. The returned value represents a Unix
+    timestamp (seconds since January 1, 1970) and can be compared against current
+    time to assess cache validity. This method is commonly called during player login
+    or quest query operations to ensure up-to-date quest information is served.
+  parameters: []
+  returns: A uint32 value representing the Unix timestamp (seconds since epoch) of
+    the last update to the quest cache. Returns 0 if the cache has never been updated
+    or if no valid timestamp exists.
+  examples:
+  - title: Check if Quest Cache Needs Refresh
+    code: "uint32 lastUpdate = questCache->GetLastUpdateTime();\nuint32 currentTime\
+      \ = time(nullptr);\nif (currentTime - lastUpdate > 300) // 5 minutes\n{\n  \
+      \  // Cache is stale, refresh it\n    questCache->Refresh();\n}"
+    language: cpp
+  - title: Log Quest Cache Update Time
+    code: "uint32 updateTimestamp = questCache->GetLastUpdateTime();\nif (updateTimestamp\
+      \ != 0)\n{\n    std::time_t updateTime = static_cast<std::time_t>(updateTimestamp);\n\
+      \    std::cout << \"Quest cache last updated: \" << std::ctime(&updateTime)\
+      \ << std::endl;\n}\nelse\n{\n    std::cout << \"Quest cache not yet initialized\"\
+      \ << std::endl;\n}"
+    language: cpp
+  notes: This method is thread-safe and can be called from any context. The returned
+    timestamp is updated whenever quest data changes in the cache, making it useful
+    for implementing efficient caching strategies. In TrinityCore's architecture,
+    this value is often used alongside other cache invalidation mechanisms to maintain
+    consistency between server state and client data.
+  warnings: Be aware that a return value of 0 may indicate either an uninitialized
+    cache or a system where timestamps are not properly maintained. Always validate
+    the returned timestamp before using it for time-based comparisons. Also, since
+    this is a const method, it does not modify internal state but simply returns a
+    cached value.
+  related:
+  - QuestCache::SetLastUpdateTime
+  - QuestCache::IsCacheValid
+  - QuestCache::Refresh
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T21:52:02.573259'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

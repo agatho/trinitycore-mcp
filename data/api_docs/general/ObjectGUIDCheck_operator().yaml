@@ -1,0 +1,58 @@
+api:
+  class: ObjectGUIDCheck
+  method: operator()
+  signature: bool ObjectGUIDCheck::operator()(int * object) const
+documentation:
+  brief: Checks if an object GUID is valid and returns true if it passes the validation
+    criteria.
+  description: The ObjectGUIDCheck::operator() method performs a validation check
+    on a given object's GUID. It evaluates whether the provided integer pointer points
+    to a valid World of Warcraft object GUID according to TrinityCore's internal validation
+    rules. This method is typically used in container filtering operations where only
+    valid GUIDs should be processed. The method does not modify the input value but
+    instead uses it for comparison and validation purposes. It is commonly employed
+    in systems that manage object references, such as player tracking, creature management,
+    or item handling within the game world.
+  parameters:
+  - name: object
+    description: Pointer to an integer representing a potential object GUID. This
+      parameter should point to a valid memory location containing a GUID value. The
+      method will check if this GUID conforms to TrinityCore's expected format and
+      validity rules.
+  returns: Returns true if the GUID pointed to by 'object' is valid according to TrinityCore's
+    validation criteria, false otherwise. A valid GUID typically must not be zero
+    and should conform to the expected object type range (player, creature, item,
+    etc.).
+  examples:
+  - title: Basic usage in a filter operation
+    code: 'std::vector<int> guids = {12345, 0, 67890, 0};
+
+      std::vector<int> valid_guids;
+
+      std::copy_if(guids.begin(), guids.end(), std::back_inserter(valid_guids), ObjectGUIDCheck());'
+    language: cpp
+  - title: Using with STL algorithms for filtering
+    code: "std::set<int> all_objects = {1001, 2002, 0, 3003, 0};\nObjectGUIDCheck\
+      \ checker;\nall_objects.erase(std::remove_if(all_objects.begin(), all_objects.end(),\
+      \ \n    [&checker](int guid) { return !checker(&guid); }), all_objects.end());"
+    language: cpp
+  notes: This method is designed to be used as a predicate in STL algorithms or similar
+    filtering operations. It assumes that the input pointer is valid and points to
+    memory containing an integer value. The implementation likely checks for zero
+    values, invalid object type ranges, or other internal consistency requirements
+    specific to TrinityCore's GUID system.
+  warnings: Ensure that the input pointer is not null before calling this method.
+    Passing a null pointer will result in undefined behavior. Also, be aware that
+    this method may have performance implications when used extensively in tight loops
+    or high-frequency operations.
+  related:
+  - ObjectGUIDCheck::operator bool()
+  - ObjectGUIDCheck::IsValid()
+  - ObjectGUID::IsPlayer()
+  - ObjectGUID::IsCreature()
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T23:10:32.443491'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,64 @@
+api:
+  class: PlayerbotCharacterDBInterface
+  method: RouteQuery
+  signature: bool PlayerbotCharacterDBInterface::RouteQuery(int * stmt, int callback,
+    bool forceSync)
+documentation:
+  brief: Executes a database query for player bot character routing information
+  description: The RouteQuery method performs a database operation to retrieve or
+    update routing data for player bots within the TrinityCore framework. This method
+    is typically used in the context of AI-driven character behavior, where bots need
+    to navigate through game environments using predefined paths or routes. The method
+    handles both synchronous and asynchronous execution modes based on the forceSync
+    parameter, allowing for flexible integration with different bot logic architectures.
+    It interfaces with the player bot character database to manage route-related data
+    such as waypoints, pathfinding information, and navigation preferences.
+  parameters:
+  - name: stmt
+    description: Pointer to a prepared SQL statement handle used for executing the
+      database query. This parameter should point to a valid prepared statement object
+      that has been initialized with appropriate routing query logic.
+  - name: callback
+    description: Function pointer or callback identifier that will be invoked upon
+      completion of the database operation. This allows asynchronous processing of
+      route query results and enables integration with event-driven bot behavior systems.
+  - name: forceSync
+    description: Boolean flag determining execution mode. When true, forces synchronous
+      execution of the query, blocking until completion. When false, allows for asynchronous
+      execution which may improve performance in multi-bot scenarios.
+  returns: Returns true if the database query was successfully initiated or completed
+    (depending on sync mode), false otherwise. In case of asynchronous execution,
+    returns true immediately upon query initiation, while actual result processing
+    occurs later through the callback mechanism.
+  examples:
+  - title: Basic Route Query Execution
+    code: "int* statement = nullptr;\nint callbackId = 12345;\nbool success = playerbotDbInterface->RouteQuery(statement,\
+      \ callbackId, true);\nif (success) {\n    // Query initiated successfully\n\
+      \    // Results will be processed via callback\n}"
+    language: cpp
+  - title: Asynchronous Route Query with Callback Handling
+    code: "void handleRouteCallback(int result) {\n    // Process route query results\
+      \ here\n    if (result == 0) {\n        // Success case\n    } else {\n    \
+      \    // Error handling\n    }\n}\n\n// Initiate asynchronous query\nint* stmt\
+      \ = prepareRouteQuery();\nplayerbotDbInterface->RouteQuery(stmt, reinterpret_cast<int>(handleRouteCallback),\
+      \ false);"
+    language: cpp
+  notes: This method is part of the player bot subsystem and requires proper initialization
+    of the database connection before use. The callback mechanism assumes that the
+    calling code maintains valid references to callback functions throughout the query
+    lifecycle. Performance considerations include avoiding synchronous queries in
+    high-frequency bot operations, as they may block other bot processing threads.
+  warnings: Improper handling of the statement parameter can lead to segmentation
+    faults or undefined behavior. Ensure that the SQL statement is properly prepared
+    and validated before passing it to this method. Using forceSync=true in performance-critical
+    scenarios may cause thread blocking and should be used sparingly.
+  related:
+  - PlayerbotCharacterDBInterface::Query
+  - PlayerbotCharacterDBInterface::AsyncQuery
+  - PlayerbotCharacterDBInterface::PrepareStatement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T11:29:04.721531'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

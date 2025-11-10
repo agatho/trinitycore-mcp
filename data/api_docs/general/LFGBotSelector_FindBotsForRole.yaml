@@ -1,0 +1,61 @@
+api:
+  class: LFGBotSelector
+  method: FindBotsForRole
+  signature: int LFGBotSelector::FindBotsForRole(uint8 minLevel, uint8 maxLevel, uint8
+    desiredRole, uint32 count)
+documentation:
+  brief: Finds and returns a list of available bots matching specified level range
+    and role requirements for use in LFG (Looking for Group) scenarios.
+  description: The FindBotsForRole method searches through the bot database to locate
+    bots that meet the specified criteria including minimum and maximum level thresholds,
+    as well as a desired role. It is primarily used within the TrinityCore's LFG system
+    to dynamically assign appropriate bots to fill group slots when real players are
+    unavailable. The method ensures that only bots meeting all specified conditions
+    are returned, maintaining game balance and role distribution in group content
+    such as dungeons or raids. This function does not modify any persistent state;
+    it simply retrieves and returns a list of suitable bot entries based on the input
+    parameters.
+  parameters:
+  - name: minLevel
+    description: The minimum level that bots must meet or exceed to be considered
+      for selection. Valid values are typically between 1 and 80, depending on server
+      configuration.
+  - name: maxLevel
+    description: The maximum level that bots can have to be considered for selection.
+      Must be greater than or equal to minLevel.
+  - name: desiredRole
+    description: The role that the returned bots should fulfill (e.g., tank, healer,
+      damage dealer). Role values are defined by TrinityCore's internal constants
+      and typically map to 0 (none), 1 (tank), 2 (healer), 3 (dps).
+  - name: count
+    description: The number of bots to attempt to find. The method may return fewer
+      if insufficient matching bots exist in the system.
+  returns: Returns an integer representing the actual number of bots found and added
+    to the result set. A value of zero indicates no suitable bots were available,
+    while a positive integer reflects the count of bots successfully matched. Negative
+    values are not expected under normal operation.
+  examples:
+  - title: Find 2 DPS bots between levels 60-70
+    code: int foundBots = selector.FindBotsForRole(60, 70, 3, 2);
+    language: cpp
+  - title: Find 1 tank bot at level 80
+    code: int foundBots = selector.FindBotsForRole(80, 80, 1, 1);
+    language: cpp
+  notes: This method relies on an internal database or cache of bots that must be
+    populated before use. Performance may degrade if the bot list is large and filtering
+    is done frequently without caching results. The method assumes that bots are pre-configured
+    with appropriate roles and levels.
+  warnings: Ensure that minLevel is not greater than maxLevel, as this will result
+    in no bots being returned. Also, be cautious when requesting more bots than exist
+    in the system for a given role and level range; the method will return only what
+    is available.
+  related:
+  - GetAvailableBots
+  - AssignBotToGroup
+  - ClearBotSelections
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:50:37.653087'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

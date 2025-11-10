@@ -1,0 +1,68 @@
+api:
+  class: CombatBehaviorIntegration
+  method: RecordActionResult
+  signature: void CombatBehaviorIntegration::RecordActionResult(const RecommendedAction
+    & action, bool success)
+documentation:
+  brief: Records the outcome of a recommended combat action for behavior analysis
+    and decision-making.
+  description: The RecordActionResult method logs whether a recommended combat action
+    was successful or not. This method is typically used within the CombatBehaviorIntegration
+    class to track the effectiveness of AI decisions during combat scenarios. It allows
+    the system to learn from past actions and adjust future recommendations accordingly.
+    The method stores this information for potential use in behavior tuning, performance
+    metrics, or debugging purposes. It does not require any specific preconditions
+    but assumes that the action parameter contains valid data about a previously recommended
+    combat move.
+  parameters:
+  - name: action
+    description: The RecommendedAction object representing the combat action that
+      was executed. This parameter contains details about the action type, target,
+      and other relevant metadata.
+  - name: success
+    description: Boolean flag indicating whether the recommended action was successful
+      (true) or failed (false). This determines the outcome record stored in the system.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'RecommendedAction action;
+
+      action.type = ACTION_MELEE_ATTACK;
+
+      action.targetGuid = 12345;
+
+
+      // Record successful attack
+
+      combatBehavior.RecordActionResult(action, true);
+
+
+      // Record failed attack
+
+      combatBehavior.RecordActionResult(action, false);'
+    language: cpp
+  - title: Integration with Combat Logic
+    code: "void Unit::ExecuteCombatAction(const RecommendedAction& action)\n{\n  \
+      \  bool success = PerformAction(action);\n    combatBehaviorIntegrator->RecordActionResult(action,\
+      \ success);\n    \n    if (!success)\n    {\n        // Log failed action for\
+      \ behavior analysis\n        sLog->outDebug(LOG_FILTER_COMBAT, \"Combat action\
+      \ %u failed for unit %u\", action.type, GetGUID().GetCounter());\n    }\n}"
+    language: cpp
+  notes: This method is designed to be called frequently during combat scenarios.
+    It's recommended to batch multiple calls or use asynchronous logging if performance
+    becomes an issue. The method should not be called with invalid action data as
+    it may lead to inconsistent behavior tracking.
+  warnings: Do not call this method without ensuring that the RecommendedAction object
+    contains valid data, as invalid actions could corrupt internal behavior analysis
+    metrics. Also, avoid calling this method in high-frequency loops without proper
+    batching or throttling mechanisms.
+  related:
+  - GetRecommendedAction
+  - AnalyzeCombatBehavior
+  - UpdateActionEffectiveness
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T03:00:54.871575'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

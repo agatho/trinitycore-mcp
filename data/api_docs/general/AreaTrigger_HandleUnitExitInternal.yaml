@@ -1,0 +1,59 @@
+api:
+  class: AreaTrigger
+  method: HandleUnitExitInternal
+  signature: void AreaTrigger::HandleUnitExitInternal(Unit * unit, AreaTriggerExitReason
+    exitMode)
+documentation:
+  brief: Handles the internal logic when a unit exits an area trigger, processing
+    exit events based on the specified exit mode.
+  description: The HandleUnitExitInternal method is responsible for managing the internal
+    behavior of an area trigger when a unit (player or creature) leaves its boundaries.
+    This method processes the exit event according to the provided exit mode, which
+    determines how the trigger reacts to the unit's departure. It typically handles
+    cleanup operations, sends relevant packets to clients, and may trigger additional
+    effects or quests associated with the area trigger. The method is part of the
+    internal area trigger system and is usually invoked automatically by the core
+    when a unit's position changes in relation to an active area trigger. This function
+    ensures proper synchronization between server-side state and client-side visual
+    feedback.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that is exiting the area trigger. Must
+      be a valid pointer to either a Player or Creature instance. The unit must currently
+      be within the area trigger's bounds.
+  - name: exitMode
+    description: 'Enumeration value indicating the reason for the unit''s exit from
+      the area trigger. Possible values include: AREATRIGGER_EXIT_BY_LEAVE, AREATRIGGER_EXIT_BY_DEATH,
+      AREATRIGGER_EXIT_BY_TELEPORT, etc., depending on how the unit left the trigger
+      zone.'
+  returns: null
+  examples:
+  - title: Basic usage within area trigger logic
+    code: "void MyAreaTrigger::OnUnitExit(Unit* unit, AreaTriggerExitReason exitMode)\n\
+      {\n    HandleUnitExitInternal(unit, exitMode);\n}"
+    language: cpp
+  - title: Custom handling before calling internal method
+    code: "void CustomAreaTrigger::HandleExit(Unit* unit, AreaTriggerExitReason exitMode)\n\
+      {\n    // Perform custom logic before exiting\n    if (unit->IsPlayer())\n \
+      \       static_cast<Player*>(unit)->SendNotification(\"You left the area trigger.\"\
+      );\n    \n    // Call internal handler\n    HandleUnitExitInternal(unit, exitMode);\n\
+      }"
+    language: cpp
+  notes: This method is typically called by the core's movement and area trigger systems
+    internally. Developers should not directly invoke this method unless implementing
+    custom area trigger logic or extending existing functionality. The method assumes
+    that the unit has already been removed from the area trigger's active list, and
+    it focuses solely on processing the exit event itself.
+  warnings: Do not call this method with a null unit pointer as it will likely cause
+    a crash or undefined behavior. Ensure that the unit is actually exiting the area
+    trigger before calling this function to avoid inconsistent state issues.
+  related:
+  - HandleUnitEnterInternal
+  - HandleUnitEnter
+  - HandleUnitExit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:06:28.338615'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

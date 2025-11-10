@@ -1,0 +1,63 @@
+api:
+  class: GridMap
+  method: loadHeightData
+  signature: bool GridMap::loadHeightData(FILE * in, uint32 offset, uint32 size)
+documentation:
+  brief: Loads height data from a file into the grid map for terrain elevation calculations.
+  description: The loadHeightData method reads height information from a specified
+    file stream and populates the internal height map data structure. This is essential
+    for determining terrain elevations, collision detection, and proper rendering
+    of the game world's landscape. The method requires a valid file handle, an offset
+    within the file where the height data begins, and the size of the data to read.
+    It performs bounds checking and data validation before loading the information
+    into memory. This functionality is crucial for maintaining accurate terrain representation
+    in World of Warcraft's 3D environment.
+  parameters:
+  - name: in
+    description: Pointer to an open FILE object containing the height data to be loaded.
+      The file must be opened in binary mode and positioned at the correct location
+      before calling this method.
+  - name: offset
+    description: The byte offset within the file where the height data begins. This
+      allows loading specific portions of a larger file or skipping header information.
+  - name: size
+    description: The number of bytes to read from the file starting at the specified
+      offset. This determines how much data is loaded into the grid map's internal
+      structures.
+  returns: Returns true if the height data was successfully loaded and validated,
+    false otherwise. A return value of false typically indicates file reading errors,
+    invalid data format, or memory allocation failures.
+  examples:
+  - title: Basic usage of loadHeightData
+    code: "FILE* file = fopen(\"map_heights.bin\", \"rb\");\nif (file != nullptr)\
+      \ {\n    GridMap map;\n    bool success = map.loadHeightData(file, 1024, 4096);\n\
+      \    fclose(file);\n    if (success) {\n        // Height data loaded successfully\n\
+      \    }\n}"
+    language: cpp
+  - title: Error handling with loadHeightData
+    code: "FILE* file = fopen(\"invalid_map.bin\", \"rb\");\nif (file != nullptr)\
+      \ {\n    GridMap map;\n    if (!map.loadHeightData(file, 0, 2048)) {\n     \
+      \   // Handle error: failed to load height data\n        printf(\"Failed to\
+      \ load height data from file\\n\");\n    }\n    fclose(file);\n} else {\n  \
+      \  // Handle file open error\n    printf(\"Could not open height data file\\\
+      n\");\n}"
+    language: cpp
+  notes: This method is typically called during map initialization or when loading
+    a specific grid section. The internal height data structure uses a fixed-size
+    grid layout, so the size parameter must match the expected format. Performance
+    can be affected by large data sets or frequent calls to this method during world
+    loading.
+  warnings: Ensure that the FILE pointer is valid and positioned correctly before
+    calling this method. Attempting to load invalid or corrupted height data may lead
+    to undefined behavior or crashes. This method assumes the file contains properly
+    formatted binary height data matching the expected grid structure.
+  related:
+  - GridMap::getHeightData
+  - GridMap::getHeight
+  - GridMap::loadMap
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T04:05:45.032447'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,89 @@
+api:
+  class: QuestLog
+  method: WriteUpdate
+  signature: void QuestLog::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes quest update data into a ByteBuffer for transmission to players.
+  description: The WriteUpdate method serializes the current state of a quest log
+    entry into a ByteBuffer, preparing it for network transmission to either the quest
+    owner or a receiver player. This method is typically invoked when quest progress
+    needs to be synchronized between the server and client, ensuring that players
+    receive accurate updates about their active quests. The serialization process
+    considers whether changes have been made to the quest state and can optionally
+    ignore change masks for full synchronization. It handles the encoding of quest
+    objectives, completion status, and other relevant quest data in a format compatible
+    with World of Warcraft's packet structure.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer object where the serialized quest update
+      data will be written. This buffer is typically used to construct network packets
+      sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      quest data. When true, all quest state information is included regardless of
+      recent changes; when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object who owns the quest. This player will
+      receive updates about their own quest progress.
+  - name: receiver
+    description: Pointer to the Player object who will receive the quest update data.
+      This may be different from the owner in cases of shared quests or quest tracking.
+  returns: null
+  examples:
+  - title: Basic Quest Update Serialization
+    code: 'ByteBuffer data;
+
+      Player* owner = player->GetSession()->GetPlayer();
+
+      Player* receiver = player;
+
+      questLog->WriteUpdate(data, false, owner, receiver);
+
+      // Send data to client via packet
+
+      WorldPacket packet(SMSG_QUEST_UPDATE_COMPLETE, data.size());
+
+      packet.append(data);
+
+      owner->SendDirectMessage(&packet);'
+    language: cpp
+  - title: Force Full Quest State Update
+    code: 'ByteBuffer data;
+
+      Player* owner = player->GetSession()->GetPlayer();
+
+      Player* receiver = player;
+
+      questLog->WriteUpdate(data, true, owner, receiver);
+
+      // Send complete quest state regardless of changes
+
+      WorldPacket packet(SMSG_QUEST_UPDATE_ADD_KILL, data.size());
+
+      packet.append(data);
+
+      owner->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the internal quest synchronization system in TrinityCore.
+    It's commonly called during player login, quest completion, or when quest progress
+    changes. The method assumes that the ByteBuffer is properly initialized and cleared
+    before calling. Performance-wise, this operation should be lightweight but can
+    become more expensive if ignoreChangesMask is set to true, as it serializes all
+    quest data rather than just changed portions.
+  warnings: Do not call this method with null pointers for owner or receiver parameters,
+    as it will likely cause a crash or undefined behavior. The ByteBuffer reference
+    must be valid and properly managed to avoid memory corruption. Be cautious when
+    setting ignoreChangesMask to true in high-frequency scenarios, as it may impact
+    performance.
+  related:
+  - QuestLog::AddQuest
+  - QuestLog::RemoveQuest
+  - QuestLog::UpdateQuestData
+  - Player::SendQuestUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:35:52.958203'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

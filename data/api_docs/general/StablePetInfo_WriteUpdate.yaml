@@ -1,0 +1,80 @@
+api:
+  class: StablePetInfo
+  method: WriteUpdate
+  signature: void StablePetInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes stable pet information into a ByteBuffer for network transmission
+    to a player or receiver.
+  description: The WriteUpdate method serializes the current state of a StablePetInfo
+    object into a ByteBuffer, which is typically used to send updates about stable
+    pets to players in the game. This method handles the encoding of pet data such
+    as GUID, display ID, level, and other relevant attributes. It supports conditional
+    serialization based on changes masks and can be used for both owner and receiver
+    perspectives. The method ensures that only necessary data is sent over the network
+    by respecting ignoreChangesMask flags and considering the context of the target
+    player (owner vs. receiver).
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized stable pet information
+      will be written. This buffer is typically used for sending packets to players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing data. If true, all fields are written regardless of their changed
+      status.
+  - name: owner
+    description: Pointer to the Player object representing the pet's owner. Used for
+      context-specific serialization and permission checks.
+  - name: receiver
+    description: Pointer to the Player object who will receive the serialized data.
+      Determines how information is formatted based on the receiver's perspective.
+  returns: null
+  examples:
+  - title: Basic usage for sending stable pet update to owner
+    code: 'ByteBuffer data;
+
+      StablePetInfo petInfo;
+
+      Player* owner = ...; // Get player object
+
+      Player* receiver = owner; // Same player as owner
+
+      petInfo.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to client via packet system'
+    language: cpp
+  - title: Sending update with ignoreChangesMask set to true
+    code: 'ByteBuffer data;
+
+      StablePetInfo petInfo;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      // Force write all fields regardless of change status
+
+      petInfo.WriteUpdate(data, true, owner, receiver);
+
+      // Send packet containing full pet state'
+    language: cpp
+  notes: This method is part of the TrinityCore's stable pet system and is typically
+    called during packet construction for sending pet updates to players. It uses
+    internal change tracking mechanisms to optimize network traffic. The method respects
+    player permissions and may serialize different data depending on whether the receiver
+    is the owner or another player.
+  warnings: Ensure that both owner and receiver pointers are valid before calling
+    this method, as invalid pointers can cause crashes. Be cautious when using ignoreChangesMask=true
+    in high-frequency scenarios as it may increase network traffic unnecessarily.
+  related:
+  - StablePetInfo::ReadUpdate
+  - StablePetInfo::SetGuid
+  - StablePetInfo::GetGuid
+  - StablePetInfo::SetDisplayId
+  - StablePetInfo::SetLevel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:44:41.827598'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,77 @@
+api:
+  class: CustomTabardInfo
+  method: WriteUpdate
+  signature: void CustomTabardInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes custom tabard information into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of a CustomTabardInfo
+    object into a ByteBuffer, preparing it for network transmission. This method is
+    typically used when sending updates about a player's custom tabard (such as guild
+    tabards) to other players in the game world. The serialization process respects
+    the changes mask unless explicitly ignored, and can be tailored for specific receivers.
+    It ensures that only relevant data is sent based on the owner and receiver context,
+    optimizing network usage.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized tabard data will be
+      written. This buffer is typically used to construct packets for network transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the internal changes mask
+      when serializing data. If true, all fields are written regardless of change
+      status; if false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object that owns the tabard being serialized.
+      This is used for determining what data should be included in the update.
+  - name: receiver
+    description: Pointer to the Player object who will receive this tabard update.
+      The serialization may vary based on the receiver's perspective or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      CustomTabardInfo tabard;
+
+      Player* owner = ...; // some player
+
+      Player* receiver = ...; // another player
+
+
+      tabard.WriteUpdate(data, false, owner, receiver);
+
+      // Now ''data'' contains the serialized tabard info for transmission'
+    language: cpp
+  - title: Forcing Full Update with Ignore Flag
+    code: 'ByteBuffer data;
+
+      CustomTabardInfo tabard;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+
+      // Force sending all tabard data, ignoring changes mask
+
+      (tabard.WriteUpdate(data, true, owner, receiver));
+
+      // Useful for initial login or when full state sync is needed'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet update system and should
+    be called during player updates or when tabard data changes. It leverages internal
+    change tracking to minimize bandwidth usage, but can be overridden using the ignoreChangesMask
+    parameter.
+  warnings: Ensure that both owner and receiver pointers are valid before calling
+    this method, as invalid pointers may lead to undefined behavior or crashes in
+    the serialization process.
+  related:
+  - CustomTabardInfo::ReadUpdate
+  - CustomTabardInfo::Reset
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:39:41.108233'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

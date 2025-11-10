@@ -1,0 +1,59 @@
+api:
+  class: AdaptiveBehaviorManager
+  method: UpdateProfiles
+  signature: void AdaptiveBehaviorManager::UpdateProfiles(uint32 diff, const CombatMetrics
+    & metrics, CombatSituation situation)
+documentation:
+  brief: Updates adaptive behavior profiles based on combat metrics and situation
+  description: The UpdateProfiles method is responsible for dynamically adjusting
+    AI behavior profiles in response to changing combat conditions. It processes real-time
+    combat data including damage dealt, received, and overall engagement metrics to
+    modify the decision-making parameters of NPC behaviors. This method typically
+    runs during each AI update cycle and helps ensure that creatures adapt their tactics
+    based on the current battlefield situation. The method evaluates the provided
+    combat metrics against predefined thresholds and adjusts behavior states accordingly.
+  parameters:
+  - name: diff
+    description: Time difference in milliseconds since last update, used to calculate
+      time-based behavior adjustments
+  - name: metrics
+    description: CombatMetrics object containing detailed combat statistics including
+      damage dealt/received, healing done, and engagement duration
+  - name: situation
+    description: CombatSituation enum value indicating current tactical state (e.g.,
+      engaged, fleeing, pursuing, etc.)
+  returns: null
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (me->IsInCombat())\n\
+      \    {\n        CombatMetrics metrics = GetCombatMetrics();\n        CombatSituation\
+      \ situation = GetCurrentCombatSituation();\n        sAdaptiveBehaviorManager->UpdateProfiles(diff,\
+      \ metrics, situation);\n    }\n}"
+    language: cpp
+  - title: Integration with custom behavior modification
+    code: "void AdaptiveBehaviorManager::UpdateProfiles(uint32 diff, const CombatMetrics\
+      \ & metrics, CombatSituation situation)\n{\n    // Update internal timers and\
+      \ counters\n    m_timeSinceLastUpdate += diff;\n    \n    // Apply adaptive\
+      \ adjustments based on combat data\n    if (metrics.DamageDealt > 1000 && situation\
+      \ == COMBAT_SITUATION_ENGAGED)\n    {\n        AdjustBehaviorProfile(BEHAVIOR_PROFILE_AGGRESSIVE);\n\
+      \    }\n    else if (metrics.DamageTaken > 500 && situation == COMBAT_SITUATION_ENGAGED)\n\
+      \    {\n        AdjustBehaviorProfile(BEHAVIOR_PROFILE_DEFENSIVE);\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the AI update loop and should be performance-conscious
+    as it may be invoked frequently during combat. The method relies on accurate CombatMetrics
+    data to make behavior decisions, so invalid or stale metrics could lead to inappropriate
+    behavior adjustments.
+  warnings: Ensure that CombatMetrics object contains valid data before calling this
+    method, as malformed data may cause unexpected behavior profile modifications.
+    This method modifies internal AI state directly and should not be called from
+    multiple threads without proper synchronization.
+  related:
+  - GetCombatMetrics
+  - GetCurrentCombatSituation
+  - AdjustBehaviorProfile
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T20:28:33.946551'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

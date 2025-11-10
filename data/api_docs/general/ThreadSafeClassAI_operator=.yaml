@@ -1,0 +1,59 @@
+api:
+  class: ThreadSafeClassAI
+  method: operator=
+  signature: ThreadSafeClassAI & ThreadSafeClassAI::operator=(const ThreadSafeClassAI
+    & param0)
+documentation:
+  brief: Assigns the contents of one ThreadSafeClassAI object to another, ensuring
+    thread-safe copying of AI state and behavior.
+  description: The assignment operator for ThreadSafeClassAI performs a deep copy
+    of all member variables from the source object to the target object. This operation
+    is designed to be thread-safe, meaning that concurrent access to the objects during
+    assignment will not result in data races or inconsistent states. The method ensures
+    that any AI-related state, including behavior flags, target information, and internal
+    timers, are properly transferred while maintaining synchronization across multiple
+    threads. This is particularly important in TrinityCore's multi-threaded environment
+    where AI systems may be accessed simultaneously by different game threads.
+  parameters:
+  - name: param0
+    description: The source ThreadSafeClassAI object whose contents will be copied
+      to this object. This parameter must not be null and should represent a valid
+      AI state that can be safely copied.
+  returns: A reference to the current ThreadSafeClassAI object (this) after the assignment
+    has been completed, allowing for chained assignments.
+  examples:
+  - title: Basic Assignment Example
+    code: 'ThreadSafeClassAI ai1;
+
+      ThreadSafeClassAI ai2 = ai1; // Uses copy constructor
+
+      // Or alternatively:
+
+      ai2 = ai1; // Uses assignment operator'
+    language: cpp
+  - title: Thread-Safe Assignment in Multi-threaded Context
+    code: "std::thread t1([&ai1, &ai2]() {\n    ai2 = ai1; // Thread-safe assignment\n\
+      });\nstd::thread t2([&ai1, &ai2]() {\n    ai2 = ai1; // Concurrent thread-safe\
+      \ assignment\n});\nt1.join();\nt2.join();"
+    language: cpp
+  notes: This operator is typically implemented using atomic operations or mutex locks
+    to ensure thread safety. The implementation should handle potential race conditions
+    during the copying of internal state variables, especially when dealing with AI
+    targets, movement states, and behavior flags. It's recommended that developers
+    avoid direct manipulation of AI state outside of controlled contexts to maintain
+    consistency.
+  warnings: Avoid using this operator in performance-critical sections without understanding
+    its thread-safety implications. While the operation is thread-safe, it may involve
+    locking mechanisms that could introduce latency in high-frequency scenarios. Also
+    ensure that the source object isn't modified during assignment to prevent inconsistent
+    state transfers.
+  related:
+  - ThreadSafeClassAI::ThreadSafeClassAI
+  - ThreadSafeClassAI::operator==
+  - ThreadSafeClassAI::CopyFrom
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T10:57:28.381177'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

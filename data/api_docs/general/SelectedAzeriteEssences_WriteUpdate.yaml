@@ -1,0 +1,85 @@
+api:
+  class: SelectedAzeriteEssences
+  method: WriteUpdate
+  signature: void SelectedAzeriteEssences::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AzeriteItem * owner, const Player * receiver) const
+documentation:
+  brief: Serializes selected azerite essences data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of selected azerite
+    essences owned by an item and writes it into a provided ByteBuffer. This is typically
+    used during packet construction for sending updates about azerite essence selections
+    to players in the game world. The method respects the ignoreChangesMask parameter
+    which can bypass change tracking logic, allowing full serialization regardless
+    of modification status. It requires both the owner (AzeriteItem) and receiver
+    (Player) parameters to properly construct the update packet with correct context.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized azerite essence data
+      will be written. This buffer is typically used for constructing network packets
+      sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking should be ignored.
+      When true, all essence data is serialized regardless of modification status;
+      when false, only changed data may be included.
+  - name: owner
+    description: Pointer to the AzeriteItem that owns these selected essences. Required
+      for determining which essences to serialize and their current state.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Used for context-specific
+      serialization and potentially for filtering data based on player state or permissions.
+  returns: No return value. The method directly modifies the provided ByteBuffer through
+    its reference parameter.
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      SelectedAzeriteEssences essences;
+
+      AzeriteItem* item = player->GetAzeriteItem();
+
+      essences.WriteUpdate(data, false, item, player);
+
+      WorldPacket packet(SMSG_AZERITE_ESSENCE_UPDATE, data.size());
+
+      packet.append(data);
+
+      player->SendDirectMessage(&packet);'
+    language: cpp
+  - title: Forcing Full Serialization with Ignore Flag
+    code: 'ByteBuffer data;
+
+      SelectedAzeriteEssences essences;
+
+      AzeriteItem* item = player->GetAzeriteItem();
+
+      // Force sending all essence data regardless of changes
+
+      essences.WriteUpdate(data, true, item, player);
+
+      WorldPacket packet(SMSG_AZERITE_ESSENCE_UPDATE, data.size());
+
+      packet.append(data);
+
+      player->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the azerite system implementation in TrinityCore and
+    is typically called during player update cycles or when specific essence changes
+    need to be communicated. The ByteBuffer passed should be properly initialized
+    before calling this method. Performance-wise, it's recommended to use ignoreChangesMask
+    = false for efficiency when possible.
+  warnings: Ensure that both owner (AzeriteItem) and receiver (Player) parameters
+    are valid pointers before calling this method, as null pointer dereferences may
+    occur. Be cautious with the ignoreChangesMask flag - setting it to true will serialize
+    all data even if unchanged, potentially causing unnecessary bandwidth usage.
+  related:
+  - GetSelectedEssences
+  - SetSelectedEssence
+  - HasChanged
+  - ResetChanges
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:06:15.564302'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

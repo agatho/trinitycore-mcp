@@ -1,0 +1,54 @@
+api:
+  class: BotWorldSessionMgrOptimized
+  method: UpdateSessionBatch
+  signature: void BotWorldSessionMgrOptimized::UpdateSessionBatch(const int & batch,
+    uint32 diff)
+documentation:
+  brief: Processes and updates all bot sessions within a specified batch.
+  description: The UpdateSessionBatch method handles the update cycle for a specific
+    batch of bot world sessions. It iterates through all active bot sessions belonging
+    to the given batch, performing necessary updates such as AI processing, movement
+    calculations, and state synchronization. This method is typically called during
+    the game loop to ensure that bots behave realistically and respond appropriately
+    to changes in their environment. The batch parameter determines which subset of
+    sessions should be processed in this update cycle, allowing for efficient distribution
+    of processing load across multiple frames.
+  parameters:
+  - name: batch
+    description: The identifier of the session batch to update. This value determines
+      which subset of bot sessions will be processed during this update cycle.
+  - name: diff
+    description: The time difference in milliseconds since the last update. Used to
+      calculate time-based updates such as movement, cooldowns, and AI decision timing.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void GameLoop()\n{\n    uint32 diff = sWorld->GetLastDiff();\n    for (int\
+      \ i = 0; i < MAX_BOT_BATCHES; ++i)\n    {\n        sBotWorldSessionMgrOptimized->UpdateSessionBatch(i,\
+      \ diff);\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with Batch Management
+    code: "void UpdateBots()\n{\n    uint32 diff = GetMSTimeDiff(m_lastUpdate, getMSTime());\n\
+      \    m_lastUpdate = getMSTime();\n    \n    // Process bots in batches to avoid\
+      \ frame spikes\n    for (int batch = 0; batch < sBotWorldSessionMgrOptimized->GetMaxBatchCount();\
+      \ ++batch)\n    {\n        if (sBotWorldSessionMgrOptimized->IsBatchActive(batch))\n\
+      \        {\n            sBotWorldSessionMgrOptimized->UpdateSessionBatch(batch,\
+      \ diff);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is designed to be called from the main game loop. The batch parameter
+    should be validated before calling to ensure it's within valid range. Performance
+    can be affected if too many sessions are processed in a single batch, so batching
+    is used for load distribution.
+  warnings: Calling this method with an invalid batch ID may result in undefined behavior
+    or crashes. Ensure that the batch exists and is properly initialized before invoking
+    this method.
+  related:
+  - GetMaxBatchCount
+  - IsBatchActive
+  - GetSessionCountForBatch
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T19:44:04.784816'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

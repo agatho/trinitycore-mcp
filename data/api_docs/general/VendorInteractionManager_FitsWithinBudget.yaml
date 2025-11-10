@@ -1,0 +1,60 @@
+api:
+  class: VendorInteractionManager
+  method: FitsWithinBudget
+  signature: bool VendorInteractionManager::FitsWithinBudget(uint64 goldCost, PurchasePriority
+    priority, const BudgetAllocation & budget) const
+documentation:
+  brief: Determines whether a purchase cost fits within the allocated budget based
+    on priority and current allocation.
+  description: The FitsWithinBudget method evaluates if a given gold cost can be accommodated
+    within the specified budget allocation, taking into account the purchase priority
+    level. This is used in vendor interactions to ensure that purchases do not exceed
+    available funds, respecting priority-based spending limits. The method considers
+    both the absolute cost and how it relates to the current budget state for the
+    given priority tier. It returns true if the purchase can be made without exceeding
+    budget constraints, false otherwise. This functionality is crucial for managing
+    player spending behavior in vendor transactions.
+  parameters:
+  - name: goldCost
+    description: The amount of gold required for the purchase. Must be a non-negative
+      value representing the cost in copper (100 copper = 1 silver, 100 silver = 1
+      gold).
+  - name: priority
+    description: The purchase priority level that determines which budget allocation
+      tier is used for evaluation. Priority levels typically define spending order
+      and limits.
+  - name: budget
+    description: Reference to the current budget allocation structure containing spending
+      limits and remaining funds for each priority level.
+  returns: Returns true if the goldCost can be subtracted from the budget without
+    exceeding the allocated limit for the given priority, false otherwise.
+  examples:
+  - title: Basic Budget Check
+    code: "if (vendorManager.FitsWithinBudget(50000, PurchasePriority::HIGH, playerBudget))\
+      \ {\n    // Proceed with purchase\n    playerBudget.Spend(PurchasePriority::HIGH,\
+      \ 50000);\n}"
+    language: cpp
+  - title: Conditional Purchase Logic
+    code: "uint64 itemCost = 125000;\nPurchasePriority itemPriority = PurchasePriority::MEDIUM;\n\
+      \nif (vendorManager.FitsWithinBudget(itemCost, itemPriority, playerBudget))\
+      \ {\n    // Item can be purchased\n    vendorManager.ProcessPurchase(itemCost,\
+      \ itemPriority);\n} else {\n    // Handle insufficient funds\n    SendNotification(\"\
+      Insufficient funds for purchase.\");\n}"
+    language: cpp
+  notes: This method assumes the budget allocation is properly initialized and updated
+    before each call. The implementation likely uses internal tracking of spent amounts
+    per priority level to make accurate comparisons. Performance is generally fast
+    as it only requires simple arithmetic comparisons.
+  warnings: Ensure that the budget parameter is valid and contains correct allocation
+    data; otherwise, results may be unpredictable. Be aware that this method does
+    not modify the actual budget state - it only performs a read-only check.
+  related:
+  - VendorInteractionManager::ProcessPurchase
+  - VendorInteractionManager::GetRemainingBudget
+  - BudgetAllocation::Spend
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T17:41:54.124016'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

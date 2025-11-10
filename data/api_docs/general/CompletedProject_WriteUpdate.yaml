@@ -1,0 +1,72 @@
+api:
+  class: CompletedProject
+  method: WriteUpdate
+  signature: void CompletedProject::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes update data for a completed project to a ByteBuffer, including optional
+    owner and receiver information.
+  description: The WriteUpdate method serializes the state of a CompletedProject instance
+    into a ByteBuffer for network transmission or storage purposes. It allows for
+    conditional inclusion of change masks based on the ignoreChangesMask parameter
+    and can optionally include player-specific context via owner and receiver parameters.
+    This method is typically used in World of Warcraft's TrinityCore framework to
+    synchronize project completion states between clients and server, particularly
+    when handling quest progress or achievement data. The method does not modify the
+    internal state of the CompletedProject object but prepares serialized data for
+    external use.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for network packet construction or database
+      serialization.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking masks should
+      be ignored during serialization. When true, all fields are written regardless
+      of their modification status; when false, only changed fields are included.
+  - name: owner
+    description: Pointer to the Player object representing the project owner. May
+      be null if no owner context is required for this update operation.
+  - name: receiver
+    description: Pointer to the Player object representing the intended receiver of
+      the update data. May be null if no specific recipient context is needed.
+  returns: void
+  examples:
+  - title: Basic usage with change tracking
+    code: 'ByteBuffer buffer;
+
+      CompletedProject project;
+
+      Player* owner = ...; // valid player pointer
+
+      Player* receiver = ...; // valid player pointer
+
+      project.WriteUpdate(buffer, false, owner, receiver);'
+    language: cpp
+  - title: Usage ignoring change masks for full serialization
+    code: 'ByteBuffer buffer;
+
+      CompletedProject project;
+
+      project.WriteUpdate(buffer, true, nullptr, nullptr);'
+    language: cpp
+  notes: This method is part of the TrinityCore update system and should be called
+    during network packet preparation or data synchronization operations. The ByteBuffer
+    parameter must be properly initialized before calling this method. Performance
+    considerations include avoiding unnecessary calls when ignoreChangesMask is false,
+    as the method may perform additional checks for changed fields.
+  warnings: Ensure that the owner and receiver parameters are valid pointers to Player
+    objects, or they should be null. Passing invalid pointers can lead to undefined
+    behavior. The method assumes that the ByteBuffer has sufficient capacity to hold
+    all serialized data; otherwise, it may cause buffer overflows or exceptions depending
+    on implementation details.
+  related:
+  - CompletedProject::ReadUpdate
+  - CompletedProject::GetGUID
+  - CompletedProject::IsCompleted
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:54:40.213931'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

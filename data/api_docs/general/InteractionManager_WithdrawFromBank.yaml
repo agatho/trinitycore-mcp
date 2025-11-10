@@ -1,0 +1,66 @@
+api:
+  class: InteractionManager
+  method: WithdrawFromBank
+  signature: bool InteractionManager::WithdrawFromBank(Player * bot, Creature * banker,
+    uint32 itemId, uint32 count)
+documentation:
+  brief: Withdraws a specified quantity of an item from the bot's bank account into
+    its inventory.
+  description: The WithdrawFromBank method facilitates the transfer of items from
+    a player's bank storage to their character's inventory. It handles the validation
+    of item existence, sufficient quantity in the bank, and proper inventory space
+    availability. The method interacts with the game's banking system to ensure that
+    only valid transactions occur, preventing duplicate withdrawals or overdraws.
+    This function is typically used by AI bots or automated systems to manage their
+    resources efficiently.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the character from whose
+      bank items will be withdrawn.
+  - name: banker
+    description: Pointer to the Creature object representing the banker NPC with whom
+      the transaction is being conducted.
+  - name: itemId
+    description: The unique identifier of the item to be withdrawn from the bank.
+      Must correspond to a valid item in the game database.
+  - name: count
+    description: The number of items to withdraw from the bank. Must be a positive
+      integer representing the quantity desired.
+  returns: Returns true if the withdrawal was successful and the items were moved
+    to the player's inventory; returns false if the operation failed due to insufficient
+    funds, invalid item ID, or lack of inventory space.
+  examples:
+  - title: Basic Withdrawal Example
+    code: "if (InteractionManager::WithdrawFromBank(bot, banker, 12345, 10)) {\n \
+      \   // Successfully withdrew 10 items with ID 12345\n    bot->GetSession()->SendNotification(\"\
+      Successfully withdrew items from bank.\");\n} else {\n    // Withdrawal failed\n\
+      \    bot->GetSession()->SendNotification(\"Failed to withdraw items from bank.\"\
+      );\n}"
+    language: cpp
+  - title: Advanced Withdrawal with Error Handling
+    code: "uint32 itemId = 12345;\nuint32 count = 50;\n\nif (!bot || !banker) {\n\
+      \    sLog->outError(\"Invalid bot or banker pointer\");\n    return false;\n\
+      }\n\nif (InteractionManager::WithdrawFromBank(bot, banker, itemId, count)) {\n\
+      \    sLog->outString(\"Successfully withdrew %u of item %u from bank.\", count,\
+      \ itemId);\n    // Update UI or perform other actions\n} else {\n    sLog->outError(\"\
+      Failed to withdraw %u of item %u from bank.\", count, itemId);\n    // Handle\
+      \ failure appropriately\n}"
+    language: cpp
+  notes: This method assumes that the player has sufficient access rights to the bank
+    and that the banker NPC is within interaction range. The implementation may involve
+    database operations and session updates to reflect the changes in inventory and
+    bank state.
+  warnings: Ensure that the bot and banker pointers are valid before calling this
+    function, as passing null pointers can lead to crashes or undefined behavior.
+    Also, be cautious when withdrawing large quantities of items, as it might cause
+    inventory overflow if not checked beforehand.
+  related:
+  - DepositToBank
+  - HasItemInBank
+  - GetBankItemCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:08:50.360112'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

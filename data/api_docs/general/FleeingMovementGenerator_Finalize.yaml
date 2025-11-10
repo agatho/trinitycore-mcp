@@ -1,0 +1,63 @@
+api:
+  class: FleeingMovementGenerator
+  method: Finalize
+  signature: void FleeingMovementGenerator::Finalize(int * owner, bool param1, bool
+    param2)
+documentation:
+  brief: Completes the fleeing movement behavior for a creature, cleaning up resources
+    and resetting movement state.
+  description: The Finalize method in FleeingMovementGenerator is responsible for
+    completing the fleeing behavior of a creature. It performs cleanup operations
+    such as releasing any acquired resources, resetting internal movement flags, and
+    ensuring that the creature's movement state is properly transitioned back to a
+    stable condition after fleeing has concluded. This method is typically called
+    when the fleeing movement generator is being removed or deactivated, either because
+    the creature has reached its destination, the flee condition has been resolved,
+    or the movement generator is being replaced by another movement behavior. The
+    method ensures that no dangling references or invalid states remain in the movement
+    system.
+  parameters:
+  - name: owner
+    description: Pointer to the creature object that owns this movement generator.
+      Used to access and modify the creature's movement state and properties during
+      finalization.
+  - name: param1
+    description: Boolean flag indicating whether the flee behavior should be interrupted
+      or completed normally. When true, it may trigger additional cleanup or event
+      notifications.
+  - name: param2
+    description: Boolean flag that determines if any additional post-flee actions
+      should be executed. This might include resetting combat state or triggering
+      related AI events.
+  returns: null
+  examples:
+  - title: Basic usage in movement generator cleanup
+    code: "void MyAI::OnFleeComplete()\n{\n    FleeingMovementGenerator* fleeGen =\
+      \ new FleeingMovementGenerator();\n    fleeGen->Finalize(&m_creature, true,\
+      \ false);\n    delete fleeGen;\n}"
+    language: cpp
+  - title: Integration with creature state management
+    code: "void Creature::OnFleeFinished()\n{\n    if (movementGenerator && movementGenerator->GetMovementType()\
+      \ == FLEEING_MOTION_TYPE)\n    {\n        FleeingMovementGenerator* fleeGen\
+      \ = static_cast<FleeingMovementGenerator*>(movementGenerator);\n        fleeGen->Finalize(&m_creature,\
+      \ true, true);\n        m_creature.ClearUnitState(UNIT_STATE_FLEEING);\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method should only be called when the movement generator is no longer
+    active or about to be destroyed. It assumes that the owner creature is valid and
+    accessible. The method does not perform any direct pathfinding or movement updates;
+    it focuses on state cleanup and transition.
+  warnings: Calling Finalize without proper ownership checks may lead to undefined
+    behavior or crashes if the owner pointer is invalid. Ensure that the movement
+    generator is in a valid state before calling this method, especially when dealing
+    with asynchronous or multi-threaded environments.
+  related:
+  - FleeingMovementGenerator::Initialize
+  - FleeingMovementGenerator::Update
+  - FleeingMovementGenerator::DoInitialize
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:46:00.470520'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

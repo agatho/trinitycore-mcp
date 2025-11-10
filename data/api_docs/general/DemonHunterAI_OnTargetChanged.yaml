@@ -1,0 +1,48 @@
+api:
+  class: DemonHunterAI
+  method: OnTargetChanged
+  signature: void DemonHunterAI::OnTargetChanged(int * newTarget)
+documentation:
+  brief: Updates the AI's target reference when the current target changes.
+  description: The OnTargetChanged method is invoked by the DemonHunterAI class to
+    handle updates to the creature's current target. This method is typically called
+    internally by the AI system when a new target is selected or when the existing
+    target becomes invalid. It allows the AI to react appropriately to target changes,
+    such as recalculating threat levels, updating combat behavior, or triggering specific
+    abilities based on the new target. The method ensures that the Demon Hunter's
+    AI remains synchronized with the current target state for optimal combat performance.
+  parameters:
+  - name: newTarget
+    description: Pointer to an integer representing the new target's unique identifier
+      (GUID). This parameter may be null if no valid target exists.
+  returns: void
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void DemonHunterAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = GetVictim())\n\
+      \    {\n        OnTargetChanged(&target->GetGUID().GetRawValue());\n    }\n\
+      \    else\n    {\n        OnTargetChanged(nullptr);\n    }\n}"
+    language: cpp
+  - title: Handling target change with ability activation
+    code: "void DemonHunterAI::OnTargetChanged(int* newTarget)\n{\n    if (newTarget\
+      \ != nullptr)\n    {\n        // Activate abilities based on new target\n  \
+      \      if (me->GetDistance2d(*newTarget) < 5.0f)\n        {\n            DoCast(SPELL_FEL_RUSH);\n\
+      \        }\n    }\n    else\n    {\n        // Reset combat state when no target\n\
+      \        me->SetReactState(REACT_PASSIVE);\n    }\n}"
+    language: cpp
+  notes: This method is part of the core AI update cycle and should be called only
+    when a legitimate target change occurs. The parameter 'newTarget' represents a
+    raw GUID value, not a Unit pointer. Ensure that any target validation logic accounts
+    for potential null values.
+  warnings: Improper handling of the newTarget parameter may lead to invalid memory
+    access or incorrect AI behavior. Always validate that the GUID corresponds to
+    a valid unit before using it in operations.
+  related:
+  - GetVictim
+  - AttackStart
+  - SetVictim
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:23:05.540302'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

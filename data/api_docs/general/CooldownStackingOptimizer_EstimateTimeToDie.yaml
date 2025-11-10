@@ -1,0 +1,53 @@
+api:
+  class: CooldownStackingOptimizer
+  method: EstimateTimeToDie
+  signature: uint32 CooldownStackingOptimizer::EstimateTimeToDie(Unit * target) const
+documentation:
+  brief: Estimates the time until a target unit dies based on current cooldown stacking
+    behavior.
+  description: The EstimateTimeToDie method calculates an estimated time-to-death
+    for a given target unit by analyzing the current cooldown stacking state of abilities
+    and effects that influence the unit's survival. This estimation is used in AI
+    decision-making processes to determine optimal timing for ability usage, particularly
+    in scenarios involving damage-over-time (DoT) effects or abilities with cooldowns
+    that reset upon killing a target. The method does not directly simulate combat
+    but rather provides a heuristic-based prediction based on existing cooldown data
+    and unit state information. It assumes the target is alive and that its current
+    health and status effects are accurately represented in the system.
+  parameters: []
+  returns: Returns a uint32 value representing the estimated time (in milliseconds)
+    until the target unit is expected to die, based on current cooldown stacking behavior
+    and damage output. A return value of 0 indicates that the target is either already
+    dead or the estimation cannot be made due to insufficient data.
+  examples:
+  - title: Basic usage in AI logic
+    code: "uint32 timeToDie = optimizer.EstimateTimeToDie(targetUnit);\nif (timeToDie\
+      \ < 5000) // Less than 5 seconds\n{\n    // Use an instant-kill ability\n  \
+      \  unit->CastSpell(targetUnit, SPELL_INSTANT_KILL, true);\n}"
+    language: cpp
+  - title: Using estimated time to prioritize targets
+    code: "Unit* bestTarget = nullptr;\nuint32 minTimeToDie = UINT32_MAX;\n\nfor (auto&\
+      \ target : possibleTargets)\n{\n    uint32 estimate = optimizer.EstimateTimeToDie(target);\n\
+      \    if (estimate < minTimeToDie && estimate > 0)\n    {\n        minTimeToDie\
+      \ = estimate;\n        bestTarget = target;\n    }\n}\n\nif (bestTarget)\n{\n\
+      \    // Prioritize killing the target with lowest estimated time to die\n  \
+      \  unit->Attack(bestTarget, true);\n}"
+    language: cpp
+  notes: This method relies on accurate cooldown tracking and damage estimation logic
+    within the CooldownStackingOptimizer class. It may not account for external factors
+    such as healing, mitigation effects, or environmental conditions that could alter
+    actual time-to-death. The result is a best-effort heuristic rather than a precise
+    simulation.
+  warnings: Do not assume this value represents exact timing; it's an estimation used
+    for strategic decision-making. Using the result directly in combat calculations
+    without validation may lead to suboptimal behavior or unexpected outcomes.
+  related:
+  - GetCooldownStacks
+  - IsAbilityReady
+  - UpdateCooldownState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:47:38.001938'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: SurvivalHunter
+  method: CanUseAbility
+  signature: bool SurvivalHunter::CanUseAbility(uint32 spellId)
+documentation:
+  brief: Determines whether a Survival Hunter can use a specified ability based on
+    game rules and conditions.
+  description: The CanUseAbility method evaluates if a Survival Hunter character is
+    eligible to cast or activate a specific spell or ability. This check typically
+    considers factors such as mana requirements, cooldowns, player state (e.g., dead,
+    stunned), pet status, and other game mechanics relevant to the hunter's class
+    and specialization. The method serves as a core validation function in the AI
+    and action execution system of the Survival Hunter class within TrinityCore. It
+    is commonly used before attempting to use an ability to prevent invalid actions
+    from being processed.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell or ability to be checked for usability.
+      This ID corresponds to entries in the Spell.dbc database file and must represent
+      a valid ability available to the Survival Hunter class.
+  returns: Returns true if the hunter can use the specified ability under current
+    conditions, otherwise returns false. A return value of false may indicate insufficient
+    resources (mana, rage, energy), active cooldowns, invalid target state, or other
+    restrictions imposed by game mechanics.
+  examples:
+  - title: Basic Usage Check
+    code: "if (player->GetPlayerClass() == CLASS_HUNTER && player->GetSubClass() ==\
+      \ HUNTER_SUBCLASS_SURVIVAL) {\n    SurvivalHunter* hunter = static_cast<SurvivalHunter*>(player);\n\
+      \    if (hunter->CanUseAbility(146555)) { // Aspect of the Cheetah\n       \
+      \ // Proceed with using the ability\n        hunter->CastSpell(target, 146555,\
+      \ true);\n    } else {\n        // Handle inability to use ability\n       \
+      \ player->SendSystemMessage(\"Cannot use this ability at this time.\");\n  \
+      \  }\n}"
+    language: cpp
+  - title: Integration with AI Decision Making
+    code: "bool SurvivalHunter::SelectBestAbility(Unit* target) {\n    // Check if\
+      \ we can use Serpent Sting\n    if (CanUseAbility(1978)) {\n        CastSpell(target,\
+      \ 1978, true);\n        return true;\n    }\n    // Check if we can use Aimed\
+      \ Shot\n    else if (CanUseAbility(19434)) {\n        CastSpell(target, 19434,\
+      \ true);\n        return true;\n    }\n    // Default to basic attack or other\
+      \ fallback\n    return false;\n}"
+    language: cpp
+  notes: This method is part of the core AI decision-making loop for Survival Hunters.
+    It should be called before attempting to cast any spell or ability to avoid invalid
+    actions and improve performance by preventing unnecessary processing. The implementation
+    likely includes checks against global cooldowns, resource availability, and pet-related
+    conditions specific to the hunter's gameplay style.
+  warnings: Do not assume that calling this method guarantees successful casting of
+    the spell. Additional checks such as line-of-sight, target validity, and combat
+    state should still be performed before executing the actual spell cast. This method
+    does not account for temporary buffs or debuffs that might affect usability in
+    real-time.
+  related:
+  - CastSpell
+  - HasMana
+  - IsCasting
+  - GetPet
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T14:38:09.188557'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

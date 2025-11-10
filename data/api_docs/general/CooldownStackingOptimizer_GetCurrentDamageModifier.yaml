@@ -1,0 +1,54 @@
+api:
+  class: CooldownStackingOptimizer
+  method: GetCurrentDamageModifier
+  signature: float CooldownStackingOptimizer::GetCurrentDamageModifier() const
+documentation:
+  brief: Calculates and returns the current damage modifier based on cooldown stacking
+    mechanics.
+  description: The GetCurrentDamageModifier method retrieves the cumulative damage
+    multiplier applied to a spell or ability due to cooldown stacking effects. This
+    value is typically used in conjunction with cooldown reduction mechanics to determine
+    how much additional damage is dealt when abilities are cast in quick succession.
+    The returned float represents a multiplicative factor (e.g., 1.0 for no modifier,
+    1.5 for 50% increased damage). This method does not modify internal state and
+    is read-only, making it safe to call during active combat or spell processing.
+  parameters: []
+  returns: A float value representing the current cumulative damage modifier. A value
+    of 1.0 indicates no damage increase, while values greater than 1.0 indicate increased
+    damage (e.g., 1.25 means 25% more damage). Values less than 1.0 are not typical
+    for this method but may occur in edge cases involving debuffs or negative modifiers.
+  examples:
+  - title: Basic Usage in Spell Processing
+    code: 'float modifier = optimizer.GetCurrentDamageModifier();
+
+      float finalDamage = baseDamage * modifier;
+
+      // Apply finalDamage to target'
+    language: cpp
+  - title: Using Modifier for Damage Calculation
+    code: "void ApplyCooldownDamageBoost(Player* player, SpellInfo const* spellInfo)\n\
+      {\n    CooldownStackingOptimizer& optimizer = player->GetCooldownStackingOptimizer();\n\
+      \    float damageMod = optimizer.GetCurrentDamageModifier();\n    if (damageMod\
+      \ > 1.0f)\n    {\n        // Log or display increased damage\n        sLog->outString(\"\
+      Cooldown stacking increased damage by %.2f%%\", (damageMod - 1.0f) * 100);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that cooldown stacking effects have already been properly
+    calculated and applied to the optimizer's internal state. It should only be called
+    after relevant cooldown events have occurred, such as successful spell casts or
+    ability usage. The value returned is cached and may not reflect real-time changes
+    unless the optimizer has been updated with new cooldown data.
+  warnings: Calling this method before any cooldown stacking has occurred may return
+    unexpected values (e.g., 1.0 if no stacking was applied). Ensure that the CooldownStackingOptimizer
+    instance is properly initialized and updated before invoking this method to avoid
+    incorrect damage calculations.
+  related:
+  - SetCurrentDamageModifier
+  - UpdateCooldownStacking
+  - GetRemainingCooldownTime
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T14:58:06.129219'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

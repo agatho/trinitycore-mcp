@@ -1,0 +1,65 @@
+api:
+  class: GroupEvent
+  method: RaidMarkerChanged
+  signature: GroupEvent GroupEvent::RaidMarkerChanged(int groupGuid, uint32 markerId,
+    const Position & position)
+documentation:
+  brief: Creates a GroupEvent representing a raid marker change in a group
+  description: The RaidMarkerChanged method constructs and returns a GroupEvent object
+    that signifies when a raid marker has been updated or modified within a group
+    context. This event is typically used to notify group members about changes to
+    raid markers placed on the minimap or world map, which are commonly used for coordinating
+    group activities such as targeting enemies, marking objectives, or indicating
+    important locations during raids or dungeons. The method takes the group's GUID,
+    the marker ID, and the position where the marker was placed to create a complete
+    event representation.
+  parameters:
+  - name: groupGuid
+    description: The unique identifier (GUID) of the group where the raid marker change
+      occurred. This is typically a 32-bit integer representing the group's identifier
+      in the game world.
+  - name: markerId
+    description: The ID of the raid marker that was changed. This value usually corresponds
+      to predefined marker types such as 'Attack', 'Defend', 'Move', etc., and is
+      used to determine how the marker should be displayed or interpreted by clients.
+  - name: position
+    description: The Position object containing the X, Y, and Z coordinates where
+      the raid marker was placed. This represents the world location of the marker
+      in the game environment.
+  returns: A GroupEvent object representing the raid marker change event. The returned
+    object contains all necessary information to propagate this event through the
+    group system and notify other players.
+  examples:
+  - title: Basic usage of RaidMarkerChanged
+    code: 'GroupEvent event = GroupEvent::RaidMarkerChanged(12345, 2, Position(100.0f,
+      200.0f, 300.0f));
+
+      // This creates an event for a marker change in group with GUID 12345
+
+      // The marker ID is 2 (e.g., ''Defend''), located at position (100, 200, 300)'
+    language: cpp
+  - title: Using RaidMarkerChanged in a raid context
+    code: "void OnPlayerRaidMarkerUpdate(Player* player, uint32 markerId, Position\
+      \ position)\n{\n    Group* group = player->GetGroup();\n    if (group)\n   \
+      \ {\n        GroupEvent event = GroupEvent::RaidMarkerChanged(group->GetGUID().GetCounter(),\
+      \ markerId, position);\n        group->BroadcastGroupEvent(event);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's group event system and is typically
+    used internally by the server to handle raid marker updates. The Position object
+    must be valid and within the bounds of the current map for proper functionality.
+    Event propagation may depend on the group's settings and whether players are in
+    range or have the appropriate permissions.
+  warnings: Ensure that the group GUID is valid before calling this method, as invalid
+    GUIDs can lead to undefined behavior. The markerId should correspond to a known
+    raid marker type; otherwise, clients might not interpret it correctly. Avoid calling
+    this method outside of proper game state contexts where group events are expected.
+  related:
+  - GroupEvent::RaidMarkerCreated
+  - GroupEvent::RaidMarkerRemoved
+  - GroupEvent::RaidMarkerMoved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:20:43.400903'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

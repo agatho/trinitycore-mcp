@@ -1,0 +1,53 @@
+api:
+  class: RoleAssignment
+  method: ExecuteStrictStrategy
+  signature: void RoleAssignment::ExecuteStrictStrategy(Group * group)
+documentation:
+  brief: Executes a strict role assignment strategy for a group, enforcing predefined
+    role distributions based on player attributes and group composition.
+  description: The ExecuteStrictStrategy method applies a deterministic role assignment
+    algorithm to a specified group in TrinityCore. This function ensures that players
+    within the group are assigned roles (such as tank, healer, or damage dealer) according
+    to a strict set of rules defined by the game's role management system. The method
+    analyzes player class, specialization, and other relevant attributes to distribute
+    roles evenly and appropriately across the group. It is typically invoked during
+    group creation or reorganization to maintain optimal team composition for dungeons,
+    raids, or battlegrounds. This strategy enforces hard constraints on role distribution,
+    meaning it will not assign a role if doing so would violate the strict rules of
+    the assignment algorithm.
+  parameters:
+  - name: group
+    description: Pointer to the Group object for which the strict role assignment
+      strategy will be executed. Must be a valid group instance with at least one
+      member. The group must not be null or in an invalid state.
+  returns: null
+  examples:
+  - title: Basic Role Assignment Execution
+    code: "Group* myGroup = sGroupMgr->GetGroupById(groupId);\nif (myGroup)\n{\n \
+      \   RoleAssignment roleAssign;\n    roleAssign.ExecuteStrictStrategy(myGroup);\n\
+      }"
+    language: cpp
+  - title: Role Assignment with Error Handling
+    code: "Group* group = sGroupMgr->GetGroupById(12345);\nif (group && group->IsLeader(playerGuid))\n\
+      {\n    RoleAssignment roleAssign;\n    roleAssign.ExecuteStrictStrategy(group);\n\
+      \    // Role assignments are now enforced for the group\n}"
+    language: cpp
+  notes: This method modifies the internal state of the group by updating player roles.
+    It should only be called when the group is stable and all members are present.
+    The implementation may involve multiple iterations to achieve a valid role distribution,
+    especially in larger groups. Performance impact is minimal for small groups but
+    can increase with larger compositions due to the complexity of constraint solving.
+  warnings: Calling this method on an empty or invalid group pointer will result in
+    undefined behavior. Ensure that the group contains valid members before invoking
+    this function. This method does not perform any validation of group leader status,
+    so it should only be called by trusted code with proper authority checks.
+  related:
+  - RoleAssignment::ExecuteFlexibleStrategy
+  - Group::GetMembers
+  - Group::SetLeader
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:25:42.821140'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

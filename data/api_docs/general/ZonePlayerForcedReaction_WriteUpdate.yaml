@@ -1,0 +1,73 @@
+api:
+  class: ZonePlayerForcedReaction
+  method: WriteUpdate
+  signature: void ZonePlayerForcedReaction::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the forced reaction data for a player's zone to a ByteBuffer.
+  description: The WriteUpdate method serializes the current state of forced reactions
+    for a player's zone into a provided ByteBuffer. This method is typically used
+    during network updates to synchronize client-side forced reaction states with
+    server-side data. It handles the encoding of reaction changes and ensures that
+    only relevant data is sent to the specified receiver player. The method respects
+    the ignoreChangesMask parameter which can be used to bypass change tracking logic
+    for specific scenarios. This functionality is crucial for maintaining accurate
+    faction relationship states in the game world, particularly when players enter
+    or leave zones with modified forced reactions.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized forced reaction data
+      will be written. This buffer is typically used for network packet construction.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether change tracking should be ignored.
+      When true, all forced reaction data is written regardless of change status.
+  - name: owner
+    description: Pointer to the Player object whose forced reactions are being serialized.
+      This represents the source of the data being written.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used for
+      determining what data should be sent based on visibility rules.
+  returns: null
+  examples:
+  - title: Basic usage in network update
+    code: 'ByteBuffer data;
+
+      bool ignoreMask = false;
+
+      Player* ownerPlayer = ...; // some player
+
+      Player* receiverPlayer = ...; // target player
+
+      zoneForcedReaction.WriteUpdate(data, ignoreMask, ownerPlayer, receiverPlayer);'
+    language: cpp
+  - title: Writing update with forced mask
+    code: 'ByteBuffer packetData;
+
+      bool forceWrite = true;
+
+      Player* source = player1;
+
+      Player* target = player2;
+
+      zoneForcedReaction.WriteUpdate(packetData, forceWrite, source, target);
+
+      // Send packetData to target player''s connection'
+    language: cpp
+  notes: This method is part of the World of Warcraft TrinityCore server implementation
+    and is used in conjunction with network packet handling. The ByteBuffer parameter
+    should be properly initialized before calling this method. Performance considerations
+    include avoiding unnecessary writes when ignoreChangesMask is false, as it may
+    trigger additional change detection logic.
+  warnings: Improper use of the ignoreChangesMask parameter can lead to excessive
+    network traffic or synchronization issues. Ensure that the owner and receiver
+    parameters are valid Player objects to prevent null pointer dereferences.
+  related:
+  - GetForcedReactions
+  - SetForcedReaction
+  - UpdateForcedReactions
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T16:39:09.744022'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: QuestSession
+  method: WriteCreate
+  signature: void QuestSession::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes quest session data into a ByteBuffer for transmission to players.
+  description: The WriteCreate method serializes the current quest session state into
+    a ByteBuffer, preparing it for network transmission to both the owner and receiver
+    players. This method is typically invoked when initializing or updating quest
+    session states in the game world, ensuring that player clients receive accurate
+    quest progress information. The serialized data includes essential quest metadata,
+    objective states, and any relevant timestamps or flags needed for client-side
+    quest display and synchronization.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized quest session data
+      will be written.
+  - name: owner
+    description: Pointer to the Player object who owns the quest session. Can be null
+      if no owner exists.
+  - name: receiver
+    description: Pointer to the Player object who will receive the quest session data.
+      Can be null if no receiver exists.
+  returns: null
+  examples:
+  - title: Basic usage in quest initialization
+    code: 'ByteBuffer data;
+
+      Player* owner = player1;
+
+      Player* receiver = player2;
+
+      questSession.WriteCreate(data, owner, receiver);
+
+      // Send data to client
+
+      WorldPacket packet(SMSG_QUEST_UPDATE_COMPLETE, data.size());
+
+      packet.append(data);
+
+      owner->SendDirectMessage(&packet);'
+    language: cpp
+  - title: Using with quest session update logic
+    code: "void UpdateQuestSession(QuestSession* session, Player* owner, Player* receiver)\
+      \ {\n    ByteBuffer data;\n    session->WriteCreate(data, owner, receiver);\n\
+      \    WorldPacket packet(SMSG_QUEST_UPDATE_ADD_KILL, data.size());\n    packet.append(data);\n\
+      \    if (receiver)\n        receiver->SendDirectMessage(&packet);\n}"
+    language: cpp
+  notes: This method is part of the internal quest session management system and should
+    not be called directly by external modules unless implementing custom quest handling
+    logic. The ByteBuffer must be properly initialized before calling this method,
+    otherwise undefined behavior may occur.
+  warnings: Ensure that both owner and receiver parameters are valid Player pointers
+    before calling this method to prevent null pointer dereferences. This method modifies
+    the provided ByteBuffer in-place, so make sure it's not being used elsewhere concurrently.
+  related:
+  - QuestSession::ReadCreate
+  - QuestSession::Update
+  - QuestSession::IsComplete
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:21:00.078834'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

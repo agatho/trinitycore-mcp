@@ -1,0 +1,54 @@
+api:
+  class: CooldownCalculator
+  method: GetCacheMutex
+  signature: std::recursive_mutex & CooldownCalculator::GetCacheMutex()
+documentation:
+  brief: Returns a reference to the internal recursive mutex used for thread-safe
+    access to the cooldown cache.
+  description: The GetCacheMutex method provides external access to the internal std::recursive_mutex
+    that protects the cooldown calculator's cache data structure. This mutex is essential
+    for ensuring thread safety when multiple threads attempt to read from or modify
+    the cooldown cache simultaneously. The returned reference allows callers to acquire
+    and release the lock as needed, enabling safe concurrent operations on the cooldown
+    data. In TrinityCore's context, this is particularly important for managing spell
+    and ability cooldowns across different threads such as those handling player actions,
+    AI updates, and world updates.
+  parameters: []
+  returns: A reference to the std::recursive_mutex used internally by the CooldownCalculator
+    class to synchronize access to its cache. This mutex can be used to acquire locks
+    for thread-safe operations on the cooldown data.
+  examples:
+  - title: Basic Mutex Lock Usage
+    code: 'CooldownCalculator calculator;
+
+      std::lock_guard<std::recursive_mutex> lock(calculator.GetCacheMutex());
+
+      // Critical section: safe access to cooldown cache
+
+      '
+    language: cpp
+  - title: Thread-Safe Cooldown Cache Access
+    code: "void SomeFunction(CooldownCalculator& calc) {\n    std::unique_lock<std::recursive_mutex>\
+      \ lock(calc.GetCacheMutex());\n    // Perform operations on cooldown cache\n\
+      \    // Lock is automatically released when lock goes out of scope\n}"
+    language: cpp
+  notes: The mutex returned is a recursive mutex, which means it can be locked multiple
+    times by the same thread without causing a deadlock. This is particularly useful
+    in TrinityCore's architecture where nested locking scenarios may occur during
+    complex spell processing or AI calculations. The mutex should only be used for
+    protecting access to the cooldown cache data structure, not for general-purpose
+    synchronization.
+  warnings: Do not hold the returned mutex lock for extended periods as this can cause
+    performance bottlenecks and potential deadlocks in multi-threaded environments.
+    Always use RAII-style locking (like std::lock_guard or std::unique_lock) to ensure
+    proper release of the lock even if exceptions occur.
+  related:
+  - CooldownCalculator::GetCooldown
+  - CooldownCalculator::SetCooldown
+  - CooldownCalculator::HasCooldown
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T14:59:12.663019'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

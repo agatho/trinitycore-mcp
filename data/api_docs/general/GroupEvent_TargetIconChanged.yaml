@@ -1,0 +1,71 @@
+api:
+  class: GroupEvent
+  method: TargetIconChanged
+  signature: GroupEvent GroupEvent::TargetIconChanged(int groupGuid, uint8 icon, int
+    targetGuid)
+documentation:
+  brief: Creates a GroupEvent indicating that a target icon has been changed within
+    a group
+  description: The TargetIconChanged method generates a GroupEvent object that represents
+    a change in the target icon assigned to a specific group member. This event is
+    typically used in World of Warcraft's group management system to notify clients
+    and systems when a player's role or target marker (such as raid icons) has been
+    updated. The method takes the group GUID, the new icon index, and the target player's
+    GUID as parameters to construct the event. This functionality supports raid coordination
+    features where players assign special markers to targets for easier identification
+    during group activities.
+  parameters:
+  - name: groupGuid
+    description: The unique identifier (GUID) of the group where the icon change occurred.
+      This identifies which specific group is affected by the event.
+  - name: icon
+    description: The new target icon index that was assigned to the target. Valid
+      values are typically 0-7 representing different raid icons (none, skull, cross,
+      etc.).
+  - name: targetGuid
+    description: The unique identifier (GUID) of the player whose target icon has
+      been changed. This identifies which specific group member's icon was modified.
+  returns: A GroupEvent object representing the target icon change event, containing
+    all relevant information about the modification for further processing or broadcasting.
+  examples:
+  - title: Basic usage of TargetIconChanged
+    code: 'GroupEvent event = GroupEvent::TargetIconChanged(12345, 3, 67890);
+
+      // This creates an event indicating that player with GUID 67890 in group 12345
+      has had their target icon changed to icon 3 (e.g., a triangle)'
+    language: cpp
+  - title: Processing the TargetIconChanged event
+    code: 'GroupEvent event = GroupEvent::TargetIconChanged(54321, 7, 98765);
+
+      // Broadcast this event to all group members
+
+      WorldPacket data(SMSG_RAID_TARGET_UPDATE);
+
+      data << uint8(1); // Update single target
+
+      data << int32(event.GetTargetGuid());
+
+      data << uint8(event.GetIcon());
+
+      gameMaster->SendPacketToGroup(event.GetGroupGuid(), &data);'
+    language: cpp
+  notes: This method is part of the TrinityCore's group event system and should be
+    used in conjunction with proper group management functions. The icon parameter
+    typically follows World of Warcraft's standard raid target icon system (0 = none,
+    1 = skull, 2 = cross, etc.). The returned GroupEvent object can be queued for
+    later processing or immediately broadcast to the appropriate clients.
+  warnings: Ensure that the group GUID and target GUID are valid before calling this
+    method. Invalid GUIDs may cause undefined behavior in the group management system.
+    Also note that icon values outside the standard range (0-7) may not display correctly
+    in client interfaces.
+  related:
+  - GroupEvent::Create
+  - GroupEvent::GetGroupGuid
+  - GroupEvent::GetTargetGuid
+  - GroupEvent::GetIcon
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:19:43.937814'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

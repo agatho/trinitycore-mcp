@@ -1,0 +1,73 @@
+api:
+  class: CraftingOrderItem
+  method: WriteUpdate
+  signature: void CraftingOrderItem::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes crafting order item data into a ByteBuffer for network transmission
+    to specified players.
+  description: The WriteUpdate method serializes the current state of a CraftingOrderItem
+    object into a ByteBuffer, preparing it for network transmission. This method is
+    typically used when sending updates about crafting orders to players in the game
+    world. The serialization process respects the changes mask unless explicitly ignored,
+    and can target specific players (owner or receiver) for update delivery. It's
+    an essential part of the client-server communication system for crafting order
+    management within TrinityCore.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized crafting order item
+      data will be written. This buffer is used to construct the network packet containing
+      the update information.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the internal changes mask
+      when serializing data. If true, all fields are serialized regardless of their
+      change status; if false, only changed fields are included in the update.
+  - name: owner
+    description: Pointer to the Player object representing the crafting order owner
+      who will receive the update. Can be null if no specific owner update is required.
+  - name: receiver
+    description: Pointer to the Player object representing the crafting order receiver
+      who will receive the update. Can be null if no specific receiver update is required.
+  returns: void
+  examples:
+  - title: Basic Update Serialization
+    code: 'ByteBuffer data;
+
+      CraftingOrderItem item;
+
+      Player* owner = ...; // Get owner player
+
+      Player* receiver = ...; // Get receiver player
+
+      item.WriteUpdate(data, false, owner, receiver);'
+    language: cpp
+  - title: Force Full Update Serialization
+    code: 'ByteBuffer data;
+
+      CraftingOrderItem item;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      item.WriteUpdate(data, true, owner, receiver); // Forces serialization of all
+      fields'
+    language: cpp
+  notes: This method is typically called during crafting order synchronization between
+    server and client. The changes mask optimization helps reduce network traffic
+    by only sending updated fields. It's important to ensure that the ByteBuffer passed
+    in has sufficient capacity to hold the serialized data, as this method does not
+    perform automatic buffer resizing.
+  warnings: Calling this method with a null owner or receiver pointer may result in
+    incomplete update information being sent to clients. Ensure proper player references
+    are provided to maintain correct crafting order state synchronization.
+  related:
+  - CraftingOrderItem::BuildUpdateData
+  - CraftingOrderItem::SendUpdate
+  - CraftingOrderItem::SetChangesMask
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T06:44:17.397777'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

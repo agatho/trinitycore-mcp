@@ -1,0 +1,86 @@
+api:
+  class: ItemModList
+  method: WriteUpdate
+  signature: void ItemModList::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes item modifier data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of item modifiers
+    contained within an ItemModList object into a provided ByteBuffer. This is typically
+    used during packet construction to send updated item information to players, such
+    as when an item's stats or enchantments change. The method respects the ignoreChangesMask
+    parameter to determine whether to include all modifiers or only those marked as
+    changed. It requires both the owner of the item and the receiving player for proper
+    serialization context, particularly for conditional logic based on player state
+    or item visibility rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized item modifier data
+      will be written. This buffer is typically used to construct network packets
+      sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change tracking mask.
+      If true, all modifiers are serialized regardless of their changed status; if
+      false, only modified items are included.
+  - name: owner
+    description: Pointer to the Item object that owns the modifiers being serialized.
+      Used for context and validation during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Required
+      for conditional logic such as visibility checks or player-specific modifier
+      handling.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      ItemModList modList;
+
+      Player* receiver = session->GetPlayer();
+
+      Item* owner = receiver->GetItemByPos(0, 0); // Main hand weapon
+
+      modList.WriteUpdate(data, false, owner, receiver);
+
+      WorldPacket packet(SMSG_UPDATE_INVENTORY_DURABILITY, data.size());
+
+      packet.append(data);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  - title: Forcing full update regardless of changes
+    code: 'ByteBuffer data;
+
+      ItemModList modList;
+
+      Player* receiver = session->GetPlayer();
+
+      Item* owner = receiver->GetItemByPos(0, 1); // Off hand weapon
+
+      modList.WriteUpdate(data, true, owner, receiver); // Force full serialization
+
+      WorldPacket packet(SMSG_ITEM_UPDATE, data.size());
+
+      packet.append(data);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  notes: This method is part of the internal item update system in TrinityCore. It's
+    commonly called during inventory updates or when sending item information to players
+    over the network. The implementation may perform checks based on item visibility
+    and player permissions, especially for equipped items.
+  warnings: Ensure that both owner and receiver parameters are valid pointers before
+    calling this method, as null pointer dereferences can occur. Also, be cautious
+    about performance implications if called frequently without proper change tracking.
+  related:
+  - ItemModList::AddModifier
+  - ItemModList::RemoveModifier
+  - ItemModList::HasChanged
+  - ItemModList::ClearChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:57:18.121566'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

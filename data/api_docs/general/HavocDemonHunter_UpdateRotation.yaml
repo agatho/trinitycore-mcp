@@ -1,0 +1,59 @@
+api:
+  class: HavocDemonHunter
+  method: UpdateRotation
+  signature: void HavocDemonHunter::UpdateRotation(::Unit * target)
+documentation:
+  brief: Updates the Havoc Demon Hunter's rotation based on the current target and
+    combat state.
+  description: The UpdateRotation method is responsible for determining and executing
+    the appropriate combat rotation sequence for a Havoc Demon Hunter class. This
+    method evaluates the current target, player's resource levels (such as Fury),
+    and available abilities to select the most optimal ability to cast next in order
+    to maximize damage output or efficiency. It integrates with the core AI system
+    of TrinityCore to ensure that the demon hunter follows a calculated rotation rather
+    than random or inefficient ability usage. The method is typically called during
+    combat updates and may be triggered by various game events such as ability cooldowns,
+    resource changes, or target switching.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the current combat target.
+      This parameter defines the enemy that the Havoc Demon Hunter will evaluate for
+      rotation decisions. The target must be a valid Unit instance; passing nullptr
+      may result in undefined behavior or no action being taken.
+  returns: void
+  examples:
+  - title: Basic usage in combat AI update
+    code: "void HavocDemonHunterAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    Unit* target = GetVictim();\n    if (target && target->IsAlive())\n\
+      \    {\n        m_havocDemonHunter.UpdateRotation(target);\n    }\n}"
+    language: cpp
+  - title: Integration with custom combat logic
+    code: "void HavocDemonHunter::UpdateRotation(Unit* target)\n{\n    if (!target\
+      \ || !target->IsAlive())\n        return;\n\n    // Check for available abilities\
+      \ and resources\n    if (HasAbility(SpellIds::FelRush) && CanCast(SpellIds::FelRush))\n\
+      \    {\n        CastSpell(target, SpellIds::FelRush);\n        return;\n   \
+      \ }\n\n    if (HasResource(FuryResource::Fury) >= 40)\n    {\n        CastSpell(target,\
+      \ SpellIds::EyeBeam);\n    }\n    else\n    {\n        CastSpell(target, SpellIds::ThrowGlaive);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the AI framework and should not be called directly
+    from outside the AI update loop unless necessary. The rotation logic may vary
+    depending on the current combat situation, including target type (boss vs. mob),
+    player's current Fury level, and active buffs/debuffs. It is recommended to ensure
+    that the target passed into this method is valid and alive before calling.
+  warnings: Passing a nullptr or invalid Unit pointer to this method may lead to crashes
+    or undefined behavior. Always validate the target before invoking UpdateRotation.
+    Additionally, this method assumes that the demon hunter's AI state is properly
+    initialized and that all necessary spell data has been loaded.
+  related:
+  - GetVictim
+  - CastSpell
+  - HasAbility
+  - CanCast
+  - HasResource
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T03:17:50.656665'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

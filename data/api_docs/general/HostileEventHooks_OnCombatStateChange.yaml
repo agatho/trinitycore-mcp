@@ -1,0 +1,51 @@
+api:
+  class: HostileEventHooks
+  method: OnCombatStateChange
+  signature: void HostileEventHooks::OnCombatStateChange(int * unit, bool inCombat)
+documentation:
+  brief: Handles combat state changes for units in the game world
+  description: The OnCombatStateChange method is invoked when a unit's combat status
+    transitions from engaged to non-engaged or vice versa. This hook allows addons
+    and modules to respond to combat events, such as tracking when enemies enter or
+    leave combat, managing combat-related timers, or triggering visual effects. The
+    method receives a pointer to the unit and a boolean indicating whether the unit
+    is now in combat. It serves as an essential interface for monitoring and reacting
+    to combat dynamics within TrinityCore's framework.
+  parameters:
+  - name: unit
+    description: Pointer to the unit whose combat state has changed. This parameter
+      represents a reference to the game object that entered or exited combat.
+  - name: inCombat
+    description: Boolean flag indicating the new combat state of the unit. True means
+      the unit is now in combat, false means it has left combat.
+  returns: null
+  examples:
+  - title: Basic Combat State Monitoring
+    code: "void MyAddon::OnCombatStateChange(int* unit, bool inCombat)\n{\n    if\
+      \ (inCombat)\n        printf(\"Unit %d entered combat\\n\", unit);\n    else\n\
+      \        printf(\"Unit %d left combat\\n\", unit);\n}"
+    language: cpp
+  - title: Tracking Combat Duration
+    code: "class CombatTracker\n{\npublic:\n    void OnCombatStateChange(int* unit,\
+      \ bool inCombat)\n    {\n        if (inCombat)\n            combatStartTimes[unit]\
+      \ = GetTickCount();\n        else\n            combatDurations[unit] = GetTickCount()\
+      \ - combatStartTimes[unit];\n    }\nprivate:\n    std::map<int, DWORD> combatStartTimes;\n\
+      \    std::map<int, DWORD> combatDurations;\n};"
+    language: cpp
+  notes: This method is typically called from within the core game loop or event system.
+    It's important to note that unit pointers may become invalid if the unit is destroyed
+    during the combat transition. Developers should ensure proper handling of such
+    edge cases in their implementations.
+  warnings: Do not perform heavy operations inside this hook as it can affect performance.
+    Avoid modifying the unit directly from within this method unless absolutely necessary,
+    as it might lead to race conditions or inconsistent state.
+  related:
+  - OnEnterCombat
+  - OnLeaveCombat
+  - IsInCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:04:51.950567'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

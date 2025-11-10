@@ -1,0 +1,70 @@
+api:
+  class: AuctionPosting
+  method: BuildAuctionItem
+  signature: void AuctionPosting::BuildAuctionItem(WorldPackets::AuctionHouse::AuctionItem
+    * auctionItem, bool alwaysSendItem, bool sendKey, bool censorServerInfo, bool
+    censorBidInfo) const
+documentation:
+  brief: Populates an auction item packet with data from the auction posting, applying
+    optional filtering and formatting.
+  description: The BuildAuctionItem method constructs a WorldPackets::AuctionHouse::AuctionItem
+    packet by populating it with relevant data from the current auction posting. It
+    allows for conditional inclusion of item details, key information, and server-side
+    censorship of sensitive data such as bid amounts or bidder names. This method
+    is typically used when sending auction listings to players in the auction house
+    interface, ensuring that only appropriate information is transmitted based on
+    the specified flags. The method does not return any value but modifies the provided
+    auctionItem packet directly.
+  parameters:
+  - name: auctionItem
+    description: Pointer to a WorldPackets::AuctionHouse::AuctionItem object that
+      will be populated with data from this auction posting.
+  - name: alwaysSendItem
+    description: If true, ensures item details are included regardless of other flags.
+      If false, item details may be omitted based on server settings or censorship.
+  - name: sendKey
+    description: Controls whether the auction key (unique identifier for the auction)
+      is included in the packet.
+  - name: censorServerInfo
+    description: When true, removes or obscures server-specific information such as
+      internal IDs or debug data from the packet.
+  - name: censorBidInfo
+    description: When true, hides bid-related details like current bid amount and
+      bidder name from the packet to prevent exposure of sensitive auction data.
+  returns: null
+  examples:
+  - title: Basic Usage in Auction Listing
+    code: 'WorldPackets::AuctionHouse::AuctionItem auctionItem;
+
+      posting->BuildAuctionItem(&auctionItem, true, true, false, false);
+
+      // Sends full auction item data to the client
+
+      player->SendPacket(auctionItem.Write());'
+    language: cpp
+  - title: Censored Bid Information for Privacy
+    code: 'WorldPackets::AuctionHouse::AuctionItem auctionItem;
+
+      posting->BuildAuctionItem(&auctionItem, true, true, false, true);
+
+      // Hides bid info to protect bidder privacy
+
+      player->SendPacket(auctionItem.Write());'
+    language: cpp
+  notes: This method is part of the auction house system and is expected to be called
+    during packet construction for auction listings. It assumes that the AuctionPosting
+    object has valid data, such as item information, bid details, and auction keys.
+    The method performs no validation on input parameters beyond basic flag checks.
+  warnings: Improper use of the censor flags may expose sensitive auction data or
+    cause inconsistencies in client-side display. Ensure that server-side logic correctly
+    sets these flags based on user permissions and game rules.
+  related:
+  - AuctionPosting::GetItem()
+  - AuctionPosting::GetBid()
+  - AuctionPosting::GetAuctionId()
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T03:57:43.997584'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

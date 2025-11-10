@@ -1,0 +1,53 @@
+api:
+  class: TargetScanner
+  method: AddToBlacklist
+  signature: void TargetScanner::AddToBlacklist(int guid, uint32 duration)
+documentation:
+  brief: Adds a target GUID to the scanner's blacklist for a specified duration.
+  description: The AddToBlacklist method prevents a specific target from being considered
+    by the TargetScanner for a given time period. This is commonly used in AI behavior
+    to temporarily ignore certain units, such as when a creature is already engaged
+    with them or when a target has been marked as invalid. The method takes a global
+    unique identifier (GUID) of the target and a duration in milliseconds, after which
+    the target will be automatically removed from the blacklist. This mechanism supports
+    dynamic targeting logic where targets may be temporarily excluded based on game
+    state or AI decision-making.
+  parameters:
+  - name: guid
+    description: The global unique identifier (GUID) of the target unit to blacklist.
+      This is typically a creature, player, or game object GUID.
+  - name: duration
+    description: The duration in milliseconds for which the target should remain blacklisted.
+      After this time, the target will be automatically removed from the blacklist.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: 'TargetScanner scanner;
+
+      scanner.AddToBlacklist(12345, 5000); // Blacklist target with GUID 12345 for
+      5 seconds'
+    language: cpp
+  - title: AI Behavior Example
+    code: "void CreatureAI::OnTargetDied(Unit* target)\n{\n    // Temporarily ignore\
+      \ the killer for 10 seconds\n    if (target && target->GetGUID())\n        me->GetAI()->GetTargetScanner().AddToBlacklist(target->GetGUID(),\
+      \ 10000);\n}"
+    language: cpp
+  notes: The blacklist is typically implemented using a map or set structure with
+    expiration times. The method does not validate whether the GUID corresponds to
+    an existing unit; it simply adds it to the internal tracking mechanism. Performance
+    is generally O(1) for adding and removing entries, assuming standard hash table
+    or map implementations.
+  warnings: Ensure that the GUID passed is valid and represents a real game object,
+    otherwise behavior may be undefined. Be cautious when setting very long durations
+    as this could lead to memory leaks if not properly managed. The method does not
+    provide any feedback on whether the target was already blacklisted.
+  related:
+  - TargetScanner::IsBlacklisted
+  - TargetScanner::RemoveFromBlacklist
+  - TargetScanner::ClearBlacklist
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:26:51.351630'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: GridMap
+  method: loadHolesData
+  signature: bool GridMap::loadHolesData(FILE * in, uint32 offset, uint32 size)
+documentation:
+  brief: Loads hole data from a file into the grid map for collision detection.
+  description: The loadHolesData method reads hole information from a specified file
+    stream and populates the grid map's internal data structures with collision hole
+    definitions. This functionality is crucial for accurately representing areas where
+    players or creatures cannot walk, such as gaps in the terrain or voids. The method
+    requires a valid file handle, offset, and size parameters to correctly parse the
+    binary data containing hole coordinates and dimensions. It typically executes
+    during map loading phases when terrain data is being initialized.
+  parameters:
+  - name: in
+    description: Pointer to an open FILE object from which the hole data will be read.
+      Must be a valid file handle opened in binary mode.
+  - name: offset
+    description: Byte offset within the file where the hole data begins. Specifies
+      the starting position for reading hole information.
+  - name: size
+    description: Number of bytes to read from the file starting at the specified offset.
+      Defines the total size of the hole data section.
+  returns: Returns true if the hole data was successfully loaded and parsed; false
+    otherwise. Failure may occur due to invalid file handle, incorrect data format,
+    or insufficient data in the file.
+  examples:
+  - title: Basic usage of loadHolesData
+    code: "FILE* file = fopen(\"map0_holes.bin\", \"rb\");\nif (file != nullptr)\n\
+      {\n    GridMap* map = new GridMap();\n    bool success = map->loadHolesData(file,\
+      \ 0, 1024);\n    fclose(file);\n    if (!success)\n        printf(\"Failed to\
+      \ load hole data\\n\");\n}"
+    language: cpp
+  - title: Loading holes with error handling
+    code: "FILE* file = fopen(\"map0_holes.bin\", \"rb\");\nif (file != nullptr)\n\
+      {\n    GridMap* map = new GridMap();\n    uint32 offset = 100;\n    uint32 size\
+      \ = 2048;\n    if (!map->loadHolesData(file, offset, size))\n    {\n       \
+      \ fprintf(stderr, \"Error loading hole data at offset %u\\n\", offset);\n  \
+      \      fclose(file);\n        delete map;\n        return false;\n    }\n  \
+      \  fclose(file);\n    // Proceed with further initialization\n}"
+    language: cpp
+  notes: This method is typically called during the grid map initialization process.
+    The hole data format is expected to be a binary structure containing coordinate
+    information and dimensions for each collision hole. The method assumes that the
+    file pointer is positioned correctly at the start of the hole data section before
+    calling.
+  warnings: Ensure that the FILE* parameter points to a valid, open file with appropriate
+    permissions. Passing an invalid or closed file handle will result in undefined
+    behavior. Also, the offset and size parameters must accurately reflect the actual
+    location and length of the hole data within the file.
+  related:
+  - GridMap::loadData
+  - GridMap::loadHeightData
+  - GridMap::loadAreaData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:05:11.087501'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

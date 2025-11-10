@@ -1,0 +1,69 @@
+api:
+  class: SpellCastVisual
+  method: WriteUpdate
+  signature: void SpellCastVisual::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Object * owner, const Player * receiver) const
+documentation:
+  brief: Serializes spell cast visual data into a packet buffer for transmission to
+    a client.
+  description: The WriteUpdate method of the SpellCastVisual class prepares and writes
+    the visual representation data of a spell cast into a ByteBuffer, which is then
+    sent to a specific player client. This method handles the serialization of visual
+    effects associated with spell casting, including animations, particles, and other
+    graphical components that are displayed to players when spells are cast. The method
+    respects update masks and can optionally ignore them based on the ignoreChangesMask
+    parameter. It ensures that only relevant visual data is sent to the specified
+    receiver player, optimizing network traffic by filtering out unnecessary information.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized spell cast visual
+      data will be written. This buffer is used to construct the update packet that
+      gets sent to the client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the object's change mask
+      when writing updates. If true, all visual data is written regardless of changes;
+      if false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Object that owns this SpellCastVisual instance. This
+      typically refers to the unit casting the spell (e.g., a player or creature).
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to determine what data should be sent based on visibility and update requirements.
+  returns: null
+  examples:
+  - title: Basic usage in spell cast handling
+    code: 'ByteBuffer data;
+
+      SpellCastVisual visual;
+
+      Player* receiver = player;
+
+      Object* owner = caster;
+
+      visual.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to client via packet
+
+      WorldPacket packet(SMSG_SPELL_CAST_VISUAL, data.size());
+
+      packet.append(data);'
+    language: cpp
+  notes: This method is typically called during the spell casting process when updates
+    need to be sent to players. It's important to note that the actual visual effects
+    are handled by the client-side rendering engine, while this method only serializes
+    the data needed to trigger those effects. The method may be invoked multiple times
+    per spell cast depending on update frequency and change detection.
+  warnings: Ensure that the owner parameter points to a valid object before calling
+    this method, as dereferencing an invalid pointer will cause undefined behavior.
+    Also, be cautious when using ignoreChangesMask = true as it may increase network
+    traffic unnecessarily.
+  related:
+  - SpellCastVisual::Update
+  - SpellCastVisual::BuildUpdateData
+  - SpellCastVisual::SendUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:53:28.776568'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

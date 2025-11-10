@@ -1,0 +1,75 @@
+api:
+  class: AreaTriggerSphere
+  method: WriteUpdate
+  signature: void AreaTriggerSphere::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes update data for an area trigger sphere to a ByteBuffer for transmission
+    to a client.
+  description: The WriteUpdate method serializes the state of an AreaTriggerSphere
+    object into a ByteBuffer, which is then sent to a specific player's client. This
+    method is typically invoked during packet construction for area trigger updates,
+    ensuring that the client receives accurate information about the sphere's properties
+    such as position, radius, and other relevant attributes. The method respects change
+    masks when ignoreChangesMask is false, allowing for efficient update transmission
+    by only sending changed data. It is used internally by the TrinityCore server
+    to synchronize area trigger states between the server and client.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically part of a larger packet being constructed
+      for transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when writing
+      updates. If true, all fields are written regardless of their changed status;
+      if false, only changed fields are included in the update.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this sphere. This parameter
+      is used to determine the context and properties of the area trigger being updated.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine visibility and specific client-side handling requirements for the
+      area trigger data.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      AreaTriggerSphere sphere;
+
+      Player* player = ...;
+
+      AreaTrigger* trigger = ...;
+
+      sphere.WriteUpdate(data, false, trigger, player);'
+    language: cpp
+  - title: Forcing full update regardless of changes
+    code: 'ByteBuffer data;
+
+      AreaTriggerSphere sphere;
+
+      Player* player = ...;
+
+      AreaTrigger* trigger = ...;
+
+      sphere.WriteUpdate(data, true, trigger, player); // Forces all fields to be
+      written'
+    language: cpp
+  notes: This method is part of the internal update system for area triggers in TrinityCore.
+    It's designed to work with the existing change tracking mechanism and should not
+    be called directly unless implementing custom update logic. The method assumes
+    that the provided parameters are valid and properly initialized.
+  warnings: Incorrect usage of the ignoreChangesMask flag can lead to either inefficient
+    updates (sending unnecessary data) or missing updates (not sending required data).
+    Ensure that the owner and receiver parameters are valid pointers before calling
+    this method.
+  related:
+  - AreaTriggerSphere::BuildUpdateData
+  - AreaTriggerSphere::GetUpdateData
+  - AreaTrigger::WriteUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:21:28.975687'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

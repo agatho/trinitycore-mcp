@@ -1,0 +1,65 @@
+api:
+  class: RestInfo
+  method: WriteCreate
+  signature: void RestInfo::WriteCreate(ByteBuffer & data, const Player * owner, const
+    Player * receiver) const
+documentation:
+  brief: Writes rest information create data to a byte buffer for player communication
+  description: The WriteCreate method serializes rest information into a ByteBuffer
+    format suitable for network transmission to players. This method is typically
+    used when sending initial rest state information to a client, including whether
+    the player is resting, the rest position, and any associated rest-related data.
+    The serialized data is intended for use in World of Warcraft's packet system where
+    player state updates are communicated from server to client. The method requires
+    both owner and receiver player references to properly construct the packet with
+    appropriate context.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer object where the serialized rest information
+      will be written
+  - name: owner
+    description: Pointer to the Player object whose rest information is being serialized
+      (can be nullptr)
+  - name: receiver
+    description: Pointer to the Player object who will receive this rest information
+      (can be nullptr)
+  returns: null
+  examples:
+  - title: Basic usage for sending rest info to a player
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // some player
+
+      Player* receiver = ...; // target player
+
+      RestInfo restInfo;
+
+      restInfo.WriteCreate(data, owner, receiver);
+
+      // Send data through network layer'
+    language: cpp
+  - title: Using with packet system for rest state updates
+    code: "void SendRestStateUpdate(Player* player)\n{\n    ByteBuffer data;\n   \
+      \ RestInfo restInfo;\n    restInfo.WriteCreate(data, player, player);\n    WorldPacket\
+      \ packet(SMSG_REST_INFO, data.size());\n    packet.append(data);\n    player->SendDirectMessage(&packet);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    should only be called when preparing network packets for transmission. The method
+    assumes that both owner and receiver pointers are valid or null, but does not
+    perform validation checks on them. It's typically used in conjunction with other
+    packet creation methods within the WorldSession class.
+  warnings: Ensure that both owner and receiver player objects remain valid during
+    the execution of this method, as dangling pointers can cause undefined behavior.
+    This method should only be called from within a thread-safe context when dealing
+    with network operations.
+  related:
+  - RestInfo::ReadCreate
+  - RestInfo::WriteUpdate
+  - Player::GetRestInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:45:51.746886'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

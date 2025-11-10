@@ -1,0 +1,67 @@
+api:
+  class: ItemData
+  method: AppendAllowedFieldsMaskForFlag
+  signature: void ItemData::AppendAllowedFieldsMaskForFlag(int & allowedMaskForTarget,
+    int fieldVisibilityFlags)
+documentation:
+  brief: Appends allowed field mask values for a given visibility flag to the target
+    mask.
+  description: The AppendAllowedFieldsMaskForFlag method modifies an existing integer
+    mask by appending field visibility flags that are allowed for a specific item
+    data context. This functionality is typically used in TrinityCore's packet serialization
+    logic where certain fields of an item should only be sent to clients based on
+    their visibility settings. The method updates the allowedMaskForTarget parameter
+    in-place, combining it with the provided fieldVisibilityFlags using bitwise operations.
+    It ensures that only appropriate fields are included when constructing network
+    packets for item data transmission.
+  parameters:
+  - name: allowedMaskForTarget
+    description: Reference to an integer mask that accumulates allowed field visibility
+      flags. This parameter is modified in-place to include new visibility flags.
+  - name: fieldVisibilityFlags
+    description: Integer value representing the field visibility flags to be appended
+      to the allowed mask. These flags determine which fields of the item data are
+      visible to the target client.
+  returns: null
+  examples:
+  - title: Basic usage of AppendAllowedFieldsMaskForFlag
+    code: 'int mask = 0;
+
+      ItemData itemData;
+
+      itemData.AppendAllowedFieldsMaskForFlag(mask, 0x01);
+
+      // mask now contains 0x01
+
+      itemData.AppendAllowedFieldsMaskForFlag(mask, 0x02);
+
+      // mask now contains 0x03 (0x01 | 0x02)'
+    language: cpp
+  - title: Using AppendAllowedFieldsMaskForFlag in item packet construction
+    code: "class ItemPacketBuilder {\npublic:\n    void BuildItemPacket(ItemData&\
+      \ data, int& visibilityMask) {\n        // Initialize with default allowed fields\n\
+      \        visibilityMask = 0;\n        \n        // Append specific field visibility\
+      \ flags based on item type or player permissions\n        if (data.IsEquippable())\
+      \ {\n            data.AppendAllowedFieldsMaskForFlag(visibilityMask, ITEM_FIELD_VISIBLE_ITEM_FIELD_1);\n\
+      \        }\n        \n        if (data.HasEnchantments()) {\n            data.AppendAllowedFieldsMaskForFlag(visibilityMask,\
+      \ ITEM_FIELD_ENCHANTMENT);\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the internal packet construction system in TrinityCore
+    and is usually invoked during item serialization processes. The mask values are
+    typically defined as bit flags representing different visibility levels or field
+    types. Developers should be aware that this function modifies its first parameter
+    directly, so callers must ensure it's initialized before calling.
+  warnings: Be cautious when using this method with uninitialized masks, as the behavior
+    may result in undefined values. Also, ensure that fieldVisibilityFlags are valid
+    bit flag combinations defined by the TrinityCore item data structure to avoid
+    incorrect serialization of item fields.
+  related:
+  - ItemData::GetAllowedFieldsMask
+  - ItemData::SetAllowedFieldsMask
+  - ItemData::HasFieldVisibility
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T02:01:35.987756'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

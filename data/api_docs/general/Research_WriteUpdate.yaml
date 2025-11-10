@@ -1,0 +1,77 @@
+api:
+  class: Research
+  method: WriteUpdate
+  signature: void Research::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes research data into a ByteBuffer for network transmission to a
+    specific player.
+  description: The WriteUpdate method serializes the current state of a Research object
+    into a ByteBuffer, preparing it for network transmission. This method is typically
+    used when sending research progress updates from the server to clients. The serialization
+    process can optionally ignore change masks, allowing for full data synchronization
+    regardless of modification status. The method requires both an owner and receiver
+    player context, which may be used to determine visibility or permission levels
+    for the research data being transmitted.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized research data will
+      be written. This buffer is typically used for network packet construction.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing.
+      If true, all research data fields are included regardless of modification status;
+      if false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object who owns this research. Used for determining
+      ownership context and permissions during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this research data.
+      May be used to determine visibility or filtering of research information based
+      on player relationship or game state.
+  returns: null
+  examples:
+  - title: Basic Usage for Research Update
+    code: 'ByteBuffer data;
+
+      Research research;
+
+      Player* owner = ...; // Get the owning player
+
+      Player* receiver = ...; // Get the receiving player
+
+      research.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' over network to receiver'
+    language: cpp
+  - title: Forced Full Update with Ignore Flag
+    code: 'ByteBuffer data;
+
+      Research research;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      research.WriteUpdate(data, true, owner, receiver);
+
+      // Send complete research state regardless of changes'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and is typically
+    called during packet construction for research-related updates. The 'ignoreChangesMask'
+    parameter allows for both incremental and full data synchronization, which can
+    impact network bandwidth usage. The owner and receiver parameters are important
+    for determining access control and visibility rules in the research system.
+  warnings: Ensure that the ByteBuffer passed to this method is properly initialized
+    before calling WriteUpdate, as it will append serialized data to existing content.
+    Improper handling of the owner/receiver parameters may lead to incorrect visibility
+    or permission checks during research synchronization.
+  related:
+  - Research::BuildUpdateData
+  - Research::LoadFromDB
+  - Research::SaveToDB
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:52:28.321485'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

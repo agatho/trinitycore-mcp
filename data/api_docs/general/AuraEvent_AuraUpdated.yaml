@@ -1,0 +1,58 @@
+api:
+  class: AuraEvent
+  method: AuraUpdated
+  signature: AuraEvent AuraEvent::AuraUpdated(int target, uint32 spellId, uint8 stacks)
+documentation:
+  brief: Creates and returns a new AuraEvent instance representing an aura update
+    event with specified target, spell ID, and stack count.
+  description: The AuraUpdated method is a static factory function that constructs
+    and returns a new AuraEvent object to represent an aura update occurring in the
+    game world. This method is typically used by the TrinityCore server to notify
+    systems about changes to auras applied to targets, such as when an aura's stack
+    count increases or decreases. The returned AuraEvent can be processed by various
+    subsystems like combat log handlers, buff/debuff tracking systems, or AI modules
+    that respond to aura state changes. This method does not modify any existing aura
+    state directly but rather creates an event payload for further processing.
+  parameters:
+  - name: target
+    description: The target unit ID (GUID) affected by the aura update. This identifies
+      which creature, player, or object has had their aura modified.
+  - name: spellId
+    description: The unique identifier of the spell associated with the aura being
+      updated. This corresponds to the Spell.dbc entry ID for the affected aura.
+  - name: stacks
+    description: The current number of stacks for the aura after the update. Zero
+      indicates the aura was removed entirely.
+  returns: A new AuraEvent instance containing the specified target, spell ID, and
+    stack count information, ready to be dispatched or processed by event handlers.
+  examples:
+  - title: Basic Aura Update Event Creation
+    code: 'AuraEvent event = AuraEvent::AuraUpdated(12345, 87654, 3);
+
+      // Creates an event indicating that target 12345 has aura 87654 with 3 stacks'
+    language: cpp
+  - title: Handling Aura Removal via Event
+    code: "AuraEvent event = AuraEvent::AuraUpdated(player->GetGUID().GetRawValue(),\
+      \ spellId, 0);\nif (event.GetStacks() == 0)\n{\n    // Handle aura removal logic\n\
+      \    sLog->outString(\"Aura %u removed from player %u\", spellId, event.GetTarget());\n\
+      }"
+    language: cpp
+  notes: This method is designed to be called from within the core game loop or event
+    processing systems. It assumes valid parameters are passed and does not perform
+    input validation. The returned AuraEvent should typically be dispatched through
+    the event system for proper handling by subsystems.
+  warnings: Do not use this method to directly modify aura states; it only creates
+    an event object. Incorrect target GUID values may lead to undefined behavior in
+    event handlers that process the event. Stack count of zero should be interpreted
+    as aura removal, not a stacking error.
+  related:
+  - AuraEvent::GetTarget
+  - AuraEvent::GetSpellId
+  - AuraEvent::GetStacks
+  - AuraEvent::Create
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T08:56:14.349746'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

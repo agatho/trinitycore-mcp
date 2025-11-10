@@ -1,0 +1,73 @@
+api:
+  class: VendorInteractionManager
+  method: ExecutePurchase
+  signature: bool VendorInteractionManager::ExecutePurchase(Creature * vendor, uint32
+    vendorSlot, uint32 itemId, uint32 quantity, uint8 bag, uint8 slot)
+documentation:
+  brief: Processes a purchase transaction from a player to a vendor for a specific
+    item.
+  description: The ExecutePurchase method handles the logic for a player purchasing
+    an item from a vendor in World of Warcraft. It validates the transaction parameters
+    including the vendor creature, item ID, quantity, and inventory slot placements.
+    The method ensures the player has sufficient funds, the vendor sells the requested
+    item, and the player's inventory can accommodate the purchase. It updates both
+    the player's inventory and the vendor's stock accordingly, returning true if successful
+    or false if any validation fails.
+  parameters:
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor from whom
+      the item is being purchased. Must be a valid vendor creature with proper vendor
+      data loaded.
+  - name: vendorSlot
+    description: The slot index in the vendor's inventory that contains the item to
+      purchase. Used to identify which specific item in the vendor's catalog is being
+      bought.
+  - name: itemId
+    description: The unique identifier of the item being purchased. Must correspond
+      to a valid item in the vendor's item list.
+  - name: quantity
+    description: The number of items the player wishes to purchase. Must be a positive
+      integer, typically 1 for single purchases.
+  - name: bag
+    description: The bag index where the purchased item should be placed in the player's
+      inventory. Use 255 to indicate automatic placement.
+  - name: slot
+    description: The specific slot within the chosen bag where the item will be placed.
+      Use 255 for automatic slot assignment.
+  returns: Returns true if the purchase was successfully processed, including validation
+    checks and inventory updates. Returns false if any validation fails such as insufficient
+    funds, invalid item, or inventory constraints.
+  examples:
+  - title: Basic Purchase Execution
+    code: "if (vendorInteractionManager->ExecutePurchase(vendorCreature, 0, 12345,\
+      \ 1, 0, 0)) {\n    // Purchase successful\n    player->SendBuyBackItem(vendorCreature,\
+      \ 0);\n} else {\n    // Purchase failed\n    player->SendBuyError(BUY_ERR_ITEM_SOLD_OUT,\
+      \ vendorCreature, 12345, 0);\n}"
+    language: cpp
+  - title: Multiple Item Purchase
+    code: "uint32 quantity = 5;\nif (vendorInteractionManager->ExecutePurchase(vendorCreature,\
+      \ 3, 67890, quantity, 1, 2)) {\n    // Successfully purchased 5 of item ID 67890\n\
+      \    ChatHandler(player->GetSession()).PSendSysMessage(\"Successfully purchased\
+      \ %u items.\", quantity);\n} else {\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Purchase failed.\");\n}"
+    language: cpp
+  notes: This method is typically called internally by the vendor interaction system
+    when a player initiates a purchase. It assumes that all preconditions (such as
+    player being within range, vendor being open, and item being valid) have already
+    been checked. The method may trigger additional events or updates to the vendor's
+    item list if stock is depleted.
+  warnings: Do not call this method directly with invalid parameters; it will likely
+    crash or corrupt data. Always validate that the vendor is a valid vendor creature
+    and that the item exists before calling this function. Be aware that this method
+    modifies both player and vendor state, so ensure proper locking mechanisms are
+    in place if called from multiple threads.
+  related:
+  - VendorInteractionManager::CanAffordItem
+  - VendorInteractionManager::ValidatePurchase
+  - Player::ModifyMoney
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T04:37:58.006707'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: InteractionValidator
+  method: CheckRange
+  signature: bool InteractionValidator::CheckRange(::Player * bot, ::WorldObject *
+    target, float maxRange) const
+documentation:
+  brief: Checks if a target object is within the specified interaction range of a
+    player.
+  description: The CheckRange method evaluates whether a given WorldObject (such as
+    an NPC or item) is within the maximum allowed interaction distance from a Player.
+    This validation is commonly used in AI scripts and quest systems to ensure that
+    interactions only occur when objects are close enough for the player to engage
+    with them. The method performs a 3D Euclidean distance check between the player's
+    position and the target object's position, comparing it against the provided maxRange
+    parameter. It returns true if the target is within range, false otherwise. This
+    functionality is essential for maintaining proper game mechanics and preventing
+    exploits where players might interact with distant objects.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object that is performing the interaction check.
+      Must not be null.
+  - name: target
+    description: Pointer to the WorldObject that is being checked for range validity.
+      Must not be null.
+  - name: maxRange
+    description: The maximum allowed distance (in yards) between the player and target
+      object for the check to pass. Should be a positive floating-point value.
+  returns: Returns true if the target object is within the specified maxRange from
+    the player, false otherwise. If either bot or target is null, behavior is undefined
+    and may result in a crash.
+  examples:
+  - title: Basic Range Check
+    code: "if (InteractionValidator::CheckRange(player, npc, 5.0f)) {\n    // Perform\
+      \ interaction with NPC\n    player->TalkToNpc(npc);\n} else {\n    // Move closer\
+      \ or notify user\n    player->SendNotification(\"NPC is out of range.\");\n}"
+    language: cpp
+  - title: Using in AI Behavior
+    code: "class MyAI : public CreatureAI {\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override {\n        if (!UpdateVictim())\n            return;\n\n        if\
+      \ (InteractionValidator::CheckRange(creature->GetVictim(), creature, 10.0f))\
+      \ {\n            // Attack or interact with target\n            DoMeleeAttackIfReady();\n\
+      \        } else {\n            // Move closer to target\n            creature->GetMotionMaster()->MoveChase(creature->GetVictim());\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method uses the standard TrinityCore distance calculation which accounts
+    for 3D space. The maxRange parameter is interpreted in yards, consistent with
+    World of Warcraft's unit system. Performance-wise, this check is lightweight as
+    it only involves basic arithmetic operations and does not involve database queries
+    or complex logic.
+  warnings: Ensure that both 'bot' and 'target' parameters are valid pointers before
+    calling this method to avoid undefined behavior or crashes. The method assumes
+    that the objects have valid position data; if either object has invalid coordinates,
+    results may be unpredictable.
+  related:
+  - CheckLOS
+  - IsInRange
+  - GetDistance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T00:33:31.588255'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

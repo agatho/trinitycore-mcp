@@ -1,0 +1,78 @@
+api:
+  class: TraitConfig
+  method: WriteUpdate
+  signature: void TraitConfig::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes trait configuration update data into a ByteBuffer for transmission
+    to players.
+  description: The WriteUpdate method serializes the current state of a TraitConfig
+    object into a ByteBuffer, preparing it for network transmission. This method is
+    typically used when sending trait-related updates from the server to clients,
+    ensuring that only relevant changes are transmitted based on the provided parameters.
+    The serialization process respects the ignoreChangesMask flag which can bypass
+    normal change tracking mechanisms. The owner and receiver parameters determine
+    the context of the update, allowing for proper filtering and formatting of data
+    specific to each player's perspective.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized trait configuration
+      data will be written. This buffer is typically used for network packet construction.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking should be ignored
+      during serialization. When true, all trait data is written regardless of modification
+      status.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the trait
+      configuration. Used to determine what data should be included in the update
+      from the owner's perspective.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      customize the serialized data based on the receiver's view and permissions.
+  returns: null
+  examples:
+  - title: Basic Usage for Trait Update
+    code: 'ByteBuffer data;
+
+      TraitConfig config;
+
+      Player* owner = ...; // Get player object
+
+      Player* receiver = ...; // Get receiving player object
+
+      config.WriteUpdate(data, false, owner, receiver);
+
+      // Send data over network to receiver'
+    language: cpp
+  - title: Forcing Full Update with Ignore Flag
+    code: 'ByteBuffer data;
+
+      TraitConfig config;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      config.WriteUpdate(data, true, owner, receiver);
+
+      // Forces complete serialization regardless of changes'
+    language: cpp
+  notes: This method is part of the trait system implementation in TrinityCore and
+    is typically called during network synchronization operations. The method assumes
+    that both owner and receiver parameters are valid pointers and will not perform
+    null checks. It's designed to be efficient by only serializing changed data when
+    ignoreChangesMask is false.
+  warnings: Ensure that both owner and receiver Player objects are valid before calling
+    this method, as invalid pointers may cause undefined behavior. The method does
+    not validate the ByteBuffer contents after writing, so callers should ensure proper
+    buffer management.
+  related:
+  - TraitConfig::ReadUpdate
+  - TraitConfig::IsChanged
+  - TraitConfig::MarkAllAsChanged
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:06:12.463655'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

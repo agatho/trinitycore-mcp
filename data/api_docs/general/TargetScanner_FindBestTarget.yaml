@@ -1,0 +1,55 @@
+api:
+  class: TargetScanner
+  method: FindBestTarget
+  signature: int TargetScanner::FindBestTarget(float range)
+documentation:
+  brief: Finds and returns the GUID of the best target within the specified range
+    for an AI-controlled unit.
+  description: The FindBestTarget method is used by AI systems in TrinityCore to identify
+    and select the most suitable target for an NPC or creature based on various criteria
+    such as threat level, distance, and target priority. It scans the surrounding
+    area within a given range and evaluates potential targets according to predefined
+    rules. This method is typically invoked by AI behavior scripts to determine which
+    enemy should be attacked next. The method returns the GUID of the selected target
+    if one is found within range, otherwise it returns 0 indicating no valid target
+    was identified.
+  parameters:
+  - name: range
+    description: The maximum distance in yards within which to search for targets.
+      Targets beyond this range will be ignored.
+  returns: Returns the GUID (Global Unique Identifier) of the best target found within
+    the specified range. If no valid target is found, returns 0.
+  examples:
+  - title: Basic usage in AI behavior
+    code: "class MyAI : public ScriptedAI\n{\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override\n    {\n        if (Unit* target = ObjectAccessor::GetUnit(*me, FindBestTarget(30.0f)))\n\
+      \        {\n            // Attack the best target found within 30 yards\n  \
+      \          me->Attack(target, true);\n        }\n    }\n};"
+    language: cpp
+  - title: Using return value for target validation
+    code: "void ProcessTargetSelection(Unit* attacker)\n{\n    uint64 bestTargetGUID\
+      \ = FindBestTarget(50.0f);\n    if (bestTargetGUID != 0)\n    {\n        Unit*\
+      \ target = ObjectAccessor::GetUnit(*attacker, bestTargetGUID);\n        if (target\
+      \ && target->IsAlive())\n        {\n            attacker->Attack(target, true);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is primarily used in AI scripts and relies on the internal threat
+    table and target selection logic of the TrinityCore server. The 'range' parameter
+    determines how far the AI will scan for targets, which can impact performance
+    if set too high. The method does not perform any direct combat actions; it only
+    identifies the best target.
+  warnings: Ensure that the range parameter is reasonable to avoid performance degradation
+    from excessive scanning. Be aware that this method returns a GUID which must be
+    validated before use since the target may have been destroyed or become invalid
+    between the time of selection and when it's used.
+  related:
+  - GetTarget
+  - SetTarget
+  - AttackStart
+  - SelectTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T21:26:04.080446'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

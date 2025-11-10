@@ -1,0 +1,56 @@
+api:
+  class: HavocDemonHunterRefactored
+  method: UpdateRotation
+  signature: void HavocDemonHunterRefactored::UpdateRotation(int * target)
+documentation:
+  brief: Updates the Havoc Demon Hunter's rotation logic based on current target and
+    combat state
+  description: The UpdateRotation method is responsible for executing the core rotation
+    logic of a Havoc Demon Hunter class in TrinityCore. This method evaluates the
+    current target, player's resource levels (such as Fury), and combat conditions
+    to determine the appropriate ability to cast next. It integrates with the AI system
+    to make dynamic decisions about which spells or abilities should be executed based
+    on game mechanics like cooldowns, spell priorities, and encounter phases. The
+    method typically gets called during each AI update cycle to ensure optimal gameplay
+    performance and adherence to class-specific rotation guidelines.
+  parameters:
+  - name: target
+    description: Pointer to the target unit that the Demon Hunter is currently engaging
+      or considering for action. This parameter represents the current combat target
+      and may be null if no valid target exists.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void HavocDemonHunterAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target\
+      \ = SelectTarget(SELECT_TARGET_TOPAGGRO))\n    {\n        m_havocHunter.UpdateRotation(&target);\n\
+      \    }\n}"
+    language: cpp
+  - title: Integration with Combat State Management
+    code: "void HavocDemonHunterRefactored::UpdateRotation(int* target)\n{\n    if\
+      \ (!target || !*target)\n        return;\n\n    // Evaluate current Fury level\
+      \ and available abilities\n    if (me->GetPower(POWER_FURY) >= 40)\n    {\n\
+      \        // Execute high-priority rotation\n        DoCast(*target, SPELL_FEL_RUSH);\n\
+      \    }\n    else\n    {\n        // Use lower priority ability\n        DoCast(*target,\
+      \ SPELL_IMMOLATE);\n    }\n}"
+    language: cpp
+  notes: This method is part of the Demon Hunter's AI implementation and should be
+    called regularly during combat updates. The method assumes that the target pointer
+    points to a valid unit object within the game world, and may cause undefined behavior
+    if passed an invalid or null pointer. Performance-wise, this method should execute
+    quickly as it's typically invoked in tight AI update loops.
+  warnings: Do not call UpdateRotation without ensuring that the target parameter
+    is valid; passing a null or invalid pointer can lead to crashes or unexpected
+    behavior. The method modifies internal state and may change the Demon Hunter's
+    current action queue, so calling it outside of proper combat contexts might interfere
+    with normal gameplay flow.
+  related:
+  - GetNextSpell
+  - CheckCooldowns
+  - EvaluateTargetHealth
+  - HandleFuryManagement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T03:17:02.302449'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

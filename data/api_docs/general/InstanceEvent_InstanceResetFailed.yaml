@@ -1,0 +1,62 @@
+api:
+  class: InstanceEvent
+  method: InstanceResetFailed
+  signature: InstanceEvent InstanceEvent::InstanceResetFailed(int playerGuid, uint32
+    mapId, uint32 errorCode)
+documentation:
+  brief: Creates and returns a new InstanceEvent object indicating that an instance
+    reset has failed for a specific player and map.
+  description: The InstanceResetFailed method is used to generate an InstanceEvent
+    object that represents a failure during an instance reset operation. This event
+    typically occurs when a player attempts to reset a dungeon or raid instance but
+    the operation fails due to various reasons such as invalid player GUID, incorrect
+    map ID, or internal server errors. The returned InstanceEvent can be used to trigger
+    appropriate game logic, logging, or user feedback mechanisms within the TrinityCore
+    framework. The method encapsulates the failure state along with relevant identifiers
+    for debugging and tracking purposes.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player attempting to reset the
+      instance. Must be a valid player GUID in the database.
+  - name: mapId
+    description: The ID of the map/instance that failed to reset. Must correspond
+      to a valid map entry in the game database.
+  - name: errorCode
+    description: An error code indicating the reason for the instance reset failure.
+      Values are typically defined by TrinityCore's internal error handling system.
+  returns: Returns a new InstanceEvent object containing information about the failed
+    instance reset, including player GUID, map ID, and error code for further processing.
+  examples:
+  - title: Basic usage of InstanceResetFailed
+    code: InstanceEvent event = InstanceEvent::InstanceResetFailed(12345, 109, 5);
+      // Player 12345 failed to reset instance 109 with error code 5
+    language: cpp
+  - title: Handling instance reset failure in game logic
+    code: "InstanceEvent event = InstanceEvent::InstanceResetFailed(player->GetGUID().GetCounter(),\
+      \ player->GetMapId(), 3);\nif (event.IsValid()) {\n    // Log the failure\n\
+      \    sLog->outInfo(LOG_FILTER_GENERAL, \"Instance reset failed for player %u\
+      \ on map %u with error %u\", \n                  event.GetPlayerGuid(), event.GetMapId(),\
+      \ event.GetErrorCode());\n    // Send error message to player\n    player->SendNotification(\"\
+      Failed to reset instance: %s\", GetErrorMessage(event.GetErrorCode()).c_str());\n\
+      }"
+    language: cpp
+  notes: This method is typically used internally by TrinityCore's instance management
+    system. The returned InstanceEvent object should be checked for validity before
+    use. Error codes are usually mapped to specific failure conditions such as player
+    not found, map not loaded, or permission denied.
+  warnings: Ensure that the playerGuid and mapId parameters are valid before calling
+    this method, as invalid values may cause unexpected behavior in the event handling
+    system. The errorCode parameter should be carefully chosen from TrinityCore's
+    defined error code set to maintain consistency.
+  related:
+  - InstanceEvent::InstanceResetSuccess
+  - InstanceEvent::InstanceCreated
+  - InstanceEvent::GetInstancePlayerGuid
+  - InstanceEvent::GetInstanceMapId
+  - InstanceEvent::GetInstanceErrorCode
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:44:03.465940'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

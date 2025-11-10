@@ -1,0 +1,53 @@
+api:
+  class: ThreadSafeClassAI
+  method: OnTargetChanged
+  signature: void ThreadSafeClassAI::OnTargetChanged(Unit * newTarget)
+documentation:
+  brief: Handles the event when the AI's target is changed, allowing for custom behavior
+    during target transitions.
+  description: The OnTargetChanged method is a virtual callback function in the ThreadSafeClassAI
+    class that is invoked whenever the AI's current target unit is modified. This
+    method provides an opportunity for derived AI classes to implement custom logic
+    in response to target changes, such as resetting timers, updating behavior states,
+    or triggering specific actions based on the new target. The method is designed
+    to be thread-safe and is typically called from within the core AI update loop
+    or when target-related events occur in the game world. It allows developers to
+    extend default AI behavior without modifying the base AI system.
+  parameters:
+  - name: newTarget
+    description: Pointer to the new target Unit that the AI is switching to. Can be
+      nullptr if the AI is losing its target.
+  returns: null
+  examples:
+  - title: Basic Override Implementation
+    code: "class MyAI : public ThreadSafeClassAI {\npublic:\n    void OnTargetChanged(Unit*\
+      \ newTarget) override {\n        if (newTarget)\n            SendChatMessage(\"\
+      New target acquired!\");\n        else\n            SendChatMessage(\"Target\
+      \ lost.\");\n    }\n};"
+    language: cpp
+  - title: Advanced Target Change Logic
+    code: "class AdvancedAI : public ThreadSafeClassAI {\npublic:\n    void OnTargetChanged(Unit*\
+      \ newTarget) override {\n        if (newTarget && newTarget->IsPlayer()) {\n\
+      \            // Switch to aggressive behavior\n            SetAggro(true);\n\
+      \            StartAttackTimer();\n        } else if (!newTarget) {\n       \
+      \     // Reset to passive state\n            SetAggro(false);\n            CancelAllTimers();\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is called from within the AI framework's internal update mechanism,
+    so implementations should avoid heavy computations or blocking operations. The
+    method is thread-safe and may be invoked from different threads depending on how
+    the AI system is implemented in TrinityCore.
+  warnings: Do not modify the target directly within this method as it may cause recursion
+    or inconsistent state. Ensure that any custom logic does not introduce race conditions
+    or performance bottlenecks, especially when dealing with concurrent access to
+    shared resources.
+  related:
+  - OnCombatStart
+  - OnCombatStop
+  - UpdateAI
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:21:01.043697'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

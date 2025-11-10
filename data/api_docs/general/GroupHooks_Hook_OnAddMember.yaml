@@ -1,0 +1,58 @@
+api:
+  class: GroupHooks
+  method: Hook_OnAddMember
+  signature: void GroupHooks::Hook_OnAddMember(Group * group, Player * player)
+documentation:
+  brief: Invoked when a player is added to a group, allowing custom logic to be executed.
+  description: The Hook_OnAddMember method is a callback function that gets triggered
+    whenever a player is successfully added to a group within the TrinityCore framework.
+    This hook provides an opportunity for custom modules or addons to execute specific
+    logic, such as sending notifications, updating player statistics, or modifying
+    group behavior. The method receives both the group object and the player being
+    added as parameters, enabling developers to access and manipulate relevant data.
+    It is typically used in conjunction with other group-related hooks to maintain
+    consistency across group operations. This hook does not prevent the addition of
+    a player to the group; it simply notifies the system that the action occurred.
+  parameters:
+  - name: group
+    description: Pointer to the Group object to which the player is being added. Must
+      be a valid group instance.
+  - name: player
+    description: Pointer to the Player object that is being added to the group. Must
+      be a valid player instance.
+  returns: null
+  examples:
+  - title: Basic Group Addition Hook Implementation
+    code: "#include \"GroupHooks.h\"\n\nvoid GroupHooks::Hook_OnAddMember(Group* group,\
+      \ Player* player)\n{\n    // Log the event\n    sLog->outString(\"Player %s\
+      \ was added to group %u.\", player->GetName().c_str(), group->GetId());\n  \
+      \  \n    // Example: Send a welcome message to the new member\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Welcome to the group!\");\n}"
+    language: cpp
+  - title: Advanced Hook with Group Data Access
+    code: "#include \"GroupHooks.h\"\n\nvoid GroupHooks::Hook_OnAddMember(Group* group,\
+      \ Player* player)\n{\n    // Check if the group is a raid\n    if (group->isRaidGroup())\n\
+      \    {\n        // Grant special raid permissions or buffs\n        player->SetGroupRoles(GROUP_MEMBER);\n\
+      \        \n        // Update group loot settings\n        group->SetLootMethod(LOOT_GROUP);\n\
+      \        \n        // Notify all members\n        group->BroadcastPacket(sWorld->getDB2Manager().GetLootTemplate(group->GetId()));\n\
+      \    }\n}"
+    language: cpp
+  notes: This hook is executed after the player has been successfully added to the
+    group. It should not be used to prevent membership, as that would require a different
+    mechanism such as a pre-hook or validation logic. The method is called from within
+    the core game loop and must not block execution for extended periods to avoid
+    performance degradation.
+  warnings: Avoid performing heavy computations or database operations inside this
+    hook, as it may cause lag or performance issues. Also, be cautious about modifying
+    group state in ways that might conflict with other systems or hooks. Ensure all
+    pointers are valid before using them to prevent crashes.
+  related:
+  - Hook_OnRemoveMember
+  - Hook_OnDisband
+  - Hook_OnCreate
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T01:18:43.953527'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

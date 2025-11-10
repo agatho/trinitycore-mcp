@@ -1,0 +1,61 @@
+api:
+  class: LootDistribution
+  method: IsItemCachedUpgrade
+  signature: bool LootDistribution::IsItemCachedUpgrade(Player * player, uint32 itemId)
+documentation:
+  brief: Determines whether a specified item is cached as an upgrade for the player's
+    current loot distribution.
+  description: The IsItemCachedUpgrade method checks if a given item ID has been previously
+    evaluated and cached as an upgrade for the specified player within the current
+    loot distribution context. This method is typically used during loot rolling or
+    distribution processes to optimize performance by avoiding redundant calculations.
+    It leverages internal caching mechanisms to quickly determine if an item provides
+    a significant upgrade compared to the player's current inventory or equipped items.
+    The method relies on the player's current loot settings and the state of their
+    inventory to make this determination.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the upgrade check is being
+      performed. Must be a valid player instance, otherwise behavior is undefined.
+  - name: itemId
+    description: The unique identifier of the item to check for cached upgrade status.
+      Must correspond to a valid item in the game database.
+  returns: Returns true if the item has been cached as an upgrade for the player;
+    otherwise returns false. This indicates that the system has previously determined
+    this item provides a meaningful improvement over the player's current gear.
+  examples:
+  - title: Basic Upgrade Check
+    code: "Player* player = ...;\nuint32 itemId = 12345;\nif (LootDistribution::IsItemCachedUpgrade(player,\
+      \ itemId)) {\n    // Item is cached as an upgrade\n    printf(\"Item %u is cached\
+      \ as an upgrade for this player\\n\", itemId);\n} else {\n    // Item is not\
+      \ cached as an upgrade\n    printf(\"Item %u is not cached as an upgrade for\
+      \ this player\\n\", itemId);\n}"
+    language: cpp
+  - title: Integration in Loot Distribution
+    code: "void ProcessLootDistribution(Player* player, uint32 itemId) {\n    if (LootDistribution::IsItemCachedUpgrade(player,\
+      \ itemId)) {\n        // Apply special handling for cached upgrades\n      \
+      \  player->AddItemToInventory(itemId);\n        SendUpgradeNotification(player,\
+      \ itemId);\n    } else {\n        // Normal loot processing\n        ProcessNormalLoot(player,\
+      \ itemId);\n    }\n}"
+    language: cpp
+  notes: This method operates within the context of a specific loot distribution session
+    and relies on internal caching that may be invalidated by certain game events.
+    The caching mechanism is designed to improve performance during high-frequency
+    loot operations such as group loot or raid encounters. Developers should be aware
+    that cached results are tied to the current player's state and may change if inventory
+    or gear status updates.
+  warnings: Do not call this method with invalid player pointers or non-existent item
+    IDs, as it may lead to undefined behavior or crashes. The caching system assumes
+    consistent player state during a single loot distribution session; calling this
+    method after significant inventory changes without proper cache invalidation may
+    return stale results.
+  related:
+  - LootDistribution::CacheItemUpgrade
+  - LootDistribution::ClearCachedUpgrades
+  - Player::GetItemByEntry
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T13:00:08.855956'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

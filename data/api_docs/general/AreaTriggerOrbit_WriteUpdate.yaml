@@ -1,0 +1,81 @@
+api:
+  class: AreaTriggerOrbit
+  method: WriteUpdate
+  signature: void AreaTriggerOrbit::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger orbit data into a ByteBuffer for client updates.
+  description: The WriteUpdate method serializes the state of an AreaTriggerOrbit
+    object into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically invoked during packet construction for area trigger updates,
+    ensuring that the client receives accurate information about the orbiting area
+    trigger's properties and current state. The serialization process respects the
+    provided owner and receiver context, allowing for conditional data inclusion based
+    on visibility rules. It handles the encoding of relevant fields such as position,
+    orientation, and orbital parameters necessary for rendering and interaction with
+    the area trigger.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger orbit
+      data will be written. This buffer is typically used to construct network packets
+      sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      data. When true, all fields are serialized regardless of their changed status;
+      when false, only changed fields are included.
+  - name: owner
+    description: Pointer to the AreaTrigger that owns this orbit. Used to determine
+      the context and properties of the orbit being serialized.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. This is used
+      to apply player-specific visibility rules and filtering during serialization.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      AreaTriggerOrbit orbit;
+
+      Player* receiver = ...;
+
+      AreaTrigger* owner = ...;
+
+      orbit.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to client as part of a packet
+
+      '
+    language: cpp
+  - title: Forcing full serialization with ignore mask
+    code: 'ByteBuffer data;
+
+      AreaTriggerOrbit orbit;
+
+      Player* receiver = ...;
+
+      AreaTrigger* owner = ...;
+
+      orbit.WriteUpdate(data, true, owner, receiver);
+
+      // All fields are serialized regardless of change status
+
+      '
+    language: cpp
+  notes: This method is part of the network update system for area triggers in TrinityCore.
+    It's designed to be efficient by only sending changed data when ignoreChangesMask
+    is false, reducing bandwidth usage. The method assumes that all necessary context
+    (owner and receiver) has been properly validated before calling.
+  warnings: Ensure that the owner and receiver parameters are valid pointers before
+    calling this method, as dereferencing invalid pointers will cause crashes. Be
+    cautious with the ignoreChangesMask flag - setting it to true may increase bandwidth
+    usage unnecessarily.
+  related:
+  - AreaTriggerOrbit::Update
+  - AreaTriggerOrbit::BuildUpdateData
+  - AreaTriggerOrbit::GetUpdateData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:23:20.192057'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

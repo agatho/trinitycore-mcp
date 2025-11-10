@@ -1,0 +1,53 @@
+api:
+  class: EconomyManager
+  method: CancelAuction
+  signature: bool EconomyManager::CancelAuction(uint32 auctionId)
+documentation:
+  brief: Cancels an existing auction in the economy system by its unique identifier.
+  description: The CancelAuction method removes a specified auction from the game's
+    economy system. It verifies the existence and validity of the auction before proceeding
+    with cancellation. This operation typically refunds the auction house fees to
+    the seller and returns the item to their inventory. The method ensures that only
+    valid auctions can be canceled, preventing attempts on non-existent or already
+    completed auctions. If successful, the auction is removed from active listings
+    and the associated item and gold are returned to the original owner.
+  parameters:
+  - name: auctionId
+    description: The unique identifier of the auction to be canceled. Must correspond
+      to an existing, active auction in the system.
+  returns: Returns true if the auction was successfully canceled and removed from
+    the system; returns false if the auction could not be found, is already completed,
+    or if there were other validation failures during cancellation.
+  examples:
+  - title: Basic Auction Cancellation
+    code: "if (EconomyManager::CancelAuction(12345)) {\n    // Auction successfully\
+      \ canceled\n    sLog->outString(\"Auction 12345 has been canceled.\");\n} else\
+      \ {\n    // Failed to cancel auction\n    sLog->outError(\"Failed to cancel\
+      \ auction 12345.\");\n}"
+    language: cpp
+  - title: Cancel Auction with Error Handling
+    code: "uint32 auctionId = player->GetAuctionId();\nif (auctionId != 0) {\n   \
+      \ if (EconomyManager::CancelAuction(auctionId)) {\n        player->SendAuctionBidResult(AUCTION_SUCCESS);\n\
+      \    } else {\n        player->SendAuctionBidResult(AUCTION_ERROR);\n    }\n\
+      } else {\n    player->SendAuctionBidResult(AUCTION_NO_BIDDER);\n}"
+    language: cpp
+  notes: This method is typically invoked when a player decides to withdraw their
+    item from auction or when an auction needs to be forcibly removed due to system
+    maintenance. The cancellation process may involve database updates and inventory
+    adjustments, so it should not be called in performance-critical sections without
+    proper synchronization.
+  warnings: Calling this method with an invalid auctionId will result in a failed
+    cancellation attempt and potentially log an error. Ensure that the auction exists
+    and is still active before calling this method to avoid unnecessary processing
+    and potential user confusion.
+  related:
+  - GetAuction
+  - PlaceAuction
+  - UpdateAuction
+  - GetAuctionCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T14:29:11.267257'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

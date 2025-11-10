@@ -1,0 +1,58 @@
+api:
+  class: CategoryMemoryStats
+  method: RecordDeallocation
+  signature: void CategoryMemoryStats::RecordDeallocation(uint64_t size)
+documentation:
+  brief: Records a memory deallocation event with the specified size in the category
+    memory statistics.
+  description: The RecordDeallocation method is used to track and log memory deallocations
+    within a specific category of memory usage. This method updates internal statistics
+    to reflect that a block of memory of the given size has been freed. It is typically
+    called by the memory management system or allocation wrappers when memory is released
+    back to the system. The method does not perform any actual deallocation itself,
+    but rather serves as a tracking mechanism for monitoring memory usage patterns
+    and performance optimization. This functionality is crucial for debugging memory
+    leaks, understanding memory consumption over time, and maintaining efficient resource
+    utilization in the TrinityCore server environment.
+  parameters:
+  - name: size
+    description: The size of the memory block being deallocated, measured in bytes.
+      This value must be a positive integer representing the actual amount of memory
+      freed.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'CategoryMemoryStats stats;
+
+      // Simulate deallocating 1024 bytes
+
+      stats.RecordDeallocation(1024);
+
+      // This records that a 1KB memory block was deallocated'
+    language: cpp
+  - title: Integration with Memory Management
+    code: "class CustomAllocator {\npublic:\n    void deallocate(void* ptr, size_t\
+      \ size) {\n        // Free the actual memory\n        free(ptr);\n        //\
+      \ Record the deallocation in statistics\n        memoryStats.RecordDeallocation(size);\n\
+      \    }\nprivate:\n    CategoryMemoryStats memoryStats;\n};"
+    language: cpp
+  notes: This method is typically called from within memory management subsystems
+    and should not be invoked directly by regular game code. The implementation likely
+    uses atomic operations or mutexes to ensure thread safety when updating shared
+    statistics across multiple threads. Performance considerations include the overhead
+    of updating statistics, which may be minimal but should be accounted for in high-frequency
+    allocation/deallocation scenarios.
+  warnings: Do not call this method with a size parameter of zero or negative values
+    as it may lead to incorrect statistics tracking. Ensure that every call to RecordDeallocation
+    corresponds to an actual memory deallocation to maintain accurate memory usage
+    reporting.
+  related:
+  - RecordAllocation
+  - GetMemoryUsage
+  - ResetStatistics
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T03:18:54.312364'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

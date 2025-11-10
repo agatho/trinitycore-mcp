@@ -1,0 +1,75 @@
+api:
+  class: LeaverInfo
+  method: WriteUpdate
+  signature: void LeaverInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the leaver information update to a ByteBuffer for transmission
+    to a client.
+  description: The WriteUpdate method serializes the current state of the LeaverInfo
+    object into a ByteBuffer, which is typically used to send updates about player
+    leaving behavior or group disbanding events to connected clients. This method
+    handles the encoding of relevant data fields such as player GUIDs, leave times,
+    and group status flags. It is commonly invoked during packet construction for
+    update messages sent to players in a group or raid context. The ignoreChangesMask
+    parameter allows bypassing change tracking logic, which can be useful when full
+    synchronization is required regardless of modification state.
+  parameters:
+  - name: data
+    description: Reference to the ByteBuffer where serialized data will be written.
+      This buffer is typically used for constructing network packets sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all fields are written regardless of modification status.
+  - name: owner
+    description: Pointer to the Player object that owns this LeaverInfo instance.
+      Used for context and validation during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. May be
+      used to determine visibility or filtering of information.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // some player
+
+      Player* receiver = ...; // target player
+
+      LeaverInfo leaverInfo;
+
+      leaverInfo.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a network packet'
+    language: cpp
+  - title: Forcing full update with ignore flag
+    code: 'ByteBuffer data;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      LeaverInfo leaverInfo;
+
+      leaverInfo.WriteUpdate(data, true, owner, receiver);
+
+      // Forces writing all fields even if unchanged'
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework during
+    group update operations. It's important to ensure that both owner and receiver
+    parameters are valid pointers before calling this method. The method does not
+    perform any network transmission itself, but rather prepares data for subsequent
+    packet sending.
+  warnings: Calling this method with invalid or null owner/receiver pointers may lead
+    to undefined behavior or crashes. Ensure proper player state validation before
+    invoking WriteUpdate.
+  related:
+  - LeaverInfo::ReadUpdate
+  - LeaverInfo::SetPlayerGUID
+  - LeaverInfo::GetPlayerGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:30:28.120867'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

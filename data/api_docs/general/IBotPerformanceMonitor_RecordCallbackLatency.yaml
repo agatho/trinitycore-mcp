@@ -1,0 +1,57 @@
+api:
+  class: IBotPerformanceMonitor
+  method: RecordCallbackLatency
+  signature: void IBotPerformanceMonitor::RecordCallbackLatency(uint64 microseconds)
+documentation:
+  brief: Records the latency of a callback in microseconds for performance monitoring.
+  description: The RecordCallbackLatency method is used to log the execution time
+    of asynchronous callbacks within the bot system. This method is typically invoked
+    by bot subsystems to track how long specific operations take, enabling performance
+    analysis and optimization. The recorded latency data helps identify bottlenecks
+    in bot behavior, particularly in event-driven systems where timing is critical
+    for game responsiveness. The method accepts a single parameter representing the
+    time taken in microseconds, which is then stored internally for statistical analysis
+    or reporting purposes.
+  parameters:
+  - name: microseconds
+    description: The duration of the callback execution in microseconds. This value
+      should be a positive integer representing the time elapsed since the start of
+      the callback until its completion.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void MyBot::OnEvent() {\n    auto start = std::chrono::high_resolution_clock::now();\n\
+      \    // Perform some bot logic\n    DoSomething();\n    auto end = std::chrono::high_resolution_clock::now();\n\
+      \    uint64 duration = std::chrono::duration_cast<std::chrono::microseconds>(end\
+      \ - start).count();\n    performanceMonitor->RecordCallbackLatency(duration);\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Multiple Callbacks
+    code: "class BotPerformanceTracker {\npublic:\n    void TrackMultipleCallbacks()\
+      \ {\n        auto start1 = std::chrono::high_resolution_clock::now();\n    \
+      \    ProcessMovement();\n        auto end1 = std::chrono::high_resolution_clock::now();\n\
+      \        \n        auto start2 = std::chrono::high_resolution_clock::now();\n\
+      \        UpdateTarget();\n        auto end2 = std::chrono::high_resolution_clock::now();\n\
+      \        \n        performanceMonitor->RecordCallbackLatency(\n            std::chrono::duration_cast<std::chrono::microseconds>(end1\
+      \ - start1).count());\n        performanceMonitor->RecordCallbackLatency(\n\
+      \            std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2).count());\n\
+      \    }\n};"
+    language: cpp
+  notes: This method is designed to be called from within bot callback functions.
+    It's recommended to use high-resolution timing functions like std::chrono::high_resolution_clock
+    for accurate measurements. The internal storage mechanism may aggregate or average
+    recorded values over time, so individual recordings might not reflect real-time
+    performance data directly.
+  warnings: Ensure that the microseconds parameter is always a positive value; negative
+    values may cause unexpected behavior in the monitoring system. This method should
+    not be called from interrupt contexts or high-frequency loops without considering
+    potential performance impact on the monitoring system itself.
+  related:
+  - GetCallbackLatencyStats
+  - ResetPerformanceMetrics
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-09T00:59:05.796735'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

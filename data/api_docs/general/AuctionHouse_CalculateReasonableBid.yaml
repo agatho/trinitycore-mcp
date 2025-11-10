@@ -1,0 +1,66 @@
+api:
+  class: AuctionHouse
+  method: CalculateReasonableBid
+  signature: uint32 AuctionHouse::CalculateReasonableBid(const AuctionItem & auction,
+    float aggressiveness)
+documentation:
+  brief: Calculates a reasonable bid amount for an auction item based on its current
+    state and aggressiveness factor.
+  description: The CalculateReasonableBid method determines an appropriate bid value
+    for an auction item by analyzing the item's starting price, current highest bid
+    (if any), and applying a mathematical formula influenced by the aggressiveness
+    parameter. This function is used to provide players with intelligent bid suggestions
+    when placing bids on items in the auction house system. The aggressiveness factor
+    controls how aggressively the system suggests bidding; higher values result in
+    bids closer to the item's maximum possible value, while lower values suggest more
+    conservative bids. The method ensures that calculated bids are always valid and
+    within the bounds of the auction rules.
+  parameters:
+  - name: auction
+    description: Reference to the AuctionItem object representing the item being bid
+      on. This contains all relevant information about the auction including current
+      bid, starting price, and item details.
+  - name: aggressiveness
+    description: Float value between 0.0 and 1.0 that determines how aggressive the
+      suggested bid should be. A value of 0.0 suggests a very conservative bid (close
+      to current highest bid), while 1.0 suggests an aggressive bid (closer to maximum
+      possible value).
+  returns: Returns a uint32 value representing the calculated reasonable bid amount
+    in copper coins. This value is always at least equal to the current highest bid
+    plus the minimum bid increment, and never exceeds the item's maximum possible
+    bid limit.
+  examples:
+  - title: Basic usage with default aggressiveness
+    code: 'AuctionItem auctionItem;
+
+      // ... populate auctionItem with data ...
+
+      uint32 reasonableBid = auctionHouse->CalculateReasonableBid(auctionItem, 0.5f);
+
+      printf("Recommended bid: %u copper\n", reasonableBid);'
+    language: cpp
+  - title: Using high aggressiveness for competitive bidding
+    code: "AuctionItem auctionItem;\n// ... populate auctionItem with data ...\nuint32\
+      \ aggressiveBid = auctionHouse->CalculateReasonableBid(auctionItem, 0.9f);\n\
+      if (aggressiveBid > auctionItem.GetBid()) {\n    printf(\"Suggesting aggressive\
+      \ bid: %u copper\\n\", aggressiveBid);\n}"
+    language: cpp
+  notes: This method does not modify the auction item's state or place any bids. It
+    only calculates and returns a suggested bid value. The calculation considers both
+    the item's starting price and current highest bid to determine a reasonable increment.
+    Implementation uses floating-point arithmetic internally which may introduce minor
+    rounding differences between different system architectures.
+  warnings: The returned bid amount should not be directly used as an actual bid without
+    first validating against the auction's current state, as another player might
+    have placed a bid in the meantime. The aggressiveness parameter must be within
+    [0.0, 1.0] range to avoid unexpected behavior or invalid calculations.
+  related:
+  - AuctionHouse::PlaceBid
+  - AuctionHouse::GetAuctionItem
+  - AuctionItem::GetBid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:07:53.403111'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

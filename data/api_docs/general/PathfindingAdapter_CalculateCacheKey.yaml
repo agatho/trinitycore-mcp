@@ -1,0 +1,62 @@
+api:
+  class: PathfindingAdapter
+  method: CalculateCacheKey
+  signature: uint64 PathfindingAdapter::CalculateCacheKey(int botGuid, const int &
+    destination) const
+documentation:
+  brief: Calculates a unique cache key for pathfinding based on bot GUID and destination.
+  description: The CalculateCacheKey method generates a 64-bit hash value that uniquely
+    identifies a pathfinding request within the TrinityCore AI system. This key is
+    used to cache computed paths, reducing redundant calculations when the same bot
+    attempts to navigate to the same destination. The method combines the bot's unique
+    identifier (GUID) with the destination coordinates to produce a deterministic
+    cache key. This approach ensures efficient path reuse while maintaining accuracy
+    for different navigation scenarios.
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot requesting pathfinding. This
+      value should be a valid 32-bit integer representing the bot's entity ID in the
+      game world.
+  - name: destination
+    description: Reference to the destination coordinate or position. The actual value
+      is not directly used in this method, but its address is included in the hash
+      calculation for cache key uniqueness.
+  returns: A 64-bit unsigned integer representing the calculated cache key. This value
+    uniquely identifies a specific pathfinding request and can be used to retrieve
+    cached paths from the system.
+  examples:
+  - title: Basic Cache Key Calculation
+    code: 'uint64 cacheKey = adapter.CalculateCacheKey(12345, destination);
+
+      // Returns a deterministic hash based on bot GUID 12345 and destination reference
+
+      std::cout << "Cache key: " << cacheKey << std::endl;'
+    language: cpp
+  - title: Using Cache Key for Pathfinding
+    code: "int botGuid = player->GetGUID().GetCounter();\nconst int destination =\
+      \ 98765;\nuint64 cacheKey = adapter.CalculateCacheKey(botGuid, destination);\n\
+      \n// Use the key to check if path is cached before computing\nif (pathCache.find(cacheKey)\
+      \ != pathCache.end()) {\n    // Retrieve cached path\n    Path* cachedPath =\
+      \ pathCache[cacheKey];\n} else {\n    // Compute new path and store in cache\n\
+      \    Path* newPath = adapter.CalculatePath(botGuid, destination);\n    pathCache[cacheKey]\
+      \ = newPath;\n}"
+    language: cpp
+  notes: This method is designed to be deterministic, meaning identical inputs will
+    always produce the same output. The cache key calculation includes both the bot
+    GUID and a reference to the destination, ensuring that different destinations
+    for the same bot generate distinct keys. Performance-wise, this method should
+    execute quickly as it only performs bitwise operations and hashing.
+  warnings: Ensure that the destination parameter is properly initialized before calling
+    this method, as using uninitialized references may produce unpredictable hash
+    values. The method assumes valid GUIDs and destination references; invalid inputs
+    could lead to incorrect cache key generation.
+  related:
+  - CalculatePath
+  - GetCachedPath
+  - CachePath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T22:36:59.804236'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

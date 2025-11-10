@@ -1,0 +1,59 @@
+api:
+  class: GuildIntegration
+  method: ShouldWithdrawItem
+  signature: bool GuildIntegration::ShouldWithdrawItem(int * player, uint32 itemId)
+documentation:
+  brief: Determines whether a player should withdraw an item from the guild bank.
+  description: The ShouldWithdrawItem method evaluates if a specific player is permitted
+    to withdraw a given item from the guild bank. This method typically checks various
+    conditions such as the player's guild rank, permissions, and item restrictions.
+    It serves as a gatekeeper for guild bank transactions, ensuring that only authorized
+    players can access certain items based on guild rules and configuration. The method
+    may also consider item cooldowns or other game mechanics that affect withdrawal
+    eligibility.
+  parameters:
+  - name: player
+    description: Pointer to the player object attempting to withdraw the item. This
+      parameter represents the player's context and is used to verify permissions
+      and rank within the guild.
+  - name: itemId
+    description: The unique identifier of the item to be withdrawn from the guild
+      bank. This ID corresponds to the item in the game database and is used to determine
+      item-specific restrictions or permissions.
+  returns: Returns true if the player is allowed to withdraw the specified item from
+    the guild bank, false otherwise. A return value of false typically indicates that
+    the player lacks sufficient rank, the item has restrictions, or other conditions
+    prevent withdrawal.
+  examples:
+  - title: Basic Usage
+    code: "if (guildIntegration->ShouldWithdrawItem(&player, 12345)) {\n    // Allow\
+      \ withdrawal\n    guildBank.WithdrawItem(&player, 12345);\n} else {\n    //\
+      \ Deny withdrawal\n    player.SendNotification(\"You do not have permission\
+      \ to withdraw this item.\");\n}"
+    language: cpp
+  - title: With Rank Check
+    code: "uint32 itemId = 67890;\nPlayer* player = ...; // Get player reference\n\
+      if (guildIntegration->ShouldWithdrawItem(&player, itemId)) {\n    // Proceed\
+      \ with withdrawal logic\n    if (player->GetGuildRank() >= GUILD_RANK_OFFICER)\
+      \ {\n        guildBank.WithdrawItem(player, itemId);\n    }\n} else {\n    //\
+      \ Log denial or notify player\n    sLog->outDebug(LOG_FILTER_GUILD, \"Player\
+      \ %s denied withdrawal of item %u\", player->GetName().c_str(), itemId);\n}"
+    language: cpp
+  notes: This method is likely used in conjunction with other guild bank operations
+    to enforce access control. It may be called before any withdrawal attempt to validate
+    the transaction. The implementation might cache permission checks for performance,
+    especially when dealing with frequent item access requests.
+  warnings: Ensure that the player pointer is valid and not null before calling this
+    method, as dereferencing a null pointer will cause undefined behavior. Additionally,
+    this method may be called frequently during guild bank interactions, so performance
+    considerations should be taken into account for large guilds.
+  related:
+  - GuildIntegration::CanDepositItem
+  - GuildIntegration::GetGuildRank
+  - GuildIntegration::IsPlayerInGuild
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T13:49:43.943414'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

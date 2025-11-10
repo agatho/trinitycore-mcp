@@ -1,0 +1,68 @@
+api:
+  class: UnlockedAzeriteEssence
+  method: WriteCreate
+  signature: void UnlockedAzeriteEssence::WriteCreate(ByteBuffer & data, const AzeriteItem
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the creation data for an unlocked Azerite essence to
+    a packet buffer.
+  description: The WriteCreate method serializes the state and properties of an UnlockedAzeriteEssence
+    object into a ByteBuffer, which is typically used to construct a network packet
+    sent to clients. This method is responsible for encoding all relevant information
+    about the unlocked Azerite essence, including its identifier, level, and any associated
+    data, so that it can be properly displayed or processed by the client. It is commonly
+    invoked during the initialization or transmission of Azerite-related game objects,
+    particularly when notifying players about newly acquired or modified Azerite essences.
+    The method requires both an owner (the AzeriteItem that contains the essence)
+    and a receiver (the Player who will receive the data), ensuring proper context
+    for serialization.
+  parameters:
+  - name: data
+    description: The ByteBuffer where the serialized creation data for the UnlockedAzeriteEssence
+      is written. This buffer is typically used to build network packets sent to clients.
+  - name: owner
+    description: Pointer to the AzeriteItem that owns this unlocked essence. Used
+      to retrieve properties like the item's GUID, level, and other metadata required
+      for serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive the serialized data. This
+      parameter may be used to determine visibility or specific client-side processing
+      of the essence data.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      AzeriteItem* owner = player->GetAzeriteItem();
+
+      UnlockedAzeriteEssence* essence = owner->GetUnlockedEssence();
+
+      essence->WriteCreate(data, owner, player);
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  - title: Sending Unlocked Azerite Essence to Client
+    code: "void SendUnlockedAzeriteEssence(Player* player, AzeriteItem* item)\n{\n\
+      \    if (item && item->GetUnlockedEssence())\n    {\n        ByteBuffer data;\n\
+      \        item->GetUnlockedEssence()->WriteCreate(data, item, player);\n    \
+      \    WorldPacket packet(SMSG_AZERITE_ESSENCE_UNLOCKED, data.size());\n     \
+      \   packet.append(data);\n        player->SendDirectMessage(&packet);\n    }\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's Azerite system implementation and
+    is used primarily in network communication with clients. It assumes that all pointers
+    are valid and not null, as no null checks are performed internally. The method
+    does not modify any internal state of the UnlockedAzeriteEssence object itself.
+  warnings: Ensure that both owner and receiver parameters are valid pointers before
+    calling this method to avoid undefined behavior. Incorrect use of the ByteBuffer
+    may lead to malformed packets or client-side errors.
+  related:
+  - GetUnlockedEssence
+  - WriteUpdate
+  - Serialize
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T17:55:05.375170'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,66 @@
+api:
+  class: ItemModList
+  method: WriteCreate
+  signature: void ItemModList::WriteCreate(ByteBuffer & data, const Item * owner,
+    const Player * receiver) const
+documentation:
+  brief: Writes item modification data to a ByteBuffer for client synchronization
+  description: The WriteCreate method serializes the item modification list data into
+    a ByteBuffer format suitable for network transmission to a specific player. This
+    method is typically invoked during item creation or when sending item data to
+    clients in World of Warcraft's TrinityCore implementation. It ensures that all
+    relevant item modifier information, such as enchantments, gems, and stats, are
+    properly encoded and transmitted to maintain synchronization between server state
+    and client representation. The method takes into account the owner item and target
+    receiver player to determine appropriate data formatting and visibility rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where serialized item modification data
+      will be written
+  - name: owner
+    description: Pointer to the Item object that owns these modifications, used to
+      determine what data should be serialized
+  - name: receiver
+    description: Pointer to the Player object who will receive this item modification
+      data, used for visibility and filtering
+  returns: null
+  examples:
+  - title: Basic usage in item creation
+    code: 'ByteBuffer data;
+
+      Item* item = new Item();
+
+      Player* player = new Player();
+
+      item->GetModList()->WriteCreate(data, item, player);
+
+      // Send data to client
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  - title: Usage in packet construction for item updates
+    code: "void SendItemUpdateToPlayer(Player* player, Item* item) {\n    ByteBuffer\
+      \ data;\n    data << uint8(0); // Packet type\n    data << item->GetGUID();\n\
+      \    item->GetModList()->WriteCreate(data, item, player);\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  notes: This method is part of the serialization system for item modifications in
+    TrinityCore. It's important to note that the actual data written depends on both
+    the owner item's state and the receiver player's permissions or viewing context.
+    The method may perform filtering based on item visibility rules, such as whether
+    the receiver can see enchantments or gems on the item.
+  warnings: Improper use of this method without proper initialization of the ByteBuffer
+    or invalid pointers can lead to memory corruption or incorrect data transmission.
+    Always ensure that both owner and receiver parameters are valid before calling
+    this method.
+  related:
+  - ItemModList::ReadCreate
+  - ItemModList::Clear
+  - ItemModList::AddModifier
+  - ItemModList::HasModifiers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:57:51.992423'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,51 @@
+api:
+  class: ArcaneMageRefactored
+  method: ExecuteSingleTargetRotation
+  signature: void ArcaneMageRefactored::ExecuteSingleTargetRotation(int * target)
+documentation:
+  brief: Executes the arcane mage's single-target rotation logic for the current target.
+  description: The ExecuteSingleTargetRotation method implements the core spell casting
+    sequence for an arcane mage when targeting a single enemy. This method determines
+    the optimal sequence of spells to cast based on the current game state, including
+    mana levels, cooldowns, and buff/debuff statuses. It manages the arcane power
+    generation, applies appropriate glyphs, and ensures proper rotation timing for
+    maximum damage output. The method assumes a valid target is already selected and
+    that the AI system has determined this is the correct action to take.
+  parameters:
+  - name: target
+    description: Pointer to the target enemy unit to cast spells against. Must point
+      to a valid GameObject or Unit instance representing an enemy creature or player.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Context
+    code: "void ArcaneMageAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))\n\
+      \    {\n        m_mage->ExecuteSingleTargetRotation(&target);\n    }\n}"
+    language: cpp
+  - title: Integration with Custom Rotation Logic
+    code: "void ArcaneMageRefactored::ExecuteSingleTargetRotation(int* target)\n{\n\
+      \    if (!target || *target <= 0) return;\n    \n    // Check for valid target\
+      \ and mana\n    if (Unit* unitTarget = ObjectAccessor::GetUnit(*m_mage, *target))\n\
+      \    {\n        // Implement rotation logic here\n        if (m_mage->HasSpellCooldown(SPELL_ARCANE_BLAST))\n\
+      \            m_mage->CastSpell(unitTarget, SPELL_ARCANE_MISSILES, true);\n \
+      \       else\n            m_mage->CastSpell(unitTarget, SPELL_ARCANE_BLAST,\
+      \ true);\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within an AI update loop and should
+    only be invoked when a valid target exists. The method modifies the internal state
+    of the arcane mage's spell queue and cooldown tracking. It does not directly handle
+    movement or positioning, which must be managed separately by the calling AI system.
+  warnings: Ensure that the target pointer points to a valid unit before calling this
+    method, as dereferencing an invalid pointer will cause undefined behavior. This
+    method assumes all necessary preconditions for spell casting are met and does
+    not perform validation checks on mana or spell availability beyond basic assumptions.
+  related:
+  - ExecuteAOERotation
+  - ExecuteMovementLogic
+  - CheckSpellCooldowns
+  - SelectBestTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T13:06:59.327826'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

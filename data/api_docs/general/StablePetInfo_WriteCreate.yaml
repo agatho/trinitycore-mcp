@@ -1,0 +1,60 @@
+api:
+  class: StablePetInfo
+  method: WriteCreate
+  signature: void StablePetInfo::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Writes stable pet information to a data buffer for client synchronization.
+  description: The WriteCreate method serializes the stable pet information into a
+    ByteBuffer, preparing it for transmission to either the owner or receiver player.
+    This method is typically invoked when sending pet data to a client during initial
+    login or when transferring ownership of a stable pet. The serialization process
+    includes relevant pet attributes such as GUID, display ID, level, and other properties
+    necessary for client-side rendering and interaction. It ensures that both the
+    original owner and the receiving player have consistent information about the
+    stable pet.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized stable pet data will
+      be written.
+  - name: owner
+    description: Pointer to the Player object representing the current owner of the
+      pet. May be null if not applicable.
+  - name: receiver
+    description: Pointer to the Player object who will receive the pet data. May be
+      null if not applicable.
+  returns: null
+  examples:
+  - title: Basic usage in packet creation
+    code: 'ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = nullptr; // Not transferring ownership
+
+      stablePetInfo.WriteCreate(data, owner, receiver);
+
+      WorldPacket packet(SMSG_PET_STABLE_UPDATE, data.size());
+
+      packet.append(data);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  notes: This method assumes that the StablePetInfo object contains valid pet data.
+    It does not perform any validation checks on the input parameters or internal
+    state. The ByteBuffer must be properly initialized before calling this method.
+  warnings: Ensure that the owner and receiver pointers are valid before calling this
+    method, as dereferencing invalid pointers will lead to undefined behavior. Also,
+    make sure the ByteBuffer is large enough to accommodate all serialized data.
+  related:
+  - ReadCreate
+  - GetPetGUID
+  - SetPetGUID
+  - GetDisplayId
+  - SetDisplayId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:45:47.112694'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

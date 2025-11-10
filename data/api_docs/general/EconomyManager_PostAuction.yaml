@@ -1,0 +1,69 @@
+api:
+  class: EconomyManager
+  method: PostAuction
+  signature: bool EconomyManager::PostAuction(uint32 itemId, uint32 stackSize, uint32
+    buyoutPrice, uint32 bidPrice, uint32 duration)
+documentation:
+  brief: Posts an auction for a specified item with given stack size, buyout price,
+    bid price, and duration.
+  description: The PostAuction method creates a new auction entry in the game's economy
+    system for a specific item. It takes parameters defining the item to be auctioned,
+    its quantity, pricing information (buyout and bid prices), and the auction duration.
+    This method is typically used by players or NPCs to list items for sale on the
+    Auction House. The method returns true if the auction was successfully posted,
+    or false if there were issues such as invalid parameters, insufficient permissions,
+    or system errors. The auction will appear in the auction house interface and can
+    be purchased by other players according to the specified terms.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item to be auctioned. Must correspond
+      to a valid item in the game database.
+  - name: stackSize
+    description: The number of items in the stack being auctioned. Must be a positive
+      integer, typically 1 for most items unless they are stackable.
+  - name: buyoutPrice
+    description: The fixed price at which the item can be purchased immediately. Set
+      to 0 if no buyout is allowed.
+  - name: bidPrice
+    description: The minimum bid amount required to place a bid on this auction. Must
+      be greater than 0 for auctions requiring bidding.
+  - name: duration
+    description: The duration of the auction in seconds. Valid values are typically
+      1800 (30 minutes), 3600 (1 hour), 7200 (2 hours), 14400 (4 hours), or 28800
+      (8 hours).
+  returns: True if the auction was successfully posted to the auction house, false
+    otherwise. Possible failure reasons include invalid item ID, insufficient funds,
+    invalid parameters, or system errors.
+  examples:
+  - title: Basic Auction Posting
+    code: "if (economyManager.PostAuction(12345, 1, 100000, 10000, 3600)) {\n    //\
+      \ Auction successfully posted\n    printf(\"Auction created for item ID 12345\\\
+      n\");\n} else {\n    // Failed to post auction\n    printf(\"Failed to create\
+      \ auction\\n\");\n}"
+    language: cpp
+  - title: Stackable Item Auction
+    code: "uint32 stackSize = 5;\nuint32 buyoutPrice = 500000;\nuint32 bidPrice =\
+      \ 50000;\nuint32 duration = 7200;\n\nif (economyManager.PostAuction(67890, stackSize,\
+      \ buyoutPrice, bidPrice, duration)) {\n    printf(\"Auction created for %u items\
+      \ of ID 67890\\n\", stackSize);\n}"
+    language: cpp
+  notes: This method interacts with the auction house system and may have server-side
+    validation checks. The item must be owned by the player calling this method, or
+    it must be a valid NPC auction item. Auctions are stored in the database and will
+    persist across server restarts. The method may trigger additional events such
+    as notifications to nearby players or updates to the auction house UI.
+  warnings: Ensure that all parameters are valid before calling this method. Invalid
+    item IDs, negative prices, or unsupported durations can cause the method to fail
+    silently. Be aware that posting auctions consumes resources and should not be
+    called excessively in loops without proper rate limiting.
+  related:
+  - GetAuction
+  - CancelAuction
+  - BidOnAuction
+  - BuyoutAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T05:33:00.018564'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

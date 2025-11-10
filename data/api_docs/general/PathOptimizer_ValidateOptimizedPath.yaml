@@ -1,0 +1,67 @@
+api:
+  class: PathOptimizer
+  method: ValidateOptimizedPath
+  signature: bool PathOptimizer::ValidateOptimizedPath(const MovementPath & original,
+    const MovementPath & optimized, Map * map) const
+documentation:
+  brief: Validates whether an optimized movement path is logically consistent with
+    the original path and map boundaries.
+  description: The ValidateOptimizedPath method checks the integrity of a movement
+    path that has been optimized for performance or efficiency. It ensures that the
+    optimized path adheres to the same logical constraints as the original path, including
+    spatial consistency, map boundary adherence, and navigational feasibility. This
+    validation is crucial in TrinityCore's AI and movement systems to prevent invalid
+    or unsafe paths from being used in gameplay. The method takes both the original
+    and optimized paths along with a reference to the map on which they are valid,
+    ensuring that all checks are performed within the correct spatial context.
+  parameters:
+  - name: original
+    description: The unoptimized movement path that serves as the baseline for validation.
+      This path contains the original sequence of waypoints and movement data.
+  - name: optimized
+    description: The optimized version of the movement path to be validated against
+      the original. This should contain a potentially simplified or more efficient
+      sequence of waypoints.
+  - name: map
+    description: Pointer to the Map object on which both paths are valid. Used to
+      verify spatial constraints and map boundaries during validation.
+  returns: Returns true if the optimized path is logically consistent with the original
+    path and map constraints, false otherwise. A return value of false indicates that
+    the optimization process introduced invalid or unsafe movement data.
+  examples:
+  - title: Basic Path Validation
+    code: "MovementPath originalPath;\nMovementPath optimizedPath;\nMap* map = player->GetMap();\n\
+      \n// Populate paths with data...\nbool isValid = pathOptimizer.ValidateOptimizedPath(originalPath,\
+      \ optimizedPath, map);\nif (!isValid) {\n    // Handle invalid path case\n \
+      \   sLog->outError(\"Invalid optimized path detected!\");\n}"
+    language: cpp
+  - title: Integration with Movement System
+    code: "class PlayerMovementHandler {\npublic:\n    bool ProcessPathOptimization(Player*\
+      \ player, MovementPath& original, MovementPath& optimized) {\n        PathOptimizer\
+      \ optimizer;\n        Map* map = player->GetMap();\n        \n        if (!optimizer.ValidateOptimizedPath(original,\
+      \ optimized, map)) {\n            sLog->outError(\"Movement optimization failed\
+      \ validation for player %s\", player->GetName().c_str());\n            return\
+      \ false;\n        }\n        \n        // Proceed with validated path\n    \
+      \    player->UpdateMovementInfo(optimized);\n        return true;\n    }\n};"
+    language: cpp
+  notes: This method performs spatial validation checks including distance consistency,
+    map boundary adherence, and waypoint connectivity. It is typically used internally
+    by TrinityCore's pathfinding system to ensure that optimizations do not compromise
+    movement safety or game logic. The implementation may involve checking for collisions,
+    verifying that waypoints are within navigable areas, and ensuring the path remains
+    continuous.
+  warnings: This method assumes that both input paths have been properly initialized
+    and populated with valid data. Passing uninitialized or corrupted paths can lead
+    to undefined behavior or false validation results. Additionally, this method does
+    not validate the actual movement mechanics beyond logical consistency; it's meant
+    to be used in conjunction with other movement validation systems.
+  related:
+  - PathOptimizer::OptimizePath
+  - PathOptimizer::GeneratePath
+  - MovementGenerator::GetPath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T22:38:54.291497'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

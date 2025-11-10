@@ -1,0 +1,55 @@
+api:
+  class: CombatStateAnalyzer
+  method: IsMetricImproving
+  signature: bool CombatStateAnalyzer::IsMetricImproving(std::function<float (const
+    CombatMetrics &)> selector, float threshold) const
+documentation:
+  brief: Determines whether a specified combat metric is improving over time based
+    on a given threshold.
+  description: The IsMetricImproving method evaluates if a particular combat metric,
+    selected via a provided function, is showing an upward trend. It compares the
+    current value against previous measurements to determine improvement. This method
+    is typically used in combat analysis systems to detect performance enhancements
+    or degradation during encounters. The evaluation considers a threshold value that
+    defines what constitutes a meaningful change in the metric. The method assumes
+    that CombatMetrics data has been previously collected and stored for comparison.
+  parameters:
+  - name: selector
+    description: A std::function that takes a const reference to CombatMetrics and
+      returns a float value representing the specific metric to analyze. This function
+      should extract a scalar value from the combat metrics data structure.
+  - name: threshold
+    description: A float value that defines the minimum change required for the metric
+      to be considered as 'improving'. Values below this threshold are treated as
+      no significant change.
+  returns: Returns true if the selected combat metric is improving above the specified
+    threshold, false otherwise. The method returns false when there is insufficient
+    data or when the improvement does not meet the defined threshold.
+  examples:
+  - title: Basic usage to check damage per second improvement
+    code: "float dps = combatAnalyzer.IsMetricImproving([](const CombatMetrics& metrics)\
+      \ {\n    return metrics.GetDamagePerSecond();\n}, 10.0f);"
+    language: cpp
+  - title: Advanced usage with custom metric calculation
+    code: "bool isCritImproving = combatAnalyzer.IsMetricImproving([](const CombatMetrics&\
+      \ metrics) {\n    return (metrics.GetCriticalHits() / static_cast<float>(metrics.GetTotalAttacks()))\
+      \ * 100.0f;\n}, 2.5f);"
+    language: cpp
+  notes: This method relies on historical data being available in the CombatMetrics
+    class for comparison. The implementation may cache previous values internally
+    to perform trend analysis. Performance is dependent on how efficiently the selector
+    function operates and the frequency of calls.
+  warnings: Ensure that the selector function does not introduce side effects or modify
+    the CombatMetrics object. The method assumes monotonic data collection; sudden
+    jumps or resets in metrics could lead to incorrect results. Threshold values should
+    be chosen carefully based on expected variance in combat performance.
+  related:
+  - GetCombatMetrics
+  - UpdateCombatMetrics
+  - ResetCombatHistory
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T18:59:48.448776'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

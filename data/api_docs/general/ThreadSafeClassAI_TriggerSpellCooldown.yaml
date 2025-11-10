@@ -1,0 +1,47 @@
+api:
+  class: ThreadSafeClassAI
+  method: TriggerSpellCooldown
+  signature: void ThreadSafeClassAI::TriggerSpellCooldown(uint32 spellId)
+documentation:
+  brief: Triggers cooldown processing for a specified spell on the AI-controlled unit.
+  description: The TriggerSpellCooldown method initiates the cooldown timer for a
+    given spell ID on the AI-controlled unit. This method is typically used to manage
+    spell usage timing and prevent spells from being cast too frequently. It updates
+    internal tracking mechanisms to ensure that the specified spell cannot be cast
+    again until its cooldown period has expired. The method operates within the thread-safe
+    context of ThreadSafeClassAI, ensuring safe execution in multi-threaded environments
+    such as those found in TrinityCore's AI systems.
+  parameters:
+  - name: spellId
+    description: The unique identifier of the spell for which to trigger cooldown.
+      This value must correspond to a valid spell entry in the game's spell database.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void MyAI::OnCombatStart(Unit* target)\n{\n    // Trigger cooldown for\
+      \ Fireball spell (ID: 133)\n    TriggerSpellCooldown(133);\n}"
+    language: cpp
+  - title: Advanced Usage with Conditional Cooldown
+    code: "void MyAI::UpdateAI(uint32 diff)\n{\n    if (me->HasUnitState(UNIT_STATE_CASTING))\n\
+      \        return;\n\n    // Trigger cooldown for a specific spell only if it's\
+      \ not already on cooldown\n    if (!me->HasSpellCooldown(133))\n    {\n    \
+      \    TriggerSpellCooldown(133);\n        DoCast(me, 133); // Cast the spell\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is designed to be thread-safe and should be used within AI update
+    loops or event handlers. It does not directly cast the spell but rather manages
+    its cooldown state, which may affect subsequent casting decisions in the AI logic.
+  warnings: Ensure that the provided spellId corresponds to an actual spell in the
+    database; invalid IDs may cause undefined behavior. This method should not be
+    called during spell casting operations as it might interfere with existing cooldown
+    management.
+  related:
+  - HasSpellCooldown
+  - GetSpellCooldown
+  - ResetSpellCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:19:32.524108'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

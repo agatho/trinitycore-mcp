@@ -1,0 +1,54 @@
+api:
+  class: LeaderFollowBehavior
+  method: IsMoving
+  signature: bool LeaderFollowBehavior::IsMoving(Player * bot)
+documentation:
+  brief: Determines whether the specified bot player is currently moving.
+  description: The IsMoving method checks if a given Player object (typically a bot)
+    is currently in motion. This method evaluates the player's movement state by examining
+    internal AI flags and movement data to determine if the character is actively
+    moving, either through walking, running, or other movement types. It is commonly
+    used within the LeaderFollowBehavior class to control follower behavior based
+    on whether the leader is moving or stationary. The method does not consider the
+    bot's destination or pathfinding state directly, but rather focuses on the active
+    movement status of the player object itself.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot whose movement
+      state is being checked. Must be a valid pointer to an existing player instance.
+  returns: Returns true if the specified bot player is currently moving (walking,
+    running, or otherwise in motion), and false if the bot is stationary or not actively
+    moving.
+  examples:
+  - title: Basic usage to check if bot is moving
+    code: "if (leaderFollowBehavior->IsMoving(bot)) {\n    // Bot is currently moving\n\
+      \    // Perform movement-related actions\n} else {\n    // Bot is stationary\n\
+      \    // Perform idle actions\n}"
+    language: cpp
+  - title: Using IsMoving in a follower AI loop
+    code: "void FollowerAI::UpdateAI(uint32 diff) {\n    if (!leader || !bot)\n  \
+      \      return;\n\n    if (IsMoving(bot)) {\n        // Adjust follower position\
+      \ to maintain formation\n        bot->SetFacingTo(leader->GetOrientation());\n\
+      \    } else {\n        // Bot is idle, consider repositioning or waiting\n \
+      \       if (bot->GetDistance(leader) > FOLLOW_DISTANCE) {\n            bot->GetMotionMaster()->MoveFollow(leader,\
+      \ FOLLOW_DISTANCE, 0);\n        }\n    }\n}"
+    language: cpp
+  notes: This method relies on internal player movement state tracking within TrinityCore's
+    AI system. It may not detect all types of movement immediately due to potential
+    latency in state updates. The method should only be called with valid Player pointers
+    to avoid undefined behavior.
+  warnings: Ensure that the bot pointer passed to this method is valid and points
+    to an active player object. Calling this method on a null or invalid pointer will
+    result in undefined behavior or crashes. This method does not account for movement
+    caused by spells, abilities, or other game mechanics that might temporarily affect
+    a player's motion state.
+  related:
+  - LeaderFollowBehavior::IsFollowing
+  - LeaderFollowBehavior::SetMoving
+  - Player::IsMoving
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T13:03:54.943454'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

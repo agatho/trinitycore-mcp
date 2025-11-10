@@ -1,0 +1,62 @@
+api:
+  class: DynamicQuestSystem
+  method: FindOptimalQuestStartLocation
+  signature: int DynamicQuestSystem::FindOptimalQuestStartLocation(uint32 questId,
+    Player * bot)
+documentation:
+  brief: Finds the optimal starting location for a specified quest based on player
+    context and quest requirements.
+  description: The FindOptimalQuestStartLocation method determines the most appropriate
+    quest giver or starting location for a given quest ID, taking into account the
+    player's current position, quest availability, and game mechanics. This method
+    is typically used in dynamic quest systems to ensure players are directed to the
+    correct quest starter based on their current zone, level, and quest state. The
+    method evaluates various factors such as proximity to quest givers, quest prerequisites,
+    and player progression to return an optimal location identifier. It returns a
+    unique identifier that can be used to teleport or guide the player to the appropriate
+    quest start point.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest for which to find the optimal
+      starting location. Must be a valid quest ID registered in the game database.
+  - name: bot
+    description: Pointer to the Player object representing the player or bot for whom
+      the quest start location is being determined. The method uses this player's
+      context, including position and quest state, to calculate the optimal location.
+  returns: Returns an integer identifier representing the optimal quest start location.
+    This value typically corresponds to a GameObject GUID or NPC entry ID that serves
+    as the quest starter. Returns -1 if no suitable location is found or if the input
+    parameters are invalid.
+  examples:
+  - title: Basic Usage Example
+    code: "int startLocation = dynamicQuestSystem->FindOptimalQuestStartLocation(12345,\
+      \ player);\nif (startLocation > 0) {\n    // Proceed with quest start logic\
+      \ using startLocation\n    player->TeleportTo(0, 100.0f, 200.0f, 300.0f, 0.0f);\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "int startLocation = dynamicQuestSystem->FindOptimalQuestStartLocation(12345,\
+      \ bot);\nif (startLocation == -1) {\n    // Handle case where no valid quest\
+      \ start location was found\n    bot->GetSession()->SendNotification(\"No valid\
+      \ quest start location found.\");\n} else if (startLocation > 0) {\n    // Use\
+      \ the returned location to guide the bot\n    Position pos;\n    if (bot->GetMap()->GetGameObject(startLocation))\
+      \ {\n        // Proceed with navigation logic\n    }\n}"
+    language: cpp
+  notes: This method may perform database queries and map lookups, so it should not
+    be called excessively in performance-critical code paths. The implementation considers
+    player level, quest prerequisites, and available quest givers in the current zone.
+    It's recommended to cache results when possible for repeated calls.
+  warnings: Ensure that both questId and bot parameters are valid before calling this
+    method. Passing a null bot pointer or invalid quest ID may lead to undefined behavior.
+    The returned location identifier should be validated before use as it may not
+    always correspond to an active quest starter in the game world.
+  related:
+  - GetQuestGiverForPlayer
+  - ValidateQuestPrerequisites
+  - CalculateQuestDistance
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T05:46:21.948854'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

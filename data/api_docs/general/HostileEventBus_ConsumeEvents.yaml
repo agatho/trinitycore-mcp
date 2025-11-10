@@ -1,0 +1,60 @@
+api:
+  class: HostileEventBus
+  method: ConsumeEvents
+  signature: size_t HostileEventBus::ConsumeEvents(int & events, size_t maxCount)
+documentation:
+  brief: Consumes up to maxCount hostile events from the event bus and stores them
+    in the provided events buffer.
+  description: The ConsumeEvents method retrieves hostile events from the HostileEventBus,
+    which is typically used in World of Warcraft's AI and combat systems. It copies
+    up to maxCount events into the provided events buffer, returning the actual number
+    of events consumed. This method is essential for processing hostile actions such
+    as attacks, aggro changes, or threat updates that occur within a given game tick
+    or simulation frame. The method ensures thread-safe access to the event queue
+    and maintains proper ordering of events for consistent AI behavior.
+  parameters:
+  - name: events
+    description: Pointer to an integer array where hostile events will be stored.
+      Each element represents a specific hostile action or state change in the combat
+      system.
+  - name: maxCount
+    description: Maximum number of events to consume from the event bus. Must be a
+      positive integer representing the capacity of the events buffer.
+  returns: Returns the actual number of hostile events consumed and stored in the
+    events buffer. This value will be less than or equal to maxCount, indicating how
+    many events were available and successfully retrieved.
+  examples:
+  - title: Basic Event Consumption
+    code: "int eventBuffer[10];\nsize_t consumed = hostileEventBus.ConsumeEvents(eventBuffer,\
+      \ 10);\nfor (size_t i = 0; i < consumed; ++i)\n{\n    // Process each hostile\
+      \ event\n    switch (eventBuffer[i])\n    {\n        case HOSTILE_EVENT_ATTACK:\n\
+      \            // Handle attack event\n            break;\n        case HOSTILE_EVENT_AGGRO:\n\
+      \            // Handle aggro change\n            break;\n    }\n}"
+    language: cpp
+  - title: Event Processing Loop
+    code: "std::vector<int> events;\nconst size_t maxEvents = 50;\nint eventBuffer[maxEvents];\n\
+      \nwhile (true)\n{\n    size_t count = hostileEventBus.ConsumeEvents(eventBuffer,\
+      \ maxEvents);\n    if (count == 0) break; // No more events\n    \n    for (size_t\
+      \ i = 0; i < count; ++i)\n    {\n        events.push_back(eventBuffer[i]);\n\
+      \    }\n}\n// Process all collected events\nfor (const auto& event : events)\n\
+      {\n    HandleHostileEvent(event);\n}"
+    language: cpp
+  notes: This method is designed for high-frequency calls within AI update loops and
+    should be used carefully to avoid performance bottlenecks. The HostileEventBus
+    maintains a thread-safe queue internally, but repeated calls may impact performance
+    if maxCount is set too high. Consider batching event processing to optimize performance
+    in time-sensitive game systems.
+  warnings: Ensure that the events buffer has sufficient capacity (at least maxCount
+    elements) to avoid buffer overflows. The method assumes that the caller manages
+    the lifecycle of the events array and properly handles all retrieved events to
+    prevent memory leaks or undefined behavior.
+  related:
+  - AddEvent
+  - HasEvents
+  - ClearEvents
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-09T01:07:46.192550'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

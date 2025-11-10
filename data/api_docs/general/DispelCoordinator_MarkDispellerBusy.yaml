@@ -1,0 +1,52 @@
+api:
+  class: DispelCoordinator
+  method: MarkDispellerBusy
+  signature: void DispelCoordinator::MarkDispellerBusy(int dispeller, uint32 busyTimeMs)
+documentation:
+  brief: Marks a dispeller as busy for a specified duration to prevent concurrent
+    dispel operations.
+  description: The MarkDispellerBusy method sets a dispeller identified by its index
+    or identifier as temporarily unavailable for dispel actions. This prevents multiple
+    dispels from being applied simultaneously, which could lead to game mechanics
+    conflicts or performance issues. The busy state lasts for the specified time in
+    milliseconds, after which the dispeller becomes available again. This mechanism
+    is typically used in spell systems where dispel effects must be coordinated to
+    avoid overlap or race conditions.
+  parameters:
+  - name: dispeller
+    description: An integer identifier representing the dispeller (e.g., a spell ID,
+      caster index, or internal dispeller handle) that should be marked as busy.
+  - name: busyTimeMs
+    description: The duration in milliseconds for which the dispeller will remain
+      busy and unavailable for new dispel operations.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'DispelCoordinator coordinator;
+
+      coordinator.MarkDispellerBusy(12345, 2000); // Mark dispeller with ID 12345
+      as busy for 2 seconds'
+    language: cpp
+  - title: Usage in Spell Processing Context
+    code: "void ApplyDispel(Spell* spell) {\n    int dispellerId = spell->GetCaster()->GetGUID().GetCounter();\n\
+      \    uint32 cooldown = 1500; // 1.5 second cooldown\n    \n    if (dispellerId\
+      \ >= 0) {\n        coordinator.MarkDispellerBusy(dispellerId, cooldown);\n \
+      \   }\n}"
+    language: cpp
+  notes: This method likely uses internal state tracking to manage busy dispellers.
+    It's important that the dispeller identifier passed is valid and corresponds to
+    an actual dispeller in the system. The busy time should be carefully chosen to
+    match the expected duration of dispel effects or cooldowns.
+  warnings: Passing invalid dispeller identifiers may result in undefined behavior
+    or internal state corruption. Ensure that busyTimeMs is a reasonable value to
+    prevent excessive blocking of dispel operations.
+  related:
+  - MarkDispellerAvailable
+  - IsDispellerBusy
+  - GetDispellerCooldown
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:10:09.311175'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

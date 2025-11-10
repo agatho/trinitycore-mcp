@@ -1,0 +1,61 @@
+api:
+  class: NPCInteractionManager
+  method: InteractWithInnkeeper
+  signature: bool NPCInteractionManager::InteractWithInnkeeper(Creature * innkeeper)
+documentation:
+  brief: Initiates interaction with an innkeeper NPC to access innkeeping services
+    such as resting and mail.
+  description: The InteractWithInnkeeper method handles the core logic for a player
+    to interact with an innkeeper creature in World of Warcraft. This method typically
+    triggers the innkeeper's gossip menu, allowing players to rest at the inn, recover
+    health and mana, and access other inn-related services. The method checks if the
+    provided creature is indeed an innkeeper and validates that the player can interact
+    with it. It manages the state transition required for the interaction and returns
+    a boolean indicating success or failure of the interaction initiation. This functionality
+    is part of the broader NPC interaction system in TrinityCore, which handles various
+    types of creature interactions including vendors, trainers, and quest givers.
+  parameters:
+  - name: innkeeper
+    description: Pointer to the Creature object representing the innkeeper NPC with
+      which the player wants to interact. Must be a valid creature instance that is
+      classified as an innkeeper type.
+  returns: Returns true if the interaction was successfully initiated with the innkeeper,
+    false otherwise. Failure may occur if the creature is not a valid innkeeper, the
+    player cannot interact with it due to game state or distance, or if the interaction
+    system encounters an error during setup.
+  examples:
+  - title: Basic Innkeeper Interaction
+    code: "if (player->GetNPCInteractionManager()->InteractWithInnkeeper(innkeeperCreature))\
+      \ {\n    // Interaction started successfully\n    sLog->outString(\"Player initiated\
+      \ innkeeper interaction.\");\n} else {\n    // Failed to start interaction\n\
+      \    sLog->outString(\"Failed to interact with innkeeper.\");\n}"
+    language: cpp
+  - title: Checking Before Interaction
+    code: "if (innkeeperCreature && innkeeperCreature->IsInnkeeper()) {\n    if (player->GetNPCInteractionManager()->InteractWithInnkeeper(innkeeperCreature))\
+      \ {\n        // Successfully started interaction\n        player->PlayerTalkClass->SendGossipMenu(1,\
+      \ innkeeperCreature->GetGUID());\n    } else {\n        // Handle failed interaction\n\
+      \        player->SendSysMessage(\"Unable to interact with this innkeeper.\"\
+      );\n    }\n} else {\n    player->SendSysMessage(\"This is not an innkeeper.\"\
+      );\n}"
+    language: cpp
+  notes: This method relies on the underlying NPC interaction framework in TrinityCore
+    and assumes proper initialization of the player's interaction state. It does not
+    directly handle the gossip menu display or service execution; those are typically
+    handled by subsequent calls to GossipHello or related methods. The method may
+    perform validation checks such as distance, faction, and creature type before
+    proceeding.
+  warnings: Ensure that the Creature pointer passed is valid and represents an actual
+    innkeeper NPC. Passing a null pointer or a non-innkeeper creature will likely
+    result in failure. This method should only be called when the player is within
+    appropriate interaction range of the NPC.
+  related:
+  - GetNPCInteractionManager
+  - InteractWithVendor
+  - InteractWithQuestGiver
+  - PlayerTalkClass->SendGossipMenu
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:17:05.865799'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

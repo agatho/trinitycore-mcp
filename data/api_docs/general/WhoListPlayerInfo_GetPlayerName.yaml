@@ -1,0 +1,56 @@
+api:
+  class: WhoListPlayerInfo
+  method: GetPlayerName
+  signature: const std::string & WhoListPlayerInfo::GetPlayerName() const
+documentation:
+  brief: Retrieves the player name associated with the WhoListPlayerInfo object.
+  description: The GetPlayerName method returns a constant reference to a std::string
+    containing the display name of the player represented by this WhoListPlayerInfo
+    instance. This method is typically used in conjunction with the /who command or
+    similar player listing functionality within TrinityCore's World of Warcraft server
+    implementation. The returned string represents the character's name as it would
+    appear in game chat and player lists. The method does not perform any validation
+    or modification of the stored name; it simply provides access to the internally
+    maintained player name data. This is a read-only accessor that ensures thread-safe
+    retrieval of the player's name without exposing internal data structures directly.
+  parameters: []
+  returns: A constant reference to a std::string containing the player's name. The
+    string will be empty if no valid name has been set for this player info object,
+    or if the object was initialized without player data.
+  examples:
+  - title: Basic Usage in Who Command Handler
+    code: "void HandleWhoCommand(ChatHandler* handler, const std::string& args)\n\
+      {\n    for (auto const& playerInfo : sWorld->GetWhoList())\n    {\n        std::string\
+      \ playerName = playerInfo.GetPlayerName();\n        if (!playerName.empty())\n\
+      \        {\n            handler->PSendSysMessage(\"Player: %s\", playerName.c_str());\n\
+      \        }\n    }\n}"
+    language: cpp
+  - title: Using Player Name in Custom Player List
+    code: "std::vector<std::string> GetOnlinePlayersList()\n{\n    std::vector<std::string>\
+      \ playerNames;\n    for (auto const& info : sWorld->GetWhoList())\n    {\n \
+      \       const std::string& name = info.GetPlayerName();\n        if (!name.empty())\n\
+      \        {\n            playerNames.push_back(name);\n        }\n    }\n   \
+      \ return playerNames;\n}"
+    language: cpp
+  notes: This method returns a const reference to avoid unnecessary string copying
+    and to maintain data integrity. The underlying string is managed internally by
+    the WhoListPlayerInfo class, so modifications to the returned reference will not
+    affect the stored value. This implementation assumes that player names are properly
+    initialized when the WhoListPlayerInfo object is created, though empty strings
+    may be returned if no valid name exists.
+  warnings: While this method is safe to call from multiple threads due to its const
+    nature and return of a const reference, it's important to ensure that the WhoListPlayerInfo
+    object itself remains valid during the lifetime of the returned reference. Accessing
+    the returned reference after the parent object has been destroyed or invalidated
+    may result in undefined behavior.
+  related:
+  - SetPlayerName
+  - GetPlayerLevel
+  - GetPlayerClass
+  - GetPlayerZone
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T13:50:30.547651'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

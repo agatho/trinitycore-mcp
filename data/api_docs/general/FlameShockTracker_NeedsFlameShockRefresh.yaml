@@ -1,0 +1,62 @@
+api:
+  class: FlameShockTracker
+  method: NeedsFlameShockRefresh
+  signature: bool FlameShockTracker::NeedsFlameShockRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether a Flame Shock aura on a target needs to be refreshed based
+    on pandemic mechanics.
+  description: The NeedsFlameShockRefresh method evaluates if a Flame Shock spell
+    effect on a given target should be refreshed, taking into account the game's pandemic
+    mechanics. Pandemic mechanics allow for extending existing DoT (Damage over Time)
+    durations when reapplying the same spell, but only up to a certain window. This
+    method checks whether the current duration of the Flame Shock aura is within that
+    pandemic window and returns true if it should be refreshed to extend its duration.
+    The method uses the target's GUID to identify the specific unit and a specified
+    pandemic window duration in milliseconds to determine validity.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit affected by Flame
+      Shock. Used to locate the specific aura instance on the target.
+  - name: pandemicWindow
+    description: The maximum time window in milliseconds during which a new application
+      of Flame Shock can extend an existing aura. Typically represents 40% of the
+      spell's base duration.
+  returns: Returns true if the Flame Shock aura on the target needs to be refreshed
+    due to pandemic mechanics, otherwise false. A return value of true indicates that
+    applying the spell again will extend the existing duration rather than creating
+    a new one.
+  examples:
+  - title: Basic Usage in Spell Logic
+    code: "if (flameShockTracker.NeedsFlameShockRefresh(targetGuid, 4000)) {\n   \
+      \ // Apply Flame Shock again to refresh the aura\n    DoFlameShockEffect(targetGuid);\n\
+      }"
+    language: cpp
+  - title: Integration with Player Action Handling
+    code: "void Player::OnSpellCast(SpellInfo const* spellInfo) {\n    if (spellInfo->Id\
+      \ == SPELL_FLAME_SHOCK) {\n        if (flameShockTracker.NeedsFlameShockRefresh(GetGUID(),\
+      \ 4000)) {\n            // Extend existing Flame Shock\n            ExtendFlameShockAura(targetGuid);\n\
+      \        } else {\n            // Apply new Flame Shock\n            ApplyNewFlameShockAura(targetGuid);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with aura tracking systems to
+    implement proper pandemic mechanics for DoTs like Flame Shock. The pandemic window
+    value should match the game's internal logic, usually 40% of the base spell duration
+    (e.g., if Flame Shock has a 8-second duration, the pandemic window would be around
+    3200ms). The method assumes that the aura data is already tracked and accessible
+    via the GUID.
+  warnings: Ensure that the GUID passed to this method corresponds to a valid target
+    unit with an active Flame Shock aura. Incorrect GUIDs may lead to undefined behavior
+    or false positives. Also, make sure the pandemic window value accurately reflects
+    the game's intended mechanics to maintain balance and realism in spell application
+    logic.
+  related:
+  - FlameShockTracker::GetFlameShockDuration
+  - FlameShockTracker::IsFlameShockActive
+  - FlameShockTracker::ApplyFlameShock
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-09T02:05:34.134586'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

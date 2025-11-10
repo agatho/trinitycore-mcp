@@ -1,0 +1,84 @@
+api:
+  class: SpellFlatModByLabel
+  method: WriteUpdate
+  signature: void SpellFlatModByLabel::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes spell flat modifier data into a network packet buffer for client
+    updates.
+  description: The WriteUpdate method serializes the spell flat modifier's current
+    state into a ByteBuffer, which is then sent to the client. This method is typically
+    used during packet construction for spell update messages in World of Warcraft's
+    TrinityCore implementation. It handles the serialization of modifier values and
+    labels associated with the spell flat mod, ensuring that the client receives accurate
+    information about active spell modifications. The method respects the ignoreChangesMask
+    parameter to determine whether to send all data or only modified fields. This
+    functionality is crucial for maintaining synchronization between server-side spell
+    states and client-side visual representations.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized spell flat modifier
+      data will be written. This buffer is typically part of a larger packet being
+      constructed for network transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing data. When true, all fields are written regardless of modification
+      status; when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object that owns this spell flat modifier.
+      Used for determining ownership context during serialization and may affect which
+      data is included in the update.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      May be used to determine visibility or specific formatting based on the receiving
+      player's perspective.
+  returns: null
+  examples:
+  - title: Basic usage in spell update packet construction
+    code: 'ByteBuffer data;
+
+      SpellFlatModByLabel modifier;
+
+      Player* owner = ...; // Player who owns the spell
+
+      Player* receiver = ...; // Player receiving the update
+
+      modifier.WriteUpdate(data, false, owner, receiver);
+
+      // ''data'' now contains serialized spell flat modifier information'
+    language: cpp
+  - title: Using ignoreChangesMask to optimize updates
+    code: 'ByteBuffer data;
+
+      SpellFlatModByLabel modifier;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      // Only send changed fields for efficiency
+
+      modifier.WriteUpdate(data, false, owner, receiver);
+
+      // Or send all fields regardless of change status
+
+      modifier.WriteUpdate(data, true, owner, receiver);'
+    language: cpp
+  notes: This method is part of the spell system's network serialization framework.
+    It's typically called during packet building for spell update messages. The implementation
+    likely uses bitmasks to track which fields have changed since last update, and
+    the ignoreChangesMask parameter controls whether to send all data or only deltas.
+  warnings: Incorrect use of the ignoreChangesMask parameter can lead to either excessive
+    network traffic (when set to true) or missing updates (when set to false when
+    changes exist). The owner and receiver parameters must be valid Player pointers;
+    otherwise, undefined behavior may occur.
+  related:
+  - SpellFlatModByLabel::ReadUpdate
+  - SpellFlatModByLabel::ApplyModifier
+  - SpellFlatModByLabel::RemoveModifier
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:52:35.002121'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

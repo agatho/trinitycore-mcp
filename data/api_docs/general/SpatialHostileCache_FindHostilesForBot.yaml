@@ -1,0 +1,63 @@
+api:
+  class: SpatialHostileCache
+  method: FindHostilesForBot
+  signature: int SpatialHostileCache::FindHostilesForBot(Player * bot, float range,
+    uint32 maxResults)
+documentation:
+  brief: Finds and returns the count of hostile units within a specified range for
+    a given bot player.
+  description: The FindHostilesForBot method searches for all hostile units (such
+    as enemies or aggro targets) that are within a defined range of the provided bot
+    player. It is typically used in AI logic to determine nearby threats or targets
+    for combat decisions. The method utilizes spatial indexing and caching mechanisms
+    to efficiently locate these hostiles without performing expensive full-world scans.
+    This function is essential for bots to make informed decisions about movement,
+    attack priority, and threat avoidance. The maximum number of results returned
+    can be limited by the maxResults parameter.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot for which hostiles
+      are being searched. Must not be null.
+  - name: range
+    description: Float value specifying the maximum distance (in yards) from the bot's
+      position to consider for hostile units. Must be positive.
+  - name: maxResults
+    description: Unsigned 32-bit integer indicating the maximum number of hostile
+      units to return. If set to 0, all matching hostiles within range will be returned
+      (up to system limits).
+  returns: An integer representing the total count of hostile units found within the
+    specified range for the given bot player. Returns zero if no hostiles are found
+    or if invalid parameters are passed.
+  examples:
+  - title: Basic usage to find nearby enemies
+    code: "Player* myBot = ...; // Assume valid bot player\nint hostileCount = SpatialHostileCache::FindHostilesForBot(myBot,\
+      \ 30.0f, 5);\nif (hostileCount > 0)\n{\n    // Process the found hostiles\n\
+      \    printf(\"Found %d hostiles within 30 yards\\n\", hostileCount);\n}"
+    language: cpp
+  - title: Find all nearby enemies without limit
+    code: 'Player* myBot = ...; // Assume valid bot player
+
+      int hostileCount = SpatialHostileCache::FindHostilesForBot(myBot, 50.0f, 0);
+
+      // Returns count of all hostiles within 50 yards
+
+      printf("Total hostiles in range: %d\n", hostileCount);'
+    language: cpp
+  notes: This method relies on spatial indexing and caching for performance optimization.
+    The actual list of hostiles may be stored internally and retrieved via other methods
+    like GetHostilesForBot(). Ensure that the bot player is valid and in a valid game
+    state before calling this function to avoid unexpected behavior.
+  warnings: Passing null as the 'bot' parameter will likely cause a crash or undefined
+    behavior. The range should be positive; negative values may lead to incorrect
+    results or errors. Be cautious when using large maxResults values, as it could
+    impact performance in high-density areas.
+  related:
+  - GetHostilesForBot
+  - ClearCache
+  - UpdateCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:42:16.832305'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

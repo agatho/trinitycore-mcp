@@ -1,0 +1,44 @@
+api:
+  class: WorldSessionFilter
+  method: Process
+  signature: bool WorldSessionFilter::Process(WorldPacket * packet)
+documentation:
+  brief: Processes a WorldPacket through the session filter to determine if it should
+    be handled or dropped.
+  description: The Process method evaluates incoming WorldPackets within the context
+    of a WorldSession, applying various filtering rules and checks to decide whether
+    the packet should be allowed through for further processing. This method is crucial
+    for maintaining network integrity and security by preventing malformed or unauthorized
+    packets from being processed by the game logic. It typically performs validation
+    on packet headers, checks for valid session states, and may enforce rate limiting
+    or other protocol compliance measures before allowing a packet to proceed.
+  parameters: []
+  returns: Returns true if the packet was successfully processed and should continue
+    through the system; returns false if the packet failed validation checks and should
+    be dropped or discarded.
+  examples:
+  - title: Basic packet filtering
+    code: "if (sessionFilter->Process(&incomingPacket)) {\n    // Packet passed filter,\
+      \ proceed with normal handling\n    HandlePacket(incomingPacket);\n} else {\n\
+      \    // Packet failed filter, discard it\n    sLog->outDebug(LOG_FILTER_PACKETS,\
+      \ \"Dropped invalid packet from session %u\", session->GetAccountId());\n}"
+    language: cpp
+  notes: This method is typically called during the packet reception phase of the
+    WorldSession lifecycle. It's important to note that modifying the packet data
+    within this method can have unintended consequences, as it may affect subsequent
+    processing steps. The method should not be used for heavy computational tasks
+    due to its frequent invocation during active gameplay.
+  warnings: Do not assume that a returned true value guarantees the packet is completely
+    safe or valid - additional validation may still be required in downstream handlers.
+    Avoid performing blocking operations within this method as it can cause network
+    lag and affect overall server performance.
+  related:
+  - WorldSession::Update
+  - WorldSession::HandlePacket
+  - WorldSessionFilter::IsInitialized
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T20:42:15.639094'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,70 @@
+api:
+  class: TraitSubTreeCache
+  method: WriteCreate
+  signature: void TraitSubTreeCache::WriteCreate(ByteBuffer & data, const Player *
+    owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes trait subtree data to a ByteBuffer for client synchronization.
+  description: The WriteCreate method serializes the trait subtree data associated
+    with a player's character into a ByteBuffer, preparing it for network transmission
+    to either the owner or another player. This method is typically used during initial
+    login or when transferring trait information between players in the context of
+    World of Warcraft's trait system. The serialized data includes relevant metadata
+    about the trait subtree such as its ID, associated points, and any applicable
+    flags or states. It ensures that the client receives a complete and consistent
+    representation of the trait subtree state for proper UI rendering and gameplay
+    functionality.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized trait subtree data
+      will be written.
+  - name: owner
+    description: Pointer to the Player object representing the character who owns
+      the trait subtree. Used to determine ownership-specific data to include in serialization.
+  - name: receiver
+    description: Pointer to the Player object representing the recipient of the serialized
+      data. May affect which subset of trait data is included based on visibility
+      rules or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Player Login Context
+    code: 'ByteBuffer buffer;
+
+      Player* owner = ...; // Get player instance
+
+      Player* receiver = ...; // Get receiving player instance
+
+      traitSubTreeCache.WriteCreate(buffer, owner, receiver);
+
+      // Send buffer over network to client'
+    language: cpp
+  - title: Usage in Trait Transfer Between Players
+    code: 'ByteBuffer packet;
+
+      Player* sender = session->GetPlayer();
+
+      Player* target = ...; // Target player
+
+      traitSubTreeCache.WriteCreate(packet, sender, target);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  notes: This method is part of the internal trait system cache management and should
+    only be called when preparing data for network transmission. It assumes that all
+    necessary trait subtree data has already been loaded into memory. The method does
+    not perform any validation on the input parameters beyond ensuring they are non-null
+    pointers.
+  warnings: Calling this method with null pointers will likely result in undefined
+    behavior or crashes. Ensure both owner and receiver are valid Player instances
+    before calling. This method modifies the provided ByteBuffer directly, so make
+    sure it's properly initialized and cleared if needed.
+  related:
+  - GetTraitSubTree
+  - LoadTraitSubTree
+  - UpdateTraitSubTree
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:04:48.086468'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

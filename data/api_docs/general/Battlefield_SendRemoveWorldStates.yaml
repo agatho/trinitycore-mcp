@@ -1,0 +1,48 @@
+api:
+  class: Battlefield
+  method: SendRemoveWorldStates
+  signature: void Battlefield::SendRemoveWorldStates(Player * param0)
+documentation:
+  brief: Sends a message to remove world states for the specified player in the battlefield.
+  description: The SendRemoveWorldStates method is responsible for removing all active
+    world states associated with a specific battlefield from the client's perspective.
+    This typically occurs when a player leaves a battlefield or when the battlefield
+    state changes, ensuring that outdated or irrelevant world states are no longer
+    displayed to the player. The method operates on a per-player basis and sends the
+    appropriate network packets to update the client's UI. It is part of the battlefield
+    management system in TrinityCore, which handles dynamic world state updates for
+    battlegrounds and arenas.
+  parameters:
+  - name: param0
+    description: Pointer to the Player object for whom the world states should be
+      removed. This parameter determines which client will receive the removal messages.
+  returns: null
+  examples:
+  - title: Basic usage in battlefield leave handler
+    code: "void Battlefield::OnPlayerLeave(Player* player)\n{\n    SendRemoveWorldStates(player);\n\
+      \    // Additional cleanup logic...\n}"
+    language: cpp
+  - title: Usage during battlefield reset
+    code: "void Battlefield::Reset()\n{\n    for (auto& itr : m_players)\n    {\n\
+      \        SendRemoveWorldStates(itr);\n    }\n    // Reset other battlefield\
+      \ state...\n}"
+    language: cpp
+  notes: This method likely sends a WorldPackets::WorldState::UpdateWorldState packet
+    with a specific opcode to remove world states. The implementation may rely on
+    internal state tracking of which world states are currently active for each player.
+    It's important to note that this method does not directly modify the battlefield's
+    internal state, but only communicates the removal to the client.
+  warnings: Ensure that the Player pointer is valid before calling this method, as
+    passing a null pointer could lead to undefined behavior. Also, be aware that removing
+    world states too early in the battlefield lifecycle might cause UI glitches if
+    other systems are still trying to update those states.
+  related:
+  - SendInitWorldStates
+  - SendUpdateWorldState
+  - GetPlayers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T15:46:57.253663'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

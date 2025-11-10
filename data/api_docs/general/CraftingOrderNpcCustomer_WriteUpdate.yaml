@@ -1,0 +1,82 @@
+api:
+  class: CraftingOrderNpcCustomer
+  method: WriteUpdate
+  signature: void CraftingOrderNpcCustomer::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes crafting order NPC customer data into a ByteBuffer for network
+    transmission.
+  description: The WriteUpdate method serializes the state of a CraftingOrderNpcCustomer
+    object into a ByteBuffer, preparing it for transmission to players in the game
+    world. This method is typically invoked when sending updates about the customer's
+    status, inventory, or other relevant information to connected clients. It handles
+    the serialization logic necessary to represent the customer's data in a format
+    suitable for network communication within TrinityCore's architecture. The method
+    respects the ignoreChangesMask parameter to determine whether all fields should
+    be serialized or only those that have changed since the last update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer object where the serialized customer data
+      will be written. This buffer is used for constructing the network packet containing
+      the update information.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change tracking mask.
+      If true, all fields are serialized regardless of their change status; if false,
+      only changed fields are included in the update.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the crafting
+      order. This player's perspective is used when determining what data should be
+      sent to the receiver.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. The method
+      may use this to determine visibility or specific field serialization based on
+      the receiver's context.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Handler
+    code: 'ByteBuffer data;
+
+      CraftingOrderNpcCustomer customer;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      customer.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to receiver''s client
+
+      receiver->GetSession()->SendPacket(&data);'
+    language: cpp
+  - title: Forcing Full Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      CraftingOrderNpcCustomer customer;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      customer.WriteUpdate(data, true, owner, receiver);
+
+      // Send full state update regardless of changes
+
+      receiver->GetSession()->SendPacket(&data);'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    be called during regular update cycles or when specific changes occur. The implementation
+    likely uses internal change tracking to optimize network traffic by only sending
+    modified fields when ignoreChangesMask is false.
+  warnings: Ensure that the owner and receiver parameters are valid Player objects
+    before calling this method, as passing null pointers may lead to undefined behavior.
+    Also, be aware that frequent calls to this method without proper change tracking
+    can result in unnecessary network overhead.
+  related:
+  - CraftingOrderNpcCustomer::ReadUpdate
+  - CraftingOrderNpcCustomer::BuildUpdateData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:42:37.764420'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

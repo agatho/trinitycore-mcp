@@ -1,0 +1,71 @@
+api:
+  class: ZoneCache
+  method: GetCellsInRange
+  signature: void ZoneCache::GetCellsInRange(float x, float y, float range, int &
+    cells) const
+documentation:
+  brief: Calculates and returns the number of cells within a specified range from
+    a given coordinate in the zone cache.
+  description: The GetCellsInRange method computes how many grid cells are within
+    a circular area defined by a center point (x, y) and a radius (range). This is
+    used internally by TrinityCore's zone management system to determine which cells
+    need to be updated or checked for player visibility and object interaction. The
+    method modifies the 'cells' parameter to store the calculated count of affected
+    cells. It operates on the internal grid structure of the ZoneCache, which divides
+    the world into manageable cell-sized sections for efficient spatial queries.
+  parameters:
+  - name: x
+    description: The X coordinate of the center point from which to calculate range.
+      Valid values are typically within the bounds of the zone's map coordinates.
+  - name: y
+    description: The Y coordinate of the center point from which to calculate range.
+      Valid values are typically within the bounds of the zone's map coordinates.
+  - name: range
+    description: The radius of the circular area to check for cell intersections.
+      Must be a positive value; negative or zero values may produce unexpected results.
+  - name: cells
+    description: Reference to an integer that will be updated with the number of cells
+      within range. The value is modified in-place and represents the count of grid
+      cells intersecting the specified circular area.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'float playerX = 100.0f;
+
+      float playerY = 200.0f;
+
+      float searchRange = 50.0f;
+
+      int cellCount = 0;
+
+      zoneCache.GetCellsInRange(playerX, playerY, searchRange, cellCount);
+
+      // cellCount now holds the number of grid cells within 50 units of (100, 200)'
+    language: cpp
+  - title: Using Result for Object Visibility
+    code: "void UpdatePlayerVisibility(Player* player) {\n    float x = player->GetPositionX();\n\
+      \    float y = player->GetPositionY();\n    float viewDistance = 100.0f;\n \
+      \   int visibleCells = 0;\n    zoneCache.GetCellsInRange(x, y, viewDistance,\
+      \ visibleCells);\n    // Use visibleCells to determine how many cells to check\
+      \ for nearby objects\n}"
+    language: cpp
+  notes: This method assumes a uniform grid-based spatial partitioning system where
+    each cell has a fixed size. The calculation uses simple geometric math to determine
+    cell intersections with the circular range, which may not be perfectly accurate
+    for very large ranges or near grid boundaries. Performance is generally O(1) for
+    small ranges but can scale with the number of cells intersected.
+  warnings: The 'cells' parameter is modified in-place and should not be used before
+    calling this method unless its value is intentionally overwritten. If the range
+    is extremely large, it may cause performance issues due to iterating through many
+    grid cells. Ensure that x and y coordinates are within valid map bounds to avoid
+    unexpected behavior.
+  related:
+  - ZoneCache::GetCell
+  - ZoneCache::GetCellsInArea
+  - ZoneCache::IsInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T07:10:53.339740'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

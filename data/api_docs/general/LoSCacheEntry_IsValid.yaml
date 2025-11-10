@@ -1,0 +1,50 @@
+api:
+  class: LoSCacheEntry
+  method: IsValid
+  signature: bool LoSCacheEntry::IsValid(uint32 currentTime) const
+documentation:
+  brief: Checks if the line-of-sight cache entry is valid and has not expired based
+    on the current time.
+  description: The IsValid method determines whether a LoSCacheEntry object contains
+    valid data that has not yet expired. This method is typically used in TrinityCore's
+    pathfinding and line-of-sight systems to ensure cached visibility data is still
+    usable. The validation considers the entry's internal timestamp against the provided
+    current time value, returning false if the cache entry has exceeded its validity
+    period. This helps optimize performance by preventing the use of stale line-of-sight
+    data while ensuring that valid cached entries are utilized efficiently.
+  parameters: []
+  returns: Returns true if the cache entry is valid and has not expired; otherwise
+    returns false. A return value of false typically indicates that the cached line-of-sight
+    data should be recalculated or that the entry should be discarded.
+  examples:
+  - title: Basic usage in pathfinding
+    code: "if (losCacheEntry.IsValid(getCurrentTime())) {\n    // Use cached line-of-sight\
+      \ data\n    continue;\n} else {\n    // Recalculate line-of-sight\n    calculateNewLos();\n\
+      }"
+    language: cpp
+  - title: Checking validity before using cached data
+    code: "uint32 currentTime = WorldTimer::getMSTime();\nif (entry->IsValid(currentTime))\
+      \ {\n    // Safe to use cached data\n    return entry->GetResult();\n} else\
+      \ {\n    // Entry expired, clear it and recalculate\n    entry->Clear();\n \
+      \   return CalculateLos();\n}"
+    language: cpp
+  notes: This method is performance-critical in pathfinding systems where frequent
+    line-of-sight checks would otherwise be expensive. The cache validity period is
+    typically configured via server settings or hardcoded values within the TrinityCore
+    implementation. The method assumes that currentTime represents a valid time value,
+    typically obtained from WorldTimer::getMSTime() or similar timing functions.
+  warnings: Do not use the cached data returned by this method without first verifying
+    its validity with IsValid(). Using expired cache entries can lead to incorrect
+    pathfinding behavior or visual glitches in the game world. The method does not
+    perform any automatic cleanup of expired entries; it only validates their current
+    state.
+  related:
+  - LoSCacheEntry::SetValid
+  - LoSCacheEntry::GetExpirationTime
+  - LoSCacheEntry::Clear
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T16:43:22.842335'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

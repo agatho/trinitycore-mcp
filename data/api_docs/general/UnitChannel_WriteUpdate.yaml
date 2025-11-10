@@ -1,0 +1,61 @@
+api:
+  class: UnitChannel
+  method: WriteUpdate
+  signature: void UnitChannel::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Unit * owner, const Player * receiver) const
+documentation:
+  brief: Serializes unit channel data into a ByteBuffer for network transmission to
+    a specific player.
+  description: The WriteUpdate method is responsible for serializing the current state
+    of a UnitChannel object into a ByteBuffer, which is then sent over the network
+    to a specified receiver player. This method is typically used during packet construction
+    for sending channel updates to clients, ensuring that the client's UI accurately
+    reflects the ongoing channeling effects on the unit. The serialization process
+    respects the ignoreChangesMask flag, allowing selective updates based on change
+    tracking. It requires both an owner unit (the entity performing the channeling)
+    and a receiver player (the client receiving the update).
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized channel data will
+      be written. This buffer is typically used to construct network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing. If true, all fields are written regardless of their change status.
+  - name: owner
+    description: Pointer to the Unit object that owns this channel. This represents
+      the entity performing the channeling action (e.g., a caster casting a spell).
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used for
+      determining visibility and specific client-side behavior.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: "ByteBuffer data;\nUnitChannel* channel = unit->GetChannel();\nif (channel)\n\
+      {\n    channel->WriteUpdate(data, false, unit, player);\n    // Send data as\
+      \ part of a packet to player\n}"
+    language: cpp
+  - title: Conditional Update with Change Mask
+    code: "ByteBuffer data;\nUnitChannel* channel = unit->GetChannel();\nif (channel)\n\
+      {\n    bool ignoreMask = true; // Force full update\n    channel->WriteUpdate(data,\
+      \ ignoreMask, unit, player);\n    // Send full update regardless of changes\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's network packet serialization system
+    and should only be called when constructing packets for transmission to players.
+    The method assumes that the owner unit and receiver player are valid pointers,
+    and it does not perform null checks on them. It is commonly used in conjunction
+    with other update methods like SendUpdateToPlayer().
+  warnings: Calling this method without proper initialization of the ByteBuffer or
+    with invalid owner/receiver pointers may result in undefined behavior or corrupted
+    network packets. Ensure that the UnitChannel object is valid and has active channeling
+    data before calling this method.
+  related:
+  - UnitChannel::Update
+  - UnitChannel::SendUpdateToPlayer
+  - Unit::GetChannel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T17:56:39.002186'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

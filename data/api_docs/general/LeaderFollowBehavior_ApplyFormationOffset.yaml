@@ -1,0 +1,65 @@
+api:
+  class: LeaderFollowBehavior
+  method: ApplyFormationOffset
+  signature: int LeaderFollowBehavior::ApplyFormationOffset(const int & basePos, int
+    role)
+documentation:
+  brief: Calculates and applies formation offset position for a follower based on
+    its role in the group
+  description: The ApplyFormationOffset method computes the adjusted position for
+    a unit following a leader within a group formation. It takes a base position and
+    a role identifier to determine where the unit should be positioned relative to
+    the leader. This method is used primarily in group movement mechanics where units
+    maintain specific formations during combat or travel. The method considers the
+    leader's current orientation and the follower's role (such as primary tank, healer,
+    or damage dealer) to calculate an appropriate offset position that maintains proper
+    group spacing and positioning.
+  parameters:
+  - name: basePos
+    description: The base position coordinate (typically X or Y axis value) from which
+      the formation offset is calculated. This represents the leader's current position
+      in the formation space.
+  - name: role
+    description: An integer identifier representing the follower's role within the
+      group. Valid values typically include 0 for primary tank, 1 for healer, 2 for
+      main damage dealer, and other values for support roles or additional followers.
+  returns: Returns an integer value representing the calculated offset position for
+    the follower. This value can be positive or negative depending on the formation
+    configuration and should be added to the base position to determine the final
+    coordinate for the unit's positioning.
+  examples:
+  - title: Basic usage in group movement
+    code: 'int leaderX = leader->GetPositionX();
+
+      int followerX = leaderFollowBehavior->ApplyFormationOffset(leaderX, 1); // Apply
+      offset for healer role
+
+      follower->SetPosition(followerX, follower->GetPositionY(), follower->GetPositionZ());'
+    language: cpp
+  - title: Dynamic formation adjustment during combat
+    code: "for (auto& follower : groupMembers)\n{\n    if (follower->GetRole() ==\
+      \ ROLE_TANK)\n        follower->SetPosition(leader->GetPositionX() + ApplyFormationOffset(leader->GetPositionX(),\
+      \ 0), \n                            follower->GetPositionY(), \n           \
+      \                 follower->GetPositionZ());\n    else if (follower->GetRole()\
+      \ == ROLE_HEALER)\n        follower->SetPosition(leader->GetPositionX() + ApplyFormationOffset(leader->GetPositionX(),\
+      \ 1), \n                            follower->GetPositionY(), \n           \
+      \                 follower->GetPositionZ());\n}"
+    language: cpp
+  notes: This method is typically called during group movement updates and may be
+    invoked multiple times per frame. The implementation likely uses internal formation
+    data tables that define offset values for different roles. Performance considerations
+    include avoiding unnecessary recalculations when positions haven't changed significantly.
+  warnings: The method assumes valid base position coordinates and role identifiers.
+    Invalid role values could cause unexpected positioning behavior or potential crashes.
+    Ensure that the leader unit is properly initialized before calling this method,
+    as it relies on leader's current orientation and position data.
+  related:
+  - GetFormationOffset
+  - SetFormationRole
+  - UpdateGroupPosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:41:13.425795'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

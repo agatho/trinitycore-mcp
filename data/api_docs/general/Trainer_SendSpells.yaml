@@ -1,0 +1,57 @@
+api:
+  class: Trainer
+  method: SendSpells
+  signature: void Trainer::SendSpells(const Creature * npc, Player * player, LocaleConstant
+    locale) const
+documentation:
+  brief: Sends the list of spells available for training to a player from a trainer
+    NPC.
+  description: The SendSpells method is responsible for transmitting the set of spells
+    that a specific trainer NPC can teach to a player. It retrieves the spells associated
+    with the trainer and formats them according to the player's locale, then sends
+    this information over the network so the client can display the training interface.
+    This method is typically invoked when a player interacts with a trainer NPC and
+    opens the spell training window. The method respects the player's locale settings
+    to ensure proper localization of spell names and descriptions. It also checks
+    that the player meets prerequisites for learning spells, such as having sufficient
+    skill levels or completing required quests.
+  parameters:
+  - name: npc
+    description: Pointer to the Creature object representing the trainer NPC. Must
+      not be null and must be a valid trainer type.
+  - name: player
+    description: Pointer to the Player object who is requesting spell training. Must
+      not be null and must be within interaction range of the trainer.
+  - name: locale
+    description: LocaleConstant value indicating the language locale for localized
+      spell information. Determines how spell names and descriptions are formatted
+      for display.
+  returns: None. This method performs a network operation to send data to the player
+    client.
+  examples:
+  - title: Basic usage in trainer interaction
+    code: "void HandleTrainerGossip(Player* player, Creature* trainer)\n{\n    if\
+      \ (player && trainer)\n    {\n        LocaleConstant locale = player->GetSession()->GetSessionDbLocaleIndex();\n\
+      \        trainer->GetAI()->SendSpells(trainer, player, locale);\n    }\n}"
+    language: cpp
+  notes: This method relies on the underlying spell learning system and requires that
+    the trainer NPC has valid spell data configured in the database. The method internally
+    handles filtering of spells based on player's current skill levels and quest completion
+    status. It is typically called from within a gossip menu handler when a player
+    selects the 'Learn Spells' option.
+  warnings: Ensure that both the npc and player parameters are valid pointers before
+    calling this method to avoid crashes. The locale parameter should be properly
+    set to prevent display issues with localized text. This method does not validate
+    if the player is actually within range of the trainer; such checks must be performed
+    by the caller.
+  related:
+  - Trainer::SendTrainerList
+  - Trainer::SendTrainerSpellList
+  - Player::LearnSpell
+  - Creature::GetAI
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T21:13:28.478228'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

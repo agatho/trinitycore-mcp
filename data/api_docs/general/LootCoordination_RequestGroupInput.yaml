@@ -1,0 +1,65 @@
+api:
+  class: LootCoordination
+  method: RequestGroupInput
+  signature: void LootCoordination::RequestGroupInput(Group * group, const std::string
+    & question, uint32 timeoutMs)
+documentation:
+  brief: Initiates a group input request with a question and timeout for loot coordination.
+  description: The RequestGroupInput method sends a prompt to all members of a specified
+    group, requesting their input for loot coordination decisions. This functionality
+    is typically used during group loot events where players must vote or make choices
+    regarding item distribution. The method sets up a timed interaction window during
+    which group members can respond. The timeout parameter controls how long the group
+    has to provide input before the system moves forward with default behavior. This
+    method is integral to TrinityCore's loot system, particularly for group loot scenarios
+    such as dungeon or raid loot rolls.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group that will receive
+      the input request. Must be a valid group instance; null pointers will cause
+      undefined behavior.
+  - name: question
+    description: String containing the question or prompt to display to group members.
+      This text is shown in the loot coordination UI and should clearly communicate
+      what input is required from players.
+  - name: timeoutMs
+    description: Timeout value in milliseconds that determines how long the group
+      has to respond to the input request. Must be a positive integer; values of zero
+      or negative will result in immediate timeout behavior.
+  returns: null
+  examples:
+  - title: Basic Group Input Request
+    code: 'Group* myGroup = player->GetGroup();
+
+      LootCoordination::RequestGroupInput(myGroup, "Should we roll for this item?",
+      30000);'
+    language: cpp
+  - title: Advanced Group Input with Dynamic Question
+    code: 'Group* raidGroup = player->GetGroup();
+
+      std::string question = "Vote on loot distribution for: " + item->GetTemplate()->Name;
+
+      LootCoordination::RequestGroupInput(raidGroup, question, 60000);'
+    language: cpp
+  notes: This method is designed to work within the context of TrinityCore's loot
+    coordination system. It relies on proper group membership validation and assumes
+    that the Group object passed in is active and valid. The timeout mechanism uses
+    a standard timer implementation, so performance considerations include ensuring
+    that the timeout value is reasonable for player interaction. This method does
+    not directly handle input responses; it only initiates the request process.
+  warnings: Passing null pointers for the group parameter will result in crashes or
+    undefined behavior. Ensure that the group is valid and active before calling this
+    method. The question string should be properly formatted and localized to avoid
+    UI display issues. Be cautious with very short timeout values as they may not
+    allow sufficient time for players to respond, especially during high-latency network
+    conditions.
+  related:
+  - LootCoordination::SendLootUpdate
+  - LootCoordination::ProcessPlayerInput
+  - LootCoordination::CompleteLoot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:18:40.719246'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

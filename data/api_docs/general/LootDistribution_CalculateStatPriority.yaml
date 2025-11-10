@@ -1,0 +1,59 @@
+api:
+  class: LootDistribution
+  method: CalculateStatPriority
+  signature: float LootDistribution::CalculateStatPriority(Player * player, uint32
+    statType)
+documentation:
+  brief: Calculates and returns a priority value for a player's stat based on loot
+    distribution rules.
+  description: The CalculateStatPriority method determines how important a specific
+    stat is for a given player in the context of loot distribution. This function
+    evaluates the player's current stats, class, specialization, and other relevant
+    factors to compute a normalized priority score between 0.0 and 1.0. The returned
+    value influences how likely a particular stat will be selected when determining
+    loot drops or bonus rolls during item acquisition. This method is typically used
+    internally by the loot system to ensure balanced and class-appropriate item distribution.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for which the stat priority is being
+      calculated. Must not be null.
+  - name: statType
+    description: The type of stat to evaluate (e.g., STAT_STRENGTH, STAT_AGILITY,
+      etc.). Should correspond to valid stat constants defined in the TrinityCore
+      API.
+  returns: A float value representing the calculated priority of the specified stat
+    for the given player. Values typically range from 0.0 (lowest priority) to 1.0
+    (highest priority). Returns 0.0 if the player or stat type is invalid.
+  examples:
+  - title: Basic usage example
+    code: "Player* player = ...; // Assume valid player pointer\nfloat priority =\
+      \ LootDistribution::CalculateStatPriority(player, STAT_AGILITY);\nif (priority\
+      \ > 0.5f)\n{\n    // The agility stat is considered highly valuable for this\
+      \ player\n}"
+    language: cpp
+  - title: Using in loot decision logic
+    code: "Player* player = ...;\nuint32 statTypes[] = {STAT_STRENGTH, STAT_AGILITY,\
+      \ STAT_INTELLECT};\nfloat priorities[3];\n\nfor (int i = 0; i < 3; ++i)\n{\n\
+      \    priorities[i] = LootDistribution::CalculateStatPriority(player, statTypes[i]);\n\
+      }\n\n// Find the highest priority stat\nuint32 bestStat = statTypes[0];\nfloat\
+      \ maxPriority = priorities[0];\nfor (int i = 1; i < 3; ++i)\n{\n    if (priorities[i]\
+      \ > maxPriority)\n    {\n        maxPriority = priorities[i];\n        bestStat\
+      \ = statTypes[i];\n    }\n}"
+    language: cpp
+  notes: This method is part of the loot distribution system and may be called frequently
+    during item evaluation. It relies on internal player state and class configurations,
+    so performance is optimized for repeated calls. The exact algorithm used to compute
+    priority values depends on the player's class, specialization, and gear configuration.
+  warnings: Ensure that the Player pointer passed is valid and not null before calling
+    this method; otherwise, undefined behavior may occur. Also, statType must be a
+    valid enum value from the TrinityCore stat system to avoid incorrect results.
+  related:
+  - GetLootItemForPlayer
+  - EvaluateLootDrop
+  - CalculateItemValue
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:11:40.719648'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: InteractionManager
+  method: BidOnAuction
+  signature: bool InteractionManager::BidOnAuction(Player * bot, Creature * auctioneer,
+    uint32 auctionId, uint32 bid)
+documentation:
+  brief: Places a bid on a specified auction item through the auctioneer NPC.
+  description: The BidOnAuction method allows a player character to place a bid on
+    an existing auction item. It interacts with the auction system by sending a bid
+    request to the auctioneer NPC, using the provided auction ID and bid amount. The
+    method validates that the bid meets minimum requirements and that the player has
+    sufficient funds before processing the transaction. If successful, the bid is
+    recorded in the auction database and the player's gold is deducted accordingly.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the character placing the
+      bid.
+  - name: auctioneer
+    description: Pointer to the Creature object representing the auctioneer NPC handling
+      the auction.
+  - name: auctionId
+    description: Unique identifier for the specific auction item being bid upon.
+  - name: bid
+    description: The amount of gold the player wishes to bid on the auction item.
+  returns: Returns true if the bid was successfully placed and processed, false otherwise.
+    A return value of false may indicate insufficient funds, invalid auction ID, or
+    other auction system errors.
+  examples:
+  - title: Basic Bid Placement
+    code: "if (interactionManager.BidOnAuction(player, auctioneer, 12345, 100000))\
+      \ {\n    // Bid accepted\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Bid placed successfully.\");\n} else {\n    // Bid failed\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Failed to place bid.\");\n}"
+    language: cpp
+  - title: Conditional Bid Based on Item Value
+    code: "uint32 maxBid = itemTemplate->BuyPrice * 2; // Set maximum bid as twice\
+      \ the item's buy price\nif (bidAmount <= maxBid && interactionManager.BidOnAuction(player,\
+      \ auctioneer, auctionId, bidAmount)) {\n    // Proceed with successful bid\n\
+      \    player->ModifyMoney(-static_cast<int32>(bidAmount));\n}"
+    language: cpp
+  notes: This method should only be called when the player is within interaction range
+    of the auctioneer NPC. The method does not validate whether the bid meets the
+    minimum increment required by the auction system; this validation is handled internally
+    by the auction house system.
+  warnings: Ensure that the player has sufficient gold before calling this method,
+    as failure to do so may result in silent failures or error messages. Also, be
+    aware that placing a bid on an item you own will not work unless it's a bid placed
+    by another player for your own item.
+  related:
+  - GetAuctionItem
+  - ListAuctions
+  - CancelAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:36:00.876955'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

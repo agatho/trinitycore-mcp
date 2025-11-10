@@ -1,0 +1,61 @@
+api:
+  class: HealerPositionStrategy
+  method: GetSafeHealingPosition
+  signature: int HealerPositionStrategy::GetSafeHealingPosition(Player * bot, int
+    allies) const
+documentation:
+  brief: Calculates and returns the optimal safe healing position for a bot based
+    on ally count and positioning.
+  description: The GetSafeHealingPosition method determines the best location for
+    a healer bot to position itself while maintaining safety and effective healing
+    capability. It evaluates the current battlefield conditions, including the number
+    of allies that need healing, proximity to enemies, and available space for movement.
+    This method is crucial for AI-driven healer bots in TrinityCore's combat system,
+    ensuring they can provide support without being easily killed or obstructed. The
+    calculation considers factors such as distance from allies, threat level from
+    nearby enemies, and environmental obstacles that might impede movement or line
+    of sight.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the healer bot that requires
+      positioning calculation
+  - name: allies
+    description: Integer value indicating the number of allied targets that require
+      healing within the current context
+  returns: Returns an integer representing the calculated safe healing position index
+    or identifier. A positive value typically indicates a valid position, while negative
+    values may indicate insufficient space or unsafe conditions for healing.
+  examples:
+  - title: Basic usage in healer AI
+    code: "int position = strategy.GetSafeHealingPosition(bot, 3);\nif (position >=\
+      \ 0) {\n    // Proceed with movement to calculated position\n    bot->MoveTo(position);\n\
+      } else {\n    // Handle unsafe healing conditions\n    bot->Say(\"Cannot find\
+      \ safe healing spot!\", LANG_UNIVERSAL);\n}"
+    language: cpp
+  - title: Integration with healing logic
+    code: "void HealAllies() {\n    Player* healer = GetBot();\n    int allyCount\
+      \ = GetNearbyAllies().size();\n    int safePosition = strategy.GetSafeHealingPosition(healer,\
+      \ allyCount);\n    \n    if (safePosition >= 0) {\n        // Move to safe healing\
+      \ spot\n        Position targetPos = GetPositionFromIndex(safePosition);\n \
+      \       healer->MoveTo(targetPos);\n        \n        // Begin healing\n   \
+      \     DoHeal(healer, allyCount);\n    } else {\n        // Retreat or reposition\n\
+      \        healer->SetReactState(REACT_AGGRESSIVE);\n    }\n}"
+    language: cpp
+  notes: This method likely performs complex pathfinding and threat assessment calculations.
+    It may cache previous positions for performance optimization. The exact algorithmic
+    details are not available, but it's expected to integrate with TrinityCore's existing
+    AI subsystems and movement managers.
+  warnings: The method assumes that the provided bot pointer is valid and that the
+    ally count accurately reflects current battlefield conditions. Using invalid pointers
+    or incorrect ally counts may result in unpredictable behavior or unsafe positioning
+    decisions.
+  related:
+  - GetHealingRange
+  - FindSafePosition
+  - EvaluateThreatLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T09:16:31.882556'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

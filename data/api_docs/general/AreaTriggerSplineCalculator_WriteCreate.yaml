@@ -1,0 +1,69 @@
+api:
+  class: AreaTriggerSplineCalculator
+  method: WriteCreate
+  signature: void AreaTriggerSplineCalculator::WriteCreate(ByteBuffer & data, const
+    AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger create data to a byte buffer for transmission to a player.
+  description: The WriteCreate method serializes the state and properties of an AreaTrigger
+    object into a ByteBuffer format suitable for sending to a specific Player client.
+    This method is typically used during packet construction for area trigger creation
+    messages, ensuring that the client receives all necessary information about the
+    area trigger's position, spline path, duration, and other relevant attributes.
+    The serialized data includes the owner's GUID, trigger type, duration, and spline
+    information needed by the client to render and manage the area trigger effect.
+    This method is part of the network synchronization system that keeps client-side
+    area triggers in sync with server-side state.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger create
+      data will be written. This buffer is typically used to construct network packets
+      sent to the player.
+  - name: owner
+    description: Pointer to the AreaTrigger object that contains the data to be serialized.
+      This represents the actual area trigger being created in the world.
+  - name: receiver
+    description: Pointer to the Player object who will receive this area trigger create
+      packet. Used for determining visibility and client-specific serialization details.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      AreaTriggerSplineCalculator calculator;
+
+      AreaTrigger* trigger = ...; // some area trigger
+
+      Player* player = ...; // target player
+
+
+      calculator.WriteCreate(data, trigger, player);
+
+      // Send data as part of a packet to the player'
+    language: cpp
+  - title: Integration with area trigger spawn system
+    code: "void SendAreaTriggerCreatePacket(Player* player, AreaTrigger* trigger)\
+      \ {\n    ByteBuffer data;\n    AreaTriggerSplineCalculator calculator;\n   \
+      \ \n    // Write create packet for the area trigger\n    calculator.WriteCreate(data,\
+      \ trigger, player);\n    \n    // Send to player\n    player->GetSession()->SendPacket(&data);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's network packet serialization system
+    for area triggers. It assumes that the AreaTrigger object has been properly initialized
+    with all necessary data before calling. The method does not perform any validation
+    on the input parameters, so callers should ensure that owner and receiver are
+    valid pointers.
+  warnings: Calling this method with a null owner pointer will likely result in a
+    crash or undefined behavior. Ensure that both owner and receiver parameters are
+    valid before invoking this method. The ByteBuffer must be properly sized or will
+    be automatically resized as needed during serialization.
+  related:
+  - WriteUpdate
+  - WriteDestroy
+  - GetSplineData
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T09:21:00.654489'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

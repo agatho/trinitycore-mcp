@@ -1,0 +1,82 @@
+api:
+  class: QuestSession
+  method: WriteUpdate
+  signature: void QuestSession::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes quest session update data into a ByteBuffer for transmission to
+    players.
+  description: The WriteUpdate method serializes the current state of a QuestSession
+    object into a ByteBuffer, preparing it for network transmission to one or more
+    players. This method is typically used when sending quest progress updates, objective
+    changes, or other quest-related information from the server to clients. The serialization
+    process respects the session's change mask to optimize data transfer, unless explicitly
+    overridden by the ignoreChangesMask parameter. The method requires both an owner
+    and receiver player reference to determine appropriate data filtering and packet
+    formatting based on quest visibility rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized quest session update
+      data will be written. This buffer is typically used for constructing network
+      packets sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether to ignore the session's change
+      tracking mask. When true, all quest data is serialized regardless of change
+      status; when false, only changed data is included based on the internal changes
+      mask.
+  - name: owner
+    description: Pointer to the Player object representing the quest owner (player
+      who initiated or is assigned the quest). Used for determining visibility and
+      access rights during serialization.
+  - name: receiver
+    description: Pointer to the Player object representing the target recipient of
+      the update. This player's perspective determines which quest data should be
+      included in the serialized packet.
+  returns: null
+  examples:
+  - title: Basic Quest Update Serialization
+    code: 'ByteBuffer buffer;
+
+      QuestSession session;
+
+      Player* owner = ...; // Player who owns the quest
+
+      Player* receiver = ...; // Player receiving the update
+
+      session.WriteUpdate(buffer, false, owner, receiver);
+
+      // Buffer now contains serialized quest data for network transmission'
+    language: cpp
+  - title: Force Full Update with Ignore Mask
+    code: 'ByteBuffer buffer;
+
+      QuestSession session;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      // Force serialization of all quest data, ignoring change tracking
+
+      session.WriteUpdate(buffer, true, owner, receiver);
+
+      // Buffer contains complete quest state regardless of changes'
+    language: cpp
+  notes: This method is part of the internal quest synchronization system in TrinityCore.
+    It should only be called during network packet construction or when preparing
+    updates for transmission to players. The method relies on proper player references
+    and change tracking masks to ensure correct data serialization.
+  warnings: Calling this method with null player pointers may result in undefined
+    behavior or crashes. Ensure that both owner and receiver parameters are valid
+    Player objects before calling. Incorrect use of the ignoreChangesMask parameter
+    can lead to unnecessary network traffic and performance degradation.
+  related:
+  - QuestSession::Update
+  - QuestSession::GetChangesMask
+  - QuestSession::SetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:20:38.369911'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

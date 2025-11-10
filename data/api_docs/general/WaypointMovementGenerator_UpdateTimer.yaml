@@ -1,0 +1,56 @@
+api:
+  class: WaypointMovementGenerator
+  method: UpdateTimer
+  signature: bool WaypointMovementGenerator::UpdateTimer(int & timer, uint32 diff)
+documentation:
+  brief: Updates the waypoint movement timer and returns true if the timer has elapsed.
+  description: The UpdateTimer method is responsible for managing the timing logic
+    of a waypoint-based movement generator. It takes a reference to an integer timer
+    and a time difference value (in milliseconds), decrements the timer, and returns
+    true when the timer reaches zero or below. This mechanism allows for controlling
+    the timing of waypoint progression in creature AI behavior. The method is typically
+    called during the update cycle of a creature's movement logic to determine when
+    to advance to the next waypoint in a path. It ensures that waypoints are processed
+    at appropriate intervals based on the specified time delta.
+  parameters:
+  - name: timer
+    description: Reference to an integer representing the remaining time (in milliseconds)
+      until the next waypoint action. This value is decremented by the diff parameter
+      during each call.
+  - name: diff
+    description: The time difference in milliseconds since the last update call. This
+      value is subtracted from the timer to determine if the timer has elapsed.
+  returns: Returns true when the timer has reached zero or below, indicating that
+    the waypoint delay has expired and a new waypoint should be processed. Returns
+    false if the timer still has time remaining.
+  examples:
+  - title: Basic Timer Update Usage
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (m_waypointGenerator)\n\
+      \    {\n        int timer = m_waypointGenerator->GetTimer();\n        if (m_waypointGenerator->UpdateTimer(timer,\
+      \ diff))\n        {\n            // Timer has elapsed, move to next waypoint\n\
+      \            MoveToNextWaypoint();\n        }\n    }\n}"
+    language: cpp
+  - title: Advanced Timer Management with Multiple Waypoints
+    code: "bool WaypointMovementGenerator::UpdateTimer(int &timer, uint32 diff)\n\
+      {\n    if (timer <= 0)\n        return true;\n\n    timer -= diff;\n    if (timer\
+      \ <= 0)\n    {\n        timer = 0; // Ensure non-negative\n        return true;\n\
+      \    }\n    \n    return false;\n}"
+    language: cpp
+  notes: This method is commonly used in conjunction with creature AI systems to control
+    movement timing. The timer value should be initialized appropriately before calling
+    this method for the first time. It's important to note that this method modifies
+    the timer reference directly, so callers should be aware of the side effects.
+  warnings: Care must be taken when using this method with very small diff values
+    as it may cause the timer to decrement rapidly. Also, if the timer is not properly
+    initialized or managed, it could lead to unexpected movement behavior or infinite
+    loops in waypoint progression.
+  related:
+  - GetTimer
+  - SetTimer
+  - MoveToNextWaypoint
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T04:35:04.886350'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

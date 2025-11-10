@@ -1,0 +1,53 @@
+api:
+  class: DruidAI
+  method: HandleTargetSwitching
+  signature: bool DruidAI::HandleTargetSwitching(int *& target)
+documentation:
+  brief: Determines whether the Druid AI should switch to a new target based on current
+    combat conditions and threat levels.
+  description: The HandleTargetSwitching method evaluates the current state of the
+    Druid's target and determines if a target switch is necessary. This typically
+    occurs when the current target becomes invalid, unattackable, or when a higher-priority
+    threat emerges. The method checks for valid targets within the AI's detection
+    range, assesses threat levels, and ensures that switching targets aligns with
+    the druid's combat strategy. It returns true if a target switch is required and
+    successfully handled, false otherwise. This method is part of the Druid's core
+    AI behavior system and integrates with the broader TrinityCore mob AI framework.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the current target's identifier.
+      The method modifies this value if a target switch occurs, or leaves it unchanged
+      if no switch is needed.
+  returns: Returns true if a target switch was successfully performed and the new
+    target has been assigned; returns false if no switch was necessary or if the switch
+    failed due to invalid conditions.
+  examples:
+  - title: Basic Target Switch Check
+    code: "int currentTarget = 12345;\nbool switched = druidAI->HandleTargetSwitching(currentTarget);\n\
+      if (switched) {\n    // Target has been updated\n    printf(\"New target assigned:\
+      \ %d\\n\", currentTarget);\n}"
+    language: cpp
+  - title: Integration with Combat Loop
+    code: "void DruidAI::UpdateAI(uint32 diff) {\n    if (me->IsInCombat()) {\n  \
+      \      int* target = &me->GetVictim()->GetGUID().GetRawValue();\n        if\
+      \ (HandleTargetSwitching(target)) {\n            // Update combat state with\
+      \ new target\n            me->SetTarget(ObjectGuid(*target));\n        }\n \
+      \   }\n}"
+    language: cpp
+  notes: This method is called regularly during the AI update cycle and should not
+    perform heavy operations to avoid performance degradation. The method relies on
+    the underlying TrinityCore target management system and may interact with threat
+    tables, aggro tracking, and mob detection ranges.
+  warnings: Do not call this method directly without ensuring that the target pointer
+    points to a valid memory location. Improper handling of the target parameter can
+    lead to undefined behavior or crashes in the AI subsystem.
+  related:
+  - DruidAI::UpdateAI
+  - DruidAI::SelectNextTarget
+  - DruidAI::IsValidTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:03:37.715122'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

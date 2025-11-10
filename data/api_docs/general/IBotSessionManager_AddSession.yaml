@@ -1,0 +1,61 @@
+api:
+  class: IBotSessionManager
+  method: AddSession
+  signature: bool IBotSessionManager::AddSession(std::shared_ptr<IBotSession> session)
+documentation:
+  brief: Adds a new bot session to the session manager and returns true on success.
+  description: The AddSession method is responsible for registering a new bot session
+    within the IBotSessionManager. It takes ownership of the provided session object
+    and integrates it into the internal session management system. This method ensures
+    that the session is properly initialized and tracked by the manager, allowing
+    for centralized control over all active bot sessions. The method performs validation
+    checks on the input session to ensure it's in a valid state before adding it to
+    the collection. It returns true if the session was successfully added, or false
+    if the addition failed due to invalid input, duplicate session identifiers, or
+    internal system constraints.
+  parameters:
+  - name: session
+    description: A shared pointer to an IBotSession object that represents the bot
+      session to be added. The session must be fully initialized and valid before
+      being passed to this method. This parameter is required and cannot be null.
+  returns: True if the session was successfully added to the manager, false otherwise.
+    Returns false if the session is invalid, already exists, or if an internal error
+    occurs during the addition process.
+  examples:
+  - title: Basic Session Addition
+    code: "std::shared_ptr<IBotSession> botSession = std::make_shared<BotSession>(playerGuid);\n\
+      bool success = sessionManager->AddSession(botSession);\nif (success) {\n   \
+      \ // Session added successfully\n    LOG_INFO(\"SessionManager\", \"Bot session\
+      \ added for player {}\", playerGuid);\n} else {\n    // Failed to add session\n\
+      \    LOG_ERROR(\"SessionManager\", \"Failed to add bot session for player {}\"\
+      , playerGuid);\n}"
+    language: cpp
+  - title: Adding Multiple Sessions
+    code: "std::vector<std::shared_ptr<IBotSession>> sessions;\n// ... populate sessions\
+      \ vector with valid bot sessions ...\n\nfor (const auto& session : sessions)\
+      \ {\n    if (!sessionManager->AddSession(session)) {\n        LOG_ERROR(\"SessionManager\"\
+      , \"Failed to add session for player {}\");\n    }\n}\nLOG_INFO(\"SessionManager\"\
+      , \"Successfully added {} sessions\", sessions.size());"
+    language: cpp
+  notes: This method assumes thread safety is handled by the caller. The session manager
+    may internally use locking mechanisms to protect concurrent access, but it's recommended
+    that callers synchronize their own operations when adding sessions from multiple
+    threads. The method performs shallow validation of the input session pointer and
+    does not validate the internal state of the session object beyond checking for
+    null.
+  warnings: Passing a null shared_ptr to this method will likely result in undefined
+    behavior or an exception being thrown. Ensure that all session objects passed
+    are properly constructed before calling AddSession. Avoid calling this method
+    with sessions that are already managed by another session manager, as this can
+    lead to inconsistent state and potential memory corruption.
+  related:
+  - RemoveSession
+  - GetSession
+  - GetAllSessions
+  - HasSession
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T03:02:01.789489'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

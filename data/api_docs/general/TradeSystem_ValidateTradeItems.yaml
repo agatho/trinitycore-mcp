@@ -1,0 +1,60 @@
+api:
+  class: TradeSystem
+  method: ValidateTradeItems
+  signature: void TradeSystem::ValidateTradeItems(TradeSession & session)
+documentation:
+  brief: Validates trade items in a trading session to ensure they meet game rules
+    and constraints.
+  description: The ValidateTradeItems method checks the validity of items being offered
+    in a trade session, ensuring that all items comply with game restrictions such
+    as item level limits, stackability, and ownership. It verifies that players cannot
+    trade invalid items, bound items, or items that exceed maximum trade quantities.
+    This method is typically called during the trade process to prevent cheating and
+    maintain game balance. The validation includes checking for item existence, player
+    ownership, tradeable status, and any custom restrictions defined by the server
+    configuration.
+  parameters:
+  - name: session
+    description: Reference to the TradeSession object containing the items to be validated.
+      This parameter holds the current state of the trade including both players'
+      offered items and their respective inventory states.
+  returns: null
+  examples:
+  - title: Basic Trade Validation
+    code: 'TradeSession session;
+
+      // ... populate session with trade data ...
+
+      TradeSystem::ValidateTradeItems(session);
+
+      // Method will validate all items in the session and potentially reject invalid
+      trades'
+    language: cpp
+  - title: Integration with Trade Processing
+    code: "void HandlePlayerTrade(TradeSession& session)\n{\n    // Validate items\
+      \ before processing trade\n    TradeSystem::ValidateTradeItems(session);\n \
+      \   \n    // Proceed with trade execution if validation passes\n    if (session.IsValid())\n\
+      \    {\n        // Execute the trade logic\n        ProcessTrade(session);\n\
+      \    }\n    else\n    {\n        // Send error message to players\n        session.SendTradeError(TRADE_ERROR_INVALID_TRADE);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the core trade system and should be called before
+    finalizing any trade transaction. The validation process may involve database
+    lookups for item properties and could have performance implications during high-traffic
+    periods. Developers should ensure that session data is properly initialized before
+    calling this method.
+  warnings: Calling this method without proper session initialization can lead to
+    undefined behavior or crashes. Always verify that the TradeSession contains valid
+    player references and item data before invoking validation. This method does not
+    perform automatic item removal; it only validates items and sets appropriate flags
+    in the session.
+  related:
+  - TradeSession::IsValid
+  - TradeSession::GetItems
+  - TradeSystem::ProcessTrade
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:07:38.790663'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

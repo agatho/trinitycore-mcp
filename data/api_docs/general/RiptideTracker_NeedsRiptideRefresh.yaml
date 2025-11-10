@@ -1,0 +1,56 @@
+api:
+  class: RiptideTracker
+  method: NeedsRiptideRefresh
+  signature: bool RiptideTracker::NeedsRiptideRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether a Riptide spell effect needs to be refreshed based on
+    the pandemic window and target GUID.
+  description: The NeedsRiptideRefresh method evaluates if a Riptide spell effect
+    on a specific target should be refreshed, taking into account the pandemic window
+    mechanic. This is commonly used in healing classes like Enhancement Shaman to
+    determine when to reapply Riptide to maintain optimal uptime. The method checks
+    if the existing Riptide buff is about to expire within the specified pandemic
+    window and returns true if it needs refreshing. It uses the target's GUID to identify
+    the specific unit and the pandemicWindow parameter to define how much time before
+    expiration should trigger a refresh.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit for which Riptide
+      status is being checked. This identifies the specific player or creature being
+      affected by the spell.
+  - name: pandemicWindow
+    description: The time window in milliseconds before a Riptide buff expires that
+      triggers a refresh. If the remaining duration is less than this value, the method
+      returns true indicating a refresh is needed.
+  returns: Returns true if the Riptide spell effect on the specified target needs
+    to be refreshed within the given pandemic window, otherwise returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (riptideTracker->NeedsRiptideRefresh(playerGuid, 3000)) {\n    // Refresh\
+      \ Riptide spell\n    player->CastSpell(target, SPELL_RIPTIDE, true);\n}"
+    language: cpp
+  - title: Advanced Usage with Multiple Targets
+    code: "for (auto& target : targetList) {\n    if (riptideTracker->NeedsRiptideRefresh(target->GetGUID(),\
+      \ 2000)) {\n        // Apply Riptide to target\n        player->CastSpell(target,\
+      \ SPELL_RIPTIDE, true);\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with the Riptide spell's pandemic
+    mechanics where refreshing a spell within a certain time window before expiration
+    extends its duration rather than applying a new instance. The pandemic window
+    value is usually defined by game mechanics and may vary depending on class specialization
+    or talents.
+  warnings: Ensure that the GUID parameter correctly identifies the target unit to
+    avoid incorrect refresh decisions. Also, be aware that this method does not actually
+    apply or refresh the spell itself - it only determines whether a refresh should
+    occur.
+  related:
+  - RiptideTracker::GetRiptideDuration
+  - RiptideTracker::IsRiptideActive
+  - RiptideTracker::SetRiptideRefresh
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T22:17:31.151344'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

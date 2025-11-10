@@ -1,0 +1,53 @@
+api:
+  class: HostileEventHooks
+  method: OnCreatureSpawn
+  signature: void HostileEventHooks::OnCreatureSpawn(int * creature)
+documentation:
+  brief: Handles the event when a creature is spawned in the world
+  description: The OnCreatureSpawn method is invoked whenever a creature object is
+    successfully created and added to the game world. This hook allows custom AI logic,
+    event triggers, or modifications to be executed at the moment of creature instantiation.
+    It serves as a key integration point for extending or altering creature behavior
+    during their initial spawn phase. The method receives a pointer to an integer
+    representing the creature's unique identifier (GUID) and is typically used in
+    conjunction with other hostile event hooks to manage dynamic encounters.
+  parameters:
+  - name: creature
+    description: Pointer to an integer containing the unique identifier (GUID) of
+      the spawned creature. This value can be used to retrieve or manipulate the creature
+      object through TrinityCore's core APIs.
+  returns: void
+  examples:
+  - title: Basic Creature Spawn Hook Implementation
+    code: "void HostileEventHooks::OnCreatureSpawn(int* creature)\n{\n    if (creature\
+      \ == nullptr) return;\n    // Log the spawn event\n    sLog->outString(\"Creature\
+      \ with GUID %u has spawned.\", *creature);\n    // Perform custom logic here\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Creature Data Retrieval
+    code: "void HostileEventHooks::OnCreatureSpawn(int* creature)\n{\n    if (creature\
+      \ == nullptr) return;\n    \n    Creature* cr = sObjectAccessor->GetCreature(*creature);\n\
+      \    if (!cr) return;\n    \n    // Modify creature properties on spawn\n  \
+      \  cr->SetReactState(REACT_AGGRESSIVE);\n    cr->AddLootMode(LOOT_MODE_DEFAULT);\n\
+      \    \n    // Trigger custom AI behavior\n    cr->AI()->OnCreatureSpawn();\n\
+      }"
+    language: cpp
+  notes: This method is called during the creature's initialization phase, before
+    it enters combat or begins normal gameplay operations. Ensure that any modifications
+    made to the creature do not interfere with core game mechanics or cause performance
+    bottlenecks. The parameter 'creature' points to a GUID value which should be dereferenced
+    carefully to avoid null pointer exceptions.
+  warnings: Do not attempt to modify the creature object directly without proper locking
+    mechanisms, as this may lead to race conditions in multi-threaded environments.
+    Avoid performing heavy computations or database operations within this hook to
+    prevent freezing the game loop.
+  related:
+  - OnCreatureDeath
+  - OnCreatureEnterCombat
+  - OnCreatureDespawn
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T03:10:53.030141'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

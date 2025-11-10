@@ -1,0 +1,82 @@
+api:
+  class: RestInfo
+  method: WriteUpdate
+  signature: void RestInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes rest information into a ByteBuffer for network transmission to
+    a specific player.
+  description: The WriteUpdate method serializes the current rest state information
+    of a RestInfo object into a provided ByteBuffer. This method is typically used
+    during packet construction to send rest-related data to a client, such as when
+    a player enters or exits a resting state. The serialization process respects the
+    ignoreChangesMask parameter which can bypass change tracking logic, allowing for
+    full updates even if no changes have been marked. The owner and receiver parameters
+    are used to determine appropriate data filtering based on visibility rules, ensuring
+    that only relevant rest information is sent to the target player.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized rest update data will
+      be written. This buffer is typically part of a larger packet being constructed
+      for network transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether change tracking should be ignored.
+      When true, all rest information is serialized regardless of change status; when
+      false, only changed fields are included in the update.
+  - name: owner
+    description: Pointer to the Player object that owns this RestInfo instance. Used
+      for determining what data should be included in the update based on ownership
+      context.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      apply visibility rules and filtering based on the relationship between owner
+      and receiver (e.g., whether the receiver can see the owner's rest state).
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      RestInfo restInfo;
+
+      Player* owner = ...; // current player
+
+      Player* receiver = ...; // target player
+
+      restInfo.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a network packet'
+    language: cpp
+  - title: Forced full update regardless of changes
+    code: 'ByteBuffer data;
+
+      RestInfo restInfo;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      restInfo.WriteUpdate(data, true, owner, receiver);
+
+      // This ensures all rest state is sent even if no changes occurred'
+    language: cpp
+  notes: This method is typically called during packet building for World of Warcraft's
+    network protocol. The implementation likely uses bitmasks to efficiently serialize
+    only changed fields when ignoreChangesMask is false. It's important to note that
+    the method doesn't directly send packets but prepares data for transmission. Performance
+    considerations include avoiding unnecessary serialization when possible by using
+    the ignoreChangesMask appropriately.
+  warnings: Improper use of ignoreChangesMask can lead to excessive bandwidth usage
+    or incorrect state synchronization. The owner and receiver parameters must be
+    valid Player pointers; passing null pointers could cause undefined behavior. This
+    method should only be called during appropriate network update phases, not during
+    arbitrary game logic execution.
+  related:
+  - RestInfo::ReadUpdate
+  - RestInfo::SetRestState
+  - RestInfo::GetRestState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:45:23.252645'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

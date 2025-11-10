@@ -1,0 +1,52 @@
+api:
+  class: MapDifficultyEntry
+  method: GetFlags
+  signature: int MapDifficultyEntry::GetFlags() const
+documentation:
+  brief: Retrieves the flag bits associated with a map difficulty entry.
+  description: The GetFlags method returns an integer value representing the bitmask
+    of flags defined for a specific map difficulty in the TrinityCore database. These
+    flags typically control various gameplay behaviors such as whether a difficulty
+    is heroic, if it's locked for certain player levels, or if it has special restrictions.
+    The returned value can be used in bitwise operations to check for specific flag
+    states. This method is commonly used when validating player access to different
+    map difficulties or determining the appropriate game mechanics for a given difficulty
+    level.
+  parameters: []
+  returns: An integer representing the bitmask of flags associated with this map difficulty
+    entry. Each bit in the returned value corresponds to a specific flag definition,
+    allowing for bitwise checks to determine individual flag states.
+  examples:
+  - title: Checking if a difficulty is heroic
+    code: "MapDifficultyEntry const* difficulty = sMapDifficultyStore.LookupEntry(5);\
+      \ // Example: Normal 10-player\nif (difficulty && (difficulty->GetFlags() &\
+      \ 0x01))\n{\n    // This difficulty has the 'heroic' flag set\n    printf(\"\
+      This is a heroic difficulty\\n\");\n}"
+    language: cpp
+  - title: Validating player access to a map difficulty
+    code: "Player* player = ...;\nMapDifficultyEntry const* difficulty = sMapDifficultyStore.LookupEntry(player->GetMap()->GetDifficulty());\n\
+      if (difficulty)\n{\n    int flags = difficulty->GetFlags();\n    if (flags &\
+      \ 0x04) // Assuming flag 0x04 means 'requires level 80+'\n    {\n        if\
+      \ (player->getLevel() < 80)\n        {\n            // Prevent access\n    \
+      \        player->SendNotification(\"This difficulty requires level 80 or higher.\"\
+      );\n            return;\n        }\n    }\n}"
+    language: cpp
+  notes: The exact meaning of each bit in the returned flag value is defined in the
+    game's database and may vary between different World of Warcraft expansions. Developers
+    should consult the relevant DBC files or documentation to understand what each
+    flag represents. The method itself is thread-safe as it only reads from a const
+    data structure.
+  warnings: Be aware that the flag values are not standardized across all TrinityCore
+    versions or custom modifications, so hardcoded flag values may not work in all
+    installations. Always verify flag meanings against your specific database version.
+  related:
+  - GetMapId
+  - GetDifficulty
+  - GetMaxPlayers
+  - GetResetTime
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T16:31:44.252801'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

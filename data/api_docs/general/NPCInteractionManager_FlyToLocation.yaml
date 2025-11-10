@@ -1,0 +1,67 @@
+api:
+  class: NPCInteractionManager
+  method: FlyToLocation
+  signature: bool NPCInteractionManager::FlyToLocation(Creature * flightMaster, uint32
+    destinationNode)
+documentation:
+  brief: Initiates a flight path to the specified destination node for the given flight
+    master creature.
+  description: The FlyToLocation method is responsible for triggering a flight path
+    traversal from a flight master NPC to a designated destination node. This method
+    handles the necessary checks and state transitions required to begin the flight
+    animation and movement sequence. It typically involves validating that the player
+    has access to the specified flight path node, ensuring the flight master is capable
+    of initiating the journey, and setting up the appropriate movement behavior for
+    the player character. The method returns true upon successful initiation of the
+    flight path, or false if the operation fails due to invalid parameters, insufficient
+    permissions, or other game state constraints.
+  parameters:
+  - name: flightMaster
+    description: Pointer to the Creature object representing the flight master NPC
+      that will initiate the flight. Must be a valid creature with flight path capabilities.
+  - name: destinationNode
+    description: Unique identifier for the destination node in the flight path system.
+      This value corresponds to a specific waypoint or location within the flight
+      master's defined route.
+  returns: Returns true if the flight path initiation was successful and the player
+    begins moving toward the destination node. Returns false if the operation fails
+    due to invalid parameters, missing flight path data, or other game state limitations
+    such as insufficient resources or access permissions.
+  examples:
+  - title: Basic Flight Path Initiation
+    code: "if (NPCInteractionManager::FlyToLocation(flightMasterCreature, 12345))\
+      \ {\n    // Flight path started successfully\n    TC_LOG_INFO(\"player\", \"\
+      Player initiated flight to node 12345\");\n} else {\n    // Failed to start\
+      \ flight path\n    TC_LOG_ERROR(\"player\", \"Failed to initiate flight to node\
+      \ 12345\");\n}"
+    language: cpp
+  - title: Flight Path Initiation with Error Handling
+    code: "Creature* flightMaster = player->GetNPCIfCanInteractWith();\nif (!flightMaster\
+      \ || !flightMaster->IsFlightMaster()) {\n    return false;\n}\n\nuint32 destinationNode\
+      \ = 67890;\nif (NPCInteractionManager::FlyToLocation(flightMaster, destinationNode))\
+      \ {\n    player->SetUnitFlag(UnitFlags::UNIT_FLAG_PLAYER_ON_QUEST);\n    TC_LOG_DEBUG(\"\
+      player\", \"Player started flight to node %u\", destinationNode);\n    return\
+      \ true;\n} else {\n    TC_LOG_ERROR(\"player\", \"Failed to start flight to\
+      \ node %u\", destinationNode);\n    return false;\n}"
+    language: cpp
+  notes: This method relies on the underlying TrinityCore flight path system which
+    requires proper database entries for flight masters and their associated nodes.
+    The method does not directly control the player's movement but rather initiates
+    the flight animation sequence. Performance considerations include checking for
+    valid creature pointers and ensuring that the destination node exists in the flight
+    master's route table.
+  warnings: Ensure that the flightMaster parameter points to a valid Creature with
+    flight path capabilities, otherwise the behavior is undefined. The destinationNode
+    must exist within the flight master's route data or the method will fail silently.
+    Avoid calling this method outside of appropriate interaction contexts as it may
+    cause client-side desynchronization issues.
+  related:
+  - GetFlightPath
+  - IsFlightMaster
+  - HasAccessToFlightPath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:19:40.897691'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

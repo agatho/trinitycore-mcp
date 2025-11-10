@@ -1,0 +1,82 @@
+api:
+  class: ForceSetAreaTriggerPositionAndRotation
+  method: WriteUpdate
+  signature: void ForceSetAreaTriggerPositionAndRotation::WriteUpdate(ByteBuffer &
+    data, bool ignoreChangesMask, const AreaTrigger * owner, const Player * receiver)
+    const
+documentation:
+  brief: Serializes and writes the area trigger's position and rotation data to a
+    ByteBuffer for client update packets.
+  description: The WriteUpdate method is responsible for serializing the current position
+    and rotation of an area trigger into a ByteBuffer, which is then sent to a specific
+    player client as part of an update packet. This method ensures that the client
+    accurately reflects the area trigger's spatial properties, including its location
+    in 3D space and orientation. It handles the construction of the data stream necessary
+    for network transmission and is typically invoked during synchronization of area
+    trigger states between server and client. The method respects the ignoreChangesMask
+    flag which can bypass certain change tracking mechanisms, allowing for forced
+    updates regardless of state changes. This functionality is crucial for maintaining
+    accurate visual and gameplay effects associated with area triggers such as auras,
+    traps, or environmental effects.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger data
+      will be written. This buffer accumulates the position and rotation information
+      in a format suitable for network transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to bypass change tracking logic.
+      When true, forces the update regardless of whether changes have been detected,
+      useful for initial synchronization or forced refreshes.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this update operation.
+      Provides context about which area trigger's data is being serialized and ensures
+      proper positioning and rotation values are used.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      Used to determine client-specific formatting or filtering of the data, though
+      typically not directly involved in serialization logic.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update
+    code: 'ByteBuffer data;
+
+      AreaTrigger* trigger = ...; // some area trigger instance
+
+      Player* player = ...; // target player
+
+      trigger->WriteUpdate(data, false, trigger, player);
+
+      // Send ''data'' to player via packet system'
+    language: cpp
+  - title: Forced Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      AreaTrigger* trigger = ...;
+
+      Player* player = ...;
+
+      trigger->WriteUpdate(data, true, trigger, player);
+
+      // Forces update even if no changes detected
+
+      // Useful for initial spawn or re-sync scenarios'
+    language: cpp
+  notes: This method is part of the internal serialization pipeline for area triggers
+    and should only be called during network packet construction. The data written
+    to the ByteBuffer must match the expected client protocol format for area trigger
+    updates. Performance considerations include avoiding unnecessary calls when no
+    actual changes have occurred, though ignoreChangesMask allows bypassing this optimization.
+  warnings: Incorrect use of the ignoreChangesMask flag can lead to excessive bandwidth
+    usage or unnecessary client updates. Ensure that forced updates are only performed
+    when necessary to maintain optimal performance and network efficiency.
+  related:
+  - AreaTrigger::BuildUpdateData
+  - AreaTrigger::SendUpdateToPlayer
+  - AreaTrigger::SetPosition
+  - AreaTrigger::SetRotation
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T04:34:54.145261'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

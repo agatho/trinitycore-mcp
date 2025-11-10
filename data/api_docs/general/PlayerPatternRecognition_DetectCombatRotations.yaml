@@ -1,0 +1,59 @@
+api:
+  class: PlayerPatternRecognition
+  method: DetectCombatRotations
+  signature: int PlayerPatternRecognition::DetectCombatRotations(const int & samples)
+    const
+documentation:
+  brief: Analyzes player combat input patterns to detect and classify specific rotation
+    behaviors during combat.
+  description: The DetectCombatRotations method evaluates recent combat actions performed
+    by a player to identify recurring attack sequences or rotation patterns. This
+    functionality is typically used for detecting player behavior, enforcing anti-cheat
+    measures, or analyzing gameplay mechanics. The method processes a specified number
+    of samples from the player's recent combat history and returns a classification
+    identifier representing the detected rotation pattern. It requires the player
+    to be in combat state and may have performance implications when processing large
+    sample sizes.
+  parameters:
+  - name: samples
+    description: The number of recent combat input samples to analyze for rotation
+      detection. Valid range is typically 1-1000, with higher values providing more
+      accurate pattern recognition but increased computational overhead.
+  returns: Returns an integer identifier representing the detected combat rotation
+    pattern. A value of 0 typically indicates no recognizable pattern or insufficient
+    data. Positive values usually correspond to specific rotation types (e.g., 1 =
+    basic melee rotation, 2 = spell rotation), while negative values may indicate
+    error conditions or invalid input.
+  examples:
+  - title: Basic Usage
+    code: "int rotationId = playerPatternRecognition->DetectCombatRotations(50);\n\
+      if (rotationId > 0) {\n    // Process detected rotation\n    std::cout << \"\
+      Detected rotation: \" << rotationId << std::endl;\n}"
+    language: cpp
+  - title: Anti-Cheat Integration
+    code: "void CheckPlayerRotation(Player* player) {\n    PlayerPatternRecognition*\
+      \ patternRec = player->GetPatternRecognition();\n    int detected = patternRec->DetectCombatRotations(100);\n\
+      \    if (detected == -1) {\n        // Log error condition\n        sLog->outError(\"\
+      Pattern recognition failed for player %u\", player->GetGUID().GetCounter());\n\
+      \    } else if (detected > 1000) {\n        // Flag suspicious rotation pattern\n\
+      \        player->AddMovementFlag(MOVEFLAG_DETECTED);\n    }\n}"
+    language: cpp
+  notes: This method relies on the internal combat input buffer maintained by the
+    PlayerPatternRecognition class. The accuracy of pattern detection improves with
+    larger sample sizes but increases CPU usage. The method is designed to be called
+    during combat updates and may not provide meaningful results when called outside
+    of active combat scenarios.
+  warnings: Calling this method with extremely large sample values (e.g., >1000) can
+    cause performance degradation. The method assumes that the player's combat input
+    data is properly maintained and may return unexpected results if the internal
+    buffers are corrupted or not updated correctly.
+  related:
+  - GetCombatInputBuffer
+  - ResetPatternRecognition
+  - SetSampleSize
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:24:05.022132'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

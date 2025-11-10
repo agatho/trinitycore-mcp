@@ -1,0 +1,50 @@
+api:
+  class: InteractionManager
+  method: DetectNPCType
+  signature: InteractionType InteractionManager::DetectNPCType(Creature * target)
+    const
+documentation:
+  brief: Determines the interaction type of a given creature for player engagement.
+  description: The DetectNPCType method analyzes the provided Creature object to determine
+    its interaction type, which defines how players can interact with it. This method
+    evaluates various creature flags, npc_flags, and other properties to classify
+    the NPC into one of several predefined interaction categories such as vendor,
+    trainer, quest giver, or gossip provider. The result is used by the interaction
+    system to route player requests appropriately and determine available actions
+    in the game interface.
+  parameters:
+  - name: target
+    description: A pointer to the Creature object whose interaction type needs to
+      be determined. Must not be null for valid results.
+  returns: An InteractionType enum value indicating the classification of the creature's
+    interaction behavior. Possible values include INTERACTION_TYPE_NONE, INTERACTION_TYPE_VENDOR,
+    INTERACTION_TYPE_TRAINER, INTERACTION_TYPE_QUEST_GIVER, and others depending on
+    the creature's flags and configuration.
+  examples:
+  - title: Basic Usage in Player Gossip Handler
+    code: "void Player::OnGossipHello(Creature* creature)\n{\n    InteractionType\
+      \ type = sInteractionManager->DetectNPCType(creature);\n    switch (type)\n\
+      \    {\n        case INTERACTION_TYPE_VENDOR:\n            SendVendorList(creature->GetGUID());\n\
+      \            break;\n        case INTERACTION_TYPE_TRAINER:\n            SendTrainerList(creature->GetGUID());\n\
+      \            break;\n        default:\n            SendGossipMenuFor(creature);\n\
+      \            break;\n    }\n}"
+    language: cpp
+  notes: This method relies on internal creature configuration data including npc_flags,
+    flags, and scripted behaviors. It may return INTERACTION_TYPE_NONE for creatures
+    that do not have any defined interaction behavior. The implementation should be
+    called only when a valid Creature pointer is available to prevent undefined behavior.
+  warnings: Calling this method with a null pointer will likely result in undefined
+    behavior or crash. Ensure the target creature is properly initialized and alive
+    before calling this method. This method does not perform any validation on the
+    creature's state, so calling it on destroyed or invalid creatures may produce
+    incorrect results.
+  related:
+  - GetInteractionType
+  - IsInteractionType
+  - SetInteractionType
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:30:50.331779'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

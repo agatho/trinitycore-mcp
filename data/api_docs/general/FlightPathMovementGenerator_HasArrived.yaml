@@ -1,0 +1,55 @@
+api:
+  class: FlightPathMovementGenerator
+  method: HasArrived
+  signature: bool FlightPathMovementGenerator::HasArrived() const
+documentation:
+  brief: Determines whether a flight path movement generator has reached its destination.
+  description: The HasArrived method checks if the FlightPathMovementGenerator has
+    completed the flight path and reached its final destination. This method is typically
+    used during movement updates to determine when a creature or player has finished
+    flying along a predefined flight path. The implementation likely compares the
+    current position against the destination coordinates or checks internal state
+    flags indicating completion. This functionality is essential for proper flight
+    path behavior in World of Warcraft, ensuring that NPCs and players transition
+    correctly from flight mode back to ground movement or other states upon reaching
+    their target location.
+  parameters: []
+  returns: Returns true if the flight path has been fully traversed and the destination
+    has been reached; otherwise returns false. The method may return false during
+    active flight, even if the character is close to the destination, until the exact
+    arrival point is confirmed.
+  examples:
+  - title: Checking Flight Path Completion
+    code: "if (flightPathGenerator->HasArrived()) {\n    // Handle arrival logic\n\
+      \    player->SetFacingTo(player->GetOrientation());\n    player->SendMoveSpline();\n\
+      }"
+    language: cpp
+  - title: Flight Path Arrival Detection in AI
+    code: "void CreatureAI::UpdateAI(uint32 diff) {\n    if (m_movementGenerator &&\
+      \ m_movementGenerator->GetMovementGeneratorType() == FLIGHT_PATH_MOTION_TYPE)\
+      \ {\n        if (FlightPathMovementGenerator* flightGen = dynamic_cast<FlightPathMovementGenerator*>(m_movementGenerator))\
+      \ {\n            if (flightGen->HasArrived()) {\n                // Flight path\
+      \ complete, transition to next behavior\n                DoNextBehavior();\n\
+      \            }\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the movement system and should only be called on active
+    flight path movement generators. The implementation likely involves coordinate
+    comparison with tolerance thresholds to account for floating point precision issues
+    during movement. It's important to note that this check might not immediately
+    return true upon reaching the destination due to movement interpolation and synchronization
+    delays in the game loop.
+  warnings: Do not assume immediate arrival after reaching the final waypoint; the
+    method may return false briefly even when visually at the destination. Calling
+    HasArrived on a non-flight path movement generator will produce undefined behavior
+    as it's designed specifically for flight path logic.
+  related:
+  - GetMovementGeneratorType
+  - Initialize
+  - Update
+  - Interrupt
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T18:04:25.494276'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

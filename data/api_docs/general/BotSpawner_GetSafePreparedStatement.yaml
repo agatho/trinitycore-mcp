@@ -1,0 +1,58 @@
+api:
+  class: BotSpawner
+  method: GetSafePreparedStatement
+  signature: int * BotSpawner::GetSafePreparedStatement(int statementId, const char
+    * statementName) const
+documentation:
+  brief: Retrieves a prepared SQL statement by its ID and name for safe execution
+    within the BotSpawner context.
+  description: The GetSafePreparedStatement method is used to obtain a precompiled
+    SQL statement from the BotSpawner's internal statement cache. This method ensures
+    thread-safe access to prepared statements, which are essential for efficient database
+    operations in the TrinityCore framework. The returned pointer allows for safe
+    execution of SQL queries without recompiling the statement each time. It is commonly
+    used when spawning or managing bot entities within the game world, where frequent
+    database interactions occur. The method requires a valid statement ID and name
+    to retrieve the appropriate prepared statement.
+  parameters:
+  - name: statementId
+    description: The unique identifier for the SQL statement to retrieve. This ID
+      corresponds to a predefined statement in the BotSpawner's internal cache.
+  - name: statementName
+    description: A null-terminated string representing the name of the SQL statement.
+      Used for logging and debugging purposes to identify the statement being retrieved.
+  returns: Returns a pointer to an integer representing the prepared statement handle.
+    The value is typically used as an index or identifier to execute the prepared
+    statement in subsequent database operations. Returns NULL if the specified statement
+    ID or name does not exist in the cache.
+  examples:
+  - title: Basic usage of GetSafePreparedStatement
+    code: "int* stmt = botSpawner->GetSafePreparedStatement(1, \"SELECT_BOT_INFO\"\
+      );\nif (stmt != nullptr) {\n    // Execute prepared statement\n    // ... database\
+      \ execution code ...\n}"
+    language: cpp
+  - title: Safe usage with error handling
+    code: "int* stmt = botSpawner->GetSafePreparedStatement(5, \"UPDATE_BOT_STATUS\"\
+      );\nif (stmt == nullptr) {\n    sLog->outError(\"Failed to retrieve prepared\
+      \ statement for bot status update\");\n    return false;\n}\n// Proceed with\
+      \ safe database operation using the retrieved statement\nreturn true;"
+    language: cpp
+  notes: This method is designed to be thread-safe and should not be called from multiple
+    threads simultaneously without proper synchronization. The returned integer pointer
+    represents a handle to a prepared statement that must be properly managed to avoid
+    memory leaks or invalid access. Prepared statements are cached internally to improve
+    performance by avoiding repeated compilation of SQL queries.
+  warnings: Do not assume the returned pointer is valid for extended periods as it
+    may become invalid if the internal cache is cleared or reinitialized. Always check
+    for NULL returns before using the statement handle, especially when dealing with
+    dynamic statement IDs or names that might not exist in the cache.
+  related:
+  - GetPreparedStatement
+  - PrepareStatement
+  - ExecutePreparedStatement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T15:11:36.713338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

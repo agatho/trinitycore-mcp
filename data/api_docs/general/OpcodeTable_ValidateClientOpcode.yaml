@@ -1,0 +1,53 @@
+api:
+  class: OpcodeTable
+  method: ValidateClientOpcode
+  signature: bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, const char
+    * name) const
+documentation:
+  brief: Validates if a client opcode is recognized and properly registered within
+    the opcode table.
+  description: The ValidateClientOpcode method checks whether a given client opcode
+    is valid and has been correctly registered in the opcode table. This function
+    ensures that all incoming client messages are from known, supported opcodes to
+    maintain game integrity and prevent invalid packet handling. It typically performs
+    internal lookups against a predefined set of valid opcodes and returns true if
+    the opcode exists, false otherwise. The method is commonly used during server
+    initialization or packet processing to verify opcode legitimacy before further
+    handling.
+  parameters:
+  - name: opcode
+    description: The client opcode value to validate against the internal opcode table.
+  - name: name
+    description: A null-terminated string representing the name of the opcode for
+      logging or debugging purposes.
+  returns: Returns true if the specified client opcode is valid and registered in
+    the opcode table; otherwise, returns false.
+  examples:
+  - title: Basic validation check
+    code: "if (opcodeTable.ValidateClientOpcode(CMSG_PLAYER_LOGIN, \"CMSG_PLAYER_LOGIN\"\
+      )) {\n    // Opcode is valid, proceed with handling\n} else {\n    // Invalid\
+      \ opcode detected\n}"
+    language: cpp
+  - title: Usage in packet processing
+    code: "void HandlePacket(WorldPacket& packet) {\n    OpcodeClient opCode = static_cast<OpcodeClient>(packet.GetOpcode());\n\
+      \    if (!opcodeTable.ValidateClientOpcode(opCode, \"Unknown Opcode\")) {\n\
+      \        sLog->outError(\"Received invalid client opcode: %u\", opCode);\n \
+      \       return;\n    }\n    // Proceed with normal packet handling\n}"
+    language: cpp
+  notes: This method performs a lookup operation in an internal data structure, which
+    may involve hash table or map-based searches. It's recommended to call this function
+    only when necessary to avoid performance overhead during high-frequency packet
+    processing.
+  warnings: Do not use this method for validating user input directly from packets
+    without prior sanitization; it should be used primarily for verifying opcode integrity
+    in the context of server-side logic.
+  related:
+  - GetOpcodeName
+  - IsClientOpcodeValid
+  - LoadOpcodeTable
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T11:32:42.476640'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

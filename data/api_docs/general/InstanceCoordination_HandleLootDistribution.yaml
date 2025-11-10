@@ -1,0 +1,63 @@
+api:
+  class: InstanceCoordination
+  method: HandleLootDistribution
+  signature: void InstanceCoordination::HandleLootDistribution(Group * group, uint32
+    itemId, Player * winner)
+documentation:
+  brief: Handles the distribution of loot to a group member upon item acquisition
+    in an instance.
+  description: The HandleLootDistribution method manages the process of awarding a
+    specific item to a player within a group context during instance content. It ensures
+    proper loot assignment according to group loot rules, such as need-before-greed
+    or free-for-all distribution mechanisms. This method is typically invoked when
+    a player wins an item through loot rolling or direct loot assignment. The function
+    coordinates with the group's loot system to update player inventory and maintain
+    synchronization of loot state across all group members.
+  parameters:
+  - name: group
+    description: Pointer to the Group object representing the group that will receive
+      the loot distribution. Must be a valid group instance, typically containing
+      players who participated in the instance content.
+  - name: itemId
+    description: The unique identifier of the item being distributed. This corresponds
+      to the ItemTemplate entry ID used by the game's database to identify specific
+      items.
+  - name: winner
+    description: Pointer to the Player object who has won the loot. This player will
+      receive the item according to group loot rules and distribution settings.
+  returns: null
+  examples:
+  - title: Basic Loot Distribution Example
+    code: 'Group* group = player->GetGroup();
+
+      uint32 itemId = 12345;
+
+      Player* winner = player;
+
+      instanceCoordination->HandleLootDistribution(group, itemId, winner);'
+    language: cpp
+  - title: Loot Distribution with Group Validation
+    code: "if (Group* group = player->GetGroup()) {\n    if (group->isLooter()) {\n\
+      \        instanceCoordination->HandleLootDistribution(group, 12345, player);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the group has already been initialized with proper
+    loot settings and that the item exists in the game's item database. The function
+    does not perform validation on whether the item is actually obtainable or if the
+    player meets prerequisites for receiving it. It is expected that these checks
+    are performed before calling this method.
+  warnings: Calling this method without a valid group pointer or winner may result
+    in undefined behavior. Ensure that the group is properly initialized and that
+    the player is a member of that group before invoking this function. Also, be aware
+    that this function does not check for loot roll status or item availability; it
+    simply distributes the item to the specified winner.
+  related:
+  - HandleLootRoll
+  - HandleItemLoot
+  - Group::SendLootUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:45:07.151920'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

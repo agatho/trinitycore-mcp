@@ -1,0 +1,57 @@
+api:
+  class: RenewTracker
+  method: NeedsRenewRefresh
+  signature: bool RenewTracker::NeedsRenewRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether a spell effect needs to be refreshed based on pandemic
+    mechanics.
+  description: The NeedsRenewRefresh method evaluates if a specific spell effect,
+    identified by its GUID, should be renewed or refreshed according to the game's
+    pandemic window rules. This mechanism prevents unnecessary overwriting of existing
+    effects when they are still within a certain time threshold of their expiration.
+    The method takes into account the global pandemic window duration and compares
+    it against the remaining time of the current effect. It is commonly used in spell
+    systems where maintaining uptime is important, such as for healing or buff spells.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the spell effect being evaluated.
+      This typically corresponds to a specific instance of a spell applied to a target.
+  - name: pandemicWindow
+    description: The duration in milliseconds representing the pandemic window, which
+      defines how much time must remain before an effect can be refreshed without
+      losing its full duration.
+  returns: Returns true if the spell effect needs to be refreshed due to pandemic
+    mechanics; otherwise returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (renewTracker.NeedsRenewRefresh(playerGuid, 3000)) {\n    // Refresh\
+      \ the spell effect\n    ApplySpellEffect(playerGuid, SPELL_HEALING_TOUCH);\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Conditional Logic
+    code: "uint32 currentPandemicWindow = GetPandemicWindowForSpell(SPELL_RENEW);\n\
+      if (renewTracker.NeedsRenewRefresh(targetGuid, currentPandemicWindow)) {\n \
+      \   if (GetRemainingTime(targetGuid) < (currentPandemicWindow / 2)) {\n    \
+      \    // Extend the existing effect\n        ExtendSpellDuration(targetGuid,\
+      \ currentPandemicWindow);\n    } else {\n        // Apply a new instance of\
+      \ the spell\n        ApplyNewSpellEffect(targetGuid, SPELL_RENEW);\n    }\n}"
+    language: cpp
+  notes: This method relies on internal tracking of spell effects and their durations.
+    Developers should ensure that GUIDs are properly managed and that the pandemic
+    window values align with game balance requirements. The method assumes that the
+    underlying system maintains accurate timestamps for spell expiration.
+  warnings: Incorrectly setting the pandemic window may lead to unintended behavior
+    such as overwriting active effects too early or delaying refreshes unnecessarily.
+    Ensure that all GUIDs passed to this method are valid and correspond to actual
+    spell instances.
+  related:
+  - GetRemainingTime
+  - ApplySpellEffect
+  - ExtendSpellDuration
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T22:27:42.922338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

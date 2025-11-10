@@ -1,0 +1,54 @@
+api:
+  class: ThreadSafeClassAI
+  method: OnCombatStart
+  signature: void ThreadSafeClassAI::OnCombatStart(Unit * enemy)
+documentation:
+  brief: Called when the AI enters combat with an enemy unit
+  description: The OnCombatStart method is invoked by the TrinityCore AI system when
+    a creature transitions into combat mode with a target enemy. This method serves
+    as a hook for custom AI behavior during the initial engagement phase of combat,
+    allowing developers to implement specific actions such as casting spells, initiating
+    movement patterns, or triggering event sequences. The method is typically called
+    once per combat encounter and occurs before any combat logic is executed. It provides
+    access to the enemy unit that triggered the combat state, enabling conditional
+    logic based on the target's properties or type.
+  parameters:
+  - name: enemy
+    description: Pointer to the Unit object representing the enemy that initiated
+      combat. This parameter may be null if the AI enters combat without a specific
+      target, though this is uncommon in standard gameplay scenarios.
+  returns: null
+  examples:
+  - title: Basic Combat Start Implementation
+    code: "void ThreadSafeClassAI::OnCombatStart(Unit* enemy)\n{\n    if (enemy)\n\
+      \    {\n        // Cast a spell on combat start\n        DoCast(enemy, SPELL_CHARGE);\n\
+      \        // Say something when entering combat\n        Talk(SAY_COMBAT_START);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Combat Start with Target Type Check
+    code: "void ThreadSafeClassAI::OnCombatStart(Unit* enemy)\n{\n    if (!enemy)\n\
+      \        return;\n\n    // Different behavior based on target type\n    if (enemy->IsPlayer())\n\
+      \    {\n        DoCast(enemy, SPELL_PLAYER_COMBAT_AURA);\n    }\n    else if\
+      \ (enemy->IsCreature())\n    {\n        DoCast(enemy, SPELL_CREATURE_COMBAT_AURA);\n\
+      \    }\n\n    // Set a flag to indicate combat state\n    m_inCombat = true;\n\
+      }"
+    language: cpp
+  notes: This method is called from the AI thread context and should not perform operations
+    that might block or take significant time. The enemy parameter is guaranteed to
+    be valid at the time of call, but may be destroyed during combat if the target
+    dies. Implementations should avoid calling methods that modify the creature's
+    state in ways that could interfere with the core AI loop.
+  warnings: Avoid performing heavy computations or blocking operations within this
+    method as it can impact overall performance. Do not attempt to directly modify
+    the enemy unit's state from this callback without proper synchronization, as it
+    may lead to race conditions or undefined behavior.
+  related:
+  - OnCombatEnd
+  - UpdateAI
+  - EnterCombat
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T21:21:27.244103'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

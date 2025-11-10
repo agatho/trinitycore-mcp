@@ -1,0 +1,71 @@
+api:
+  class: BotNpcLocationService
+  method: FindNearestGameObjectSpawn
+  signature: NpcLocationResult BotNpcLocationService::FindNearestGameObjectSpawn(Player
+    * bot, uint32 objectEntry, float maxRange)
+documentation:
+  brief: Finds the nearest GameObject spawn location for a given object entry within
+    a specified range.
+  description: The FindNearestGameObjectSpawn method searches for the closest GameObject
+    of a specified type (by entry ID) within a maximum range from the provided bot
+    player. It returns a NpcLocationResult structure containing the position and other
+    relevant data about the found spawn location. This functionality is typically
+    used by AI bots to locate nearby objects such as chests, herbs, ore veins, or
+    other interactive GameObjects for resource gathering or quest-related activities.
+    The method performs spatial queries using TrinityCore's internal object tracking
+    systems to efficiently determine proximity.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will be used
+      as the reference point for finding the spawn location.
+  - name: objectEntry
+    description: The unique entry ID of the GameObject type to search for. This corresponds
+      to the 'entry' field in the game's GameObject template database.
+  - name: maxRange
+    description: Maximum distance in yards within which to search for the GameObject
+      spawn. The method will return the closest match within this range or nullptr
+      if none is found.
+  returns: Returns a NpcLocationResult structure containing information about the
+    nearest GameObject spawn location, including position coordinates and potentially
+    additional metadata. If no suitable GameObject is found within the specified range,
+    the result may indicate failure or contain default/invalid values.
+  examples:
+  - title: Basic usage to find the nearest chest
+    code: "Player* bot = ...; // Bot player instance\nuint32 chestEntry = 176542;\
+      \ // Example chest entry ID\nfloat maxRange = 50.0f;\nNpcLocationResult result\
+      \ = BotNpcLocationService::FindNearestGameObjectSpawn(bot, chestEntry, maxRange);\n\
+      if (result.IsValid()) {\n    // Process the found spawn location\n    Position\
+      \ pos = result.GetPosition();\n    // Move bot to this position or interact\
+      \ with it\n}"
+    language: cpp
+  - title: Advanced usage with error handling and multiple object types
+    code: "Player* bot = ...;\nfloat maxRange = 30.0f;\nstd::vector<uint32> objectEntries\
+      \ = {176542, 176543, 176544}; // Chests\nNpcLocationResult bestResult;\nfloat\
+      \ bestDistance = FLT_MAX;\nfor (uint32 entry : objectEntries) {\n    NpcLocationResult\
+      \ currentResult = BotNpcLocationService::FindNearestGameObjectSpawn(bot, entry,\
+      \ maxRange);\n    if (currentResult.IsValid()) {\n        float distance = bot->GetDistance(currentResult.GetPosition());\n\
+      \        if (distance < bestDistance) {\n            bestDistance = distance;\n\
+      \            bestResult = currentResult;\n        }\n    }\n}\nif (bestResult.IsValid())\
+      \ {\n    // Use the closest GameObject found\n}"
+    language: cpp
+  notes: This method relies on TrinityCore's internal spatial indexing and object
+    tracking systems. Performance can be affected by the number of active GameObjects
+    in the area. The returned position is typically accurate to within a few yards
+    depending on server configuration and object placement. The NpcLocationResult
+    structure may contain additional metadata beyond just coordinates, such as spawn
+    time or state information.
+  warnings: The method assumes that the provided bot player pointer is valid and not
+    null. If the bot has been deleted or is in an invalid state, behavior is undefined.
+    Also note that this function may return different results depending on the current
+    state of GameObjects (e.g., if they are despawned or destroyed). Always validate
+    the returned NpcLocationResult before using it.
+  related:
+  - FindNearestNpcSpawn
+  - FindNearestPlayerSpawn
+  - GetGameObjectAtLocation
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T08:04:54.167221'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

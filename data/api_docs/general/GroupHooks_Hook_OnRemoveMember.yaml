@@ -1,0 +1,58 @@
+api:
+  class: GroupHooks
+  method: Hook_OnRemoveMember
+  signature: void GroupHooks::Hook_OnRemoveMember(Group * group, int playerGuid)
+documentation:
+  brief: Invoked when a player is removed from a group, allowing custom logic to be
+    executed.
+  description: The Hook_OnRemoveMember method is a callback function that gets triggered
+    whenever a player is removed from a group in the TrinityCore framework. This hook
+    allows developers to implement custom behavior or logging when group membership
+    changes occur. The method receives a pointer to the Group object and the GUID
+    of the player being removed. It's typically used for cleanup operations, synchronization
+    with external systems, or enforcing game rules related to group dynamics. This
+    method is part of the GroupHooks system which provides extension points for modifying
+    standard group behavior without directly patching core code.
+  parameters:
+  - name: group
+    description: Pointer to the Group object from which the player is being removed.
+      Must not be null.
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player being removed from the
+      group. Should represent a valid player GUID.
+  returns: null
+  examples:
+  - title: Basic Implementation Example
+    code: "void MyGroupHooks::Hook_OnRemoveMember(Group* group, int playerGuid)\n\
+      {\n    // Log the removal event\n    sLog->outString(\"Player with GUID %u was\
+      \ removed from group %u\", playerGuid, group->GetId());\n    \n    // Perform\
+      \ any custom cleanup logic here\n    // For example: remove player from custom\
+      \ tracking systems\n}"
+    language: cpp
+  - title: Advanced Usage with Group Data Access
+    code: "void MyGroupHooks::Hook_OnRemoveMember(Group* group, int playerGuid)\n\
+      {\n    // Check if this is the last member being removed\n    if (group->GetMembersCount()\
+      \ == 1)\n    {\n        sLog->outString(\"Last member removed from group %u,\
+      \ cleaning up\", group->GetId());\n        // Trigger cleanup or notify other\
+      \ systems about group dissolution\n    }\n    \n    // Update any custom tracking\
+      \ data structures\n    RemovePlayerFromTrackingSystem(playerGuid);\n}"
+    language: cpp
+  notes: This hook is called after the player has been removed from the group but
+    before the group structure is updated. Developers should be aware that the group
+    may already be in a transitional state when this hook executes. The method is
+    executed synchronously and blocking, so performance-critical operations should
+    be minimized to avoid impacting gameplay.
+  warnings: Do not attempt to modify the group structure or call methods that might
+    cause recursive calls from within this hook. Be cautious about modifying player
+    data or other systems that may depend on the group state being consistent. Avoid
+    performing heavy I/O operations in this hook as it can affect server performance.
+  related:
+  - Hook_OnAddMember
+  - Hook_OnDisband
+  - Hook_OnCreate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:17:54.490149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

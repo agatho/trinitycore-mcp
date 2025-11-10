@@ -1,0 +1,53 @@
+api:
+  class: RenewTracker
+  method: HasRenew
+  signature: bool RenewTracker::HasRenew(int guid) const
+documentation:
+  brief: Checks if a player has an active Renew spell effect.
+  description: The HasRenew method determines whether a specific player, identified
+    by their GUID, currently has an active Renew spell effect applied to them. This
+    method is typically used within the TrinityCore framework to manage spell tracking
+    and aura states for healing spells. The check is performed against the internal
+    tracking system maintained by the RenewTracker class, which monitors active Renew
+    effects on players. This functionality is crucial for game mechanics involving
+    spell stacking, duration management, and ensuring proper spell behavior in combat
+    scenarios.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player to check for active Renew
+      effect. Must be a valid player GUID from the WorldObject system.
+  returns: Returns true if the specified player has an active Renew spell effect;
+    otherwise returns false. The method performs a lookup in the internal tracking
+    structure and does not directly query the database.
+  examples:
+  - title: Basic usage to check for active Renew
+    code: "if (renewTracker->HasRenew(playerGuid)) {\n    // Player has active Renew\
+      \ effect\n    SendSystemMessage(\"You already have Renew active.\");\n} else\
+      \ {\n    // Apply new Renew effect\n    ApplyRenewSpell(playerGuid);\n}"
+    language: cpp
+  - title: Using in spell casting validation
+    code: "void SpellHandler::HandleRenewCast(Unit* caster, Unit* target) {\n    if\
+      \ (target && renewTracker->HasRenew(target->GetGUID().GetCounter())) {\n   \
+      \     // Prevent stacking of Renew\n        SendSpellFailed(caster, SPELL_FAILED_SPELL_UNAVAILABLE);\n\
+      \        return;\n    }\n    // Proceed with casting new Renew\n    CastRenewSpell(target);\n\
+      }"
+    language: cpp
+  notes: The method performs a fast lookup operation using the player's GUID as a
+    key. It assumes that the RenewTracker maintains an internal data structure (likely
+    a map or set) for tracking active effects. The implementation should be thread-safe
+    if used in concurrent environments, though this depends on the specific implementation
+    details of the tracker class.
+  warnings: Ensure that the provided GUID is valid and refers to a player object;
+    passing invalid or non-player GUIDs may result in undefined behavior or incorrect
+    return values. This method only checks for active effects and does not validate
+    spell casting conditions or other pre-requisites.
+  related:
+  - RenewTracker::AddRenew
+  - RenewTracker::RemoveRenew
+  - RenewTracker::ClearAll
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T15:21:49.855491'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

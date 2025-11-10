@@ -1,0 +1,66 @@
+api:
+  class: ReplayedQuest
+  method: WriteCreate
+  signature: void ReplayedQuest::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes replayed quest data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteCreate method serializes the state and properties of a ReplayedQuest
+    object into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically used when sending quest replay information from the server
+    to a client, ensuring that the client receives all necessary data about the quest's
+    current status and metadata. The serialization process includes relevant quest
+    identifiers, completion flags, and any associated reward or progress data. It
+    requires both an owner (the player who originally completed the quest) and a receiver
+    (the player who is receiving the replay data). This method is part of the TrinityCore's
+    packet handling system for quest-related communications.
+  parameters:
+  - name: data
+    description: The ByteBuffer into which the serialized quest data will be written.
+      This buffer is used to construct the network packet containing the quest information.
+  - name: owner
+    description: Pointer to the Player object who originally completed or owns the
+      quest. Used to determine quest state and metadata for serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive the replayed quest
+      data. This player's client will interpret and display the quest information.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Player who completed the quest
+
+      Player* receiver = ...; // Player receiving the replay
+
+      ReplayedQuest quest;
+
+      quest.WriteCreate(data, owner, receiver);
+
+      // Send data to receiver''s client'
+    language: cpp
+  - title: Integration with player packet sending system
+    code: "void SendReplayQuestToPlayer(ReplayedQuest& quest, Player* receiver)\n\
+      {\n    ByteBuffer data;\n    Player* owner = quest.GetOwner();\n    quest.WriteCreate(data,\
+      \ owner, receiver);\n    receiver->SendDirectMessage(&data);\n}"
+    language: cpp
+  notes: This method is typically called during packet preparation for network transmission.
+    The ByteBuffer must be properly initialized before calling this method. The method
+    assumes that the owner and receiver pointers are valid and not null. It may involve
+    internal serialization logic that depends on quest state and player context.
+  warnings: Ensure that both owner and receiver parameters are valid Player objects
+    before calling this method, as dereferencing invalid pointers will cause crashes.
+    This method should only be called when preparing data for network transmission
+    to avoid unnecessary processing overhead.
+  related:
+  - ReplayedQuest::WriteUpdate
+  - ReplayedQuest::WriteDelete
+  - ReplayedQuest::GetOwner
+  - ReplayedQuest::SetOwner
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:54:00.139371'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

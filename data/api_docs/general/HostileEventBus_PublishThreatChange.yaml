@@ -1,0 +1,60 @@
+api:
+  class: HostileEventBus
+  method: PublishThreatChange
+  signature: void HostileEventBus::PublishThreatChange(int hostile, int target, float
+    threat)
+documentation:
+  brief: Publishes a threat change event for a hostile unit targeting a specific target
+    with the given threat value.
+  description: The PublishThreatChange method is used to notify the HostileEventBus
+    of a change in threat levels within the game world. This method is typically invoked
+    when a hostile creature or player's threat towards a target changes, allowing
+    other systems such as AI behavior, combat loggers, or threat management modules
+    to react accordingly. The event is broadcast asynchronously to all registered
+    subscribers of the threat change event. It is an essential part of the core combat
+    system's threat management infrastructure in TrinityCore.
+  parameters:
+  - name: hostile
+    description: The identifier (GUID) of the hostile unit whose threat level has
+      changed.
+  - name: target
+    description: The identifier (GUID) of the target unit that is being threatened
+      by the hostile unit.
+  - name: threat
+    description: The new threat value assigned to the hostile unit for the specified
+      target. This represents the level of threat in the game's internal threat system.
+  returns: null
+  examples:
+  - title: Basic Threat Change Notification
+    code: HostileEventBus::instance()->PublishThreatChange(12345, 67890, 150.0f);
+    language: cpp
+  - title: Updating Threat After Damage Dealt
+    code: 'Unit* hostile = ...; // Get hostile unit
+
+      Unit* target = ...; // Get target unit
+
+      float newThreat = hostile->GetThreatManager().GetThreat(target);
+
+      HostileEventBus::instance()->PublishThreatChange(hostile->GetGUID().GetRawValue(),
+      target->GetGUID().GetRawValue(), newThreat);'
+    language: cpp
+  notes: This method is part of the internal event bus system and should not be called
+    directly from outside core modules unless necessary. It's designed to be used
+    primarily by combat-related systems such as threat managers, AI logic, or damage
+    dealers. The method does not validate input parameters for performance reasons;
+    invalid GUIDs or negative threat values may cause undefined behavior in subscribers.
+  warnings: Calling this method with invalid or non-existent GUIDs can lead to crashes
+    or corrupted state in event subscribers. Ensure that both the hostile and target
+    units are valid and exist in the current world before publishing a threat change
+    event. Avoid calling this method from within critical sections of code where performance
+    is crucial, as it may trigger multiple callbacks.
+  related:
+  - SubscribeToThreatChange
+  - UnsubscribeFromThreatChange
+  - GetThreat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:06:18.324954'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

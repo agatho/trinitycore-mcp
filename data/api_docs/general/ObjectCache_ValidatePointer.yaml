@@ -1,0 +1,58 @@
+api:
+  class: ObjectCache
+  method: ValidatePointer
+  signature: bool ObjectCache::ValidatePointer(WorldObject * obj, int expectedGuid)
+    const
+documentation:
+  brief: Validates a WorldObject pointer against an expected GUID to ensure object
+    integrity and prevent dangling references.
+  description: The ValidatePointer method checks whether a given WorldObject pointer
+    is valid and corresponds to the expected GUID. This method is used internally
+    by the ObjectCache system to verify that cached object references are still valid
+    and have not been deleted or replaced. It performs a safety check to ensure that
+    the object pointed to by 'obj' matches the expected GUID, preventing potential
+    crashes or undefined behavior from accessing stale object references. The validation
+    process typically involves checking if the object exists in the current world
+    context and has the correct identifier. This is particularly important in TrinityCore's
+    multithreaded environment where objects may be destroyed while other systems are
+    still referencing them.
+  parameters:
+  - name: obj
+    description: Pointer to the WorldObject to validate. Can be nullptr, which will
+      result in a failed validation.
+  - name: expectedGuid
+    description: The expected GUID that the object should have. This is used to verify
+      object identity and prevent referencing stale objects.
+  returns: Returns true if the object pointer is valid and its GUID matches the expected
+    GUID, false otherwise. A return value of false indicates either a null pointer,
+    an invalid object, or an object with a different GUID than expected.
+  examples:
+  - title: Basic validation check
+    code: "WorldObject* obj = sObjectMgr->GetGameObject(guid);\nif (obj && ObjectCache::ValidatePointer(obj,\
+      \ guid)) {\n    // Safe to use obj\n    DoSomethingWithObject(obj);\n} else\
+      \ {\n    // Handle invalid object reference\n    LogError(\"Invalid object reference\"\
+      );\n}"
+    language: cpp
+  - title: Using in cache validation
+    code: "bool isValid = ObjectCache::ValidatePointer(cachedObject, expectedGuid);\n\
+      if (!isValid) {\n    // Remove stale entry from cache\n    objectCache.RemoveEntry(expectedGuid);\n\
+      \    // Handle the invalid reference case\n    return nullptr;\n}\nreturn cachedObject;"
+    language: cpp
+  notes: This method is primarily used within TrinityCore's internal caching mechanisms
+    to prevent use-after-free errors. The validation process may involve checking
+    object existence in the world, verifying GUID consistency, and ensuring thread
+    safety. Performance considerations are important as this check happens frequently
+    during object access operations.
+  warnings: Never assume that a WorldObject pointer obtained from cache is valid without
+    calling ValidatePointer first. Objects can be destroyed while still being referenced
+    in caches, leading to crashes if not properly validated.
+  related:
+  - ObjectCache::Get
+  - ObjectCache::Put
+  - ObjectCache::Remove
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:03:35.354303'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

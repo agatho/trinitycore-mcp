@@ -1,0 +1,47 @@
+api:
+  class: GroupHooks
+  method: Hook_OnGroupDisband
+  signature: void GroupHooks::Hook_OnGroupDisband(Group * group)
+documentation:
+  brief: Invoked when a group is disbanded in the game world
+  description: The Hook_OnGroupDisband method is a callback function that gets executed
+    whenever a player's group is disbanded. This typically occurs when the group leader
+    removes all members from the group or when the group is automatically disbanded
+    due to inactivity or other game mechanics. The method provides an opportunity
+    for custom scripts or addons to perform cleanup operations, notify players, or
+    modify game state upon group disbandment. It serves as a notification mechanism
+    for developers who wish to extend or modify behavior during group lifecycle events.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Group Disband Hook Implementation
+    code: "class MyGroupHooks : public GroupHooks {\npublic:\n    void Hook_OnGroupDisband(Group*\
+      \ group) override {\n        // Log group disband event\n        sLog->outString(\"\
+      Group with leader %u has been disbanded.\", group->GetLeaderGuid().GetCounter());\n\
+      \        \n        // Perform cleanup operations\n        for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n             itr != group->GetMemberSlots().end();\
+      \ ++itr)\n        {\n            Player* player = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \            if (player)\n                player->SendNotification(\"Your group\
+      \ has been disbanded.\");\n        }\n    }\n};"
+    language: cpp
+  notes: This hook is called after the group disband process is complete. The Group
+    object passed to this method may still contain references to members, but they
+    are no longer part of the active group structure. Developers should be aware that
+    this hook might be invoked during server shutdown or when groups are destroyed,
+    so any cleanup operations should be robust and not rely on other systems that
+    may already be shutting down.
+  warnings: This method is called during a critical point in the group lifecycle.
+    Avoid performing heavy operations or blocking calls within this hook as it could
+    impact game performance. Also, be cautious about modifying the group object directly
+    since it's in a transitional state and further modifications might cause undefined
+    behavior.
+  related:
+  - GroupHooks::Hook_OnGroupCreate
+  - GroupHooks::Hook_OnGroupMemberAdded
+  - GroupHooks::Hook_OnGroupMemberRemoved
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:18:15.763013'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

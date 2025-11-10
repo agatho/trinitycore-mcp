@@ -1,0 +1,51 @@
+api:
+  class: NPCInteractionManager
+  method: FindNearestVendor
+  signature: Creature * NPCInteractionManager::FindNearestVendor() const
+documentation:
+  brief: Finds and returns a pointer to the nearest vendor creature within the current
+    map.
+  description: The FindNearestVendor method searches through all creatures in the
+    current map and identifies the closest creature that has vendor functionality
+    enabled. This method is typically used during NPC interaction to locate nearby
+    merchants for trading purposes. The search considers only creatures that are flagged
+    as vendors (i.e., have a valid vendor template or script). If no vendor is found
+    within the map, the method returns a null pointer. The implementation uses spatial
+    proximity calculations to determine the nearest vendor based on the caller's current
+    position.
+  parameters: []
+  returns: A pointer to the Creature object representing the nearest vendor, or nullptr
+    if no vendor is found in the current map.
+  examples:
+  - title: Basic Usage
+    code: "Creature* vendor = interactionManager->FindNearestVendor();\nif (vendor)\n\
+      {\n    // Proceed with vendor interaction\n    player->GetSession()->SendListInventory(vendor->GetGUID());\n\
+      }"
+    language: cpp
+  - title: Safe Usage with Error Handling
+    code: "Creature* vendor = interactionManager->FindNearestVendor();\nif (!vendor)\n\
+      {\n    player->SendSystemMessage(\"No vendor found nearby.\");\n    return;\n\
+      }\n\n// Validate vendor is still alive and accessible\nif (vendor->IsAlive()\
+      \ && !vendor->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))\n{\n    //\
+      \ Proceed with interaction logic\n    player->GetSession()->SendListInventory(vendor->GetGUID());\n\
+      }"
+    language: cpp
+  notes: This method performs a linear search through all creatures in the current
+    map, which may impact performance if there are many NPCs. It is recommended to
+    cache results or limit searches to specific zones when possible. The method assumes
+    that the NPCInteractionManager instance has access to the current map's creature
+    list.
+  warnings: The returned Creature pointer should always be validated for null before
+    use, as the method may return nullptr if no vendor is present in the current map.
+    Additionally, the returned creature should be checked for validity (e.g., IsAlive(),
+    HasFlag()) before attempting interaction to prevent crashes or undefined behavior.
+  related:
+  - FindNearestCreature
+  - GetNearestVendor
+  - HasVendorList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:20:09.035209'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

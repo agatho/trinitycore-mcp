@@ -1,0 +1,69 @@
+api:
+  class: CharacterRestriction
+  method: WriteUpdate
+  signature: void CharacterRestriction::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes character restriction data into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of a CharacterRestriction
+    object into a provided ByteBuffer, preparing it for network transmission. This
+    method is typically used in TrinityCore's packet system to send updates about
+    character restrictions (such as level limits, account bans, or other gameplay
+    restrictions) from the server to a client. The serialization process respects
+    the owner and receiver parameters to determine what data should be included based
+    on permissions and visibility rules. It allows for selective update transmission
+    without sending unnecessary data, optimizing network usage.
+  parameters:
+  - name: data
+    description: A reference to a ByteBuffer object where the serialized restriction
+      data will be written. This buffer is typically used to construct outgoing packets.
+  - name: ignoreChangesMask
+    description: A boolean flag indicating whether to ignore any change tracking masks
+      when serializing data. If true, all fields are included regardless of their
+      modification status.
+  - name: owner
+    description: Pointer to the Player object that owns this character restriction.
+      Used to determine what restrictions apply to the owner's character and how they
+      should be serialized.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Controls
+      visibility of certain restriction data based on permissions or relationship
+      between players.
+  returns: void
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      CharacterRestriction restriction;
+
+      Player* owner = ...; // Get the owner player
+
+      Player* receiver = ...; // Get the receiving player
+
+      restriction.WriteUpdate(data, false, owner, receiver);
+
+      WorldPacket packet(SMSG_UPDATE_CHARACTER_RESTRICTIONS, data.size());
+
+      packet.append(data);
+
+      receiver->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when preparing data for network transmission. The method assumes
+    that the ByteBuffer has sufficient capacity or will automatically grow as needed.
+    It's important to note that this method does not directly send packets; it only
+    prepares the data.
+  warnings: Ensure that the owner and receiver pointers are valid before calling this
+    method, as invalid pointers can lead to undefined behavior. Also, be aware that
+    ignoring changes masks may result in sending unnecessary data if not used carefully.
+  related:
+  - CharacterRestriction::ReadUpdate
+  - CharacterRestriction::IsRestricted
+  - CharacterRestriction::SetRestriction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T07:13:32.970304'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

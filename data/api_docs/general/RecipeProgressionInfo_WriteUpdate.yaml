@@ -1,0 +1,75 @@
+api:
+  class: RecipeProgressionInfo
+  method: WriteUpdate
+  signature: void RecipeProgressionInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes recipe progression data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of a RecipeProgressionInfo
+    object into a provided ByteBuffer, preparing it for network transmission to either
+    the owner or receiver player. This method is typically used in World of Warcraft's
+    TrinityCore server to synchronize recipe progress information between the server
+    and client. The serialization process respects the ignoreChangesMask parameter
+    which determines whether all fields should be written regardless of change status.
+    The owner and receiver parameters are used to determine appropriate data filtering
+    and permissions for transmission. This method is part of the recipe progression
+    system that tracks player crafting progress and unlocks.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized recipe progression
+      data will be written. This buffer is typically used for constructing network
+      packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether all fields should be written regardless
+      of change status. When true, all data fields are serialized; when false, only
+      changed fields are included.
+  - name: owner
+    description: Pointer to the Player object who owns this recipe progression data.
+      Used for determining ownership-based permissions and filtering.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. Used for
+      determining appropriate data visibility and transmission permissions.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      RecipeProgressionInfo recipeInfo;
+
+      Player* owner = ...; // Get player object
+
+      Player* receiver = ...; // Get receiver player object
+
+      recipeInfo.WriteUpdate(data, false, owner, receiver);
+
+      // Send data through network layer'
+    language: cpp
+  - title: Forcing full update with ignore mask
+    code: 'ByteBuffer fullData;
+
+      RecipeProgressionInfo recipeInfo;
+
+      Player* player = ...; // Current player
+
+      recipeInfo.WriteUpdate(fullData, true, player, player);
+
+      // Send complete recipe data regardless of changes'
+    language: cpp
+  notes: This method is typically called during packet construction for sending recipe
+    progression updates to players. The implementation likely uses internal change
+    tracking to optimize network traffic when ignoreChangesMask is false. The method
+    assumes valid Player pointers and proper initialization of the ByteBuffer.
+  warnings: Ensure that both owner and receiver Player pointers are valid before calling
+    this method, as invalid pointers may cause undefined behavior. The ByteBuffer
+    should be properly initialized before passing to avoid memory corruption issues.
+  related:
+  - RecipeProgressionInfo::ReadUpdate
+  - RecipeProgressionInfo::SetChanged
+  - RecipeProgressionInfo::IsChanged
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:54:59.150740'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

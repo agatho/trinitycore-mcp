@@ -1,0 +1,78 @@
+api:
+  class: AreaTriggerSplineCalculator
+  method: WriteUpdate
+  signature: void AreaTriggerSplineCalculator::WriteUpdate(ByteBuffer & data, bool
+    ignoreChangesMask, const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger spline update data to a ByteBuffer for transmission to
+    a player.
+  description: The WriteUpdate method serializes the current state of an area trigger's
+    spline path into a ByteBuffer, which is then sent to a specific player client.
+    This method handles the construction of the network packet containing the area
+    trigger's position, movement data, and other relevant properties. It is typically
+    invoked during area trigger updates or when sending initial trigger data to players
+    entering an area. The method respects the ignoreChangesMask parameter to determine
+    whether to include all fields or only those that have changed since the last update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger spline
+      data will be written. This buffer is used for network transmission to the client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the changes mask when writing
+      update data. If true, all fields are included regardless of change status; if
+      false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this spline calculator.
+      Used to retrieve current trigger state and properties for serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine client-specific data formatting or filtering based on player state.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update
+    code: 'ByteBuffer data;
+
+      AreaTriggerSplineCalculator calculator;
+
+      AreaTrigger* trigger = ...; // some area trigger
+
+      Player* player = ...; // target player
+
+
+      calculator.WriteUpdate(data, false, trigger, player);
+
+      // Send ''data'' to player via WorldPacket'
+    language: cpp
+  - title: Force Update with Full Data
+    code: 'ByteBuffer data;
+
+      AreaTriggerSplineCalculator calculator;
+
+      AreaTrigger* trigger = ...;
+
+      Player* player = ...;
+
+
+      // Force write all fields regardless of changes
+
+      calculator.WriteUpdate(data, true, trigger, player);
+
+      // Send full update packet to player'
+    language: cpp
+  notes: This method is part of the network synchronization system for area triggers
+    in TrinityCore. It should be called only when necessary to avoid unnecessary bandwidth
+    usage. The method assumes that the provided AreaTrigger and Player objects are
+    valid and not null during execution.
+  warnings: Calling this method with invalid or null pointers for owner or receiver
+    may result in undefined behavior or crashes. Ensure proper validation of object
+    lifetimes before invoking this method, especially in asynchronous contexts.
+  related:
+  - AreaTriggerSplineCalculator::CalculateSpline
+  - AreaTriggerSplineCalculator::GetSplinePath
+  - AreaTriggerSplineCalculator::Update
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:19:44.632587'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

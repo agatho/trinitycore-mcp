@@ -1,0 +1,62 @@
+api:
+  class: FlightPathMovementGenerator
+  method: LoadPath
+  signature: void FlightPathMovementGenerator::LoadPath(Player * owner, uint32 startNode)
+documentation:
+  brief: Initializes and loads a flight path for the specified player starting at
+    the given node.
+  description: The LoadPath method prepares a flight path movement generator for a
+    player by loading the appropriate flight path data from the database. It sets
+    up the internal state of the movement generator to begin following the flight
+    path starting from the specified start node. This method is typically called when
+    a player begins flying along a predefined route, such as an NPC flight master's
+    path. The method ensures that all necessary path data is retrieved and validated
+    before movement execution begins. It does not immediately start movement but rather
+    configures the generator to be ready for subsequent movement commands.
+  parameters:
+  - name: owner
+    description: Pointer to the Player object that will follow this flight path. Must
+      be a valid player instance, cannot be null.
+  - name: startNode
+    description: The index of the starting node in the flight path. This represents
+      the point in the path where movement should begin, typically corresponding to
+      a waypoint or location in the flight path data structure.
+  returns: null
+  examples:
+  - title: Basic Flight Path Loading
+    code: 'Player* player = ...; // Get player reference
+
+      uint32 startNode = 0;
+
+      FlightPathMovementGenerator flightGen;
+
+      flightGen.LoadPath(player, startNode);'
+    language: cpp
+  - title: Loading Flight Path with Validation
+    code: "Player* player = ...;\nuint32 startNode = player->GetMotionMaster()->GetCurrentMovementGeneratorType()\
+      \ == MOTION_TYPE_FLIGHT ? 1 : 0;\nif (player && startNode < MAX_FLIGHT_PATH_NODES)\
+      \ {\n    FlightPathMovementGenerator flightGen;\n    flightGen.LoadPath(player,\
+      \ startNode);\n}"
+    language: cpp
+  notes: This method assumes that the player has already been assigned a valid flight
+    path and that the path data exists in the database. The method performs no validation
+    on the node index beyond basic bounds checking. It is expected to be called before
+    initiating actual movement using methods like MoveAlongPath or similar. The method
+    does not handle concurrent access from multiple threads, so it should be called
+    from the main game thread.
+  warnings: Do not call this method with a null player pointer as it will likely cause
+    a crash. Ensure that the startNode parameter is valid and within the bounds of
+    the available flight path nodes to prevent undefined behavior. This method does
+    not validate the integrity of the flight path data itself, so corrupted or missing
+    path data may result in unexpected movement behavior.
+  related:
+  - MoveAlongPath
+  - Initialize
+  - InitializeMovement
+  - GetPath
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T04:38:48.948465'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

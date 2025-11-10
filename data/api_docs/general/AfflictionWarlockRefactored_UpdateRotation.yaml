@@ -1,0 +1,56 @@
+api:
+  class: AfflictionWarlockRefactored
+  method: UpdateRotation
+  signature: void AfflictionWarlockRefactored::UpdateRotation(int * target)
+documentation:
+  brief: Updates the affliction warlock's rotation based on current target and spell
+    availability.
+  description: The UpdateRotation method manages the core combat logic for an Affliction
+    Warlock AI, determining which spells to cast next based on the current target
+    and available resources. It evaluates the player's current state including mana
+    levels, buff/debuff status on the target, and cooldowns of key abilities such
+    as Haunt, Unstable Affliction, and Shadow Bolt. This method is typically called
+    during the AI's update cycle and integrates with the TrinityCore framework's combat
+    system to ensure optimal spell usage according to the affliction specialization's
+    rotation priorities.
+  parameters:
+  - name: target
+    description: Pointer to the target unit that the warlock is currently engaging.
+      This parameter determines which spells are prioritized and whether certain abilities
+      like Drain Life or Shadow Bolt can be cast effectively.
+  returns: null
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void AfflictionWarlockAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    int target = GetVictim()->GetGUID().GetRawValue();\n\
+      \    UpdateRotation(&target);\n}"
+    language: cpp
+  - title: Integration with spell casting logic
+    code: "void AfflictionWarlockRefactored::UpdateRotation(int* target)\n{\n    if\
+      \ (!*target || !GetUnit(*target))\n        return;\n\n    Unit* unitTarget =\
+      \ GetUnit(*target);\n    if (unitTarget->HasAura(SPELL_IMMUNITY))\n        return;\n\
+      \n    // Core rotation logic here\n    if (HasSpell(SPELL_UNSTABLE_AFFLICTION)\
+      \ && !unitTarget->HasAura(SPELL_UNSTABLE_AFFLICTION_AURA))\n        CastSpell(SPELL_UNSTABLE_AFFLICTION);\n\
+      \    else if (HasSpell(SPELL_HAUNT))\n        CastSpell(SPELL_HAUNT);\n    else\n\
+      \        CastSpell(SPELL_SHADOW_BOLT);\n}"
+    language: cpp
+  notes: This method assumes that the AI has already validated the existence and validity
+    of the target. The implementation may vary depending on whether the warlock is
+    in a PvP or PvE environment, as different strategies are employed for each scenario.
+    The method should be called frequently enough to maintain proper rotation timing
+    but not so often as to cause performance issues.
+  warnings: Ensure that the target pointer is valid before dereferencing it; passing
+    an invalid or null pointer can lead to undefined behavior. Also, be cautious about
+    calling this method outside of combat context, as it may result in incorrect spell
+    selection based on incomplete state information.
+  related:
+  - CastSpell
+  - HasSpell
+  - GetUnit
+  - UpdateVictim
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T09:32:31.213799'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

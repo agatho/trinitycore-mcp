@@ -1,0 +1,54 @@
+api:
+  class: AsyncBotInitializer
+  method: WorkerThreadMain
+  signature: void AsyncBotInitializer::WorkerThreadMain(size_t workerId)
+documentation:
+  brief: Initializes and manages worker threads for asynchronous bot initialization
+    in TrinityCore.
+  description: The WorkerThreadMain method serves as the primary execution entry point
+    for each worker thread within the AsyncBotInitializer class. It is responsible
+    for handling the asynchronous initialization of game bots, distributing workload
+    across multiple threads to improve performance. This method typically runs in
+    a loop, processing tasks from a shared queue until signaled to terminate. The
+    workerId parameter identifies which specific thread is executing this function,
+    allowing for thread-specific logging and resource management. This implementation
+    follows a producer-consumer pattern where bot initialization tasks are queued
+    and processed by available worker threads.
+  parameters:
+  - name: workerId
+    description: Unique identifier for the current worker thread, used to distinguish
+      between different threads in logging and debugging operations.
+  returns: null
+  examples:
+  - title: Basic usage of WorkerThreadMain
+    code: 'AsyncBotInitializer initializer;
+
+      // This would typically be called internally by the thread management system
+
+      initializer.WorkerThreadMain(0); // Initialize first worker thread'
+    language: cpp
+  - title: Thread-safe bot initialization
+    code: "std::vector<std::thread> threads;\nAsyncBotInitializer initializer;\nfor\
+      \ (size_t i = 0; i < std::thread::hardware_concurrency(); ++i) {\n    threads.emplace_back([&initializer,\
+      \ i]() {\n        initializer.WorkerThreadMain(i);\n    });\n}\n// Wait for\
+      \ all threads to complete\nfor (auto& t : threads) {\n    if (t.joinable())\
+      \ t.join();\n}"
+    language: cpp
+  notes: This method is designed to be called internally by the thread management
+    system and should not be invoked directly. The worker threads are expected to
+    run continuously until a shutdown signal is received, at which point they will
+    gracefully terminate their processing loops. Each thread maintains its own state
+    and does not share mutable data with other threads without proper synchronization.
+  warnings: Direct invocation of this method outside of the intended threading context
+    may lead to undefined behavior or race conditions. Ensure that all shared resources
+    are properly synchronized when accessed by multiple worker threads.
+  related:
+  - AsyncBotInitializer::Initialize
+  - AsyncBotInitializer::Shutdown
+  - AsyncBotInitializer::QueueBotInitialization
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:13:43.615434'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
