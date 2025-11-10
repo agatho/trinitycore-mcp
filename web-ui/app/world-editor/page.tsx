@@ -53,11 +53,14 @@ import { loadMMapData } from '@/lib/mmap-parser';
 import { loadMapData } from '@/lib/map-parser';
 import { useAutoLoadCollisionData } from '@/lib/hooks/useAutoLoadCollisionData';
 import { MapView2D } from './components/MapView2D';
+import { MapView2DEnhanced } from './components/MapView2DEnhanced';
 import { MapView3D } from './components/MapView3D';
 import { UndoRedoPanel } from './components/UndoRedoPanel';
+import MapExtractionPanel from '@/components/map/MapExtractionPanel';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
+  const [showExtractionPanel, setShowExtractionPanel] = useState(false);
 
   // Auto-load collision data from configured paths
   const autoLoadResult = useAutoLoadCollisionData(state.selectedMap, {
@@ -326,7 +329,13 @@ export default function WorldEditorPage() {
                   2D Map View
                 </h3>
               </div>
-              <MapView2D state={state} actions={actions} width={600} height={600} />
+              <MapView2DEnhanced
+                state={state}
+                actions={actions}
+                width={600}
+                height={600}
+                onRequestExtraction={() => setShowExtractionPanel(true)}
+              />
             </div>
             <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
@@ -355,7 +364,13 @@ export default function WorldEditorPage() {
             </TabsList>
             <TabsContent value="2d" className="mt-4">
               <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-4">
-                <MapView2D state={state} actions={actions} width={1400} height={700} />
+                <MapView2DEnhanced
+                  state={state}
+                  actions={actions}
+                  width={1400}
+                  height={700}
+                  onRequestExtraction={() => setShowExtractionPanel(true)}
+                />
               </div>
             </TabsContent>
             <TabsContent value="3d" className="mt-4">
@@ -389,7 +404,13 @@ export default function WorldEditorPage() {
                   <Minimize2 className="w-3 h-3" />
                 </Button>
               </div>
-              <MapView2D state={state} actions={actions} width={300} height={200} />
+              <MapView2DEnhanced
+                state={state}
+                actions={actions}
+                width={300}
+                height={200}
+                onRequestExtraction={() => setShowExtractionPanel(true)}
+              />
             </div>
           </div>
         );
@@ -691,6 +712,26 @@ export default function WorldEditorPage() {
           </div>
         </div>
       </div>
+
+      {/* Map Extraction Panel Dialog */}
+      <Dialog open={showExtractionPanel} onOpenChange={setShowExtractionPanel}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Extract Map Tiles from WoW Installation</DialogTitle>
+            <DialogDescription>
+              Extract and tile map textures from your World of Warcraft installation for use in the World Editor.
+            </DialogDescription>
+          </DialogHeader>
+          <MapExtractionPanel
+            selectedMapId={state.selectedMap}
+            onExtractionComplete={() => {
+              setShowExtractionPanel(false);
+              // Trigger a refresh of the map view
+              window.location.reload();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
