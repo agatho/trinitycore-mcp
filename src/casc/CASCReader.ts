@@ -11,6 +11,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../utils/logger.js';
 import { DatabaseError } from '../database/errors.js';
+import { CASCIndexReader } from './CASCIndexReader.js';
+import { CASCEncodingReader } from './CASCEncodingReader.js';
+import { CASCDataReader } from './CASCDataReader.js';
 
 /**
  * CASC configuration
@@ -63,6 +66,9 @@ export class CASCReader {
   private dataPath: string = '';
   private indicesPath: string = '';
   private configPath: string = '';
+  private indexReader: CASCIndexReader | null = null;
+  private encodingReader: CASCEncodingReader | null = null;
+  private dataReader: CASCDataReader | null = null;
 
   constructor(config: CASCConfig) {
     this.config = {
@@ -103,6 +109,29 @@ export class CASCReader {
       throw new DatabaseError(
         `Invalid CASC structure in ${dataDir}. This may not be a retail WoW installation.`
       );
+    }
+
+    // Initialize CASC readers
+    this.indexReader = new CASCIndexReader();
+    this.encodingReader = new CASCEncodingReader();
+    this.dataReader = new CASCDataReader(this.dataPath);
+
+    // Load index files
+    logger.info('CASCReader', 'Loading CASC index files...');
+    await this.indexReader.loadIndices(this.indicesPath);
+
+    // Load encoding file if available
+    try {
+      const encodingPath = await this.findEncodingFile();
+      if (encodingPath) {
+        logger.info('CASCReader', 'Loading CASC encoding file...');
+        const encodingData = await fs.readFile(encodingPath);
+        this.encodingReader.parseEncodingFile(encodingData);
+      } else {
+        logger.warn('CASCReader', 'Encoding file not found, some features may be limited');
+      }
+    } catch (error) {
+      logger.warn('CASCReader', 'Failed to load encoding file', { error: error as Error });
     }
 
     this.initialized = true;
@@ -266,6 +295,10 @@ export class CASCReader {
   ): Promise<string> {
     logger.debug('CASCReader', `Extracting file: ${cascPath}`);
 
+    if (!this.indexReader || !this.dataReader) {
+      throw new DatabaseError('CASC reader not initialized');
+    }
+
     // Output path structure
     const outputDir = path.join(
       process.cwd(),
@@ -290,16 +323,123 @@ export class CASCReader {
       // File doesn't exist, extract it
     }
 
-    // TODO: Implement actual CASC file extraction
-    // For now, this is a placeholder that would:
-    // 1. Look up file in CASC encoding table
-    // 2. Find data in archive files
-    // 3. Decompress BLTE-encoded data
-    // 4. Write to output file
+    try {
+      // Step 1: Get content hash for file path
+      // In a full implementation, we would parse the root file to map paths to hashes
+      // For now, we'll try to extract by hash if provided in the file name
+      const contentHash = this.extractHashFromPath(cascPath);
 
-    throw new DatabaseError(
-      `CASC file extraction not yet implemented for ${cascPath}. Use external CASC extractor for now.`
-    );
+      if (!contentHash) {
+        throw new DatabaseError(
+          `Cannot determine content hash for ${cascPath}. Root file parsing not yet implemented.`
+        );
+      }
+
+      // Step 2: Look up encoding key (if encoding file loaded)
+      let lookupHash = contentHash;
+      if (this.encodingReader) {
+        const encodingKey = this.encodingReader.getEncodingKey(contentHash);
+        if (encodingKey) {
+          lookupHash = encodingKey;
+          logger.debug('CASCReader', `Found encoding key for content hash`);
+        }
+      }
+
+      // Step 3: Find data location in index
+      const indexEntry = this.indexReader.findEntry(lookupHash);
+      if (!indexEntry) {
+        throw new DatabaseError(
+          `File not found in CASC index: ${cascPath}`
+        );
+      }
+
+      logger.debug('CASCReader', `Found in archive ${indexEntry.archive} at offset ${indexEntry.offset}`);
+
+      // Step 4: Read and decompress data
+      const data = await this.dataReader.readData(
+        indexEntry.archive,
+        indexEntry.offset,
+        indexEntry.size
+      );
+
+      // Step 5: Write to output file
+      await fs.writeFile(outputPath, data);
+      logger.info('CASCReader', `Extracted ${cascPath} to ${outputPath} (${data.length} bytes)`);
+
+      return outputPath;
+    } catch (error) {
+      logger.error('CASCReader', error as Error, { cascPath, mapId, quality });
+      throw new DatabaseError(
+        `Failed to extract ${cascPath}: ${(error as Error).message}`
+      );
+    }
+  }
+
+  /**
+   * Extract content hash from file path
+   * Some CASC paths include the hash in the filename (e.g., md5abc123.blp)
+   */
+  private extractHashFromPath(cascPath: string): Buffer | null {
+    const fileName = path.basename(cascPath);
+
+    // Match md5{hex} pattern (common for minimap files)
+    const md5Match = fileName.match(/md5([0-9a-f]{32})/i);
+    if (md5Match) {
+      return Buffer.from(md5Match[1], 'hex');
+    }
+
+    // For other files, we would need to parse the root file
+    // which maps file paths to content hashes
+    return null;
+  }
+
+  /**
+   * Find encoding file in config directory
+   */
+  private async findEncodingFile(): Promise<string | null> {
+    try {
+      const files = await fs.readdir(this.configPath);
+
+      // Encoding files typically have names like: 12/34/1234567890abcdef...
+      // We need to look in subdirectories
+      for (const file of files) {
+        if (file.length === 2 && /^[0-9a-f]{2}$/i.test(file)) {
+          const subDir = path.join(this.configPath, file);
+          const subFiles = await fs.readdir(subDir);
+
+          for (const subFile of subFiles) {
+            if (subFile.length === 2 && /^[0-9a-f]{2}$/i.test(subFile)) {
+              const subSubDir = path.join(subDir, subFile);
+              const subSubFiles = await fs.readdir(subSubDir);
+
+              // Encoding files are usually the largest files in these directories
+              for (const candidate of subSubFiles) {
+                const candidatePath = path.join(subSubDir, candidate);
+                const stat = await fs.stat(candidatePath);
+
+                // Encoding files are typically several MB
+                if (stat.size > 1024 * 1024) {
+                  // Verify it's an encoding file by checking magic bytes
+                  const handle = await fs.open(candidatePath, 'r');
+                  const buffer = Buffer.allocUnsafe(2);
+                  await handle.read(buffer, 0, 2, 0);
+                  await handle.close();
+
+                  if (buffer.toString('ascii') === 'EN') {
+                    logger.debug('CASCReader', `Found encoding file: ${candidatePath}`);
+                    return candidatePath;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      logger.warn('CASCReader', 'Error searching for encoding file', { error: error as Error });
+    }
+
+    return null;
   }
 
   /**
@@ -323,6 +463,16 @@ export class CASCReader {
     ]);
 
     return maps;
+  }
+
+  /**
+   * Clean up and close open file handles
+   */
+  async close(): Promise<void> {
+    if (this.dataReader) {
+      await this.dataReader.close();
+    }
+    logger.info('CASCReader', 'CASC reader closed');
   }
 
   /**
