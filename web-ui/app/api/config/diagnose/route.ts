@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { envFileExists, readAllEnvFiles } from "@/lib/env-utils";
 import { existsSync } from "fs";
 import { join } from "path";
+import { access } from "fs/promises";
 
 export async function GET() {
   try {
@@ -19,11 +20,17 @@ export async function GET() {
     const wowPathFromFile = envVars.merged.WOW_PATH;
     const wowPathValid = wowPathFromEnv ? existsSync(wowPathFromEnv) : false;
 
-    // Check if CASC files exist
+    // Check if CASC files exist (using same validation as CASCReader)
     let cascValid = false;
+    let cascError = "";
     if (wowPathFromEnv) {
-      const buildInfoPath = join(wowPathFromEnv, '.build.info');
-      cascValid = existsSync(buildInfoPath);
+      try {
+        const dataPath = join(wowPathFromEnv, 'Data', 'data');
+        await access(dataPath);
+        cascValid = true;
+      } catch (error) {
+        cascError = `Data/data directory not found. Expected at: ${join(wowPathFromEnv, 'Data', 'data')}`;
+      }
     }
 
     return NextResponse.json({
@@ -38,6 +45,8 @@ export async function GET() {
           fromEnvFile: wowPathFromFile || null,
           exists: wowPathValid,
           cascValid: cascValid,
+          cascError: cascError || null,
+          expectedPath: wowPathFromEnv ? join(wowPathFromEnv, 'Data', 'data') : null,
         },
         allEnvVars: Object.keys(envVars.merged).length,
         timestamp: new Date().toISOString(),

@@ -340,7 +340,18 @@ export default function SettingsDashboard() {
                 <li>From .env files: {diagnostic.wowPath.fromEnvFile || '(not set)'}</li>
                 <li>Directory exists: {diagnostic.wowPath.exists ? '✅ Yes' : '❌ No'}</li>
                 <li>Valid CASC installation: {diagnostic.wowPath.cascValid ? '✅ Yes' : '❌ No'}</li>
+                {diagnostic.wowPath.expectedPath && (
+                  <li className="text-gray-600 mt-1">Expected Data path: {diagnostic.wowPath.expectedPath}</li>
+                )}
               </ul>
+              {diagnostic.wowPath.cascError && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                  <strong>Error:</strong> {diagnostic.wowPath.cascError}
+                  <div className="mt-1">
+                    <strong>Tip:</strong> WOW_PATH should point to the _retail_ folder (e.g., M:\World of Warcraft\_retail_), not the Data folder.
+                  </div>
+                </div>
+              )}
             </div>
             {!diagnostic.envFiles.webUI && !diagnostic.envFiles.mcpServer && (
               <div className="mt-3 p-3 bg-yellow-50 border border-yellow-300 rounded text-xs">
