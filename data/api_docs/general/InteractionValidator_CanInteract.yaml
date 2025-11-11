@@ -1,0 +1,58 @@
+api:
+  class: InteractionValidator
+  method: CanInteract
+  signature: bool InteractionValidator::CanInteract(::Player * bot, ::WorldObject
+    * target, InteractionType type) const
+documentation:
+  brief: Determines whether a bot player can interact with a target object based on
+    interaction type and game rules.
+  description: The CanInteract method evaluates if a given bot player is allowed to
+    perform a specific type of interaction with a target WorldObject. This validation
+    considers various game mechanics such as distance, visibility, faction relationships,
+    and object state. The method ensures that bots adhere to the same interaction
+    constraints as real players, preventing invalid or exploitative interactions within
+    the game world. It returns true if the interaction is permitted, false otherwise.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot attempting the
+      interaction. Must not be null.
+  - name: target
+    description: Pointer to the WorldObject that the bot wants to interact with. Can
+      be an NPC, GameObject, or other interactive object. Must not be null.
+  - name: type
+    description: Enumeration value indicating the type of interaction being attempted
+      (e.g., gossip, quest, trade). Defines the rules and conditions for validation.
+  returns: Boolean value indicating whether the interaction is allowed. Returns true
+    if the bot can interact with the target according to game rules, false otherwise.
+  examples:
+  - title: Basic Interaction Check
+    code: "if (validator.CanInteract(bot, npc, INTERACTION_GOSSIP)) {\n    // Proceed\
+      \ with gossip interaction\n    bot->GetSession()->SendGossipMenu(12345, npc->GetGUID());\n\
+      } else {\n    // Cannot interact, perhaps move closer or check conditions\n}"
+    language: cpp
+  - title: Conditional Interaction Based on Result
+    code: "bool canInteract = validator.CanInteract(bot, gameObject, INTERACTION_QUEST);\n\
+      if (canInteract && bot->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)\
+      \ {\n    // Start quest or continue quest progression\n    bot->PlayerTalkClass->SendQuestGiverQuestDetails(quest,\
+      \ npc, true);\n} else if (!canInteract) {\n    // Log interaction failure or\
+      \ move to target\n    sLog->outDebug(LOG_FILTER_AI, \"Bot %s cannot interact\
+      \ with object %s\", bot->GetName().c_str(), gameObject->GetName().c_str());\n\
+      }"
+    language: cpp
+  notes: This method likely performs checks such as distance validation, line-of-sight
+    verification, target state (dead/alive), faction compatibility, and object type
+    restrictions. It's part of the AI system's decision-making process to ensure realistic
+    bot behavior in the game world.
+  warnings: Ensure that both bot and target pointers are valid before calling this
+    method; passing null values may cause crashes or undefined behavior. The interaction
+    type must be properly defined for correct validation logic.
+  related:
+  - GetInteractionType
+  - ValidateInteractionDistance
+  - CheckVisibility
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T16:59:13.849888'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

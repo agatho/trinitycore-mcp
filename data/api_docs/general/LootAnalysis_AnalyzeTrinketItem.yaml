@@ -1,0 +1,60 @@
+api:
+  class: LootAnalysis
+  method: AnalyzeTrinketItem
+  signature: float LootAnalysis::AnalyzeTrinketItem(Player * player, const LootItem
+    & item)
+documentation:
+  brief: Analyzes a trinket item's loot value for a player based on item properties
+    and player context.
+  description: The AnalyzeTrinketItem method evaluates the relative worth of a trinket
+    item within the context of a specific player's loot preferences and character
+    state. It considers factors such as item level, stat weights, enchantments, and
+    the player's current gear to determine a normalized value score between 0.0 and
+    1.0. This score can be used by loot distribution systems or AI algorithms to make
+    informed decisions about item allocation. The method requires a valid player object
+    and a valid loot item from a loot source such as a creature or container.
+  parameters:
+  - name: player
+    description: A pointer to the Player object whose loot preferences and character
+      state are used in the analysis. Must be a valid, non-null player instance.
+  - name: item
+    description: A reference to the LootItem structure representing the trinket being
+      analyzed. The item must have valid data including item template information
+      and potential enchantments.
+  returns: Returns a float value between 0.0 and 1.0 indicating the normalized loot
+    value of the trinket. A higher value suggests that the item is more desirable
+    or valuable to the player based on current analysis criteria.
+  examples:
+  - title: Basic Usage
+    code: "float value = lootAnalysis.AnalyzeTrinketItem(player, lootItem);\nif (value\
+      \ > 0.8f) {\n    // Item is highly valued\n    player->SendNotification(\"High-value\
+      \ trinket detected!\");\n}"
+    language: cpp
+  - title: Integration with Loot Distribution
+    code: "float highestValue = 0.0f;\nLootItem* bestItem = nullptr;\nfor (auto& item\
+      \ : player->GetLoot()->GetLootItems()) {\n    if (item.itemTemplate->GetQuality()\
+      \ == ITEM_QUALITY_RARE) {\n        float value = lootAnalysis.AnalyzeTrinketItem(player,\
+      \ item);\n        if (value > highestValue) {\n            highestValue = value;\n\
+      \            bestItem = &item;\n        }\n    }\n}\nif (bestItem) {\n    //\
+      \ Award the best trinket to player\n    player->AddItem(bestItem->itemTemplate,\
+      \ 1);\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with loot analysis systems that
+    aim to optimize item distribution for players. The exact scoring algorithm may
+    vary depending on the specific implementation and configuration of the TrinityCore
+    instance. The method assumes that the player's gear and stats are up-to-date before
+    calling.
+  warnings: Ensure that both the player and item parameters are valid and not null
+    before calling this method, as it will likely crash or produce undefined behavior
+    if either is invalid. Additionally, this method should only be called during appropriate
+    game states where loot analysis is meaningful (e.g., not during combat).
+  related:
+  - AnalyzeItem
+  - GetPlayerLootPreference
+  - CalculateItemValue
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:28:52.599749'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: TraitEntry
+  method: WriteCreate
+  signature: void TraitEntry::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes trait entry data for creation packet to be sent to a player.
+  description: The WriteCreate method serializes the trait entry data into a ByteBuffer
+    for transmission to a specific player. This method is typically used when sending
+    trait information to a client, such as during player login or when updating trait
+    states. The serialized data includes all relevant trait properties and metadata
+    that the client needs to properly display and interact with the trait. It takes
+    into account both the owner of the trait and the receiver who will view it, potentially
+    applying different serialization logic based on permissions or visibility settings.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized trait data will be
+      written. This buffer is typically used to construct network packets sent to
+      the client.
+  - name: owner
+    description: Pointer to the Player object who owns the trait entry. Used to determine
+      ownership-specific serialization behavior or permissions.
+  - name: receiver
+    description: Pointer to the Player object who will receive and view this trait
+      data. May influence how information is serialized based on viewing permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = targetPlayer;
+
+      traitEntry->WriteCreate(data, owner, receiver);
+
+      session->SendPacket(&data);'
+    language: cpp
+  - title: Trait Entry Serialization for Login Packet
+    code: "void SendTraitDataToPlayer(Player* player)\n{\n    ByteBuffer data;\n \
+      \   data << uint8(0); // packet type\n    for (auto& traitEntry : player->GetTraitEntries())\n\
+      \    {\n        traitEntry->WriteCreate(data, player, player);\n    }\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  notes: This method is part of the internal serialization system for World of Warcraft
+    traits. It's designed to be called during network packet construction and should
+    not be invoked directly from game logic outside of packet handling contexts. The
+    implementation may vary based on client version or trait type, so it's important
+    to ensure compatibility when modifying related systems.
+  warnings: Do not call this method with null pointers for owner or receiver parameters
+    as it may lead to undefined behavior. Ensure that the ByteBuffer is properly initialized
+    before calling this method, and be aware that repeated calls to WriteCreate on
+    the same buffer without clearing may result in data corruption.
+  related:
+  - TraitEntry::WriteUpdate
+  - TraitEntry::WriteDelete
+  - TraitEntry::LoadFromDB
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:05:44.829119'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: DestructionImmolateTracker
+  method: NeedsRefresh
+  signature: bool DestructionImmolateTracker::NeedsRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether an Immolate spell effect needs to be refreshed based on
+    pandemic mechanics and GUID.
+  description: The NeedsRefresh method evaluates if a specific Immolate spell effect,
+    identified by its GUID, should be refreshed according to the game's pandemic mechanics.
+    Pandemic mechanics allow for extending existing DoT durations when a new application
+    occurs within a certain time window. This method checks if the current tick of
+    the spell is still valid or if it needs to be renewed. It takes into account the
+    global pandemic window duration and compares it against the last application time
+    of the spell effect. The method returns true if the spell should be refreshed,
+    indicating that the new application will extend the existing duration rather than
+    applying a fresh instance.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit affected by the Immolate
+      spell. This identifies which specific instance of the spell should be checked
+      for refresh eligibility.
+  - name: pandemicWindow
+    description: The duration in milliseconds representing the time window during
+      which a new application can extend an existing Immolate effect. If the current
+      tick is within this window, the spell will be refreshed instead of reapplied.
+  returns: Returns true if the Immolate spell effect identified by guid should be
+    refreshed according to pandemic rules; otherwise returns false. A return value
+    of true indicates that the existing DoT duration should be extended rather than
+    replaced.
+  examples:
+  - title: Basic Usage
+    code: "if (tracker.NeedsRefresh(targetGuid, 1500)) {\n    // Refresh the Immolate\
+      \ spell effect\n    ApplyImmolateEffect(targetGuid);\n}"
+    language: cpp
+  - title: Integration with Spell Application Logic
+    code: "void ApplySpellEffect(Unit* caster, Unit* target) {\n    uint32 pandemicWindow\
+      \ = 1500; // 1.5 seconds\n    if (tracker.NeedsRefresh(target->GetGUID(), pandemicWindow))\
+      \ {\n        // Extend existing Immolate duration\n        tracker.ExtendImmolateDuration(target->GetGUID(),\
+      \ pandemicWindow);\n    } else {\n        // Apply new Immolate effect\n   \
+      \     tracker.ApplyNewImmolate(target->GetGUID());\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with the DestructionImmolateTracker
+    class to manage spell effects and their application timing. The pandemic window
+    value should be consistent with the game's internal mechanics, usually matching
+    the duration of the Immolate spell's DoT refresh behavior. Ensure that GUIDs are
+    properly validated before passing them to this function.
+  warnings: Incorrect handling of GUIDs or pandemic window values may lead to unexpected
+    behavior in spell application logic. Be cautious when modifying the pandemic window
+    duration as it directly affects gameplay balance and player experience.
+  related:
+  - ApplyNewImmolate
+  - ExtendImmolateDuration
+  - GetImmolateDuration
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T02:27:06.787799'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

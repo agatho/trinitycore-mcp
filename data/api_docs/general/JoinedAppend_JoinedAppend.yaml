@@ -1,0 +1,56 @@
+api:
+  class: JoinedAppend
+  method: JoinedAppend
+  signature: void JoinedAppend::JoinedAppend(const int & guid)
+documentation:
+  brief: Appends a GUID to the joined append list for tracking player participation
+    in group activities.
+  description: The JoinedAppend method is used to add a player's unique identifier
+    (GUID) to an internal tracking list that records which players have joined or
+    participated in specific group events, such as raids, dungeons, or battlegrounds.
+    This functionality is typically utilized by the TrinityCore server's group management
+    and instance tracking systems to maintain accurate records of player involvement.
+    The method does not return any value but modifies the internal state of the JoinedAppend
+    object to include the provided GUID. It is commonly called when a player successfully
+    joins a group activity, ensuring that their participation is logged for future
+    reference, loot distribution, or achievement tracking.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player who has joined a group
+      activity. This value must be a valid player GUID from the TrinityCore database,
+      typically retrieved using methods like GetGUID() on Player objects.
+  returns: null
+  examples:
+  - title: Basic Usage in Group Join Logic
+    code: "void HandlePlayerJoinGroup(Player* player)\n{\n    uint64 guid = player->GetGUID();\n\
+      \    JoinedAppend append;\n    append.JoinedAppend(guid);\n    // Player is\
+      \ now tracked as having joined the group\n}"
+    language: cpp
+  - title: Integration with Instance Group Tracking
+    code: "class GroupInstanceTracker\n{\npublic:\n    void OnPlayerJoinInstance(Player*\
+      \ player, uint32 instanceId)\n    {\n        // Log the player's join to this\
+      \ instance\n        JoinedAppend append;\n        append.JoinedAppend(player->GetGUID());\n\
+      \        \n        // Additional logic for tracking instance participation\n\
+      \        m_instancePlayers[instanceId].push_back(player->GetGUID());\n    }\n\
+      };"
+    language: cpp
+  notes: This method is part of a larger system for tracking group participation and
+    should be used in conjunction with other methods that manage group state or instance
+    data. The GUID parameter must represent an active player; otherwise, the behavior
+    may be undefined. This functionality is critical for maintaining accurate group
+    tracking in raid instances where loot distribution or achievement requirements
+    depend on player presence.
+  warnings: Do not call this method with invalid or non-player GUIDs as it may lead
+    to inconsistent state within the group tracking system. Ensure that the JoinedAppend
+    object is properly initialized before calling this method, especially if it's
+    part of a larger class or system.
+  related:
+  - JoinedAppend::Clear
+  - JoinedAppend::HasJoined
+  - JoinedAppend::GetJoinedPlayers
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T12:06:04.598499'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

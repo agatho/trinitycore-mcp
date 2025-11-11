@@ -1,0 +1,77 @@
+api:
+  class: ActivePlayerUnk901
+  method: WriteUpdate
+  signature: void ActivePlayerUnk901::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes player update data into a ByteBuffer for network transmission.
+  description: The WriteUpdate method is responsible for serializing the current state
+    of an ActivePlayerUnk901 object into a ByteBuffer format suitable for sending
+    over the network to client players. This method handles the construction of update
+    packets that inform clients about changes in player state, including position,
+    orientation, and other relevant attributes. The serialization process respects
+    change masks to optimize bandwidth usage by only sending data that has actually
+    changed since the last update. It is typically invoked during player movement
+    updates or when specific player properties require synchronization with connected
+    clients.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is used to construct the network packet containing the
+      player's updated state information.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change masks should be respected
+      during serialization. When true, all data fields are written regardless of their
+      change status; when false, only changed fields are serialized based on the internal
+      change mask.
+  - name: owner
+    description: Pointer to the Player object that owns this ActivePlayerUnk901 instance.
+      This represents the player whose state is being updated and serialized for transmission.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      This parameter allows for conditional serialization based on the receiving player's
+      perspective or visibility rules.
+  returns: null
+  examples:
+  - title: Basic Update Serialization
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // current player
+
+      Player* receiver = ...; // target player
+
+      ActivePlayerUnk901 updateObject;
+
+      updateObject.WriteUpdate(data, false, owner, receiver);'
+    language: cpp
+  - title: Forced Update with All Fields
+    code: 'ByteBuffer data;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      ActivePlayerUnk901 updateObject;
+
+      updateObject.WriteUpdate(data, true, owner, receiver); // Forces all fields
+      to be written'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and integrates
+    with the broader player synchronization framework. The implementation likely uses
+    internal change tracking mechanisms to determine which fields have been modified
+    since the last update. Performance considerations include avoiding unnecessary
+    data serialization when possible by leveraging change masks.
+  warnings: Incorrect usage of the ignoreChangesMask parameter can lead to excessive
+    bandwidth consumption or incomplete updates. Developers should ensure that the
+    owner and receiver parameters are valid pointers to prevent access violations
+    during serialization.
+  related:
+  - ActivePlayerUnk901::ReadUpdate
+  - ActivePlayerUnk901::ResetUpdate
+  - Player::BuildUpdateData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T10:03:58.550890'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

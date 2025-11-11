@@ -1,0 +1,61 @@
+api:
+  class: TimedFleeingMovementGenerator
+  method: Finalize
+  signature: void TimedFleeingMovementGenerator::Finalize(int * param0, bool param1,
+    bool param2)
+documentation:
+  brief: Completes the timed fleeing movement behavior for a creature, cleaning up
+    associated resources and resetting the movement state.
+  description: The Finalize method is responsible for concluding the timed fleeing
+    movement generator's operation. It ensures that any temporary movement data or
+    states are properly cleaned up, and the creature's movement behavior is reset
+    to a stable state. This method is typically invoked when the fleeing duration
+    has elapsed or when an external event interrupts the fleeing behavior. The method
+    handles internal cleanup tasks such as removing movement generators from the creature's
+    movement list and restoring normal movement patterns. It also ensures that any
+    AI-related flags or states associated with the fleeing behavior are properly reset.
+  parameters:
+  - name: param0
+    description: Pointer to an integer value used internally for tracking movement
+      state or duration. Value is typically updated during the fleeing process and
+      may represent remaining time or a state identifier.
+  - name: param1
+    description: Boolean flag indicating whether the fleeing behavior should be interrupted
+      immediately. If true, the method will force immediate cleanup and reset without
+      waiting for natural completion.
+  - name: param2
+    description: Boolean flag controlling whether to send movement update packets
+      to nearby players. When true, the creature's movement state is synchronized
+      with the client; when false, no updates are sent.
+  returns: null
+  examples:
+  - title: Basic Finalize Usage
+    code: "void exampleUsage() {\n    TimedFleeingMovementGenerator generator;\n \
+      \   int remainingTime = 5000; // 5 seconds\n    bool interrupt = false;\n  \
+      \  bool sendUpdate = true;\n    \n    generator.Finalize(&remainingTime, interrupt,\
+      \ sendUpdate);\n}"
+    language: cpp
+  - title: Interrupting Fleeing Behavior
+    code: "void interruptFleeing() {\n    TimedFleeingMovementGenerator* fleeGen =\
+      \ dynamic_cast<TimedFleeingMovementGenerator*>(\n        creature->GetMotionMaster()->GetCurrentMovementGenerator());\n\
+      \    \n    if (fleeGen) {\n        int timeLeft = 0;\n        fleeGen->Finalize(&timeLeft,\
+      \ true, false); // Immediate interruption without client update\n    }\n}"
+    language: cpp
+  notes: This method should only be called from within the movement generator's context
+    or when the movement generator is no longer active. Improper usage may lead to
+    memory leaks or inconsistent movement states. The method assumes that all necessary
+    cleanup has been performed by the calling code before invocation.
+  warnings: Never call Finalize on a movement generator that is still actively running
+    unless you are certain about the internal state consistency. Passing invalid pointers
+    for param0 can cause undefined behavior. Always ensure that the creature's movement
+    master is properly updated after calling this method.
+  related:
+  - Initialize
+  - Update
+  - GetMovementGeneratorType
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:15:46.798417'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

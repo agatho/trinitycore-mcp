@@ -1,0 +1,73 @@
+api:
+  class: BotCharacterCreator
+  method: ValidateCreationRequest
+  signature: CreateResult BotCharacterCreator::ValidateCreationRequest(uint32 accountId,
+    uint8 race, uint8 classId, uint8 gender, const std::string & name, std::string
+    & outErrorMsg)
+documentation:
+  brief: Validates a character creation request for a bot character, ensuring all
+    provided parameters meet game requirements and constraints.
+  description: The ValidateCreationRequest method checks whether the given character
+    creation parameters (account ID, race, class, gender, name) are valid for creating
+    a new bot character in the TrinityCore-based World of Warcraft server. It performs
+    various validations including checking if the account exists, verifying that the
+    selected race and class combination is allowed, ensuring the character name adheres
+    to naming rules, and confirming that the player does not already have a character
+    with the same name on the account. The method returns a CreateResult enum indicating
+    success or failure along with an error message if validation fails. This function
+    is typically called before attempting to create a new bot character to prevent
+    invalid creations.
+  parameters:
+  - name: accountId
+    description: The unique identifier of the account for which the character is being
+      created. Must be a valid, existing account ID in the database.
+  - name: race
+    description: The race of the character being created. Valid values correspond
+      to the race IDs defined in the game (e.g., 1 for Human, 2 for Orc).
+  - name: classId
+    description: The class of the character being created. Valid values correspond
+      to the class IDs defined in the game (e.g., 1 for Warrior, 2 for Paladin).
+  - name: gender
+    description: The gender of the character being created. Valid values are 0 for
+      male and 1 for female.
+  - name: name
+    description: The desired name for the new character. Must be between 2 and 12
+      characters long, contain only allowed characters (letters, spaces), and not
+      be a reserved name.
+  - name: outErrorMsg
+    description: A reference to a string where an error message will be written if
+      validation fails. This parameter is updated with details about why the creation
+      request was rejected.
+  returns: Returns a CreateResult enum value indicating whether the character creation
+    request passed validation or failed. Possible values include CREATE_SUCCESS, CREATE_ERROR,
+    CREATE_DISABLED, CREATE_ACCOUNT_LOCKED, CREATE_SERVER_LIMIT, CREATE_NAME_IN_USE,
+    CREATE_NAME_INVALID, and others depending on the specific validation failure.
+  examples:
+  - title: Basic Character Creation Validation
+    code: "uint32 accountId = 12345;\nuint8 race = 1; // Human\nuint8 classId = 1;\
+      \ // Warrior\nuint8 gender = 0; // Male\nstd::string name = \"BotWarrior\";\n\
+      std::string errorMsg;\nCreateResult result = creator.ValidateCreationRequest(accountId,\
+      \ race, classId, gender, name, errorMsg);\nif (result == CREATE_SUCCESS) {\n\
+      \    // Proceed with character creation\n} else {\n    // Handle error using\
+      \ errorMsg\n    std::cout << \"Character creation failed: \" << errorMsg <<\
+      \ std::endl;\n}"
+    language: cpp
+  notes: This method performs database queries to check account existence and existing
+    character names, so it may have performance implications if called frequently.
+    It is recommended to cache or pre-validate inputs where possible. The validation
+    logic might be extended in the future to include additional checks such as server
+    population limits or custom rules.
+  warnings: Ensure that the input parameters are sanitized before calling this method
+    to avoid potential issues with invalid data. Also, note that this method does
+    not actually create a character; it only validates whether one could be created
+    based on the given inputs.
+  related:
+  - CreateCharacter
+  - GetAccountCharacters
+  - IsNameValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T08:20:15.180338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

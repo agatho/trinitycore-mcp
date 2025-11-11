@@ -1,0 +1,70 @@
+api:
+  class: SpatialGridQueryHelpers
+  method: FindGameObjectByGuid
+  signature: const DoubleBufferedSpatialGrid::GameObjectSnapshot * SpatialGridQueryHelpers::FindGameObjectByGuid(Player
+    * bot, int guid, float searchRadius)
+documentation:
+  brief: Finds a game object by its unique identifier within a specified search radius
+    for the given player.
+  description: The FindGameObjectByGuid method searches through the spatial grid system
+    to locate a specific game object based on its GUID. It operates within the context
+    of a player's current zone and uses a double-buffered spatial grid structure for
+    efficient querying. The method takes into account the player's location and a
+    defined search radius to limit the scope of the search, improving performance
+    by avoiding unnecessary traversal of distant objects. This function is typically
+    used in AI logic or quest scripts where specific game objects need to be located
+    dynamically during gameplay.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object for whom the game object search is being
+      performed. The method uses this player's position and zone context to determine
+      which spatial grid cells to query.
+  - name: guid
+    description: Integer representing the unique identifier (GUID) of the target game
+      object. This GUID must correspond to an existing GameObject in the world.
+  - name: searchRadius
+    description: Float value defining the maximum distance from the player's position
+      within which to search for the game object. Objects beyond this radius will
+      be ignored.
+  returns: Returns a pointer to a DoubleBufferedSpatialGrid::GameObjectSnapshot structure
+    if the specified game object is found within the search radius and zone. Returns
+    nullptr if no matching game object is located or if the input parameters are invalid.
+  examples:
+  - title: Basic usage to find a specific GameObject by GUID
+    code: "Player* player = ...; // Assume valid player pointer\nint targetGuid =\
+      \ 12345;\nfloat radius = 50.0f;\nconst DoubleBufferedSpatialGrid::GameObjectSnapshot*\
+      \ foundObject = SpatialGridQueryHelpers::FindGameObjectByGuid(player, targetGuid,\
+      \ radius);\nif (foundObject != nullptr) {\n    // Process the found game object\n\
+      \    printf(\"Found GameObject with GUID %d at position (%f, %f, %f)\\n\", \n\
+      \           targetGuid, foundObject->GetPositionX(), foundObject->GetPositionY(),\
+      \ foundObject->GetPositionZ());\n} else {\n    printf(\"GameObject with GUID\
+      \ %d not found within radius %f\\n\", targetGuid, radius);\n}"
+    language: cpp
+  - title: Using FindGameObjectByGuid in AI decision making
+    code: "Player* bot = ...; // Assume valid player pointer\nint chestGuid = 98765;\n\
+      const DoubleBufferedSpatialGrid::GameObjectSnapshot* chest = SpatialGridQueryHelpers::FindGameObjectByGuid(bot,\
+      \ chestGuid, 30.0f);\nif (chest != nullptr && chest->GetGoState() == GO_STATE_READY)\
+      \ {\n    // AI can now interact with the chest\n    bot->GetMotionMaster()->MovePoint(0,\
+      \ chest->GetPositionX(), chest->GetPositionY(), chest->GetPositionZ());\n}"
+    language: cpp
+  notes: This method relies on a double-buffered spatial grid system which may have
+    slight delays in reflecting real-time changes to game object positions. The search
+    is optimized by using the player's current zone and radius constraints, but performance
+    can degrade if the search radius is too large or if many objects are present in
+    the area. The returned GameObjectSnapshot should not be modified directly as it
+    might cause inconsistencies in the spatial grid data structures.
+  warnings: Do not assume that a non-null return value guarantees the object is currently
+    active or interactable; additional checks like GO_STATE_READY may be required.
+    Be cautious when using large search radii as this can impact performance significantly.
+    The method does not perform any locking internally, so concurrent access to the
+    spatial grid during query execution should be managed by the caller.
+  related:
+  - FindGameObjectByType
+  - FindNearestGameObject
+  - GetNearbyGameObjects
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T21:44:48.891059'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

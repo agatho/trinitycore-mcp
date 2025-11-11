@@ -1,0 +1,54 @@
+api:
+  class: AdaptiveBehaviorManager
+  method: GetActiveStrategies
+  signature: uint32 AdaptiveBehaviorManager::GetActiveStrategies() const
+documentation:
+  brief: Retrieves the bitmask of currently active AI strategies for the adaptive
+    behavior manager.
+  description: The GetActiveStrategies method returns a uint32 value representing
+    a bitmask of all currently active AI strategies within the AdaptiveBehaviorManager.
+    This bitmask is used by the TrinityCore AI system to determine which behaviors
+    are currently enabled for an NPC or creature. Each bit in the returned value corresponds
+    to a specific strategy type, allowing for efficient activation and deactivation
+    of different AI behaviors at runtime. The method does not modify any internal
+    state and is purely informational, making it safe to call during AI decision-making
+    processes.
+  parameters: []
+  returns: A uint32 bitmask where each bit represents the activation status of a specific
+    AI strategy. Bit positions correspond to predefined strategy constants (e.g.,
+    STRATEGY_COMBAT = 1, STRATEGY_MOVEMENT = 2, etc.). A set bit indicates that the
+    corresponding strategy is currently active.
+  examples:
+  - title: Check if combat strategy is active
+    code: "AdaptiveBehaviorManager* behaviorMgr = unit->GetAI()->GetBehaviorManager();\n\
+      uint32 activeStrategies = behaviorMgr->GetActiveStrategies();\nif (activeStrategies\
+      \ & STRATEGY_COMBAT)\n{\n    // Combat strategy is currently active\n    //\
+      \ Perform combat-related logic\n}"
+    language: cpp
+  - title: Log all active strategies
+    code: "AdaptiveBehaviorManager* behaviorMgr = unit->GetAI()->GetBehaviorManager();\n\
+      uint32 activeStrategies = behaviorMgr->GetActiveStrategies();\nTC_LOG_DEBUG(\"\
+      ai\", \"Active strategies bitmask: %u\", activeStrategies);\n\n// Iterate through\
+      \ all possible strategy bits to identify which ones are set\nfor (int i = 0;\
+      \ i < 32; ++i)\n{\n    if (activeStrategies & (1 << i))\n    {\n        TC_LOG_DEBUG(\"\
+      ai\", \"Strategy %d is active\", i);\n    }\n}"
+    language: cpp
+  notes: This method provides a snapshot of the current AI strategy state at the time
+    of invocation. The returned bitmask should not be modified directly as it represents
+    the internal state of the behavior manager. The implementation uses bitwise operations
+    for performance, making it very fast to execute even in high-frequency AI decision
+    loops.
+  warnings: The returned bitmask may change between calls if other methods modify
+    the active strategies (such as ActivateStrategy or DeactivateStrategy). Always
+    assume that the bitmask reflects the current state at the time of calling this
+    method. Do not cache the result for extended periods without re-checking.
+  related:
+  - ActivateStrategy
+  - DeactivateStrategy
+  - HasStrategy
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T16:30:42.397049'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

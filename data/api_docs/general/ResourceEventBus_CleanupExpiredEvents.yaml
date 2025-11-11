@@ -1,0 +1,47 @@
+api:
+  class: ResourceEventBus
+  method: CleanupExpiredEvents
+  signature: uint32 ResourceEventBus::CleanupExpiredEvents()
+documentation:
+  brief: Removes all expired events from the resource event bus and returns the count
+    of cleaned-up events.
+  description: The CleanupExpiredEvents method iterates through all registered events
+    in the ResourceEventBus and removes those that have exceeded their validity period
+    or have been marked as expired. This method is typically invoked periodically
+    by the game engine to maintain performance and prevent memory leaks from stale
+    event references. It ensures that only active and valid events remain in the event
+    bus, keeping resource usage optimized. The cleanup process may involve checking
+    timestamps, event lifecycles, or other expiration criteria defined within the
+    event system. This operation is generally non-blocking but can have performance
+    implications if a large number of events need to be processed.
+  parameters: []
+  returns: Returns a uint32 value representing the total number of expired events
+    that were successfully removed from the resource event bus during this cleanup
+    cycle.
+  examples:
+  - title: Basic Usage in Game Loop
+    code: "void GameLoop()\n{\n    ResourceEventBus& eventBus = ResourceEventBus::Instance();\n\
+      \    uint32 cleanedEvents = eventBus.CleanupExpiredEvents();\n    if (cleanedEvents\
+      \ > 0)\n    {\n        TC_LOG_DEBUG(\"misc\", \"Cleaned up %u expired events\
+      \ from the resource event bus.\", cleanedEvents);\n    }\n}"
+    language: cpp
+  notes: This method should be called regularly, typically as part of a periodic maintenance
+    task or during server tick processing. It's designed to be efficient but may cause
+    slight performance overhead if many events are present. The cleanup process is
+    thread-safe in most implementations, though direct access to event data structures
+    should be considered when using this method concurrently.
+  warnings: Calling this method too frequently might introduce unnecessary overhead.
+    It's recommended to schedule it at appropriate intervals rather than on every
+    game tick. Additionally, if custom event types are used with unique expiration
+    logic, ensure that the cleanup mechanism properly handles those cases to avoid
+    unexpected behavior or data loss.
+  related:
+  - ResourceEventBus::AddEvent
+  - ResourceEventBus::GetActiveEvents
+  - ResourceEventBus::IsEventExpired
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:50:03.894947'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

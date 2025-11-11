@@ -1,0 +1,83 @@
+api:
+  class: TraitEntry
+  method: WriteUpdate
+  signature: void TraitEntry::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes trait entry data into a byte buffer for network transmission to
+    a player.
+  description: The WriteUpdate method serializes the current state of a TraitEntry
+    object into a ByteBuffer, which is typically used to send updates about trait
+    information to players in the game. This method handles the encoding of trait
+    data such as trait ranks, points, and other relevant properties that may be sent
+    over the network. The serialization process respects the changes mask unless explicitly
+    ignored via the ignoreChangesMask parameter. It also takes into account the ownership
+    context of the trait entry by using the owner and receiver player objects to determine
+    what data should be included in the update packet.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where serialized trait data will be written.
+      This buffer is typically used for constructing network packets sent to players.
+  - name: ignoreChangesMask
+    description: A boolean flag indicating whether to ignore the internal changes
+      mask when serializing data. If true, all trait data is written regardless of
+      change status; if false, only changed data is included.
+  - name: owner
+    description: The Player object representing the owner of the trait entry. This
+      player's state and context are used to determine what data should be serialized.
+  - name: receiver
+    description: The Player object representing the recipient of the update packet.
+      Used for determining visibility and access rights to trait data.
+  returns: null
+  examples:
+  - title: Basic Usage in Network Update
+    code: 'ByteBuffer data;
+
+      TraitEntry entry;
+
+      Player* owner = ...; // Get owner player
+
+      Player* receiver = ...; // Get receiver player
+
+      entry.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to receiver via network
+
+      '
+    language: cpp
+  - title: Forcing Full Update with Ignore Flag
+    code: 'ByteBuffer data;
+
+      TraitEntry entry;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      entry.WriteUpdate(data, true, owner, receiver);
+
+      // Send full trait state regardless of changes
+
+      '
+    language: cpp
+  notes: This method is typically called during network synchronization operations
+    where trait data needs to be sent from server to client. The implementation likely
+    uses internal serialization logic that handles bitpacking or field-based encoding
+    for efficient transmission. It's important to note that the owner and receiver
+    parameters may influence which fields are included in the serialized output based
+    on player permissions or visibility rules.
+  warnings: Improper use of the ignoreChangesMask parameter can lead to unnecessary
+    network traffic if set to true when only partial updates are needed. Ensure that
+    the owner and receiver players are valid objects before calling this method, as
+    null pointers could cause undefined behavior.
+  related:
+  - TraitEntry::LoadFromDB
+  - TraitEntry::SaveToDB
+  - TraitEntry::GetTraitId
+  - TraitEntry::GetRank
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:05:17.920968'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

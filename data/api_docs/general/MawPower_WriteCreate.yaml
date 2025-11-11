@@ -1,0 +1,62 @@
+api:
+  class: MawPower
+  method: WriteCreate
+  signature: void MawPower::WriteCreate(ByteBuffer & data, const Player * owner, const
+    Player * receiver) const
+documentation:
+  brief: Writes the creation data for a MawPower object into a ByteBuffer for transmission
+    to a player.
+  description: The WriteCreate method serializes the state and properties of a MawPower
+    object into a ByteBuffer, preparing it for network transmission to a specific
+    player. This method is typically used during object initialization or when sending
+    updates about the MawPower's state to clients. The data written includes relevant
+    fields that define the power's characteristics, such as its type, level, and any
+    associated flags. It requires both an owner (the player who possesses the power)
+    and a receiver (the player who will receive the data), ensuring proper targeting
+    of the serialized information.
+  parameters:
+  - name: data
+    description: A reference to a ByteBuffer where the serialized MawPower creation
+      data will be written. This buffer is used for network transmission to the client.
+  - name: owner
+    description: A pointer to the Player object who owns this MawPower. Used to determine
+      ownership-related properties and state during serialization.
+  - name: receiver
+    description: A pointer to the Player object who will receive this MawPower data.
+      Ensures correct targeting of the serialized information for the intended client.
+  returns: null
+  examples:
+  - title: Basic Usage in Object Initialization
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Get player with MawPower
+
+      Player* receiver = ...; // Target player
+
+      MawPower power;
+
+      power.WriteCreate(data, owner, receiver);'
+    language: cpp
+  - title: Sending MawPower Update to Client
+    code: "ByteBuffer updateData;\nPlayer* owner = session->GetPlayer();\nPlayer*\
+      \ target = ...; // Another player in range\nMawPower* power = owner->GetMawPower();\n\
+      if (power)\n{\n    power->WriteCreate(updateData, owner, target);\n    session->SendPacket(&updateData);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's object serialization system and
+    should be called only when preparing data for network transmission. The ByteBuffer
+    must be properly initialized before calling this method, and both owner and receiver
+    pointers must be valid to avoid undefined behavior.
+  warnings: Do not call WriteCreate without ensuring that the owner and receiver players
+    are valid and in scope. Incorrect usage can lead to memory corruption or client-side
+    desynchronization issues.
+  related:
+  - MawPower::ReadCreate
+  - MawPower::BuildCreateUpdateBlockForPlayer
+  - MawPower::GetPowerType
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T00:16:23.587039'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

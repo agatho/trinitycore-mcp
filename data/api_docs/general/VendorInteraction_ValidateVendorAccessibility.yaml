@@ -1,0 +1,51 @@
+api:
+  class: VendorInteraction
+  method: ValidateVendorAccessibility
+  signature: bool VendorInteraction::ValidateVendorAccessibility(Player * player,
+    uint32 vendorGuid)
+documentation:
+  brief: Validates if a player can access a vendor for trading items.
+  description: The ValidateVendorAccessibility method checks whether a given player
+    has the necessary conditions to interact with a specific vendor. This includes
+    verifying that the vendor is within the player's interaction range, that the vendor
+    is not flagged as inaccessible or hostile, and that the player meets basic game
+    requirements such as being alive and not in a restricted state (e.g., dead, ghost,
+    or in combat). The method ensures that the vendor interaction system prevents
+    invalid or exploitative interactions. It does not perform any modifications to
+    the game state but rather acts as a gatekeeper for vendor access.
+  parameters:
+  - name: player
+    description: Pointer to the Player object attempting to access the vendor. Must
+      be a valid player instance; null pointers will result in undefined behavior.
+  - name: vendorGuid
+    description: The unique identifier (GUID) of the vendor the player is trying to
+      interact with. This value must correspond to a valid GameObject or Creature
+      in the world.
+  returns: Returns true if the player can access the vendor, false otherwise. A return
+    of false typically indicates that the vendor is out of range, the player is in
+    an invalid state, or the vendor is not accessible due to game rules.
+  examples:
+  - title: Basic Vendor Access Check
+    code: "if (VendorInteraction::ValidateVendorAccessibility(player, vendorGuid))\
+      \ {\n    // Proceed with vendor interaction logic\n    player->GetSession()->SendListInventory(vendorGuid);\n\
+      } else {\n    // Inform the player they cannot access the vendor\n    player->SendBuyError(BUY_ERR_VENDOR_DISTANCING,\
+      \ vendorGuid, 0, 0);\n}"
+    language: cpp
+  notes: This method is typically called before initiating any vendor interaction
+    to ensure that the player's state and proximity are valid. It may internally use
+    distance checks, player state validation, and vendor accessibility flags from
+    the game database.
+  warnings: Do not assume that a successful validation means the vendor will respond
+    to all interactions; additional checks such as item availability or player currency
+    may still be required. Passing invalid GUIDs or null player pointers can lead
+    to crashes or undefined behavior.
+  related:
+  - Player::GetSession
+  - Player::SendBuyError
+  - WorldSession::SendListInventory
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T17:43:40.599348'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

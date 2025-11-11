@@ -1,0 +1,56 @@
+api:
+  class: QuestValidation
+  method: CheckExclusiveGroup
+  signature: bool QuestValidation::CheckExclusiveGroup(const Quest * quest, Player
+    * bot)
+documentation:
+  brief: Checks if a quest is part of an exclusive group that conflicts with the player's
+    current quests.
+  description: The CheckExclusiveGroup method determines whether a given quest belongs
+    to an exclusive group that would conflict with any currently active or completed
+    quests in the player's quest log. In World of Warcraft, certain quests are marked
+    as exclusive to prevent players from accepting multiple quests from the same group
+    simultaneously. This method evaluates the exclusive group membership of the specified
+    quest and verifies if it conflicts with existing quests in the player's log. The
+    method returns true if there is no conflict, and false if the quest cannot be
+    accepted due to exclusive group restrictions.
+  parameters:
+  - name: quest
+    description: Pointer to the Quest object being checked for exclusive group conflicts.
+      Must not be null.
+  - name: bot
+    description: Pointer to the Player object whose quest log is being evaluated for
+      conflicts. Must not be null.
+  returns: Returns true if the quest can be accepted without conflicting with exclusive
+    groups in the player's quest log, false otherwise.
+  examples:
+  - title: Basic Usage
+    code: "if (QuestValidation::CheckExclusiveGroup(quest, player)) {\n    // Quest\
+      \ can be accepted\n    player->AddQuest(quest);\n} else {\n    // Quest cannot\
+      \ be accepted due to exclusive group conflict\n    player->SendNotification(\"\
+      This quest conflicts with another active quest.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (!QuestValidation::CheckExclusiveGroup(quest,\
+      \ this)) {\n        SendQuestInvalidReason(QUEST_INVALID_REASON_EXCLUSIVE_GROUP);\n\
+      \        return;\n    }\n    // Proceed with normal quest acceptance logic\n\
+      \    AddQuest(quest);\n}"
+    language: cpp
+  notes: This method is typically used during quest acceptance to prevent players
+    from accepting quests that are mutually exclusive. It checks the database-defined
+    exclusive group IDs and compares them against all active and completed quests
+    in the player's log. The method does not modify any quest state but only performs
+    validation.
+  warnings: Ensure both parameters are non-null before calling this method, as passing
+    null pointers will result in undefined behavior. This method should be called
+    before attempting to add a quest to a player's log to avoid conflicts.
+  related:
+  - Player::AddQuest
+  - Player::HasQuest
+  - Player::GetQuestStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:02:50.270731'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

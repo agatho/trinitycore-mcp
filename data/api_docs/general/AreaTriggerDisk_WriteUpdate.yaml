@@ -1,0 +1,78 @@
+api:
+  class: AreaTriggerDisk
+  method: WriteUpdate
+  signature: void AreaTriggerDisk::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger disk data into a ByteBuffer for client updates.
+  description: The WriteUpdate method serializes the state of an AreaTriggerDisk object
+    into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically invoked during packet construction for area trigger updates,
+    ensuring that the client receives accurate information about the disk-shaped area
+    trigger's properties such as radius, center position, and orientation. The serialization
+    process respects the changes mask when ignoreChangesMask is false, allowing efficient
+    update transmission by only sending modified fields. This method is crucial for
+    maintaining synchronization between server-side area trigger state and client-side
+    visual representation.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger disk
+      data will be written. This buffer is typically used to construct network packets
+      sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the changes mask when serializing
+      data. When true, all fields are written regardless of modification status; when
+      false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this disk. Used for accessing
+      owner-specific properties and state during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. May be
+      used to determine visibility, permissions, or player-specific data adjustments
+      during serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      AreaTriggerDisk disk;
+
+      Player* receiver = ...;
+
+      AreaTrigger* owner = ...;
+
+      disk.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a packet to the receiver'
+    language: cpp
+  - title: Force Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      AreaTriggerDisk disk;
+
+      Player* receiver = ...;
+
+      AreaTrigger* owner = ...;
+
+      disk.WriteUpdate(data, true, owner, receiver);
+
+      // Force all fields to be serialized regardless of changes'
+    language: cpp
+  notes: This method is part of the TrinityCore's network packet serialization system
+    and should only be called during packet construction phases. The implementation
+    assumes that the provided parameters are valid and properly initialized. Performance
+    considerations include avoiding unnecessary data serialization when ignoreChangesMask
+    is false, as this enables delta updates.
+  warnings: Calling this method with invalid or null pointers for owner or receiver
+    may result in undefined behavior or crashes. Ensure that all parameters are properly
+    validated before calling WriteUpdate.
+  related:
+  - AreaTriggerDisk::ReadUpdate
+  - AreaTrigger::BuildUpdateData
+  - AreaTrigger::SendUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:24:27.441134'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

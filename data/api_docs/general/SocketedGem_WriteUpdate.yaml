@@ -1,0 +1,65 @@
+api:
+  class: SocketedGem
+  method: WriteUpdate
+  signature: void SocketedGem::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes socketed gem data into a ByteBuffer for network transmission to
+    a player.
+  description: The WriteUpdate method serializes the current state of a socketed gem
+    into a ByteBuffer, preparing it for transmission to a client. This method is typically
+    used when sending updates about socketed gems on items to players, such as when
+    an item is equipped, modified, or when the client needs to be notified of changes
+    to gem properties. The serialization process respects the provided owner and receiver
+    context, ensuring that only relevant data is sent. It may optionally ignore changes
+    masks if specified, which can be useful for full state synchronization.
+  parameters:
+  - name: data
+    description: The ByteBuffer into which the serialized socketed gem data will be
+      written.
+  - name: ignoreChangesMask
+    description: If true, all fields of the socketed gem are serialized regardless
+      of change tracking. If false, only changed fields are included based on internal
+      change masks.
+  - name: owner
+    description: The Item that owns this socketed gem. Used to determine ownership
+      context and item-specific properties during serialization.
+  - name: receiver
+    description: The Player who will receive the serialized data. Used for determining
+      visibility and access rights during serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in Item Update Context
+    code: "ByteBuffer data;\nItem* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0,\
+      \ SLOT_HEAD);\nSocketedGem* gem = item->GetSocketedGem(GEM_SOCKET_1);\nif (gem)\n\
+      {\n    gem->WriteUpdate(data, false, item, player);\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  - title: Forcing Full Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      SocketedGem* gem = /* some valid gem */;
+
+      Item* owner = /* item containing the gem */;
+
+      Player* receiver = /* player receiving update */;
+
+      gem->WriteUpdate(data, true, owner, receiver); // Force full serialization'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    is commonly invoked during item updates. The internal change tracking mechanism
+    ensures efficient network usage by only sending modified fields when ignoreChangesMask
+    is false.
+  warnings: Ensure that both owner and receiver parameters are valid pointers; passing
+    null can lead to undefined behavior or crashes. Be cautious with ignoreChangesMask=true
+    as it may increase bandwidth usage unnecessarily.
+  related:
+  - SocketedGem::GetSocketedGem
+  - SocketedGem::SetSocketedGem
+  - Item::GetSocketedGem
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T19:00:07.958219'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,71 @@
+api:
+  class: CraftingOrderCustomer
+  method: WriteCreate
+  signature: void CraftingOrderCustomer::WriteCreate(ByteBuffer & data, const Player
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes crafting order customer data into a byte buffer for network transmission.
+  description: The WriteCreate method serializes the crafting order customer information
+    into a ByteBuffer format suitable for sending to clients. This method is typically
+    used when creating or updating crafting order customer entries in the game world,
+    ensuring that all relevant player data is properly encoded for network communication.
+    The serialization includes information about both the owner and receiver of the
+    crafting order, which are essential for maintaining proper ownership and relationship
+    tracking within the crafting system. The method does not return any value but
+    modifies the provided ByteBuffer parameter directly.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized crafting order customer
+      data will be written. This buffer is populated with the encoded player information
+      for network transmission.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the crafting
+      order. May be null if no owner is specified, though this is typically not expected
+      in normal operation.
+  - name: receiver
+    description: Pointer to the Player object representing the receiver of the crafting
+      order. May be null if no receiver is specified, though this is typically not
+      expected in normal operation.
+  returns: null
+  examples:
+  - title: Basic usage for sending crafting order data
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Get owner player
+
+      Player* receiver = ...; // Get receiver player
+
+      CraftingOrderCustomer customer;
+
+      customer.WriteCreate(data, owner, receiver);
+
+      // Send data to client via WorldPacket or similar mechanism'
+    language: cpp
+  - title: Complete crafting order creation with serialization
+    code: "void SendCraftingOrderUpdate(CraftingOrderCustomer& customer, Player* owner,\
+      \ Player* receiver) {\n    ByteBuffer data;\n    data << uint8(0); // Packet\
+      \ type\n    customer.WriteCreate(data, owner, receiver);\n    WorldPacket packet(SMSG_CRAFTING_ORDER_UPDATE,\
+      \ data.size());\n    packet.append(data);\n    owner->SendDirectMessage(&packet);\n\
+      }"
+    language: cpp
+  notes: This method is part of the crafting system's serialization framework and
+    should only be called when preparing data for network transmission. The method
+    assumes that both owner and receiver parameters are valid Player objects, though
+    null checks may be implemented internally. Performance considerations include
+    avoiding repeated buffer reallocations during frequent updates.
+  warnings: Do not call this method with null pointers unless the system specifically
+    allows it. Improper handling of player references can lead to memory corruption
+    or incorrect data transmission. Ensure that the ByteBuffer is properly initialized
+    before calling this method.
+  related:
+  - ReadCreate
+  - GetOwner
+  - GetReceiver
+  - SetOwner
+  - SetReceiver
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:45:51.910751'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

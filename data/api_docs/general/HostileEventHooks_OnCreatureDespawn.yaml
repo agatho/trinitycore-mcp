@@ -1,0 +1,60 @@
+api:
+  class: HostileEventHooks
+  method: OnCreatureDespawn
+  signature: void HostileEventHooks::OnCreatureDespawn(int * creature)
+documentation:
+  brief: Invoked when a creature is despawned from the game world, allowing custom
+    logic to be executed.
+  description: The OnCreatureDespawn method is a hook function that gets called whenever
+    a creature object is removed from the game world, typically due to death, despawn
+    timer expiration, or manual removal. This method serves as an event handler for
+    creature lifecycle management and allows developers to implement custom behavior
+    such as quest progress updates, loot distribution adjustments, or AI state changes.
+    The method receives a pointer to the creature's ID integer, which can be used
+    to identify the specific creature that was despawned. It is important to note
+    that this hook may be called during various game states and should handle potential
+    null or invalid pointers gracefully.
+  parameters:
+  - name: creature
+    description: Pointer to an integer representing the unique identifier (GUID) of
+      the creature being despawned. This value can be used to identify the specific
+      creature object in the game world.
+  returns: null
+  examples:
+  - title: Basic Implementation
+    code: "void HostileEventHooks::OnCreatureDespawn(int* creature)\n{\n    if (creature\
+      \ && *creature > 0)\n    {\n        // Log the despawn event\n        sLog->outString(\"\
+      Creature with GUID %u has despawned.\", *creature);\n        \n        // Perform\
+      \ custom logic here\n        // e.g., update quest objectives, trigger events\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Usage with Quest Update
+    code: "void HostileEventHooks::OnCreatureDespawn(int* creature)\n{\n    if (!creature\
+      \ || *creature <= 0)\n        return;\n    \n    // Get the creature object\
+      \ from the world\n    Creature* cr = sObjectAccessor->GetCreature(*creature);\n\
+      \    if (!cr)\n        return;\n    \n    // Check if this creature was part\
+      \ of a quest objective\n    if (cr->GetEntry() == 12345) // Example creature\
+      \ entry\n    {\n        // Update quest progress for nearby players\n      \
+      \  for (auto& player : cr->GetMap()->GetPlayers())\n        {\n            if\
+      \ (player)\n                player->GetQuestStatus(54321); // Example quest\
+      \ ID\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called from within the core game loop and may be
+    invoked during different phases of creature lifecycle. Developers should ensure
+    thread safety when accessing shared data structures, as this hook might be executed
+    from different threads. The parameter value represents a creature's GUID which
+    can be used to retrieve the full creature object through the ObjectAccessor.
+  warnings: Be cautious when dereferencing the creature pointer; it may point to invalid
+    memory if the creature has already been destroyed. Always validate the input before
+    using it. Also, avoid performing heavy operations in this hook as it may impact
+    performance during high-traffic game events.
+  related:
+  - OnCreatureSpawn
+  - OnCreatureDeath
+  - OnCreatureEnterCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T03:11:25.559674'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

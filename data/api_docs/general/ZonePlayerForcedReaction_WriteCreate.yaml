@@ -1,0 +1,67 @@
+api:
+  class: ZonePlayerForcedReaction
+  method: WriteCreate
+  signature: void ZonePlayerForcedReaction::WriteCreate(ByteBuffer & data, const Player
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes forced reaction data for a player to a network packet
+    buffer.
+  description: The WriteCreate method serializes the ZonePlayerForcedReaction object's
+    data into a ByteBuffer, which is typically used to construct a network packet
+    sent to a client. This method is responsible for encoding the necessary information
+    about a player's forced reactions within a specific zone, ensuring that the client
+    receives accurate faction relationship updates. The serialization process includes
+    relevant player identifiers and reaction states that are crucial for maintaining
+    proper game mechanics such as NPC hostility or friendly behavior based on zone-specific
+    rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized data will be written.
+      This buffer is typically used to build network packets sent to players.
+  - name: owner
+    description: Pointer to the Player object whose forced reactions are being serialized.
+      This represents the player whose faction status is being communicated to another
+      player.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. This is
+      typically used to determine which client should receive the packet containing
+      the forced reaction information.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Some player object
+
+      Player* receiver = ...; // Target player receiving the packet
+
+      ZonePlayerForcedReaction reaction;
+
+      reaction.WriteCreate(data, owner, receiver);
+
+      // Send ''data'' to receiver''s client'
+    language: cpp
+  - title: Integration with WorldSession for sending packets
+    code: "void SendForcedReactionsToPlayer(Player* targetPlayer) {\n    ByteBuffer\
+      \ data;\n    Player* currentPlayer = ...; // Current player with forced reactions\n\
+      \    ZonePlayerForcedReaction reaction;\n    reaction.WriteCreate(data, currentPlayer,\
+      \ targetPlayer);\n    targetPlayer->GetSession()->SendPacket(&data);\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    is typically invoked during zone updates or when sending specific player-related
+    data to clients. The method assumes that both owner and receiver players are valid
+    and properly initialized. It does not perform any validation on the input parameters
+    beyond basic pointer checks.
+  warnings: Ensure that both 'owner' and 'receiver' pointers are valid before calling
+    this method, as dereferencing invalid pointers will cause undefined behavior.
+    This method is usually called internally by the core system; direct usage may
+    be inappropriate unless you're implementing custom packet handling logic.
+  related:
+  - ZonePlayerForcedReaction::ReadCreate
+  - ZonePlayerForcedReaction::BuildUpdateData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:39:43.205050'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

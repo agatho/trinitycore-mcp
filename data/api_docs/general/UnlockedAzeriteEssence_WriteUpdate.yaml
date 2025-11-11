@@ -1,0 +1,84 @@
+api:
+  class: UnlockedAzeriteEssence
+  method: WriteUpdate
+  signature: void UnlockedAzeriteEssence::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AzeriteItem * owner, const Player * receiver) const
+documentation:
+  brief: Serializes unlocked Azerite essence data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the state of an UnlockedAzeriteEssence
+    object into a ByteBuffer, preparing it for transmission to a client. This method
+    is typically used when sending updates about unlocked Azerite essences to players
+    in the game world. It handles the serialization of essence data including its
+    ID, quantity, and any associated flags or properties. The method respects the
+    ignoreChangesMask parameter which can bypass change tracking logic, allowing for
+    full or partial updates depending on the context. The owner and receiver parameters
+    provide context about which AzeriteItem this essence belongs to and which player
+    is receiving the update.
+  parameters:
+  - name: data
+    description: ByteBuffer reference where the serialized essence data will be written.
+      This buffer is typically used for constructing network packets sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing data. When true, all data fields are included regardless of change
+      status; when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the AzeriteItem that owns this unlocked essence. Provides
+      context for which item the essence belongs to and may be used to determine update
+      requirements or restrictions.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Used to determine
+      player-specific data or permissions when serializing the essence information.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      UnlockedAzeriteEssence essence;
+
+      Player* player = ...;
+
+      AzeriteItem* item = ...;
+
+
+      essence.WriteUpdate(data, false, item, player);
+
+      // Send data to player''s client'
+    language: cpp
+  - title: Forcing full update with ignore mask
+    code: 'ByteBuffer fullUpdate;
+
+      UnlockedAzeriteEssence essence;
+
+      Player* target = ...;
+
+      AzeriteItem* ownerItem = ...;
+
+
+      // Force sending all data regardless of changes
+
+      essence.WriteUpdate(fullUpdate, true, ownerItem, target);
+
+      // Send complete state update'
+    language: cpp
+  notes: This method is part of the Azerite system implementation in TrinityCore and
+    should be called during packet construction for Azerite-related updates. The method
+    assumes that the data buffer has sufficient capacity to hold all serialized data.
+    It's recommended to call this method only when necessary to avoid unnecessary
+    network traffic.
+  warnings: Calling this method without proper initialization of the ByteBuffer may
+    result in undefined behavior. Ensure that both owner and receiver parameters are
+    valid pointers before calling, as null pointer dereferences can occur if not properly
+    validated.
+  related:
+  - GetId
+  - GetQuantity
+  - IsUnlocked
+  - SetUnlocked
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T17:54:33.790281'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

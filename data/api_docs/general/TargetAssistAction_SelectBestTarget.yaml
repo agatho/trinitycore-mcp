@@ -1,0 +1,62 @@
+api:
+  class: TargetAssistAction
+  method: SelectBestTarget
+  signature: int TargetAssistAction::SelectBestTarget(const int & targets, Player
+    * bot) const
+documentation:
+  brief: Selects the best target from a list of available targets for the bot based
+    on priority and combat relevance.
+  description: The SelectBestTarget method evaluates a set of potential targets and
+    determines the most suitable one for the bot to engage in combat. It considers
+    factors such as threat level, distance, threat status, and target priority to
+    make this decision. This method is typically used by AI scripts within the TrinityCore
+    framework to assist bots in making tactical decisions during encounters. The method
+    operates on a list of targets provided through the 'targets' parameter and returns
+    the GUID of the selected target. It is designed to be called during combat situations
+    where target selection is critical for effective gameplay.
+  parameters:
+  - name: targets
+    description: An integer representing a bitmask or identifier of available targets.
+      This value typically encodes information about which entities are valid candidates
+      for targeting, often using flags or GUIDs to represent multiple potential targets.
+  - name: bot
+    description: A pointer to the Player object representing the bot that is selecting
+      a target. This parameter provides context for the AI decision-making process
+      and allows access to the bot's current state, inventory, and combat capabilities.
+  returns: Returns an integer value representing the GUID of the selected target.
+    If no valid target can be found or if the input parameters are invalid, it may
+    return a special value such as 0 or -1 indicating failure or no selection.
+  examples:
+  - title: Basic usage in combat AI
+    code: "int bestTarget = action.SelectBestTarget(targetList, bot);\nif (bestTarget\
+      \ > 0) {\n    // Proceed with attack on the selected target\n    bot->Attack(bot->GetUnit(bestTarget),\
+      \ true);\n} else {\n    // No valid target found\n    bot->Say(\"No target available.\"\
+      , LANG_UNIVERSAL);\n}"
+    language: cpp
+  - title: Using target selection in a loop
+    code: "for (int i = 0; i < 5; ++i) {\n    int target = action.SelectBestTarget(targetList,\
+      \ bot);\n    if (target > 0 && bot->CanAttack(bot->GetUnit(target))) {\n   \
+      \     bot->Attack(bot->GetUnit(target), true);\n        break;\n    }\n}\n//\
+      \ If no suitable target found after retries\nif (target <= 0) {\n    bot->Say(\"\
+      Cannot find a valid target.\", LANG_UNIVERSAL);\n}"
+    language: cpp
+  notes: This method is part of the AI behavior system and assumes that the 'targets'
+    parameter contains valid data about potential enemies. The implementation likely
+    uses internal priority queues or scoring algorithms to determine the best target.
+    It may also interact with the bot's current threat table and aggro management
+    systems.
+  warnings: Ensure that the 'targets' parameter is properly initialized before calling
+    this method, as invalid or corrupted target data can lead to undefined behavior
+    or incorrect targeting decisions. Also, be cautious when using this method in
+    high-frequency loops, as it may have performance implications depending on how
+    many targets are being evaluated.
+  related:
+  - TargetAssistAction::GetTargets
+  - TargetAssistAction::IsTargetValid
+  - TargetAssistAction::UpdateThreatList
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:32:25.471659'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

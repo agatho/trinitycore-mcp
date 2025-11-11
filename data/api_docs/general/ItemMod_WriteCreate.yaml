@@ -1,0 +1,64 @@
+api:
+  class: ItemMod
+  method: WriteCreate
+  signature: void ItemMod::WriteCreate(ByteBuffer & data, const Item * owner, const
+    Player * receiver) const
+documentation:
+  brief: Writes item modification data to a ByteBuffer for client synchronization
+  description: The WriteCreate method serializes the current ItemMod object's data
+    into a ByteBuffer format suitable for network transmission to clients. This method
+    is typically used during item creation or modification events where client-side
+    updates are required. The serialized data includes all relevant item modification
+    properties that need to be synchronized between the server and the player's client.
+    It takes into account both the owning item and the receiving player to ensure
+    proper data formatting based on player-specific context such as visibility settings
+    or access permissions.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized item modification
+      data will be written
+  - name: owner
+    description: Pointer to the Item object that owns this modification, used to determine
+      base properties and state
+  - name: receiver
+    description: Pointer to the Player object who will receive this item modification
+      data, used for context-specific formatting
+  returns: null
+  examples:
+  - title: Basic Usage in Item Creation
+    code: 'ItemMod mod;
+
+      Item* item = ...; // existing item
+
+      Player* player = ...; // receiving player
+
+      ByteBuffer dataBuffer;
+
+      mod.WriteCreate(dataBuffer, item, player);'
+    language: cpp
+  - title: Usage in Network Packet Construction
+    code: "void SendItemModificationPacket(Player* player, Item* item, ItemMod& mod)\
+      \ {\n    ByteBuffer data;\n    mod.WriteCreate(data, item, player);\n    WorldPacket\
+      \ packet(SMSG_ITEM_UPDATE, data.size());\n    packet.append(data);\n    player->SendDirectMessage(&packet);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's object serialization system and
+    should only be called when item modifications need to be sent to clients. The
+    method assumes that all parameters are valid pointers and does not perform null
+    checks. It's commonly used in conjunction with other serialization methods like
+    WriteUpdate or WriteDestroy for complete object lifecycle management.
+  warnings: Do not call this method without ensuring that the owner Item and receiver
+    Player objects are properly initialized, as it may lead to undefined behavior.
+    The ByteBuffer should be large enough to accommodate all serialized data; otherwise,
+    buffer overflow may occur. This method is typically called internally by the core
+    system during item state changes.
+  related:
+  - ItemMod::WriteUpdate
+  - ItemMod::WriteDestroy
+  - ItemMod::ReadCreate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:59:00.704884'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

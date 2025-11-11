@@ -1,0 +1,53 @@
+api:
+  class: UnholyFesteringWoundTracker
+  method: GetWoundCount
+  signature: uint32 UnholyFesteringWoundTracker::GetWoundCount(int guid) const
+documentation:
+  brief: Retrieves the current count of festering wounds associated with a specified
+    GUID.
+  description: The GetWoundCount method returns the number of active festering wounds
+    tracked for a given unit identifier (GUID). This functionality is typically used
+    in the context of the Unholy Death Knight talent Festering Wound, which causes
+    periodic damage over time. The method allows the system to query how many instances
+    of this debuff are currently applied to a specific target. It is designed to be
+    a read-only operation that does not modify any internal state. The GUID parameter
+    refers to the unique identifier of the unit (player or creature) for which the
+    wound count is being retrieved.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit for which the festering
+      wound count is requested. This should be a valid object GUID from the TrinityCore
+      database.
+  returns: A uint32 value representing the number of active festering wounds on the
+    specified unit. Returns zero if no festering wounds are currently applied to the
+    target.
+  examples:
+  - title: Basic usage to check wound count
+    code: "uint32 woundCount = unholyFesteringWoundTracker->GetWoundCount(playerGuid);\n\
+      if (woundCount > 0)\n{\n    // Process logic based on active wounds\n    LOG_DEBUG(\"\
+      wound_tracker\", \"Player has {} active festering wounds.\", woundCount);\n}"
+    language: cpp
+  - title: Using wound count for damage calculation
+    code: "Unit* target = ObjectAccessor::GetUnit(*m_caster, targetGuid);\nif (target)\n\
+      {\n    uint32 woundCount = unholyFesteringWoundTracker->GetWoundCount(target->GetGUID().GetRawValue());\n\
+      \    if (woundCount > 0)\n    {\n        // Apply damage based on wound count\n\
+      \        uint32 damage = baseDamage * woundCount;\n        target->CastSpell(target,\
+      \ SPELL_FESTERING_WOUND_DAMAGE, true);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the tracker maintains an internal mapping of GUIDs
+    to wound counts. It is expected to be called from within the context of spell
+    or aura handling logic where unit GUIDs are available. The implementation may
+    rely on internal data structures such as maps or arrays indexed by GUID.
+  warnings: Ensure that the provided GUID corresponds to a valid and existing unit
+    in the world. Passing an invalid or non-existent GUID might lead to undefined
+    behavior or incorrect results depending on how the internal tracking is implemented.
+  related:
+  - AddWound
+  - RemoveWound
+  - HasWounds
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T14:14:08.760956'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

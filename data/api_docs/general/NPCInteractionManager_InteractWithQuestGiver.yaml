@@ -1,0 +1,65 @@
+api:
+  class: NPCInteractionManager
+  method: InteractWithQuestGiver
+  signature: bool NPCInteractionManager::InteractWithQuestGiver(Creature * questGiver)
+documentation:
+  brief: Initiates interaction with a quest giver creature to display available quests
+    and handle quest-related dialogue.
+  description: The InteractWithQuestGiver method is responsible for managing the player's
+    interaction with a Creature that serves as a quest giver. When invoked, it triggers
+    the necessary game logic to open the quest interaction window, allowing players
+    to accept, turn in, or query quests from the specified NPC. This method handles
+    the communication between the client and server to ensure proper quest state updates
+    and UI presentation. The method typically checks if the player is within interaction
+    range of the quest giver and validates that the NPC has active quests available
+    for the player. It also manages any prerequisite quest requirements and quest
+    completion conditions before allowing interaction.
+  parameters:
+  - name: questGiver
+    description: Pointer to the Creature object representing the NPC that acts as
+      a quest giver. Must be a valid creature instance with quest-related data loaded.
+      The creature must be within the player's interaction range for successful interaction.
+  returns: Returns true if the interaction was successfully initiated and the quest
+    UI was properly displayed to the player. Returns false if the interaction failed
+    due to invalid parameters, the quest giver being out of range, or if the player
+    already has maximum active quests.
+  examples:
+  - title: Basic Quest Interaction
+    code: "if (player->GetNPCInteractionManager()->InteractWithQuestGiver(questGiverCreature))\
+      \ {\n    // Quest interaction UI is now visible to player\n    sLog->outString(\"\
+      Player initiated quest interaction with NPC: %s\", questGiverCreature->GetName().c_str());\n\
+      } else {\n    // Failed to initiate interaction\n    sLog->outError(\"Failed\
+      \ to interact with quest giver: %s\", questGiverCreature->GetName().c_str());\n\
+      }"
+    language: cpp
+  - title: Interaction with Error Handling
+    code: "Creature* targetNPC = player->GetNPCInteractionManager()->GetQuestGiver();\n\
+      if (targetNPC && player->IsWithinDist(targetNPC, INTERACTION_DISTANCE)) {\n\
+      \    if (!player->GetNPCInteractionManager()->InteractWithQuestGiver(targetNPC))\
+      \ {\n        // Handle case where interaction fails\n        ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Unable to interact with this quest giver at the moment.\");\n    }\n} else {\n\
+      \    ChatHandler(player->GetSession()).SendSysMessage(\"You are too far from\
+      \ the quest giver.\");\n}"
+    language: cpp
+  notes: This method is part of the core NPC interaction system in TrinityCore and
+    relies on proper quest data being loaded for the target creature. The implementation
+    handles automatic quest state validation, including checking if the player meets
+    prerequisites, has not exceeded maximum active quests, and that the quest is not
+    already completed or in progress. Performance-wise, this method should be called
+    only when necessary as it involves database lookups and UI updates.
+  warnings: Do not call this method with a null pointer for questGiver as it will
+    likely cause a crash. Ensure the creature is valid and has quest data loaded before
+    calling. Also note that this method does not handle quest acceptance or completion
+    directly - it only initiates the interaction which then allows the player to make
+    those decisions through the UI.
+  related:
+  - GetQuestGiver
+  - HasActiveQuests
+  - CanAcceptQuest
+  - CompleteQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:16:35.565700'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

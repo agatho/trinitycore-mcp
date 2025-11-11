@@ -1,0 +1,48 @@
+api:
+  class: CombatBehaviorIntegration
+  method: ShouldSaveCooldowns
+  signature: bool CombatBehaviorIntegration::ShouldSaveCooldowns()
+documentation:
+  brief: Determines whether combat cooldowns should be saved during player logout
+    or zone change.
+  description: The ShouldSaveCooldowns method evaluates whether active combat-related
+    cooldowns should persist across player sessions. This is typically used in conjunction
+    with player logout, zoning, or server shutdown scenarios to determine if cooldowns
+    should be stored in the database for later restoration. The method checks various
+    conditions such as player state, combat status, and cooldown types to make this
+    determination. It's an integral part of TrinityCore's cooldown persistence system
+    that ensures players don't lose their combat abilities unexpectedly during legitimate
+    gameplay events.
+  parameters: []
+  returns: Returns true if combat cooldowns should be saved for persistence, false
+    otherwise. The method returns false when the player is not in a combat state or
+    when cooldowns are deemed non-persistent by the system logic.
+  examples:
+  - title: Basic usage in combat state check
+    code: "if (player->GetCombatBehavior()->ShouldSaveCooldowns()) {\n    // Save\
+      \ cooldowns to database\n    player->SaveCooldowns();\n}"
+    language: cpp
+  - title: Integration with logout process
+    code: "void Player::OnLogout() {\n    if (GetCombatBehavior()->ShouldSaveCooldowns())\
+      \ {\n        SaveCooldownsToDB();\n    }\n    // Proceed with normal logout\n\
+      }"
+    language: cpp
+  notes: This method is typically called during player session cleanup and database
+    save operations. It's important to note that not all cooldowns are saved - only
+    those considered 'combat relevant' or 'player-controlled' are persisted. The implementation
+    may vary based on server configuration settings for cooldown persistence.
+  warnings: Developers should be cautious when modifying this method's behavior as
+    it directly affects player experience and game balance. Incorrectly returning
+    true when it should return false can lead to unintended cooldown persistence,
+    while the opposite can cause players to lose important combat abilities unexpectedly.
+  related:
+  - SaveCooldowns
+  - LoadCooldowns
+  - IsInCombat
+  - GetPlayerState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T07:02:57.482233'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

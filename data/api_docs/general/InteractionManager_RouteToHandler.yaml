@@ -1,0 +1,66 @@
+api:
+  class: InteractionManager
+  method: RouteToHandler
+  signature: InteractionResult InteractionManager::RouteToHandler(Player * bot, WorldObject
+    * target, InteractionType type)
+documentation:
+  brief: Routes interaction requests from a bot player to an appropriate handler based
+    on target and interaction type.
+  description: The RouteToHandler method in the InteractionManager class determines
+    and invokes the correct interaction handler for a given bot player, target object,
+    and interaction type. This method serves as a central dispatcher that selects
+    the appropriate response logic based on the provided parameters. It evaluates
+    the target's type, the interaction type requested, and the bot's current state
+    to route the interaction appropriately. The method is typically used within AI
+    systems where bots need to perform different actions depending on what they're
+    interacting with and how they're interacting.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that initiated
+      the interaction. Must be a valid player instance; null pointer will result in
+      undefined behavior.
+  - name: target
+    description: Pointer to the WorldObject that is the target of the interaction.
+      Can be any WorldObject subclass such as GameObject, Creature, or Item. Must
+      not be null.
+  - name: type
+    description: The InteractionType enum value indicating what kind of interaction
+      is being requested. Defines the semantic meaning of the interaction (e.g., Gossip,
+      Quest, Vendor).
+  returns: Returns an InteractionResult enum value that indicates whether the interaction
+    was successfully handled, failed, or requires further processing. Possible values
+    include SUCCESS, FAILED, CONTINUE, or other custom result codes defined by the
+    interaction system.
+  examples:
+  - title: Basic interaction routing
+    code: "InteractionResult result = interactionManager->RouteToHandler(botPlayer,\
+      \ targetObject, InteractionType::GOSSIP);\nif (result == InteractionResult::SUCCESS)\
+      \ {\n    // Handle successful gossip interaction\n}"
+    language: cpp
+  - title: Handling quest interactions
+    code: "WorldObject* questGiver = bot->GetSelectedUnit();\nInteractionResult result\
+      \ = interactionManager->RouteToHandler(bot, questGiver, InteractionType::QUEST);\n\
+      switch (result) {\n    case InteractionResult::SUCCESS:\n        // Quest accepted\
+      \ or completed\n        break;\n    case InteractionResult::FAILED:\n      \
+      \  // Could not initiate quest\n        break;\n}"
+    language: cpp
+  notes: This method is part of the core AI interaction system and should only be
+    called when a bot has determined it needs to interact with a specific target.
+    The method assumes that all input parameters are valid and properly initialized.
+    It performs no validation on inputs beyond basic null checks, so callers must
+    ensure proper state before invoking this method.
+  warnings: Calling this method with a null 'bot' or 'target' parameter will likely
+    cause a crash or undefined behavior. Ensure that the bot is in a valid state (not
+    dead, not in combat if required) and that the target exists and is accessible
+    before routing interactions.
+  related:
+  - HandleGossip
+  - HandleQuest
+  - HandleVendor
+  - GetInteractionHandler
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T05:26:31.046449'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

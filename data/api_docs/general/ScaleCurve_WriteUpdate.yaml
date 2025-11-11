@@ -1,0 +1,60 @@
+api:
+  class: ScaleCurve
+  method: WriteUpdate
+  signature: void ScaleCurve::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Writes scale curve update data to a ByteBuffer for transmission to a player
+    client.
+  description: The WriteUpdate method serializes the scale curve's current state into
+    a ByteBuffer, which is then sent to a specific player client. This method is typically
+    used in World of Warcraft's Area Trigger system where scale curves define how
+    visual effects or triggers change size over time. The method respects the ignoreChangesMask
+    parameter to determine whether to send all data or only changed fields. It requires
+    an owner AreaTrigger and target Player to properly construct the update packet
+    with relevant context information.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized scale curve data will
+      be written. This buffer is used to construct the network packet sent to the
+      client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all data fields are written regardless of their changed status; when
+      false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the AreaTrigger that owns this scale curve. Required for
+      proper context and validation during serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Used to determine
+      client-specific formatting or filtering of data.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update
+    code: 'ByteBuffer data;
+
+      ScaleCurve curve;
+
+      AreaTrigger* trigger = ...;
+
+      Player* player = ...;
+
+      curve.WriteUpdate(data, false, trigger, player);'
+    language: cpp
+  notes: This method is part of the internal update system for Area Triggers and should
+    only be called during network packet construction. The ByteBuffer must be properly
+    initialized before calling this method. Performance considerations include avoiding
+    unnecessary calls when no changes have occurred.
+  warnings: Calling this method without a valid owner AreaTrigger or receiver Player
+    may result in undefined behavior or client-side errors. Ensure that the data buffer
+    is cleared or properly managed to avoid data corruption.
+  related:
+  - ScaleCurve::ReadUpdate
+  - ScaleCurve::ApplyScale
+  - AreaTrigger::BuildUpdateData
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:07:47.952444'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

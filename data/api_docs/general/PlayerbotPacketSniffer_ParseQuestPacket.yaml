@@ -1,0 +1,61 @@
+api:
+  class: PlayerbotPacketSniffer
+  method: ParseQuestPacket
+  signature: void PlayerbotPacketSniffer::ParseQuestPacket(WorldSession * session,
+    const WorldPacket & packet)
+documentation:
+  brief: Processes incoming quest-related packets from players to extract quest data
+    and update bot behavior accordingly.
+  description: The ParseQuestPacket method is responsible for intercepting and analyzing
+    quest-related network packets sent by players within the TrinityCore environment.
+    It parses the packet contents to identify quest states, objectives, and rewards,
+    which are then used by player bots to make informed decisions about quest progression.
+    This method plays a crucial role in the bot's ability to interact with the game's
+    quest system effectively. The method operates on a per-session basis and is typically
+    invoked during packet handling within the WorldSession context. It does not modify
+    the original packet but instead extracts relevant information for internal processing.
+  parameters:
+  - name: session
+    description: Pointer to the WorldSession object representing the player connection
+      that sent the quest packet. This session contains player-specific data and is
+      used to identify which player's quest state is being processed.
+  - name: packet
+    description: Reference to the WorldPacket containing the raw quest-related data
+      received from the client. The packet structure should conform to standard World
+      of Warcraft quest packet formats, including quest IDs, states, and progress
+      information.
+  returns: null
+  examples:
+  - title: Basic Packet Parsing Example
+    code: "void MyBot::HandleQuestPacket(WorldSession* session, const WorldPacket&\
+      \ packet)\n{\n    PlayerbotPacketSniffer sniffer;\n    sniffer.ParseQuestPacket(session,\
+      \ packet);\n}"
+    language: cpp
+  - title: Integration with Bot Quest Logic
+    code: "void PlayerbotPacketSniffer::ParseQuestPacket(WorldSession* session, const\
+      \ WorldPacket& packet)\n{\n    if (!session || !packet.size())\n        return;\n\
+      \n    uint32 questId = 0;\n    uint8 questState = 0;\n    packet >> questId\
+      \ >> questState;\n\n    // Update bot's quest tracking logic\n    Player* player\
+      \ = session->GetPlayer();\n    if (player)\n    {\n        // Process quest\
+      \ state changes for the bot\n        bot_->UpdateQuestState(player, questId,\
+      \ questState);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during packet processing in the WorldSession's
+    packet handling loop. The method assumes that the packet data structure is valid
+    and conforms to expected quest packet formats. It's important to note that this
+    method only parses and processes data; it does not send any responses back to
+    the client.
+  warnings: Ensure proper session validation before calling this method, as passing
+    a null session pointer may lead to undefined behavior. Also, be aware that the
+    packet structure might vary depending on the World of Warcraft client version
+    being used.
+  related:
+  - ParsePacket
+  - HandleQuestGiverStatus
+  - UpdateQuestTracking
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T22:11:17.798643'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

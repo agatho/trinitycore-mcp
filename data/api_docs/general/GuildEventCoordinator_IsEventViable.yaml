@@ -1,0 +1,59 @@
+api:
+  class: GuildEventCoordinator
+  method: IsEventViable
+  signature: bool GuildEventCoordinator::IsEventViable(const GuildEvent & event)
+documentation:
+  brief: Determines whether a guild event is viable for execution based on current
+    game state and conditions.
+  description: The IsEventViable method evaluates if a given guild event can be executed
+    successfully at the current time. It checks various prerequisites such as player
+    availability, resource requirements, and game mechanics constraints that must
+    be met for the event to proceed. This method is typically called before attempting
+    to start or process a guild event to ensure all conditions are satisfied. The
+    evaluation considers factors like active participants, cooldown periods, and any
+    required in-game items or currency. It serves as a validation step to prevent
+    invalid or impossible events from being initiated.
+  parameters:
+  - name: event
+    description: Reference to the GuildEvent object that needs to be evaluated for
+      viability. This parameter contains all necessary information about the event
+      including its type, required resources, and conditions.
+  returns: Returns true if the guild event meets all necessary conditions and can
+    be executed successfully; returns false otherwise. A return value of false indicates
+    that at least one prerequisite or constraint has not been satisfied.
+  examples:
+  - title: Basic viability check for a guild event
+    code: "GuildEvent myEvent;\n// ... initialize event ...\nif (guildEventCoordinator.IsEventViable(myEvent))\
+      \ {\n    // Proceed with event execution\n    guildEventCoordinator.StartEvent(myEvent);\n\
+      } else {\n    // Event cannot be executed\n    SendErrorMessage(\"Event is not\
+      \ currently viable.\");\n}"
+    language: cpp
+  - title: Using viability check in event scheduling system
+    code: "void ScheduleGuildEvent(GuildEvent& event) {\n    if (guildEventCoordinator.IsEventViable(event))\
+      \ {\n        // Event is viable, schedule it\n        event.SetScheduledTime(GetNextAvailableTime());\n\
+      \        AddToEventQueue(event);\n        SendNotification(\"Event scheduled\
+      \ successfully.\");\n    } else {\n        // Check which condition failed and\
+      \ notify user\n        if (!event.HasRequiredPlayers()) {\n            SendNotification(\"\
+      Not enough players available for this event.\");\n        } else if (event.IsOnCooldown())\
+      \ {\n            SendNotification(\"This event is currently on cooldown.\");\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: The method performs checks that may involve database queries or complex game
+    state evaluations, so it should not be called excessively in performance-critical
+    sections. The implementation likely caches certain values to improve performance
+    for repeated checks on the same event type.
+  warnings: This method does not modify the event state or perform any side effects;
+    it only evaluates conditions. Be aware that an event marked as viable may still
+    fail during actual execution due to dynamic game conditions that change between
+    viability check and execution time.
+  related:
+  - StartEvent
+  - CancelEvent
+  - GetEventStatus
+  - ValidateEventRequirements
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T13:51:47.739250'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

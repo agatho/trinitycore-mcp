@@ -1,0 +1,53 @@
+api:
+  class: RoleAssignment
+  method: DetermineOptimalRole
+  signature: GroupRole RoleAssignment::DetermineOptimalRole(Player * player, Group
+    * group, RoleAssignmentStrategy strategy)
+documentation:
+  brief: Determines the optimal group role for a player based on their current state
+    and group composition.
+  description: The DetermineOptimalRole method evaluates a player's attributes, class,
+    specialization, and current group dynamics to assign them the most suitable role
+    within a group context. This method is typically used in group management systems
+    to dynamically adjust roles such as tank, healer, or damage dealer based on the
+    needs of the group and the player's capabilities. The assignment considers factors
+    like player level, gear, class role distribution, and group strategy settings.
+    It ensures optimal team composition for dungeons, raids, and other group content
+    by intelligently assigning roles that maximize group performance.
+  parameters: []
+  returns: Returns a GroupRole enum value indicating the recommended role for the
+    player within the specified group. Possible values include GROUP_ROLE_TANK, GROUP_ROLE_HEALER,
+    GROUP_ROLE_DAMAGE, or GROUP_ROLE_NONE if no suitable role can be determined.
+  examples:
+  - title: Basic Role Assignment
+    code: "GroupRole role = roleAssignment->DetermineOptimalRole(player, group, ROLE_STRATEGY_DEFAULT);\n\
+      if (role != GROUP_ROLE_NONE)\n{\n    // Assign player to the determined role\n\
+      \    player->SetGroupRole(role);\n}"
+    language: cpp
+  - title: Dynamic Role Reassignment
+    code: "void UpdatePlayerRole(Player* player, Group* group)\n{\n    if (group &&\
+      \ group->IsInLFG())\n    {\n        GroupRole newRole = roleAssignment->DetermineOptimalRole(player,\
+      \ group, ROLE_STRATEGY_LFG);\n        if (newRole != player->GetGroupRole())\n\
+      \        {\n            player->SetGroupRole(newRole);\n            // Notify\
+      \ player of role change\n            player->SendSystemMessage(\"Your role has\
+      \ been updated to \" + GetRoleName(newRole));\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called during group formation, role reassignment
+    events, or when players join/leave groups. The implementation may cache previous
+    assignments for performance optimization but will recalculate when significant
+    changes occur in group composition or player state.
+  warnings: The method assumes that the player and group parameters are valid and
+    not null. Calling this method with invalid parameters may lead to undefined behavior.
+    Additionally, role assignments should be synchronized across the group to prevent
+    conflicts during combat situations.
+  related:
+  - GetGroupRole
+  - SetGroupRole
+  - UpdateGroupRoles
+  - ValidateRoleAssignment
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:29:16.107275'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

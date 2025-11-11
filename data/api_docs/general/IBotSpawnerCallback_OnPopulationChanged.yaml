@@ -1,0 +1,53 @@
+api:
+  class: IBotSpawnerCallback
+  method: OnPopulationChanged
+  signature: void IBotSpawnerCallback::OnPopulationChanged(uint32 zoneId, uint32 oldCount,
+    uint32 newCount)
+documentation:
+  brief: Notifies when the population count of bots in a specific zone has changed
+  description: The OnPopulationChanged method is invoked by the bot spawner system
+    to inform registered callbacks about changes in the number of active bots within
+    a given zone. This callback mechanism allows systems to react to dynamic population
+    shifts, such as when bots are spawned, despawned, or removed due to various game
+    events. The method provides the zone identifier along with the previous and current
+    population counts, enabling precise tracking of bot activity. It is typically
+    used for maintaining synchronization between different subsystems that depend
+    on accurate bot population data.
+  parameters:
+  - name: zoneId
+    description: Unique identifier of the zone where the bot population has changed.
+      This value corresponds to a specific area in the game world, such as a battleground
+      or instance.
+  - name: oldCount
+    description: The previous number of bots present in the specified zone before
+      the change occurred.
+  - name: newCount
+    description: The updated number of bots currently present in the specified zone
+      after the change occurred.
+  returns: null
+  examples:
+  - title: Basic Implementation of Population Change Handler
+    code: "class MyBotSpawnerCallback : public IBotSpawnerCallback {\npublic:\n  \
+      \  void OnPopulationChanged(uint32 zoneId, uint32 oldCount, uint32 newCount)\
+      \ override {\n        if (newCount > oldCount) {\n            // Handle bot\
+      \ spawn event\n            sLog->outString(\"Bots spawned in zone %u: %u ->\
+      \ %u\", zoneId, oldCount, newCount);\n        } else if (newCount < oldCount)\
+      \ {\n            // Handle bot despawn event\n            sLog->outString(\"\
+      Bots despawned in zone %u: %u -> %u\", zoneId, oldCount, newCount);\n      \
+      \  }\n    }\n};"
+    language: cpp
+  notes: This method is called from the main game thread and should not perform long-running
+    operations. It's intended for lightweight notifications only. The callback system
+    ensures that all registered implementations receive the notification, but developers
+    must ensure their implementations are efficient to avoid performance bottlenecks.
+  warnings: Do not modify bot population counts directly within this method unless
+    absolutely necessary, as it may lead to race conditions or infinite recursion.
+    Avoid performing heavy computations or blocking operations inside this callback
+    to maintain game responsiveness.
+  related: []
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:51:42.464944'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

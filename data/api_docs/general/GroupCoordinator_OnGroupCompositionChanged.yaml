@@ -1,0 +1,55 @@
+api:
+  class: GroupCoordinator
+  method: OnGroupCompositionChanged
+  signature: void GroupCoordinator::OnGroupCompositionChanged(const struct GroupEvent
+    & event)
+documentation:
+  brief: Handles changes to group composition events such as member joins, leaves,
+    or role updates
+  description: The OnGroupCompositionChanged method is invoked when there is a modification
+    to the group's membership structure. This includes players joining or leaving
+    the group, changes in group leader status, or updates to roles such as main tank
+    or main healer. The method processes these events to maintain internal group state
+    consistency and may trigger related actions like updating loot settings, reassigning
+    roles, or notifying other subsystems of the change. It is typically called by
+    the group management system when a GroupEvent occurs, ensuring that all components
+    depending on group composition remain synchronized.
+  parameters:
+  - name: event
+    description: A constant reference to a GroupEvent structure containing details
+      about the composition change including the type of event (join, leave, leader
+      change), affected members, and any relevant metadata.
+  returns: null
+  examples:
+  - title: Processing a player join event
+    code: "void GroupCoordinator::OnGroupCompositionChanged(const struct GroupEvent&\
+      \ event) {\n    if (event.type == GroupEventType::PLAYER_JOINED) {\n       \
+      \ // Update internal tracking of group members\n        AddMember(event.playerGuid);\n\
+      \        // Notify subsystems about new member\n        NotifySubsystemsOfNewMember(event.playerGuid);\n\
+      \    }\n}"
+    language: cpp
+  - title: Handling leader change event
+    code: "void GroupCoordinator::OnGroupCompositionChanged(const struct GroupEvent&\
+      \ event) {\n    if (event.type == GroupEventType::LEADER_CHANGED) {\n      \
+      \  // Update group leader in internal state\n        SetLeader(event.newLeaderGuid);\n\
+      \        // Reassign loot settings if necessary\n        ReassignLootSettings();\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is expected to be called from the main game thread and should
+    not perform heavy computations. It is designed to quickly process group composition
+    changes and delegate more complex logic to appropriate subsystems. The GroupEvent
+    parameter must be valid and fully populated with correct event data.
+  warnings: Improper handling of this method can lead to inconsistent group state,
+    incorrect loot distribution, or invalid role assignments. Ensure that all internal
+    state updates are atomic and thread-safe if accessed from multiple threads.
+  related:
+  - GroupCoordinator::OnPlayerJoined
+  - GroupCoordinator::OnPlayerLeft
+  - GroupCoordinator::SetLeader
+  - GroupCoordinator::AddMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:28:49.877671'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: FlightMasterManager
+  method: CalculateDestinationPriority
+  signature: DestinationPriority FlightMasterManager::CalculateDestinationPriority(uint32
+    nodeId, const TaxiNodesEntry * nodeEntry) const
+documentation:
+  brief: Calculates and returns the priority of a taxi node destination based on its
+    properties and player context.
+  description: The CalculateDestinationPriority method determines the priority level
+    of a given taxi node destination within the FlightMasterManager system. This priority
+    is used to sort and display available flight paths to players, ensuring that the
+    most relevant or accessible destinations are presented first. The calculation
+    considers various factors such as node type, player faction, quest completion
+    status, and proximity to the player's current location. The method takes a node
+    ID and its corresponding TaxiNodesEntry data to perform this evaluation. This
+    functionality is crucial for maintaining an organized and user-friendly flight
+    path interface in World of Warcraft's taxi system.
+  parameters:
+  - name: nodeId
+    description: The unique identifier of the taxi node to evaluate. This ID corresponds
+      to entries in the TaxiNodes database table.
+  - name: nodeEntry
+    description: Pointer to the TaxiNodesEntry structure containing detailed information
+      about the taxi node, including its location, faction requirements, and other
+      properties.
+  returns: Returns a DestinationPriority enum value indicating the calculated priority
+    of the specified taxi node. Higher values typically represent higher priority
+    destinations, though exact ordering may depend on implementation details.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 nodeId = 1234;\nconst TaxiNodesEntry* nodeEntry = sTaxiNodesStore.LookupEntry(nodeId);\n\
+      if (nodeEntry)\n{\n    DestinationPriority priority = flightMasterManager.CalculateDestinationPriority(nodeId,\
+      \ nodeEntry);\n    // Use the priority value for sorting or display logic\n}"
+    language: cpp
+  - title: Integration with Flight Path Sorting
+    code: "std::vector<std::pair<uint32, DestinationPriority>> sortedDestinations;\n\
+      for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); ++i)\n{\n    const TaxiNodesEntry*\
+      \ entry = sTaxiNodesStore.LookupEntry(i);\n    if (entry)\n    {\n        DestinationPriority\
+      \ priority = flightMasterManager.CalculateDestinationPriority(i, entry);\n \
+      \       sortedDestinations.emplace_back(i, priority);\n    }\n}\nsort(sortedDestinations.begin(),\
+      \ sortedDestinations.end(), [](const auto& a, const auto& b) {\n    return a.second\
+      \ > b.second; // Sort by descending priority\n});"
+    language: cpp
+  notes: This method likely performs internal caching or optimization to avoid recalculating
+    priorities for frequently accessed nodes. The exact algorithm used to compute
+    the priority is not publicly documented but may involve factors like player level,
+    faction alignment, quest completion status, and node accessibility.
+  warnings: Ensure that the provided nodeId and nodeEntry are valid before calling
+    this method, as invalid inputs could lead to undefined behavior or incorrect priority
+    calculations. This method should only be called when the TaxiNodesEntry is fully
+    loaded and valid.
+  related:
+  - GetTaxiPath
+  - IsTaxiPathEnabled
+  - GetNodeForPlayer
+  - UpdateTaxiPath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:44:41.478480'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

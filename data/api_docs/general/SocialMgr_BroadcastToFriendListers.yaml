@@ -1,0 +1,73 @@
+api:
+  class: SocialMgr
+  method: BroadcastToFriendListers
+  signature: void SocialMgr::BroadcastToFriendListers(Player * player, const WorldPacket
+    * packet)
+documentation:
+  brief: Sends a packet to all players who have the specified player on their friend
+    list.
+  description: The BroadcastToFriendListers method is used in TrinityCore's SocialMgr
+    class to deliver a specific WorldPacket to all online players who have the given
+    player marked as a friend. This functionality supports the game's social system
+    by enabling features such as group invitations, messages, or status updates that
+    should only be visible to friends. The method iterates through the friend list
+    of the specified player and sends the packet to each online friend. It does not
+    send the packet to the originating player themselves. This is typically used for
+    broadcasting social-related information across a player's friend network without
+    flooding the entire server.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose friend list will be checked. This
+      player is the source of the broadcast and will not receive the packet themselves.
+  - name: packet
+    description: Pointer to a WorldPacket containing the data to be sent to all online
+      friends of the specified player. The packet must be properly constructed before
+      calling this method.
+  returns: null
+  examples:
+  - title: Broadcasting a Group Invitation
+    code: 'Player* inviter = ...; // Assume player is already initialized
+
+      WorldPacket packet(SMSG_GROUP_INVITE);
+
+      packet << uint8(0); // Invite status
+
+      packet << std::string("Hello, join my group!");
+
+      // Broadcast the invitation to all friends
+
+      sSocialMgr->BroadcastToFriendListers(inviter, &packet);'
+    language: cpp
+  - title: Sending a Custom Message to Friends
+    code: 'Player* sender = ...;
+
+      WorldPacket messagePacket(CMSG_MESSAGECHAT);
+
+      messagePacket << uint32(CHAT_MSG_CHANNEL);
+
+      messagePacket << uint32(0); // Language
+
+      messagePacket << std::string("Hey friends!");
+
+      sSocialMgr->BroadcastToFriendListers(sender, &messagePacket);'
+    language: cpp
+  notes: This method only sends packets to online players who are on the friend list.
+    Offline players or those not in the friend list will not receive the packet. The
+    implementation relies on internal player tracking and social system data structures,
+    so performance can be affected by large friend lists or high server load. Ensure
+    that the WorldPacket passed is valid and properly formatted before calling this
+    method.
+  warnings: Do not use this method to broadcast sensitive information without considering
+    privacy implications. Since it sends packets to all online friends, it may expose
+    data to unintended recipients if used inappropriately. Also, be cautious about
+    packet size and frequency of calls to avoid network flooding or performance degradation.
+  related:
+  - SocialMgr::AddFriend
+  - SocialMgr::RemoveFriend
+  - SocialMgr::GetFriendList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T19:03:06.171574'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

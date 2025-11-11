@@ -1,0 +1,77 @@
+api:
+  class: PassiveSpellHistory
+  method: WriteUpdate
+  signature: void PassiveSpellHistory::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Unit * owner, const Player * receiver) const
+documentation:
+  brief: Serializes passive spell history data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of passive spell
+    history information into a provided ByteBuffer, preparing it for network transmission
+    to a specific player. This method is typically used during packet construction
+    to synchronize passive spell cooldowns and related data between the server and
+    client. The serialization process respects the ignoreChangesMask flag which determines
+    whether all data should be sent regardless of change status, or only changed fields.
+    The owner parameter specifies the Unit (typically a Player) whose spell history
+    is being serialized, while the receiver parameter identifies the target Player
+    who will receive this data.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized passive spell history
+      data will be written. This buffer is typically used to construct network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all data is written regardless of whether it has changed since last
+      update; when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Unit (typically a Player) whose passive spell history
+      data is being serialized. This represents the source of the data being sent.
+  - name: receiver
+    description: Pointer to the Player who will receive this serialized data. Used
+      for determining visibility and access permissions during serialization.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      PassiveSpellHistory spellHistory;
+
+      Player* owner = ...; // some player
+
+      Player* receiver = ...; // target player
+
+      spellHistory.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a network packet'
+    language: cpp
+  - title: Force update with ignore mask
+    code: 'ByteBuffer data;
+
+      PassiveSpellHistory spellHistory;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      spellHistory.WriteUpdate(data, true, owner, receiver);
+
+      // Forces full serialization regardless of change status'
+    language: cpp
+  notes: This method is part of the TrinityCore's spell history system and is typically
+    invoked during packet preparation for player updates. The implementation likely
+    uses bitmasks to track which fields have changed, making it efficient for incremental
+    updates. It should only be called when the data needs to be sent over the network.
+  warnings: Calling this method without proper initialization of the ByteBuffer may
+    lead to undefined behavior. Ensure that the owner and receiver parameters are
+    valid pointers before calling this method. The ignoreChangesMask parameter can
+    significantly impact performance if set to true unnecessarily.
+  related:
+  - GetSpellHistory
+  - UpdateSpellHistory
+  - ClearSpellHistory
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:48:13.986212'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,76 @@
+api:
+  class: ArenaCooldown
+  method: WriteUpdate
+  signature: void ArenaCooldown::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes arena cooldown data into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the current state of arena cooldown
+    information into a ByteBuffer, which is then sent over the network to a designated
+    receiver. This method is typically used during packet construction for updating
+    client-side arena cooldown timers. The serialization process respects the ignoreChangesMask
+    flag, allowing selective updates based on change tracking. It requires both the
+    owner (player who has the cooldown) and receiver (player getting the update) to
+    be provided for proper context. This method is part of the arena system's synchronization
+    mechanism in TrinityCore's PvP framework.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized arena cooldown data
+      will be written. This buffer is typically used to construct network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks when
+      serializing. If true, all cooldown data is written regardless of change status;
+      if false, only changed data is serialized.
+  - name: owner
+    description: Pointer to the Player object who owns the arena cooldown state. This
+      player's cooldown information will be serialized.
+  - name: receiver
+    description: Pointer to the Player object who will receive this cooldown update.
+      Used for context-specific serialization and packet targeting.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      ArenaCooldown cooldown;
+
+      Player* owner = ...; // Get player with arena cooldown
+
+      Player* receiver = ...; // Get target player
+
+      cooldown.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a network packet'
+    language: cpp
+  - title: Force update ignoring change tracking
+    code: 'ByteBuffer data;
+
+      ArenaCooldown cooldown;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      cooldown.WriteUpdate(data, true, owner, receiver);
+
+      // Forces full serialization regardless of change status'
+    language: cpp
+  notes: This method is typically called during packet preparation for PvP-related
+    updates. The ByteBuffer should be properly initialized before calling this method.
+    The owner and receiver parameters are crucial for determining the correct serialization
+    context, especially in cross-player arena scenarios.
+  warnings: Ensure that both owner and receiver pointers are valid before calling
+    this method to prevent null pointer dereferences. The ignoreChangesMask parameter
+    can impact performance if set to true unnecessarily, as it bypasses change tracking
+    optimizations.
+  related:
+  - ArenaCooldown::ReadUpdate
+  - ArenaCooldown::Reset
+  - ArenaCooldown::IsReady
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T09:18:51.221104'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: QuestPickup
+  method: WaitForGroupQuestDecisions
+  signature: void QuestPickup::WaitForGroupQuestDecisions(Group * group, uint32 questId,
+    uint32 timeoutMs)
+documentation:
+  brief: Waits for group members to make quest pickup decisions within a specified
+    timeout period.
+  description: The WaitForGroupQuestDecisions method is used in TrinityCore's quest
+    system to synchronize quest pickup decisions among group members. It blocks execution
+    until all eligible group members have made their decision or the specified timeout
+    period has elapsed. This ensures that quest progression is handled consistently
+    across group members, particularly important for quests that require coordinated
+    actions or shared rewards. The method operates on a Group object and waits for
+    individual player responses to a specific quest ID. It's typically used during
+    quest initiation or acceptance phases where group coordination is necessary.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing players who need to make quest
+      decisions. Must be a valid group instance with at least one member.
+  - name: questId
+    description: The unique identifier of the quest for which group members must decide
+      whether to accept or decline. Must correspond to a valid quest in the game database.
+  - name: timeoutMs
+    description: Maximum time in milliseconds to wait for all group members to make
+      their decisions. If zero, waits indefinitely until all members respond.
+  returns: null
+  examples:
+  - title: Basic usage with a 30-second timeout
+    code: 'Group* myGroup = player->GetGroup();
+
+      uint32 questId = 12345;
+
+      uint32 timeoutMs = 30000;
+
+      questPickup->WaitForGroupQuestDecisions(myGroup, questId, timeoutMs);'
+    language: cpp
+  - title: Infinite wait for group quest decisions
+    code: 'Group* group = player->GetGroup();
+
+      uint32 questId = 67890;
+
+      questPickup->WaitForGroupQuestDecisions(group, questId, 0); // Wait indefinitely'
+    language: cpp
+  notes: This method is designed to be thread-safe and should only be called from
+    within the game's main thread context. It internally handles synchronization between
+    group members using TrinityCore's internal quest decision tracking system. The
+    timeout mechanism ensures that the game doesn't hang indefinitely if players don't
+    respond, which could occur in cases of disconnected players or client issues.
+  warnings: Calling this method with a zero timeout may cause indefinite blocking
+    if not all group members respond, potentially leading to performance issues. It's
+    recommended to always specify a reasonable timeout value. Also, ensure that the
+    Group pointer is valid and contains at least one member before calling this method.
+  related:
+  - QuestPickup::StartGroupQuest
+  - QuestPickup::SendQuestDecision
+  - Group::GetMembers
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:24:39.486813'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

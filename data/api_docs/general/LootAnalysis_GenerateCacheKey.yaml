@@ -1,0 +1,56 @@
+api:
+  class: LootAnalysis
+  method: GenerateCacheKey
+  signature: uint64 LootAnalysis::GenerateCacheKey(uint32 playerGuid, uint32 itemId)
+documentation:
+  brief: Generates a unique cache key for loot analysis based on player and item identifiers.
+  description: The GenerateCacheKey method creates a 64-bit unique identifier by combining
+    a player's global identifier (GUID) and an item's identifier. This cache key is
+    used to efficiently store and retrieve loot analysis data in memory, preventing
+    redundant computations when the same player loots the same item multiple times.
+    The method ensures that each combination of player and item results in a distinct
+    cache key, which is essential for maintaining accurate loot statistics within
+    the TrinityCore framework.
+  parameters:
+  - name: playerGuid
+    description: The unique global identifier (GUID) of the player who looted the
+      item. This value typically corresponds to the entry in the database's 'guid'
+      column for the player character.
+  - name: itemId
+    description: The unique identifier of the item that was looted. This represents
+      the item's entry in the database's 'entry' column within the item template table.
+  returns: A 64-bit unsigned integer (uint64) representing a unique cache key derived
+    from the combination of player GUID and item ID. The returned value is guaranteed
+    to be unique for each distinct pair of playerGuid and itemId, enabling efficient
+    lookup in hash-based data structures.
+  examples:
+  - title: Basic Usage Example
+    code: uint64 cacheKey = lootAnalysis.GenerateCacheKey(12345u, 98765u); // Generates
+      a unique key for player 12345 looting item 98765
+    language: cpp
+  - title: Integration with Loot Analysis System
+    code: "uint32 playerId = player->GetGUID().GetCounter();\nuint32 itemId = itemTemplate->ItemId;\n\
+      uint64 key = lootAnalysis.GenerateCacheKey(playerId, itemId);\n// Use 'key'\
+      \ to store or retrieve loot analysis data\nif (lootAnalysis.HasCachedResult(key))\
+      \ {\n    // Retrieve cached result\n} else {\n    // Perform analysis and cache\
+      \ result\n    lootAnalysis.CacheResult(key, analysisData);\n}"
+    language: cpp
+  notes: This method uses a bit-shifting technique to combine two 32-bit values into
+    a single 64-bit key. It assumes that both playerGuid and itemId are valid non-zero
+    identifiers. The implementation may be subject to performance optimizations in
+    high-frequency scenarios, such as when processing large numbers of loot events
+    per second.
+  warnings: Ensure that playerGuid and itemId parameters are valid before calling
+    this method. Invalid or zero values could lead to unexpected behavior or collisions
+    in the cache system. Avoid reusing the same key for different combinations of
+    player and item, as it may cause incorrect data retrieval.
+  related:
+  - LootAnalysis::CacheResult
+  - LootAnalysis::HasCachedResult
+  - LootAnalysis::GetCachedResult
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:25:00.520994'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,77 @@
+api:
+  class: AreaTriggerBox
+  method: WriteUpdate
+  signature: void AreaTriggerBox::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger box data into a ByteBuffer for client updates.
+  description: The WriteUpdate method serializes the state of an AreaTriggerBox object
+    into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically invoked during packet construction for area trigger updates,
+    ensuring that the client receives accurate information about the area trigger's
+    properties and current state. The serialization process respects the provided
+    owner and receiver context, allowing for conditional data inclusion based on visibility
+    rules. It handles the encoding of relevant fields such as position, dimensions,
+    and any active effects associated with the area trigger box.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger box data
+      will be written. This buffer is used to construct the update packet sent to
+      the client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      data. If true, all fields are included regardless of their changed status; if
+      false, only fields marked as changed are serialized.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this area trigger box.
+      Used to determine ownership context and apply owner-specific logic during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update packet.
+      The serialization may be adjusted based on the receiver's visibility or permission
+      settings.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Packet Construction
+    code: 'ByteBuffer data;
+
+      AreaTriggerBox box;
+
+      Player* player = ...; // Get player reference
+
+      AreaTrigger* trigger = ...; // Get area trigger reference
+
+      box.WriteUpdate(data, false, trigger, player);
+
+      // Send ''data'' as part of an update packet to the player'
+    language: cpp
+  - title: Force Full Update for Specific Player
+    code: 'ByteBuffer data;
+
+      AreaTriggerBox box;
+
+      Player* player = ...;
+
+      AreaTrigger* trigger = ...;
+
+      box.WriteUpdate(data, true, trigger, player);
+
+      // Forces serialization of all fields, ignoring change tracking'
+    language: cpp
+  notes: This method is part of the packet update system in TrinityCore and is typically
+    called internally by the update manager. Developers should be aware that the buffer
+    passed to this method must have sufficient capacity to hold the serialized data.
+    The method assumes proper initialization of the AreaTriggerBox object before calling.
+  warnings: Improper use of the ignoreChangesMask parameter can lead to unnecessary
+    bandwidth usage or incorrect client state updates. Always ensure that the owner
+    and receiver parameters are valid pointers to avoid undefined behavior during
+    serialization.
+  related:
+  - AreaTriggerBox::Update
+  - AreaTriggerBox::BuildUpdateData
+  - AreaTrigger::SendUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:27:55.620913'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

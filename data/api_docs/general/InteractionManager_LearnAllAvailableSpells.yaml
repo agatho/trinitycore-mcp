@@ -1,0 +1,62 @@
+api:
+  class: InteractionManager
+  method: LearnAllAvailableSpells
+  signature: bool InteractionManager::LearnAllAvailableSpells(Player * bot, Creature
+    * trainer)
+documentation:
+  brief: Teaches all available spells to a player from a trainer creature.
+  description: The LearnAllAvailableSpells method iterates through all trainable spells
+    available from the specified trainer creature and teaches them to the given player
+    character. This method is typically used in AI scripts or quest systems where
+    automated learning of skills or spells is required. It checks if each spell is
+    learnable by the player based on prerequisites such as level requirements, skill
+    levels, and class restrictions. The method returns true if at least one spell
+    was successfully learned, false otherwise.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object that will receive the spells. Must be
+      a valid player instance.
+  - name: trainer
+    description: Pointer to the Creature object acting as the trainer. Must be a valid
+      trainer creature with trainable spells.
+  returns: True if at least one spell was successfully learned by the player, false
+    if no spells could be learned or if an error occurred during processing.
+  examples:
+  - title: Basic Usage Example
+    code: "Player* player = ...;\nCreature* trainer = ...;\nInteractionManager interactionManager;\n\
+      bool result = interactionManager.LearnAllAvailableSpells(player, trainer);\n\
+      if (result)\n{\n    // At least one spell was learned\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Successfully learned available spells.\");\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "Player* player = ...;\nCreature* trainer = ...;\nInteractionManager interactionManager;\n\
+      \nif (!player || !trainer)\n{\n    sLog->outError(\"Invalid player or trainer\
+      \ pointer\");\n    return false;\n}\n\n// Ensure trainer is actually a trainer\n\
+      if (!trainer->IsTrainer())\n{\n    sLog->outError(\"Specified creature is not\
+      \ a trainer\");\n    return false;\n}\n\nbool result = interactionManager.LearnAllAvailableSpells(player,\
+      \ trainer);\nif (result)\n{\n    player->SendUpdateWorldState(PLAYER_UPDATE_SPELLS,\
+      \ 1);\n    sLog->outDebug(LOG_FILTER_GENERAL, \"Player %s learned available\
+      \ spells from trainer %s\", player->GetName().c_str(), trainer->GetName().c_str());\n\
+      }\nelse\n{\n    sLog->outDebug(LOG_FILTER_GENERAL, \"No spells were learned\
+      \ for player %s from trainer %s\", player->GetName().c_str(), trainer->GetName().c_str());\n\
+      }"
+    language: cpp
+  notes: This method relies on the underlying spell learning system of TrinityCore
+    and respects all standard game mechanics including level requirements, skill prerequisites,
+    and class restrictions. It may not work correctly if called outside of appropriate
+    contexts such as during combat or when player is in an invalid state. The implementation
+    assumes that both Player and Creature pointers are valid and properly initialized.
+  warnings: Calling this method without ensuring the trainer is actually a trainer
+    creature can lead to undefined behavior. Also, be cautious about calling it repeatedly
+    in rapid succession as it may cause performance issues due to multiple database
+    operations or packet sends.
+  related:
+  - LearnSpell
+  - CanLearnSpell
+  - GetTrainerSpells
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T02:24:26.173507'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

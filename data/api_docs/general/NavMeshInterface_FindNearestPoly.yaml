@@ -1,0 +1,76 @@
+api:
+  class: NavMeshInterface
+  method: FindNearestPoly
+  signature: bool NavMeshInterface::FindNearestPoly(const dtNavMeshQuery * query,
+    const float * point, const float * extents, uint32 & polyRef, float * nearestPt)
+    const
+documentation:
+  brief: Finds the nearest polygon to a given point within specified extents.
+  description: The FindNearestPoly method searches for the closest navigable polygon
+    to a provided 3D point, considering the specified search extents. It is commonly
+    used in pathfinding and navigation systems to determine valid movement areas near
+    a character or object position. The method utilizes the Detour navigation mesh
+    query system to perform efficient spatial queries. This function is essential
+    for AI behavior, player movement validation, and ensuring entities remain within
+    navigable terrain. The result includes both the polygon reference and the actual
+    nearest point on that polygon's surface.
+  parameters:
+  - name: query
+    description: A pointer to the dtNavMeshQuery object used for performing the navigation
+      mesh query operations. Must not be null.
+  - name: point
+    description: A float array of size 3 representing the 3D coordinates (x, y, z)
+      from which to search for the nearest polygon.
+  - name: extents
+    description: A float array of size 3 defining the search extents in x, y, z directions.
+      These determine how far the search extends from the point in each axis.
+  - name: polyRef
+    description: Reference to a uint32 variable that will be filled with the polygon
+      reference ID of the nearest found polygon. This value can be used for further
+      navigation mesh operations.
+  - name: nearestPt
+    description: A float array of size 3 that will be populated with the actual 3D
+      coordinates of the nearest point on the found polygon's surface.
+  returns: Returns true if a valid polygon is found within the specified extents;
+    otherwise returns false. A return value of false typically indicates that no navigable
+    polygon exists in the vicinity, which may occur when querying outside of valid
+    navigation areas.
+  examples:
+  - title: Basic usage to find nearest polygon
+    code: "float point[3] = {100.0f, 200.0f, 300.0f};\nfloat extents[3] = {5.0f, 10.0f,\
+      \ 5.0f};\nuint32 polyRef;\nfloat nearestPt[3];\nbool found = navMeshInterface->FindNearestPoly(query,\
+      \ point, extents, polyRef, nearestPt);\nif (found)\n{\n    // Use polyRef and\
+      \ nearestPt for further navigation logic\n}"
+    language: cpp
+  - title: Using FindNearestPoly in AI pathfinding
+    code: "class AIUnit\n{\npublic:\n    bool MoveToPosition(float x, float y, float\
+      \ z)\n    {\n        float point[3] = {x, y, z};\n        float extents[3] =\
+      \ {2.0f, 4.0f, 2.0f};\n        uint32 polyRef;\n        float nearestPt[3];\n\
+      \        \n        if (navMeshInterface->FindNearestPoly(query, point, extents,\
+      \ polyRef, nearestPt))\n        {\n            // Proceed with pathfinding using\
+      \ the found polygon\n            return true;\n        }\n        else\n   \
+      \     {\n            // Cannot move to this location due to invalid navigation\n\
+      \            return false;\n        }\n    }\n};"
+    language: cpp
+  notes: This method is part of the Detour navigation system integration in TrinityCore.
+    It assumes that the provided dtNavMeshQuery has been properly initialized with
+    a valid navigation mesh. The extents parameter controls how wide the search area
+    is, so larger values may increase computation time but also improve chances of
+    finding a polygon. Performance can be optimized by ensuring the query object is
+    reused rather than recreated for each call.
+  warnings: Ensure that the input point coordinates are within reasonable bounds for
+    the navigation mesh to avoid unexpected behavior or errors. Passing null pointers
+    for query, polyRef, or nearestPt will likely cause crashes or undefined behavior.
+    The method may return false even if a polygon exists nearby if it's not considered
+    valid by the navigation mesh criteria.
+  related:
+  - FindPath
+  - MoveAlongSurface
+  - Raycast
+  - FindNearestPointOnPoly
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T23:10:34.701093'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

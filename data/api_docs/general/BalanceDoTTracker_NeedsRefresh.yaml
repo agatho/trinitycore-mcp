@@ -1,0 +1,56 @@
+api:
+  class: BalanceDoTTracker
+  method: NeedsRefresh
+  signature: bool BalanceDoTTracker::NeedsRefresh(int guid, uint32 spellId, uint32
+    pandemicWindow) const
+documentation:
+  brief: Determines whether a Balance spell DoT requires refreshing based on pandemic
+    rules and current state
+  description: The NeedsRefresh method evaluates if a Damage over Time (DoT) effect
+    from a Balance spell should be refreshed rather than allowed to fall off naturally.
+    This decision is made according to the pandemic window mechanics, which allow
+    for refreshing DoTs even when they are still active, provided the remaining duration
+    is within a specified threshold. The method checks the GUID of the target and
+    the spell ID of the DoT to determine if the refresh logic applies. It returns
+    true when the DoT should be refreshed to maintain optimal damage output or resource
+    efficiency.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit affected by the DoT
+  - name: spellId
+    description: The ID of the spell that applies the DoT effect to the target
+  - name: pandemicWindow
+    description: The time window (in milliseconds) during which a DoT can be refreshed
+      before it expires naturally
+  returns: Returns true if the DoT should be refreshed according to pandemic rules;
+    otherwise returns false
+  examples:
+  - title: Basic usage in spell handling logic
+    code: "if (balanceDoTTracker.NeedsRefresh(targetGuid, SPELL_MOONFIRE, PANDMIC_WINDOW_MS))\
+      \ {\n    // Refresh the DoT on target\n    caster->CastSpell(target, SPELL_MOONFIRE,\
+      \ true);\n}"
+    language: cpp
+  - title: Checking multiple DoTs for refresh eligibility
+    code: "uint32 spellIds[] = {SPELL_MOONFIRE, SPELL_STARFIRE, SPELL_INSECT_SWARM};\n\
+      for (uint32 spellId : spellIds) {\n    if (balanceDoTTracker.NeedsRefresh(targetGuid,\
+      \ spellId, PANDMIC_WINDOW_MS)) {\n        // Handle DoT refresh logic\n    \
+      \    DoTRefreshHandler(caster, target, spellId);\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with other DoT tracking mechanisms
+    to manage spell rotation and maximize damage per second (DPS). The pandemic window
+    value is usually defined by game mechanics and may vary between different Balance
+    spells. Implementation assumes that the tracker maintains internal state about
+    active DoTs.
+  warnings: Incorrectly using this method without proper initialization of the DoT
+    tracker can lead to unexpected behavior or incorrect spell refresh decisions.
+    Ensure that all relevant GUIDs and spell IDs are valid before calling this function.
+  related:
+  - BalanceDoTTracker::AddDot
+  - BalanceDoTTracker::RemoveDot
+  - BalanceDoTTracker::IsDotActive
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T03:50:59.024055'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

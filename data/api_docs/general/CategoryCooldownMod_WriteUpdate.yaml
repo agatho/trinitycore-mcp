@@ -1,0 +1,80 @@
+api:
+  class: CategoryCooldownMod
+  method: WriteUpdate
+  signature: void CategoryCooldownMod::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes category cooldown modifications into a data buffer for network
+    transmission to a specific player.
+  description: The WriteUpdate method of the CategoryCooldownMod class serializes
+    the current state of category cooldown modifications into a ByteBuffer, which
+    is typically used for sending updates over the network. This method allows for
+    selective serialization based on changes and supports different behaviors when
+    sending to the owner versus another receiver. It ensures that only relevant data
+    is transmitted, optimizing bandwidth usage. The method takes into account whether
+    to ignore the changes mask, which can be useful in certain synchronization scenarios
+    where a full update is required regardless of modification status.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer object where the serialized category cooldown
+      data will be written. This buffer is typically used for constructing network
+      packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the internal changes mask.
+      If true, all data is written regardless of modification status; if false, only
+      changed data is serialized.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the category
+      cooldown modifications. Used to determine what data should be included in the
+      update based on ownership context.
+  - name: receiver
+    description: Pointer to the Player object representing the target receiver of
+      the update. This allows for different serialization behavior depending on who
+      is receiving the data, such as hiding certain cooldowns from specific players.
+  returns: null
+  examples:
+  - title: Basic usage in a player update context
+    code: 'ByteBuffer data;
+
+      CategoryCooldownMod mod;
+
+      Player* owner = ...; // Get current player
+
+      Player* receiver = ...; // Target player
+
+      mod.WriteUpdate(data, false, owner, receiver);
+
+      // Send data over network to receiver'
+    language: cpp
+  - title: Forcing full update with ignoreChangesMask
+    code: 'ByteBuffer data;
+
+      CategoryCooldownMod mod;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      mod.WriteUpdate(data, true, owner, receiver);
+
+      // Force send all cooldown data regardless of changes'
+    language: cpp
+  notes: This method is part of the TrinityCore's network update system. It's designed
+    to work with the player's update mask system and should be called during the appropriate
+    update phase of a player's state serialization. The method may internally check
+    for changes, but this behavior can be overridden by setting ignoreChangesMask
+    to true.
+  warnings: Ensure that the owner and receiver pointers are valid before calling this
+    method, as invalid pointers could lead to undefined behavior or crashes. Also,
+    be cautious when using ignoreChangesMask=true in high-frequency update scenarios
+    as it may increase bandwidth usage unnecessarily.
+  related:
+  - CategoryCooldownMod::Update
+  - CategoryCooldownMod::Reset
+  - CategoryCooldownMod::IsChanged
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T07:17:49.881673'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

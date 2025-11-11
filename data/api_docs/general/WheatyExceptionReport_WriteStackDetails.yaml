@@ -1,0 +1,63 @@
+api:
+  class: WheatyExceptionReport
+  method: WriteStackDetails
+  signature: void WheatyExceptionReport::WriteStackDetails(PCONTEXT pContext, bool
+    bWriteVariables, HANDLE pThreadHandle)
+documentation:
+  brief: Writes detailed stack information including variable contents when an exception
+    occurs.
+  description: The WriteStackDetails method is responsible for capturing and logging
+    detailed debugging information about the call stack at the time of an exception.
+    It utilizes the provided context to extract register values, frame pointers, and
+    optionally variable contents from the stack. This functionality is crucial for
+    diagnosing crashes or unexpected behavior in TrinityCore server environments where
+    detailed crash reports are essential for developers to understand what led to
+    a failure. The method can be configured to include variable values through the
+    bWriteVariables flag, which may increase report verbosity but also potentially
+    expose sensitive data.
+  parameters:
+  - name: pContext
+    description: Pointer to a CONTEXT structure that contains the processor-specific
+      context information at the time of the exception. This includes register states
+      and stack pointers necessary for unwinding the call stack.
+  - name: bWriteVariables
+    description: Boolean flag indicating whether to include variable values in the
+      stack trace output. When true, the method attempts to resolve and log local
+      and global variable contents; when false, only stack frame addresses and function
+      names are recorded.
+  - name: pThreadHandle
+    description: Handle to the thread for which the stack details are being written.
+      This allows the method to access thread-specific data and ensures proper context
+      capture even in multi-threaded scenarios.
+  returns: null
+  examples:
+  - title: Basic usage in exception handler
+    code: "void MyExceptionHandler(EXCEPTION_POINTERS* pExceptionInfo)\n{\n    WheatyExceptionReport\
+      \ report;\n    report.WriteStackDetails(pExceptionInfo->ContextRecord, false,\
+      \ GetCurrentThread());\n}"
+    language: cpp
+  - title: Usage with variable logging enabled
+    code: "void CrashHandler(EXCEPTION_POINTERS* pExceptionInfo)\n{\n    WheatyExceptionReport\
+      \ report;\n    report.WriteStackDetails(pExceptionInfo->ContextRecord, true,\
+      \ GetCurrentThread());\n    // Log or save crash report\n}"
+    language: cpp
+  notes: This method relies heavily on the underlying Windows debugging APIs and requires
+    proper context initialization. It should only be called from within an exception
+    handler to ensure valid CONTEXT data is available. Variable logging (when enabled)
+    may introduce performance overhead and could expose internal server state if not
+    handled carefully.
+  warnings: Enabling variable logging can potentially leak sensitive information such
+    as passwords or private keys stored in local variables. Always validate the security
+    implications before enabling this feature in production environments. The method
+    assumes valid input parameters; passing null pointers will likely result in access
+    violations.
+  related:
+  - WheatyExceptionReport::WriteHeader
+  - WheatyExceptionReport::WriteSystemInfo
+  - WheatyExceptionReport::WriteExceptionInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:47:23.561596'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

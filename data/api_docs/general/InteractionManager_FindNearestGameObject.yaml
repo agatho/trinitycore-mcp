@@ -1,0 +1,62 @@
+api:
+  class: InteractionManager
+  method: FindNearestGameObject
+  signature: GameObject * InteractionManager::FindNearestGameObject(Player * bot,
+    uint32 entry, float maxRange) const
+documentation:
+  brief: Finds the nearest GameObject with the specified entry ID within the given
+    range for a player bot.
+  description: The FindNearestGameObject method searches for the closest GameObject
+    in the world that matches the provided entry ID and is within the specified maximum
+    range from the player bot. This method is commonly used by AI systems to locate
+    interactable objects such as chests, doors, or quest items. It performs a spatial
+    search using the game's internal object management system to efficiently determine
+    proximity. The method returns a pointer to the GameObject if one is found within
+    range; otherwise, it returns nullptr. This functionality is essential for bots
+    to make decisions about which objects to interact with based on their current
+    location and available resources.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will be used
+      as the reference point for finding the nearest GameObject.
+  - name: entry
+    description: The unique identifier (entry ID) of the GameObject type to search
+      for. This corresponds to the 'entry' field in the game's database tables such
+      as gameobject_template.
+  - name: maxRange
+    description: Maximum distance in yards within which to search for the GameObject.
+      Objects beyond this range will be ignored.
+  returns: Returns a pointer to the GameObject instance that matches the entry ID
+    and is closest to the bot within the specified range. If no matching GameObject
+    is found within range, or if invalid parameters are provided, the method returns
+    nullptr.
+  examples:
+  - title: Find nearest treasure chest
+    code: "GameObject* chest = interactionManager->FindNearestGameObject(bot, 1763,\
+      \ 20.0f);\nif (chest)\n{\n    // Interact with the chest\n    bot->GetSession()->HandleGameObjectUseOpcode(chest->GetGUID());\n\
+      }"
+    language: cpp
+  - title: Find nearest quest item
+    code: "uint32 questItemEntry = 18754;\nGameObject* questObject = interactionManager->FindNearestGameObject(playerBot,\
+      \ questItemEntry, 30.0f);\nif (questObject && questObject->GetGOInfo()->IsQuestGiver())\n\
+      {\n    // Handle quest giver object\n    playerBot->GetSession()->HandleGameObjectUseOpcode(questObject->GetGUID());\n\
+      }"
+    language: cpp
+  notes: This method uses the internal spatial indexing system of TrinityCore to optimize
+    search performance. It is recommended to use reasonable range values to avoid
+    unnecessary computation. The method does not perform any checks on the GameObject's
+    current state or usability - it only finds the nearest matching object based on
+    position and entry ID.
+  warnings: Be cautious when using large maxRange values as this can impact performance,
+    especially in densely populated areas. Always check for null return values before
+    attempting to use the returned GameObject pointer to prevent crashes.
+  related:
+  - FindNearestGameObjectByType
+  - FindGameObjectAtLocation
+  - GetGameObjectListInGrid
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T02:28:20.490082'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

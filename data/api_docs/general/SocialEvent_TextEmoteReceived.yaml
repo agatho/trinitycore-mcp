@@ -1,0 +1,57 @@
+api:
+  class: SocialEvent
+  method: TextEmoteReceived
+  signature: SocialEvent SocialEvent::TextEmoteReceived(int player, int target, uint32
+    emoteId)
+documentation:
+  brief: Processes a text emote received from a player targeting another player in
+    the game.
+  description: The TextEmoteReceived method handles the logic when a player sends
+    a text-based emote (such as 'laughs' or 'glares') to another player. This method
+    is typically invoked by the server's social system when a text emote packet is
+    received from a client. It validates the emote ID against known emotes, ensures
+    both players are valid and within range, and then broadcasts the emote to nearby
+    players in the same area. The method returns a SocialEvent object representing
+    the processed emote event, which can be used for further processing or logging.
+  parameters:
+  - name: player
+    description: The GUID of the player sending the text emote. Must be a valid player
+      GUID within the current session.
+  - name: target
+    description: The GUID of the target player receiving the text emote. Must be a
+      valid player GUID and within communication range of the sender.
+  - name: emoteId
+    description: The unique identifier for the text emote being sent. Must correspond
+      to a valid emote ID defined in the game's emote database.
+  returns: A SocialEvent object containing details about the processed text emote,
+    including sender, target, and emote type. Returns an empty or invalid SocialEvent
+    if validation fails.
+  examples:
+  - title: Basic Usage
+    code: SocialEvent event = socialHandler.TextEmoteReceived(playerGuid, targetGuid,
+      1234);
+    language: cpp
+  - title: Processing Emote with Validation
+    code: "if (playerGuid && targetGuid) {\n    SocialEvent event = socialHandler.TextEmoteReceived(playerGuid,\
+      \ targetGuid, emoteId);\n    if (event.IsValid()) {\n        // Broadcast or\
+      \ log the event\n        LOG_INFO(\"social\", \"Player {} sent emote {} to {}\"\
+      , playerGuid, emoteId, targetGuid);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the input GUIDs are already validated and that the
+    players exist in the current session. The emote ID must be present in the server's
+    emote database for successful processing. This method does not perform direct
+    network communication; it prepares the event for further handling by the social
+    subsystem.
+  warnings: Do not call this method with invalid or uninitialized GUIDs, as it may
+    cause undefined behavior or crashes. Ensure that emote IDs are validated against
+    the server's emote list to avoid sending invalid emotes to players.
+  related:
+  - SocialEvent::SendTextEmote
+  - SocialEvent::ValidateEmoteId
+  - SocialEvent::BroadcastEmote
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T21:55:00.480577'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

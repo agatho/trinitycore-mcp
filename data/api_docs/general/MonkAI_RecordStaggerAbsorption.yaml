@@ -1,0 +1,55 @@
+api:
+  class: MonkAI
+  method: RecordStaggerAbsorption
+  signature: void MonkAI::RecordStaggerAbsorption(int damage)
+documentation:
+  brief: Records the amount of damage absorbed by the Monk's Stagger effect.
+  description: The RecordStaggerAbsorption method is used to track and update the
+    amount of damage that has been absorbed by a Monk character's Stagger mechanic.
+    This method is typically called when the Monk takes damage that is partially or
+    fully absorbed by their Stagger ability, which reduces incoming damage over time.
+    The method updates internal tracking variables to reflect the new absorption value,
+    potentially affecting the Monk's stagger state and cooldowns. It plays a crucial
+    role in maintaining accurate game state for the Monk's defensive abilities.
+  parameters:
+  - name: damage
+    description: The amount of damage that was absorbed by the Stagger effect. This
+      should be a non-negative integer representing the damage value that was mitigated
+      by the Monk's stagger ability.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: "void HandleDamageTaken(Unit* attacker, uint32 damage)\n{\n    if (Player*\
+      \ player = attacker->ToPlayer())\n    {\n        if (MonkAI* monkAI = dynamic_cast<MonkAI*>(player->GetAI()))\n\
+      \        {\n            monkAI->RecordStaggerAbsorption(damage);\n        }\n\
+      \    }\n}"
+    language: cpp
+  - title: Integration with Combat System
+    code: "void CombatManager::ApplyDamageReduction(Unit* target, uint32& damage)\n\
+      {\n    if (target->GetTypeId() == TYPEID_PLAYER)\n    {\n        Player* player\
+      \ = target->ToPlayer();\n        if (player->getClass() == CLASS_MONK)\n   \
+      \     {\n            MonkAI* monkAI = dynamic_cast<MonkAI*>(player->GetAI());\n\
+      \            if (monkAI && damage > 0)\n            {\n                uint32\
+      \ absorbed = monkAI->RecordStaggerAbsorption(damage);\n                damage\
+      \ -= absorbed;\n            }\n        }\n    }\n}"
+    language: cpp
+  notes: This method should only be called when the Monk actually has Stagger active
+    and is absorbing damage. The implementation likely updates internal stagger counters
+    and may trigger stagger-related cooldowns or effects. It's important to ensure
+    that this method is not called with negative damage values, as it could lead to
+    incorrect state tracking.
+  warnings: Calling this method without verifying that the Monk has an active Stagger
+    effect may result in incorrect game state. Additionally, if the damage parameter
+    exceeds the maximum stagger capacity, unexpected behavior may occur. Always validate
+    that the target is a Monk and that the AI is properly initialized before calling
+    this method.
+  related:
+  - GetStaggerAmount
+  - ResetStagger
+  - UpdateStaggerState
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T23:33:53.543013'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

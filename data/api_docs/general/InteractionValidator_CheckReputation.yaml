@@ -1,0 +1,62 @@
+api:
+  class: InteractionValidator
+  method: CheckReputation
+  signature: bool InteractionValidator::CheckReputation(::Player * bot, uint32 factionId,
+    int minRank) const
+documentation:
+  brief: Checks if a player has sufficient reputation with a specified faction to
+    meet the minimum rank requirement.
+  description: The CheckReputation method evaluates whether a given player possesses
+    at least the specified minimum reputation rank with a particular faction. This
+    function is commonly used in interaction validation logic, such as determining
+    if a player can engage in certain quests, vendor interactions, or NPC dialogues
+    that require specific faction standings. The method retrieves the player's current
+    reputation value for the provided faction ID and compares it against the required
+    minimum rank. It returns true if the player's reputation meets or exceeds the
+    threshold, otherwise false. This check is essential for maintaining game balance
+    and ensuring appropriate access to faction-specific content.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object whose reputation will be checked. Must
+      not be null.
+  - name: factionId
+    description: Unique identifier of the faction to check reputation against. This
+      corresponds to entries in the Faction.dbc file.
+  - name: minRank
+    description: 'Minimum required reputation rank (0-7). Values correspond to: 0=Hated,
+      1=Hostile, 2=Unfriendly, 3=Neutral, 4=Friendly, 5=Honored, 6=Revered, 7=Exalted.'
+  returns: Boolean value indicating whether the player's reputation with the specified
+    faction meets or exceeds the minimum rank. Returns true if the check passes, false
+    otherwise.
+  examples:
+  - title: Basic Reputation Check
+    code: "if (validator.CheckReputation(player, 72, 4)) {\n    // Player has at least\
+      \ Friendly reputation with faction ID 72\n    player->SendAreaTriggerMessage(\"\
+      You are welcomed by the faction.\");\n}"
+    language: cpp
+  - title: Advanced Reputation Validation
+    code: "uint32 requiredFaction = 930; // Typically Orgrimmar faction\nint minReputationRank\
+      \ = 5; // Honored\nif (validator.CheckReputation(player, requiredFaction, minReputationRank))\
+      \ {\n    // Allow access to special vendor items\n    player->GetSession()->SendListInventory(player->GetGUID());\n\
+      } else {\n    // Deny access and send message\n    player->SendSystemMessage(\"\
+      You must be at least Honored with the faction to purchase this item.\");\n}"
+    language: cpp
+  notes: 'This method relies on the player''s current reputation data stored in their
+    database records. The faction ID must correspond to a valid entry in the game''s
+    faction database. Reputation ranks are defined as: 0=Hated, 1=Hostile, 2=Unfriendly,
+    3=Neutral, 4=Friendly, 5=Honored, 6=Revered, 7=Exalted. The method does not modify
+    any player state or reputation values; it only performs a read-only check.'
+  warnings: Ensure that the faction ID passed to this method is valid and exists in
+    the game's database, as invalid IDs may lead to undefined behavior or incorrect
+    results. Be cautious when using high rank values (6-7) for content that should
+    be accessible to most players, as Exalted status is typically difficult to achieve.
+  related:
+  - GetReputation
+  - SetReputation
+  - CanInteractWith
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T00:33:00.526017'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

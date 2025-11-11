@@ -1,0 +1,54 @@
+api:
+  class: FlightMasterManager
+  method: GetTaxiNode
+  signature: const TaxiNodesEntry * FlightMasterManager::GetTaxiNode(uint32 nodeId)
+    const
+documentation:
+  brief: Retrieves the taxi node entry for a specified node ID from the flight master
+    manager's internal data structure.
+  description: The GetTaxiNode method retrieves a const pointer to a TaxiNodesEntry
+    object corresponding to the given node ID. This method is used to access flight
+    path node information within the TrinityCore framework, which is essential for
+    handling player taxi navigation and flight master interactions. The method performs
+    a lookup in an internal data structure that stores all available taxi nodes. It
+    is typically called when processing player flight requests or validating flight
+    paths. The returned pointer is guaranteed to be valid only if the nodeId corresponds
+    to an existing taxi node in the database; otherwise, it may return nullptr. This
+    method does not modify any state and is thread-safe for read operations.
+  parameters: []
+  returns: A const pointer to a TaxiNodesEntry structure representing the taxi node
+    data for the specified ID. Returns nullptr if no taxi node exists with the given
+    ID.
+  examples:
+  - title: Basic Usage
+    code: "const TaxiNodesEntry* node = flightMasterManager.GetTaxiNode(12345);\n\
+      if (node != nullptr)\n{\n    // Process valid taxi node\n    printf(\"Node %u\
+      \ found at (%f, %f, %f)\\n\", node->ID, node->x, node->y, node->z);\n}"
+    language: cpp
+  - title: Flight Path Validation
+    code: "uint32 startNode = 1001;\nuint32 endNode = 1002;\nconst TaxiNodesEntry*\
+      \ start = flightMasterManager.GetTaxiNode(startNode);\nconst TaxiNodesEntry*\
+      \ end = flightMasterManager.GetTaxiNode(endNode);\nif (start != nullptr && end\
+      \ != nullptr)\n{\n    // Both nodes exist, proceed with flight path validation\n\
+      \    printf(\"Valid flight path from %u to %u\\n\", startNode, endNode);\n}\n\
+      else\n{\n    // Invalid node ID encountered\n    printf(\"Invalid flight path\\\
+      n\");\n}"
+    language: cpp
+  notes: This method accesses internal data structures that are populated during server
+    startup from the game database. The TaxiNodesEntry structure contains information
+    such as position coordinates, node flags, and associated map IDs. Performance
+    is generally good due to optimized lookups, but repeated calls with many different
+    node IDs may impact performance if not cached appropriately.
+  warnings: Do not modify the returned TaxiNodesEntry pointer as it points to read-only
+    internal data. Accessing invalid node IDs will result in a nullptr return, so
+    always check for null before dereferencing the returned pointer.
+  related:
+  - GetTaxiNodeByMap
+  - HasTaxiNode
+  - GetAllTaxiNodes
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T01:59:00.988731'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

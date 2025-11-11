@@ -1,0 +1,63 @@
+api:
+  class: BotNpcLocationService
+  method: FindNearestClassTrainer
+  signature: NpcLocationResult BotNpcLocationService::FindNearestClassTrainer(Player
+    * bot, uint8 classId)
+documentation:
+  brief: Finds the nearest class trainer NPC for the specified player and class.
+  description: The FindNearestClassTrainer method searches for the closest available
+    NPC that serves as a class trainer for the given player's class. It returns a
+    NpcLocationResult containing the GUID and location of the found trainer, or an
+    invalid result if none is found within the search radius. This method is typically
+    used by bot systems to locate trainers for leveling or retraining purposes. The
+    search considers both active and inactive trainers, but prioritizes those that
+    are currently available and not under any restrictions such as being in combat
+    or flagged as non-interactable.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot seeking a class
+      trainer. Must be a valid player instance.
+  - name: classId
+    description: The class ID of the player's class for which to find a trainer. Valid
+      values are 1-11 corresponding to Warrior, Paladin, Hunter, Rogue, Priest, Death
+      Knight, Shaman, Mage, Warlock, Monk, and Druid respectively.
+  returns: Returns a NpcLocationResult structure containing the GUID of the nearest
+    class trainer NPC and its location coordinates. If no suitable trainer is found
+    within range, the result will contain an invalid GUID (0) and default coordinates.
+  examples:
+  - title: Basic Usage Example
+    code: "Player* bot = ...; // Assume valid player object\nuint8 classId = bot->getClass();\n\
+      NpcLocationResult result = sBotNpcLocationService->FindNearestClassTrainer(bot,\
+      \ classId);\nif (result.GetGuid() != 0)\n{\n    // Found a trainer\n    WorldLocation\
+      \ location = result.GetLocation();\n    // Proceed with movement or interaction\
+      \ logic\n}"
+    language: cpp
+  - title: Advanced Usage with Error Handling
+    code: "Player* bot = ...;\nuint8 classId = CLASS_WARRIOR; // Example for Warrior\
+      \ class\nNpcLocationResult result = sBotNpcLocationService->FindNearestClassTrainer(bot,\
+      \ classId);\nif (result.GetGuid() == 0)\n{\n    // No trainer found - log error\
+      \ or handle accordingly\n    sLog->outError(\"No class trainer found for %s\"\
+      , bot->GetName().c_str());\n}\nelse\n{\n    // Use the found trainer's location\n\
+      \    Position pos = result.GetLocation();\n    // Move to trainer position or\
+      \ initiate interaction\n}"
+    language: cpp
+  notes: This method performs a spatial search using the bot's current location and
+    considers only NPCs that are marked as class trainers for the specified class.
+    The search is optimized for performance by using spatial indexing, but may still
+    take some time in dense NPC environments. The method does not account for trainer
+    availability status beyond basic interactability checks.
+  warnings: Ensure that the Player pointer passed is valid and the classId corresponds
+    to a supported class; passing invalid parameters can lead to undefined behavior
+    or incorrect results. The returned NpcLocationResult should always be checked
+    for validity before using its contents.
+  related:
+  - FindNearestVendor
+  - FindNearestGossipNPC
+  - FindNearestFlightMaster
+  - FindNearestBanker
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T03:28:00.739735'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

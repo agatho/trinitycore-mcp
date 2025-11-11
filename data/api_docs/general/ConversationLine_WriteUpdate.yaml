@@ -1,0 +1,77 @@
+api:
+  class: ConversationLine
+  method: WriteUpdate
+  signature: void ConversationLine::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Conversation * owner, const Player * receiver) const
+documentation:
+  brief: Serializes conversation line data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of a conversation
+    line into a ByteBuffer, preparing it for transmission to a specific player. This
+    method is typically used when sending conversation updates over the network, ensuring
+    that only relevant data is sent based on the provided owner and receiver context.
+    The serialization process respects the ignoreChangesMask parameter which can bypass
+    change tracking logic if needed. This functionality is integral to the World of
+    Warcraft conversation system, allowing dynamic dialogue progression and state
+    synchronization between server and client.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized conversation line
+      data will be written. This buffer is typically used for constructing network
+      packets.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking should be ignored
+      during serialization. When true, all fields are serialized regardless of their
+      change status.
+  - name: owner
+    description: Pointer to the Conversation object that owns this conversation line.
+      Used to determine context and ownership for serialization logic.
+  - name: receiver
+    description: Pointer to the Player object who will receive this conversation data.
+      Used to apply player-specific filtering or modifications during serialization.
+  returns: null
+  examples:
+  - title: Basic usage in conversation update
+    code: 'ByteBuffer data;
+
+      ConversationLine line;
+
+      Player* player = ...;
+
+      Conversation* conv = ...;
+
+      line.WriteUpdate(data, false, conv, player);
+
+      // Send data to player via packet system'
+    language: cpp
+  - title: Force serialization with ignore flag
+    code: 'ByteBuffer data;
+
+      ConversationLine line;
+
+      Player* player = ...;
+
+      Conversation* conv = ...;
+
+      line.WriteUpdate(data, true, conv, player);
+
+      // Serializes all fields regardless of change status'
+    language: cpp
+  notes: This method is part of the internal network serialization system for conversation
+    data. It's designed to be called during packet construction for conversation updates.
+    The method assumes that the ByteBuffer is properly initialized and will be used
+    in a network context. Performance considerations include avoiding unnecessary
+    serialization when possible by using the change tracking mechanism.
+  warnings: Do not call this method directly with invalid pointers as it may cause
+    crashes or undefined behavior. Ensure that both owner and receiver parameters
+    are valid before calling to prevent access violations.
+  related:
+  - ConversationLine::ReadUpdate
+  - ConversationLine::IsChanged
+  - ConversationLine::MarkChanged
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:51:47.265699'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: MultiPersonalPhaseTracker
+  method: UnregisterTrackedObject
+  signature: void MultiPersonalPhaseTracker::UnregisterTrackedObject(WorldObject *
+    object)
+documentation:
+  brief: Removes a tracked WorldObject from the MultiPersonalPhaseTracker's internal
+    tracking list.
+  description: The UnregisterTrackedObject method removes a specified WorldObject
+    from the internal tracking mechanism of the MultiPersonalPhaseTracker. This method
+    is typically invoked when an object is no longer relevant for phase tracking,
+    such as when it is destroyed, despawned, or when the player's phase changes in
+    a way that excludes this object. The method ensures that the object is cleanly
+    removed from any phase-related tracking structures without causing memory leaks
+    or invalid references. It is important to note that calling this method on an
+    object not currently tracked will typically result in no operation, and the method
+    does not perform any validation checks beyond ensuring the object exists before
+    attempting removal.
+  parameters:
+  - name: object
+    description: A pointer to the WorldObject instance to be removed from tracking.
+      This parameter must not be null; passing a null pointer may result in undefined
+      behavior or crashes.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "WorldObject* trackedObject = player->GetMap()->GetGameObject(12345);\n\
+      if (trackedObject)\n{\n    phaseTracker->UnregisterTrackedObject(trackedObject);\n\
+      }"
+    language: cpp
+  - title: Usage with Phase Change
+    code: "void OnPhaseChange(Player* player, uint32 newPhase)\n{\n    // Unregister\
+      \ all previously tracked objects\n    for (auto& trackedObj : phaseTracker->GetTrackedObjects())\n\
+      \    {\n        phaseTracker->UnregisterTrackedObject(trackedObj);\n    }\n\
+      \    // Register new objects based on the new phase\n}"
+    language: cpp
+  notes: This method is part of a phase tracking system that manages visibility and
+    interaction of WorldObjects based on player phases. The internal implementation
+    likely uses a container (such as std::set or std::unordered_set) to store tracked
+    objects, and this method performs the removal operation efficiently. It is recommended
+    to call this method before deleting or despawning an object to prevent dangling
+    references.
+  warnings: Passing a null pointer to this method can lead to crashes or undefined
+    behavior. Ensure that the object exists and is valid before unregistering it.
+    Additionally, be cautious when calling this method during iteration over tracked
+    objects, as modifying the container during iteration may cause iterator invalidation
+    or other issues.
+  related:
+  - RegisterTrackedObject
+  - GetTrackedObjects
+  - IsTrackedObject
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T23:32:40.529203'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

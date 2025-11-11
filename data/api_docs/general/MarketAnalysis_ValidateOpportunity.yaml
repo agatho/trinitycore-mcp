@@ -1,0 +1,60 @@
+api:
+  class: MarketAnalysis
+  method: ValidateOpportunity
+  signature: bool MarketAnalysis::ValidateOpportunity(const MarketOpportunity & opportunity)
+documentation:
+  brief: Validates a market opportunity for correctness and feasibility within the
+    game economy.
+  description: The ValidateOpportunity method checks whether a given MarketOpportunity
+    object meets all necessary criteria to be considered valid within the TrinityCore
+    auction house system. It ensures that the opportunity's item, price, and other
+    attributes conform to game rules and limitations. This validation is crucial for
+    preventing invalid or exploitative entries in the market system. The method performs
+    checks such as verifying item quality, ensuring prices are within acceptable ranges,
+    confirming the item exists in the database, and validating that the opportunity
+    isn't already expired or processed.
+  parameters:
+  - name: opportunity
+    description: A const reference to a MarketOpportunity object containing the details
+      of the market opportunity to be validated. This includes item information, bid
+      price, buyout price, and other relevant auction parameters.
+  returns: Returns true if the market opportunity passes all validation checks and
+    is considered valid for processing in the auction house system; returns false
+    otherwise. A return value of false indicates that at least one validation criterion
+    failed, preventing the opportunity from being accepted.
+  examples:
+  - title: Basic Validation Usage
+    code: "MarketOpportunity opp;\n// ... populate opp with valid data ...\nbool isValid\
+      \ = marketAnalysis.ValidateOpportunity(opp);\nif (isValid)\n{\n    // Process\
+      \ the valid opportunity\n    std::cout << \"Opportunity is valid and can be\
+      \ processed.\\n\";\n}\nelse\n{\n    // Handle invalid opportunity\n    std::cout\
+      \ << \"Opportunity failed validation.\\n\";\n}"
+    language: cpp
+  - title: Integration with Auction House Processing
+    code: "void ProcessAuctionSubmission(MarketOpportunity& opp)\n{\n    if (marketAnalysis.ValidateOpportunity(opp))\n\
+      \    {\n        // Proceed with auction creation\n        CreateAuction(opp);\n\
+      \        Log(\"Valid auction created.\");\n    }\n    else\n    {\n        //\
+      \ Reject and log invalid submission\n        Log(\"Invalid auction opportunity\
+      \ rejected.\");\n        SendErrorToPlayer(opp.PlayerGUID, \"Invalid auction\
+      \ data submitted.\");\n    }\n}"
+    language: cpp
+  notes: This method is typically called before any market opportunity is added to
+    the auction house database. It performs several checks including item existence,
+    price range validation, and time constraints. The implementation may involve database
+    queries for item verification and could have performance implications when validating
+    large volumes of opportunities in batch processing scenarios.
+  warnings: Do not assume that all MarketOpportunity objects passed to this method
+    are valid. Always check the return value before proceeding with auction creation
+    or processing. Passing invalid opportunities can lead to database inconsistencies
+    or security vulnerabilities if not properly validated.
+  related:
+  - GetMarketOpportunities
+  - CreateAuction
+  - VerifyItemExists
+  - CheckPriceLimits
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T00:20:35.988058'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

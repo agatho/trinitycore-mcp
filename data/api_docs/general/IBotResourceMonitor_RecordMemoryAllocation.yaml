@@ -1,0 +1,56 @@
+api:
+  class: IBotResourceMonitor
+  method: RecordMemoryAllocation
+  signature: void IBotResourceMonitor::RecordMemoryAllocation(size_t bytes)
+documentation:
+  brief: Records a memory allocation event with the specified byte count for resource
+    monitoring purposes.
+  description: The RecordMemoryAllocation method is used to track memory allocations
+    within the bot system for performance monitoring and resource management. This
+    method logs the size of allocated memory blocks to help identify memory usage
+    patterns, detect potential leaks, or optimize memory consumption in AI-driven
+    bot behavior. The method does not perform any actual allocation itself but serves
+    as a reporting mechanism for memory operations that have already occurred. It
+    is typically called by internal bot subsystems when they allocate memory for data
+    structures, pathfinding grids, or other runtime resources needed for bot functionality.
+  parameters:
+  - name: bytes
+    description: The number of bytes that were allocated in the memory operation.
+      Must be a positive integer value representing the size of the allocation in
+      bytes.
+  returns: null
+  examples:
+  - title: Basic Memory Allocation Recording
+    code: "void SomeBotComponent::Initialize()\n{\n    // Allocate some memory for\
+      \ bot pathfinding\n    uint8* pathBuffer = new uint8[1024];\n    \n    // Record\
+      \ the allocation for monitoring purposes\n    sBotAI->GetResourceMonitor()->RecordMemoryAllocation(1024);\n\
+      }"
+    language: cpp
+  - title: Recording Multiple Allocations
+    code: "void BotBehavior::Update()\n{\n    // Simulate multiple allocations during\
+      \ bot update cycle\n    uint32* aiData = new uint32[100];\n    sBotAI->GetResourceMonitor()->RecordMemoryAllocation(100\
+      \ * sizeof(uint32));\n    \n    float* pathPoints = new float[50];\n    sBotAI->GetResourceMonitor()->RecordMemoryAllocation(50\
+      \ * sizeof(float));\n    \n    // Clean up\n    delete[] aiData;\n    delete[]\
+      \ pathPoints;\n}"
+    language: cpp
+  notes: This method is part of the resource monitoring infrastructure and should
+    be called whenever memory is allocated by bot components. The implementation likely
+    maintains internal statistics about total allocated bytes, peak usage, and allocation
+    frequency. It's important to note that this method only records allocations; it
+    does not track deallocations, so paired calls with RecordMemoryDeallocation would
+    be needed for complete tracking.
+  warnings: Calling this method without proper memory management can lead to inaccurate
+    resource monitoring data. Ensure all allocations are properly tracked by calling
+    both RecordMemoryAllocation and RecordMemoryDeallocation for each allocation/deallocation
+    pair. This method should not be called for internal system allocations that are
+    already being monitored by the core engine.
+  related:
+  - RecordMemoryDeallocation
+  - GetMemoryUsage
+  - ResetResourceStatistics
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T00:55:32.052851'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

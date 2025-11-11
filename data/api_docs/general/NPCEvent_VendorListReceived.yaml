@@ -1,0 +1,66 @@
+api:
+  class: NPCEvent
+  method: VendorListReceived
+  signature: NPCEvent NPCEvent::VendorListReceived(int playerGuid, int npcGuid, uint32
+    vendorEntry, int items)
+documentation:
+  brief: Handles vendor list received event for an NPC interaction with a player
+  description: The VendorListReceived method is triggered when a player interacts
+    with an NPC vendor and the vendor's item list is successfully retrieved. This
+    method processes the vendor entry data and associated items, typically used in
+    quest progression or merchant interactions within the World of Warcraft game environment.
+    It serves as part of the event handling system for NPC vendor transactions, allowing
+    scripts and AI behaviors to respond to successful vendor list retrieval events.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player interacting with the vendor
+      NPC
+  - name: npcGuid
+    description: The unique identifier (GUID) of the NPC vendor being interacted with
+  - name: vendorEntry
+    description: The database entry ID of the vendor, used to identify specific vendor
+      types in the game world
+  - name: items
+    description: Pointer or reference to the list of items available from the vendor,
+      typically containing item data structures
+  returns: Returns an NPCEvent object representing the processed vendor list received
+    event, which can be used for further event handling or chaining
+  examples:
+  - title: Basic Vendor List Received Handling
+    code: "void HandleVendorListReceived(NPCEvent event) {\n    int playerGuid = event.GetPlayerGuid();\n\
+      \    int npcGuid = event.GetNpcGuid();\n    uint32 vendorEntry = event.GetVendorEntry();\n\
+      \    \n    // Process the vendor list\n    if (event.VendorListReceived(playerGuid,\
+      \ npcGuid, vendorEntry, items)) {\n        // Vendor list successfully processed\n\
+      \        sLog->outString(\"Vendor list received for player %d\", playerGuid);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Vendor List Processing with Item Validation
+    code: "NPCEvent ProcessVendorInteraction(int playerGuid, int npcGuid, uint32 vendorEntry)\
+      \ {\n    // Retrieve vendor items\n    std::vector<VendorItem> vendorItems =\
+      \ GetVendorItems(vendorEntry);\n    \n    // Validate items before processing\n\
+      \    for (auto& item : vendorItems) {\n        if (!item.IsValid()) {\n    \
+      \        sLog->outError(\"Invalid vendor item found: %u\", item.GetItemId());\n\
+      \            continue;\n        }\n        \n        // Process valid items\n\
+      \        HandleVendorItem(playerGuid, npcGuid, item);\n    }\n    \n    // Trigger\
+      \ vendor list received event\n    return NPCEvent::VendorListReceived(playerGuid,\
+      \ npcGuid, vendorEntry, &vendorItems);\n}"
+    language: cpp
+  notes: This method is typically invoked as part of the game's internal event system
+    when a player opens a vendor interface. The items parameter may be a pointer to
+    a container of vendor item data structures that contain information about available
+    products, prices, and availability. Implementation should handle potential null
+    or invalid item data gracefully.
+  warnings: Ensure proper validation of the items parameter before processing, as
+    malformed vendor item data can cause crashes or unexpected behavior. The method
+    assumes valid GUIDs and vendor entries; invalid inputs may lead to undefined behavior
+    or failed event handling.
+  related:
+  - NPCEvent::VendorOpen
+  - NPCEvent::VendorClose
+  - NPCEvent::ItemPurchased
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T23:26:33.550483'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

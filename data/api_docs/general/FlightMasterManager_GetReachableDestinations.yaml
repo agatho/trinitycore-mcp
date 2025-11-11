@@ -1,0 +1,60 @@
+api:
+  class: FlightMasterManager
+  method: GetReachableDestinations
+  signature: int FlightMasterManager::GetReachableDestinations(Creature * flightMaster)
+    const
+documentation:
+  brief: Retrieves the number of reachable flight destinations from a given flight
+    master creature.
+  description: The GetReachableDestinations method calculates and returns the total
+    count of flight paths that are currently accessible to a player from the specified
+    flight master NPC. This method is used internally by the game's flight path system
+    to determine which destinations should be displayed in the player's flight map
+    interface. The method evaluates various conditions such as quest completion, faction
+    standing, and player level requirements to filter out unreachable destinations.
+    It does not modify any state and is typically called when a player interacts with
+    a flight master to open their flight path menu.
+  parameters:
+  - name: flightMaster
+    description: Pointer to the Creature object representing the flight master NPC
+      from which to retrieve reachable destinations. Must be a valid flight master
+      creature instance; null pointer will result in undefined behavior.
+  returns: Returns an integer value representing the number of flight destinations
+    that are currently reachable for the player associated with the active session.
+    A return value of zero indicates no destinations are available, while positive
+    values indicate the count of accessible flight paths.
+  examples:
+  - title: Basic Usage
+    code: "Creature* flightMaster = ...; // obtained from player interaction\nint\
+      \ reachableCount = sFlightMasterManager->GetReachableDestinations(flightMaster);\n\
+      if (reachableCount > 0)\n{\n    // Display flight paths to player\n}"
+    language: cpp
+  - title: Integration with Flight Path Display
+    code: "void Player::SendFlightPaths()\n{\n    Creature* flightMaster = GetSelectedUnit();\n\
+      \    if (flightMaster && flightMaster->IsFlightMaster())\n    {\n        int\
+      \ count = sFlightMasterManager->GetReachableDestinations(flightMaster);\n  \
+      \      if (count > 0)\n        {\n            // Proceed to display flight paths\n\
+      \            SendFlightPathList(flightMaster, count);\n        }\n        else\n\
+      \        {\n            // No reachable destinations\n            SendNoFlightPathsMessage();\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method relies on the current player's session data and quest completion
+    status to determine reachability. It may return different values depending on
+    the player's progress in the game world. The implementation internally uses cached
+    flight path data for performance optimization, so changes to flight path availability
+    may not be immediately reflected if caching is enabled.
+  warnings: Passing a null pointer or an invalid Creature object that is not a flight
+    master will result in undefined behavior and potential crashes. Always validate
+    the input parameter before calling this method. The returned count does not guarantee
+    that all destinations are accessible in the same session, as some may require
+    specific conditions to be met at the time of travel.
+  related:
+  - GetFlightPathCount
+  - GetFlightPathForDestination
+  - IsDestinationReachable
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T13:58:52.835700'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

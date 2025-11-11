@@ -1,0 +1,58 @@
+api:
+  class: InteractionValidator
+  method: CheckInventorySpace
+  signature: bool InteractionValidator::CheckInventorySpace(::Player * bot, uint32
+    slotsNeeded) const
+documentation:
+  brief: Checks if a player has sufficient inventory space for a specified number
+    of slots.
+  description: The CheckInventorySpace method evaluates whether the given player character
+    has enough free inventory slots to accommodate the requested number of items.
+    This validation is commonly used in bot AI logic and automated quest completion
+    systems within TrinityCore to prevent attempting actions that would result in
+    inventory overflow. The method considers all usable inventory containers including
+    the main backpack, bags, and any equipped containers. It returns true if sufficient
+    space exists, false otherwise. This check is essential for preventing item loss
+    or failed interactions when bots attempt to loot, purchase, or receive items.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the character whose inventory
+      space is being checked. Must not be null.
+  - name: slotsNeeded
+    description: The number of inventory slots required for the operation. Must be
+      a positive integer value representing the quantity of slots needed.
+  returns: Returns true if the player has sufficient free inventory space to accommodate
+    the requested number of slots, false otherwise.
+  examples:
+  - title: Basic Inventory Space Check
+    code: "if (validator.CheckInventorySpace(playerBot, 5)) {\n    // Proceed with\
+      \ action requiring 5 slots\n    playerBot->AddItem(itemTemplate, 5);\n} else\
+      \ {\n    // Handle insufficient space case\n    playerBot->GetSession()->SendNotification(\"\
+      Not enough inventory space.\");\n}"
+    language: cpp
+  - title: Using in Bot AI Logic
+    code: "void BotQuestHandler::HandleLootInteraction(Player* bot) {\n    uint32\
+      \ neededSlots = CalculateRequiredSlotsForLoot(bot);\n    if (validator.CheckInventorySpace(bot,\
+      \ neededSlots)) {\n        // Safe to loot items\n        LootItemsFromObject(bot,\
+      \ targetObject);\n    } else {\n        // Queue for later processing or send\
+      \ to mailbox\n        ScheduleLootProcessingForLater(bot);\n    }\n}"
+    language: cpp
+  notes: This method performs a direct check against the player's current free inventory
+    slots without considering temporary storage or future item removal. It is recommended
+    to call this method before attempting any inventory-modifying operations to avoid
+    potential errors or data loss. The implementation accounts for all container types
+    including bank, keyring, and normal backpack slots.
+  warnings: Ensure that the Player pointer is valid and not null before calling this
+    method. Calling with a null player pointer will result in undefined behavior.
+    Also note that this check does not account for item stacking - if items can stack,
+    fewer physical slots may be needed than the slot count suggests.
+  related:
+  - Player::CanStoreItem
+  - Player::AddItem
+  - Player::HasItemCount
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T00:35:33.269027'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,64 @@
+api:
+  class: ArenaCooldown
+  method: WriteCreate
+  signature: void ArenaCooldown::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Writes arena cooldown data to a ByteBuffer for transmission to a player.
+  description: 'The WriteCreate method serializes the arena cooldown information into
+    a ByteBuffer format suitable for network transmission. This method is typically
+    used when sending initial arena cooldown state data to a player, such as when
+    they join an arena match or when their cooldown status needs to be synchronized
+    with the client. The method takes two Player pointers: one representing the owner
+    of the cooldown data and another representing the receiver who will be getting
+    this information. It ensures that the cooldown data is properly formatted according
+    to TrinityCore''s packet structure conventions.'
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized arena cooldown data
+      will be written.
+  - name: owner
+    description: Pointer to the Player object whose cooldown data is being serialized.
+      This represents the source of the cooldown information.
+  - name: receiver
+    description: Pointer to the Player object who will receive this cooldown data.
+      Used for determining proper serialization format and permissions.
+  returns: null
+  examples:
+  - title: Basic usage in arena match initialization
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Player with arena cooldown
+
+      Player* receiver = ...; // Player receiving the cooldown info
+
+      ArenaCooldown cooldown;
+
+      cooldown.WriteCreate(data, owner, receiver);
+
+      // Send data to receiver''s client'
+    language: cpp
+  - title: Sending cooldown data during arena match start
+    code: "void SendArenaCooldownToPlayer(Player* player)\n{\n    ByteBuffer buffer;\n\
+      \    Player* arenaOwner = GetArenaOwner();\n    if (arenaOwner)\n    {\n   \
+      \     ArenaCooldown cooldown;\n        cooldown.WriteCreate(buffer, arenaOwner,\
+      \ player);\n        player->SendDirectMessage(&buffer);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    should be called only when preparing data for network transmission. The ByteBuffer
+    must be properly initialized before calling this method. Implementation details
+    may vary based on the specific arena cooldown type being serialized.
+  warnings: Ensure that both owner and receiver Player pointers are valid before calling
+    this method, as dereferencing invalid pointers will cause crashes. This method
+    should not be used outside of arena-related contexts unless the underlying data
+    structure is properly initialized.
+  related:
+  - ArenaCooldown::ReadCreate
+  - ArenaCooldown::Initialize
+  - ArenaCooldown::Update
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:19:16.493480'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

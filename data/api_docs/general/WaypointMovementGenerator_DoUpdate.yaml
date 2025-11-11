@@ -1,0 +1,61 @@
+api:
+  class: WaypointMovementGenerator
+  method: DoUpdate
+  signature: bool WaypointMovementGenerator::DoUpdate(Creature * param0, uint32 param1)
+documentation:
+  brief: Updates the waypoint movement generator for a creature, advancing its position
+    along the defined path.
+  description: The DoUpdate method is responsible for handling the logic of moving
+    a creature along a predefined waypoint path. It calculates the next position based
+    on the current waypoint and updates the creature's movement state accordingly.
+    This method is typically called during each update tick in the game loop to ensure
+    smooth movement behavior. The method returns true if the movement was successfully
+    updated, or false when the creature has reached the end of its path or encountered
+    an error condition.
+  parameters:
+  - name: param0
+    description: Pointer to the Creature object that is following the waypoint path.
+      This represents the entity whose movement state will be updated.
+  - name: param1
+    description: The update time delta in milliseconds since the last update call.
+      Used to calculate precise movement timing and interpolation.
+  returns: Returns true if the creature's position was successfully updated along
+    the waypoint path, or false if the creature has reached the end of its path, is
+    invalid, or encountered an error during processing.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (m_movementGenerator\
+      \ && m_movementGenerator->GetMovementGeneratorType() == WAYPOINT_MOTION_TYPE)\n\
+      \    {\n        WaypointMovementGenerator* wpGen = static_cast<WaypointMovementGenerator*>(m_movementGenerator);\n\
+      \        wpGen->DoUpdate(me, diff);\n    }\n}"
+    language: cpp
+  - title: Checking movement completion
+    code: "bool HandleWaypointMovement(Creature* creature, uint32 diff)\n{\n    if\
+      \ (!creature || !creature->GetMotionMaster()->GetCurrentMovementGeneratorType()\
+      \ == WAYPOINT_MOTION_TYPE)\n        return false;\n\n    WaypointMovementGenerator*\
+      \ wpGen = static_cast<WaypointMovementGenerator*>(\n        creature->GetMotionMaster()->GetCurrentMovementGenerator());\n\
+      \    \n    bool updated = wpGen->DoUpdate(creature, diff);\n    if (!updated)\n\
+      \    {\n        // Path completed or error occurred\n        creature->GetMotionMaster()->Clear();\n\
+      \        return false;\n    }\n    return true;\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's movement system and integrates with
+    the Creature's MotionMaster. The implementation handles waypoint interpolation,
+    speed calculations, and ensures proper path completion detection. Performance-wise,
+    this method should be called frequently but not excessively to avoid unnecessary
+    overhead.
+  warnings: Do not call this method directly on a creature that is not currently using
+    a WaypointMovementGenerator. Ensure the creature pointer is valid before calling
+    to prevent crashes. The method assumes the waypoint data is properly initialized
+    and accessible.
+  related:
+  - GetMovementGeneratorType
+  - Initialize
+  - Reset
+  - Pause
+  - Resume
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T16:55:18.882550'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

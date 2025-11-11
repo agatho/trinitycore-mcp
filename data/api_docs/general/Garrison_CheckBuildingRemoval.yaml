@@ -1,0 +1,52 @@
+api:
+  class: Garrison
+  method: CheckBuildingRemoval
+  signature: GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId)
+    const
+documentation:
+  brief: Checks if a garrison building can be removed from the specified plot instance.
+  description: The CheckBuildingRemoval method validates whether a building located
+    on a given garrison plot instance is eligible for removal. It performs various
+    checks such as ensuring the plot has a building, verifying that the building is
+    not in an active state (e.g., under construction or in use), and confirming that
+    the player has appropriate permissions to remove the structure. This method is
+    typically called before attempting to remove a building to prevent invalid operations
+    and maintain garrison integrity. The result is returned as a GarrisonError enum
+    value indicating success or the specific reason for failure.
+  parameters:
+  - name: garrPlotInstanceId
+    description: The unique identifier of the garrison plot instance from which the
+      building removal is being requested. This ID corresponds to a specific plot
+      within the player's garrison and must reference an existing plot with a building.
+  returns: A GarrisonError enum value indicating the outcome of the validation check.
+    Possible values include GARRISON_ERROR_NONE if the building can be removed, or
+    other error codes such as GARRISON_ERROR_NOT_FOUND, GARRISON_ERROR_BUILDING_IN_USE,
+    or GARRISON_ERROR_PERMISSION_DENIED depending on the reason for failure.
+  examples:
+  - title: Basic usage to check building removal eligibility
+    code: "GarrisonError result = garrison->CheckBuildingRemoval(12345);\nif (result\
+      \ == GARRISON_ERROR_NONE) {\n    // Proceed with building removal logic\n  \
+      \  // e.g., RemoveBuildingFromPlot(12345);\n} else {\n    // Handle error case\
+      \ based on result value\n    TC_LOG_ERROR(\"garrison\", \"Failed to remove building:\
+      \ %u\", result);\n}"
+    language: cpp
+  notes: This method does not perform the actual removal of the building; it only
+    validates whether the operation is allowed. The caller must implement additional
+    logic to carry out the physical removal if the check passes. This function may
+    involve database lookups or internal state checks, so frequent calls should be
+    avoided in performance-critical sections.
+  warnings: Ensure that garrPlotInstanceId refers to a valid plot instance within
+    the current player's garrison. Passing an invalid ID could lead to undefined behavior
+    or incorrect error codes. Also, note that this method may return different errors
+    depending on the building state and player permissions, so callers should handle
+    all possible error cases appropriately.
+  related:
+  - RemoveBuilding
+  - GetPlotState
+  - HasBuilding
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:22:36.852292'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

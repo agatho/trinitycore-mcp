@@ -1,0 +1,51 @@
+api:
+  class: GroupCoordinator
+  method: IsRaidLeader
+  signature: bool GroupCoordinator::IsRaidLeader() const
+documentation:
+  brief: Determines whether the player is the raid leader of their current group
+  description: This method checks if the player associated with the GroupCoordinator
+    instance holds the raid leader role within their current raid group. In World
+    of Warcraft's TrinityCore implementation, raid leadership is determined by the
+    group's leader status and the group type being a raid. The method returns true
+    only if the player is both the group leader and the group is configured as a raid.
+    This functionality is essential for determining permissions and access to raid-specific
+    features such as loot distribution settings, raid commands, and group management
+    options.
+  parameters: []
+  returns: Returns true if the player is the raid leader of their current group; otherwise
+    returns false. The method will return false if the player is not in a group, if
+    the group is not a raid, or if the player is not the group leader.
+  examples:
+  - title: Basic usage to check raid leadership
+    code: "if (groupCoordinator->IsRaidLeader()) {\n    // Player has raid leader\
+      \ permissions\n    SendRaidCommand(\"start_raid_encounter\");\n} else {\n  \
+      \  // Player does not have raid leader permissions\n    SendSystemMessage(\"\
+      You must be the raid leader to perform this action.\");\n}"
+    language: cpp
+  - title: Using in a command handler to validate permissions
+    code: "void HandleRaidLockCommand(ChatHandler* handler) {\n    GroupCoordinator*\
+      \ coordinator = handler->GetPlayer()->GetGroupCoordinator();\n    if (!coordinator\
+      \ || !coordinator->IsRaidLeader()) {\n        handler->SendSysMessage(\"You\
+      \ must be the raid leader to lock the raid.\");\n        return;\n    }\n  \
+      \  // Proceed with raid locking logic\n    coordinator->LockRaid();\n}"
+    language: cpp
+  notes: This method relies on the internal group leadership state maintained by TrinityCore.
+    It does not perform any network calls or database queries, making it efficient
+    for frequent checks. The method will return false if the player is in a party
+    but not in a raid, or if the group has been disbanded.
+  warnings: Be aware that this method only checks the immediate leadership status
+    and does not account for temporary leadership transfers or sub-group leader roles.
+    Additionally, in scenarios where multiple players might have similar permissions
+    (like raid assistants), this method will only return true for the actual group
+    leader.
+  related:
+  - GetGroupLeader
+  - IsRaid
+  - IsGroupLeader
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T17:39:32.821822'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

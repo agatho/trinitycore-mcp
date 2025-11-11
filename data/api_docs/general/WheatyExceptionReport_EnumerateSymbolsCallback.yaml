@@ -1,0 +1,57 @@
+api:
+  class: WheatyExceptionReport
+  method: EnumerateSymbolsCallback
+  signature: BOOL WheatyExceptionReport::EnumerateSymbolsCallback(PSYMBOL_INFO param0,
+    ULONG param1, PVOID param2)
+documentation:
+  brief: Enumerates debug symbols for exception handling and crash reporting in TrinityCore.
+  description: The EnumerateSymbolsCallback method is a callback function used during
+    exception handling to process and collect symbol information from the debug symbols
+    of a crashed application. This method is typically invoked by the Windows debugging
+    API when generating crash reports, allowing developers to extract detailed stack
+    trace information including function names, line numbers, and module paths. In
+    the context of TrinityCore, this functionality supports automated crash reporting
+    and debugging efforts by providing meaningful symbol data that can be used to
+    analyze and resolve unexpected server crashes or client-side exceptions.
+  parameters:
+  - name: param0
+    description: Pointer to a SYMBOL_INFO structure that contains information about
+      the symbol being enumerated, including symbol name, address, and type.
+  - name: param1
+    description: The size of the symbol data pointed to by param0, in bytes. This
+      parameter helps validate the integrity of the symbol information.
+  - name: param2
+    description: User-defined context pointer passed to the enumeration function.
+      In WheatyExceptionReport, this typically points to a buffer or structure where
+      symbol data is collected for crash reporting.
+  returns: Returns TRUE to continue enumeration of symbols, or FALSE to stop the enumeration
+    process. Returning FALSE can be used to halt processing if an error condition
+    occurs or when a specific symbol threshold has been reached.
+  examples:
+  - title: Basic usage in crash reporting
+    code: "#include <windows.h>\n#include <dbghelp.h>\n\nBOOL WheatyExceptionReport::EnumerateSymbolsCallback(PSYMBOL_INFO\
+      \ param0, ULONG param1, PVOID param2)\n{\n    // Collect symbol information\
+      \ for crash report\n    if (param0 && param2)\n    {\n        // Write symbol\
+      \ data to buffer or log file\n        // Example: Append symbol name and address\
+      \ to crash report\n        return TRUE;  // Continue enumeration\n    }\n  \
+      \  return FALSE;  // Stop enumeration on error\n}"
+    language: cpp
+  notes: This method is part of the Windows debugging infrastructure and relies on
+    the dbghelp.dll library. It should only be called during exception handling or
+    crash dump generation scenarios. The callback function must handle potential memory
+    allocation issues and ensure thread safety if used in multi-threaded environments.
+  warnings: Improper handling of the SYMBOL_INFO structure can lead to buffer overflows
+    or access violations. Always validate parameter values before using them, especially
+    param1 which indicates the size of the symbol data. This method should not be
+    used outside of crash reporting contexts as it may interfere with normal application
+    execution.
+  related:
+  - WheatyExceptionReport::GenerateCrashReport
+  - WheatyExceptionReport::Initialize
+  - WheatyExceptionReport::WriteSymbolInfo
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T16:52:31.132669'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

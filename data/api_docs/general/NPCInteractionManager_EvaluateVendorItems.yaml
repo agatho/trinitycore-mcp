@@ -1,0 +1,54 @@
+api:
+  class: NPCInteractionManager
+  method: EvaluateVendorItems
+  signature: int NPCInteractionManager::EvaluateVendorItems(Creature * vendor) const
+documentation:
+  brief: Evaluates and returns the total count of items available for purchase from
+    a vendor creature.
+  description: 'The EvaluateVendorItems method performs an analysis of all items currently
+    listed for sale by the specified vendor creature. It iterates through the vendor''s
+    item list, counting valid purchasable entries while considering item availability,
+    vendor flags, and player-specific restrictions. This method is typically used
+    during NPC interaction processing to determine the number of items a vendor can
+    offer to a player. The returned integer value represents the total count of items
+    that would be displayed in the vendor''s shopping interface. Precondition: The
+    vendor parameter must point to a valid Creature object with a valid vendor template.
+    Postcondition: The method returns a non-negative integer indicating item count,
+    or -1 if an error occurs during evaluation.'
+  parameters:
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor whose items
+      are being evaluated. Must be a valid pointer to a creature with vendor functionality
+      enabled.
+  returns: Returns a positive integer indicating the total number of items available
+    for purchase from the vendor, or -1 if an error occurs during evaluation. A return
+    value of 0 indicates the vendor has no items for sale.
+  examples:
+  - title: Basic Usage in NPC Interaction
+    code: "void HandleVendorInteraction(Player* player, Creature* vendor)\n{\n   \
+      \ NPCInteractionManager interactionManager;\n    int itemCount = interactionManager.EvaluateVendorItems(vendor);\n\
+      \    if (itemCount >= 0)\n    {\n        // Proceed with vendor UI display logic\n\
+      \        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, \"View Items\", GOSSIP_SENDER_MAIN,\
+      \ GOSSIP_ACTION_TRADE);\n    }\n    else\n    {\n        // Handle evaluation\
+      \ error\n        sLog->outError(\"Failed to evaluate vendor items for creature\
+      \ %u\", vendor->GetGUID().GetCounter());\n    }\n}"
+    language: cpp
+  notes: This method may perform database queries to retrieve vendor item information,
+    so it should not be called excessively during high-frequency interactions. The
+    evaluation considers player reputation, faction restrictions, and item availability
+    flags. Implementation assumes the vendor has been properly initialized with vendor
+    data.
+  warnings: Passing a null pointer for the vendor parameter will likely cause a crash
+    or undefined behavior. Always validate that the Creature pointer is valid before
+    calling this method. The method does not account for temporary vendor item unavailability
+    due to cooldowns or quest requirements, only static vendor item lists.
+  related:
+  - GetVendorItems
+  - HasVendorItems
+  - IsVendorValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T05:17:41.761489'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

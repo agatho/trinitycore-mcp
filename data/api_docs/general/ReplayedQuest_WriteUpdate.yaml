@@ -1,0 +1,81 @@
+api:
+  class: ReplayedQuest
+  method: WriteUpdate
+  signature: void ReplayedQuest::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes the replayed quest data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of a ReplayedQuest
+    object into a ByteBuffer, which is typically used for sending updates to players
+    in the game world. This method handles the encoding of quest-related data such
+    as quest ID, completion status, and any relevant timestamps or flags. It is commonly
+    invoked when a player's quest log needs to be refreshed or updated, particularly
+    during login sequences or when a quest is replayed. The method respects the ignoreChangesMask
+    parameter to determine whether all fields should be serialized or only those that
+    have changed since the last update. The owner and receiver parameters provide
+    context for determining what data should be included in the update packet.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where the serialized quest data will be written.
+      This buffer is typically used to construct network packets sent to players.
+  - name: ignoreChangesMask
+    description: A boolean flag indicating whether to ignore the change tracking mask.
+      If true, all fields are serialized regardless of their change status. If false,
+      only changed fields are included in the update.
+  - name: owner
+    description: The Player object representing the quest owner (the player who originally
+      completed or started the quest). Used to determine ownership context during
+      serialization.
+  - name: receiver
+    description: The Player object representing the recipient of the update packet.
+      This is used to customize the data sent based on the receiver's perspective,
+      such as filtering out quests they haven't encountered yet.
+  returns: null
+  examples:
+  - title: Basic Usage in Quest Update
+    code: 'ByteBuffer updateData;
+
+      ReplayedQuest quest;
+
+      Player* owner = ...; // Get player who owns the quest
+
+      Player* receiver = ...; // Get player receiving the update
+
+      quest.WriteUpdate(updateData, false, owner, receiver);
+
+      // Send updateData to receiver via network'
+    language: cpp
+  - title: Forcing Full Update with Ignore Mask
+    code: 'ByteBuffer fullUpdate;
+
+      ReplayedQuest quest;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      quest.WriteUpdate(fullUpdate, true, owner, receiver);
+
+      // Send full update regardless of changes'
+    language: cpp
+  notes: This method is part of the TrinityCore's internal quest system and is typically
+    called by the core game loop when updating player quest states. It's important
+    to ensure that the ByteBuffer passed in is properly initialized before calling
+    this method, as it will append data to the existing buffer content. The method
+    may perform multiple serialization operations depending on the quest state and
+    change tracking.
+  warnings: Calling this method with an uninitialized ByteBuffer can lead to undefined
+    behavior or corrupted network packets. Additionally, passing null pointers for
+    owner or receiver parameters may cause crashes or incorrect serialization results.
+    Always validate player objects before calling this method.
+  related:
+  - ReplayedQuest::ReadUpdate
+  - ReplayedQuest::IsCompleted
+  - ReplayedQuest::GetQuestId
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:53:29.496921'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

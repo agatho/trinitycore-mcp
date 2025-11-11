@@ -1,0 +1,56 @@
+api:
+  class: DoubleBufferedSpatialGrid
+  method: GetWriteBuffer
+  signature: GridBuffer & DoubleBufferedSpatialGrid::GetWriteBuffer()
+documentation:
+  brief: Returns a reference to the write buffer of the double-buffered spatial grid
+    for updating grid data.
+  description: The GetWriteBuffer method provides access to the current write buffer
+    within a DoubleBufferedSpatialGrid instance. This buffer is used for writing or
+    updating grid data during spatial processing operations. The method ensures thread-safe
+    access to the write buffer by managing the internal double-buffering mechanism,
+    which alternates between two buffers to prevent race conditions when reading and
+    writing occur concurrently. In World of Warcraft's TrinityCore environment, this
+    is commonly used in spatial partitioning systems where grid cells need to be updated
+    with object positions or other spatial data without interfering with active reads
+    from other threads.
+  parameters: []
+  returns: A reference to the GridBuffer that represents the current write buffer.
+    This allows direct modification of the buffer contents for updating grid-related
+    information.
+  examples:
+  - title: Basic Usage in Spatial Update
+    code: 'DoubleBufferedSpatialGrid grid;
+
+      GridBuffer& writeBuf = grid.GetWriteBuffer();
+
+      // Populate writeBuf with new object positions
+
+      // The changes will be committed to the grid on next swap'
+    language: cpp
+  - title: Updating Grid with Object Data
+    code: "void UpdateSpatialGrid(DoubleBufferedSpatialGrid& grid, const std::vector<Object*>&\
+      \ objects) {\n    GridBuffer& writeBuf = grid.GetWriteBuffer();\n    for (const\
+      \ auto& obj : objects) {\n        writeBuf.AddObject(obj->GetPosition(), obj);\n\
+      \    }\n    // Changes are now in write buffer and will be applied on next swap\n\
+      }"
+    language: cpp
+  notes: This method is designed to be thread-safe for concurrent read/write operations.
+    The returned GridBuffer reference should not be stored beyond the scope of immediate
+    use, as it may become invalid after a buffer swap operation. The underlying implementation
+    typically uses atomic operations or mutexes to ensure consistency when multiple
+    threads access different buffers.
+  warnings: Do not modify the returned GridBuffer reference after the buffer has been
+    swapped; doing so may lead to undefined behavior or data corruption. Always ensure
+    that all modifications are completed before calling methods that might trigger
+    a buffer swap, such as SwapBuffers().
+  related:
+  - GetReadBuffer
+  - SwapBuffers
+  - GetBufferCount
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T14:35:38.453959'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

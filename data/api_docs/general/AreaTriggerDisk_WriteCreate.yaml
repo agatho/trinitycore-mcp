@@ -1,0 +1,60 @@
+api:
+  class: AreaTriggerDisk
+  method: WriteCreate
+  signature: void AreaTriggerDisk::WriteCreate(ByteBuffer & data, const AreaTrigger
+    * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger disk creation data to a byte buffer for client synchronization.
+  description: The WriteCreate method serializes the state and properties of an AreaTriggerDisk
+    object into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically invoked during the initial spawn or update of an area
+    trigger disk effect in the game world. It ensures that the client receives all
+    necessary information to render and manage the visual and functional aspects of
+    the area trigger disk, including its position, size, orientation, and associated
+    spell effects. The serialization process includes relevant metadata such as the
+    owner's GUID, trigger parameters, and any custom flags or settings required for
+    proper client-side behavior.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger disk
+      data will be written. This buffer is used to construct the packet sent to the
+      client.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this disk. Used to retrieve
+      owner-specific properties and state information for serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this data. May be used
+      to determine visibility, filtering, or client-specific adjustments during serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update
+    code: "void SendAreaTriggerDiskUpdate(Player* player, AreaTriggerDisk* disk)\n\
+      {\n    ByteBuffer data;\n    disk->WriteCreate(data, disk->GetOwner(), player);\n\
+      \    player->SendDirectMessage(&data);\n}"
+    language: cpp
+  - title: Custom Serialization for Specific Client
+    code: "void SendDiskToPlayer(AreaTriggerDisk* disk, Player* receiver)\n{\n   \
+      \ ByteBuffer buffer;\n    AreaTrigger const* owner = disk->GetOwner();\n   \
+      \ if (owner)\n        disk->WriteCreate(buffer, owner, receiver);\n    else\n\
+      \        TC_LOG_ERROR(\"entities.areatrigger\", \"AreaTriggerDisk has no owner!\"\
+      );\n}\n"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    should be called only when preparing data for network transmission. It assumes
+    that all necessary data members are properly initialized before invocation. The
+    method does not perform any validation on input parameters beyond basic null checks,
+    so callers must ensure validity.
+  warnings: Incorrect usage of this method may result in client-side visual glitches
+    or incorrect behavior of area trigger disks. Ensure that the provided 'owner'
+    and 'receiver' parameters are valid and properly initialized to avoid undefined
+    behavior or crashes.
+  related:
+  - AreaTriggerDisk::WriteUpdate
+  - AreaTriggerDisk::BuildUpdateData
+  - AreaTrigger::GetOwner
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:25:01.506863'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

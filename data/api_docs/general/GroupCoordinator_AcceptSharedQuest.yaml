@@ -1,0 +1,57 @@
+api:
+  class: GroupCoordinator
+  method: AcceptSharedQuest
+  signature: bool GroupCoordinator::AcceptSharedQuest(uint32 questId, Player * sharer)
+documentation:
+  brief: Attempts to accept a shared quest from another player in the group
+  description: The AcceptSharedQuest method handles the logic for a player accepting
+    a quest that has been shared with them by another group member. This method verifies
+    that the quest is valid, checks if the player can accept the quest (including
+    level requirements and quest prerequisites), and updates the player's quest log
+    accordingly. The method ensures proper synchronization of quest states between
+    the sharer and the accepter within the group context.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being accepted. Must correspond
+      to a valid quest in the game database.
+  - name: sharer
+    description: Pointer to the Player object who originally shared the quest. Must
+      be a valid player in the same group as the accepting player.
+  returns: Returns true if the quest was successfully accepted and added to the player's
+    quest log, false otherwise. Failure may occur due to invalid quest ID, level requirements
+    not met, or quest already completed.
+  examples:
+  - title: Basic Quest Acceptance
+    code: "if (groupCoordinator->AcceptSharedQuest(12345, sharerPlayer)) {\n    //\
+      \ Quest accepted successfully\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Quest accepted!\");\n} else {\n    // Failed to accept quest\n    ChatHandler(player->GetSession()).SendSysMessage(\"\
+      Failed to accept quest.\");\n}"
+    language: cpp
+  - title: Quest Acceptance with Error Handling
+    code: "Player* player = ...; // Get current player\nPlayer* sharer = ...; // Get\
+      \ quest sharer\nuint32 questId = 12345;\n\nif (!player || !sharer) {\n    return\
+      \ false;\n}\n\nGroup* group = player->GetGroup();\nif (!group || !group->IsMember(sharer->GetGUID()))\
+      \ {\n    return false;\n}\n\nif (groupCoordinator->AcceptSharedQuest(questId,\
+      \ sharer)) {\n    // Quest accepted successfully\n    player->SendQuestUpdateAddItem(questId,\
+      \ 0, 1);\n} else {\n    // Handle quest acceptance failure\n    player->SendNotification(\"\
+      Could not accept shared quest.\");\n}"
+    language: cpp
+  notes: This method assumes that the quest sharing mechanism has already been properly
+    initialized and validated. The method does not perform any network synchronization
+    or database updates directly; it relies on the underlying TrinityCore systems
+    to handle these operations. It's important to ensure both players are in the same
+    group before calling this method.
+  warnings: Calling this method without proper validation may lead to inconsistent
+    quest states between players. Ensure that the quest ID is valid and that the sharer
+    player is actually a member of the same group as the accepting player. This method
+    should not be called from outside the group context without proper checks.
+  related:
+  - GroupCoordinator::ShareQuest
+  - Player::AddQuest
+  - Player::CanTakeQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:36:56.695337'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

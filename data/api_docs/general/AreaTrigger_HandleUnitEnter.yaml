@@ -1,0 +1,52 @@
+api:
+  class: AreaTrigger
+  method: HandleUnitEnter
+  signature: void AreaTrigger::HandleUnitEnter(Unit * unit)
+documentation:
+  brief: Handles the event when a unit enters the area trigger's effect zone
+  description: The HandleUnitEnter method is invoked when a Unit (player or creature)
+    enters the area trigger's active zone. This method typically processes the trigger's
+    effects, such as applying spells, sending messages, or initiating quest events.
+    It serves as the primary callback for area trigger interactions and is responsible
+    for executing the trigger's defined behavior upon unit entry. The method ensures
+    proper handling of the entering unit's state and may modify the unit's condition
+    or progress through game mechanics like quests or combat.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that has entered the area trigger zone.
+      This can be a Player or Creature instance. Must not be null.
+  returns: null
+  examples:
+  - title: Basic usage in custom area trigger handler
+    code: "void MyAreaTrigger::HandleUnitEnter(Unit* unit)\n{\n    if (unit->IsPlayer())\n\
+      \    {\n        Player* player = unit->ToPlayer();\n        player->AddItem(ITEM_ID,\
+      \ 1);\n        player->SendNotification(\"You have entered the sacred area.\"\
+      );\n    }\n}"
+    language: cpp
+  - title: Advanced usage with conditional trigger effects
+    code: "void QuestAreaTrigger::HandleUnitEnter(Unit* unit)\n{\n    if (!unit ||\
+      \ !unit->IsPlayer())\n        return;\n\n    Player* player = unit->ToPlayer();\n\
+      \    if (player->GetQuestStatus(QUEST_ID) == QUEST_STATUS_INCOMPLETE)\n    {\n\
+      \        player->AreaExploredOrEventHappens(QUEST_ID);\n        player->CastSpell(player,\
+      \ SPELL_ID, true);\n    }\n}"
+    language: cpp
+  notes: This method is typically called from the core game loop when unit movement
+    intersects with an area trigger's boundaries. It should not be used to perform
+    heavy computations as it may affect performance during frequent unit movement
+    events. The method assumes that the unit pointer is valid and has already been
+    validated before being passed.
+  warnings: Do not modify the unit's position or state directly within this method
+    unless necessary, as it can cause synchronization issues. Avoid calling methods
+    that might recursively trigger area trigger events, which could lead to stack
+    overflow or unexpected behavior.
+  related:
+  - HandleUnitExit
+  - HandleUnitKilled
+  - IsPlayerInside
+  - GetTriggerId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:07:27.898684'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

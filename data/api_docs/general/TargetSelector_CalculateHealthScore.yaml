@@ -1,0 +1,61 @@
+api:
+  class: TargetSelector
+  method: CalculateHealthScore
+  signature: float TargetSelector::CalculateHealthScore(Unit * target, const SelectionContext
+    & context)
+documentation:
+  brief: Calculates a health-based scoring value for a target unit to determine selection
+    priority in AI decision-making.
+  description: The CalculateHealthScore method evaluates the relative health status
+    of a given target unit and returns a normalized float score that represents how
+    healthy or vulnerable the target is. This score is typically used by AI systems
+    within TrinityCore to prioritize targets during combat, where lower health scores
+    may indicate higher priority for selection. The calculation considers the target's
+    current health percentage in relation to its maximum health, potentially incorporating
+    context-specific modifiers from the SelectionContext such as threat levels or
+    faction relationships. This method is part of the TargetSelector class and forms
+    a core component in determining optimal enemy targeting strategies.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target whose health score
+      will be calculated. Must not be null.
+  - name: context
+    description: Reference to a SelectionContext object containing contextual information
+      that may influence the scoring calculation, such as threat level, faction, or
+      combat state.
+  returns: A float value representing the health score of the target. Lower values
+    typically indicate higher priority targets (e.g., low health enemies), while higher
+    values suggest less vulnerable targets. The exact range and interpretation may
+    vary based on implementation details.
+  examples:
+  - title: Basic usage in AI targeting logic
+    code: "float score = selector.CalculateHealthScore(targetUnit, selectionContext);\n\
+      if (score < 0.3f) {\n    // Target is critically low health and should be prioritized\n\
+      \    targetSelector.SetCurrentTarget(targetUnit);\n}"
+    language: cpp
+  - title: Comparing multiple targets for selection
+    code: "Unit* bestTarget = nullptr;\nfloat bestScore = FLT_MAX;\nfor (auto& target\
+      \ : possibleTargets) {\n    float score = selector.CalculateHealthScore(target,\
+      \ context);\n    if (score < bestScore) {\n        bestScore = score;\n    \
+      \    bestTarget = target;\n    }\n}\nif (bestTarget) {\n    // Select the target\
+      \ with lowest health score\n    ai->SetCurrentTarget(bestTarget);\n}"
+    language: cpp
+  notes: This method is likely used in conjunction with other scoring methods to form
+    a composite target selection algorithm. The returned float score should be interpreted
+    within the context of the overall AI decision-making framework, as it may not
+    directly correspond to absolute health values but rather relative vulnerability
+    indicators.
+  warnings: Ensure that the target parameter is valid and not null before calling
+    this method, as dereferencing a null pointer will result in undefined behavior.
+    Also, be aware that the scoring algorithm may change between different versions
+    of TrinityCore or custom modifications.
+  related:
+  - TargetSelector::CalculateThreatScore
+  - TargetSelector::CalculateDistanceScore
+  - TargetSelector::CalculateAggroScore
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:29:31.946821'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

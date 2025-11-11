@@ -1,0 +1,64 @@
+api:
+  class: AuctionHouse
+  method: ExecuteBuyAction
+  signature: bool AuctionHouse::ExecuteBuyAction(int * player, const AuctionItem &
+    auction)
+documentation:
+  brief: Processes a player's purchase action for an auction item, updating inventory
+    and auction house records.
+  description: The ExecuteBuyAction method handles the core logic for a player purchasing
+    an item from the auction house. It validates the purchase request, checks if the
+    player has sufficient funds, deducts the bid amount from the player's account,
+    transfers the item to the buyer's inventory, and updates the auction house database
+    records accordingly. This method ensures that all auction transactions are properly
+    recorded and that game economy mechanics are maintained. The method returns true
+    if the purchase is successfully processed, or false if any validation fails or
+    the transaction cannot be completed.
+  parameters:
+  - name: player
+    description: Pointer to an integer representing the player's unique identifier
+      (GUID). This parameter identifies which player is attempting to make the purchase.
+  - name: auction
+    description: Reference to an AuctionItem object containing details about the item
+      being purchased, including item ID, bid amount, and auction duration.
+  returns: Boolean value indicating success (true) or failure (false) of the purchase
+    transaction. Returns false if the player lacks funds, the item is no longer available,
+    or other validation checks fail.
+  examples:
+  - title: Basic Auction Purchase
+    code: "int playerId = 12345;\nAuctionItem auctionItem;\nauctionItem.itemID = 45678;\n\
+      auctionItem.bidAmount = 1000;\nbool success = auctionHouse.ExecuteBuyAction(&playerId,\
+      \ auctionItem);\nif (success) {\n    // Handle successful purchase\n    printf(\"\
+      Purchase completed successfully\\n\");\n} else {\n    // Handle failed purchase\n\
+      \    printf(\"Purchase failed\\n\");\n}"
+    language: cpp
+  - title: Checking Purchase Result Before Proceeding
+    code: "int playerId = 12345;\nAuctionItem auctionItem;\nauctionItem.itemID = 98765;\n\
+      auctionItem.bidAmount = 5000;\n\nif (auctionHouse.ExecuteBuyAction(&playerId,\
+      \ auctionItem)) {\n    // Notify player of successful purchase\n    Player*\
+      \ player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, playerId));\n\
+      \    if (player) {\n        player->SendNotification(\"You have successfully\
+      \ purchased the item.\");\n    }\n} else {\n    // Notify player of failed purchase\n\
+      \    Player* player = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player,\
+      \ playerId));\n    if (player) {\n        player->SendNotification(\"Purchase\
+      \ failed. Please try again later.\");\n    }\n}"
+    language: cpp
+  notes: This method is typically invoked when a player clicks the 'Buy Now' button
+    in the auction house interface. It performs several database operations including
+    updating player money, modifying item ownership, and removing the auction record
+    from the active listings. The method assumes that all preconditions (such as sufficient
+    funds and valid item availability) have been checked before calling.
+  warnings: This method does not perform any direct validation of the player's funds
+    or item availability - those checks should be performed by calling methods before
+    invoking ExecuteBuyAction. Improper use without proper pre-validation can lead
+    to inconsistent game state or database corruption.
+  related:
+  - AuctionHouse::GetAuctionItem
+  - AuctionHouse::UpdateAuctionItem
+  - AuctionHouse::RemoveAuctionItem
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T09:05:53.441080'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

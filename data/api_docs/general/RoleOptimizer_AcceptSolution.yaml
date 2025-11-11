@@ -1,0 +1,59 @@
+api:
+  class: RoleOptimizer
+  method: AcceptSolution
+  signature: bool RoleOptimizer::AcceptSolution(float currentScore, float newScore,
+    float temperature)
+documentation:
+  brief: Determines whether to accept a new solution during role optimization based
+    on simulated annealing criteria.
+  description: The AcceptSolution method implements a decision mechanism used in the
+    RoleOptimizer class, typically following principles of simulated annealing. It
+    evaluates whether to accept a new solution (represented by newScore) over the
+    current one (currentScore), considering a given temperature parameter that controls
+    the probability of accepting worse solutions. This allows the optimization algorithm
+    to escape local optima and potentially find better global solutions. The method
+    is crucial for the role assignment logic in TrinityCore's AI systems, particularly
+    when optimizing player roles within groups or raids.
+  parameters:
+  - name: currentScore
+    description: The fitness score of the current solution being considered.
+  - name: newScore
+    description: The fitness score of the proposed new solution to evaluate.
+  - name: temperature
+    description: A control parameter that determines the probability of accepting
+      worse solutions. Higher temperatures allow more exploration, lower temperatures
+      favor exploitation.
+  returns: Returns true if the new solution is accepted, false otherwise. Acceptance
+    is determined probabilistically based on the difference between scores and the
+    current temperature.
+  examples:
+  - title: Basic usage in role optimization loop
+    code: "float current = optimizer.GetCurrentScore();\nfloat proposed = optimizer.EvaluateNewSolution();\n\
+      float temp = optimizer.GetTemperature();\nif (optimizer.AcceptSolution(current,\
+      \ proposed, temp)) {\n    optimizer.SetCurrentSolution(proposed);\n}"
+    language: cpp
+  - title: Simulated annealing acceptance with cooling schedule
+    code: "for (int i = 0; i < maxIterations; ++i) {\n    float currentScore = roleOptimizer.GetCurrentScore();\n\
+      \    float newScore = roleOptimizer.ProposeNewSolution();\n    float temperature\
+      \ = initialTemp * std::pow(coolingRate, i);\n    if (roleOptimizer.AcceptSolution(currentScore,\
+      \ newScore, temperature)) {\n        roleOptimizer.UpdateCurrentSolution(newScore);\n\
+      \    }\n}"
+    language: cpp
+  notes: 'This method is part of a probabilistic optimization strategy that mimics
+    physical annealing processes. The acceptance probability follows the formula:
+    P = exp(-(newScore - currentScore) / temperature). It''s important to ensure that
+    temperature decreases appropriately over time for convergence.'
+  warnings: Incorrect implementation of the acceptance criteria can lead to premature
+    convergence or excessive exploration, both of which may degrade optimization performance.
+    Ensure that temperature values are positive and properly scaled with respect to
+    score differences.
+  related:
+  - RoleOptimizer::GetCurrentScore
+  - RoleOptimizer::ProposeNewSolution
+  - RoleOptimizer::GetTemperature
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T20:20:58.149554'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

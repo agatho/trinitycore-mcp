@@ -1,0 +1,49 @@
+api:
+  class: MistweaverSoothingMistTracker
+  method: GetTarget
+  signature: int MistweaverSoothingMistTracker::GetTarget() const
+documentation:
+  brief: Returns the target identifier of the Mistweaver Soothing Mist ability
+  description: The GetTarget method retrieves the GUID (Global Unique Identifier)
+    of the current target that the Mistweaver's Soothing Mist ability is applied to.
+    This method is typically used within the context of a Mistweaver monk's healing
+    rotation to determine which unit is currently benefiting from the soothing mist
+    effect. The returned value represents the target's unique identifier within the
+    game world, allowing for tracking and management of the spell's application and
+    duration.
+  parameters: []
+  returns: An integer representing the GUID of the target unit currently affected
+    by Soothing Mist, or 0 if no valid target exists
+  examples:
+  - title: Basic Usage to Check Target
+    code: "int targetGuid = tracker->GetTarget();\nif (targetGuid != 0)\n{\n    //\
+      \ Soothing Mist is currently applied to a valid target\n    Unit* target = ObjectAccessor::GetUnit(*m_owner,\
+      \ targetGuid);\n    if (target && target->IsAlive())\n    {\n        // Perform\
+      \ healing logic for the target\n    }\n}"
+    language: cpp
+  - title: Using Target in Healing Logic
+    code: "void MistweaverSoothingMistTracker::Update()\n{\n    int targetGuid = GetTarget();\n\
+      \    if (targetGuid != 0)\n    {\n        Unit* target = ObjectAccessor::GetUnit(*m_owner,\
+      \ targetGuid);\n        if (target && target->IsAlive())\n        {\n      \
+      \      // Apply healing or update aura duration\n            m_owner->DealHealing(target,\
+      \ GetHealAmount(), true);\n        }\n        else\n        {\n            //\
+      \ Target is dead or invalid, reset tracker\n            Reset();\n        }\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the tracker has been properly initialized and that
+    a valid target exists. The returned GUID should be used with ObjectAccessor::GetUnit()
+    to retrieve the actual Unit object for further operations. This method is typically
+    called during spell update or tick events.
+  warnings: The method returns 0 when no valid target exists, which should be checked
+    before attempting to use the returned value. Using an invalid GUID with ObjectAccessor::GetUnit()
+    may result in a null pointer dereference if not properly validated.
+  related:
+  - SetTarget
+  - IsTargetValid
+  - Reset
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T16:19:36.689911'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

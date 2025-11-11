@@ -1,0 +1,56 @@
+api:
+  class: SpatialQueryMetrics
+  method: GetCacheHitRate
+  signature: float SpatialQueryMetrics::GetCacheHitRate() const
+documentation:
+  brief: Calculates and returns the cache hit rate percentage for spatial query operations.
+  description: The GetCacheHitRate method computes the ratio of successful cached
+    lookups to total spatial query requests, expressed as a floating-point value between
+    0.0 and 1.0. This metric is crucial for monitoring the efficiency of the spatial
+    query system's caching mechanism in TrinityCore's world server. The method aggregates
+    internal counters tracking cache hits and misses over the lifetime of the SpatialQueryMetrics
+    instance, providing insight into how effectively spatial data is being cached
+    during world object queries such as those used for visibility checks, pathfinding,
+    or area-of-effect spell targeting. This information helps developers optimize
+    performance by identifying when caching strategies may need adjustment.
+  parameters: []
+  returns: A float value representing the cache hit rate, where 0.0 indicates no cache
+    hits (100% cache misses) and 1.0 indicates all queries were served from cache
+    (100% cache hits). Values between 0.0 and 1.0 represent the proportion of successful
+    cached lookups relative to total requests.
+  examples:
+  - title: Basic Usage Example
+    code: 'SpatialQueryMetrics metrics;
+
+      // ... perform some spatial queries ...
+
+      float hitRate = metrics.GetCacheHitRate();
+
+      std::cout << "Cache Hit Rate: " << (hitRate * 100) << "%" << std::endl;'
+    language: cpp
+  - title: Performance Monitoring Example
+    code: "void LogSpatialQueryStats() {\n    static SpatialQueryMetrics* stats =\
+      \ nullptr;\n    if (!stats) stats = new SpatialQueryMetrics();\n    \n    float\
+      \ hitRate = stats->GetCacheHitRate();\n    if (hitRate < 0.7f) {\n        sLog->outError(\"\
+      Low spatial query cache hit rate: %.2f%%\", hitRate * 100);\n    }\n}"
+    language: cpp
+  notes: This method is typically used for performance monitoring and debugging purposes.
+    The returned value is calculated using internal counters that are updated during
+    spatial query operations. For accurate measurements, it's recommended to call
+    this method after sufficient query activity has occurred. The cache hit rate may
+    fluctuate based on world object movement and query patterns.
+  warnings: The cache hit rate calculation assumes that all queries are properly tracked
+    through the SpatialQueryMetrics system. If queries bypass the metrics tracking,
+    the returned value may not accurately reflect actual performance. Additionally,
+    this method does not account for cache eviction policies or memory pressure effects
+    that might influence real-world caching behavior.
+  related:
+  - GetCacheMissRate
+  - GetTotalQueryCount
+  - GetCacheHitCount
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T14:47:20.891371'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

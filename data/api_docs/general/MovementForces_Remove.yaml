@@ -1,0 +1,50 @@
+api:
+  class: MovementForces
+  method: Remove
+  signature: bool MovementForces::Remove(ObjectGuid id)
+documentation:
+  brief: Removes a movement force entry by its unique identifier from the internal
+    collection.
+  description: The Remove method attempts to delete a movement force entry identified
+    by the provided ObjectGuid from the internal data structure used by the MovementForces
+    class. This method is typically invoked when a movement force effect needs to
+    be terminated or cleared, such as when a spell or aura expires, or when an object
+    is removed from the game world. The operation ensures that any references to the
+    specified movement force are eliminated, preventing further application of its
+    effects. It returns true if the entry was successfully found and removed; otherwise,
+    it returns false if no matching entry exists.
+  parameters:
+  - name: id
+    description: The unique identifier (ObjectGuid) of the movement force to be removed
+      from the collection.
+  returns: True if the movement force with the specified ObjectGuid was found and
+    successfully removed; false otherwise, indicating that no such entry existed.
+  examples:
+  - title: Basic Usage
+    code: "ObjectGuid forceId = ObjectGuid::Create<HighGuid::Spell>(12345);\nbool\
+      \ success = movementForces.Remove(forceId);\nif (success)\n{\n    // Movement\
+      \ force was successfully removed\n}"
+    language: cpp
+  - title: Usage with Spell Effect Cleanup
+    code: "void OnSpellEffectRemove(Spell* spell)\n{\n    ObjectGuid forceGuid = spell->GetCaster()->GetGUID();\n\
+      \    if (movementForces.Remove(forceGuid))\n    {\n        // Notify the client\
+      \ or perform cleanup\n        LOG_DEBUG(\"spell\", \"Movement force removed\
+      \ for spell {}\", spell->GetSpellInfo()->Id);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the internal data structure used to store movement
+    forces supports efficient lookup and removal operations, likely using a map or
+    set indexed by ObjectGuid. The implementation may involve thread synchronization
+    if accessed from multiple threads.
+  warnings: Calling Remove with an invalid or uninitialized ObjectGuid may result
+    in undefined behavior or failed lookups. Ensure that the identifier corresponds
+    to a valid movement force before calling this method.
+  related:
+  - Add
+  - HasForce
+  - GetForce
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T23:42:47.557858'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

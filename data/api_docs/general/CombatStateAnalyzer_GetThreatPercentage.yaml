@@ -1,0 +1,50 @@
+api:
+  class: CombatStateAnalyzer
+  method: GetThreatPercentage
+  signature: float CombatStateAnalyzer::GetThreatPercentage(Unit * target) const
+documentation:
+  brief: Calculates and returns the threat percentage of the current unit relative
+    to a specified target.
+  description: The GetThreatPercentage method computes the threat level of the CombatStateAnalyzer's
+    associated unit in relation to a given target. This value represents how much
+    threat the unit has accumulated compared to the target's threat, typically expressed
+    as a percentage. The method is commonly used in AI behavior logic to determine
+    engagement priority or to decide when to switch targets. It relies on the internal
+    threat table maintained by the game engine and may return 0.0 if the target is
+    not in combat or if no threat data exists for the unit-target pair. This function
+    does not modify any state and is safe to call during combat operations.
+  parameters: []
+  returns: A float value representing the threat percentage of the current unit relative
+    to the target. A value of 100.0 indicates the unit has maximum threat, while values
+    below 100.0 indicate lower threat levels. Returns 0.0 if no valid threat data
+    exists for the specified target.
+  examples:
+  - title: Basic Threat Percentage Check
+    code: "float threatPercent = analyzer.GetThreatPercentage(targetUnit);\nif (threatPercent\
+      \ > 90.0f)\n{\n    // Unit has high threat, consider maintaining aggro\n}"
+    language: cpp
+  - title: Using Threat Percentage for Target Switching Logic
+    code: "Unit* currentTarget = unit->GetVictim();\nUnit* newTarget = nullptr;\n\
+      float highestThreat = 0.0f;\n\nfor (auto& entry : threatList)\n{\n    float\
+      \ threatPercent = analyzer.GetThreatPercentage(entry.target);\n    if (threatPercent\
+      \ > highestThreat && threatPercent > 50.0f)\n    {\n        highestThreat =\
+      \ threatPercent;\n        newTarget = entry.target;\n    }\n}\n\nif (newTarget\
+      \ && newTarget != currentTarget)\n{\n    unit->Attack(newTarget, true);\n}"
+    language: cpp
+  notes: This method depends on the internal threat system of TrinityCore and requires
+    that both the unit and target are in combat. The returned percentage is relative
+    to the target's current threat level, not an absolute value. Performance-wise,
+    this function is lightweight as it only accesses stored threat data.
+  warnings: Ensure that the target unit is valid and in combat before calling this
+    method, otherwise the result may be unreliable or misleading. Avoid using this
+    method outside of combat contexts where threat data might not be initialized.
+  related:
+  - GetThreatList
+  - GetUnitThreat
+  - IsTargetInCombat
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T19:06:22.403730'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

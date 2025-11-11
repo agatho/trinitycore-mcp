@@ -1,0 +1,62 @@
+api:
+  class: BotGearFactory
+  method: GetItemsForSlot
+  signature: const int * BotGearFactory::GetItemsForSlot(uint8 cls, uint32 specId,
+    uint32 level, uint8 slot) const
+documentation:
+  brief: Retrieves an array of item IDs suitable for a specified player class, specialization,
+    level, and inventory slot.
+  description: The GetItemsForSlot method returns a constant pointer to an array of
+    integers representing item IDs that are appropriate for the given class, specialization,
+    level, and inventory slot. This function is typically used by bot systems or gear
+    recommendation engines within TrinityCore to determine which items should be equipped
+    in specific slots based on character build parameters. The returned array is managed
+    internally and should not be modified by the caller. The method does not perform
+    any validation of input parameters beyond what is necessary for internal lookup
+    operations.
+  parameters:
+  - name: cls
+    description: The player class identifier (e.g., CLASS_WARRIOR = 1, CLASS_MAGE
+      = 8). Must be a valid class enum value.
+  - name: specId
+    description: The specialization ID for the character. Zero indicates default or
+      no specialization.
+  - name: level
+    description: The character's level, used to determine item availability and quality.
+      Must be a positive integer within valid range.
+  - name: slot
+    description: The inventory slot index (e.g., EQUIPMENT_SLOT_HEAD = 0, EQUIPMENT_SLOT_MAINHAND
+      = 16). Must correspond to a valid equipment slot.
+  returns: A constant pointer to an array of integers representing item IDs. The array
+    is null-terminated and should not be freed by the caller. Returns nullptr if no
+    items are found for the specified criteria.
+  examples:
+  - title: Retrieve head gear for a level 60 warrior
+    code: "const int* headItems = factory->GetItemsForSlot(CLASS_WARRIOR, 0, 60, EQUIPMENT_SLOT_HEAD);\n\
+      if (headItems != nullptr) {\n    for (int i = 0; headItems[i] != 0; ++i) {\n\
+      \        std::cout << \"Item ID: \" << headItems[i] << std::endl;\n    }\n}"
+    language: cpp
+  - title: Get main hand weapons for a frost mage at level 70
+    code: "const int* weaponItems = factory->GetItemsForSlot(CLASS_MAGE, SPEC_MAGE_FROST,\
+      \ 70, EQUIPMENT_SLOT_MAINHAND);\nif (weaponItems != nullptr) {\n    // Process\
+      \ the list of valid frost mage weapons\n    for (int i = 0; weaponItems[i] !=\
+      \ 0; ++i) {\n        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(weaponItems[i]);\n\
+      \        if (proto)\n            std::cout << \"Weapon: \" << proto->Name1 <<\
+      \ std::endl;\n    }\n}"
+    language: cpp
+  notes: The internal array returned by this method is static and reused across calls,
+    so it should not be stored or modified. The implementation relies on precomputed
+    data tables that map class/spec/level/slot combinations to valid item IDs.
+  warnings: Do not attempt to free or modify the returned pointer. The array is null-terminated
+    but may contain zero values indicating end of list. Ensure all parameters are
+    within expected ranges to avoid undefined behavior.
+  related:
+  - GetItemsForClass
+  - GetItemsForSpec
+  - GetItemsForLevel
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T15:22:55.573926'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

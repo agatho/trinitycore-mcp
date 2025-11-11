@@ -1,0 +1,56 @@
+api:
+  class: SafeExecutionEngine
+  method: IsTransientError
+  signature: bool SafeExecutionEngine::IsTransientError(uint32 errorCode) const
+documentation:
+  brief: Determines whether a given error code represents a transient database error
+    that can be safely retried.
+  description: The IsTransientError method checks if a provided database error code
+    indicates a temporary failure condition that typically occurs during database
+    operations in TrinityCore. These transient errors are often caused by connection
+    timeouts, lock waits, or temporary resource unavailability and can usually be
+    resolved by retrying the operation after a brief delay. The method is commonly
+    used within the SafeExecutionEngine to implement automatic retry logic for database
+    queries that may fail due to temporary conditions rather than permanent failures.
+    This functionality helps maintain system stability and reduces the likelihood
+    of service interruptions caused by momentary database issues.
+  parameters: []
+  returns: Returns true if the error code represents a transient database error that
+    can be safely retried, false otherwise. Transient errors typically include connection
+    timeouts, lock acquisition failures, and temporary resource exhaustion conditions.
+  examples:
+  - title: Basic usage in retry logic
+    code: "if (safeEngine.IsTransientError(errorCode)) {\n    // Retry the database\
+      \ operation\n    attempt++;\n    if (attempt < MAX_RETRIES) {\n        // Wait\
+      \ and retry\n        std::this_thread::sleep_for(std::chrono::milliseconds(100\
+      \ * attempt));\n        return ExecuteDatabaseQuery();\n    }\n}"
+    language: cpp
+  - title: Integration with database transaction handling
+    code: "try {\n    result = database.ExecuteQuery(query);\n} catch (DatabaseException&\
+      \ e) {\n    if (safeEngine.IsTransientError(e.GetErrorCode())) {\n        //\
+      \ Log transient error and retry\n        LOG_DEBUG(\"db\", \"Transient database\
+      \ error {} occurred, retrying...\", e.GetErrorCode());\n        return HandleTransactionWithRetry();\n\
+      \    } else {\n        // Re-throw non-transient errors\n        throw;\n  \
+      \  }\n}"
+    language: cpp
+  notes: This method is specifically designed for database error handling within the
+    TrinityCore framework. The implementation likely maintains a predefined set of
+    error codes that are known to be transient in nature, such as MySQL's ER_LOCK_WAIT_TIMEOUT
+    (1205) and ER_LOCK_DEADLOCK (1213). It's important to note that this method should
+    only be used for database-related operations where retry logic is appropriate.
+    The method does not handle application-level errors or network connectivity issues
+    outside of the database context.
+  warnings: Do not use IsTransientError for determining whether an error is recoverable
+    in general - it specifically applies to database operation failures. Misusing
+    this method for non-database errors may lead to incorrect retry behavior. Additionally,
+    be cautious about implementing aggressive retry loops without proper backoff strategies,
+    as this could exacerbate resource contention issues.
+  related:
+  - SafeExecutionEngine::ExecuteWithRetry
+  - SafeExecutionEngine::IsPermanentError
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-09T07:51:54.376338'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

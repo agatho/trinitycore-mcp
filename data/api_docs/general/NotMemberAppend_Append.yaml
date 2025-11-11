@@ -1,0 +1,58 @@
+api:
+  class: NotMemberAppend
+  method: Append
+  signature: void NotMemberAppend::Append(WorldPackets::Channel::ChannelNotify & param0)
+    const
+documentation:
+  brief: Appends channel notification data to a WorldPackets::Channel::ChannelNotify
+    object for players not currently in the channel.
+  description: The NotMemberAppend::Append method is responsible for populating a
+    WorldPackets::Channel::ChannelNotify packet with relevant information when a player
+    attempts to perform an action on a channel they are not a member of. This typically
+    occurs during operations such as sending messages to a channel, requesting channel
+    information, or attempting to join a channel that requires specific permissions.
+    The method ensures that appropriate error messages and status codes are included
+    in the notification packet so that the client can properly respond to the user's
+    request. It is part of TrinityCore's channel management system and handles scenarios
+    where access control prevents a player from interacting with certain channels.
+  parameters:
+  - name: param0
+    description: A reference to a WorldPackets::Channel::ChannelNotify object that
+      will be populated with notification data for non-member actions.
+  returns: void
+  examples:
+  - title: Basic usage in channel access control
+    code: 'NotMemberAppend append;
+
+      WorldPackets::Channel::ChannelNotify notifyPacket;
+
+      append.Append(notifyPacket);
+
+      // The notifyPacket now contains appropriate error data for non-member access'
+    language: cpp
+  - title: Integration with channel command handler
+    code: "void HandleChannelMessage(ChatHandler* handler, std::string const& channelName)\
+      \ {\n    if (!handler->GetSession()->GetPlayer()->InChannel(channelName)) {\n\
+      \        NotMemberAppend append;\n        WorldPackets::Channel::ChannelNotify\
+      \ notifyPacket;\n        append.Append(notifyPacket);\n        handler->SendPacket(&notifyPacket);\n\
+      \        return;\n    }\n    // ... normal message handling\n}"
+    language: cpp
+  notes: This method is typically called within the context of channel-related operations
+    where access control checks have failed. It's important to note that this method
+    does not perform any validation or authentication itself; it simply formats the
+    response packet for non-member scenarios. The actual logic determining whether
+    a player is a member should be handled before calling this method.
+  warnings: Ensure that this method is only called when a player is confirmed to not
+    be a member of the target channel, otherwise incorrect error messages may be sent
+    to the client. Improper use could lead to misleading UI feedback for players attempting
+    to interact with channels they do not belong to.
+  related:
+  - Channel::SendChannelNotify
+  - Player::InChannel
+  - Channel::HasMember
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T23:13:06.608873'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

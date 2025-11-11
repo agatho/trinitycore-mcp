@@ -1,0 +1,78 @@
+api:
+  class: CTROptions
+  method: WriteUpdate
+  signature: void CTROptions::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes update data for CTROptions to a ByteBuffer for transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of CTROptions into
+    a ByteBuffer, preparing it for network transmission to a specific player. This
+    method is typically used in the context of World of Warcraft's update system where
+    object states are sent to clients. The serialization process respects change masks
+    and can optionally ignore them based on the ignoreChangesMask parameter. The owner
+    and receiver parameters allow for proper handling of visibility and ownership
+    checks during updates. This method is part of TrinityCore's object update mechanism,
+    ensuring that players receive only the data they should see based on their relationship
+    to the object being updated.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for constructing network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      updates. If true, all fields are written regardless of their changed status.
+  - name: owner
+    description: Pointer to the Player object that owns this CTROptions instance.
+      Used for ownership-based visibility checks and update logic.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine what data should be visible to the specific receiver based on game
+      rules.
+  returns: null
+  examples:
+  - title: Basic usage in update packet construction
+    code: 'ByteBuffer data;
+
+      CTROptions options;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      options.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to receiver''s client'
+    language: cpp
+  - title: Forcing full update with ignore flag
+    code: 'ByteBuffer data;
+
+      CTROptions options;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      options.WriteUpdate(data, true, owner, receiver);
+
+      // Send complete state regardless of changes'
+    language: cpp
+  notes: This method is typically called during the object update cycle in TrinityCore's
+    update system. The implementation likely uses internal change tracking to optimize
+    network traffic by only sending changed fields when ignoreChangesMask is false.
+    Developers should ensure that owner and receiver parameters are valid pointers
+    before calling this method.
+  warnings: Calling this method with invalid owner or receiver pointers may lead to
+    undefined behavior. The ByteBuffer parameter must be properly initialized before
+    calling this method, as the data will be appended to it without clearing existing
+    content.
+  related:
+  - ReadUpdate
+  - BuildValuesUpdateBlockForPlayer
+  - BuildCreateUpdateBlockForPlayer
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T07:18:42.200090'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

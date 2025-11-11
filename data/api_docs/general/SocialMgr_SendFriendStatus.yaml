@@ -1,0 +1,71 @@
+api:
+  class: SocialMgr
+  method: SendFriendStatus
+  signature: void SocialMgr::SendFriendStatus(Player * player, FriendsResult result,
+    const int & friendGuid, bool broadcast)
+documentation:
+  brief: Sends a friend status update to a player's client, notifying them of changes
+    in their friendship status with another player.
+  description: The SendFriendStatus method is used by the SocialMgr class to communicate
+    friendship-related updates to a specific player's client. It sends a FriendsResult
+    message that indicates whether a friend was added, removed, or if there was an
+    error during a social interaction. The broadcast parameter determines if the status
+    update should be sent to all of the player's friends or just to the targeted player.
+    This method is integral to maintaining real-time social interactions within the
+    game, such as when players add or remove friends, or when friendship status changes
+    due to online/offline events. The method ensures that the client UI accurately
+    reflects the current state of friendships.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose client will receive the friend
+      status update. This is the recipient of the social notification.
+  - name: result
+    description: The FriendsResult enum value indicating the type of friendship status
+      change being communicated (e.g., FRIEND_ADDED, FRIEND_REMOVED, FRIEND_OFFLINE).
+  - name: friendGuid
+    description: The global unique identifier (GUID) of the friend whose status is
+      being updated. This identifies which player's status has changed.
+  - name: broadcast
+    description: Boolean flag indicating whether the status update should be broadcast
+      to all friends of the recipient player (true) or only sent to the specific player
+      (false).
+  returns: null
+  examples:
+  - title: Send friend added status to a player
+    code: 'Player* targetPlayer = ...; // Get player reference
+
+      int friendGuid = 123456;
+
+      SocialMgr::instance()->SendFriendStatus(targetPlayer, FRIEND_ADDED, friendGuid,
+      false);'
+    language: cpp
+  - title: Broadcast friend offline status to all friends
+    code: 'Player* targetPlayer = ...; // Get player reference
+
+      int friendGuid = 789012;
+
+      SocialMgr::instance()->SendFriendStatus(targetPlayer, FRIEND_OFFLINE, friendGuid,
+      true);'
+    language: cpp
+  notes: This method is typically called internally by the SocialMgr system when friendship
+    events occur. It directly interacts with the player's client through network packets
+    to update their social interface. The broadcast flag should be used carefully
+    as it can result in multiple network messages being sent if the player has many
+    friends. Ensure that friendGuid is valid and corresponds to an actual player in
+    the game world.
+  warnings: Calling this method with an invalid player pointer or a non-existent friend
+    GUID may cause undefined behavior. The broadcast flag should be used sparingly
+    as it can impact performance when a player has many friends. Make sure that the
+    FriendsResult enum value passed is valid and appropriate for the context of the
+    friendship change.
+  related:
+  - AddFriend
+  - RemoveFriend
+  - GetFriendStatus
+  - SendFriendList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T19:02:16.876112'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

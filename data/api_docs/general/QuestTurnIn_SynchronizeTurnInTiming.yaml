@@ -1,0 +1,51 @@
+api:
+  class: QuestTurnIn
+  method: SynchronizeTurnInTiming
+  signature: void QuestTurnIn::SynchronizeTurnInTiming(Group * group, uint32 questId)
+documentation:
+  brief: Synchronizes quest turn-in timing for all group members when a quest is completed.
+  description: The SynchronizeTurnInTiming method ensures that all players in a specified
+    group receive consistent quest completion timing and rewards. This is particularly
+    important in group quests where multiple players may turn in the same quest simultaneously.
+    The method handles synchronization of quest state updates, reward distribution,
+    and potential quest completion events across all group members to prevent desynchronization
+    issues. It typically gets invoked when a group member successfully turns in a
+    quest that affects the entire group.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players who will synchronize
+      their quest turn-in timing. Must be a valid group instance, or the method may
+      cause undefined behavior.
+  - name: questId
+    description: The unique identifier of the quest being turned in. This must correspond
+      to a valid quest in the game database, otherwise the synchronization will not
+      apply correctly.
+  returns: null
+  examples:
+  - title: Basic Group Quest Turn-In Synchronization
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup)\n{\n    QuestTurnIn::SynchronizeTurnInTiming(playerGroup,\
+      \ 12345);\n}"
+    language: cpp
+  - title: Synchronizing Turn-In After Quest Completion
+    code: "void OnQuestComplete(Player* player, uint32 questId)\n{\n    Group* group\
+      \ = player->GetGroup();\n    if (group && group->GetMembersCount() > 1)\n  \
+      \  {\n        QuestTurnIn::SynchronizeTurnInTiming(group, questId);\n    }\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the core quest system when
+    a group quest is completed. Developers should not call this directly unless implementing
+    custom group quest logic. The method assumes that all players in the group are
+    within the same instance or zone where the quest can be properly synchronized.
+  warnings: Calling this method with an invalid group pointer or non-existent quest
+    ID may lead to crashes or inconsistent quest states. Always verify that the group
+    exists and contains valid members before calling this function.
+  related:
+  - QuestTurnIn::CompleteQuest
+  - Group::SendQuestUpdate
+  - Player::RewardQuest
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T21:03:54.146685'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

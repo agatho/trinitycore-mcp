@@ -1,0 +1,58 @@
+api:
+  class: AdaptiveThrottler
+  method: CalculateThrottleRatio
+  signature: void AdaptiveThrottler::CalculateThrottleRatio(uint32 queryTimeUs, uint32
+    queryCount)
+documentation:
+  brief: Updates internal throttling ratio based on query time and count for adaptive
+    rate limiting.
+  description: The CalculateThrottleRatio method computes an adaptive throttling ratio
+    using the provided query execution time and count. This mechanism is used to dynamically
+    adjust request processing rates in response to system load or performance metrics.
+    The method updates internal state variables that influence how subsequent requests
+    are handled, typically within the context of database query management or API
+    rate limiting. It does not return a value but modifies the object's internal throttling
+    parameters based on the input data.
+  parameters:
+  - name: queryTimeUs
+    description: The time taken to execute a database query, measured in microseconds.
+      This value is used to calculate the current load and adjust throttling behavior
+      accordingly.
+  - name: queryCount
+    description: The number of queries processed during the measurement period. Used
+      in conjunction with queryTimeUs to determine overall system throughput and adjust
+      throttling ratios.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: 'AdaptiveThrottler throttler;
+
+      throttler.CalculateThrottleRatio(5000, 10); // 5ms for 10 queries'
+    language: cpp
+  - title: Integration with query monitoring loop
+    code: "void MonitorQueries() {\n    AdaptiveThrottler throttler;\n    uint32 totalTime\
+      \ = 0;\n    uint32 totalQueries = 0;\n    \n    // Simulate processing queries\n\
+      \    for (int i = 0; i < 100; ++i) {\n        uint32 queryTime = GetQueryExecutionTime();\n\
+      \        throttler.CalculateThrottleRatio(queryTime, 1);\n        totalTime\
+      \ += queryTime;\n        totalQueries++;\n    }\n}"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore server during
+    database query processing. The throttling algorithm likely uses exponential moving
+    averages or similar statistical methods to smooth out fluctuations in query performance.
+    It's important to note that this method modifies internal state and should be
+    called consistently with actual query execution data for accurate rate limiting.
+  warnings: Calling this method with incorrect timing or count values can lead to
+    inaccurate throttling behavior, potentially causing either excessive resource
+    consumption or unnecessary request delays. Ensure that queryTimeUs represents
+    actual execution time and queryCount reflects the number of queries processed
+    in the measurement window.
+  related:
+  - GetThrottleRatio
+  - ResetThrottler
+  - UpdateThrottleSettings
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T13:09:38.732998'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

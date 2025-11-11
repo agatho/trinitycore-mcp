@@ -1,0 +1,63 @@
+api:
+  class: LootDistribution
+  method: CalculateUpgradeValue
+  signature: float LootDistribution::CalculateUpgradeValue(Player * player, const
+    LootItem & item)
+documentation:
+  brief: Calculates the upgrade value of a loot item for a given player based on their
+    current gear and itemization.
+  description: The CalculateUpgradeValue method determines how much benefit a player
+    would gain by upgrading to a specific loot item. It evaluates the item's stats,
+    quality, and level in comparison to the player's existing equipment. This calculation
+    is used primarily in loot distribution systems to prioritize which items should
+    be awarded to which players based on their current gear. The method considers
+    factors such as item level, stat weights, and player class to compute a normalized
+    value that represents the relative upgrade potential of the item. This value helps
+    determine loot priority during group looting scenarios where multiple players
+    may be eligible for the same item.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the upgrade value is being
+      calculated. Must be a valid player instance with initialized equipment and stats.
+  - name: item
+    description: Reference to the LootItem structure containing information about
+      the item being evaluated. The item must have valid stat data and level information
+      for accurate calculation.
+  returns: A float value representing the calculated upgrade value of the loot item
+    for the specified player. Higher values indicate better upgrades relative to the
+    player's current gear. Values are typically normalized to a scale that allows
+    direct comparison between different items.
+  examples:
+  - title: Basic Usage Example
+    code: "Player* player = ...; // Valid player instance\nLootItem item = ...; //\
+      \ Valid loot item\nfloat upgradeValue = LootDistribution::CalculateUpgradeValue(player,\
+      \ item);\nif (upgradeValue > 10.0f) {\n    // Item is considered a significant\
+      \ upgrade\n}"
+    language: cpp
+  - title: Integration with Loot Distribution Logic
+    code: "void DistributeLoot(Player* player, std::vector<LootItem>& items) {\n \
+      \   float bestValue = 0.0f;\n    LootItem* bestItem = nullptr;\n    \n    for\
+      \ (auto& item : items) {\n        float value = LootDistribution::CalculateUpgradeValue(player,\
+      \ item);\n        if (value > bestValue) {\n            bestValue = value;\n\
+      \            bestItem = &item;\n        }\n    }\n    \n    if (bestItem) {\n\
+      \        // Award the best upgrade item to player\n        player->AddItem(bestItem->itemId,\
+      \ 1);\n    }\n}"
+    language: cpp
+  notes: This method relies on accurate player stat data and item information. The
+    calculation may vary based on game version and patch updates. Performance is generally
+    good for single calculations but can become significant when processing large
+    numbers of items in batch operations.
+  warnings: Ensure that both player and item parameters are valid before calling this
+    method, as null pointers will cause crashes. The upgrade value calculation may
+    not account for all possible gear combinations or special effects, so results
+    should be used as guidelines rather than absolute measures.
+  related:
+  - LootDistribution::RollLoot
+  - LootDistribution::DistributeItem
+  - Player::GetItemByPos
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:11:10.695557'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

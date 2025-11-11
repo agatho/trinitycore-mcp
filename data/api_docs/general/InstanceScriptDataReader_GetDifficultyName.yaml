@@ -1,0 +1,51 @@
+api:
+  class: InstanceScriptDataReader
+  method: GetDifficultyName
+  signature: const char * InstanceScriptDataReader::GetDifficultyName() const
+documentation:
+  brief: Retrieves the localized name of the current difficulty level for the instance.
+  description: The GetDifficultyName method returns a null-terminated string containing
+    the localized name of the current difficulty setting for the instance. This is
+    typically used in conjunction with instance scripts to provide contextual information
+    about the current difficulty, such as displaying appropriate messages or adjusting
+    behavior based on whether the instance is normal, heroic, or mythic mode. The
+    returned string is managed by the core and should not be freed by the caller.
+    This method is particularly useful for custom instance scripts that need to adapt
+    their behavior depending on the difficulty level.
+  parameters: []
+  returns: A pointer to a null-terminated character array containing the localized
+    difficulty name, or nullptr if no valid difficulty context exists.
+  examples:
+  - title: Basic Usage in Instance Script
+    code: "class MyInstanceScript : public InstanceScript\n{\npublic:\n    void OnPlayerEnter(Player*\
+      \ player) override\n    {\n        const char* difficultyName = GetDifficultyName();\n\
+      \        if (difficultyName)\n        {\n            ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Entering %s mode.\", difficultyName);\n        }\n    }\n};"
+    language: cpp
+  - title: Using Difficulty Name for Conditional Logic
+    code: "void MyInstanceScript::OnCreatureDeath(Creature* creature) override\n{\n\
+      \    const char* difficultyName = GetDifficultyName();\n    if (difficultyName)\n\
+      \    {\n        if (strcmp(difficultyName, \"Heroic\") == 0)\n        {\n  \
+      \          // Apply heroic-specific rewards or behavior\n            DoSomethingForHeroicMode();\n\
+      \        }\n        else if (strcmp(difficultyName, \"Mythic\") == 0)\n    \
+      \    {\n            // Apply mythic-specific rewards or behavior\n         \
+      \   DoSomethingForMythicMode();\n        }\n    }\n}"
+    language: cpp
+  notes: The returned string is cached and managed by the core's difficulty system.
+    It's safe to use in multiple contexts within the same instance, but should not
+    be modified or freed by the calling code. The method relies on the instance's
+    current difficulty context being properly set.
+  warnings: Be cautious when comparing strings directly using strcmp() as it may lead
+    to crashes if the returned pointer is null. Always check for nullptr before using
+    the returned value.
+  related:
+  - GetDifficultyID
+  - GetInstanceDifficulty
+  - IsHeroic
+  - IsMythic
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:41:29.881686'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

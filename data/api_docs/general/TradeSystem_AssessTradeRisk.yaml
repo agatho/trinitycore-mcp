@@ -1,0 +1,60 @@
+api:
+  class: TradeSystem
+  method: AssessTradeRisk
+  signature: float TradeSystem::AssessTradeRisk(Player * player, const TradeSession
+    & session)
+documentation:
+  brief: Evaluates and returns the risk level of a trade session for the specified
+    player.
+  description: The AssessTradeRisk method calculates a numerical risk value for a
+    given trade session involving a specific player. This risk assessment considers
+    various factors such as the item values being traded, player reputation, trade
+    history, and potential cheating indicators. The returned float value typically
+    ranges from 0.0 (no risk) to 1.0 (maximum risk), though exact bounds may vary
+    based on implementation details. The method is used by the TrinityCore trade system
+    to help prevent fraudulent trades and maintain game balance.
+  parameters:
+  - name: player
+    description: Pointer to the Player object for whom the trade risk is being assessed.
+      Must be a valid player instance; null pointers will cause undefined behavior.
+  - name: session
+    description: Reference to the TradeSession object containing the details of the
+      trade being evaluated. This includes items, gold amounts, and other trade parameters
+      that influence risk calculation.
+  returns: A float value representing the calculated risk level of the trade session,
+    where 0.0 indicates no risk and 1.0 indicates maximum risk. Values may be interpolated
+    between these bounds based on various risk factors.
+  examples:
+  - title: Basic Trade Risk Assessment
+    code: "Player* player = ...; // Get player reference\nTradeSession session = ...;\
+      \ // Initialize trade session\nfloat riskLevel = TradeSystem::AssessTradeRisk(player,\
+      \ session);\nif (riskLevel > 0.7f) {\n    // Handle high-risk trade\n    sWorld->SendWorldText(LANG_TRADE_HIGH_RISK);\n\
+      }"
+    language: cpp
+  - title: Conditional Trade Handling Based on Risk
+    code: "Player* player = ...;\nTradeSession session = ...;\nfloat risk = TradeSystem::AssessTradeRisk(player,\
+      \ session);\nswitch (static_cast<int>(risk * 10)) {\n    case 0: case 1: case\
+      \ 2:\n        // Low risk - allow trade\n        break;\n    case 3: case 4:\
+      \ case 5:\n        // Medium risk - require confirmation\n        sWorld->SendWorldText(LANG_TRADE_MEDIUM_RISK);\n\
+      \        break;\n    default:\n        // High risk - cancel trade\n       \
+      \ sWorld->SendWorldText(LANG_TRADE_HIGH_RISK);\n        session.CancelTrade();\n\
+      \        break;\n}"
+    language: cpp
+  notes: This method is typically called during the trade process, before finalizing
+    a transaction. The risk calculation may involve database lookups for player history
+    and item values. Performance can be impacted by complex trade sessions with many
+    items or players with extensive trading histories.
+  warnings: Do not call this method with invalid or null player pointers as it will
+    likely result in crashes or undefined behavior. The returned risk value should
+    not be used as the sole determinant for trade decisions; additional checks and
+    user confirmation may be required.
+  related:
+  - GetTradeSession
+  - ValidateTrade
+  - LogTradeActivity
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T18:13:54.576539'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

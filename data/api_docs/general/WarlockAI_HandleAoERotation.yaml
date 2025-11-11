@@ -1,0 +1,51 @@
+api:
+  class: WarlockAI
+  method: HandleAoERotation
+  signature: bool WarlockAI::HandleAoERotation(Unit * target)
+documentation:
+  brief: Executes the warlock's area-of-effect spell rotation against a target unit
+  description: The HandleAoERotation method implements the core logic for a warlock's
+    AoE combat behavior, determining when and which area-of-effect spells to cast
+    based on current mana, target conditions, and spell cooldowns. This method is
+    typically called during combat situations where multiple enemies are present within
+    range. It evaluates whether to use spells like Shadow Bolt, Rain of Fire, or other
+    AoE abilities depending on the warlock's current state and available resources.
+    The method returns true if a spell was successfully cast or queued, false otherwise.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit object that the warlock AI will evaluate
+      for AoE spell usage. Must be a valid Unit pointer; null pointers will cause
+      undefined behavior.
+  returns: Returns true if an AoE spell was successfully cast or queued for execution,
+    false if no suitable spell could be cast due to resource constraints, cooldowns,
+    or invalid target conditions.
+  examples:
+  - title: Basic usage in combat
+    code: "if (player->GetAI()->HandleAoERotation(target))\n{\n    // Spell was cast\
+      \ successfully\n    return;\n}\n// No spell cast, continue with other actions"
+    language: cpp
+  - title: Integration with AI update loop
+    code: "void WarlockAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n  \
+      \      return;\n\n    if (me->GetMap()->IsDungeon())\n    {\n        // Check\
+      \ for AoE opportunities\n        if (Unit* target = me->getVictim())\n     \
+      \   {\n            if (HandleAoERotation(target))\n                return;\n\
+      \        }\n    }\n    // Continue with normal AI logic\n}"
+    language: cpp
+  notes: This method assumes the warlock has multiple targets within AoE range. It's
+    designed to be called from within an AI update cycle and relies on the AI's internal
+    state management for spell selection and cooldown tracking. The method may modify
+    the AI's internal state, such as spell queues or target preferences.
+  warnings: Do not call this method without ensuring that the target unit is valid
+    and within appropriate range for AoE spells. Calling with a null target pointer
+    will result in undefined behavior. This method does not perform any checks for
+    line of sight or target validity beyond basic null checking.
+  related:
+  - HandleSingleTargetRotation
+  - HandlePetAI
+  - GetNextSpell
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T17:24:37.971636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

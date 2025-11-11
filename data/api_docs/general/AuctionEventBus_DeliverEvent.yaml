@@ -1,0 +1,60 @@
+api:
+  class: AuctionEventBus
+  method: DeliverEvent
+  signature: void AuctionEventBus::DeliverEvent(const AuctionEvent & event)
+documentation:
+  brief: Delivers an auction event to all registered listeners in the auction event
+    bus.
+  description: 'The DeliverEvent method broadcasts a given AuctionEvent to all subscribers
+    of the AuctionEventBus. This method is typically used within the TrinityCore auction
+    system to notify interested parties about events such as item sales, bids, or
+    auction timeouts. It ensures that all components interested in auction-related
+    activities receive timely updates. The method does not return any value and operates
+    synchronously, meaning it will block until all listeners have processed the event.
+    Precondition: The AuctionEvent must be properly initialized before being passed
+    to this method. Postcondition: All registered listeners will have received and
+    processed the event.'
+  parameters:
+  - name: event
+    description: The AuctionEvent object containing details about the auction event
+      that needs to be delivered to all subscribers. This parameter must not be null
+      or invalid.
+  returns: null
+  examples:
+  - title: Basic Event Delivery
+    code: 'AuctionEvent auctionEvent;
+
+      // Initialize auctionEvent with relevant data
+
+      AuctionEventBus::Instance()->DeliverEvent(auctionEvent);'
+    language: cpp
+  - title: Delivering a Bid Event
+    code: 'AuctionEvent bidEvent;
+
+      bidEvent.type = AUCTION_BID_PLACED;
+
+      bidEvent.itemId = 12345;
+
+      bidEvent.bidAmount = 10000;
+
+      AuctionEventBus::Instance()->DeliverEvent(bidEvent);'
+    language: cpp
+  notes: This method is part of the event-driven architecture used in TrinityCore's
+    auction system. It is designed to be thread-safe and should not be called from
+    within a critical section where deadlocks might occur. Performance-wise, it may
+    become a bottleneck if too many listeners are registered or if they perform heavy
+    processing during event handling.
+  warnings: Calling this method with an invalid or uninitialized AuctionEvent object
+    can lead to undefined behavior. Ensure that all fields of the AuctionEvent are
+    properly set before delivery. Avoid calling DeliverEvent from within another event
+    handler to prevent potential recursive calls or stack overflow issues.
+  related:
+  - AuctionEventBus::RegisterListener
+  - AuctionEventBus::UnregisterListener
+  - AuctionEventBus::GetInstance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:09:39.472218'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

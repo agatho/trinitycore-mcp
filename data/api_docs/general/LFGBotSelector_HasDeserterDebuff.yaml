@@ -1,0 +1,51 @@
+api:
+  class: LFGBotSelector
+  method: HasDeserterDebuff
+  signature: bool LFGBotSelector::HasDeserterDebuff(Player * bot)
+documentation:
+  brief: Checks if the specified bot player has the deserter debuff applied.
+  description: The HasDeserterDebuff method determines whether a given player bot
+    currently possesses the deserter debuff, which is applied when a player leaves
+    a group or instance prematurely. This debuff typically prevents the player from
+    joining certain groups or instances for a specified duration. The method evaluates
+    the player's current state and returns true if the debuff is active, false otherwise.
+    This functionality is commonly used in LFG (Looking for Group) systems to prevent
+    players with recent disconnections from rejoining groups immediately.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot whose deserter
+      debuff status needs to be checked. Must not be null.
+  returns: Returns true if the specified bot player has the deserter debuff applied;
+    otherwise returns false.
+  examples:
+  - title: Basic usage in LFG context
+    code: "if (lfgBotSelector->HasDeserterDebuff(playerBot)) {\n    // Handle case\
+      \ where bot cannot join group due to deserter debuff\n    LOG_DEBUG(\"lfg\"\
+      , \"Player {} has deserter debuff and cannot join group.\", playerBot->GetName());\n\
+      }"
+    language: cpp
+  - title: Integration with LFG queue logic
+    code: "void LFGQueue::AddBotToQueue(LFGBotSelector* selector, Player* bot) {\n\
+      \    if (!selector->HasDeserterDebuff(bot)) {\n        // Proceed with adding\
+      \ bot to queue\n        AddToLFGQueue(bot);\n    } else {\n        // Skip bot\
+      \ or delay processing\n        LOG_DEBUG(\"lfg\", \"Skipping bot {} due to active\
+      \ deserter debuff.\", bot->GetName());\n    }\n}"
+    language: cpp
+  notes: This method relies on internal game state tracking of player debuffs. It
+    is important that the Player object passed is valid and represents an actual in-game
+    character. The method may be called frequently during LFG operations, so performance
+    should be considered for high-frequency usage.
+  warnings: Ensure that the Player pointer is not null before calling this method
+    to avoid undefined behavior. The debuff status can change dynamically, so results
+    from this method may become invalid immediately after the call if other game systems
+    modify the player state.
+  related:
+  - LFGBotSelector::GetDeserterDebuffDuration
+  - LFGBotSelector::IsPlayerEligibleForLFG
+  - Player::HasAura
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T13:17:08.355732'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

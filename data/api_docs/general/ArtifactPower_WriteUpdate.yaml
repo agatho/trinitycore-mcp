@@ -1,0 +1,83 @@
+api:
+  class: ArtifactPower
+  method: WriteUpdate
+  signature: void ArtifactPower::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes artifact power data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of an ArtifactPower
+    object into a ByteBuffer, preparing it for transmission to a client. This method
+    is typically used during packet construction to send artifact power information,
+    such as power levels or unlocked abilities, to players in the game world. The
+    serialization process respects the changes mask unless explicitly ignored, and
+    can be tailored based on the item owner and target receiver. It's an integral
+    part of the artifact power synchronization mechanism within TrinityCore's item
+    update system.
+  parameters:
+  - name: data
+    description: The ByteBuffer to which the serialized artifact power data will be
+      written. This buffer is typically used for constructing network packets.
+  - name: ignoreChangesMask
+    description: If true, all artifact power data is written regardless of change
+      tracking status. If false, only changed fields are serialized based on internal
+      change masks.
+  - name: owner
+    description: Pointer to the Item that owns this artifact power. Used to determine
+      ownership context and retrieve relevant item properties during serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Allows for conditional
+      serialization based on player-specific data or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      ArtifactPower power;
+
+      Item* item = player->GetItemByGuid(itemGuid);
+
+      Player* targetPlayer = player;
+
+      power.WriteUpdate(data, false, item, targetPlayer);
+
+      WorldPacket packet(SMSG_UPDATE_ITEM, data.size());
+
+      packet.append(data);
+
+      player->SendDirectMessage(&packet);'
+    language: cpp
+  - title: Force Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      ArtifactPower power;
+
+      Item* item = player->GetItemByGuid(itemGuid);
+
+      Player* targetPlayer = player;
+
+      power.WriteUpdate(data, true, item, targetPlayer); // Forces full serialization
+
+      WorldPacket packet(SMSG_UPDATE_ITEM, data.size());
+
+      packet.append(data);
+
+      targetPlayer->SendDirectMessage(&packet);'
+    language: cpp
+  notes: This method is primarily used internally by TrinityCore's update system.
+    It assumes that the ByteBuffer has sufficient capacity or will be resized appropriately
+    during append operations. The method does not perform any network transmission
+    itself but prepares data for it.
+  warnings: Incorrect usage of the ignoreChangesMask parameter can lead to unnecessary
+    bandwidth consumption. Always consider performance implications when forcing full
+    updates.
+  related:
+  - ArtifactPower::LoadFromDB
+  - ArtifactPower::SaveToDB
+  - ArtifactPower::SetPowerLevel
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:17:11.401466'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

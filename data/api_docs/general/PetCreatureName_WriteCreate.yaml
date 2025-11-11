@@ -1,0 +1,65 @@
+api:
+  class: PetCreatureName
+  method: WriteCreate
+  signature: void PetCreatureName::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Writes pet creature name data to a packet buffer for client transmission.
+  description: The WriteCreate method serializes pet creature name information into
+    a ByteBuffer, preparing it for network transmission to either the owner or another
+    player. This method is typically invoked during pet creation or when updating
+    pet name visibility in the game world. The serialized data includes relevant pet
+    identification and naming attributes that are interpreted by the client to display
+    the pet's name correctly. The method respects ownership permissions and ensures
+    proper data formatting according to TrinityCore's packet structure conventions.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized pet creature name
+      data will be written.
+  - name: owner
+    description: Pointer to the Player object who owns the pet. Used to determine
+      visibility and ownership permissions for the name data.
+  - name: receiver
+    description: Pointer to the Player object who will receive the packet. Controls
+      how the name information is formatted based on viewing permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Pet Creation
+    code: 'ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = nullptr; // Send to owner
+
+      petCreatureName->WriteCreate(data, owner, receiver);
+
+      session->SendPacket(&data);'
+    language: cpp
+  - title: Sending Pet Name to Another Player
+    code: 'ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = targetPlayer;
+
+      petCreatureName->WriteCreate(data, owner, receiver);
+
+      receiver->SendDirectMessage(&data);'
+    language: cpp
+  notes: This method assumes that the ByteBuffer is properly initialized and will
+    handle its own memory management. The implementation likely checks for pet name
+    visibility flags and applies appropriate access control based on the relationship
+    between owner and receiver players.
+  warnings: Ensure that both owner and receiver pointers are valid before calling
+    this method, as null pointer dereferences may occur. Also, verify that the ByteBuffer
+    is cleared or properly reset before writing new data to prevent corruption.
+  related:
+  - ReadCreate
+  - GetPetName
+  - SetPetName
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:29:49.220722'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

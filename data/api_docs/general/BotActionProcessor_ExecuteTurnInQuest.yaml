@@ -1,0 +1,63 @@
+api:
+  class: BotActionProcessor
+  method: ExecuteTurnInQuest
+  signature: BotActionResult BotActionProcessor::ExecuteTurnInQuest(Player * bot,
+    const BotAction & action)
+documentation:
+  brief: Processes a bot's turn-in quest action for a specified player.
+  description: The ExecuteTurnInQuest method handles the logic for a bot to complete
+    and turn in a quest to a quest giver NPC. It validates that the bot has the required
+    quest items or meets the quest completion criteria, then triggers the quest completion
+    sequence including reward distribution. This method is part of the TrinityCore
+    AI system's action processing framework and operates within the context of bot
+    behavior management for World of Warcraft game automation. The method ensures
+    proper quest state transitions and handles error conditions such as invalid quest
+    states or missing quest requirements.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will perform
+      the quest turn-in action
+  - name: action
+    description: Reference to a BotAction structure containing the details of the
+      turn-in quest action to be executed
+  returns: BotActionResult indicating success, failure, or other status codes for
+    the quest turn-in operation. Possible values include BOT_ACTION_SUCCESS, BOT_ACTION_FAILED,
+    BOT_ACTION_INCOMPLETE, or BOT_ACTION_ERROR depending on whether the quest was
+    successfully turned in or if there were issues during processing.
+  examples:
+  - title: Basic Quest Turn-In Execution
+    code: "BotAction action;\naction.type = BOT_ACTION_TURN_IN_QUEST;\naction.questId\
+      \ = 12345;\nBotActionResult result = processor.ExecuteTurnInQuest(bot, action);\n\
+      if (result == BOT_ACTION_SUCCESS) {\n    // Quest turned in successfully\n \
+      \   bot->GetSession()->SendAreaTriggerMessage(\"Quest completed!\");\n}"
+    language: cpp
+  - title: Error Handling for Quest Turn-In
+    code: "BotAction action;\naction.type = BOT_ACTION_TURN_IN_QUEST;\naction.questId\
+      \ = 99999;\nBotActionResult result = processor.ExecuteTurnInQuest(bot, action);\n\
+      switch (result) {\n    case BOT_ACTION_FAILED:\n        // Handle quest turn-in\
+      \ failure\n        bot->GetSession()->SendAreaTriggerMessage(\"Failed to turn\
+      \ in quest.\");\n        break;\n    case BOT_ACTION_ERROR:\n        // Handle\
+      \ internal error\n        sLog->outError(\"BotActionProcessor::ExecuteTurnInQuest\
+      \ failed for bot %u\", bot->GetGUID().GetCounter());\n        break;\n}"
+    language: cpp
+  notes: This method assumes that the bot has already been validated to have the appropriate
+    quest in progress. The method internally handles communication with the TrinityCore
+    quest system and may trigger database updates for quest completion. It is designed
+    to be thread-safe as part of the AI processing pipeline, but requires proper synchronization
+    when multiple bots are operating simultaneously.
+  warnings: This method should only be called when the bot has a valid quest in progress
+    that can be turned in. Calling it with an invalid quest ID or when the bot does
+    not have the required items may result in undefined behavior or quest state corruption.
+    The method does not validate quest prerequisites beyond basic existence and completion
+    status.
+  related:
+  - ExecuteQuestAccept
+  - ExecuteQuestGossip
+  - ExecuteQuestObjective
+  - HasQuest
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T08:21:01.740149'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

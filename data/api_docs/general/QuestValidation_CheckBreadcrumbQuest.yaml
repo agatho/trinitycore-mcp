@@ -1,0 +1,56 @@
+api:
+  class: QuestValidation
+  method: CheckBreadcrumbQuest
+  signature: bool QuestValidation::CheckBreadcrumbQuest(const Quest * quest, Player
+    * bot)
+documentation:
+  brief: Validates whether a player can accept or continue a breadcrumb quest.
+  description: The CheckBreadcrumbQuest method evaluates if a given quest meets the
+    criteria for a breadcrumb quest, which typically involves tracking progress through
+    a series of related objectives. This validation ensures that the quest is properly
+    structured and compatible with the player's current state in the game. The method
+    checks various conditions such as quest prerequisites, player level requirements,
+    and whether the quest has been previously completed or is in an appropriate progression
+    state. It is commonly used during quest acceptance or update processes to maintain
+    game balance and logical quest flow.
+  parameters:
+  - name: quest
+    description: Pointer to the Quest object being validated. Must not be null.
+  - name: bot
+    description: Pointer to the Player object representing the player or bot attempting
+      to validate the quest. Must not be null.
+  returns: Returns true if the quest passes all breadcrumb validation checks and can
+    be accepted or continued by the player; otherwise returns false.
+  examples:
+  - title: Basic Quest Validation Check
+    code: "if (sQuestValidation->CheckBreadcrumbQuest(quest, player)) {\n    // Proceed\
+      \ with quest acceptance\n    player->AddQuest(quest);\n} else {\n    // Inform\
+      \ player that quest cannot be accepted\n    player->SendNotification(\"This\
+      \ quest is not available at this time.\");\n}"
+    language: cpp
+  - title: Integration with Quest Accept Logic
+    code: "void Player::OnQuestAccept(Quest const* quest) {\n    if (sQuestValidation->CheckBreadcrumbQuest(quest,\
+      \ this)) {\n        // Validate that player meets all prerequisites\n      \
+      \  if (CanTakeQuest(quest, false)) {\n            // Accept the quest\n    \
+      \        AddQuest(quest);\n            SendQuestUpdateAdd(quest);\n        }\n\
+      \    } else {\n        // Prevent invalid breadcrumb quest from being accepted\n\
+      \        SendQuestFailed(quest);\n    }\n}"
+    language: cpp
+  notes: This method is typically called during quest acceptance or update events
+    to ensure that breadcrumb quests are properly validated before being added to
+    the player's quest log. The implementation may involve checking for quest dependencies,
+    player progress, and other game state conditions.
+  warnings: Ensure that both quest and bot parameters are valid pointers before calling
+    this method; passing null values will likely result in undefined behavior or crashes.
+    This method should not be used as a standalone validation but rather integrated
+    into broader quest management systems.
+  related:
+  - CheckQuestValidity
+  - CanTakeQuest
+  - IsQuestValidForPlayer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T21:03:13.104030'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

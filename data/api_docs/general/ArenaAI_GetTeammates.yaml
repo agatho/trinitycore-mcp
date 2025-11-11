@@ -1,0 +1,56 @@
+api:
+  class: ArenaAI
+  method: GetTeammates
+  signature: int ArenaAI::GetTeammates(int * player) const
+documentation:
+  brief: Retrieves the list of teammates in the arena match for the player
+  description: The GetTeammates method returns the number of teammates in the arena
+    match associated with the current player. It populates an array of player GUIDs
+    representing the teammates. This method is used primarily by the ArenaAI system
+    to manage and track team composition during arena battles. The method assumes
+    that the AI has been initialized with a valid player context and that the player
+    is currently participating in an arena match. The returned value indicates how
+    many teammates were successfully retrieved.
+  parameters:
+  - name: player
+    description: Pointer to an array of integers where teammate GUIDs will be stored.
+      The array must be pre-allocated with sufficient space to hold all expected teammates.
+  returns: Returns the number of teammates found in the arena match. A return value
+    of 0 indicates no teammates were found or the player is not in an arena match.
+    Negative values may indicate errors or invalid input.
+  examples:
+  - title: Basic usage to retrieve teammates
+    code: "int teammates[4]; // Arena teams typically have up to 4 players\nint count\
+      \ = ai->GetTeammates(teammates);\nif (count > 0) {\n    for (int i = 0; i <\
+      \ count; ++i) {\n        printf(\"Teammate GUID: %d\\n\", teammates[i]);\n \
+      \   }\n}"
+    language: cpp
+  - title: Using GetTeammates to identify enemy targets
+    code: "int teammates[4];\nint count = ai->GetTeammates(teammates);\nif (count\
+      \ > 0) {\n    // Iterate through all players in the arena\n    for (auto& unit\
+      \ : arenaUnits) {\n        bool isTeammate = false;\n        for (int i = 0;\
+      \ i < count; ++i) {\n            if (unit->GetGUID().GetRawValue() == teammates[i])\
+      \ {\n                isTeammate = true;\n                break;\n          \
+      \  }\n        }\n        if (!isTeammate) {\n            // Attack enemy unit\n\
+      \            ai->Attack(unit);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is part of the ArenaAI system and is intended for internal use
+    within the TrinityCore AI framework. The player array should be large enough to
+    accommodate all possible teammates in the arena (typically 2 or 4 depending on
+    the arena type). The method may return different values based on the current state
+    of the arena match, such as pre-match, active match, or post-match states.
+  warnings: Ensure that the 'player' parameter points to a valid, pre-allocated array.
+    Failure to do so can result in memory corruption or undefined behavior. This method
+    should only be called when the player is actually in an arena match; otherwise,
+    it may return unexpected results or zero teammates.
+  related:
+  - GetEnemy
+  - GetPlayer
+  - IsInArena
+  - UpdateAI
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T15:58:17.205679'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

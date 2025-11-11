@@ -1,0 +1,54 @@
+api:
+  class: NPCInteractionManager
+  method: CompleteQuests
+  signature: bool NPCInteractionManager::CompleteQuests(Creature * questGiver)
+documentation:
+  brief: Completes all available quests for a given quest giver creature.
+  description: The CompleteQuests method processes and completes all active quests
+    that are available from the specified quest giver creature. It iterates through
+    the player's active quest log, validates quest completion conditions, updates
+    quest status in the database, and rewards players with experience points, gold,
+    and items as defined by the quest requirements. This method is typically invoked
+    when a player interacts with a quest giver NPC to finalize their quest progress.
+    The function ensures that all prerequisites for quest completion are met before
+    proceeding with the reward distribution.
+  parameters:
+  - name: questGiver
+    description: Pointer to the Creature object representing the NPC quest giver.
+      Must be a valid creature instance with quest data associated. Cannot be null.
+  returns: Returns true if all quests were successfully completed and rewards distributed,
+    false otherwise. A return value of false may indicate failed validation checks,
+    database errors, or incomplete quest requirements.
+  examples:
+  - title: Basic Quest Completion
+    code: "if (player->GetNPCInteractionManager()->CompleteQuests(questGiver)) {\n\
+      \    // All quests completed successfully\n    player->SendAreaTriggerMessage(\"\
+      All quests completed!\");\n} else {\n    // Quest completion failed\n    player->SendAreaTriggerMessage(\"\
+      Failed to complete quests.\");\n}"
+    language: cpp
+  - title: Conditional Quest Completion
+    code: "if (questGiver && questGiver->GetCreatureTemplate()->QuestMenuID != 0)\
+      \ {\n    bool success = player->GetNPCInteractionManager()->CompleteQuests(questGiver);\n\
+      \    if (success) {\n        // Update UI or perform additional actions\n  \
+      \      player->PlayerTalkClass->SendCloseGossip();\n    }\n}"
+    language: cpp
+  notes: This method assumes that the player has already initiated interaction with
+    the quest giver and that all necessary quest data is loaded in memory. The method
+    performs database operations which may impact performance during high-concurrency
+    scenarios. It's recommended to call this method only after verifying that the
+    player meets all prerequisites for quest completion.
+  warnings: Calling this method without proper validation of quest giver validity
+    or player quest status can lead to undefined behavior or crashes. Ensure the questGiver
+    parameter is not null and represents a valid creature with active quests before
+    invoking this method.
+  related:
+  - GetQuests
+  - CompleteQuest
+  - CanCompleteQuest
+  - PlayerTalkClass::SendCloseGossip
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:23:13.962171'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

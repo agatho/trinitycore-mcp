@@ -1,0 +1,62 @@
+api:
+  class: DPSPositioning
+  method: RotateAroundTarget
+  signature: int DPSPositioning::RotateAroundTarget(Unit * target, float angle, float
+    distance)
+documentation:
+  brief: Rotates the unit around a target at a specified angle and distance.
+  description: The RotateAroundTarget method calculates a new position for the calling
+    unit by rotating it around a specified target unit at a given angle and distance.
+    This is commonly used in AI behavior scripting to position units in circular patterns
+    or to create tactical formations. The method performs calculations based on the
+    target's current orientation and position, then updates the unit's location accordingly.
+    It returns an integer status code indicating success or failure of the operation.
+    The rotation is typically performed in the XZ-plane (horizontal plane) with the
+    Y-coordinate remaining unchanged.
+  parameters:
+  - name: target
+    description: Pointer to the target Unit around which the rotation will occur.
+      Must be a valid Unit object; null pointers will result in undefined behavior.
+  - name: angle
+    description: The angle (in radians) by which to rotate around the target. Positive
+      values indicate counter-clockwise rotation, negative values indicate clockwise
+      rotation.
+  - name: distance
+    description: The distance from the target unit's position to place the rotating
+      unit. Must be a non-negative value; negative distances are not supported.
+  returns: Returns 0 on success, indicating that the rotation was successfully calculated
+    and applied. Returns a non-zero value (typically -1) on failure, which may occur
+    if parameters are invalid or if the operation cannot be completed due to game
+    state constraints.
+  examples:
+  - title: Basic Usage
+    code: "Unit* target = player->GetVictim();\nint result = dpsPositioning->RotateAroundTarget(target,\
+      \ M_PI / 4.0f, 5.0f); // Rotate 45 degrees around target at 5 yards distance\n\
+      if (result == 0) {\n    // Successfully rotated\n}"
+    language: cpp
+  - title: Tactical Formation
+    code: "Unit* boss = ai->GetUnit();\nfloat angleStep = M_PI / 3.0f; // 60 degrees\n\
+      for (int i = 0; i < 6; ++i) {\n    float angle = angleStep * i;\n    int result\
+      \ = dpsPositioning->RotateAroundTarget(boss, angle, 8.0f);\n    if (result !=\
+      \ 0) {\n        // Handle error\n        break;\n    }\n}"
+    language: cpp
+  notes: This method does not directly modify the unit's movement path or animation
+    state; it only calculates and sets a new position. The actual movement of the
+    unit may require additional handling such as using MovementGenerator or similar
+    mechanisms. Performance is generally low, but depends on the complexity of the
+    target's current state and positioning.
+  warnings: Ensure that the target pointer is valid before calling this method to
+    avoid crashes. Avoid calling this method with extremely large distances or angles
+    that might cause unit clipping or invalid positions in the game world. The method
+    may fail if the calculated position would place the unit outside of valid movement
+    boundaries.
+  related:
+  - MoveToTarget
+  - GetDistanceToTarget
+  - CalculatePosition
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:38:38.124242'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: AreaTrigger
+  method: UndoActions
+  signature: void AreaTrigger::UndoActions(Unit * unit)
+documentation:
+  brief: Reverses or undoes the effects of area trigger actions on a specified unit.
+  description: The UndoActions method is responsible for reversing or cleaning up
+    any effects that were applied by an area trigger to a specific unit. This typically
+    involves removing buffs, debuffs, or other temporary modifications that were active
+    while the unit was within the area trigger's influence. The method ensures proper
+    cleanup of state changes when a unit exits an area trigger zone or when the trigger's
+    effect needs to be explicitly reversed. It is commonly used in conjunction with
+    area trigger activation and deactivation logic to maintain game state consistency.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object for which the area trigger effects should
+      be undone. This parameter must not be null, as attempting to undo actions on
+      a null unit will likely result in undefined behavior or crashes.
+  returns: void
+  examples:
+  - title: Basic usage of UndoActions
+    code: "void MyAreaTrigger::OnUnitEnter(Unit* unit)\n{\n    // Apply some effects\n\
+      \    unit->AddAura(12345, unit);\n}\n\nvoid MyAreaTrigger::OnUnitExit(Unit*\
+      \ unit)\n{\n    // Undo the applied effects\n    UndoActions(unit);\n}"
+    language: cpp
+  - title: UndoActions in custom area trigger implementation
+    code: "class CustomAreaTrigger : public AreaTrigger\n{\npublic:\n    void OnUnitEnter(Unit*\
+      \ unit) override\n    {\n        // Apply temporary effects\n        unit->SetFlag(UNIT_FIELD_FLAGS,\
+      \ UNIT_FLAG_NON_ATTACKABLE);\n        unit->AddAura(98765, unit);\n    }\n\n\
+      \    void OnUnitExit(Unit* unit) override\n    {\n        // Clean up the applied\
+      \ effects\n        UndoActions(unit);\n    }\n};"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore framework when
+    a unit leaves an area trigger's effect radius. Developers should ensure that any
+    custom area trigger implementations properly call UndoActions to prevent lingering
+    effects or memory leaks. The method may perform cleanup operations such as removing
+    temporary auras, resetting flags, or reverting stat modifications.
+  warnings: Calling UndoActions with a null unit pointer can lead to crashes or undefined
+    behavior. Always validate the unit parameter before calling this method. Additionally,
+    if custom logic is implemented in UndoActions that depends on specific conditions,
+    ensure those conditions are properly handled to avoid inconsistent game states.
+  related:
+  - AreaTrigger::ApplyActions
+  - AreaTrigger::Update
+  - AreaTrigger::OnUnitEnter
+  - AreaTrigger::OnUnitExit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:01:47.407927'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

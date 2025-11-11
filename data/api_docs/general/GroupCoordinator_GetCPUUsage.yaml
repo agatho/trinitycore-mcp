@@ -1,0 +1,57 @@
+api:
+  class: GroupCoordinator
+  method: GetCPUUsage
+  signature: float GroupCoordinator::GetCPUUsage() const
+documentation:
+  brief: Calculates and returns the current CPU usage percentage of the group coordinator
+    thread.
+  description: The GetCPUUsage method provides a measurement of how much CPU time
+    the GroupCoordinator instance is consuming relative to total available processing
+    power. This metric is useful for performance monitoring, load balancing decisions,
+    and identifying potential bottlenecks in group management operations. The value
+    returned represents an instantaneous snapshot that may fluctuate based on system
+    load and active group activities such as player movement, loot distribution, or
+    quest progression within the group. This method typically uses high-resolution
+    timers to compute usage over a short time interval for accuracy.
+  parameters: []
+  returns: A floating-point value between 0.0 and 100.0 representing the percentage
+    of CPU utilization by the group coordinator thread. A value of 0.0 indicates no
+    CPU usage, while 100.0 indicates maximum possible usage (i.e., full utilization).
+    Values above 100.0 may occur in multi-core systems where multiple threads contribute
+    to the measurement.
+  examples:
+  - title: Basic CPU Usage Monitoring
+    code: 'GroupCoordinator* coordinator = sGroupCoordinator->GetGroupCoordinator();
+
+      float cpuUsage = coordinator->GetCPUUsage();
+
+      TC_LOG_INFO(LOG_FILTER_GENERAL, "Current Group Coordinator CPU usage: %.2f%%",
+      cpuUsage);'
+    language: cpp
+  - title: Performance Alert Based on CPU Usage
+    code: "GroupCoordinator* coordinator = sGroupCoordinator->GetGroupCoordinator();\n\
+      float cpuUsage = coordinator->GetCPUUsage();\nif (cpuUsage > 80.0f)\n{\n   \
+      \ TC_LOG_WARN(LOG_FILTER_GENERAL, \"High CPU usage detected in Group Coordinator:\
+      \ %.2f%%\", cpuUsage);\n    // Trigger performance optimization or alerting\
+      \ logic\n}"
+    language: cpp
+  notes: This method relies on platform-specific timing functions to calculate CPU
+    usage. On Windows systems, it uses QueryPerformanceCounter and GetSystemTimes
+    APIs. The measurement includes both user-mode and kernel-mode CPU time for the
+    thread. For accurate readings, multiple calls should be averaged over time rather
+    than relying on single measurements.
+  warnings: The returned value is not thread-safe and may change between the time
+    of call and when it's processed. In high-frequency monitoring scenarios, consider
+    caching results or using a dedicated monitoring thread to avoid race conditions.
+    Also note that this measurement does not account for CPU usage by other subsystems
+    or threads unrelated to group coordination.
+  related:
+  - GetGroupCount
+  - GetMemberCount
+  - IsLeader
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T17:45:13.367747'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

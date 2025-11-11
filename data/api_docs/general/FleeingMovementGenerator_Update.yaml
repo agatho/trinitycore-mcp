@@ -1,0 +1,59 @@
+api:
+  class: FleeingMovementGenerator
+  method: Update
+  signature: bool FleeingMovementGenerator::Update(int * owner, int diff)
+documentation:
+  brief: Updates the fleeing movement generator to calculate and apply the next position
+    based on the owner's current state and elapsed time.
+  description: The Update method is responsible for processing the fleeing behavior
+    of a creature or unit that is currently in a flee state. It calculates the new
+    position of the fleeing unit based on its current location, speed, and the time
+    elapsed since the last update (diff). The method determines whether the flee movement
+    should continue or if the unit has reached its destination or lost the fleeing
+    state. This method is typically called by the AI system during each tick of the
+    game loop to ensure continuous movement updates for fleeing units.
+  parameters:
+  - name: owner
+    description: Pointer to the unit that is currently fleeing. This represents the
+      entity executing the flee behavior and whose position and state are being updated.
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last update call. Used
+      to calculate movement distance based on speed and time passed.
+  returns: Returns true if the fleeing movement was successfully updated and the unit
+    is still in a flee state, false otherwise. A return value of false typically indicates
+    that the flee movement has completed or the unit is no longer fleeing.
+  examples:
+  - title: Basic Flee Update Usage
+    code: "void UpdateFleeMovement(Unit* owner, uint32 diff) {\n    FleeingMovementGenerator\
+      \ fleeGen;\n    if (!fleeGen.Update(&owner, diff)) {\n        // Flee movement\
+      \ completed or interrupted\n        owner->ClearUnitState(UNIT_STATE_FLEEING);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced Flee Update with State Checks
+    code: "bool HandleFleeUpdate(Unit* owner, uint32 diff) {\n    if (!owner || !owner->IsInWorld())\n\
+      \        return false;\n    \n    FleeingMovementGenerator fleeGen;\n    bool\
+      \ result = fleeGen.Update(&owner, diff);\n    \n    // Check if fleeing is still\
+      \ valid\n    if (result && owner->HasUnitState(UNIT_STATE_FLEEING)) {\n    \
+      \    // Continue with movement logic\n        return true;\n    }\n    \n  \
+      \  // Fleeing has ended\n    owner->ClearUnitState(UNIT_STATE_FLEEING);\n  \
+      \  return false;\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's AI system and relies on internal
+    movement calculations. The 'owner' parameter must be a valid pointer to a Unit
+    object, otherwise behavior is undefined. The 'diff' value should represent actual
+    time passed in milliseconds for accurate movement simulation.
+  warnings: Do not call this method directly unless you're implementing or extending
+    AI behavior. Incorrect handling of the owner pointer or diff value can lead to
+    crashes or unexpected movement behavior. Ensure that the unit has a valid flee
+    state before calling this method.
+  related:
+  - Initialize
+  - Reset
+  - GetTargetPosition
+  - IsInitialized
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T04:45:13.572677'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

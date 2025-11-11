@@ -1,0 +1,67 @@
+api:
+  class: UnitAI
+  method: PrepareTargetListSelection
+  signature: bool UnitAI::PrepareTargetListSelection(int & targetList, SelectTargetMethod
+    targetType, uint32 offset)
+documentation:
+  brief: Prepares and selects a target list based on specified selection method and
+    offset for AI behavior.
+  description: The PrepareTargetListSelection method initializes and processes a target
+    selection list for an AI-controlled unit, using a given selection method and offset
+    to determine which targets are considered valid. This method is typically used
+    in AI decision-making logic to choose appropriate enemies or allies based on predefined
+    criteria such as proximity, threat level, or specific targeting rules. It prepares
+    the internal target list that can then be used by other AI methods for actions
+    like casting spells or moving towards targets. The method returns true if the
+    target selection was successfully prepared and false otherwise, indicating potential
+    issues with the input parameters or target availability.
+  parameters:
+  - name: targetList
+    description: Reference to an integer that will hold the index of the selected
+      target list after preparation. This value is updated by the method upon successful
+      execution.
+  - name: targetType
+    description: Specifies the selection method used to determine which targets are
+      considered valid for this AI's behavior. Valid values include methods like SELECT_TARGET_TOPAGGRO,
+      SELECT_TARGET_BOTTOMAGGRO, SELECT_TARGET_NEAREST, SELECT_TARGET_FARTHEST, etc.,
+      depending on the available target selection types in TrinityCore.
+  - name: offset
+    description: Determines the starting point or offset within the selected target
+      list. For example, an offset of 0 selects the first valid target, while an offset
+      of 1 selects the second valid target, and so forth. This allows for sequential
+      selection of targets from a sorted list.
+  returns: Returns true if the target list was successfully prepared and a valid target
+    was selected based on the provided parameters; returns false if no suitable target
+    could be found or if invalid parameters were passed.
+  examples:
+  - title: Basic Target Selection
+    code: "int targetIndex;\nif (me->GetAI()->PrepareTargetListSelection(targetIndex,\
+      \ SELECT_TARGET_NEAREST, 0))\n{\n    // Successfully selected the nearest target\n\
+      \    Unit* target = me->GetAI()->GetTarget(targetIndex);\n    if (target)\n\
+      \        me->Attack(target, true);\n}"
+    language: cpp
+  - title: Selecting Second Highest Aggro Target
+    code: "int targetIndex;\nif (me->GetAI()->PrepareTargetListSelection(targetIndex,\
+      \ SELECT_TARGET_TOPAGGRO, 1))\n{\n    // Successfully selected the second highest\
+      \ aggro target\n    Unit* target = me->GetAI()->GetTarget(targetIndex);\n  \
+      \  if (target)\n        me->CastSpell(target, SPELL_FROST_NOVA, true);\n}"
+    language: cpp
+  notes: This method relies on the AI's internal target list being properly populated
+    before execution. It assumes that the unit has already gathered its potential
+    targets through previous calls to methods like AddThreat or similar threat management
+    functions. The method may not perform as expected if the target list is empty
+    or improperly initialized.
+  warnings: Ensure that the targetType parameter corresponds to a valid selection
+    method supported by the AI implementation, otherwise the method might silently
+    fail or return unexpected results. Also, be cautious when using large offset values
+    that exceed the size of the available target list.
+  related:
+  - GetTarget
+  - AddThreat
+  - SelectTarget
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T17:59:01.679087'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

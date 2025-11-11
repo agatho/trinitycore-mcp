@@ -1,0 +1,63 @@
+api:
+  class: PaladinAI
+  method: RecordInterruptAttempt
+  signature: void PaladinAI::RecordInterruptAttempt(int * target, int spellId, bool
+    success)
+documentation:
+  brief: Records an attempt to interrupt a spell cast by a target unit.
+  description: The RecordInterruptAttempt method logs information about a successful
+    or failed spell interruption attempt made by a paladin AI. This method is typically
+    used within the context of spell casting and combat behavior to track the effectiveness
+    of interruption abilities such as Holy Shock or Avenger's Shield. It updates internal
+    tracking mechanisms that may be used for cooldown management, performance analysis,
+    or AI decision-making processes. The method accepts a pointer to the target unit,
+    the spell ID being interrupted, and a success flag indicating whether the interruption
+    was effective.
+  parameters:
+  - name: target
+    description: Pointer to the target unit that attempted to cast the spell. This
+      parameter represents the unit whose spell casting is being interrupted.
+  - name: spellId
+    description: The identifier of the spell being interrupted. This value corresponds
+      to the Spell::Id field in the TrinityCore database and determines which spell
+      was targeted for interruption.
+  - name: success
+    description: Boolean flag indicating whether the interruption attempt was successful.
+      True indicates a successful interruption, false indicates failure.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: "void MyPaladinAI::OnSpellCast(Spell* spell)\n{\n    Unit* target = spell->GetUnitTarget();\n\
+      \    if (target && spell->IsSpellInterruptible())\n    {\n        bool success\
+      \ = TryInterruptSpell(target, spell->GetSpellInfo()->Id);\n        RecordInterruptAttempt((int*)target,\
+      \ spell->GetSpellInfo()->Id, success);\n    }\n}"
+    language: cpp
+  - title: Advanced Usage with AI Decision Making
+    code: "void PaladinAI::ProcessInterruptAttempts()\n{\n    for (auto& attempt :\
+      \ interruptAttempts)\n    {\n        if (attempt.success)\n        {\n     \
+      \       // Increase cooldown or modify behavior\n            SetNextSpellCooldown(SPELL_HOLY_SHOCK,\
+      \ 2000);\n        }\n        else\n        {\n            // Log failed attempts\
+      \ for analysis\n            sLog->outDebug(LOG_FILTER_AI, \"Paladin AI failed\
+      \ to interrupt spell %u on target %u\", \n                          attempt.spellId,\
+      \ (uint32)attempt.target);\n        }\n    }\n    interruptAttempts.clear();\n\
+      }"
+    language: cpp
+  notes: This method is part of the Paladin AI system and should only be called from
+    within the context of spell interruption logic. The target parameter must point
+    to a valid Unit object; otherwise, undefined behavior may occur. The method does
+    not perform any validation on the spellId, so callers should ensure it refers
+    to a valid spell in the database.
+  warnings: Calling this method with an invalid target pointer will result in undefined
+    behavior and potential crashes. Ensure that the target unit is alive and valid
+    before calling this function. Also, be cautious when using the spellId parameter
+    as incorrect values may lead to improper tracking or AI decision making.
+  related:
+  - GetInterruptAttempts
+  - ClearInterruptAttempts
+  - TryInterruptSpell
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:49:42.637896'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

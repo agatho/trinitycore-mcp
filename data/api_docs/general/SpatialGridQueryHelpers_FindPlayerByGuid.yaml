@@ -1,0 +1,65 @@
+api:
+  class: SpatialGridQueryHelpers
+  method: FindPlayerByGuid
+  signature: const DoubleBufferedSpatialGrid::PlayerSnapshot * SpatialGridQueryHelpers::FindPlayerByGuid(Player
+    * bot, int guid, float searchRadius)
+documentation:
+  brief: Finds and returns a player snapshot by GUID within the specified search radius.
+  description: The FindPlayerByGuid method searches for a specific player within a
+    given spatial grid area using their unique identifier (GUID). It utilizes the
+    DoubleBufferedSpatialGrid to efficiently locate players in the vicinity of the
+    provided bot character. The method performs a spatial query based on the bot's
+    current location and the specified search radius, returning a snapshot of the
+    player data if found. This function is commonly used in AI behavior logic where
+    NPCs need to identify nearby players for interaction or targeting purposes.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot performing the
+      search. Used as the reference point for spatial queries and determining the
+      search area.
+  - name: guid
+    description: Integer value representing the unique identifier (GUID) of the target
+      player to find. This is used to match against players in the spatial grid.
+  - name: searchRadius
+    description: Float value specifying the maximum distance from the bot's position
+      to search for the player. Players beyond this radius will not be returned.
+  returns: Returns a const pointer to a DoubleBufferedSpatialGrid::PlayerSnapshot
+    object if a matching player is found within the specified radius. Returns nullptr
+    if no player with the given GUID exists in the search area.
+  examples:
+  - title: Basic usage to find a player by GUID
+    code: "Player* bot = ...; // Assume this is initialized\nint targetGuid = 12345;\n\
+      float radius = 50.0f;\nconst DoubleBufferedSpatialGrid::PlayerSnapshot* snapshot\
+      \ = SpatialGridQueryHelpers::FindPlayerByGuid(bot, targetGuid, radius);\nif\
+      \ (snapshot != nullptr) {\n    // Player found, use snapshot data\n    printf(\"\
+      Found player: %s\\n\", snapshot->GetName());\n} else {\n    // Player not found\
+      \ in search area\n    printf(\"Player not found.\\n\");\n}"
+    language: cpp
+  - title: Using FindPlayerByGuid in AI targeting logic
+    code: "class MyAIHandler {\npublic:\n    void CheckForTarget(Player* bot) {\n\
+      \        const DoubleBufferedSpatialGrid::PlayerSnapshot* target = SpatialGridQueryHelpers::FindPlayerByGuid(bot,\
+      \ 98765, 30.0f);\n        if (target != nullptr) {\n            // Target found,\
+      \ initiate combat or interaction\n            bot->SetTarget(target->GetGUID());\n\
+      \            bot->AttackStart(target->GetUnit());\n        } else {\n      \
+      \      // No valid target in range\n            bot->ClearCurrentTarget();\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method relies on the DoubleBufferedSpatialGrid for efficient spatial
+    queries. The grid is updated asynchronously, so results may not reflect real-time
+    changes in player positions. The search radius parameter affects performance;
+    larger radii require more processing time to scan the grid. This function should
+    be used carefully in performance-critical code paths.
+  warnings: The returned PlayerSnapshot pointer is only valid while the spatial grid
+    data remains consistent and has not been modified by another thread. Using the
+    snapshot after the grid has changed may result in invalid memory access or stale
+    data. Ensure proper synchronization when using this method in multi-threaded environments.
+  related:
+  - FindUnitByGuid
+  - FindPlayerInRange
+  - GetNearbyPlayers
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T21:43:31.159252'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

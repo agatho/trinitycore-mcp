@@ -1,0 +1,78 @@
+api:
+  class: StableInfo
+  method: WriteUpdate
+  signature: void StableInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes stable information into a packet buffer for client updates
+  description: The WriteUpdate method serializes the current state of a StableInfo
+    object into a ByteBuffer, preparing it for network transmission to either the
+    owner or receiver player. This method is typically used when sending stable-related
+    data updates to clients, such as pet inventory changes, stable slot states, or
+    other stable-specific information. The serialization process respects the ignoreChangesMask
+    parameter which can bypass normal change tracking mechanisms. The method requires
+    valid owner and receiver player references to properly format the update packet
+    according to World of Warcraft's packet structure conventions.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized stable information
+      will be written. This buffer is typically used for constructing network packets
+      sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking should be ignored
+      during serialization. When true, all stable data is written regardless of change
+      status; when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object who owns the stable. Required for proper
+      packet formatting and access control checks.
+  - name: receiver
+    description: Pointer to the Player object who will receive the update packet.
+      Used to determine appropriate data visibility and packet formatting.
+  returns: null
+  examples:
+  - title: Basic Stable Update Serialization
+    code: 'ByteBuffer data;
+
+      StableInfo stableInfo;
+
+      Player* owner = ...; // valid player pointer
+
+      Player* receiver = ...; // valid player pointer
+
+      stableInfo.WriteUpdate(data, false, owner, receiver);
+
+      // ''data'' now contains serialized stable update packet ready for transmission'
+    language: cpp
+  - title: Forced Update with Ignore Mask
+    code: 'ByteBuffer data;
+
+      StableInfo stableInfo;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      // Force sending all stable data regardless of change status
+
+      stableInfo.WriteUpdate(data, true, owner, receiver);
+
+      // All stable information is written to the buffer'
+    language: cpp
+  notes: This method is part of TrinityCore's packet serialization system and should
+    only be called when preparing network updates for players. The method assumes
+    valid player pointers and will likely crash or behave unpredictably if passed
+    null references. Implementation uses internal change tracking mechanisms to optimize
+    bandwidth usage when ignoreChangesMask is false.
+  warnings: Never call this method with null owner or receiver pointers as it will
+    likely cause crashes or undefined behavior. Be cautious when using ignoreChangesMask=true
+    in high-frequency update scenarios as it may increase network traffic unnecessarily.
+  related:
+  - StableInfo::ReadUpdate
+  - StableInfo::ClearChangedFields
+  - StableInfo::HasChanges
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:46:15.742407'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

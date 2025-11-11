@@ -1,0 +1,60 @@
+api:
+  class: TaxiMask
+  method: data
+  signature: const value_type * TaxiMask::data() const
+documentation:
+  brief: Returns a pointer to the internal data buffer of the TaxiMask object.
+  description: The data() method provides direct access to the underlying memory buffer
+    that stores the taxi path mask data. This is typically used to serialize or deserialize
+    the taxi mask information, or to perform low-level operations on the mask data.
+    The returned pointer points to the first element of the internal array and can
+    be used with standard C-style array operations. The TaxiMask class likely represents
+    a bitmask indicating which taxi paths are available to a player, and this method
+    allows access to that raw bit representation for efficient processing or storage.
+  parameters: []
+  returns: A constant pointer to the first element of the internal data buffer. The
+    returned pointer remains valid as long as the TaxiMask object exists and is not
+    modified. It points to an array of value_type elements that represent the bitmask
+    data.
+  examples:
+  - title: Accessing TaxiMask data for serialization
+    code: 'TaxiMask mask;
+
+      // ... populate mask with taxi path data ...
+
+      const uint8* rawData = mask.data();
+
+      size_t dataSize = sizeof(mask);
+
+      // Serialize rawData to database or network stream
+
+      std::vector<uint8> serializedData(rawData, rawData + dataSize);'
+    language: cpp
+  - title: Iterating through TaxiMask bits
+    code: "TaxiMask mask;\nconst uint8* dataPtr = mask.data();\nfor (size_t i = 0;\
+      \ i < sizeof(TaxiMask); ++i)\n{\n    for (int bit = 0; bit < 8; ++bit)\n   \
+      \ {\n        if (dataPtr[i] & (1 << bit))\n        {\n            // Taxi path\
+      \ at position (i * 8 + bit) is available\n        }\n    }\n}"
+    language: cpp
+  notes: The returned pointer points to internal memory managed by the TaxiMask object.
+    Modifying the data through this pointer directly affects the object's state. The
+    size of the data buffer depends on the implementation of TaxiMask, which is likely
+    a fixed-size structure based on the number of taxi paths in the game. This method
+    provides direct memory access, so it should be used carefully to avoid buffer
+    overruns or undefined behavior.
+  warnings: Direct manipulation of the returned pointer's contents can corrupt the
+    TaxiMask object. The data pointer should not be freed or reallocated by the caller.
+    Ensure that any operations on the returned data do not exceed the bounds of the
+    internal buffer, as this could lead to memory corruption or crashes.
+  related:
+  - size
+  - empty
+  - clear
+  - set
+  - test
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:23:48.332119'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

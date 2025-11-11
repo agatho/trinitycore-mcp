@@ -1,0 +1,58 @@
+api:
+  class: InteractionManager
+  method: RepairAll
+  signature: InteractionResult InteractionManager::RepairAll(Player * bot, Creature
+    * vendor)
+documentation:
+  brief: Repairs all items in the bot's inventory using the specified vendor.
+  description: The RepairAll method iterates through all items currently equipped
+    or in the bot's inventory and repairs them using the provided vendor. This function
+    handles the interaction with the vendor to perform the repair transaction for
+    all eligible items at once, rather than requiring individual repair actions. The
+    method respects item types that are eligible for repair (e.g., weapons, armor)
+    and skips items that cannot be repaired such as consumables or soulbound items.
+    It ensures proper communication with the vendor's repair service and updates the
+    bot's inventory accordingly after repairs are completed.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot requesting repairs.
+      Must be a valid player instance with an active session.
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor offering repair
+      services. Must be a valid vendor creature with repair capabilities enabled.
+  returns: Returns an InteractionResult enum indicating the success or failure of
+    the repair operation. Possible values include SUCCESS, FAILED, INVALID_TARGET,
+    or INSUFFICIENT_FUNDS depending on whether all items were repaired successfully.
+  examples:
+  - title: Basic Repair All Usage
+    code: "InteractionResult result = interactionManager.RepairAll(bot, vendor);\n\
+      if (result == InteractionResult::SUCCESS) {\n    // All items repaired successfully\n\
+      \    bot->GetSession()->SendNotification(\"All items repaired!\");\n}"
+    language: cpp
+  - title: Handling Repair Results
+    code: "InteractionResult result = interactionManager.RepairAll(bot, vendor);\n\
+      switch (result) {\n    case InteractionResult::SUCCESS:\n        bot->GetSession()->SendNotification(\"\
+      Repair complete.\");\n        break;\n    case InteractionResult::FAILED:\n\
+      \        bot->GetSession()->SendNotification(\"Repair failed.\");\n        break;\n\
+      \    case InteractionResult::INSUFFICIENT_FUNDS:\n        bot->GetSession()->SendNotification(\"\
+      Not enough gold for repairs.\");\n        break;\n}"
+    language: cpp
+  notes: This method assumes that the vendor is within interaction range and has sufficient
+    funds to cover all repair costs. It does not perform any checks on item durability
+    before attempting repairs, so items with zero durability will still be processed.
+    The method may trigger multiple vendor interactions internally depending on how
+    many items need to be repaired.
+  warnings: Ensure that both the bot and vendor parameters are valid pointers before
+    calling this method; otherwise, it may cause a crash or undefined behavior. Be
+    cautious when using this in high-frequency scenarios as it can generate multiple
+    network packets during repair transactions.
+  related:
+  - RepairItem
+  - GetRepairCost
+  - CanRepair
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:21:17.136123'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

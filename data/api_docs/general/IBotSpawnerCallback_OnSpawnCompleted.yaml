@@ -1,0 +1,71 @@
+api:
+  class: IBotSpawnerCallback
+  method: OnSpawnCompleted
+  signature: void IBotSpawnerCallback::OnSpawnCompleted(int botGuid, bool success,
+    const int & details)
+documentation:
+  brief: Notifies when a bot spawn operation has completed with success or failure
+    status
+  description: The OnSpawnCompleted method is a callback function invoked by the bot
+    spawner system to indicate that a bot spawning operation has finished. This method
+    provides feedback on whether the spawn was successful and includes additional
+    details about the operation. It serves as an asynchronous notification mechanism
+    for the system managing bot creation, allowing implementers to react to spawn
+    outcomes such as success, failure, or specific error conditions. The callback
+    is typically triggered after all necessary steps for spawning a bot have been
+    executed, including any required database updates, object instantiation, or world
+    state modifications.
+  parameters:
+  - name: botGuid
+    description: The unique identifier (GUID) of the bot that was spawned. This value
+      represents the internal identifier used by TrinityCore to track the bot instance
+      in memory and database.
+  - name: success
+    description: Boolean flag indicating whether the spawn operation completed successfully.
+      True indicates successful spawning, false indicates failure or cancellation.
+  - name: details
+    description: Reference to an integer containing additional details about the spawn
+      operation. The meaning of this value depends on the specific implementation
+      and may represent error codes, spawn type identifiers, or other operational
+      metadata.
+  returns: void
+  examples:
+  - title: Basic Implementation of OnSpawnCompleted Callback
+    code: "class MyBotSpawnerCallback : public IBotSpawnerCallback {\npublic:\n  \
+      \  void OnSpawnCompleted(int botGuid, bool success, const int& details) override\
+      \ {\n        if (success) {\n            std::cout << \"Bot with GUID \" <<\
+      \ botGuid << \" spawned successfully.\"\n                      << \" Details:\
+      \ \" << details << std::endl;\n        } else {\n            std::cout << \"\
+      Failed to spawn bot with GUID \" << botGuid\n                      << \". Details:\
+      \ \" << details << std::endl;\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Error Handling and Logging
+    code: "class AdvancedBotSpawnerCallback : public IBotSpawnerCallback {\npublic:\n\
+      \    void OnSpawnCompleted(int botGuid, bool success, const int& details) override\
+      \ {\n        if (!success) {\n            switch (details) {\n             \
+      \   case 1: // Spawn limit reached\n                    LOG_ERROR(\"bot\", \"\
+      Bot spawn failed due to limit reached for GUID {}\", botGuid);\n           \
+      \         break;\n                case 2: // Invalid position\n            \
+      \        LOG_ERROR(\"bot\", \"Bot spawn failed due to invalid position for GUID\
+      \ {}\", botGuid);\n                    break;\n                default:\n  \
+      \                  LOG_ERROR(\"bot\", \"Bot spawn failed with unknown error\
+      \ code {} for GUID {}\", details, botGuid);\n            }\n        } else {\n\
+      \            LOG_INFO(\"bot\", \"Successfully spawned bot with GUID {} and details\
+      \ {}\", botGuid, details);\n        }\n    }\n};"
+    language: cpp
+  notes: This callback is invoked asynchronously after a bot spawn operation completes.
+    Implementers should ensure thread safety if the callback may be called from different
+    threads. The 'details' parameter's interpretation depends on the specific implementation
+    of the spawner and should be documented by the system that invokes this method.
+  warnings: Do not perform blocking operations within this callback as it may impact
+    performance or cause deadlocks. The botGuid value is only valid if success is
+    true; otherwise, it might represent an invalid or uninitialized value.
+  related:
+  - IBotSpawnerCallback::OnSpawnStarted
+  - IBotSpawnerCallback::OnSpawnFailed
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:55:08.928913'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

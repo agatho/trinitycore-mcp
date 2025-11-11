@@ -1,0 +1,73 @@
+api:
+  class: MultiFloorExplore
+  method: WriteUpdate
+  signature: void MultiFloorExplore::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes update data for a multi-floor exploration state to a ByteBuffer for
+    transmission to a player.
+  description: The WriteUpdate method serializes the current state of a MultiFloorExplore
+    object into a ByteBuffer, which is typically used for sending updates to players
+    in the game world. This method handles the serialization of exploration data across
+    multiple floors or levels of a dungeon or instance. The ignoreChangesMask parameter
+    controls whether all data should be written regardless of change tracking, while
+    owner and receiver parameters determine the context of the update. This method
+    is commonly used during player movement between floors or when updating exploration
+    status for complex dungeon environments.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically sent to the client as part of a packet.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all data fields are written regardless of whether they have changed
+      since last update.
+  - name: owner
+    description: Pointer to the Player object that owns or controls this MultiFloorExplore
+      state. Used for determining what data should be included in the update.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine visibility and specific data filtering based on player's current context.
+  returns: null
+  examples:
+  - title: Basic usage for sending exploration update
+    code: 'ByteBuffer updateData;
+
+      Player* ownerPlayer = ...; // Get the owner player
+
+      Player* receiverPlayer = ...; // Get the receiver player
+
+      multiFloorExplore.WriteUpdate(updateData, false, ownerPlayer, receiverPlayer);
+
+      // Send updateData to receiverPlayer''s client'
+    language: cpp
+  - title: Forcing full update with ignoreChangesMask
+    code: 'ByteBuffer fullUpdate;
+
+      Player* player = ...; // Current player
+
+      multiFloorExplore.WriteUpdate(fullUpdate, true, player, player);
+
+      // Send full update regardless of changes'
+    language: cpp
+  notes: This method is typically called during packet construction for world updates.
+    The MultiFloorExplore class likely maintains state about which floors have been
+    explored by players. Performance considerations include the size of the ByteBuffer
+    and how frequently this method is called during player movement between different
+    floor levels.
+  warnings: Improper use of ignoreChangesMask can lead to unnecessary bandwidth usage.
+    Always ensure that owner and receiver parameters are valid Player objects to prevent
+    null pointer dereferences. This method should not be called outside of proper
+    game update cycles as it may cause synchronization issues with exploration state
+    tracking.
+  related:
+  - GetExplorationState
+  - SetExplorationState
+  - IsFloorExplored
+  - UpdatePlayerExploration
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T23:27:49.920226'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

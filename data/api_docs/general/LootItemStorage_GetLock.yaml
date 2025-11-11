@@ -1,0 +1,58 @@
+api:
+  class: LootItemStorage
+  method: GetLock
+  signature: std::shared_mutex * LootItemStorage::GetLock()
+documentation:
+  brief: Returns a pointer to the shared mutex used for thread-safe access to the
+    loot item storage.
+  description: The GetLock method provides access to the internal shared mutex that
+    protects the LootItemStorage data structure from concurrent access. This mutex
+    is essential for ensuring thread safety when multiple threads attempt to read
+    or modify loot item data simultaneously. The returned pointer can be used to acquire
+    shared or exclusive locks before performing operations on the loot storage. In
+    World of Warcraft's TrinityCore environment, this method supports the synchronization
+    mechanisms required for handling loot distribution across different game systems
+    and threads.
+  parameters: []
+  returns: A pointer to a std::shared_mutex object that controls access to the loot
+    item storage. The caller is responsible for using proper locking mechanisms (e.g.,
+    std::unique_lock or std::shared_lock) when accessing the mutex.
+  examples:
+  - title: Basic usage of GetLock for exclusive access
+    code: 'std::unique_lock<std::shared_mutex> lock(storage->GetLock());
+
+      // Perform exclusive operations on loot items
+
+      storage->AddLootItem(item);
+
+      lock.unlock();'
+    language: cpp
+  - title: Using GetLock for shared access
+    code: 'std::shared_lock<std::shared_mutex> lock(storage->GetLock());
+
+      // Perform read-only operations on loot items
+
+      auto items = storage->GetAllLootItems();
+
+      lock.unlock();'
+    language: cpp
+  notes: The returned mutex pointer should always be used with proper RAII locking
+    mechanisms (std::unique_lock or std::shared_lock) to ensure correct behavior and
+    prevent deadlocks. The mutex is designed to support both shared and exclusive
+    access patterns, making it suitable for read-heavy workloads where multiple threads
+    may concurrently read loot data while occasional writes require exclusive access.
+  warnings: Direct manipulation of the returned mutex pointer without proper locking
+    can lead to race conditions and undefined behavior. Never attempt to lock the
+    mutex directly using raw calls; always use scoped lock objects. Improper use of
+    shared_mutex can cause performance degradation or deadlocks in multi-threaded
+    environments.
+  related:
+  - LootItemStorage::AddLootItem
+  - LootItemStorage::RemoveLootItem
+  - LootItemStorage::GetAllLootItems
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T16:41:43.029497'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

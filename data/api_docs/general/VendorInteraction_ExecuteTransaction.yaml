@@ -1,0 +1,64 @@
+api:
+  class: VendorInteraction
+  method: ExecuteTransaction
+  signature: InteractionResult VendorInteraction::ExecuteTransaction(Player * bot,
+    Creature * vendor, const VendorInteractionData & data)
+documentation:
+  brief: Executes a vendor transaction for the specified bot player and creature vendor
+    using provided interaction data.
+  description: 'The ExecuteTransaction method processes a vendor interaction within
+    the TrinityCore framework, handling the buying or selling of items between a bot
+    player and a creature vendor. It utilizes the provided VendorInteractionData to
+    determine what items should be traded, how many, and at what price. The method
+    ensures proper inventory management, currency deduction or addition, and updates
+    the vendor''s available stock accordingly. This function is typically used in
+    automated bot systems where players interact with vendors without manual input.
+    Precondition: The player must be within range of the vendor, and the VendorInteractionData
+    must contain valid item information. Postcondition: The transaction is completed,
+    inventory updated, and appropriate messages are sent to the player.'
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will perform
+      the transaction
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor with whom
+      the transaction occurs
+  - name: data
+    description: Reference to VendorInteractionData containing details about items
+      to buy/sell, quantities, and transaction parameters
+  returns: Returns an InteractionResult enum indicating success or failure of the
+    transaction along with any relevant status information. Possible values may include
+    SUCCESS, FAILURE, INSUFFICIENT_FUNDS, INVENTORY_FULL, INVALID_ITEM, etc.
+  examples:
+  - title: Basic Vendor Transaction
+    code: "VendorInteractionData data;\ndata.items.push_back({12345, 10}); // Buy\
+      \ 10 of item ID 12345\nInteractionResult result = interaction.ExecuteTransaction(bot,\
+      \ vendor, data);\nif (result == InteractionResult::SUCCESS) {\n    // Transaction\
+      \ completed successfully\n}"
+    language: cpp
+  - title: Multiple Item Purchase
+    code: "VendorInteractionData data;\ndata.items.push_back({12345, 5});\ndata.items.push_back({67890,\
+      \ 2});\ndata.items.push_back({54321, 1});\nInteractionResult result = interaction.ExecuteTransaction(bot,\
+      \ vendor, data);\nswitch (result) {\ncase InteractionResult::SUCCESS:\n    //\
+      \ All items purchased\n    break;\ncase InteractionResult::INSUFFICIENT_FUNDS:\n\
+      \    // Not enough gold\n    break;\n}"
+    language: cpp
+  notes: This method assumes that the bot player and vendor are properly initialized
+    and within valid interaction range. The VendorInteractionData should be validated
+    before calling this method to prevent runtime errors. Performance considerations
+    include checking inventory space and currency balance before attempting transactions
+    to avoid unnecessary processing.
+  warnings: Calling this method without proper validation of input parameters may
+    lead to crashes or unexpected behavior. Ensure that the bot player is in a valid
+    state (not dead, not in combat) before executing transactions. Be cautious when
+    dealing with large quantities of items as it may cause inventory overflow issues.
+  related:
+  - GetVendorItems
+  - ValidateTransaction
+  - UpdateVendorStock
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T10:55:03.876833'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

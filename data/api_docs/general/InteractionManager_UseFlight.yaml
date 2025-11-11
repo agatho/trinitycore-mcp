@@ -1,0 +1,71 @@
+api:
+  class: InteractionManager
+  method: UseFlight
+  signature: InteractionResult InteractionManager::UseFlight(Player * bot, Creature
+    * flightMaster, uint32 destinationNode)
+documentation:
+  brief: Initiates flight path usage for a bot player with a specified destination
+    node.
+  description: The UseFlight method handles the process of initiating a flight path
+    for a bot player using a flight master NPC. It manages the interaction between
+    the player and the flight master to select and begin travel along a specific flight
+    path node. The method ensures proper validation of the flight master's availability
+    and the destination node's validity before proceeding with the flight initiation.
+    This functionality is crucial for automated bot navigation in World of Warcraft
+    environments where players need to traverse large distances efficiently.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will initiate
+      the flight path.
+  - name: flightMaster
+    description: Pointer to the Creature object representing the flight master NPC
+      that provides flight services.
+  - name: destinationNode
+    description: Unique identifier for the destination node on the flight path. This
+      value determines which specific waypoint the bot will travel to.
+  returns: Returns an InteractionResult enum indicating the success or failure of
+    the flight initiation process. Possible values include SUCCESS, FAILED, INVALID_TARGET,
+    or other interaction-specific results that reflect whether the flight was successfully
+    started or encountered an error.
+  examples:
+  - title: Basic Flight Initiation
+    code: "InteractionResult result = interactionManager.UseFlight(botPlayer, flightMasterNPC,\
+      \ 12345);\nif (result == InteractionResult::SUCCESS) {\n    // Flight initiated\
+      \ successfully\n    LOG_INFO(\"world\", \"Bot {} started flight to node {}\"\
+      , botPlayer->GetName(), 12345);\n} else {\n    // Handle flight initiation failure\n\
+      \    LOG_ERROR(\"world\", \"Failed to initiate flight for bot {}\", botPlayer->GetName());\n\
+      }"
+    language: cpp
+  - title: Flight Initiation with Error Handling
+    code: "InteractionResult result = interactionManager.UseFlight(bot, flightMaster,\
+      \ destination);\nswitch (result) {\n    case InteractionResult::SUCCESS:\n \
+      \       LOG_INFO(\"world\", \"Flight initiated successfully\");\n        break;\n\
+      \    case InteractionResult::INVALID_TARGET:\n        LOG_ERROR(\"world\", \"\
+      Invalid destination node {} for flight path\", destination);\n        break;\n\
+      \    case InteractionResult::FAILED:\n        LOG_ERROR(\"world\", \"Failed\
+      \ to initiate flight for bot {}\");\n        break;\n    default:\n        LOG_WARN(\"\
+      world\", \"Unexpected result from UseFlight: {}\", static_cast<int>(result));\n\
+      \        break;\n}"
+    language: cpp
+  notes: This method assumes that the bot player has already been validated and is
+    in a state where flight paths can be initiated. The destinationNode parameter
+    should correspond to a valid node within the flight master's available path. The
+    implementation may involve checking player faction, flight path access permissions,
+    and whether the bot has sufficient resources (such as money or flight path knowledge)
+    to initiate the requested flight.
+  warnings: Ensure that the flightMaster parameter is actually a valid flight master
+    NPC before calling this method, otherwise undefined behavior may occur. The destinationNode
+    must be within the valid range of nodes for the specific flight master; otherwise,
+    the method will likely return an error result. This method should not be called
+    during active combat or while the player is in an invalid state that prevents
+    movement.
+  related:
+  - GetFlightMaster
+  - ValidateFlightPath
+  - CompleteFlight
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:09:26.033210'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,60 @@
+api:
+  class: QuestCompletion
+  method: CoordinateObjectiveExecution
+  signature: void QuestCompletion::CoordinateObjectiveExecution(Group * group, uint32
+    questId, uint32 objectiveIndex)
+documentation:
+  brief: Coordinates execution of a quest objective for all members of a group
+  description: The CoordinateObjectiveExecution method handles the synchronization
+    and execution of quest objectives within a group context. It ensures that when
+    a quest objective is completed by one group member, the necessary updates and
+    validations are propagated to all other group members. This method is crucial
+    for maintaining consistency in group-based quest progress and handling shared
+    objectives such as killing creatures, collecting items, or reaching specific locations.
+    The method operates on a specified quest ID and objective index within that quest,
+    ensuring proper coordination across all players in the provided group.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players who will participate
+      in the quest objective execution. Must not be null and should represent a valid
+      group with active members.
+  - name: questId
+    description: Unique identifier of the quest for which the objective is being executed.
+      Must correspond to a valid quest in the game database.
+  - name: objectiveIndex
+    description: Index of the specific objective within the quest that needs execution.
+      Zero-based indexing, must be less than the total number of objectives in the
+      specified quest.
+  returns: null
+  examples:
+  - title: Basic Group Quest Objective Execution
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup)\n{\n    QuestCompletion::CoordinateObjectiveExecution(playerGroup,\
+      \ 12345, 0);\n}"
+    language: cpp
+  - title: Executing Objective with Validation
+    code: "Group* group = player->GetGroup();\nif (group && questId > 0)\n{\n    uint32\
+      \ objectiveIndex = GetQuestObjectiveIndex(questId, \"KillGoblins\");\n    if\
+      \ (objectiveIndex != MAX_QUEST_OBJECTIVES)\n    {\n        QuestCompletion::CoordinateObjectiveExecution(group,\
+      \ questId, objectiveIndex);\n    }\n}"
+    language: cpp
+  notes: This method assumes that all group members are within the same zone and have
+    the quest active. It may trigger internal quest update events and could potentially
+    modify player states such as quest progress or objective completion status. The
+    method does not validate if the group is in a valid state for quest progression,
+    so callers should ensure proper context before invocation.
+  warnings: Calling this method with an invalid questId or objectiveIndex can lead
+    to undefined behavior or crashes. Always verify that the quest exists and the
+    objective index is within bounds before calling. Additionally, this method may
+    cause network traffic as it synchronizes progress across all group members, so
+    use judiciously in performance-critical code paths.
+  related:
+  - QuestCompletion::ExecuteObjective
+  - QuestCompletion::UpdateGroupQuestProgress
+  - Player::GetGroup
+  - Group::GetMembers
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T21:50:01.214475'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

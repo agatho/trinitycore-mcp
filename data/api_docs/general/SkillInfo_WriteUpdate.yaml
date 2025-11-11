@@ -1,0 +1,74 @@
+api:
+  class: SkillInfo
+  method: WriteUpdate
+  signature: void SkillInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes skill information into a ByteBuffer for network transmission to
+    a specific player.
+  description: The WriteUpdate method serializes the current state of a SkillInfo
+    object into a ByteBuffer, preparing it for network transmission. This method is
+    typically used when sending skill updates to players in the game world. The serialization
+    process respects the changes mask to determine which fields need to be included
+    in the update packet. When ignoreChangesMask is true, all fields are serialized
+    regardless of their change status. The owner parameter specifies the player whose
+    skill data is being serialized, while the receiver parameter indicates which player
+    will receive this update, potentially affecting how the data is formatted or filtered
+    based on visibility rules.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized skill data will be
+      written. This buffer is typically used to construct network packets for transmission.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether to ignore the internal changes
+      mask. If true, all skill fields are serialized regardless of whether they have
+      changed since last update.
+  - name: owner
+    description: Pointer to the Player object whose skill data is being serialized.
+      This represents the source of the skill information being sent.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine visibility and filtering rules for the transmitted skill data.
+  returns: null
+  examples:
+  - title: Basic usage in skill update handler
+    code: 'ByteBuffer data;
+
+      SkillInfo skillInfo;
+
+      Player* owner = ...; // current player
+
+      Player* receiver = ...; // target player
+
+      skillInfo.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to receiver''s connection'
+    language: cpp
+  - title: Forcing full skill update with ignore flag
+    code: 'ByteBuffer data;
+
+      SkillInfo* skill = player->GetSkillInfo(skillId);
+
+      Player* owner = player;
+
+      Player* receiver = targetPlayer;
+
+      skill->WriteUpdate(data, true, owner, receiver); // Force send all fields'
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system for
+    skill data. It's commonly called during player login, skill level changes, or
+    periodic updates. The method respects the internal changes mask to optimize network
+    traffic by only sending modified fields when ignoreChangesMask is false.
+  warnings: Calling this method with an invalid owner or receiver pointer can lead
+    to undefined behavior. Ensure that both Player pointers are valid and properly
+    initialized before calling this method.
+  related:
+  - GetSkillInfo
+  - UpdateSkill
+  - SetSkill
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T19:31:32.248601'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

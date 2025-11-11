@@ -1,0 +1,61 @@
+api:
+  class: GroupCoordinator
+  method: CanMemberAcceptQuest
+  signature: bool GroupCoordinator::CanMemberAcceptQuest(Player * member, uint32 questId)
+    const
+documentation:
+  brief: Checks whether a group member can accept a specified quest based on group
+    coordination rules.
+  description: The CanMemberAcceptQuest method determines if a given player member
+    of a group is eligible to accept a specific quest. This check typically involves
+    verifying that the player meets prerequisites such as level requirements, quest
+    completion status, and group coordination rules. The method ensures that only
+    appropriate players within the group can take on quests, maintaining game balance
+    and preventing exploits. It's commonly used in group quest systems where quest
+    acceptance must be coordinated among group members.
+  parameters:
+  - name: member
+    description: Pointer to the Player object representing the group member who wishes
+      to accept the quest. Must not be null.
+  - name: questId
+    description: The unique identifier of the quest that the player is attempting
+      to accept. Must be a valid quest ID present in the game database.
+  returns: Returns true if the member can accept the quest according to group coordination
+    rules, false otherwise. The method returns false if the player is not in a group,
+    if the quest has already been accepted by another group member, or if the player
+    does not meet the prerequisites for accepting the quest.
+  examples:
+  - title: Basic Quest Acceptance Check
+    code: "if (groupCoordinator->CanMemberAcceptQuest(player, 12345)) {\n    // Player\
+      \ can accept quest 12345\n    player->AddQuest(12345);\n} else {\n    // Player\
+      \ cannot accept the quest\n    player->SendNotification(\"You cannot accept\
+      \ this quest at this time.\");\n}"
+    language: cpp
+  - title: Group Quest Acceptance Validation
+    code: "Group* group = player->GetGroup();\nif (group) {\n    for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n         itr != group->GetMemberSlots().end();\
+      \ ++itr)\n    {\n        Player* member = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \        if (member && groupCoordinator->CanMemberAcceptQuest(member, questId))\
+      \ {\n            // Proceed with quest assignment\n            member->AddQuest(questId);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method likely performs checks against the group's quest coordination
+    state and may interact with the player's quest log to prevent duplicate quest
+    acceptance. It is designed to be thread-safe as part of the group management system,
+    but direct access to group data should consider locking mechanisms if accessed
+    from multiple threads.
+  warnings: Ensure that the Player pointer passed is valid and not null before calling
+    this method. Invalid pointers can lead to crashes or undefined behavior. Additionally,
+    this method may not account for all quest-specific conditions beyond group coordination,
+    so further validation might be required in some cases.
+  related:
+  - Group::IsMember
+  - Player::HasQuest
+  - Group::AddQuest
+  - Player::CanTakeQuest
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T09:31:48.088710'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

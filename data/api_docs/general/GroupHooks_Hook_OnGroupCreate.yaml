@@ -1,0 +1,63 @@
+api:
+  class: GroupHooks
+  method: Hook_OnGroupCreate
+  signature: void GroupHooks::Hook_OnGroupCreate(Group * group, Player * leader)
+documentation:
+  brief: Invoked when a new group is created in the game world, allowing custom logic
+    to be executed.
+  description: The Hook_OnGroupCreate method is a callback function that gets triggered
+    whenever a new player group (party) is formed in TrinityCore. This hook allows
+    developers to inject custom behavior or modifications when groups are created,
+    such as initializing group-specific data, applying buffs, or logging group creation
+    events. The method receives the newly created Group object and the Player who
+    becomes the leader of that group. It is typically used within custom modules or
+    addons to extend default group functionality without modifying core game logic.
+  parameters:
+  - name: group
+    description: Pointer to the newly created Group object representing the party
+      being formed. This parameter provides access to all group members, loot settings,
+      and other group-related properties.
+  - name: leader
+    description: Pointer to the Player object who becomes the leader of the new group.
+      This player is typically the first member added to the group or the one who
+      initiated the group creation process.
+  returns: null
+  examples:
+  - title: Basic Group Creation Hook Implementation
+    code: "void MyMod::Hook_OnGroupCreate(Group* group, Player* leader)\n{\n    //\
+      \ Log group creation\n    sLog->outString(\"New group created with leader: %s\"\
+      , leader->GetName().c_str());\n    \n    // Add custom initialization logic\
+      \ here\n    // For example, set default loot settings or apply a group buff\n\
+      }"
+    language: cpp
+  - title: Advanced Group Creation Hook with Member Tracking
+    code: "void MyMod::Hook_OnGroupCreate(Group* group, Player* leader)\n{\n    //\
+      \ Store group information for later reference\n    GroupInfo info;\n    info.leaderGuid\
+      \ = leader->GetGUID();\n    info.creationTime = time(nullptr);\n    \n    //\
+      \ Iterate through all members and perform actions\n    for (Group::MemberSlotList::const_iterator\
+      \ itr = group->GetMemberSlots().begin();\n         itr != group->GetMemberSlots().end();\
+      \ ++itr)\n    {\n        Player* member = ObjectAccessor::FindPlayer(itr->guid);\n\
+      \        if (member)\n        {\n            // Apply a custom buff or modify\
+      \ player state\n            member->CastSpell(member, 12345, true); // Example\
+      \ spell ID\n        }\n    }\n    \n    // Save group info to database or cache\n\
+      \    m_groupInfos[group->GetGUIDLow()] = info;\n}"
+    language: cpp
+  notes: This hook is called synchronously during the group creation process, so any
+    heavy computation should be avoided to prevent performance degradation. The Group
+    object passed in may not yet be fully initialized with all members, especially
+    if it's a new party being formed. Be cautious when modifying the group structure
+    directly from this hook as it might interfere with core game mechanics.
+  warnings: Modifying or deleting the Group object within this hook can cause undefined
+    behavior or crashes. Avoid performing operations that depend on the group being
+    fully populated before this hook is called, since some members may not be initialized
+    yet. Also, ensure thread safety if your implementation accesses shared resources.
+  related:
+  - GroupHooks::Hook_OnGroupDestroy
+  - GroupHooks::Hook_OnGroupMemberAdd
+  - GroupHooks::Hook_OnGroupMemberRemove
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T03:40:21.515944'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,68 @@
+api:
+  class: MultiFloorExplore
+  method: WriteCreate
+  signature: void MultiFloorExplore::WriteCreate(ByteBuffer & data, const Player *
+    owner, const Player * receiver) const
+documentation:
+  brief: Writes creation data for a multi-floor exploration object to a byte buffer
+    for transmission to a player.
+  description: The WriteCreate method serializes the state and properties of a MultiFloorExplore
+    object into a ByteBuffer format suitable for network transmission. This method
+    is typically invoked when sending initial data about an exploration object to
+    a client player, ensuring that the client has all necessary information to render
+    or interact with the multi-floor exploration feature. The serialization process
+    includes relevant metadata such as object identifiers, position coordinates, floor
+    levels, and any associated flags or settings. It is designed to be called during
+    the object's initialization phase when it needs to be made visible or accessible
+    to specific players in the game world.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized creation data will
+      be written. This buffer is used for network packet construction and must be
+      properly initialized before calling this method.
+  - name: owner
+    description: Pointer to the Player object that owns or controls the MultiFloorExplore
+      instance. Used to determine ownership-related properties during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this creation data.
+      May be used to customize the serialized output based on the receiver's perspective
+      or permissions.
+  returns: null
+  examples:
+  - title: Basic Usage in Object Initialization
+    code: 'ByteBuffer buffer;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      exploreObject.WriteCreate(buffer, owner, receiver);
+
+      // Send buffer over network to receiver'
+    language: cpp
+  - title: Integration with Packet Sending Logic
+    code: "void SendExploreData(Player* player)\n{\n    ByteBuffer data;\n    MultiFloorExplore\
+      \ explore;\n    explore.WriteCreate(data, player, player);\n    WorldPacket\
+      \ packet(SMSG_INIT_WORLD_STATES, data.size());\n    packet.append(data);\n \
+      \   player->SendDirectMessage(&packet);\n}"
+    language: cpp
+  notes: This method assumes that the MultiFloorExplore object has already been properly
+    initialized and configured with relevant floor data. The ByteBuffer must be large
+    enough to accommodate all serialized fields; otherwise, it may lead to buffer
+    overflow issues during append operations. Developers should ensure thread safety
+    if multiple threads access or modify the same MultiFloorExplore instance concurrently.
+  warnings: Incorrect handling of the ByteBuffer can result in invalid packet structures
+    or client-side crashes. Ensure that all required fields are included and properly
+    formatted before appending data to the buffer. Avoid calling this method on uninitialized
+    objects, as it may cause undefined behavior.
+  related:
+  - WriteUpdate
+  - WriteDestroy
+  - GetOwner
+  - SetOwner
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T23:28:21.322599'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

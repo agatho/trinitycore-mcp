@@ -1,0 +1,64 @@
+api:
+  class: IBotPerformanceMonitor
+  method: RecordLockWaitTime
+  signature: void IBotPerformanceMonitor::RecordLockWaitTime(uint64 microseconds)
+documentation:
+  brief: Records the time a bot spent waiting for a lock in microseconds.
+  description: The RecordLockWaitTime method is used to log the duration of time a
+    bot has waited for a lock acquisition. This is typically called by the performance
+    monitoring system to track contention and synchronization overhead within the
+    bot's execution context. The method accepts a single parameter representing the
+    wait time in microseconds, which allows for precise measurement of lock contention.
+    This data is crucial for identifying performance bottlenecks related to thread
+    synchronization and resource access patterns in multi-threaded bot environments.
+  parameters:
+  - name: microseconds
+    description: The duration of time (in microseconds) that a bot waited for a lock
+      to become available. This value should be a non-negative integer representing
+      the actual wait time measured during lock acquisition.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'IBotPerformanceMonitor* monitor = GetBotPerformanceMonitor();
+
+      uint64 waitTime = 500; // 500 microseconds
+
+      monitor->RecordLockWaitTime(waitTime);'
+    language: cpp
+  - title: Usage with Timing Measurement
+    code: '#include <chrono>
+
+      IBotPerformanceMonitor* monitor = GetBotPerformanceMonitor();
+
+      auto start = std::chrono::high_resolution_clock::now();
+
+      // Simulate lock acquisition attempt
+
+      std::unique_lock<std::mutex> lock(mutex_);
+
+      auto end = std::chrono::high_resolution_clock::now();
+
+      uint64 waitTime = std::chrono::duration_cast<std::chrono::microseconds>(end
+      - start).count();
+
+      monitor->RecordLockWaitTime(waitTime);'
+    language: cpp
+  notes: This method is typically invoked from within a bot's execution context when
+    it encounters a lock contention scenario. The recorded data contributes to overall
+    performance metrics and can be used for profiling and optimization purposes. It's
+    important to note that this method does not perform any locking itself, but rather
+    records timing data which should be thread-safe if called from multiple threads.
+  warnings: Ensure that the microseconds parameter accurately reflects the actual
+    wait time to avoid skewed performance data. Calling this method with negative
+    values or extremely large values may lead to incorrect profiling results and should
+    be avoided.
+  related:
+  - GetLockWaitTime
+  - StartPerformanceTracking
+  - StopPerformanceTracking
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T00:57:57.909593'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

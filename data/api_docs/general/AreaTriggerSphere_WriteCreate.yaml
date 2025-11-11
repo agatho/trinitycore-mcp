@@ -1,0 +1,66 @@
+api:
+  class: AreaTriggerSphere
+  method: WriteCreate
+  signature: void AreaTriggerSphere::WriteCreate(ByteBuffer & data, const AreaTrigger
+    * owner, const Player * receiver) const
+documentation:
+  brief: Writes area trigger sphere creation data to a byte buffer for client synchronization
+  description: The WriteCreate method serializes the state of an AreaTriggerSphere
+    object into a ByteBuffer format suitable for transmission to a specific player
+    client. This method is typically invoked during the initial synchronization of
+    area triggers when a player enters their associated trigger zone. It encodes essential
+    properties such as position, radius, and visual attributes of the sphere trigger,
+    ensuring that the client renders the trigger correctly. The method takes into
+    account the owner of the area trigger (which may be a spell or game object) and
+    the receiving player to properly configure the data for that specific client context.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger sphere
+      creation data will be written
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this sphere, used to
+      determine trigger properties and behavior
+  - name: receiver
+    description: Pointer to the Player object who will receive this creation data,
+      used for client-specific configuration
+  returns: null
+  examples:
+  - title: Basic usage in area trigger initialization
+    code: 'AreaTriggerSphere sphere;
+
+      ByteBuffer buffer;
+
+      Player* player = ...; // Get player reference
+
+      AreaTrigger* trigger = ...; // Get owner trigger
+
+      sphere.WriteCreate(buffer, trigger, player);
+
+      // Send buffer to player via packet system'
+    language: cpp
+  - title: Usage within a custom area trigger handler
+    code: "void HandlePlayerEnterAreaTrigger(Player* player, AreaTrigger* trigger)\
+      \ {\n    if (trigger->GetTriggerType() == AREATRIGGER_TYPE_SPHERE) {\n     \
+      \   AreaTriggerSphere* sphere = static_cast<AreaTriggerSphere*>(trigger);\n\
+      \        ByteBuffer data;\n        sphere->WriteCreate(data, trigger, player);\n\
+      \        player->SendDirectMessage(&data);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's networking and synchronization system
+    for area triggers. It should only be called when a player enters an area trigger
+    zone or when new area triggers are being created for a specific client. The method
+    does not perform any validation on input parameters, so callers must ensure that
+    owner and receiver pointers are valid.
+  warnings: Do not call this method with null pointers for owner or receiver as it
+    will likely cause crashes or undefined behavior. Ensure that the ByteBuffer is
+    properly initialized before calling this method to avoid memory corruption issues.
+  related:
+  - AreaTriggerSphere::WriteUpdate
+  - AreaTriggerSphere::WriteDestroy
+  - AreaTriggerSphere::GetRadius
+  - AreaTriggerSphere::GetPosition
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:21:56.076966'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

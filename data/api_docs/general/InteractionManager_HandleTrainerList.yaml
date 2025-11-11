@@ -1,0 +1,49 @@
+api:
+  class: InteractionManager
+  method: HandleTrainerList
+  signature: void InteractionManager::HandleTrainerList(Player * bot, const WorldPacket
+    & packet)
+documentation:
+  brief: Handles the display of a trainer's skill list to a player character
+  description: The HandleTrainerList method processes incoming packets from players
+    requesting to view available training options from NPCs. It retrieves the trainer's
+    skill information, validates the player's eligibility for training, and sends
+    back a formatted list of trainable skills including required levels, costs, and
+    prerequisites. This method is part of the interaction system that manages non-player
+    character trainer behavior in World of Warcraft's TrinityCore emulation.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object requesting trainer information. Must
+      be a valid player instance with proper connection state.
+  - name: packet
+    description: Incoming WorldPacket containing the request data from the client.
+      Typically includes trainer's GUID and request type.
+  returns: null
+  examples:
+  - title: Basic Trainer List Request Handling
+    code: "void InteractionManager::HandleTrainerList(Player* bot, const WorldPacket&\
+      \ packet)\n{\n    // Extract trainer GUID from packet\n    uint64 trainerGuid\
+      \ = packet.ReadPackedGuid();\n    \n    // Validate player and trainer existence\n\
+      \    if (!bot || !trainerGuid)\n        return;\n    \n    // Get trainer NPC\n\
+      \    Creature* trainer = bot->GetNPCIfCanInteractWith(trainerGuid, UNIT_NPC_FLAG_TRAINER);\n\
+      \    if (!trainer)\n        return;\n    \n    // Send trainer list to player\n\
+      \    trainer->SendTrainerList(bot);\n}"
+    language: cpp
+  notes: This method is typically called during interaction with trainer NPCs. The
+    implementation should handle packet validation and ensure proper permissions before
+    displaying training information. Performance considerations include caching frequently
+    accessed trainer data to reduce database queries.
+  warnings: Improper handling of the packet data can lead to client disconnections
+    or crashes. Always validate that the player is within interaction range of the
+    trainer NPC before processing. The method assumes the packet contains valid GUID
+    data and does not perform extensive error checking on raw packet contents.
+  related:
+  - SendTrainerList
+  - HandleTrainerBuySpell
+  - GetTrainerTemplate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:25:38.624654'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

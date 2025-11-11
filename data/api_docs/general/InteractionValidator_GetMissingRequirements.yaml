@@ -1,0 +1,65 @@
+api:
+  class: InteractionValidator
+  method: GetMissingRequirements
+  signature: int InteractionValidator::GetMissingRequirements(::Player * bot, ::WorldObject
+    * target, InteractionType type) const
+documentation:
+  brief: Checks and returns the number of missing interaction requirements for a bot
+    player targeting a world object.
+  description: The GetMissingRequirements method evaluates whether a given bot player
+    meets all necessary conditions to interact with a specified WorldObject based
+    on the provided InteractionType. It performs checks such as distance, visibility,
+    target validity, and other game-specific constraints. The method returns an integer
+    representing how many requirements are not met. A return value of 0 indicates
+    that all requirements are satisfied, allowing for successful interaction. This
+    function is commonly used in AI behavior scripting to determine if a bot should
+    proceed with an interaction or delay its action until prerequisites are fulfilled.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is attempting
+      the interaction.
+  - name: target
+    description: Pointer to the WorldObject that the bot intends to interact with,
+      such as an NPC or GameObject.
+  - name: type
+    description: Enumeration value indicating the type of interaction being attempted
+      (e.g., Gossip, Quest, Vendor).
+  returns: An integer representing the count of unmet requirements. Returns 0 if all
+    requirements are satisfied; otherwise returns a positive integer indicating how
+    many checks failed.
+  examples:
+  - title: Basic usage to check interaction readiness
+    code: "int missing = validator.GetMissingRequirements(bot, target, InteractionType::GOSSIP);\n\
+      if (missing == 0) {\n    // Proceed with interaction\n    bot->GetSession()->SendGossipMenuForPlayer(target,\
+      \ bot);\n} else {\n    // Log or handle the missing requirements\n    sLog->outString(\"\
+      Bot %u has %d missing requirements for gossip.\", bot->GetGUID().GetCounter(),\
+      \ missing);\n}"
+    language: cpp
+  - title: Using result to conditionally initiate interaction
+    code: "int missing = validator.GetMissingRequirements(playerBot, npcTarget, InteractionType::QUEST);\n\
+      switch (missing) {\n    case 0:\n        // All requirements met - start quest\n\
+      \        playerBot->PlayerTalkClass->GetQuestMenu().AddMenuItem(0, 1, 1, \"\
+      Accept Quest\");\n        break;\n    case 1:\n        // One requirement missing\
+      \ - move closer or check visibility\n        playerBot->GetMotionMaster()->MovePoint(0,\
+      \ npcTarget->GetPositionX(), npcTarget->GetPositionY(), npcTarget->GetPositionZ());\n\
+      \        break;\n    default:\n        // Multiple requirements missing - log\
+      \ error or abort\n        sLog->outError(\"Multiple interaction failures for\
+      \ bot %u.\", playerBot->GetGUID().GetCounter());\n        break;\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore AI system and relies on internal checks
+    like distance, line-of-sight, and target state validation. It's designed to be
+    lightweight for frequent calls during bot decision-making processes.
+  warnings: Ensure that both 'bot' and 'target' pointers are valid before calling
+    this method; otherwise, it may lead to crashes or undefined behavior. The InteractionType
+    must match the intended interaction mode for accurate results.
+  related:
+  - IsInteractionPossible
+  - ValidateInteractionRequirements
+  - GetRequiredDistance
+  - CheckVisibility
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T16:56:10.653970'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

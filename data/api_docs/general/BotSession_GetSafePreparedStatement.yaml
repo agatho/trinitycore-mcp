@@ -1,0 +1,59 @@
+api:
+  class: BotSession
+  method: GetSafePreparedStatement
+  signature: int * BotSession::GetSafePreparedStatement(int statementId, const char
+    * statementName)
+documentation:
+  brief: Retrieves a prepared SQL statement by its ID and name for safe execution
+    within the bot session.
+  description: The GetSafePreparedStatement method is used to fetch a precompiled
+    SQL statement from the BotSession's internal statement cache. This method ensures
+    thread-safe access to prepared statements, which are essential for efficient database
+    operations in TrinityCore's bot system. It takes a statement ID and name as parameters
+    to locate and return the appropriate prepared statement. The returned pointer
+    should be used carefully as it represents a reference to an internally managed
+    statement object that must not be manually deleted or modified. This method is
+    typically called when executing database queries related to bot behavior, configuration,
+    or state management.
+  parameters:
+  - name: statementId
+    description: The unique identifier for the prepared statement to retrieve. This
+      ID corresponds to a predefined statement in the bot's SQL statement registry.
+  - name: statementName
+    description: A null-terminated string containing the name of the statement to
+      retrieve. Used for logging and debugging purposes to identify the statement
+      being accessed.
+  returns: Returns a pointer to an integer representing the prepared statement handle.
+    If the statement cannot be found or initialized, it may return NULL or a negative
+    value indicating an error condition.
+  examples:
+  - title: Basic usage of GetSafePreparedStatement
+    code: "int* stmt = botSession->GetSafePreparedStatement(1001, \"SELECT_BOT_CONFIG\"\
+      );\nif (stmt != nullptr)\n{\n    // Execute the prepared statement\n    // ...\
+      \ database operations ...\n}"
+    language: cpp
+  - title: Error handling with GetSafePreparedStatement
+    code: "int* stmt = botSession->GetSafePreparedStatement(9999, \"INVALID_STATEMENT\"\
+      );\nif (stmt == nullptr)\n{\n    // Handle error case\n    sLog->outError(\"\
+      Failed to retrieve prepared statement for bot session\");\n    return false;\n\
+      }\n// Proceed with statement execution"
+    language: cpp
+  notes: This method is designed to be thread-safe and should be used from within
+    the context of a bot's database operations. Prepared statements are cached internally,
+    so repeated calls with the same ID/name will return the same statement handle.
+    The returned pointer must not be freed manually as it's managed by the BotSession
+    class.
+  warnings: Do not attempt to modify or delete the returned statement pointer directly.
+    Always use the statement through the proper database execution methods provided
+    by TrinityCore's framework. Incorrect usage can lead to memory corruption or undefined
+    behavior.
+  related:
+  - PrepareStatement
+  - ExecutePreparedStatement
+  - ReleasePreparedStatement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T15:15:59.707158'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

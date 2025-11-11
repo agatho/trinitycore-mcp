@@ -1,0 +1,73 @@
+api:
+  class: ItemMod
+  method: WriteUpdate
+  signature: void ItemMod::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes item modification data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of an ItemMod object
+    into a ByteBuffer, preparing it for network transmission to a specific player.
+    This method is typically used in World of Warcraft's TrinityCore server to send
+    updates about item modifications (such as enchantments, stats, or properties)
+    to players who are viewing or interacting with the item. The serialization process
+    respects the item's change mask and can optionally ignore it based on the ignoreChangesMask
+    parameter. The owner and receiver parameters provide context for determining what
+    data should be sent and how it should be formatted for the specific player receiving
+    the update.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized item modification
+      data will be written. This buffer is typically used to construct network packets
+      for transmission to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether to ignore the item's change
+      mask when serializing updates. If true, all modification data is written regardless
+      of change status; if false, only changed data is serialized based on the mask.
+  - name: owner
+    description: Pointer to the Item object that owns this ItemMod. This provides
+      context for the item's current state and properties during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine player-specific formatting or filtering of the serialized data.
+  returns: null
+  examples:
+  - title: Basic usage for sending item modification updates
+    code: 'ByteBuffer data;
+
+      ItemMod* mod = item->GetItemMod(modIndex);
+
+      mod->WriteUpdate(data, false, item, player);
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  - title: Forcing update serialization regardless of change mask
+    code: 'ByteBuffer data;
+
+      ItemMod* mod = item->GetItemMod(modIndex);
+
+      mod->WriteUpdate(data, true, item, player);
+
+      // Send full update even if no changes occurred
+
+      player->SendDirectMessage(&data);'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when preparing updates for network transmission. The method assumes
+    that the provided owner and receiver parameters are valid and not null. It's typically
+    invoked during item update cycles or when specific modifications require immediate
+    client notification.
+  warnings: Calling this method with invalid owner or receiver pointers will likely
+    result in undefined behavior or crashes. Ensure that both parameters point to
+    valid objects before calling. Also, be careful when setting ignoreChangesMask
+    to true as it may cause unnecessary network traffic if used excessively.
+  related:
+  - ItemMod::ReadUpdate
+  - ItemMod::ApplyMod
+  - ItemMod::Reset
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:58:28.443286'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,81 @@
+api:
+  class: NPCEvent
+  method: GossipMenuReceived
+  signature: NPCEvent NPCEvent::GossipMenuReceived(int playerGuid, int npcGuid, uint32
+    menuId, uint32 textId, int options)
+documentation:
+  brief: Handles the event when a player receives a gossip menu from an NPC in World
+    of Warcraft.
+  description: The GossipMenuReceived method is triggered when a player interacts
+    with an NPC and the server sends the gossip menu options to the client. This method
+    is part of the NPC AI system in TrinityCore, allowing scripts to respond to player
+    interactions with NPCs. It typically occurs after a player clicks on an NPC's
+    gossip icon or uses a gossip command. The method provides access to the player's
+    GUID, the NPC's GUID, the menu ID being displayed, and the text ID associated
+    with the menu. This event is essential for implementing dynamic NPC conversations,
+    quest triggers, and interactive dialogue systems within the game world.
+  parameters:
+  - name: playerGuid
+    description: The unique identifier (GUID) of the player who received the gossip
+      menu. This value uniquely identifies the specific player instance in the game
+      world.
+  - name: npcGuid
+    description: The unique identifier (GUID) of the NPC whose gossip menu was displayed
+      to the player. This identifies which NPC triggered the gossip interaction.
+  - name: menuId
+    description: The ID of the gossip menu being presented to the player. This ID
+      maps to a specific set of options defined in the gossip menu database entries.
+  - name: textId
+    description: The ID of the text associated with the gossip menu. This determines
+      what text is displayed to the player when the menu appears, often linked to
+      NPC dialogue or quest information.
+  - name: options
+    description: An integer representing the options available in the gossip menu.
+      This value typically encodes multiple option flags or indices that define which
+      actions are presented to the player.
+  returns: Returns an NPCEvent object containing information about the gossip menu
+    interaction, including the event type and associated data for further processing
+    by AI scripts.
+  examples:
+  - title: Basic Gossip Menu Handling
+    code: "void OnGossipMenuReceived(int playerGuid, int npcGuid, uint32 menuId, uint32\
+      \ textId, int options)\n{\n    // Process the received gossip menu\n    NPCEvent\
+      \ event = NPCEvent::GossipMenuReceived(playerGuid, npcGuid, menuId, textId,\
+      \ options);\n    \n    // Log the interaction\n    sLog->outString(\"Player\
+      \ %d received gossip from NPC %d (Menu: %u)\", playerGuid, npcGuid, menuId);\n\
+      \    \n    // Handle specific menu IDs\n    if (menuId == 1001)\n    {\n   \
+      \     // Trigger quest start dialog\n        SendGossipMenuFor(playerGuid, npcGuid,\
+      \ 1001);\n    }\n}"
+    language: cpp
+  - title: Advanced Gossip Menu with Option Processing
+    code: "NPCEvent NPCEvent::GossipMenuReceived(int playerGuid, int npcGuid, uint32\
+      \ menuId, uint32 textId, int options)\n{\n    // Create event object\n    NPCEvent\
+      \ event;\n    event.SetPlayerGuid(playerGuid);\n    event.SetNpcGuid(npcGuid);\n\
+      \    event.SetMenuId(menuId);\n    event.SetTextId(textId);\n    event.SetOptions(options);\n\
+      \    \n    // Process based on menu ID\n    switch (menuId)\n    {\n       \
+      \ case 2001:\n            // Quest information menu\n            SendGossipMenuFor(playerGuid,\
+      \ npcGuid, 2001);\n            break;\n        case 2002:\n            // Vendor\
+      \ menu\n            SendVendorList(playerGuid, npcGuid);\n            break;\n\
+      \        default:\n            // Default greeting\n            SendGossipMenuFor(playerGuid,\
+      \ npcGuid, 0);\n            break;\n    }\n    \n    return event;\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's AI system and is typically called
+    from within NPC AI scripts. The parameters are automatically populated by the
+    core when a player interacts with an NPC's gossip interface. Developers should
+    note that menuId and textId are database-driven values that must correspond to
+    valid entries in the creature_gossip and npc_text tables respectively.
+  warnings: Ensure that all menu IDs and text IDs referenced in this method exist
+    in the database, otherwise the gossip system may fail silently or display incorrect
+    content. Be careful with option processing as invalid option flags can cause unexpected
+    behavior in player interactions.
+  related:
+  - GossipSelect
+  - SendGossipMenuFor
+  - OnGossipHello
+  - OnGossipSelect
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T23:30:09.310359'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

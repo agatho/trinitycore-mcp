@@ -1,0 +1,54 @@
+api:
+  class: ThreatIntegrationExample
+  method: GetUnitByGuid
+  signature: Unit * ThreatIntegrationExample::GetUnitByGuid(int guid)
+documentation:
+  brief: Retrieves a Unit object from the world based on its unique identifier (GUID)
+  description: The GetUnitByGuid method is used to fetch a Unit instance from the
+    game world using its globally unique identifier. This function is commonly employed
+    in threat management systems, AI behavior scripting, and combat-related logic
+    where it's necessary to reference specific creatures or players by their GUID.
+    The method performs a lookup within the server's internal unit registry and returns
+    a pointer to the corresponding Unit object if found, or nullptr if no such unit
+    exists with the given GUID. This functionality is essential for maintaining accurate
+    threat tables and ensuring proper targeting behavior in TrinityCore-based servers.
+  parameters:
+  - name: guid
+    description: The globally unique identifier of the unit to retrieve. This value
+      must be a valid integer that corresponds to an existing unit's GUID in the world
+      state.
+  returns: A pointer to the Unit object if a unit with the specified GUID exists,
+    or nullptr if no such unit is found. The returned pointer should be checked for
+    null before use to prevent dereferencing invalid memory.
+  examples:
+  - title: Basic usage of GetUnitByGuid
+    code: "Unit* target = threatExample->GetUnitByGuid(12345);\nif (target != nullptr)\n\
+      {\n    // Process the unit\n    target->AddThreat(player, 100.0f);\n}"
+    language: cpp
+  - title: Safe usage with error handling
+    code: "Unit* unit = threatExample->GetUnitByGuid(playerGUID);\nif (unit && unit->IsAlive())\n\
+      {\n    // Only proceed if the unit exists and is alive\n    threatManager->AddThreat(unit,\
+      \ player, 50.0f);\n}\nelse\n{\n    // Handle case where unit doesn't exist or\
+      \ is dead\n    sLog->outDebug(LOG_FILTER_GENERAL, \"Unit with GUID %u not found\
+      \ or dead\", playerGUID);\n}"
+    language: cpp
+  notes: This method performs a lookup in the server's internal registry which may
+    have performance implications if called frequently. It is recommended to cache
+    results when possible. The method does not perform any validation on the GUID
+    itself, so invalid or non-existent GUIDs will simply return nullptr without throwing
+    exceptions.
+  warnings: Never assume that the returned Unit pointer is valid without checking
+    for null. Using a null pointer can lead to segmentation faults. Also, be aware
+    that units may be destroyed between the time you retrieve them and when you use
+    them, so consider using weak references or additional validity checks in long-running
+    operations.
+  related:
+  - GetPlayerByGuid
+  - GetCreatureByGuid
+  - GetUnitByGUID
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T07:31:09.229394'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

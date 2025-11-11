@@ -1,0 +1,91 @@
+api:
+  class: BIH
+  method: subdivide
+  signature: void BIH::subdivide(int left, int right, int & tempTree, buildData &
+    dat, AABound & gridBox, AABound & nodeBox, int nodeIndex, int depth, BuildStats
+    & stats)
+documentation:
+  brief: Recursively subdivides a bounding volume hierarchy node during mesh build
+    process
+  description: The subdivide method performs recursive subdivision of a bounding volume
+    hierarchy (BIH) node during the construction of spatial acceleration structures
+    for collision detection and rendering. It partitions the input geometry into smaller
+    subsets based on spatial distribution, building a hierarchical tree structure
+    that optimizes query performance. This method is typically called during the mesh
+    building phase when constructing the BIH for efficient spatial queries in the
+    game world. The subdivision process considers node depth limits and maintains
+    statistics about build performance.
+  parameters:
+  - name: left
+    description: Index of the first element in the current partition to be processed
+  - name: right
+    description: Index of the last element in the current partition to be processed
+  - name: tempTree
+    description: Reference to an integer representing the current node index in temporary
+      tree structure
+  - name: dat
+    description: Reference to buildData containing geometry and vertex information
+      for subdivision
+  - name: gridBox
+    description: AABound representing the bounding box of the entire grid or scene
+  - name: nodeBox
+    description: AABound representing the bounding box of the current node being subdivided
+  - name: nodeIndex
+    description: Integer index identifying the current node in the BIH structure
+  - name: depth
+    description: Current recursion depth, used to limit maximum subdivision levels
+  - name: stats
+    description: Reference to BuildStats structure for tracking build performance
+      metrics
+  returns: null
+  examples:
+  - title: Basic BIH Subdivision Call
+    code: 'BIH bih;
+
+      buildData data;
+
+      AABound gridBox, nodeBox;
+
+      BuildStats stats;
+
+      int tempTree = 0;
+
+      int depth = 0;
+
+      int nodeIndex = 0;
+
+
+      // Initialize bounding boxes and build data
+
+      bih.subdivide(0, data.size() - 1, tempTree, data, gridBox, nodeBox, nodeIndex,
+      depth, stats);'
+    language: cpp
+  - title: Recursive BIH Subdivision with Depth Control
+    code: "void recursiveSubdivide(BIH& bih, buildData& dat, AABound& gridBox, AABound&\
+      \ nodeBox, int left, int right, int nodeIndex, int depth, BuildStats& stats)\
+      \ {\n    const int MAX_DEPTH = 10;\n    if (depth > MAX_DEPTH || right - left\
+      \ < 4) {\n        // Base case: stop subdivision\n        return;\n    }\n \
+      \   \n    int tempTree = nodeIndex;\n    bih.subdivide(left, right, tempTree,\
+      \ dat, gridBox, nodeBox, nodeIndex, depth, stats);\n    \n    // Continue recursion\
+      \ on child nodes\n    recursiveSubdivide(bih, dat, gridBox, nodeBox, left, (left\
+      \ + right) / 2, nodeIndex * 2, depth + 1, stats);\n    recursiveSubdivide(bih,\
+      \ dat, gridBox, nodeBox, (left + right) / 2 + 1, right, nodeIndex * 2 + 1, depth\
+      \ + 1, stats);\n}"
+    language: cpp
+  notes: This method is part of the internal mesh building pipeline and should not
+    be called directly by external code. The subdivision algorithm uses spatial median
+    splitting to balance the tree structure. Performance can be affected by geometry
+    complexity and node depth limits.
+  warnings: Calling this method with invalid indices or improper bounding box initialization
+    may cause undefined behavior or crashes. The method modifies internal BIH structures
+    and should only be used during mesh construction phases.
+  related:
+  - BIH::build
+  - BIH::optimize
+  - BIH::query
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T15:50:11.126992'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
