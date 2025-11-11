@@ -3,15 +3,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { mapId, quality, enableTiling, tileSize } = body;
 
-    // Call MCP tool (would be actual MCP call in production)
-    // For now, simulate the extraction process
-    const { extractMapTextures } = await import('@/../../src/tools/mapextraction.js');
+    // Import from the compiled dist directory
+    const mapExtractionPath = path.join(process.cwd(), '..', 'dist', 'tools', 'mapextraction.js');
+    const { extractMapTextures } = await import(mapExtractionPath);
 
     const status = await extractMapTextures({
       mapId,
@@ -22,8 +23,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(status);
   } catch (error: any) {
+    console.error('Failed to extract map:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error.message, stack: error.stack },
       { status: 500 }
     );
   }
