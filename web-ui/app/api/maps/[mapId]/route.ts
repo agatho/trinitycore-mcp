@@ -3,6 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 export async function DELETE(
   request: NextRequest,
@@ -10,14 +11,18 @@ export async function DELETE(
 ) {
   try {
     const mapId = parseInt(params.mapId);
-    const { deleteExtractedMap } = await import('@/../../src/tools/mapextraction.js');
+
+    // Import from the compiled dist directory
+    const mapExtractionPath = path.join(process.cwd(), '..', 'dist', 'tools', 'mapextraction.js');
+    const { deleteExtractedMap } = await import(mapExtractionPath);
 
     const success = await deleteExtractedMap({ mapId });
 
     return NextResponse.json({ success });
   } catch (error: any) {
+    console.error('Failed to delete map:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error.message, stack: error.stack },
       { status: 500 }
     );
   }
