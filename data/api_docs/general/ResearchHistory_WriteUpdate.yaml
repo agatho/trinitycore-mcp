@@ -1,0 +1,77 @@
+api:
+  class: ResearchHistory
+  method: WriteUpdate
+  signature: void ResearchHistory::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes research history data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of the ResearchHistory
+    object into a provided ByteBuffer, preparing it for network transmission. This
+    method is typically used when sending updates about a player's research progress
+    to clients. The serialization process respects the ignoreChangesMask flag which
+    can bypass change tracking logic. The owner parameter identifies the player whose
+    research history is being serialized, while the receiver parameter specifies the
+    target player who will receive this data. This method is part of the World of
+    Warcraft TrinityCore server's object update system and ensures that only relevant
+    research data is sent to reduce bandwidth usage.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized research history data
+      will be written. This buffer is typically used for constructing network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag that determines whether change tracking should be ignored
+      during serialization. When true, all research data is written regardless of
+      modification status.
+  - name: owner
+    description: Pointer to the Player object whose research history data is being
+      serialized. This represents the source of the research information.
+  - name: receiver
+    description: Pointer to the Player object who will receive this research history
+      update. Used for determining what data should be included based on visibility
+      rules.
+  returns: null
+  examples:
+  - title: Basic usage in update packet construction
+    code: 'ByteBuffer data;
+
+      ResearchHistory history;
+
+      Player* owner = ...; // current player
+
+      Player* receiver = ...; // target player
+
+      history.WriteUpdate(data, false, owner, receiver);
+
+      // Send data through network layer'
+    language: cpp
+  - title: Force update with ignore changes flag
+    code: 'ByteBuffer data;
+
+      ResearchHistory history;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      history.WriteUpdate(data, true, owner, receiver);
+
+      // Forces full serialization regardless of change status'
+    language: cpp
+  notes: This method is typically called during the object update cycle when sending
+    updates to players. The implementation likely uses bitmasks to track which fields
+    have changed and only serializes those. Performance considerations include avoiding
+    unnecessary data transmission by properly utilizing the change tracking system.
+  warnings: Calling this method with invalid player pointers can lead to crashes or
+    undefined behavior. Ensure that both owner and receiver parameters are valid Player
+    objects before calling this method.
+  related:
+  - ResearchHistory::BuildUpdateData
+  - ResearchHistory::SendUpdate
+  - ResearchHistory::LoadFromDB
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:50:50.071825'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

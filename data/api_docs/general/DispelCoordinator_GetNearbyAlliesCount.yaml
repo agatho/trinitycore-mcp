@@ -1,0 +1,59 @@
+api:
+  class: DispelCoordinator
+  method: GetNearbyAlliesCount
+  signature: uint32 DispelCoordinator::GetNearbyAlliesCount(Unit * center, float radius)
+    const
+documentation:
+  brief: Counts the number of nearby friendly units within a specified radius from
+    a central unit.
+  description: The GetNearbyAlliesCount method determines how many ally units are
+    located within a given radius around a specified center unit. This functionality
+    is commonly used in spell or ability logic to assess the surrounding environment
+    for friendly targets. The method iterates through nearby units and filters them
+    based on their relationship to the center unit, counting only those that are considered
+    allies. It's particularly useful for effects that require knowledge of nearby
+    friendly units for targeting, damage calculation, or buff application. The radius
+    parameter defines the maximum distance at which units are considered 'nearby',
+    and the method accounts for standard World of Warcraft unit positioning and collision
+    detection.
+  parameters:
+  - name: center
+    description: Pointer to the Unit object that serves as the center point for the
+      radius check. This is typically the caster or target of a spell/ability.
+  - name: radius
+    description: Floating-point value representing the maximum distance (in yards)
+      from the center unit within which allies are counted. Must be non-negative.
+  returns: Returns a uint32 value indicating the total count of friendly units found
+    within the specified radius around the center unit. Returns 0 if no allies are
+    found or if the input parameters are invalid.
+  examples:
+  - title: Basic usage to count nearby allies
+    code: "Unit* player = ...; // Assume this is a valid Unit pointer\nfloat radius\
+      \ = 10.0f;\nuint32 allyCount = dispelCoordinator.GetNearbyAlliesCount(player,\
+      \ radius);\nif (allyCount > 0)\n{\n    // Proceed with logic that requires nearby\
+      \ allies\n}"
+    language: cpp
+  - title: Using the count to determine spell effectiveness
+    code: "Unit* caster = ...;\nfloat radius = 15.0f;\nuint32 nearbyAllies = dispelCoordinator.GetNearbyAlliesCount(caster,\
+      \ radius);\nif (nearbyAllies >= 3)\n{\n    // Apply enhanced effect due to multiple\
+      \ nearby allies\n    caster->CastSpell(caster, SPELL_ENHANCED_DISPEL, true);\n\
+      }"
+    language: cpp
+  notes: This method internally uses standard TrinityCore unit positioning and proximity
+    checks. Performance may be impacted when called frequently in tight loops or with
+    large radius values. The method does not account for line-of-sight restrictions;
+    it only considers spatial proximity.
+  warnings: Ensure that the 'center' parameter is a valid Unit pointer to avoid crashes.
+    Passing negative radius values will likely result in unexpected behavior or zero
+    counts. Avoid calling this method during critical game state transitions where
+    unit positions might be inconsistent.
+  related:
+  - GetNearbyEnemiesCount
+  - GetNearbyUnits
+  - IsUnitInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T14:41:37.676408'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

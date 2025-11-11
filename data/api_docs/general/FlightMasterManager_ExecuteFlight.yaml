@@ -1,0 +1,62 @@
+api:
+  class: FlightMasterManager
+  method: ExecuteFlight
+  signature: bool FlightMasterManager::ExecuteFlight(const int & route, Creature *
+    flightMaster)
+documentation:
+  brief: Initiates a flight path for a player using the specified route and flight
+    master.
+  description: The ExecuteFlight method is responsible for starting a flight path
+    for a player character. It takes a route identifier and a reference to a flight
+    master creature, validates the flight path, and begins the flight animation and
+    movement sequence. This method typically gets called when a player selects a flight
+    path from a Flight Master's menu. The method ensures that the player is in a valid
+    state to begin flying and handles the necessary updates to the player's movement
+    and position. It returns true if the flight was successfully initiated, or false
+    if there were issues such as invalid route data, player state, or flight master
+    configuration.
+  parameters:
+  - name: route
+    description: The unique identifier for the flight path route to be executed. This
+      value corresponds to a specific entry in the flight path database table.
+  - name: flightMaster
+    description: Pointer to the Creature object representing the Flight Master who
+      is offering the flight path. This creature must be a valid Flight Master with
+      associated flight paths.
+  returns: Returns true if the flight was successfully initiated and started, false
+    otherwise. Failure can occur due to invalid route data, player not being in a
+    valid state for flight, or issues with the flight master configuration.
+  examples:
+  - title: Basic Flight Execution
+    code: "if (flightMasterManager.ExecuteFlight(12345, flightMasterCreature))\n{\n\
+      \    // Flight started successfully\n    player->GetSession()->SendNotification(\"\
+      Flight initiated.\");\n}\nelse\n{\n    // Flight failed to start\n    player->GetSession()->SendNotification(\"\
+      Unable to initiate flight.\");\n}"
+    language: cpp
+  - title: Flight Execution with Error Handling
+    code: "int selectedRoute = 67890;\nCreature* master = player->GetNPCIfCanInteractWith(flightMasterGuid,\
+      \ UNIT_NPC_FLAG_FLIGHTMASTER);\nif (master && flightMasterManager.ExecuteFlight(selectedRoute,\
+      \ master))\n{\n    // Flight started successfully\n    player->SetUnitMovementFlags(MOVEMENTFLAG_FLYING);\n\
+      \    player->SendMovementFlagUpdate();\n}\nelse\n{\n    // Log error or notify\
+      \ player\n    sLog->outError(\"Failed to execute flight route %d for player\
+      \ %s\", selectedRoute, player->GetName().c_str());\n}"
+    language: cpp
+  notes: This method assumes that the player has already been validated to be able
+    to fly and that all necessary prerequisites are met. The FlightMasterManager class
+    likely maintains internal state tracking for active flights. This function may
+    interact with the MovementGenerator system to set up the player's flight movement.
+  warnings: Ensure that the route parameter corresponds to a valid flight path in
+    the database, otherwise the method will fail. Also ensure that the flightMaster
+    parameter points to a valid Creature with the UNIT_NPC_FLAG_FLIGHTMASTER flag
+    set. Calling this method without proper validation can lead to undefined behavior
+    or client-side errors.
+  related:
+  - GetFlightPath
+  - IsFlightPathValid
+  - SetPlayerFlightState
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T05:53:53.203677'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,61 @@
+api:
+  class: VendorInteraction
+  method: GetReagentStockTarget
+  signature: uint32 VendorInteraction::GetReagentStockTarget(Player * bot, uint32
+    itemId) const
+documentation:
+  brief: Retrieves the stock target quantity for a reagent item used in crafting by
+    the specified player.
+  description: The GetReagentStockTarget method determines the desired stock level
+    for a specific reagent item that a player's bot intends to maintain while purchasing
+    items from vendors. This value is typically used in automated vendor interaction
+    logic to decide how many of a particular reagent to buy based on crafting needs
+    and current inventory. The method takes into account the player's crafting profession,
+    the item ID of the reagent, and potentially other factors such as the bot's configured
+    stock management settings or crafting priorities. It does not directly interact
+    with the vendor or modify any state; instead, it returns a calculated target quantity
+    that can be used by calling code to determine purchase behavior.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is performing
+      vendor interactions. This player's crafting knowledge and stock preferences
+      are considered when calculating the reagent stock target.
+  - name: itemId
+    description: The unique identifier (ID) of the reagent item for which the stock
+      target quantity is being retrieved. This ID must correspond to a valid item
+      in the game database that can be used as a crafting reagent.
+  returns: Returns a uint32 value representing the target stock quantity for the specified
+    reagent item. A return value of zero typically indicates that no specific stock
+    target is defined or that the item should not be stocked. Higher values indicate
+    how many units of the reagent the bot aims to maintain in inventory.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 targetStock = vendorInteraction.GetReagentStockTarget(playerBot,\
+      \ 12345);\nif (targetStock > 0)\n{\n    // Proceed with purchasing up to 'targetStock'\
+      \ units of item 12345\n}"
+    language: cpp
+  - title: Integration with Vendor Purchase Logic
+    code: "uint32 itemId = 18256; // Example reagent ID\nuint32 target = vendorInteraction.GetReagentStockTarget(playerBot,\
+      \ itemId);\nuint32 currentStock = playerBot->GetItemCount(itemId);\nuint32 toBuy\
+      \ = (target > currentStock) ? (target - currentStock) : 0;\nif (toBuy > 0)\n\
+      {\n    // Buy 'toBuy' units of the reagent from vendor\n}"
+    language: cpp
+  notes: This method is part of a larger vendor interaction system and relies on the
+    bot's crafting profession data, inventory state, and configuration settings to
+    determine appropriate stock targets. The actual calculation may involve checking
+    the player's professions, learned recipes, and any custom stock management rules
+    defined for the bot.
+  warnings: Ensure that the 'bot' parameter is a valid Player object and that the
+    'itemId' corresponds to an existing item in the game database; otherwise, the
+    behavior of this method is undefined. The returned value does not guarantee that
+    the item will be available for purchase at the vendor.
+  related:
+  - GetReagentStockLevel
+  - GetVendorItemQuantity
+  - IsReagentRequiredForRecipe
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T07:23:16.881837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,53 @@
+api:
+  class: DemonHunterAI
+  method: HandleTargetSwitching
+  signature: void DemonHunterAI::HandleTargetSwitching(int *& target)
+documentation:
+  brief: Switches the target for a Demon Hunter AI unit based on threat and priority
+    conditions.
+  description: The HandleTargetSwitching method is responsible for determining whether
+    the Demon Hunter AI should switch its current target to a new one. It evaluates
+    the threat level, distance, and priority of available targets within the AI's
+    detection range. This method is typically called during the AI's update cycle
+    to ensure optimal targeting behavior. The method modifies the target pointer to
+    reference a new target if a better option is found, otherwise it maintains the
+    current target. This functionality is crucial for maintaining effective combat
+    performance in Demon Hunter encounters.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the current target's unique identifier.
+      The method modifies this pointer to point to a new target if a higher-priority
+      target is detected within range.
+  returns: null
+  examples:
+  - title: Basic Target Switching
+    code: "void DemonHunterAI::UpdateAI(uint32 diff)\n{\n    // ... other AI logic\
+      \ ...\n    HandleTargetSwitching(m_target);\n    // ... continue with combat\
+      \ logic using updated target ...\n}"
+    language: cpp
+  - title: Integration with Threat Management
+    code: "void DemonHunterAI::HandleTargetSwitching(int *& target)\n{\n    if (!target\
+      \ || !GetUnit())\n        return;\n\n    Unit* currentTarget = ObjectAccessor::GetUnit(*GetUnit(),\
+      \ *target);\n    if (!currentTarget || currentTarget->IsDeadOrRespawning())\n\
+      \    {\n        // Find a new target\n        if (Unit* newTarget = SelectNextTarget())\n\
+      \        {\n            *target = newTarget->GetGUID().GetRawValue();\n    \
+      \    }\n    }\n}"
+    language: cpp
+  notes: This method should be called regularly during the AI update cycle to ensure
+    responsive target switching. The method assumes that the target pointer is valid
+    and points to a GUID value. Performance considerations include avoiding expensive
+    operations within this method, as it may be called frequently during combat.
+  warnings: Ensure that the target parameter is properly initialized before calling
+    this method. Improper handling of the target pointer can lead to undefined behavior
+    or crashes. The method does not validate if the new target is within combat range
+    - additional checks should be implemented in the calling code.
+  related:
+  - SelectNextTarget
+  - GetUnit
+  - UpdateAI
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:23:29.817852'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,73 @@
+api:
+  class: AreaTriggerBoundedPlane
+  method: WriteUpdate
+  signature: void AreaTriggerBoundedPlane::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger bounded plane data into a byte buffer for client
+    updates.
+  description: The WriteUpdate method serializes the state of an AreaTriggerBoundedPlane
+    object into a ByteBuffer, which is then sent to a specific player's client. This
+    method is typically invoked during area trigger updates or when sending initial
+    trigger data to players entering the trigger zone. It handles serialization of
+    the bounded plane's properties such as dimensions, orientation, and position relative
+    to the owner area trigger. The ignoreChangesMask parameter allows bypassing change
+    tracking for full data synchronization, while the owner and receiver parameters
+    provide context for proper serialization based on player visibility and trigger
+    state.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized area trigger bounded
+      plane data will be written. This buffer is subsequently sent to the client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the change mask when serializing
+      data. If true, all fields are serialized regardless of their changed status.
+  - name: owner
+    description: Pointer to the AreaTrigger that owns this bounded plane. Used to
+      determine context for serialization and visibility rules.
+  - name: receiver
+    description: Pointer to the Player who will receive the serialized data. Used
+      to apply player-specific filtering or adjustments during serialization.
+  returns: null
+  examples:
+  - title: Basic usage in area trigger update
+    code: 'ByteBuffer updateData;
+
+      AreaTriggerBoundedPlane* boundedPlane = ...; // Get reference to bounded plane
+
+      AreaTrigger* ownerTrigger = ...; // Get the owning trigger
+
+      Player* targetPlayer = ...; // Get player receiving update
+
+      boundedPlane->WriteUpdate(updateData, false, ownerTrigger, targetPlayer);'
+    language: cpp
+  - title: Forcing full data synchronization
+    code: 'ByteBuffer fullUpdate;
+
+      AreaTriggerBoundedPlane* boundedPlane = ...;
+
+      AreaTrigger* owner = ...;
+
+      Player* receiver = ...;
+
+      boundedPlane->WriteUpdate(fullUpdate, true, owner, receiver); // Ignore change
+      mask for complete sync'
+    language: cpp
+  notes: This method is part of the TrinityCore's area trigger system and is typically
+    called internally by the server when updating players about area trigger states.
+    The serialization process respects player visibility rules and may include additional
+    filtering based on the receiver's current state or proximity to the trigger.
+  warnings: Calling this method with an invalid owner or receiver pointer can lead
+    to undefined behavior. Ensure that all parameters are valid before invoking this
+    method, especially in performance-critical code paths where multiple triggers
+    might be updated simultaneously.
+  related:
+  - AreaTriggerBoundedPlane::ReadUpdate
+  - AreaTriggerBoundedPlane::Initialize
+  - AreaTrigger::SendUpdate
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T09:28:54.337544'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

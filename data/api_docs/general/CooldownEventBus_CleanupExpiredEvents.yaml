@@ -1,0 +1,50 @@
+api:
+  class: CooldownEventBus
+  method: CleanupExpiredEvents
+  signature: uint32 CooldownEventBus::CleanupExpiredEvents()
+documentation:
+  brief: Removes and returns the count of expired cooldown events from the event bus.
+  description: The CleanupExpiredEvents method iterates through all registered cooldown
+    events within the CooldownEventBus and removes those that have exceeded their
+    defined cooldown period. This method is typically invoked periodically by the
+    game engine to maintain a clean state of active cooldowns, preventing memory leaks
+    and ensuring accurate cooldown tracking for player abilities and spells. It returns
+    the number of expired events that were successfully removed from the event bus.
+    The method does not directly trigger any cooldown effects; it only manages the
+    lifecycle of the events themselves.
+  parameters: []
+  returns: A uint32 value representing the total count of expired cooldown events
+    that were removed from the CooldownEventBus during this execution.
+  examples:
+  - title: Basic Usage in Game Loop
+    code: "uint32 cleanedCount = cooldownEventBus.CleanupExpiredEvents();\nif (cleanedCount\
+      \ > 0)\n{\n    TC_LOG_DEBUG(\"cooldown\", \"Cleaned up {} expired cooldown events.\"\
+      , cleanedCount);\n}"
+    language: cpp
+  - title: Integration with Periodic Cleanup
+    code: "void GameWorld::UpdateCooldowns()\n{\n    static uint32 lastCleanup = 0;\n\
+      \    uint32 currentTime = getMSTime();\n    \n    if (currentTime - lastCleanup\
+      \ > 5000) // Every 5 seconds\n    {\n        uint32 removed = cooldownEventBus.CleanupExpiredEvents();\n\
+      \        if (removed > 0)\n            TC_LOG_DEBUG(\"cooldown\", \"Removed\
+      \ {} expired cooldowns at {}ms\", removed, currentTime);\n        \n       \
+      \ lastCleanup = currentTime;\n    }\n}"
+    language: cpp
+  notes: This method is designed to be called from the main game loop or a dedicated
+    cleanup thread. It's important that it's invoked regularly to prevent accumulation
+    of stale events, which could lead to performance degradation or incorrect cooldown
+    behavior. The method assumes that all events in the bus have valid expiration
+    times and are properly tracked.
+  warnings: Calling this method too frequently may introduce unnecessary overhead.
+    Ensure it's only called at appropriate intervals (e.g., every few seconds) rather
+    than on every game tick. Also, be cautious when using this method during critical
+    gameplay moments as it might affect event handling timing.
+  related:
+  - AddCooldownEvent
+  - GetActiveCooldownCount
+  - IsCooldownExpired
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:50:56.694607'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

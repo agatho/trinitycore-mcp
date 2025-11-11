@@ -1,0 +1,53 @@
+api:
+  class: GuardianDruidRefactored
+  method: UpdateGuardianState
+  signature: void GuardianDruidRefactored::UpdateGuardianState(int * target)
+documentation:
+  brief: Updates the state of the guardian druid based on target conditions and combat
+    status.
+  description: The UpdateGuardianState method manages the behavioral and tactical
+    state of a Guardian Druid character within the TrinityCore framework. It evaluates
+    the current target, combat conditions, and spell readiness to determine appropriate
+    actions such as switching between defensive stances, casting protective spells,
+    or maintaining aggro. This method is typically invoked during AI update cycles
+    to ensure the guardian druid responds dynamically to changing battlefield conditions.
+    The method modifies internal state variables that control the druid's behavior
+    without directly interacting with the game world objects.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the current target's ID or index.
+      This parameter determines which entity the guardian druid should focus on for
+      threat management and spell targeting.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void GuardianDruidAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target =\
+      \ SelectTarget(SELECT_TARGET_TOPAGGRO))\n    {\n        int targetId = target->GetGUID().GetRawValue();\n\
+      \        m_guardian->UpdateGuardianState(&targetId);\n    }\n}"
+    language: cpp
+  - title: Integration with Custom Target Selection
+    code: "void GuardianDruidRefactored::UpdateGuardianState(int* target)\n{\n   \
+      \ if (!target || *target <= 0)\n        return;\n\n    Unit* currentTarget =\
+      \ ObjectAccessor::GetUnit(*m_owner, ObjectGuid(HighGuid::Player, *target));\n\
+      \    if (currentTarget && currentTarget->IsAlive())\n    {\n        // Update\
+      \ guardian state based on target conditions\n        m_guardian->SetReactState(REACT_DEFENSIVE);\n\
+      \        // Additional logic for spell casting or stance changes\n    }\n}"
+    language: cpp
+  notes: This method relies heavily on the internal state of the Guardian Druid AI
+    system and should only be called during appropriate update cycles. The target
+    parameter must point to a valid unit ID; otherwise, undefined behavior may occur.
+    Performance is optimized for frequent calls but includes conditional checks that
+    prevent unnecessary processing when no action is required.
+  warnings: Do not pass null pointers to the target parameter as this will lead to
+    crashes or unpredictable behavior. Ensure that the target unit exists and is alive
+    before calling this method to avoid invalid state transitions.
+  related:
+  - SetGuardianState
+  - GetGuardianState
+  - UpdateAI
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T05:42:18.897931'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

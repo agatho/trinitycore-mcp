@@ -1,0 +1,66 @@
+api:
+  class: SpellFlatModByLabel
+  method: WriteCreate
+  signature: void SpellFlatModByLabel::WriteCreate(ByteBuffer & data, const Player
+    * owner, const Player * receiver) const
+documentation:
+  brief: Writes spell flat modifier by label creation data to a byte buffer for client
+    synchronization.
+  description: The WriteCreate method serializes the spell flat modifier by label
+    data into a ByteBuffer for transmission to players. This method is typically used
+    during spell initialization or when sending spell update information to clients.
+    It handles the serialization of modifier values, labels, and other relevant spell
+    properties that define how a flat modifier affects a spell's behavior. The serialized
+    data includes information about the modifier's application context, such as which
+    player it belongs to and who should receive the update. This method ensures proper
+    network synchronization of spell modifications across the game world.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized spell flat modifier
+      data will be written
+  - name: owner
+    description: Pointer to the Player object that owns the spell flat modifier; can
+      be null if not applicable
+  - name: receiver
+    description: Pointer to the Player object who will receive the spell flat modifier
+      data; can be null if not applicable
+  returns: void
+  examples:
+  - title: Basic Usage Example
+    code: 'ByteBuffer data;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      spellFlatModByLabel.WriteCreate(data, owner, receiver);
+
+      // Send data to client
+
+      receiver->SendDirectMessage(&data);'
+    language: cpp
+  - title: Spell Update Synchronization Example
+    code: "void SendSpellUpdate(Player* player)\n{\n    ByteBuffer updateData;\n \
+      \   SpellFlatModByLabel* modifier = player->GetSpellModifier(SPELL_MOD_FLAT_BY_LABEL);\n\
+      \    if (modifier)\n    {\n        modifier->WriteCreate(updateData, player,\
+      \ player);\n        player->SendDirectMessage(&updateData);\n    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's spell system and should only be
+    called during network synchronization phases. The method assumes that the ByteBuffer
+    is properly initialized and large enough to accommodate the serialized data. It's
+    important to ensure that both owner and receiver parameters are valid pointers
+    before calling this method to avoid undefined behavior.
+  warnings: Do not call this method with null pointers for owner or receiver unless
+    explicitly handled in the implementation. Improper use may lead to memory corruption
+    or client-side desynchronization issues. This method should only be invoked during
+    appropriate network update cycles, not during spell execution.
+  related:
+  - SpellFlatModByLabel::ApplyModifier
+  - SpellFlatModByLabel::RemoveModifier
+  - SpellFlatModByLabel::GetModifierValue
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:53:01.027723'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

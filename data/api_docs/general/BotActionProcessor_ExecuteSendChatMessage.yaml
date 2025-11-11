@@ -1,0 +1,63 @@
+api:
+  class: BotActionProcessor
+  method: ExecuteSendChatMessage
+  signature: BotActionResult BotActionProcessor::ExecuteSendChatMessage(Player * bot,
+    const BotAction & action)
+documentation:
+  brief: Sends a chat message from a bot player using the specified action configuration
+  description: The ExecuteSendChatMessage method processes a bot action to send a
+    chat message from a designated bot player. It retrieves the message content and
+    target information from the provided BotAction object, validates the parameters,
+    and dispatches the appropriate chat message using TrinityCore's messaging system.
+    This method supports various chat types including say, yell, whisper, and channel
+    messages based on the action configuration. The method ensures proper validation
+    of the bot player instance and the action parameters before attempting to send
+    the message.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that will send
+      the chat message. Must be a valid bot instance with proper initialization.
+  - name: action
+    description: Reference to a BotAction object containing the configuration for
+      the chat message, including message content, target player (for whispers), and
+      chat type.
+  returns: BotActionResult indicating success or failure of the chat message sending
+    operation. Returns BOT_ACTION_SUCCESS on successful message dispatch, or appropriate
+    error codes such as BOT_ACTION_FAILED, BOT_ACTION_INVALID_PARAMETERS, or BOT_ACTION_NOT_ALLOWED
+    based on validation results.
+  examples:
+  - title: Basic Chat Message
+    code: "Player* bot = sObjectAccessor->FindPlayer(botGuid);\nBotAction action;\n\
+      action.type = BOT_ACTION_CHAT_MESSAGE;\naction.message = \"Hello everyone!\"\
+      ;\naction.chatType = CHAT_MSG_SAY;\n\nBotActionResult result = processor.ExecuteSendChatMessage(bot,\
+      \ action);\nif (result == BOT_ACTION_SUCCESS) {\n    LOG_DEBUG(\"bot\", \"Chat\
+      \ message sent successfully\");\n}"
+    language: cpp
+  - title: Whisper Message
+    code: "Player* bot = sObjectAccessor->FindPlayer(botGuid);\nPlayer* target = sObjectAccessor->FindPlayer(targetGuid);\n\
+      BotAction action;\naction.type = BOT_ACTION_CHAT_MESSAGE;\naction.message =\
+      \ \"Private message to you\";\naction.chatType = CHAT_MSG_WHISPER;\naction.target\
+      \ = target->GetName();\n\nBotActionResult result = processor.ExecuteSendChatMessage(bot,\
+      \ action);\nif (result == BOT_ACTION_SUCCESS) {\n    LOG_DEBUG(\"bot\", \"Whisper\
+      \ sent successfully to {}\", target->GetName());\n}"
+    language: cpp
+  notes: This method relies on proper initialization of the bot player object and
+    valid action configuration. The method performs internal validation of chat types
+    and message content length limits. For whisper messages, the target player must
+    be online and accessible. The implementation uses TrinityCore's core messaging
+    functions which may have rate limiting or spam protection mechanisms.
+  warnings: Do not call this method with null bot pointers or improperly configured
+    BotAction objects as it will likely result in crashes or undefined behavior. Ensure
+    that the bot player has proper permissions to send chat messages of the specified
+    type. Whisper messages require the target player to be online and within the same
+    map instance.
+  related:
+  - ExecuteBotAction
+  - ValidateBotAction
+  - SendChatMessage
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T08:22:50.494901'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

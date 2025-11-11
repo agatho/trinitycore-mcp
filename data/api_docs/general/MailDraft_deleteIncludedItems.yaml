@@ -1,0 +1,60 @@
+api:
+  class: MailDraft
+  method: deleteIncludedItems
+  signature: void MailDraft::deleteIncludedItems(int trans, bool inDB)
+documentation:
+  brief: Deletes all items included in the mail draft from the player's inventory
+    and database.
+  description: The deleteIncludedItems method removes all items that were added to
+    a MailDraft object using methods like AddItem(). This operation ensures that the
+    items are no longer present in the player's inventory and, if inDB is true, also
+    removes them from the database. The method typically follows a transactional pattern
+    where 'trans' parameter may be used for database consistency. It is commonly called
+    before sending mail to prevent item duplication or loss during the mail delivery
+    process.
+  parameters:
+  - name: trans
+    description: Transaction identifier used for database operations. This parameter
+      controls how database changes are grouped and committed. A value of -1 typically
+      indicates no transaction handling, while positive values refer to an active
+      transaction context.
+  - name: inDB
+    description: Boolean flag indicating whether the items should also be removed
+      from the database. If true, items are deleted from both inventory and database;
+      if false, only inventory removal occurs.
+  returns: null
+  examples:
+  - title: Basic Usage
+    code: 'MailDraft draft;
+
+      draft.AddItem(itemGuid);
+
+      draft.deleteIncludedItems(-1, true); // Remove items from both inventory and
+      DB'
+    language: cpp
+  - title: With Transaction Handling
+    code: 'Transaction* trans = new Transaction();
+
+      MailDraft draft;
+
+      draft.AddItem(itemGuid);
+
+      draft.deleteIncludedItems(trans, false); // Remove only from inventory
+
+      trans->Execute();'
+    language: cpp
+  notes: This method should be called before sending mail to ensure items are properly
+    removed from player's inventory. If inDB is set to true, it will perform a database
+    delete operation which may impact performance with large item sets.
+  warnings: Calling this method after mail has already been sent can lead to inconsistent
+    state if the mail delivery fails or is rolled back. Always verify that items are
+    properly removed before proceeding with mail sending logic.
+  related:
+  - MailDraft::AddItem
+  - MailDraft::SendMailTo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T00:33:59.622319'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

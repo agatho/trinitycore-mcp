@@ -1,0 +1,72 @@
+api:
+  class: NPCCraftingOrderInfo
+  method: WriteCreate
+  signature: void NPCCraftingOrderInfo::WriteCreate(ByteBuffer & data, const Player
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes NPC crafting order information into a ByteBuffer for client transmission.
+  description: 'The WriteCreate method serializes the NPC crafting order data into
+    a ByteBuffer, preparing it for network transmission to a specific player. This
+    method is typically used when sending initial crafting order state information
+    to a client, including details about the crafting process, required items, and
+    associated NPC data. The serialization includes relevant metadata that allows
+    the client to properly display and interact with the crafting order. The method
+    takes two Player parameters: owner (the player who owns the crafting order) and
+    receiver (the player who will receive the crafted item). This is a fundamental
+    part of the TrinityCore''s World of Warcraft packet system for handling NPC-based
+    crafting mechanics.'
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized crafting order data
+      will be written. This buffer is typically used to construct network packets
+      sent to clients.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the crafting
+      order. Used to determine ownership and access permissions for the crafting data.
+  - name: receiver
+    description: Pointer to the Player object who will receive the crafted item. This
+      player is typically the one who initiated or is associated with the crafting
+      process.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Get owner player
+
+      Player* receiver = ...; // Get receiver player
+
+      NPCCraftingOrderInfo craftingOrder;
+
+      craftingOrder.WriteCreate(data, owner, receiver);
+
+      // Send data to client via WorldPacket or similar mechanism'
+    language: cpp
+  - title: Integration with Packet System
+    code: "void SendCraftingOrderToPlayer(Player* player, NPCCraftingOrderInfo& order)\n\
+      {\n    ByteBuffer data;\n    Player* owner = player; // Assuming player is the\
+      \ owner\n    Player* receiver = player; // Assuming same player for simplicity\n\
+      \    order.WriteCreate(data, owner, receiver);\n    \n    WorldPacket packet(SMSG_NPC_CRAFTING_ORDER_CREATE,\
+      \ data.size());\n    packet.append(data);\n    player->SendDirectMessage(&packet);\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's crafting system and should only
+    be called when preparing to send crafting order information to a client. The ByteBuffer
+    must be properly initialized before calling this method, and the owner/receiver
+    players must be valid objects. This method does not perform any validation on
+    the input parameters beyond basic null checks that are typically handled by the
+    calling code.
+  warnings: Ensure that both owner and receiver player pointers are valid before calling
+    this method to prevent access violations. The method assumes proper initialization
+    of the ByteBuffer parameter, so calling code should ensure sufficient buffer space
+    or use appropriate resizing methods.
+  related:
+  - ReadCreate
+  - GetCraftingOrderData
+  - SetCraftingOrderData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T23:26:17.923669'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

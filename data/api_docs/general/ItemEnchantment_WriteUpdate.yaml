@@ -1,0 +1,74 @@
+api:
+  class: ItemEnchantment
+  method: WriteUpdate
+  signature: void ItemEnchantment::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Item * owner, const Player * receiver) const
+documentation:
+  brief: Serializes enchantment data into a ByteBuffer for network transmission to
+    a player.
+  description: The WriteUpdate method serializes the current state of an ItemEnchantment
+    object into a ByteBuffer, preparing it for network transmission to a specific
+    player. This method is typically invoked when sending updates about item enchantments
+    to clients, such as when an enchantment is applied, removed, or modified. The
+    serialization process respects the provided owner and receiver parameters to ensure
+    proper data formatting and visibility. It handles the encoding of enchantment
+    properties including visual effects, stat bonuses, and duration information. This
+    method is part of the TrinityCore's item update system which ensures that players
+    receive accurate and timely updates about their equipped items.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized enchantment data will
+      be written. This buffer is used for constructing the network packet sent to
+      the client.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the changes mask when serializing.
+      When true, all enchantment data is written regardless of modification status;
+      when false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Item object that owns this enchantment. Used to determine
+      the context and properties of the enchantment during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used for
+      determining visibility and proper data formatting based on player-specific conditions.
+  returns: null
+  examples:
+  - title: Basic Usage in Update Packet Construction
+    code: 'ByteBuffer updateData;
+
+      ItemEnchantment* enchantment = item->GetEnchantmentSlot(ENCHANTMENT_SLOT_MAIN);
+      // Get main hand enchantment
+
+      enchantment->WriteUpdate(updateData, false, item, player);
+
+      // Send updateData to player via WorldPacket'
+    language: cpp
+  - title: Force Update with Ignore Changes Mask
+    code: 'ByteBuffer fullUpdate;
+
+      ItemEnchantment* enchantment = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 15)->GetEnchantmentSlot(ENCHANTMENT_SLOT_TEMP);
+
+      enchantment->WriteUpdate(fullUpdate, true, player->GetItemByPos(INVENTORY_SLOT_BAG_0,
+      15), player);
+
+      // Full serialization regardless of changes'
+    language: cpp
+  notes: This method is part of the TrinityCore's object update system and should
+    only be called when preparing network updates for clients. The method uses internal
+    caching mechanisms to optimize performance by avoiding unnecessary data transmission.
+    It's important to note that this method doesn't directly send packets but prepares
+    the data structure needed for network transmission.
+  warnings: Do not call this method without proper ownership checks or with invalid
+    pointers as it may lead to memory corruption or incorrect client behavior. The
+    receiver parameter must be a valid player object, otherwise the serialization
+    may produce incorrect results.
+  related:
+  - ItemEnchantment::ApplyEnchantment
+  - ItemEnchantment::RemoveEnchantment
+  - ItemEnchantment::GetEnchantmentId
+  - ItemEnchantment::GetDuration
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T01:59:39.899559'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,74 @@
+api:
+  class: CharacterRestriction
+  method: WriteCreate
+  signature: void CharacterRestriction::WriteCreate(ByteBuffer & data, const Player
+    * owner, const Player * receiver) const
+documentation:
+  brief: Writes character restriction creation data to a buffer for network transmission.
+  description: The WriteCreate method serializes character restriction information
+    into a ByteBuffer format suitable for sending to clients. This method is typically
+    used when creating or updating character restrictions in the game world, such
+    as account bans, character locks, or other restriction states. The serialized
+    data includes relevant restriction details that are then transmitted to the specified
+    owner and receiver players. The method ensures proper formatting and encoding
+    of restriction data according to TrinityCore's network protocol standards.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized character restriction
+      data will be written. This buffer is typically used for constructing network
+      packets.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the character
+      restriction. This player's account or character state determines the restriction
+      context.
+  - name: receiver
+    description: Pointer to the Player object who will receive the restriction data.
+      This represents the target player affected by the restriction.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Get owner player
+
+      Player* receiver = ...; // Get receiver player
+
+      CharacterRestriction restriction;
+
+      restriction.WriteCreate(data, owner, receiver);'
+    language: cpp
+  - title: Network Packet Construction Example
+    code: 'ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = ...; // Target player
+
+      CharacterRestriction restriction;
+
+      restriction.WriteCreate(data, owner, receiver);
+
+      WorldPacket packet(SMSG_CHARACTER_RESTRICTION_UPDATE, data.size());
+
+      packet.append(data);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  notes: This method assumes that the provided Player pointers are valid and not null.
+    The ByteBuffer should be properly initialized before calling this method. Implementation
+    details may vary based on specific restriction types and their serialization requirements
+    within TrinityCore's framework.
+  warnings: Ensure that both owner and receiver player pointers are valid before calling
+    this method, as dereferencing invalid pointers will cause crashes. This method
+    is typically called during network packet construction, so proper synchronization
+    should be considered if multiple threads access the same data.
+  related:
+  - CharacterRestriction::ReadCreate
+  - CharacterRestriction::WriteUpdate
+  - CharacterRestriction::GetRestrictionType
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T07:13:57.853789'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

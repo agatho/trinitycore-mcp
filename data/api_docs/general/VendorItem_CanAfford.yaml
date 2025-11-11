@@ -1,0 +1,55 @@
+api:
+  class: VendorItem
+  method: CanAfford
+  signature: bool VendorItem::CanAfford(Player * player, uint32 count) const
+documentation:
+  brief: Determines whether a player can afford to purchase a vendor item based on
+    their current currency and the item's cost.
+  description: The CanAfford method evaluates if a given player has sufficient currency
+    to purchase a specific vendor item. It checks against the player's available gold
+    or other in-game currency, considering the item's price and the requested quantity.
+    This method is typically used during vendor interactions to validate whether a
+    transaction can proceed. The method does not modify any state and is purely a
+    validation check. It assumes that the player object is valid and that the vendor
+    item has been properly initialized with cost information.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose currency will be checked against
+      the vendor item's cost. Must not be null.
+  - name: count
+    description: The number of items the player wishes to purchase. Used to calculate
+      total cost for multiple item purchases.
+  returns: Returns true if the player has enough currency to afford the specified
+    quantity of the vendor item; otherwise returns false.
+  examples:
+  - title: Basic Usage in Vendor Interaction
+    code: "if (vendorItem->CanAfford(player, 1)) {\n    // Proceed with purchase\n\
+      \    player->ModifyMoney(-vendorItem->GetCost());\n} else {\n    // Inform player\
+      \ they cannot afford the item\n    player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY,\
+      \ vendorItem, 0, 0);\n}"
+    language: cpp
+  - title: Checking Affordability for Multiple Items
+    code: "uint32 quantity = 5;\nif (vendorItem->CanAfford(player, quantity)) {\n\
+      \    uint32 totalCost = vendorItem->GetCost() * quantity;\n    player->ModifyMoney(-totalCost);\n\
+      \    // Process the purchase of 5 items\n} else {\n    player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY,\
+      \ vendorItem, quantity, 0);\n}"
+    language: cpp
+  notes: This method only checks currency availability and does not perform any actual
+    transaction or modification of the player's inventory. The method relies on the
+    VendorItem's internal cost data being correctly set before invocation. It is recommended
+    to call this method before attempting to process a purchase to prevent invalid
+    transactions.
+  warnings: Ensure that the player pointer passed is valid and not null, as passing
+    a null pointer will result in undefined behavior. Also, be aware that this method
+    does not account for item stacking or special currency types beyond standard gold;
+    custom currency handling may require additional checks.
+  related:
+  - VendorItem::GetCost
+  - Player::ModifyMoney
+  - Player::SendBuyError
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T14:00:45.235325'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

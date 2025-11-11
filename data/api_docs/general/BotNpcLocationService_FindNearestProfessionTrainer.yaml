@@ -1,0 +1,64 @@
+api:
+  class: BotNpcLocationService
+  method: FindNearestProfessionTrainer
+  signature: NpcLocationResult BotNpcLocationService::FindNearestProfessionTrainer(Player
+    * bot, uint32 skillId)
+documentation:
+  brief: Finds the nearest NPC that can train the specified profession skill for a
+    given bot player.
+  description: The FindNearestProfessionTrainer method searches for the closest available
+    NPC in the game world that is capable of training the specified profession skill
+    for the provided bot player. This function is typically used by AI systems or
+    bot controllers to locate appropriate trainers for skill advancement. The method
+    considers the player's current location and the availability of trainers within
+    reasonable proximity. It returns a NpcLocationResult structure containing information
+    about the found trainer, including its GUID, position, and other relevant data.
+    The search takes into account the skill ID provided and ensures that the trainer
+    actually possesses the specified profession skill.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot for which to find
+      a profession trainer. Must be a valid player instance.
+  - name: skillId
+    description: The unique identifier of the profession skill to search for training.
+      This corresponds to the skill ID used in the World of Warcraft skill system.
+  returns: Returns a NpcLocationResult structure containing information about the
+    nearest trainer found, including NPC GUID, position coordinates, and other location
+    data. If no suitable trainer is found within reasonable range, the result may
+    indicate failure or contain default/invalid values.
+  examples:
+  - title: Basic Usage to Find a Blacksmithing Trainer
+    code: "Player* myBot = ...; // Assume bot is initialized\nuint32 blacksmithingSkillId\
+      \ = 164; // Blacksmithing skill ID\nNpcLocationResult trainerResult = BotNpcLocationService::FindNearestProfessionTrainer(myBot,\
+      \ blacksmithingSkillId);\nif (trainerResult.IsValid()) {\n    // Use the trainer\
+      \ result to move the bot towards the trainer\n    // Example: bot->MoveTo(trainerResult.GetPosition());\n\
+      }"
+    language: cpp
+  - title: Using Result to Move Bot to Trainer
+    code: "Player* bot = GetBot();\nuint32 enchantingSkillId = 333; // Enchanting\
+      \ skill ID\nNpcLocationResult result = BotNpcLocationService::FindNearestProfessionTrainer(bot,\
+      \ enchantingSkillId);\nif (result.IsValid()) {\n    Position trainerPos = result.GetPosition();\n\
+      \    bot->GetMotionMaster()->MovePoint(0, trainerPos);\n    // Additional logic\
+      \ to interact with the trainer once reached\n} else {\n    // Handle case where\
+      \ no trainer was found\n    sLog->outString(\"No enchanting trainer found for\
+      \ bot.\");\n}"
+    language: cpp
+  notes: This method performs a search within the current map and nearby maps, but
+    may have limitations based on the maximum search distance defined in the TrinityCore
+    configuration. The function is designed to be efficient by using spatial indexing
+    or similar optimization techniques where available. It should only be called for
+    valid player objects and with valid skill IDs.
+  warnings: Ensure that the bot Player object passed is properly initialized and not
+    null, as passing an invalid pointer may cause undefined behavior. Also, verify
+    that the skillId corresponds to a valid profession skill in the game database,
+    otherwise the method may return no results or incorrect data.
+  related:
+  - FindNearestVendor
+  - FindNearestQuestGiver
+  - GetNpcLocation
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T03:27:29.386472'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

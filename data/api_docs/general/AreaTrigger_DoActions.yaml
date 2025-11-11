@@ -1,0 +1,52 @@
+api:
+  class: AreaTrigger
+  method: DoActions
+  signature: void AreaTrigger::DoActions(Unit * unit)
+documentation:
+  brief: Executes area trigger actions when a unit enters or interacts with the trigger
+  description: The DoActions method is responsible for executing the defined behavior
+    of an area trigger when a Unit (player or creature) interacts with it. This method
+    typically handles spell casting, quest updates, or other game events associated
+    with the area trigger. It serves as the core execution point for area trigger
+    logic and is usually called internally by the game engine when a unit enters the
+    trigger's activation range. The method may perform different actions based on
+    the type of area trigger and the unit involved.
+  parameters:
+  - name: unit
+    description: Pointer to the Unit object that triggered the area trigger. This
+      can be a Player or Creature instance. Must not be nullptr for valid execution.
+  returns: null
+  examples:
+  - title: Basic usage in custom area trigger handler
+    code: "class MyAreaTrigger : public AreaTrigger {\npublic:\n    void DoActions(Unit*\
+      \ unit) override {\n        if (unit && unit->IsPlayer()) {\n            Player*\
+      \ player = unit->ToPlayer();\n            player->CastSpell(player, 12345, true);\
+      \ // Cast a spell on the player\n        }\n    }\n};"
+    language: cpp
+  - title: Advanced usage with conditional logic
+    code: "void AreaTrigger::DoActions(Unit* unit) {\n    if (!unit)\n        return;\n\
+      \    \n    if (unit->IsPlayer()) {\n        Player* player = unit->ToPlayer();\n\
+      \        // Check if player has specific quest\n        if (player->GetQuestStatus(12345)\
+      \ == QUEST_STATUS_INCOMPLETE) {\n            player->AreaExploredOrEventHappens(12345);\n\
+      \        }\n    } else if (unit->IsCreature()) {\n        // Handle creature-specific\
+      \ actions\n        unit->GetAI()->DoAction(ACTION_TRIGGER_ACTIVATED);\n    }\n\
+      }"
+    language: cpp
+  notes: This method is typically called by the core game engine when a Unit enters
+    an area trigger's active zone. Developers should ensure that any spell casting
+    or quest updates are properly validated and do not cause infinite loops. The method
+    may be invoked multiple times for the same unit if the trigger is re-entered.
+  warnings: Avoid performing heavy operations in this method as it can block game
+    loop execution. Never call DoActions directly from within another DoActions call
+    to prevent stack overflow. Ensure that unit parameter is properly validated before
+    dereferencing.
+  related:
+  - AreaTrigger::OnTrigger
+  - AreaTrigger::Update
+  - AreaTrigger::IsWithinBounds
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T16:07:58.921986'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

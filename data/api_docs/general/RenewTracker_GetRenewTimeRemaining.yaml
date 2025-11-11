@@ -1,0 +1,58 @@
+api:
+  class: RenewTracker
+  method: GetRenewTimeRemaining
+  signature: uint32 RenewTracker::GetRenewTimeRemaining(int guid) const
+documentation:
+  brief: Retrieves the remaining time in milliseconds for a specified player's renew
+    effect.
+  description: The GetRenewTimeRemaining method is used to determine how much time
+    remains on a player's renew effect, which typically represents a healing-over-time
+    buff that periodically restores health. This method takes a player's unique identifier
+    (GUID) as input and returns the duration in milliseconds left before the renew
+    effect expires. The method is commonly used in combat systems and spell tracking
+    to manage active buffs and determine when effects should be refreshed or removed.
+    It is important to note that this method only applies to players who currently
+    have an active renew effect on their character.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose renew time remaining
+      is being queried. This should be a valid player GUID obtained from the game
+      world.
+  returns: Returns a uint32 value representing the time in milliseconds remaining
+    on the specified player's renew effect. If the player does not have an active
+    renew effect, this method may return 0 or throw an exception depending on implementation
+    details.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 remainingTime = renewTracker.GetRenewTimeRemaining(playerGuid);\n\
+      if (remainingTime > 0)\n{\n    // Player has active renew effect\n    printf(\"\
+      Renew effect expires in %u milliseconds\\n\", remainingTime);\n}\nelse\n{\n\
+      \    // No active renew effect\n    printf(\"No active renew effect found for\
+      \ player.\\n\");\n}"
+    language: cpp
+  - title: Integration with Spell Management
+    code: "void UpdateRenewEffect(Player* player)\n{\n    uint32 guid = player->GetGUID().GetCounter();\n\
+      \    uint32 timeRemaining = renewTracker.GetRenewTimeRemaining(guid);\n    \n\
+      \    if (timeRemaining <= 5000) // Less than 5 seconds remaining\n    {\n  \
+      \      // Refresh or reapply the renew effect\n        ApplyRenewEffect(player);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the RenewTracker maintains an internal mapping of
+    player GUIDs to their respective renew effect timers. The implementation should
+    handle cases where a player GUID is not found in the tracker, potentially returning
+    0 or throwing an exception. Performance-wise, this method should be efficient
+    as it likely uses a hash map or similar data structure for O(1) lookup times.
+  warnings: Ensure that the provided GUID corresponds to a valid player object before
+    calling this method. Passing invalid or non-player GUIDs may lead to undefined
+    behavior or incorrect results. Additionally, be aware that the returned time is
+    in milliseconds and should be converted appropriately for display purposes.
+  related:
+  - SetRenewTimeRemaining
+  - HasActiveRenewEffect
+  - ApplyRenewEffect
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T15:22:15.360383'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

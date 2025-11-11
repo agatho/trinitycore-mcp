@@ -1,0 +1,62 @@
+api:
+  class: Trainer
+  method: GetSpellState
+  signature: SpellState Trainer::GetSpellState(const Player * player, const Spell
+    * trainerSpell) const
+documentation:
+  brief: Determines the training state of a spell for a given player.
+  description: The GetSpellState method evaluates whether a player can learn, has
+    learned, or is unable to learn a specific spell from a trainer. It checks various
+    conditions such as skill requirements, level prerequisites, and previous training
+    status. This method is crucial for determining the UI state of spells in a trainer's
+    window, ensuring players only see spells they are eligible to learn. The returned
+    SpellState indicates whether the spell is available for learning, already known,
+    or blocked due to unmet requirements.
+  parameters:
+  - name: player
+    description: Pointer to the Player object whose training state is being evaluated.
+      Must not be null.
+  - name: trainerSpell
+    description: Pointer to the Spell object representing the spell being checked
+      for training eligibility. Must not be null.
+  returns: Returns a SpellState enum value indicating the current state of the spell
+    for the player. Possible values include SPELL_STATE_AVAILABLE (player can learn),
+    SPELL_STATE_KNOWN (player already knows), and SPELL_STATE_UNAVAILABLE (player
+    cannot learn due to requirements).
+  examples:
+  - title: Check if a player can learn a spell
+    code: "SpellState state = trainer->GetSpellState(player, spell);\nif (state ==\
+      \ SPELL_STATE_AVAILABLE) {\n    // Show learn button\n    SendTrainerSpellLearn(player,\
+      \ spell);\n} else if (state == SPELL_STATE_KNOWN) {\n    // Show already known\
+      \ message\n    SendTrainerSpellKnown(player, spell);\n}"
+    language: cpp
+  - title: Validate spell learning eligibility before displaying options
+    code: "void HandleTrainerSpellQuery(Player* player, uint32 trainerId) {\n    //\
+      \ Get trainer\n    Creature* trainer = player->GetNPCIfCanInteractWith(trainerId,\
+      \ UNIT_NPC_FLAG_TRAINER);\n    if (!trainer)\n        return;\n\n    // Iterate\
+      \ through trainer spells\n    for (uint32 i = 0; i < trainer->GetTrainerSpellCount();\
+      \ ++i) {\n        SpellEntry const* spellEntry = trainer->GetTrainerSpell(i);\n\
+      \        SpellState state = trainer->GetSpellState(player, spellEntry);\n  \
+      \      if (state == SPELL_STATE_AVAILABLE || state == SPELL_STATE_KNOWN) {\n\
+      \            // Display spell in UI\n            SendTrainerSpellInfo(player,\
+      \ spellEntry, state);\n        }\n    }\n}"
+    language: cpp
+  notes: This method performs checks against player's current level, skill points,
+    and prerequisite spells. It does not modify any game state but only evaluates
+    it. The implementation may involve database lookups for spell requirements and
+    caching of previously computed states.
+  warnings: Ensure that both player and trainerSpell parameters are valid non-null
+    pointers before calling this method. Passing invalid pointers will result in undefined
+    behavior or crashes. This method should be called only when the player is actually
+    interacting with a trainer NPC.
+  related:
+  - GetTrainerSpell
+  - GetTrainerSpellCount
+  - SendTrainerSpellLearn
+  - SendTrainerSpellInfo
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T07:29:12.969930'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,38 @@
+api:
+  class: ExecutionContext
+  method: IsMainThread
+  signature: bool ExecutionContext::IsMainThread() const
+documentation:
+  brief: Determines whether the current execution context is running on the main thread.
+  description: The IsMainThread method checks if the calling code is executing within
+    the primary game thread, which is essential for ensuring thread safety when interacting
+    with core TrinityCore systems. This method is commonly used to validate that certain
+    operations are performed only on the main thread, as many World of Warcraft server
+    components and APIs are not thread-safe and must be accessed from the main execution
+    context. The check typically involves comparing the current thread identifier
+    against the main thread's identifier stored in the ExecutionContext.
+  parameters: []
+  returns: Returns true if the current execution context is running on the main thread;
+    otherwise, returns false.
+  examples:
+  - title: Basic Thread Safety Check
+    code: "if (executionContext.IsMainThread()) {\n    // Safe to perform main-thread\
+      \ operations\n    Player* player = ...;\n    player->SendPacket(...);\n} else\
+      \ {\n    // Must dispatch to main thread for safe operation\n    sWorld->QueueEvent([player]()\
+      \ {\n        player->SendPacket(...);\n    });\n}"
+    language: cpp
+  notes: This method is crucial for maintaining thread safety in TrinityCore's multi-threaded
+    environment. The main thread typically handles world updates, packet processing,
+    and database operations that require exclusive access to shared resources.
+  warnings: Using this method incorrectly can lead to race conditions or crashes when
+    accessing thread-unsafe components from non-main threads. Always ensure that critical
+    game logic is executed on the main thread unless explicitly designed for concurrency.
+  related:
+  - ExecutionContext::GetThreadId
+  - World::IsMainThread
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T18:15:52.543258'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

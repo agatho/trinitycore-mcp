@@ -1,0 +1,64 @@
+api:
+  class: GenericMovementGenerator
+  method: Finalize
+  signature: void GenericMovementGenerator::Finalize(Unit * param0, bool param1, bool
+    param2)
+documentation:
+  brief: Completes the movement generation process for a unit, cleaning up resources
+    and finalizing movement state.
+  description: The Finalize method is responsible for completing the movement generation
+    process for a Unit within the TrinityCore framework. It handles cleanup operations
+    such as releasing references to movement generators, resetting movement states,
+    and ensuring proper resource management. This method is typically called when
+    a movement generator is being removed or replaced, ensuring that no dangling references
+    or invalid states persist. The method takes into account whether the movement
+    was completed successfully and performs appropriate cleanup based on the provided
+    parameters.
+  parameters:
+  - name: param0
+    description: Pointer to the Unit object for which the movement generation is being
+      finalized. This represents the entity whose movement state will be cleaned up.
+  - name: param1
+    description: Boolean flag indicating whether the movement was completed successfully.
+      If true, cleanup may involve different operations compared to an interrupted
+      movement.
+  - name: param2
+    description: Boolean flag that typically indicates if the movement should be immediately
+      stopped or allowed to complete naturally. This affects how cleanup is performed.
+  returns: null
+  examples:
+  - title: Basic Finalization Call
+    code: 'Unit* unit = ...;
+
+      bool success = true;
+
+      bool immediateStop = false;
+
+      generator->Finalize(unit, success, immediateStop);'
+    language: cpp
+  - title: Finalization with Movement Completion Status
+    code: "if (movementGenerator != nullptr)\n{\n    Unit* targetUnit = unit->GetMotionMaster()->GetCurrentUnit();\n\
+      \    bool wasSuccessful = unit->GetMotionMaster()->GetCurrentMovementGenerator()\
+      \ == movementGenerator;\n    bool shouldStopImmediately = !wasSuccessful;\n\
+      \    movementGenerator->Finalize(targetUnit, wasSuccessful, shouldStopImmediately);\n\
+      }"
+    language: cpp
+  notes: This method is part of the movement system's lifecycle management and should
+    only be called when a movement generator is no longer needed. It's important to
+    ensure that the Unit pointer passed in is valid and not already destroyed, as
+    calling Finalize on a destroyed unit can lead to undefined behavior.
+  warnings: Calling Finalize with an invalid or null Unit pointer will likely cause
+    crashes or memory corruption. Always verify that the Unit exists before invoking
+    this method. Additionally, calling Finalize multiple times on the same movement
+    generator without proper state checks may result in double-free errors or inconsistent
+    movement states.
+  related:
+  - Initialize
+  - Update
+  - MovementGenerator::GetMovementGeneratorType
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:21:47.017143'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

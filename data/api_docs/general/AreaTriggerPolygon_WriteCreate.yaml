@@ -1,0 +1,64 @@
+api:
+  class: AreaTriggerPolygon
+  method: WriteCreate
+  signature: void AreaTriggerPolygon::WriteCreate(ByteBuffer & data, const AreaTrigger
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the creation data for an area trigger polygon to a
+    byte buffer for client transmission.
+  description: The WriteCreate method is responsible for serializing the necessary
+    data to construct an AreaTriggerPolygon object on the client side. It prepares
+    the packet data that will be sent to a specific player's client, containing all
+    relevant information about the area trigger polygon such as its shape, size, position,
+    and associated properties. This method is typically invoked during the initial
+    spawn or update of an area trigger for a particular player, ensuring that the
+    client has all necessary details to render and handle the area trigger correctly.
+    The method takes into account the owner of the area trigger and the receiving
+    player to properly format the data according to the client's expectations.
+  parameters:
+  - name: data
+    description: A reference to a ByteBuffer object where the serialized creation
+      data for the area trigger polygon will be written. This buffer is typically
+      used to construct the final packet sent to the client.
+  - name: owner
+    description: A pointer to the AreaTrigger object that owns this polygon. This
+      parameter provides context about the area trigger's properties and state that
+      should be included in the creation packet.
+  - name: receiver
+    description: A pointer to the Player object who will receive this area trigger
+      creation data. The method may use this information to customize the packet for
+      the specific player, such as applying visibility or ownership checks.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Update
+    code: "void SendAreaTriggerCreatePacket(Player* player, AreaTriggerPolygon* polygon)\n\
+      {\n    ByteBuffer data;\n    polygon->WriteCreate(data, polygon->GetOwner(),\
+      \ player);\n    player->SendDirectMessage(&data);\n}"
+    language: cpp
+  - title: Integration with Area Trigger System
+    code: "class MyAreaTriggerHandler\n{\npublic:\n    void HandlePlayerEnterAreaTrigger(Player*\
+      \ player, AreaTriggerPolygon* trigger)\n    {\n        ByteBuffer buffer;\n\
+      \        trigger->WriteCreate(buffer, trigger->GetOwner(), player);\n      \
+      \  player->SendDirectMessage(&buffer);\n    }\n};"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system for
+    area triggers. It assumes that the ByteBuffer is properly initialized and that
+    the owner and receiver parameters are valid pointers. The implementation likely
+    includes checks to ensure proper data alignment and packet structure according
+    to the World of Warcraft client protocol.
+  warnings: Ensure that the provided 'owner' and 'receiver' pointers are valid before
+    calling this method, as dereferencing invalid pointers will result in undefined
+    behavior. Also, be aware that modifying the area trigger's properties after calling
+    WriteCreate may not be reflected in already-sent packets unless a new update packet
+    is explicitly sent.
+  related:
+  - AreaTriggerPolygon::WriteUpdate
+  - AreaTriggerPolygon::WriteDestroy
+  - AreaTriggerPolygon::GetOwner
+  - AreaTriggerPolygon::GetReceiver
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:22:51.407179'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,63 @@
+api:
+  class: IBotSpawnerCallback
+  method: OnSpawnFailed
+  signature: void IBotSpawnerCallback::OnSpawnFailed(const int & request, const int
+    & reason)
+documentation:
+  brief: Notifies when a bot spawn request fails with a specific reason code
+  description: 'The OnSpawnFailed method is invoked by the bot spawner system when
+    a request to spawn a bot has been rejected or encountered an error during execution.
+    This callback allows developers to handle failed spawn attempts gracefully, logging
+    errors, retrying spawn requests, or adjusting bot behavior based on the failure
+    reason. The method is part of the IBotSpawnerCallback interface and is typically
+    used in conjunction with bot management systems within TrinityCore''s AI framework.
+    It provides two key parameters: the request identifier that failed and a reason
+    code indicating why the spawn failed.'
+  parameters:
+  - name: request
+    description: An integer identifier representing the specific bot spawn request
+      that failed. This value uniquely identifies the request within the system for
+      tracking purposes.
+  - name: reason
+    description: 'An integer code indicating the reason for the spawn failure. Possible
+      values may include: 0 = Unknown error, 1 = Invalid parameters, 2 = Resource
+      limit exceeded, 3 = Map not available, etc., depending on implementation details.'
+  returns: null
+  examples:
+  - title: Basic Implementation of OnSpawnFailed
+    code: "class MyBotSpawnerCallback : public IBotSpawnerCallback {\npublic:\n  \
+      \  void OnSpawnFailed(const int& request, const int& reason) override {\n  \
+      \      std::cout << \"Spawn request \" << request << \" failed with reason code\
+      \ \" << reason << std::endl;\n        // Handle the failure (log, retry, notify\
+      \ user, etc.)\n    }\n};"
+    language: cpp
+  - title: Advanced Usage with Reason-Based Handling
+    code: "class AdvancedBotSpawnerCallback : public IBotSpawnerCallback {\npublic:\n\
+      \    void OnSpawnFailed(const int& request, const int& reason) override {\n\
+      \        switch (reason) {\n            case 1: // Invalid parameters\n    \
+      \            LogError(\"Invalid spawn parameters for request \" + std::to_string(request));\n\
+      \                break;\n            case 2: // Resource limit exceeded\n  \
+      \              LogWarning(\"Resource limit reached for request \" + std::to_string(request));\n\
+      \                ScheduleRetry(request);\n                break;\n         \
+      \   default:\n                LogError(\"Unexpected spawn failure for request\
+      \ \" + std::to_string(request) + \", reason: \" + std::to_string(reason));\n\
+      \        }\n    }\n};"
+    language: cpp
+  notes: This method is part of an asynchronous callback system and should not block
+    execution. It's recommended to avoid heavy computations or database operations
+    directly in this handler. The request identifier can be used to correlate with
+    internal tracking systems for debugging purposes.
+  warnings: Do not perform long-running operations inside this method as it may block
+    the main thread. Ensure that any logging or error handling does not introduce
+    performance bottlenecks. The reason codes are implementation-specific and may
+    vary between different versions of TrinityCore.
+  related:
+  - OnSpawnSucceeded
+  - OnSpawnRequested
+  - IBotSpawner::SpawnBot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:54:30.393976'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

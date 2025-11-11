@@ -1,0 +1,61 @@
+api:
+  class: CombatEventBus
+  method: DeliverEvent
+  signature: bool CombatEventBus::DeliverEvent(BotAI * subscriber, const CombatEvent
+    & event)
+documentation:
+  brief: Delivers a combat event to a specified bot AI subscriber
+  description: The DeliverEvent method is responsible for routing and dispatching
+    combat-related events to registered BotAI subscribers within the TrinityCore framework.
+    This method ensures that relevant combat information, such as damage dealt, target
+    changes, or combat state updates, is properly communicated to AI-controlled bots.
+    The method performs validation on the subscriber and event data before attempting
+    delivery, returning a boolean indicating success or failure of the operation.
+    It plays a crucial role in maintaining synchronized combat behavior across AI
+    entities in World of Warcraft's TrinityCore environment.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that will receive the combat event.
+      Must be a valid, initialized BotAI object or nullptr.
+  - name: event
+    description: The CombatEvent object containing the combat data to be delivered.
+      This includes information about the event type, involved entities, and relevant
+      combat parameters.
+  returns: True if the event was successfully delivered to the subscriber, false otherwise.
+    Delivery may fail due to invalid subscriber pointer, event processing errors,
+    or subscription state issues.
+  examples:
+  - title: Basic Event Delivery
+    code: "BotAI* bot = ...;\nCombatEvent event;\nevent.type = CombatEventType::DAMAGE_DEALT;\n\
+      event.damage = 100;\nbool success = combatBus.DeliverEvent(bot, event);\nif\
+      \ (!success) {\n    // Handle delivery failure\n}"
+    language: cpp
+  - title: Event Delivery with Error Handling
+    code: "BotAI* bot = player->GetBot();\nif (!bot) return;\n\nCombatEvent event;\n\
+      event.type = CombatEventType::TARGET_CHANGED;\nevent.targetGuid = newTargetGuid;\n\
+      \nbool delivered = combatBus.DeliverEvent(bot, event);\nif (delivered) {\n \
+      \   // Event successfully processed by bot\n} else {\n    // Log delivery failure\
+      \ or retry mechanism\n}"
+    language: cpp
+  notes: This method is part of TrinityCore's event-driven AI architecture. It assumes
+    that the BotAI subscriber has been properly initialized and registered with the
+    CombatEventBus. The method does not perform deep copying of event data, so care
+    should be taken to ensure event objects remain valid during delivery. Performance
+    considerations include avoiding frequent calls in tight loops due to potential
+    locking mechanisms.
+  warnings: Passing a null pointer for subscriber will likely result in undefined
+    behavior or crashes. Ensure that BotAI instances are properly initialized before
+    attempting event delivery. The method may block if the underlying event processing
+    requires synchronization, potentially causing performance bottlenecks in high-frequency
+    combat scenarios.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - RegisterEvent
+  - ProcessEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T07:00:48.067699'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

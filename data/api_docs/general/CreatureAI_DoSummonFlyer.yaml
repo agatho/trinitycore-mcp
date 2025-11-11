@@ -1,0 +1,70 @@
+api:
+  class: CreatureAI
+  method: DoSummonFlyer
+  signature: Creature * CreatureAI::DoSummonFlyer(int entry, WorldObject * obj, float
+    flightZ, float radius, int despawnTime, int summonType)
+documentation:
+  brief: Summons a flying creature at the specified location with optional flight
+    height and despawn behavior.
+  description: The DoSummonFlyer method is used by CreatureAI to summon a creature
+    that will fly to a designated position. It creates a new creature instance of
+    the specified entry type, positions it relative to the provided WorldObject, and
+    sets its initial flight path. The summoned creature will automatically despawn
+    after the specified time unless otherwise configured. This method is typically
+    used for AI-driven summons such as flying enemies or summoned pets that need to
+    follow a specific flight pattern.
+  parameters:
+  - name: entry
+    description: The creature entry ID (from creature_template) of the type to summon.
+      Must correspond to a valid creature template in the database.
+  - name: obj
+    description: The WorldObject (typically a Creature or Player) that serves as the
+      reference point for summoning. The summoned creature will appear near this object.
+  - name: flightZ
+    description: The target Z-coordinate (height) for the flying creature to reach
+      during its flight path. This determines how high above ground the creature will
+      fly.
+  - name: radius
+    description: The maximum distance from the reference object where the summoned
+      creature can appear. The creature will be placed within this radius.
+  - name: despawnTime
+    description: The time in milliseconds after which the summoned creature will automatically
+      despawn. Use 0 for no automatic despawn.
+  - name: summonType
+    description: The summon type identifier that controls how the creature is summoned
+      and behaves. Common values include SUMMON_TYPE_CREATURE, SUMMON_TYPE_GUARDIAN,
+      etc.
+  returns: A pointer to the newly created Creature instance if successful, or nullptr
+    if the summon failed due to invalid parameters or other issues.
+  examples:
+  - title: Basic usage of DoSummonFlyer
+    code: "Creature* summoned = me->DoSummonFlyer(12345, target, 10.0f, 5.0f, 30000,\
+      \ SUMMON_TYPE_CREATURE);\nif (summoned)\n{\n    // Creature was successfully\
+      \ summoned\n    summoned->SetReactState(REACT_AGGRESSIVE);\n}"
+    language: cpp
+  - title: Summoning a flying guardian with custom flight height
+    code: "Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself();\nif (player)\n\
+      {\n    Creature* flyer = me->DoSummonFlyer(98765, player, 20.0f, 3.0f, 60000,\
+      \ SUMMON_TYPE_GUARDIAN);\n    if (flyer)\n    {\n        flyer->SetOwnerGUID(player->GetGUID());\n\
+      \        flyer->SetReactState(REACT_DEFENSIVE);\n    }\n}"
+    language: cpp
+  notes: This method internally uses the standard creature summoning system and respects
+    all summon-related configurations in the database. The summoned creature will
+    inherit properties from its template, including faction, level, and AI behavior.
+    Flight path calculation is handled automatically by the core based on the provided
+    parameters.
+  warnings: Ensure that the entry ID corresponds to a valid creature template; invalid
+    entries may cause crashes or undefined behavior. Be cautious with large radius
+    values as they can result in summoning outside of expected boundaries. The despawnTime
+    parameter should be carefully considered to avoid premature removal of summoned
+    creatures during combat.
+  related:
+  - DoSummon
+  - DoSpawnCreature
+  - SummonCreature
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T14:56:30.159419'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

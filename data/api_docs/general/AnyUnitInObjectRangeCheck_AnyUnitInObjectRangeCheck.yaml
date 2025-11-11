@@ -1,0 +1,59 @@
+api:
+  class: AnyUnitInObjectRangeCheck
+  method: AnyUnitInObjectRangeCheck
+  signature: void AnyUnitInObjectRangeCheck::AnyUnitInObjectRangeCheck(const int *
+    obj, float range, bool check3D, bool reqAlive)
+documentation:
+  brief: Initializes a check for any unit within a specified range of an object.
+  description: The AnyUnitInObjectRangeCheck constructor initializes a range-based
+    unit detection mechanism that can be used to determine whether any unit (player
+    or creature) exists within a given distance from a specified object. This class
+    is typically used in AI and targeting logic to find nearby enemies or allies.
+    The check supports both 2D and 3D distance calculations, and can be configured
+    to require units to be alive. It is commonly employed in TrinityCore's smart AI
+    systems for target selection and behavior decision-making.
+  parameters:
+  - name: obj
+    description: Pointer to the object (such as a player or creature) from which the
+      range check is performed. Must not be null.
+  - name: range
+    description: Maximum distance within which units are considered to be in range.
+      Must be a positive value.
+  - name: check3D
+    description: If true, calculates 3D distance including vertical height differences;
+      if false, uses 2D horizontal distance only.
+  - name: reqAlive
+    description: If true, only considers alive units in the range check; if false,
+      includes dead units as well.
+  returns: null
+  examples:
+  - title: Basic usage for finding nearby enemies
+    code: "Unit* target = nullptr;\nfloat range = 20.0f;\nAnyUnitInObjectRangeCheck\
+      \ checker(&unit, range, true, true);\n// Use checker in a search or condition\n\
+      if (checker(unit)) {\n    // Unit is within range and alive\n}"
+    language: cpp
+  - title: Using with smart AI for target selection
+    code: "class MyAI : public ScriptedAI {\npublic:\n    void UpdateAI(uint32 diff)\
+      \ override {\n        if (!UpdateVictim()) {\n            AnyUnitInObjectRangeCheck\
+      \ checker(&me, 30.0f, false, true);\n            if (Unit* target = me->SelectNearestTarget(&checker))\
+      \ {\n                AttackStart(target);\n            }\n        }\n    }\n\
+      };"
+    language: cpp
+  notes: This class is designed to be used with TrinityCore's target selection and
+    AI systems. It performs efficient range checks using spatial indexing where possible.
+    The constructor sets up internal parameters but does not perform the actual check;
+    the operator() must be called on units to evaluate them against the criteria.
+  warnings: Ensure that the 'obj' parameter points to a valid object that exists in
+    the world, as passing a null or invalid pointer will result in undefined behavior.
+    The range value should be carefully chosen to avoid performance issues with large
+    ranges or frequent checks.
+  related:
+  - Unit::SelectNearestTarget
+  - AnyUnitInObjectRangeCheck::operator()
+  - WorldObject::GetDistance
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T13:33:47.082001'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

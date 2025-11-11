@@ -1,0 +1,54 @@
+api:
+  class: InterruptCoordinatorFixed
+  method: OnEnemyCastStart
+  signature: void InterruptCoordinatorFixed::OnEnemyCastStart(Unit * caster, uint32
+    spellId, uint32 castTime)
+documentation:
+  brief: Handles the event when an enemy unit begins casting a spell, triggering potential
+    interrupt logic.
+  description: The OnEnemyCastStart method is invoked when an enemy unit starts casting
+    a spell. This method is typically used within the InterruptCoordinatorFixed class
+    to manage and respond to enemy spellcasting events. It allows the system to determine
+    whether an interrupt should occur based on the caster's identity, the spell being
+    cast, and the cast time. The method does not return any value but may trigger
+    internal logic such as interrupting the cast or applying effects related to the
+    interruption.
+  parameters:
+  - name: caster
+    description: Pointer to the Unit object representing the enemy unit that is starting
+      to cast a spell. This parameter must be a valid pointer to an existing Unit
+      instance.
+  - name: spellId
+    description: The unique identifier of the spell being cast by the caster. This
+      value corresponds to the Spell ID defined in the game's spell database.
+  - name: castTime
+    description: The duration (in milliseconds) that the spell will take to complete
+      its casting. This is used to determine how long the interrupt window may be
+      active.
+  returns: null
+  examples:
+  - title: Basic usage in an AI handler
+    code: "void MyAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target = me->GetVictim())\n\
+      \    {\n        if (target->IsNonMeleeSpellCast(true))\n        {\n        \
+      \    InterruptCoordinatorFixed::OnEnemyCastStart(target, target->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id,\
+      \ target->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_castTime);\n        }\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the interrupt coordination system and should be called
+    only when a valid enemy unit is casting a spell. It assumes that the caster object
+    is not null and that the spell information is accessible. Performance-wise, this
+    method should be lightweight as it's often called during AI updates.
+  warnings: Ensure that the 'caster' parameter is not null before calling this method
+    to avoid crashes. Also, make sure that the spellId and castTime parameters reflect
+    the actual casting state of the unit to prevent incorrect behavior in interrupt
+    logic.
+  related:
+  - InterruptCoordinatorFixed::OnEnemyCastStop
+  - InterruptCoordinatorFixed::OnPlayerCastStart
+  - InterruptCoordinatorFixed::OnPlayerCastStop
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:27:26.294762'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

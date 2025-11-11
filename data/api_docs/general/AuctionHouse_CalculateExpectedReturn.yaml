@@ -1,0 +1,65 @@
+api:
+  class: AuctionHouse
+  method: CalculateExpectedReturn
+  signature: float AuctionHouse::CalculateExpectedReturn(const AuctionItem & auction,
+    uint32 resellPrice)
+documentation:
+  brief: Calculates the expected return amount for an auction item based on its current
+    price and resell value.
+  description: The CalculateExpectedReturn method computes the anticipated profit
+    or loss a player will receive when an auction item is sold. This calculation takes
+    into account the original auction price, the resell price of the item, and applies
+    the auction house's cut percentage to determine what the seller will actually
+    receive. The method is used internally by the auction system to provide accurate
+    financial information to players and ensure proper transaction handling. It assumes
+    valid input parameters and does not perform any validation checks on the provided
+    auction item or resell price.
+  parameters:
+  - name: auction
+    description: Reference to an AuctionItem object containing details about the auctioned
+      item including its current bid, starting price, and other relevant properties.
+  - name: resellPrice
+    description: The price at which the item is expected to be resold. This value
+      represents the potential selling price of the item after it has been purchased
+      from the auction house.
+  returns: A float value representing the expected return amount in copper coins.
+    This value accounts for the auction house's commission and indicates how much
+    gold the seller will receive upon successful sale of the item.
+  examples:
+  - title: Basic usage example
+    code: 'AuctionItem auctionItem;
+
+      // ... initialize auctionItem with valid data ...
+
+      uint32 resellPrice = 50000; // 5 gold
+
+      float expectedReturn = auctionHouse->CalculateExpectedReturn(auctionItem, resellPrice);
+
+      printf("Expected return: %f copper\n", expectedReturn);'
+    language: cpp
+  - title: Integration with auction processing logic
+    code: "void ProcessAuctionSale(AuctionHouse* ah, AuctionItem& item, uint32 finalBid)\n\
+      {\n    uint32 resellValue = CalculateResellValue(item);\n    float expectedReturn\
+      \ = ah->CalculateExpectedReturn(item, resellValue);\n    \n    if (expectedReturn\
+      \ > 0)\n    {\n        // Process the transaction and credit the seller\n  \
+      \      item.Seller->AddMoney(expectedReturn);\n    }\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with auction house transaction
+    processing to determine final payouts. The calculation includes the standard auction
+    house cut, which is usually a percentage of the final sale price. Developers should
+    be aware that this function does not validate input parameters and assumes all
+    inputs are valid.
+  warnings: The method may return negative values if the resell price is lower than
+    the auction house fees. Ensure proper handling of such cases in your application
+    logic. Also, note that this calculation does not account for time-based factors
+    or item-specific modifiers that might affect actual returns.
+  related:
+  - AuctionHouse::GetAuctionCut
+  - AuctionHouse::CalculateAuctionFee
+  - AuctionHouse::ProcessAuctionSale
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T09:08:33.955187'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

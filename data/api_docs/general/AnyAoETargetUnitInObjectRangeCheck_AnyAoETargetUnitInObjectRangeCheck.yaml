@@ -1,0 +1,71 @@
+api:
+  class: AnyAoETargetUnitInObjectRangeCheck
+  method: AnyAoETargetUnitInObjectRangeCheck
+  signature: void AnyAoETargetUnitInObjectRangeCheck::AnyAoETargetUnitInObjectRangeCheck(const
+    int * obj, const int * funit, float range, const int * spellInfo, bool incOwnRadius,
+    bool incTargetRadius)
+documentation:
+  brief: Initializes a check for any unit targets within a specified range of an object,
+    considering spell-specific radius parameters.
+  description: The AnyAoETargetUnitInObjectRangeCheck constructor initializes a predicate
+    used to determine whether any unit targets exist within a defined range of a given
+    object. This class is typically used in AI or spell targeting logic where area-of-effect
+    (AoE) spells need to identify valid targets. It takes into account both the caster's
+    and target's radius when calculating proximity, which can be toggled via boolean
+    flags. The check evaluates units based on their position relative to the provided
+    object and the specified range, making it useful for determining spell targeting
+    validity in TrinityCore's combat system.
+  parameters:
+  - name: obj
+    description: Pointer to the object (e.g., unit or game object) from which the
+      range check is performed. Must not be null.
+  - name: funit
+    description: Pointer to a function or functor that determines if a unit meets
+      specific criteria for inclusion in the range check. Should return true for valid
+      targets.
+  - name: range
+    description: Maximum distance (in yards) within which units are considered valid
+      targets. Must be a positive value.
+  - name: spellInfo
+    description: Pointer to the spell information structure defining the spell properties,
+      including radius and targeting rules. Can be null if not required for the check.
+  - name: incOwnRadius
+    description: Boolean flag indicating whether to include the caster's radius in
+      the range calculation. If true, the distance is measured from the outer edge
+      of the caster's bounding box.
+  - name: incTargetRadius
+    description: Boolean flag indicating whether to include the target's radius in
+      the range calculation. If true, the distance is measured to the outer edge of
+      the target's bounding box.
+  returns: null
+  examples:
+  - title: Basic usage for AoE spell targeting
+    code: "AnyAoETargetUnitInObjectRangeCheck check(&caster, &isValidTarget, 10.0f,\
+      \ &spellInfo, true, true);\nif (check.isValid()) {\n    // Process valid targets\n\
+      }"
+    language: cpp
+  - title: Using with custom functor for target validation
+    code: "struct MyTargetValidator {\n    bool operator()(Unit* unit) const {\n \
+      \       return unit->IsAlive() && unit->IsHostileTo(&caster);\n    }\n};\nMyTargetValidator\
+      \ validator;\nAnyAoETargetUnitInObjectRangeCheck check(&caster, &validator,\
+      \ 15.0f, nullptr, false, true);"
+    language: cpp
+  notes: This class is commonly used in spell targeting systems and AI decision-making
+    logic within TrinityCore. The range calculation accounts for object bounding boxes,
+    which may affect accuracy depending on the shape and size of the involved units
+    or objects. Performance can be impacted by large numbers of potential targets,
+    especially in high-density combat scenarios.
+  warnings: Ensure that all pointers passed to this constructor are valid; passing
+    null pointers may result in undefined behavior. Be cautious when using incOwnRadius
+    and incTargetRadius flags, as they can significantly alter the effective targeting
+    area for spells with large or small units.
+  related:
+  - operator()
+  - isValid
+  - GetRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T13:36:55.241927'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

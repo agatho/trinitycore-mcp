@@ -1,0 +1,82 @@
+api:
+  class: PetCreatureName
+  method: WriteUpdate
+  signature: void PetCreatureName::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes pet creature name update data into a ByteBuffer for network transmission
+    to a specific player.
+  description: The WriteUpdate method serializes the pet creature name data into a
+    ByteBuffer, preparing it for network transmission. This method is typically used
+    when sending updates about a pet's creature name to a specific player, such as
+    during login, name changes, or when the pet is summoned. The method respects the
+    ignoreChangesMask parameter to determine whether all fields should be included
+    in the update, and uses the owner and receiver parameters to apply appropriate
+    filtering or formatting based on the relationship between the pet's owner and
+    the receiving player. This ensures that only relevant data is sent over the network
+    and that proper permissions are respected when transmitting information about
+    a pet.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for constructing packets to be sent to
+      clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the changes mask when serializing
+      the update. If true, all fields are included regardless of change status; if
+      false, only changed fields are serialized.
+  - name: owner
+    description: Pointer to the Player object representing the pet's owner. Used to
+      determine access permissions and formatting for the update data.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      customize the serialized data based on the receiver's relationship with the
+      pet and its owner.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      PetCreatureName petName;
+
+      Player* owner = ...; // Get pet owner
+
+      Player* receiver = ...; // Get receiving player
+
+      petName.WriteUpdate(data, false, owner, receiver);
+
+      // Send data as part of a packet to receiver'
+    language: cpp
+  - title: Sending full update with ignore mask
+    code: 'ByteBuffer updateData;
+
+      PetCreatureName petName;
+
+      Player* owner = player->GetPet();
+
+      Player* receiver = player; // Send to self
+
+      petName.WriteUpdate(updateData, true, owner, receiver);
+
+      // Full serialization regardless of changes'
+    language: cpp
+  notes: This method is typically called as part of the update system for pet creature
+    names in TrinityCore. The implementation likely checks internal change tracking
+    flags and applies appropriate serialization logic based on the provided parameters.
+    It's important to note that the method does not perform any network transmission
+    itself, but rather prepares data for transmission by other systems.
+  warnings: Ensure that the owner and receiver parameters are valid Player pointers
+    before calling this method, as null pointer dereferences could occur. The method
+    assumes proper initialization of the ByteBuffer and may not handle buffer overflow
+    conditions gracefully.
+  related:
+  - GetCreatureName
+  - SetCreatureName
+  - IsChanged
+  - ResetChanges
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:29:29.155543'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: AtonementTracker
+  method: GetAtonementTimeRemaining
+  signature: uint32 AtonementTracker::GetAtonementTimeRemaining(int guid) const
+documentation:
+  brief: Returns the time remaining in milliseconds for the specified player's atonement
+    effect.
+  description: The GetAtonementTimeRemaining method retrieves the duration remaining
+    for a player's atonement effect, which is typically associated with certain healing
+    or damage mitigation abilities in World of Warcraft. This value represents how
+    much time is left before the atonement effect expires. The method takes a GUID
+    parameter to identify the specific player whose atonement time is being queried.
+    It is commonly used in conjunction with AtonementTracker to manage and display
+    active atonement effects on players. The returned value is in milliseconds, allowing
+    for precise timing calculations within the game's systems.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose atonement time remaining
+      is being requested. This should be a valid player GUID from the TrinityCore
+      database.
+  returns: Returns a uint32 value representing the time remaining in milliseconds
+    for the specified player's atonement effect. If no atonement effect is active
+    for the player, this method may return 0 or a default value depending on implementation.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 remainingTime = atonementTracker->GetAtonementTimeRemaining(playerGuid);\n\
+      if (remainingTime > 0)\n{\n    // Atonement is still active\n    printf(\"Atonement\
+      \ expires in %u milliseconds\\n\", remainingTime);\n}\nelse\n{\n    // No active\
+      \ atonement effect\n    printf(\"No active atonement effect\\n\");\n}"
+    language: cpp
+  - title: Integration with Player Update Logic
+    code: "void UpdatePlayerAtonement(Player* player)\n{\n    uint32 guid = player->GetGUID().GetCounter();\n\
+      \    uint32 timeRemaining = atonementTracker->GetAtonementTimeRemaining(guid);\n\
+      \    \n    if (timeRemaining > 0)\n    {\n        // Update UI or perform actions\
+      \ based on remaining time\n        player->SetAtonementTimeRemaining(timeRemaining);\n\
+      \        // Schedule next update\n        player->AddDelayedEvent([=]() {\n\
+      \            UpdatePlayerAtonement(player);\n        }, timeRemaining / 2);\
+      \ // Update halfway through\n    }\n}"
+    language: cpp
+  notes: This method is likely part of a larger atonement tracking system that manages
+    player effects. The implementation may cache results or use internal tracking
+    structures to efficiently retrieve atonement times. The GUID parameter should
+    be validated before use to ensure it corresponds to an active player.
+  warnings: Ensure the GUID parameter refers to a valid player entity; invalid GUIDs
+    may cause undefined behavior or return incorrect values. This method might not
+    be thread-safe if accessed from multiple threads simultaneously, so proper synchronization
+    should be considered in multi-threaded environments.
+  related:
+  - SetAtonementTimeRemaining
+  - IsPlayerAtonementActive
+  - ResetAtonementForPlayer
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T20:11:51.377197'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

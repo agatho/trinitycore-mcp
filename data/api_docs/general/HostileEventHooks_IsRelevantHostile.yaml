@@ -1,0 +1,56 @@
+api:
+  class: HostileEventHooks
+  method: IsRelevantHostile
+  signature: bool HostileEventHooks::IsRelevantHostile(int * unit)
+documentation:
+  brief: Determines whether a hostile unit is relevant for event processing in the
+    HostileEventHooks system.
+  description: The IsRelevantHostile method evaluates whether a given hostile unit
+    meets specific criteria to be considered relevant for hostile event handling within
+    the TrinityCore framework. This typically involves checking if the unit is currently
+    engaged in combat, has a valid threat state, or satisfies other conditions that
+    make it worthy of hostile event notifications. The method is used by the HostileEventHooks
+    system to filter out irrelevant hostile units and ensure only pertinent entities
+    trigger hostile-related events. It serves as a crucial filtering mechanism for
+    performance optimization and accurate event dispatching in player versus creature
+    interactions.
+  parameters:
+  - name: unit
+    description: Pointer to an integer representing the unit identifier (GUID) of
+      the hostile entity being evaluated. This parameter is expected to point to a
+      valid unit within the game world context.
+  returns: Returns true if the hostile unit is considered relevant for event processing,
+    false otherwise. A return value of true indicates that the unit meets all necessary
+    conditions to be included in hostile event handling, while false suggests it should
+    be ignored during such processing.
+  examples:
+  - title: Basic usage in hostile event handler
+    code: "if (hooks.IsRelevantHostile(&hostileGuid)) {\n    // Process hostile event\
+      \ for this unit\n    HandleHostileEvent(hostileGuid);\n} else {\n    // Skip\
+      \ irrelevant hostile units\n    return;\n}"
+    language: cpp
+  - title: Integration with combat state checking
+    code: "bool IsRelevantHostile(int* unit) {\n    if (!unit || *unit == 0) return\
+      \ false;\n    Unit* u = ObjectAccessor::GetUnit(*unit);\n    if (!u || !u->IsInWorld())\
+      \ return false;\n    if (u->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))\
+      \ return false;\n    return true;\n}"
+    language: cpp
+  notes: This method is typically called during hostile event processing loops and
+    should be optimized for performance as it may be invoked frequently. The method
+    assumes that the input unit pointer points to a valid GUID value within the game
+    world context. It's recommended to validate the unit's existence and state before
+    calling this method to avoid potential crashes or undefined behavior.
+  warnings: The parameter 'unit' must point to a valid integer representing a unit
+    GUID; passing null or invalid pointers can lead to crashes or incorrect behavior.
+    This method should not be used outside of the HostileEventHooks context without
+    proper validation, as it relies on internal game state assumptions.
+  related:
+  - HostileEventHooks::ProcessHostileEvents
+  - HostileEventHooks::AddRelevantHostile
+  - HostileEventHooks::RemoveRelevantHostile
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T09:08:01.565459'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

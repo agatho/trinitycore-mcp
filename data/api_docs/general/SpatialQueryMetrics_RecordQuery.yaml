@@ -1,0 +1,57 @@
+api:
+  class: SpatialQueryMetrics
+  method: RecordQuery
+  signature: void SpatialQueryMetrics::RecordQuery(uint32 timeUs, bool cacheHit)
+documentation:
+  brief: Records a spatial query execution time and cache hit status for performance
+    monitoring.
+  description: The RecordQuery method logs the duration of a spatial query operation
+    in microseconds along with whether the result was served from cache. This data
+    is used for tracking query performance, identifying bottlenecks, and optimizing
+    spatial queries within the TrinityCore server. The method updates internal metrics
+    that can be accessed via other SpatialQueryMetrics APIs. It is typically called
+    after a spatial query completes, either successfully or with an error, to maintain
+    accurate performance statistics.
+  parameters:
+  - name: timeUs
+    description: The execution time of the spatial query in microseconds. This value
+      should be measured from the start to end of the query operation.
+  - name: cacheHit
+    description: Boolean flag indicating whether the query result was retrieved from
+      cache (true) or required a full database lookup (false).
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'uint32 queryTime = 150; // microseconds
+
+      bool hit = false;
+
+      SpatialQueryMetrics::Instance()->RecordQuery(queryTime, hit);'
+    language: cpp
+  - title: Integration with Query Execution
+    code: 'uint32 startTime = getMSTime();
+
+      // ... perform spatial query ...
+
+      uint32 endTime = getMSTime();
+
+      SpatialQueryMetrics::Instance()->RecordQuery(endTime - startTime, false);'
+    language: cpp
+  notes: This method is designed to be called from performance-critical sections of
+    the code. It's recommended to use high-resolution timing functions for accurate
+    time measurements. The metrics collected are typically used by server administrators
+    or developers for debugging and optimization purposes.
+  warnings: Ensure that timeUs accurately reflects the actual query execution time,
+    including any database overhead. Incorrect timing values will skew performance
+    data. Avoid calling this method from within critical sections where performance
+    is already a concern as it may introduce additional overhead.
+  related:
+  - GetQueryCount
+  - GetAverageQueryTime
+  - GetCacheHitRatio
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:40:01.631468'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

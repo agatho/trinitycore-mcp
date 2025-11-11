@@ -1,0 +1,66 @@
+api:
+  class: QueryBatcher
+  method: FindSimilarQuery
+  signature: BatchedQuery * QueryBatcher::FindSimilarQuery(float x, float y, float
+    z, float range, uint32 zoneId)
+documentation:
+  brief: Finds a similar batched query within the specified range and zone.
+  description: The FindSimilarQuery method searches through the internal batched query
+    collection to locate an existing query that matches the provided coordinates and
+    zone identifier within the given range. This is typically used in World of Warcraft's
+    TrinityCore server to optimize database queries by batching similar requests together,
+    reducing the number of individual database calls. The method performs a spatial
+    lookup based on the x, y, z coordinates and checks if any existing batched query
+    covers the same area within the specified range. If a matching query is found,
+    it returns a pointer to that query; otherwise, it returns nullptr.
+  parameters:
+  - name: x
+    description: The X coordinate of the location to search for similar queries.
+  - name: y
+    description: The Y coordinate of the location to search for similar queries.
+  - name: z
+    description: The Z coordinate of the location to search for similar queries.
+  - name: range
+    description: The maximum distance from the specified coordinates to consider for
+      matching queries.
+  - name: zoneId
+    description: The zone identifier to filter queries by. A value of 0 typically
+      means no zone filtering is applied.
+  returns: Returns a pointer to a BatchedQuery object if a similar query is found
+    within the specified range and zone, otherwise returns nullptr.
+  examples:
+  - title: Basic usage example
+    code: "BatchedQuery* query = queryBatcher->FindSimilarQuery(100.0f, 200.0f, 300.0f,\
+      \ 50.0f, 1234);\nif (query != nullptr) {\n    // Process existing similar query\n\
+      \    query->AddEntry(someData);\n} else {\n    // Create new batched query\n\
+      \    query = new BatchedQuery(100.0f, 200.0f, 300.0f, 50.0f, 1234);\n    queryBatcher->AddQuery(query);\n\
+      }"
+    language: cpp
+  - title: Advanced usage with error handling
+    code: "float x = player->GetPositionX();\nfloat y = player->GetPositionY();\n\
+      float z = player->GetPositionZ();\nuint32 zoneId = player->GetZoneId();\n\n\
+      BatchedQuery* similarQuery = queryBatcher->FindSimilarQuery(x, y, z, 100.0f,\
+      \ zoneId);\nif (similarQuery != nullptr) {\n    // Add to existing batch\n \
+      \   similarQuery->AddEntry(player->GetGUID());\n} else {\n    // Create new\
+      \ batch\n    BatchedQuery* newQuery = new BatchedQuery(x, y, z, 100.0f, zoneId);\n\
+      \    newQuery->AddEntry(player->GetGUID());\n    queryBatcher->AddQuery(newQuery);\n\
+      }"
+    language: cpp
+  notes: This method is primarily used for optimizing database access in TrinityCore
+    by grouping similar queries together. The range parameter defines the spatial
+    tolerance for finding similar queries, which helps reduce redundant database operations.
+    The zoneId parameter allows for more precise matching when dealing with queries
+    that are specific to certain zones or areas.
+  warnings: The returned pointer should not be deleted directly as it's managed by
+    the QueryBatcher class. Also, ensure that the parameters (x, y, z) are valid coordinates
+    and range is a positive value to avoid unexpected behavior.
+  related:
+  - AddQuery
+  - RemoveQuery
+  - ExecuteAllQueries
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T11:25:56.438287'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

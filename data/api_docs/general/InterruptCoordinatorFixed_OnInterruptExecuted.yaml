@@ -1,0 +1,58 @@
+api:
+  class: InterruptCoordinatorFixed
+  method: OnInterruptExecuted
+  signature: void InterruptCoordinatorFixed::OnInterruptExecuted(int botGuid, int
+    targetGuid, uint32 spellId, bool success)
+documentation:
+  brief: Notifies the interrupt coordinator that an interrupt attempt has been executed,
+    updating internal state based on execution result.
+  description: The OnInterruptExecuted method is invoked when an interrupt action
+    (such as a spell or ability) has been attempted and completed. It updates the
+    internal tracking state of the InterruptCoordinatorFixed class to reflect whether
+    the interrupt was successful or not. This method plays a critical role in managing
+    interrupt cooldowns, success rates, and state transitions within the AI behavior
+    system of TrinityCore's bot framework. The method does not perform any direct
+    game logic but serves as a callback to maintain consistency between the bot's
+    interrupt actions and its internal decision-making process.
+  parameters:
+  - name: botGuid
+    description: Unique identifier (GUID) of the bot that attempted the interrupt.
+      Used to track which entity performed the action.
+  - name: targetGuid
+    description: Unique identifier (GUID) of the target that was interrupted. Helps
+      identify the context of the interrupt attempt.
+  - name: spellId
+    description: The ID of the spell or ability used for the interrupt. Allows differentiation
+      between various interrupt types and their effects.
+  - name: success
+    description: Boolean flag indicating whether the interrupt was successful (true)
+      or failed (false). Determines subsequent behavior in the interrupt coordinator.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'InterruptCoordinatorFixed coordinator;
+
+      coordinator.OnInterruptExecuted(12345, 67890, 1234, true);'
+    language: cpp
+  - title: Handling Interrupt Failure
+    code: "if (!bot->TryInterrupt(target, spellId)) {\n    coordinator.OnInterruptExecuted(botGuid,\
+      \ targetGuid, spellId, false);\n} else {\n    coordinator.OnInterruptExecuted(botGuid,\
+      \ targetGuid, spellId, true);\n}"
+    language: cpp
+  notes: This method is typically called from within bot AI logic or interrupt handling
+    systems. It assumes that the GUIDs and spell ID are valid and have been previously
+    verified. The internal state of the coordinator may be updated asynchronously
+    depending on implementation details.
+  warnings: Ensure that all parameters are validated before calling this method to
+    prevent incorrect tracking of interrupt attempts. Improper use could lead to inconsistent
+    behavior in AI decision-making or incorrect cooldown management.
+  related:
+  - InterruptCoordinatorFixed::OnInterruptAttempted
+  - InterruptCoordinatorFixed::IsInterruptAvailable
+  - InterruptCoordinatorFixed::GetInterruptCooldown
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:26:04.125120'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

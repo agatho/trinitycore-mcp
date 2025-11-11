@@ -1,0 +1,61 @@
+api:
+  class: QuestValidation
+  method: GenerateCacheKey
+  signature: uint64 QuestValidation::GenerateCacheKey(uint32 questId, uint32 botGuid)
+documentation:
+  brief: Generates a unique cache key for quest validation based on quest ID and bot
+    GUID.
+  description: The GenerateCacheKey method creates a deterministic 64-bit hash value
+    used to uniquely identify a specific quest validation request within the TrinityCore
+    framework. This cache key combines the provided quest identifier and bot GUID
+    into a single uint64 value, which is typically used for caching or indexing purposes
+    in quest-related systems. The method ensures that each unique combination of quest
+    ID and bot GUID produces a distinct cache key, enabling efficient lookup and retrieval
+    of cached quest validation results. This functionality is particularly useful
+    in scenarios where multiple bots may be validating the same quest, allowing the
+    system to avoid redundant computations while maintaining data integrity.
+  parameters:
+  - name: questId
+    description: The unique identifier of the quest being validated. Must be a positive
+      integer representing a valid quest in the game database.
+  - name: botGuid
+    description: The global unique identifier of the bot performing the quest validation.
+      This typically corresponds to the GUID of a player or NPC bot within the game
+      world.
+  returns: A 64-bit unsigned integer (uint64) that serves as a unique cache key for
+    the specified quest and bot combination. The value is deterministic based on the
+    input parameters and can be used for indexing, caching, or lookup operations.
+  examples:
+  - title: Basic Usage
+    code: 'uint64 cacheKey = QuestValidation::GenerateCacheKey(12345, 67890);
+
+      // Returns a deterministic uint64 value based on quest ID 12345 and bot GUID
+      67890'
+    language: cpp
+  - title: Caching Implementation
+    code: "uint64 key = QuestValidation::GenerateCacheKey(player->GetQuestId(), player->GetGUID().GetCounter());\n\
+      if (cache.find(key) != cache.end()) {\n    // Use cached result\n} else {\n\
+      \    // Perform validation and store result in cache\n    cache[key] = ValidateQuest(player,\
+      \ questId);\n}"
+    language: cpp
+  notes: The method is designed to be deterministic, meaning the same inputs will
+    always produce the same output. This ensures consistent caching behavior across
+    different parts of the application. The implementation likely uses bit manipulation
+    or hashing techniques to combine the two 32-bit values into a single 64-bit key.
+    Performance-wise, this operation is very fast as it's a simple mathematical combination
+    of two integers.
+  warnings: Ensure that both questId and botGuid are valid and non-zero before calling
+    this method, as invalid inputs may lead to unexpected cache key collisions or
+    incorrect behavior in caching systems. Be aware that if the same quest ID is used
+    with different bot GUIDs, they will generate different cache keys, which is expected
+    behavior for proper isolation.
+  related:
+  - QuestValidation::ValidateQuest
+  - QuestValidation::GetCachedResult
+  - QuestValidation::StoreCacheResult
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T20:58:58.536383'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,57 @@
+api:
+  class: LootEventBus
+  method: DeliverEvent
+  signature: bool LootEventBus::DeliverEvent(BotAI * subscriber, const LootEvent &
+    event)
+documentation:
+  brief: Delivers a loot event to a specified bot AI subscriber
+  description: The LootEventBus::DeliverEvent method forwards a LootEvent to a specific
+    BotAI subscriber, enabling the bot to react to loot-related occurrences in the
+    game world. This mechanism is part of TrinityCore's AI system where events are
+    propagated through a bus architecture to interested parties. The method ensures
+    that only valid subscribers receive the event and returns a boolean indicating
+    success or failure of the delivery operation. It plays a crucial role in maintaining
+    synchronization between game events and bot behaviors, particularly in scenarios
+    involving item acquisition, loot distribution, or inventory management.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that will receive the loot event. Must
+      be a valid, initialized BotAI object; null pointers will cause delivery failure.
+  - name: event
+    description: The LootEvent object containing details about the loot-related occurrence.
+      This includes information such as item IDs, quantities, source of loot, and
+      other relevant metadata for the bot to process.
+  returns: True if the event was successfully delivered to the subscriber, false otherwise.
+    Delivery may fail due to invalid subscriber pointer, internal error in event handling,
+    or if the subscriber is not registered with the event bus.
+  examples:
+  - title: Basic Event Delivery
+    code: "BotAI* bot = ...; // Get reference to a bot\nLootEvent event;\nevent.itemId\
+      \ = 12345;\nevent.quantity = 1;\nbool success = LootEventBus::DeliverEvent(bot,\
+      \ event);\nif (success) {\n    // Event was delivered successfully\n}"
+    language: cpp
+  - title: Event Delivery with Error Handling
+    code: "BotAI* bot = GetPlayerBot(playerGuid);\nif (!bot) {\n    // Handle invalid\
+      \ bot case\n    return;\n}\nLootEvent event;\nevent.itemId = 67890;\nevent.quantity\
+      \ = 3;\nbool delivered = LootEventBus::DeliverEvent(bot, event);\nif (!delivered)\
+      \ {\n    // Log delivery failure or retry logic\n    sLog->outError(\"Failed\
+      \ to deliver loot event to bot %u\", bot->GetGUID().GetCounter());\n}"
+    language: cpp
+  notes: This method is typically used internally by the TrinityCore AI subsystem
+    and should not be called directly from external modules unless implementing custom
+    event handling logic. The event bus maintains a list of registered subscribers,
+    and this method verifies that the provided subscriber is valid before attempting
+    delivery.
+  warnings: Calling this method with a null BotAI pointer will result in immediate
+    failure. Ensure all bot instances are properly initialized and registered with
+    the AI system before attempting to deliver events to them.
+  related:
+  - LootEventBus::RegisterSubscriber
+  - LootEventBus::UnregisterSubscriber
+  - LootEventBus::BroadcastEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T01:05:41.686398'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

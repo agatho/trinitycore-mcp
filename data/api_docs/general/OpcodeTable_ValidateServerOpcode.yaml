@@ -1,0 +1,62 @@
+api:
+  class: OpcodeTable
+  method: ValidateServerOpcode
+  signature: bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, const char
+    * name, ConnectionType conIdx) const
+documentation:
+  brief: Validates whether a server opcode is properly registered and recognized within
+    the opcode table.
+  description: The ValidateServerOpcode method checks if a given server opcode is
+    valid and correctly registered in the opcode table. It verifies that the opcode
+    has been properly initialized and is recognized by the system for handling network
+    communication between the server and clients. This validation ensures that only
+    legitimate opcodes are processed, preventing potential security issues or malformed
+    packet handling. The method takes into account the connection type to ensure proper
+    opcode validation based on the context of the connection.
+  parameters:
+  - name: opcode
+    description: The server opcode value to validate. This represents a specific network
+      message identifier used in World of Warcraft's protocol.
+  - name: name
+    description: A null-terminated string containing the name of the opcode for logging
+      or debugging purposes.
+  - name: conIdx
+    description: The connection type index that determines which set of valid opcodes
+      should be checked. This allows different validation rules based on connection
+      type (e.g., auth, world).
+  returns: Returns true if the opcode is valid and properly registered in the opcode
+    table for the given connection type; otherwise returns false.
+  examples:
+  - title: Basic opcode validation
+    code: "if (opcodeTable.ValidateServerOpcode(CMSG_AUTH_SESSION, \"CMSG_AUTH_SESSION\"\
+      , CONNECTION_TYPE_WORLD)) {\n    // Opcode is valid, proceed with processing\n\
+      \    std::cout << \"Opcode validated successfully\" << std::endl;\n} else {\n\
+      \    // Handle invalid opcode\n    std::cerr << \"Invalid opcode encountered\"\
+      \ << std::endl;\n}"
+    language: cpp
+  - title: Validation with logging
+    code: "const char* opcodeName = \"CMSG_PLAYER_LOGIN\";\nOpcodeServer opcode =\
+      \ CMSG_PLAYER_LOGIN;\nConnectionType conType = CONNECTION_TYPE_WORLD;\n\nif\
+      \ (!opcodeTable.ValidateServerOpcode(opcode, opcodeName, conType)) {\n    sLog->outError(\"\
+      Invalid server opcode %s (%u) for connection type %d\", opcodeName, opcode,\
+      \ conType);\n    // Handle error appropriately\n}"
+    language: cpp
+  notes: This method is typically used during packet processing to ensure that incoming
+    opcodes are valid before attempting to handle them. The validation considers the
+    connection type to allow different opcode sets for different connection types
+    (auth, world, etc.). It's important to note that this validation does not check
+    the actual content or payload of the packet, only that the opcode itself is valid.
+  warnings: Calling this method with an invalid opcode value may result in undefined
+    behavior if not properly handled. Developers should ensure that all opcodes passed
+    to this method have been properly initialized and registered before calling. Additionally,
+    using incorrect connection type indices can lead to false negatives in validation.
+  related:
+  - ValidateClientOpcode
+  - GetOpcodeName
+  - IsServerOpcodeValid
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T11:31:23.469178'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

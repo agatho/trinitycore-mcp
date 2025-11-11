@@ -1,0 +1,69 @@
+api:
+  class: CraftingOrder
+  method: WriteCreate
+  signature: void CraftingOrder::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes and writes crafting order creation data to a byte buffer for network
+    transmission.
+  description: The WriteCreate method serializes the crafting order's creation data
+    into a ByteBuffer, which is typically used for sending crafting order information
+    over the network to players. This method prepares the necessary data fields including
+    owner and receiver details, crafting order properties, and any related identifiers
+    required for the client to properly display or process the crafting order. The
+    serialization follows TrinityCore's packet structure conventions and ensures that
+    all relevant crafting order state is accurately represented in the buffer for
+    transmission.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized crafting order data
+      will be written. This buffer is typically used for constructing network packets.
+  - name: owner
+    description: Pointer to the Player object representing the owner of the crafting
+      order. Must not be null and should represent an active player in the game world.
+  - name: receiver
+    description: Pointer to the Player object representing the receiver of the crafting
+      order. Can be null if no specific receiver is assigned, or must point to a valid
+      player object if assigned.
+  returns: null
+  examples:
+  - title: Basic usage for sending crafting order creation packet
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // Valid player pointer
+
+      Player* receiver = ...; // Valid player pointer
+
+      CraftingOrder order;
+
+      order.WriteCreate(data, owner, receiver);
+
+      // Send data to client via WorldSession::SendPacket()
+
+      '
+    language: cpp
+  - title: Using WriteCreate in a crafting order creation handler
+    code: "void HandleCraftingOrderCreate(WorldSession* session, const CraftingOrder&\
+      \ order)\n{\n    ByteBuffer data;\n    Player* owner = session->GetPlayer();\n\
+      \    Player* receiver = nullptr; // No specific receiver\n    order.WriteCreate(data,\
+      \ owner, receiver);\n    session->SendPacket(&data);\n}"
+    language: cpp
+  notes: This method assumes that the CraftingOrder object has valid data and that
+    both owner and receiver player objects are properly initialized. The method does
+    not perform any validation on the input parameters beyond ensuring they are not
+    null (for owner). It is expected that the calling code ensures proper synchronization
+    if multiple threads access the same crafting order instance.
+  warnings: Ensure that the ByteBuffer passed in is cleared or reset before calling
+    this method to avoid data corruption. The method does not validate whether the
+    owner or receiver players are valid or online; it simply serializes pointers,
+    so calling code must ensure these remain valid during packet transmission.
+  related:
+  - CraftingOrder::ReadCreate
+  - CraftingOrder::WriteUpdate
+  - CraftingOrder::WriteDelete
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:46:51.567421'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

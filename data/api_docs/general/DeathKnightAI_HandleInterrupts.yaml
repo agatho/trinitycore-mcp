@@ -1,0 +1,61 @@
+api:
+  class: DeathKnightAI
+  method: HandleInterrupts
+  signature: bool DeathKnightAI::HandleInterrupts(Unit * target)
+documentation:
+  brief: Handles interrupting spell casts of target units for Death Knights
+  description: The HandleInterrupts method is responsible for managing spell interruption
+    mechanics specific to Death Knights within the TrinityCore AI framework. This
+    method evaluates whether a Death Knight should attempt to interrupt ongoing spell
+    casts from target units, typically used during combat scenarios where spell interruption
+    is beneficial. It checks various conditions such as spell type, target validity,
+    and cooldown states before deciding to perform an interrupt action. The method
+    returns true if an interrupt was successfully executed or deemed unnecessary,
+    and false if the interrupt failed or was not applicable.
+  parameters:
+  - name: target
+    description: Pointer to the Unit object representing the target whose spell cast
+      is being considered for interruption. Must be a valid unit pointer, typically
+      a player or creature in combat with the Death Knight.
+  returns: Returns true if the interrupt was successfully handled or if no interrupt
+    was required; returns false if the interrupt attempt failed or was not applicable
+    to the current situation.
+  examples:
+  - title: Basic usage in combat AI
+    code: "void DeathKnightAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    Unit* target = GetVictim();\n    if (target && target->IsNonMeleeSpellCast())\n\
+      \    {\n        if (!HandleInterrupts(target))\n        {\n            // Handle\
+      \ interrupt failure case\n        }\n    }\n}"
+    language: cpp
+  - title: Advanced usage with spell-specific interruption
+    code: "bool DeathKnightAI::HandleInterrupts(Unit* target)\n{\n    if (!target\
+      \ || !target->IsInCombat())\n        return true;\n\n    // Check for specific\
+      \ interruptible spells\n    if (target->GetCurrentSpell(CURRENT_CHANNELED_SPELL)\
+      \ && \n        target->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_spellInfo->HasAttribute(SPELL_ATTR0_CASTABLE_WHILE_MOVING))\n\
+      \    {\n        return true; // Do not interrupt channeled spells that are allowed\
+      \ to move\n    }\n\n    if (target->IsNonMeleeSpellCast() && target->GetTypeId()\
+      \ == TYPEID_PLAYER)\n    {\n        // Attempt to interrupt the spell cast\n\
+      \        return DoInterruptSpell(target);\n    }\n\n    return true; // No interruption\
+      \ needed or performed\n}"
+    language: cpp
+  notes: This method is typically called during AI update cycles in combat situations.
+    The Death Knight's ability to interrupt spells depends on their current spell
+    cooldowns, mana availability, and the specific mechanics of the target's spell
+    being interrupted. Implementation assumes that the Death Knight AI has proper
+    access to spell casting capabilities and that the target unit is valid for spell
+    interruption.
+  warnings: Ensure that the target parameter is always validated before calling this
+    method to avoid null pointer dereferences. The method may not handle all edge
+    cases of spell interruption, particularly with complex spell effects or custom
+    spell mechanics that deviate from standard WoW behavior.
+  related:
+  - DoInterruptSpell
+  - UpdateVictim
+  - IsNonMeleeSpellCast
+  - GetCurrentSpell
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T12:29:43.492358'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

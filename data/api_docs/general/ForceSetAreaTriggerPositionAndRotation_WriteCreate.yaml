@@ -1,0 +1,65 @@
+api:
+  class: ForceSetAreaTriggerPositionAndRotation
+  method: WriteCreate
+  signature: void ForceSetAreaTriggerPositionAndRotation::WriteCreate(ByteBuffer &
+    data, const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the area trigger's position and rotation data to a
+    network packet for client synchronization.
+  description: The WriteCreate method is responsible for serializing the current position
+    and rotation of an AreaTrigger object into a ByteBuffer, which is then sent to
+    a specific Player client. This ensures that the client accurately reflects the
+    visual and spatial properties of the area trigger in the game world. The method
+    takes into account the owner of the area trigger (typically an aura or spell effect)
+    and the receiving player, potentially applying different serialization logic based
+    on visibility or ownership rules. It is typically invoked during packet construction
+    for area trigger creation or update messages sent to players.
+  parameters:
+  - name: data
+    description: A reference to a ByteBuffer where the serialized area trigger data
+      will be written. This buffer is used to construct the network packet sent to
+      the client.
+  - name: owner
+    description: A pointer to the AreaTrigger object whose position and rotation are
+      being serialized. This represents the actual area trigger instance in the game
+      world.
+  - name: receiver
+    description: A pointer to the Player object who will receive this serialized data.
+      Used to determine visibility or ownership-specific serialization behavior.
+  returns: null
+  examples:
+  - title: Basic Usage in Packet Construction
+    code: 'ByteBuffer data;
+
+      AreaTrigger* trigger = ...; // Some area trigger instance
+
+      Player* player = ...; // Target player
+
+      trigger->WriteCreate(data, trigger, player);
+
+      // Send ''data'' to player via WorldPacket'
+    language: cpp
+  - title: Integration with AreaTrigger Update Logic
+    code: "void SendAreaTriggerUpdate(AreaTrigger* trigger, Player* player)\n{\n \
+      \   ByteBuffer data;\n    trigger->WriteCreate(data, trigger, player);\n   \
+      \ WorldPacket packet(SMSG_UPDATE_OBJECT, data.size());\n    packet << data;\n\
+      \    player->SendDirectMessage(&packet);\n}"
+    language: cpp
+  notes: This method is part of the serialization system for area triggers in TrinityCore.
+    It's crucial for maintaining synchronization between server-side area trigger
+    states and client-side rendering. The method may be called multiple times per
+    tick depending on update frequency, so performance considerations should be taken
+    into account when extending or modifying its behavior.
+  warnings: Ensure that the provided AreaTrigger pointer is valid and not null before
+    calling this method. Incorrectly handling ownership or visibility logic could
+    lead to incorrect client-side rendering or synchronization issues with area triggers.
+  related:
+  - AreaTrigger::WriteUpdate
+  - AreaTrigger::BuildCreatePacket
+  - AreaTrigger::GetOwner
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T04:35:22.684165'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

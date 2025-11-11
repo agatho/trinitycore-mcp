@@ -1,0 +1,72 @@
+api:
+  class: WeeklySpellUse
+  method: WriteUpdate
+  signature: void WeeklySpellUse::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Serializes weekly spell use data into a ByteBuffer for network transmission
+    to a player.
+  description: The WriteUpdate method serializes the current state of weekly spell
+    usage data into a provided ByteBuffer. This method is typically used when sending
+    updates about weekly spell restrictions or cooldowns to players over the network.
+    It handles the encoding of spell use counts, timestamps, and other relevant data
+    fields that track how often specific spells have been used within the weekly reset
+    period. The method respects the ignoreChangesMask parameter to determine whether
+    to include all fields or only those that have changed since the last update. This
+    functionality is crucial for maintaining synchronization between server-side spell
+    usage tracking and client-side UI displays.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized weekly spell use data
+      will be written. This buffer is typically used for constructing network packets
+      sent to players.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all fields are serialized regardless of their change status; when
+      false, only changed fields are included in the update.
+  - name: owner
+    description: Pointer to the Player object that owns this weekly spell use data.
+      Used to determine which player's spell usage records should be serialized.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. May be
+      used to apply different serialization rules based on the receiver's permissions
+      or relationship to the owner.
+  returns: null
+  examples:
+  - title: Basic usage for sending weekly spell update
+    code: 'ByteBuffer data;
+
+      WeeklySpellUse weeklySpell;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = session->GetPlayer();
+
+      weeklySpell.WriteUpdate(data, false, owner, receiver);
+
+      // Send data to client via packet
+
+      WorldPacket packet(SMSG_WEEKLY_SPELL_USE_UPDATE, data.size());
+
+      packet.append(data);
+
+      session->SendPacket(&packet);'
+    language: cpp
+  notes: This method is part of the TrinityCore's spell tracking system and is typically
+    called during player update cycles or when specific spell usage events occur.
+    The implementation likely uses bitmasks to track which fields have changed, optimizing
+    network traffic by only sending modified data.
+  warnings: Ensure that both owner and receiver parameters are valid Player pointers
+    before calling this method to prevent segmentation faults. The ByteBuffer should
+    be properly initialized before passing it to this method.
+  related:
+  - WeeklySpellUse::ReadUpdate
+  - WeeklySpellUse::Reset
+  - WeeklySpellUse::GetSpellCount
+  - WeeklySpellUse::SetSpellCount
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T16:54:24.349752'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

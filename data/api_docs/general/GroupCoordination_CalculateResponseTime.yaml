@@ -1,0 +1,57 @@
+api:
+  class: GroupCoordination
+  method: CalculateResponseTime
+  signature: float GroupCoordination::CalculateResponseTime(uint32 commandTime)
+documentation:
+  brief: Calculates the response time for a group coordination command based on the
+    provided command timestamp.
+  description: The CalculateResponseTime method computes the elapsed time in seconds
+    between the current moment and a specified command timestamp. This is used within
+    the GroupCoordination system to measure how long it takes for group members to
+    respond to coordination commands such as movement requests or actions. The method
+    relies on internal timing mechanisms to determine the difference between the current
+    game time and the provided commandTime parameter. It's typically invoked when
+    evaluating the performance of group coordination features or determining if a
+    response has timed out.
+  parameters:
+  - name: commandTime
+    description: The timestamp (in milliseconds since epoch) when the coordination
+      command was issued. This value is usually obtained from the game's internal
+      time system and represents the start time of the command.
+  returns: A float value representing the elapsed time in seconds between the current
+    time and the provided commandTime. Returns a negative value if the commandTime
+    is in the future, or zero if the commandTime equals the current time.
+  examples:
+  - title: Basic Usage
+    code: 'uint32 commandTimestamp = WorldTimer::getMSTime();
+
+      float responseTime = groupCoordination->CalculateResponseTime(commandTimestamp);
+
+      // responseTime will be close to 0.0f if called immediately after setting the
+      timestamp'
+    language: cpp
+  - title: Checking Response Timeout
+    code: "uint32 commandTimestamp = WorldTimer::getMSTime();\n// ... some time passes\
+      \ ...\nfloat responseTime = groupCoordination->CalculateResponseTime(commandTimestamp);\n\
+      if (responseTime > 10.0f) {\n    // Handle timeout - no response within 10 seconds\n\
+      }"
+    language: cpp
+  notes: This method depends on the WorldTimer::getMSTime() function for accurate
+    timing. The internal implementation likely uses a high-resolution timer to ensure
+    precision in measuring short time intervals. It's important to note that commandTime
+    should be obtained from the same time source used by the game engine to avoid
+    discrepancies.
+  warnings: Ensure that commandTime is always a valid timestamp from the game's time
+    system; otherwise, unexpected negative values or large positive values may result.
+    This method does not perform any validation on the input parameter and assumes
+    it represents a valid point in time.
+  related:
+  - GetGroupCoordination
+  - SetCommandTime
+  - IsResponseTimeout
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:01:10.596267'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

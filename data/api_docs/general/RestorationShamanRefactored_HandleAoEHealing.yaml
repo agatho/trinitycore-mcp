@@ -1,0 +1,55 @@
+api:
+  class: RestorationShamanRefactored
+  method: HandleAoEHealing
+  signature: bool RestorationShamanRefactored::HandleAoEHealing(const int & group)
+documentation:
+  brief: Performs area-of-effect healing for the restoration shaman's group members
+  description: The HandleAoEHealing method executes the core logic for applying area-of-effect
+    healing to nearby group members within the shaman's range. This method is typically
+    invoked during spell casting or ability usage to distribute healing effects across
+    multiple targets simultaneously. It evaluates the current group composition, checks
+    for valid healing targets, and applies appropriate healing amounts based on the
+    shaman's spell power and any relevant buffs or debuffs. The method ensures that
+    only group members within the specified range receive the healing effect, maintaining
+    proper targeting mechanics and avoiding over-healing of already full health targets.
+  parameters:
+  - name: group
+    description: The group identifier specifying which group members should receive
+      the AOE healing effect. This parameter determines the scope of the healing application
+      and typically corresponds to the player's current group or raid instance.
+  returns: Returns true if the AOE healing was successfully applied to at least one
+    target, false otherwise. The method returns false when no valid targets are found
+    within range or when all targets are already at full health.
+  examples:
+  - title: Basic AOE Healing Usage
+    code: "if (shaman->HandleAoEHealing(player->GetGroup()->GetId())) {\n    // Healing\
+      \ applied successfully\n    SendChatMessage(\"Healing applied to group members!\"\
+      );\n} else {\n    // No targets found or healing failed\n    SendChatMessage(\"\
+      No valid targets for healing.\");\n}"
+    language: cpp
+  - title: AOE Healing with Error Handling
+    code: "uint32 groupId = player->GetGroup() ? player->GetGroup()->GetId() : 0;\n\
+      if (groupId > 0) {\n    bool success = shaman->HandleAoEHealing(groupId);\n\
+      \    if (!success) {\n        // Log healing failure\n        sLog->outError(\"\
+      AOE Healing failed for group %u\", groupId);\n    }\n} else {\n    sLog->outError(\"\
+      Player not in a valid group\");\n}"
+    language: cpp
+  notes: This method relies on the shaman's current group membership and healing spell
+    configuration. The healing amount is calculated based on the shaman's spell power,
+    target health percentages, and any active healing modifiers. Performance considerations
+    include checking all group members within range for valid targets, so large groups
+    may impact execution time during high-frequency healing events.
+  warnings: Ensure that the group parameter corresponds to a valid group instance
+    before calling this method, as invalid group IDs can lead to undefined behavior
+    or crashes. The method does not validate whether the player is in combat or has
+    sufficient mana; these checks should be performed externally.
+  related:
+  - GetGroupMembers
+  - CalculateHealingAmount
+  - ValidateTargetHealth
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T11:19:59.740887'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

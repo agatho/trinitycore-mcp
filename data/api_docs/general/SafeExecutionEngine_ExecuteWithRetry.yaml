@@ -1,0 +1,67 @@
+api:
+  class: SafeExecutionEngine
+  method: ExecuteWithRetry
+  signature: int SafeExecutionEngine::ExecuteWithRetry(int * stmt, uint32 maxRetries,
+    uint32 retryDelayMs)
+documentation:
+  brief: Executes a database statement with automatic retry logic on failure.
+  description: The ExecuteWithRetry method attempts to execute a given database statement
+    with configurable retry behavior. It is designed to handle transient database
+    failures by automatically reattempting the operation up to a specified number
+    of times with a delay between retries. This method is particularly useful in World
+    of Warcraft server environments where database connectivity may be intermittent
+    or when dealing with concurrent access scenarios that could cause temporary lock
+    contention. The method returns an integer indicating success or failure status,
+    allowing callers to determine if the operation ultimately succeeded or failed
+    after all retry attempts.
+  parameters:
+  - name: stmt
+    description: Pointer to the database statement to be executed. This parameter
+      should point to a valid prepared statement object that has been initialized
+      and configured for execution.
+  - name: maxRetries
+    description: Maximum number of retry attempts to make if the initial execution
+      fails. Must be a non-negative integer value. A value of 0 means no retries will
+      occur.
+  - name: retryDelayMs
+    description: Delay in milliseconds between each retry attempt. This value determines
+      how long to wait before attempting another execution after a failure. Should
+      be a positive integer representing the delay duration.
+  returns: Returns 0 on successful execution of the statement, or a non-zero error
+    code indicating the type of failure that occurred. The exact meaning of error
+    codes depends on the underlying database implementation and may include connection
+    errors, timeout conditions, or other transient failures.
+  examples:
+  - title: Basic usage with retry logic
+    code: "int result = engine.ExecuteWithRetry(&stmt, 3, 1000);\nif (result == 0)\
+      \ {\n    // Statement executed successfully\n    printf(\"Query completed successfully\\\
+      n\");\n} else {\n    // All retry attempts failed\n    printf(\"Query failed\
+      \ after all retries\\n\");\n}"
+    language: cpp
+  - title: Using with database transaction
+    code: "PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(QUERY_UPDATE_PLAYER_GOLD);\n\
+      stmt->setUInt32(0, newGold);\nstmt->setUInt64(1, playerGuid);\n\nint result\
+      \ = engine.ExecuteWithRetry(&stmt, 5, 500);\nif (result == 0) {\n    // Transaction\
+      \ completed successfully\n    WorldDatabase.CommitTransaction();\n} else {\n\
+      \    // Handle failure case\n    WorldDatabase.RollbackTransaction();\n}"
+    language: cpp
+  notes: This method is thread-safe when used with properly isolated database statement
+    objects. The retry mechanism helps mitigate temporary database issues such as
+    connection timeouts or lock waits, but excessive retries may impact performance.
+    The delay between retries should be carefully chosen to balance between responsiveness
+    and avoiding overwhelming the database server.
+  warnings: Be cautious when using high retry counts with short delays as this can
+    lead to resource exhaustion or increased load on the database server. Ensure that
+    the statement being executed is properly prepared and valid before calling this
+    method. This method does not handle transaction rollbacks automatically - callers
+    must manage transaction state appropriately.
+  related:
+  - Execute
+  - ExecuteWithRetryAsync
+  - GetLastError
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T22:08:11.377080'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

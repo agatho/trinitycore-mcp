@@ -1,0 +1,53 @@
+api:
+  class: InteractionManager
+  method: GetTrainingCost
+  signature: uint32 InteractionManager::GetTrainingCost(Player * bot, Creature * trainer)
+    const
+documentation:
+  brief: Calculates the training cost for a bot to learn skills from a trainer creature.
+  description: The GetTrainingCost method computes the gold cost required for a player
+    bot to train skills at a given creature trainer. This function typically evaluates
+    the bot's current skill levels, the trainer's available skills, and any applicable
+    discounts or modifiers based on the bot's reputation, faction, or other factors.
+    It is used internally by the interaction manager to determine whether a bot can
+    afford training and to update the UI with cost information before initiating the
+    training process.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that wishes to
+      train skills.
+  - name: trainer
+    description: Pointer to the Creature object acting as the trainer, which must
+      be a valid trainer NPC with trainable skills.
+  returns: Returns a uint32 value representing the total gold cost required for the
+    bot to train all available skills at the specified trainer. A return value of
+    0 indicates no training is needed or that the cost cannot be calculated.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 cost = interactionManager.GetTrainingCost(botPlayer, npcTrainer);\n\
+      if (cost > 0)\n{\n    // Bot can afford training\n    botPlayer->ModifyMoney(-static_cast<int32>(cost));\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Skill Validation
+    code: "uint32 cost = interactionManager.GetTrainingCost(botPlayer, npcTrainer);\n\
+      if (cost > 0 && botPlayer->GetMoney() >= cost)\n{\n    // Proceed with training\
+      \ logic\n    botPlayer->TrainSkills(npcTrainer);\n}\nelse if (cost == 0)\n{\n\
+      \    // No skills to train or already maxed out\n    sLog->outString(\"No training\
+      \ required for this bot.\");\n}"
+    language: cpp
+  notes: This method may internally query the database or cached skill data structures
+    to compute costs. It should be called before attempting to perform actual training
+    to avoid unnecessary operations and potential error states.
+  warnings: Ensure that both the bot and trainer parameters are valid pointers; passing
+    null values will likely result in undefined behavior or crashes. Also, this method
+    does not account for temporary discounts or quest-based reductions in cost.
+  related:
+  - TrainSkills
+  - CanTrainSkill
+  - GetTrainerSpellList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T13:26:40.051238'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

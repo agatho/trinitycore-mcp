@@ -1,0 +1,52 @@
+api:
+  class: RestorationDruidRefactored
+  method: GetGroupMemberNeedingHealing
+  signature: int * RestorationDruidRefactored::GetGroupMemberNeedingHealing(const
+    int & group, float healthThreshold) const
+documentation:
+  brief: Returns a pointer to the GUID of the group member needing the most healing
+    based on specified health threshold.
+  description: This method identifies and returns the unique identifier (GUID) of
+    the group member who requires the most urgent healing within the specified health
+    threshold. It is designed for use in Restoration Druid AI logic to determine which
+    player should receive healing priority during combat situations. The method evaluates
+    all group members and selects the one with the lowest health percentage that falls
+    below the provided threshold. If no group members meet the criteria, it returns
+    a null pointer or invalid GUID. This functionality supports efficient resource
+    allocation and optimal healing prioritization in group scenarios.
+  parameters:
+  - name: group
+    description: The group identifier (typically player's group ID) to evaluate for
+      healing needs.
+  - name: healthThreshold
+    description: The minimum health percentage threshold below which a player is considered
+      in need of healing. Values range from 0.0 (0%) to 1.0 (100%).
+  returns: A pointer to an integer representing the GUID of the group member needing
+    healing, or nullptr if no suitable target exists.
+  examples:
+  - title: Basic usage in a healing routine
+    code: "int* targetGuid = druid.GetGroupMemberNeedingHealing(1, 0.7f);\nif (targetGuid\
+      \ != nullptr) {\n    // Proceed with healing logic using *targetGuid\n}"
+    language: cpp
+  - title: Using the returned GUID to cast a spell
+    code: "int* targetGuid = druid.GetGroupMemberNeedingHealing(5, 0.5f);\nif (targetGuid\
+      \ != nullptr && *targetGuid > 0) {\n    // Cast healing spell on the identified\
+      \ target\n    druid.CastSpellOnTarget(SPELL_REGROWTH, *targetGuid);\n}"
+    language: cpp
+  notes: The method assumes group membership is managed externally and that health
+    values are normalized between 0.0 and 1.0. Performance may be impacted when evaluating
+    large groups or during high-frequency calls. The returned pointer must not be
+    freed or modified directly as it points to internal data structures.
+  warnings: Ensure the group ID passed is valid and corresponds to an active group;
+    otherwise, behavior is undefined. Passing a healthThreshold above 1.0 may result
+    in no targets being found even if players are critically low on health.
+  related:
+  - GetGroupMembers
+  - IsPlayerInNeedOfHealing
+  - GetNearbyFriendlyUnits
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T08:04:19.487323'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,78 @@
+api:
+  class: BitVector
+  method: WriteUpdate
+  signature: void BitVector::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes bit vector update data to a ByteBuffer for transmission to a player
+    client.
+  description: The WriteUpdate method serializes the state of a BitVector object into
+    a ByteBuffer, which is typically used in World of Warcraft's packet system to
+    transmit changes in object states (such as unit flags, dynamic flags, or other
+    boolean-based properties) from the server to a specific player client. This method
+    respects the ignoreChangesMask flag and considers ownership relationships between
+    objects and receivers, ensuring that only relevant updates are sent. It is commonly
+    used during player movement, unit updates, or object state synchronization within
+    TrinityCore's networking layer.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized bit vector update
+      data will be written.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the internal changes mask.
+      If true, all bits are written regardless of change status; if false, only changed
+      bits are included in the output.
+  - name: owner
+    description: Pointer to the Player object that owns the BitVector. Used for determining
+      ownership-based visibility or access control during serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine if certain bits should be masked or filtered based on player-specific
+      conditions.
+  returns: null
+  examples:
+  - title: Basic usage in a packet handler
+    code: 'ByteBuffer data;
+
+      BitVector bitVec;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      bitVec.WriteUpdate(data, false, owner, receiver);
+
+      // Send ''data'' to receiver via network'
+    language: cpp
+  - title: Using ignoreChangesMask for full update
+    code: 'ByteBuffer data;
+
+      BitVector bitVec;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      bitVec.WriteUpdate(data, true, owner, receiver);
+
+      // Forces all bits to be written, ignoring change tracking'
+    language: cpp
+  notes: This method is part of the core update system in TrinityCore. It integrates
+    with the server's object update framework and must be called correctly to ensure
+    proper synchronization between server state and client views. The implementation
+    may involve internal caching or optimization strategies for performance.
+  warnings: Incorrect usage of the ignoreChangesMask flag can lead to unnecessary
+    bandwidth consumption or incorrect client behavior. Always verify that owner and
+    receiver parameters are valid pointers before calling this method, as null references
+    could cause crashes or undefined behavior.
+  related:
+  - BitVector::ReadUpdate
+  - BitVector::SetBit
+  - BitVector::ClearBit
+  - BitVector::GetBit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T08:37:04.743384'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

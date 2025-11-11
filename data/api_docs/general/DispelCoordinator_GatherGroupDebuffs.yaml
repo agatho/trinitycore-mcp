@@ -1,0 +1,51 @@
+api:
+  class: DispelCoordinator
+  method: GatherGroupDebuffs
+  signature: int DispelCoordinator::GatherGroupDebuffs() const
+documentation:
+  brief: Collects and counts all debuffs affecting group members within the coordinator's
+    scope
+  description: The GatherGroupDebuffs method iterates through all group members managed
+    by this DispelCoordinator instance and enumerates their active debuff effects.
+    It aggregates information about these debuffs, including their types, durations,
+    and intensities, returning a total count of all debuffs found across the group.
+    This method is typically used during dispel operations to determine the scope
+    and severity of magical effects that need to be removed or mitigated. The method
+    does not modify any debuff states but rather provides a snapshot of current group
+    debuff conditions for subsequent processing.
+  parameters: []
+  returns: An integer representing the total number of debuffs found across all group
+    members. Returns zero if no debuffs are present or if the coordinator has no active
+    group members. Negative values may indicate error conditions or invalid internal
+    state.
+  examples:
+  - title: Basic Usage in Dispel Logic
+    code: "DispelCoordinator coordinator;\nint debuffCount = coordinator.GatherGroupDebuffs();\n\
+      if (debuffCount > 0) {\n    // Proceed with dispel operations\n    LOG_DEBUG(\"\
+      dispel\", \"Found {} debuffs to process\", debuffCount);\n}"
+    language: cpp
+  - title: Using Debuff Count for Priority Decision
+    code: "DispelCoordinator coordinator;\nint totalDebuffs = coordinator.GatherGroupDebuffs();\n\
+      if (totalDebuffs >= 5) {\n    // Prioritize dispel actions for high-debuff groups\n\
+      \    coordinator.ExecutePriorityDispel();\n} else if (totalDebuffs > 0) {\n\
+      \    // Standard dispel routine\n    coordinator.ExecuteStandardDispel();\n}"
+    language: cpp
+  notes: This method performs a read-only scan of group member debuffs and should
+    not be called excessively during high-frequency operations. The method relies
+    on the internal state of the DispelCoordinator's managed group, so it will return
+    inaccurate results if the group composition changes between calls without proper
+    synchronization.
+  warnings: Calling this method on a coordinator with an invalid or uninitialised
+    group may result in undefined behavior or segmentation faults. Ensure that the
+    DispelCoordinator has been properly initialised with a valid group before invoking
+    this method.
+  related:
+  - DispelCoordinator::GetGroupMembers
+  - DispelCoordinator::HasDebuffs
+  - DispelCoordinator::ClearDebuffs
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T06:10:58.758541'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

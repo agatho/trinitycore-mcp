@@ -1,0 +1,54 @@
+api:
+  class: DestructionImmolateTracker
+  method: GetTimeRemaining
+  signature: uint32 DestructionImmolateTracker::GetTimeRemaining(int guid) const
+documentation:
+  brief: Retrieves the remaining time in milliseconds for an immolate effect on a
+    target with the specified GUID.
+  description: The GetTimeRemaining method is used to determine how much time is left
+    before an Immolate spell effect expires on a specific target. This method is typically
+    part of the DestructionImmolateTracker class which manages tracking of immolate
+    effects applied by destruction warlocks. The method takes a GUID parameter that
+    identifies the target whose immolate timer is being queried. It returns the time
+    remaining in milliseconds, or zero if no immolate effect is active on the specified
+    target. This functionality is crucial for managing spell durations and ensuring
+    proper behavior during combat mechanics such as stacking effects, damage calculations,
+    and cooldown management.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target whose immolate effect
+      time remaining is being queried. This should be a valid object GUID corresponding
+      to a creature or player in the game world.
+  returns: Returns a uint32 value representing the time remaining in milliseconds
+    for the immolate effect on the specified target. Returns 0 if no immolate effect
+    is active on the target or if the target does not exist.
+  examples:
+  - title: Basic usage to check immolate duration
+    code: "uint32 remainingTime = tracker->GetTimeRemaining(playerGuid);\nif (remainingTime\
+      \ > 0)\n{\n    // Immolate is still active, display time remaining\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      Immolate has %u ms remaining.\", remainingTime);\n}"
+    language: cpp
+  - title: Using time remaining to determine effect status
+    code: "uint32 timeLeft = tracker->GetTimeRemaining(targetGuid);\nif (timeLeft\
+      \ == 0)\n{\n    // Immolate has expired, can now apply new effect\n    DoImmolateEffect(target);\n\
+      }\nelse if (timeLeft < 5000)\n{\n    // Less than 5 seconds remaining, consider\
+      \ refreshing\n    RefreshImmolate(target);\n}"
+    language: cpp
+  notes: This method assumes that the DestructionImmolateTracker has been properly
+    initialized and maintains a mapping of active immolate effects. The GUID parameter
+    should correspond to an existing object in the world; otherwise, the method will
+    return 0. Performance is generally O(1) assuming proper data structure implementation
+    (e.g., hash map or similar).
+  warnings: Ensure that the GUID passed to this method corresponds to a valid target
+    in the current game context. Passing invalid or non-existent GUIDs may lead to
+    unexpected behavior or incorrect time calculations.
+  related:
+  - SetTimeRemaining
+  - IsImmolateActive
+  - GetImmolateDuration
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T18:34:56.273261'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

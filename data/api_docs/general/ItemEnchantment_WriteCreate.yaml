@@ -1,0 +1,66 @@
+api:
+  class: ItemEnchantment
+  method: WriteCreate
+  signature: void ItemEnchantment::WriteCreate(ByteBuffer & data, const Item * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes enchantment data for packet creation when an item is added to
+    a player's inventory.
+  description: The WriteCreate method prepares and writes the necessary data for an
+    ItemEnchantment object into a ByteBuffer, typically used when sending item information
+    to a client. This method is responsible for encoding the enchantment properties
+    such as enchantment ID, duration, charges, and other relevant attributes. It takes
+    into account both the owner of the item and the receiver (player) to ensure proper
+    serialization based on visibility rules and permissions. The data written by this
+    method is usually part of a larger packet that informs the client about an item's
+    state in their inventory or on the auction house.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized enchantment data will
+      be written. This buffer is typically used to construct network packets sent
+      to players.
+  - name: owner
+    description: Pointer to the Item object that owns this enchantment. Used to retrieve
+      item-specific properties and context for serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive the serialized data. This
+      parameter may be used to determine visibility or permission-based serialization
+      rules.
+  returns: null
+  examples:
+  - title: Basic usage in item creation packet
+    code: 'ByteBuffer data;
+
+      Item* item = ...; // some item with enchantments
+
+      Player* player = ...; // the receiver
+
+      enchantment->WriteCreate(data, item, player);
+
+      // Send data to player''s client'
+    language: cpp
+  - title: Writing multiple enchantments for an item
+    code: "ByteBuffer data;\nItem* item = ...;\nPlayer* player = ...;\nfor (auto&\
+      \ ench : item->GetEnchantments()) {\n    ench.WriteCreate(data, item, player);\n\
+      }\n// Construct full packet with all enchantments"
+    language: cpp
+  notes: This method is typically called during packet construction for item-related
+    updates. It's important to ensure that the ByteBuffer is properly initialized
+    and that the owner and receiver parameters are valid pointers to avoid undefined
+    behavior. The serialization logic may vary depending on the type of enchantment
+    and the client version being targeted.
+  warnings: Ensure that both owner and receiver parameters are non-null before calling
+    this method, as dereferencing null pointers will lead to crashes. This method
+    should only be used when constructing packets for network transmission; direct
+    use in game logic without proper packet handling may cause issues.
+  related:
+  - ItemEnchantment::WriteUpdate
+  - ItemEnchantment::GetId
+  - ItemEnchantment::GetDuration
+  - ItemEnchantment::GetCharges
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:00:15.369203'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

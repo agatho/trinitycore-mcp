@@ -1,0 +1,60 @@
+api:
+  class: BotNpcLocationService
+  method: IsTrainerForSkill
+  signature: bool BotNpcLocationService::IsTrainerForSkill(uint32 creatureEntry, uint32
+    skillId)
+documentation:
+  brief: Determines whether a creature entry is a trainer for the specified skill.
+  description: The IsTrainerForSkill method checks if a given NPC creature entry is
+    configured as a trainer for a specific skill in the TrinityCore database. This
+    method is typically used by bot AI systems to identify valid trainers for skill
+    learning. It queries internal data structures or database tables that define which
+    NPCs can train which skills, ensuring that bots do not attempt to train skills
+    from invalid trainers. The method returns true if the creature is a valid trainer
+    for the specified skill, and false otherwise. This functionality is essential
+    for proper bot behavior in World of Warcraft emulation environments where NPCs
+    have specific training capabilities.
+  parameters:
+  - name: creatureEntry
+    description: The unique identifier (entry ID) of the NPC creature to check. This
+      corresponds to the 'entry' field in the creature_template table in the TrinityCore
+      database.
+  - name: skillId
+    description: The skill ID to verify training capability for. This represents a
+      specific skill defined in the game's skill system, typically matching entries
+      in the skill_line or skill_line_ability tables.
+  returns: Returns true if the specified creature entry is a trainer for the given
+    skill ID; otherwise returns false. A return value of false may indicate that either
+    the creature does not exist, is not configured as a trainer, or lacks training
+    capability for the specified skill.
+  examples:
+  - title: Check if NPC is a trainer for Blacksmithing
+    code: "if (BotNpcLocationService::IsTrainerForSkill(12345, SKILL_BLACKSMITHING))\
+      \ {\n    // Proceed with bot training logic\n    printf(\"NPC 12345 can train\
+      \ Blacksmithing\\n\");\n}"
+    language: cpp
+  - title: Validate trainer before attempting to learn skill
+    code: "uint32 npcEntry = player->GetTarget()->GetEntry();\nuint32 skillId = SKILL_LEATHERWORKING;\n\
+      \nif (BotNpcLocationService::IsTrainerForSkill(npcEntry, skillId)) {\n    //\
+      \ Bot can attempt to learn the skill from this trainer\n    bot->LearnSkill(skillId);\n\
+      } else {\n    // Handle invalid trainer case\n    bot->Say(\"This NPC cannot\
+      \ train that skill.\");\n}"
+    language: cpp
+  notes: This method likely relies on cached or pre-loaded data from the database
+    to improve performance. It may internally query creature_template or npc_trainer
+    tables to determine trainer capabilities. The implementation should be thread-safe
+    if used in multi-threaded bot environments.
+  warnings: Ensure that both creatureEntry and skillId parameters are valid before
+    calling this method, as invalid IDs could cause undefined behavior or database
+    errors. This method is primarily intended for internal use by bot AI logic and
+    may not reflect real-time changes to trainer configurations without cache refreshes.
+  related:
+  - GetTrainerSkillList
+  - IsTrainerForSpell
+  - GetTrainerForSkill
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T10:11:40.070237'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

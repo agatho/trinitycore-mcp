@@ -1,0 +1,56 @@
+api:
+  class: ScaleCurve
+  method: WriteCreate
+  signature: void ScaleCurve::WriteCreate(ByteBuffer & data, const AreaTrigger * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes and writes scale curve data into a byte buffer for client synchronization.
+  description: The WriteCreate method serializes the scale curve's data into a ByteBuffer,
+    which is then sent to a specific player's client as part of an AreaTrigger update.
+    This method ensures that the client receives all necessary information about the
+    scale curve associated with an area trigger, allowing proper visual and functional
+    behavior in-game. The serialization includes relevant properties such as curve
+    type, control points, and timing parameters needed for interpolation. It is typically
+    invoked during the initialization or update of area triggers to synchronize state
+    between server and client.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized scale curve data will
+      be written.
+  - name: owner
+    description: Pointer to the AreaTrigger object that owns this scale curve. Used
+      to determine relevant properties and context for serialization.
+  - name: receiver
+    description: Pointer to the Player object who will receive this serialized data.
+      May be used to apply player-specific adjustments or filters during serialization.
+  returns: null
+  examples:
+  - title: Basic Usage in AreaTrigger Update
+    code: "void MyAreaTrigger::UpdatePlayerVision(Player* player)\n{\n    ByteBuffer\
+      \ data;\n    scaleCurve.WriteCreate(data, this, player);\n    player->SendDirectMessage(&data);\n\
+      }"
+    language: cpp
+  - title: Sending Scale Curve Data to Multiple Players
+    code: "void AreaTriggerManager::BroadcastScaleCurveUpdate(AreaTrigger* trigger)\n\
+      {\n    for (auto& pair : GetPlayersInRange(trigger))\n    {\n        ByteBuffer\
+      \ data;\n        trigger->GetScaleCurve()->WriteCreate(data, trigger, pair.second);\n\
+      \        pair.second->SendDirectMessage(&data);\n    }\n}"
+    language: cpp
+  notes: This method assumes that the provided AreaTrigger and Player pointers are
+    valid and not null. It is designed to be thread-safe in terms of data access but
+    may require synchronization if underlying data structures are modified concurrently.
+    The ByteBuffer must have sufficient capacity or be properly resized before calling
+    this method.
+  warnings: Do not call this method with invalid or dangling pointers as it will likely
+    result in undefined behavior. Ensure the AreaTrigger and Player objects remain
+    valid throughout the duration of the method execution.
+  related:
+  - ScaleCurve::ReadCreate
+  - ScaleCurve::GetCurveType
+  - ScaleCurve::GetControlPoints
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:08:16.826868'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

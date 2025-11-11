@@ -1,0 +1,42 @@
+api:
+  class: BossAI
+  method: _JustDied
+  signature: void BossAI::_JustDied()
+documentation:
+  brief: Handles the death event of a boss creature in the game world
+  description: The _JustDied method is a virtual callback function invoked when a
+    BossAI-controlled creature dies. This method serves as the primary hook for implementing
+    boss-specific death behaviors, such as spawning loot, triggering quest events,
+    or initiating post-combat sequences. It is automatically called by the TrinityCore
+    AI system upon creature death and should be overridden in derived boss classes
+    to define custom death logic. The method executes within the context of the creature's
+    AI thread and typically runs after all standard death processing has completed.
+  parameters: []
+  returns: null
+  examples:
+  - title: Basic Boss Death Implementation
+    code: "class BossGargamel : public BossAI\n{\npublic:\n    BossGargamel(Creature*\
+      \ creature) : BossAI(creature) {}\n\n    void JustDied() override\n    {\n \
+      \       // Spawn loot\n        me->SummonGameObject(GO_GARGAMEL_CHEST, 100.0f,\
+      \ 100.0f, 100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1);\n        \n        // Send\
+      \ message to players\n        Talk(SAY_DEATH);\n        \n        // Complete\
+      \ quest if needed\n        if (instance)\n            instance->SetData(DATA_BOSS_GARGAMEL_DEFEATED,\
+      \ 1);\n    }\n};"
+    language: cpp
+  notes: This method is called after the creature's health reaches zero and all death-related
+    AI processing has finished. It should not be used to perform actions that require
+    immediate execution before the creature despawns. The method runs in the same
+    thread as the AI system, so long-running operations may block other AI updates.
+  warnings: Do not call the base class _JustDied() implementation unless explicitly
+    required, as this can lead to unexpected behavior. Avoid performing database operations
+    or complex calculations within this method to prevent performance issues.
+  related:
+  - JustEnteredCombat
+  - JustReachedHome
+  - UpdateAI
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T15:40:32.520831'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

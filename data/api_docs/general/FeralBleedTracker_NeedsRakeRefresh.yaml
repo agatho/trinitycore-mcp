@@ -1,0 +1,54 @@
+api:
+  class: FeralBleedTracker
+  method: NeedsRakeRefresh
+  signature: bool FeralBleedTracker::NeedsRakeRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether a Rake ability refresh is needed for a given target based
+    on pandemic window logic.
+  description: The NeedsRakeRefresh method evaluates if a Feral Druid's Rake ability
+    should be refreshed on a target, considering the pandemic window mechanic. This
+    mechanism prevents overlapping DoT applications from resetting the duration of
+    existing effects. The method checks if the current Rake application is within
+    its pandemic window and returns true if a new application would extend or replace
+    the existing one. It is used primarily in combat simulation and rotation optimization
+    logic for Feral Druids.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit for which the Rake
+      refresh check is performed.
+  - name: pandemicWindow
+    description: The time window in milliseconds during which a new Rake application
+      can extend an existing one. Typically represents 40% of the base Rake duration
+      (e.g., 4800ms for 12-second Rake).
+  returns: Returns true if a new Rake application is needed to refresh or extend the
+    existing effect within the pandemic window; otherwise returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (feralBleedTracker.NeedsRakeRefresh(targetGuid, 4800)) {\n    // Apply\
+      \ Rake to target\n}"
+    language: cpp
+  - title: Integration with Combat Logic
+    code: "uint32 rakeDuration = 12000; // 12 seconds\nuint32 pandemicWindow = rakeDuration\
+      \ * 0.4f; // 4800ms\nif (feralBleedTracker.NeedsRakeRefresh(targetGuid, pandemicWindow))\
+      \ {\n    // Execute Rake ability\n    // Update combat log or rotation state\n\
+      }"
+    language: cpp
+  notes: This method assumes that the FeralBleedTracker maintains internal tracking
+    of active Rake applications per target. The pandemic window logic is crucial for
+    accurate simulation of Feral Druid gameplay mechanics, particularly in high-damage
+    scenarios where DoT management becomes critical.
+  warnings: Ensure that the GUID parameter correctly identifies a valid target unit;
+    invalid or stale GUIDs may lead to incorrect refresh decisions. The pandemicWindow
+    value must accurately reflect the game's current Rake duration and mechanics for
+    correct behavior.
+  related:
+  - GetRakeDuration
+  - IsRakeActive
+  - UpdateRakeApplication
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T02:09:22.601957'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

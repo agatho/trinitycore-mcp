@@ -1,0 +1,53 @@
+api:
+  class: EconomyManager
+  method: GetRecommendedSellPrice
+  signature: uint32 EconomyManager::GetRecommendedSellPrice(uint32 itemId) const
+documentation:
+  brief: Calculates and returns the recommended sell price for a specified item based
+    on its market value and game economy mechanics.
+  description: The GetRecommendedSellPrice method determines the appropriate sell
+    price for a given item ID by analyzing various in-game economic factors such as
+    item rarity, market demand, and vendor pricing strategies. This method is typically
+    used by NPCs or auction systems to dynamically set sell prices that reflect current
+    game conditions. The returned value represents the base gold amount that players
+    should receive when selling an item under normal circumstances. The method does
+    not modify any internal state and is purely informational, making it safe for
+    repeated calls without side effects.
+  parameters: []
+  returns: Returns a uint32 value representing the recommended sell price in copper
+    coins (100 copper = 1 silver, 100 silver = 1 gold). If the item ID is invalid
+    or not found in the economy database, it returns 0, indicating no valid pricing
+    information exists for that item.
+  examples:
+  - title: Basic Usage
+    code: "uint32 sellPrice = economyManager->GetRecommendedSellPrice(18739);\nif\
+      \ (sellPrice > 0)\n{\n    printf(\"Recommended sell price: %u copper\\n\", sellPrice);\n\
+      }"
+    language: cpp
+  - title: Integration with Item Selling Logic
+    code: "void Player::SellItem(Item* item)\n{\n    uint32 recommendedPrice = economyManager->GetRecommendedSellPrice(item->GetEntry());\n\
+      \    if (recommendedPrice > 0)\n    {\n        // Process sale at recommended\
+      \ price\n        AddMoney(recommendedPrice);\n        item->RemoveFromInventory();\n\
+      \    }\n    else\n    {\n        // Handle invalid item case\n        SendSellError(SELL_ERROR_NOT_ALLOWED);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on the economy database configuration and may return different
+    values depending on server settings, expansion content, or custom modifications.
+    The returned price is calculated using internal algorithms that consider item
+    level, quality, and market trends rather than fixed static values. For performance
+    reasons, it's recommended to cache results when frequently querying prices for
+    the same items.
+  warnings: Do not assume all returned values are valid for immediate use in transactions
+    without checking for zero or negative values. Some items might legitimately return
+    0 if they're not meant to be sold or if their pricing data is missing from the
+    economy system.
+  related:
+  - GetRecommendedBuyPrice
+  - GetItemMarketValue
+  - UpdateEconomyData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T14:24:34.738610'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

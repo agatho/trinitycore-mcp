@@ -1,0 +1,54 @@
+api:
+  class: ShadowDoTTracker
+  method: Update
+  signature: void ShadowDoTTracker::Update(Player * bot)
+documentation:
+  brief: Updates the shadow dot tracker for the specified player, managing active
+    shadow damage over time effects.
+  description: The Update method in ShadowDoTTracker is responsible for processing
+    and maintaining the state of shadow damage over time (DoT) effects applied to
+    a player character. This method typically iterates through active shadow DoTs
+    on the target player, checking their duration, applying damage if necessary, and
+    removing expired effects from the tracker. It integrates with the TrinityCore
+    combat system to ensure accurate tracking of spell effects that deal damage over
+    time. The method is commonly called during the player's update cycle or when specific
+    conditions related to DoT management are met.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object for which shadow DoT effects need to
+      be updated and managed. This parameter must not be null and should represent
+      a valid player instance within the game world.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void ShadowBotAI::UpdateAI(uint32 diff)\n{\n    if (Player* bot = GetBot())\n\
+      \    {\n        shadowDotTracker.Update(bot);\n    }\n}"
+    language: cpp
+  - title: Manual DoT Management
+    code: "void ShadowDoTManager::ProcessShadowDoTs(Player* player)\n{\n    if (!player\
+      \ || !player->IsInWorld())\n        return;\n\n    shadowDotTracker.Update(player);\n\
+      }\n\n// Called periodically to maintain DoT effects\nvoid ShadowDoTManager::Update()\n\
+      {\n    for (auto& pair : GetActivePlayers())\n    {\n        shadowDotTracker.Update(pair.second);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the player object passed in has a valid spell aura
+    application state. The implementation likely interacts with TrinityCore's aura
+    system to track DoT durations and damage application. Performance considerations
+    include avoiding excessive iterations over large numbers of active DoTs, especially
+    for players with many concurrent effects.
+  warnings: Ensure that the Player pointer is valid and the player is in a valid game
+    state before calling this method. Passing an invalid or uninitialized player pointer
+    can lead to undefined behavior or crashes. The method may modify the player's
+    aura state directly, so it should not be called during critical sections where
+    aura modifications are being processed elsewhere.
+  related:
+  - ShadowDoTTracker::AddDot
+  - ShadowDoTTracker::RemoveDot
+  - ShadowDoTTracker::HasDot
+  - ShadowDoTTracker::GetActiveDots
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:04:37.029650'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

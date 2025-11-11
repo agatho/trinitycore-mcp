@@ -1,0 +1,57 @@
+api:
+  class: GuildIntegration
+  method: IsGoodTimeForEvent
+  signature: bool GuildIntegration::IsGoodTimeForEvent(uint32 proposedTime, const
+    int & memberIds)
+documentation:
+  brief: Determines if a proposed time is suitable for guild events based on member
+    availability.
+  description: The IsGoodTimeForEvent method evaluates whether a given time slot is
+    appropriate for scheduling a guild event by checking the availability of specified
+    guild members. It considers factors such as current in-game schedules, player
+    activity patterns, and potential conflicts with existing guild activities. This
+    method helps prevent scheduling overlaps and ensures optimal coordination among
+    guild members. The function typically returns true if the proposed time aligns
+    with member availability, and false otherwise.
+  parameters:
+  - name: proposedTime
+    description: The Unix timestamp representing the proposed time for the guild event.
+      Must be a valid future time value.
+  - name: memberIds
+    description: A reference to an integer containing the list of guild member IDs
+      to check for availability. This parameter may represent a bitmask or array of
+      player identifiers.
+  returns: Returns true if the proposed time is suitable for all specified guild members,
+    indicating no known conflicts or unavailability; returns false if any member is
+    unavailable or if scheduling conflicts exist.
+  examples:
+  - title: Basic Usage Example
+    code: "uint32 eventTime = time(nullptr) + 3600; // One hour from now\nint memberList[]\
+      \ = {1001, 1002, 1003};\nbool isAvailable = guildIntegration->IsGoodTimeForEvent(eventTime,\
+      \ memberList[0]);\nif (isAvailable)\n{\n    // Proceed with event scheduling\n\
+      }"
+    language: cpp
+  - title: Advanced Usage with Multiple Members
+    code: "uint32 eventTime = time(nullptr) + 7200; // Two hours from now\nint memberIds[]\
+      \ = {1001, 1002, 1003, 1004};\nint totalMembers = sizeof(memberIds) / sizeof(memberIds[0]);\n\
+      bool isGoodTime = true;\nfor (int i = 0; i < totalMembers; ++i)\n{\n    if (!guildIntegration->IsGoodTimeForEvent(eventTime,\
+      \ memberIds[i]))\n    {\n        isGoodTime = false;\n        break;\n    }\n\
+      }\nif (isGoodTime)\n{\n    // All members available, proceed with event creation\n\
+      }"
+    language: cpp
+  notes: This method likely performs internal checks against player online status,
+    guild activity logs, and calendar entries. It may cache results for performance
+    optimization to avoid repeated database queries during frequent scheduling operations.
+  warnings: Ensure that the proposedTime parameter is a valid future timestamp; passing
+    past times or invalid values may lead to incorrect scheduling decisions. The memberIds
+    parameter should contain valid player identifiers to prevent undefined behavior.
+  related:
+  - GetGuildMemberAvailability
+  - ScheduleGuildEvent
+  - CheckMemberConflict
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T13:50:49.598803'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

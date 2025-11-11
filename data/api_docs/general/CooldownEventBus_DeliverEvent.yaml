@@ -1,0 +1,60 @@
+api:
+  class: CooldownEventBus
+  method: DeliverEvent
+  signature: bool CooldownEventBus::DeliverEvent(BotAI * subscriber, const CooldownEvent
+    & event)
+documentation:
+  brief: Delivers a cooldown event to a specified bot AI subscriber.
+  description: The DeliverEvent method is responsible for routing and dispatching
+    cooldown events to registered bot AI subscribers within the TrinityCore framework.
+    This method ensures that cooldown-related information, such as spell or ability
+    readiness, is properly communicated to AI-controlled characters. It handles the
+    internal logic of event distribution and returns a boolean indicating whether
+    the delivery was successful. The method operates within the context of the CooldownEventBus
+    system, which manages the flow of cooldown-related data between game systems and
+    AI components.
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that will receive the cooldown event.
+      This parameter must be a valid pointer to an active bot AI object; otherwise,
+      the method may fail or cause undefined behavior.
+  - name: event
+    description: The CooldownEvent object containing the cooldown information to be
+      delivered. This includes details such as the spell ID, cooldown duration, and
+      other relevant cooldown data that the subscriber needs to process.
+  returns: Returns true if the event was successfully delivered to the subscriber,
+    false otherwise. A return value of false typically indicates that the subscriber
+    was invalid or the delivery mechanism encountered an error.
+  examples:
+  - title: Basic Event Delivery
+    code: "CooldownEvent event;\nevent.spellId = 12345;\nevent.cooldownEnd = time(nullptr)\
+      \ + 10;\nbool success = cooldownBus.DeliverEvent(botAI, event);\nif (success)\n\
+      \    TC_LOG_DEBUG(\"ai.bot\", \"Cooldown event delivered successfully\");"
+    language: cpp
+  - title: Event Delivery with Error Handling
+    code: "if (!botAI)\n{\n    TC_LOG_ERROR(\"ai.bot\", \"Invalid bot AI subscriber\
+      \ provided\");\n    return false;\n}\n\nCooldownEvent event;\nevent.spellId\
+      \ = 67890;\nevent.cooldownEnd = time(nullptr) + 30;\n\nbool result = cooldownBus.DeliverEvent(botAI,\
+      \ event);\nif (!result)\n{\n    TC_LOG_ERROR(\"ai.bot\", \"Failed to deliver\
+      \ cooldown event to bot AI\");\n    return false;\n}\nTC_LOG_DEBUG(\"ai.bot\"\
+      , \"Cooldown event delivered successfully to bot AI\");"
+    language: cpp
+  notes: This method is part of the core AI event system in TrinityCore and relies
+    on proper initialization of both the CooldownEventBus and the BotAI subscriber.
+    The method assumes that the BotAI instance has been properly registered with the
+    event bus before attempting delivery. Performance considerations should be taken
+    into account when delivering frequent cooldown events, as this may impact AI responsiveness.
+  warnings: Passing a null or invalid BotAI pointer to this method can lead to crashes
+    or undefined behavior. Always validate the subscriber pointer before calling DeliverEvent.
+    Additionally, ensure that the CooldownEvent object contains valid data; malformed
+    events may cause issues in downstream processing.
+  related:
+  - RegisterSubscriber
+  - UnregisterSubscriber
+  - ProcessEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T06:50:30.718173'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

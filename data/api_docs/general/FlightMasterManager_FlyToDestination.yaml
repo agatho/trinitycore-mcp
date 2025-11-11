@@ -1,0 +1,62 @@
+api:
+  class: FlightMasterManager
+  method: FlyToDestination
+  signature: bool FlightMasterManager::FlyToDestination(Creature * flightMaster, uint32
+    destinationNodeId)
+documentation:
+  brief: Initiates a flight path to the specified destination node using the provided
+    flight master creature.
+  description: The FlyToDestination method is responsible for starting a flight path
+    from a given flight master creature to a specific destination node. This method
+    handles the internal logic required to begin the flight process, including validating
+    the destination node, checking if the player has access to the flight path, and
+    initiating the movement animation. It's typically called when a player selects
+    a flight destination from a flight master's menu or when the system needs to automatically
+    route a player along a predefined flight path. The method returns true upon successful
+    initiation of the flight, or false if the operation fails due to invalid parameters,
+    missing prerequisites, or other errors.
+  parameters:
+  - name: flightMaster
+    description: A pointer to the Creature object representing the flight master who
+      will be initiating the flight. This parameter must not be null and should represent
+      a valid flight master NPC.
+  - name: destinationNodeId
+    description: The unique identifier of the destination node in the flight path
+      system. This value corresponds to a specific waypoint or location in the game's
+      flight path database.
+  returns: Returns true if the flight was successfully initiated to the specified
+    destination node; otherwise, returns false if the operation failed due to invalid
+    parameters, missing prerequisites, or other errors.
+  examples:
+  - title: Basic Flight Initiation
+    code: "if (FlightMasterManager::FlyToDestination(flightMaster, 12345)) {\n   \
+      \ // Flight started successfully\n    sLog->outString(\"Player initiated flight\
+      \ to node 12345\");\n} else {\n    // Flight initiation failed\n    sLog->outError(\"\
+      Failed to start flight to node 12345\");\n}"
+    language: cpp
+  - title: Flight Initiation with Error Handling
+    code: "Creature* flightMaster = player->GetNPCIfCanInteractWith(player, UNIT_NPC_FLAG_FLIGHTMASTER);\n\
+      if (!flightMaster) {\n    return false;\n}\n\nuint32 destinationNode = 67890;\n\
+      bool success = FlightMasterManager::FlyToDestination(flightMaster, destinationNode);\n\
+      if (success) {\n    player->AddDelayedEvent(5000, [player]() {\n        player->SendAreaTriggerMessage(\"\
+      You have arrived at your destination.\");\n    });\n} else {\n    player->SendSystemMessage(\"\
+      Unable to initiate flight path.\");\n}"
+    language: cpp
+  notes: This method assumes that the player has already been validated for flight
+    access and that the flight master is properly initialized. The actual flight movement
+    is handled by the game's movement system, not directly by this method. It's important
+    to ensure that the destinationNodeId exists in the flight path database to avoid
+    silent failures.
+  warnings: Do not call this method with a null flightMaster pointer as it will likely
+    cause a crash or undefined behavior. Ensure that the destinationNodeId is valid
+    and corresponds to an existing flight path node before calling this method.
+  related:
+  - GetFlightPath
+  - IsFlightPathValid
+  - ValidateFlightPath
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:41:30.736108'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

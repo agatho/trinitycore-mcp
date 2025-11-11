@@ -1,0 +1,59 @@
+api:
+  class: GroupCoordinator
+  method: RollForLoot
+  signature: bool GroupCoordinator::RollForLoot(uint32 itemId, LootDecision decision)
+documentation:
+  brief: Initiates a loot roll for a specified item within the group coordinator's
+    context.
+  description: 'The RollForLoot method triggers a loot decision process for a given
+    item ID within the group coordinator''s scope. It evaluates whether the current
+    player or group members should receive the item based on group loot rules and
+    individual loot settings. This method is typically invoked during group loot distribution
+    when an item is rolled for, determining the final recipient of the loot. The method
+    returns true if the roll was successfully processed, false otherwise. Precondition:
+    A valid group coordinator context must exist with active group members who can
+    participate in loot rolling.'
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item for which to initiate a loot roll.
+      Must correspond to a valid item in the game database.
+  - name: decision
+    description: The loot decision to apply, typically representing the outcome of
+      the roll (e.g., need, greed, pass). This parameter determines how the loot is
+      distributed among group members.
+  returns: Returns true if the loot roll was successfully initiated and processed
+    within the group coordinator's context. Returns false if the operation failed
+    due to invalid parameters, missing group context, or other internal errors.
+  examples:
+  - title: Basic Loot Roll
+    code: "GroupCoordinator* gc = player->GetGroupCoordinator();\nif (gc)\n{\n   \
+      \ bool result = gc->RollForLoot(12345, LOOT_DECISION_GREED);\n    if (result)\n\
+      \        TC_LOG_INFO(\"loot\", \"Loot roll for item 12345 processed successfully.\"\
+      );\n}"
+    language: cpp
+  - title: Conditional Loot Roll
+    code: "GroupCoordinator* gc = player->GetGroupCoordinator();\nif (gc && player->GetGroup()->IsLootMaster(player))\n\
+      {\n    uint32 itemId = 67890;\n    LootDecision decision = LOOT_DECISION_NEED;\n\
+      \    if (gc->RollForLoot(itemId, decision))\n        TC_LOG_DEBUG(\"loot\",\
+      \ \"Item %u rolled for with decision %u\", itemId, decision);\n    else\n  \
+      \      TC_LOG_ERROR(\"loot\", \"Failed to roll loot for item %u\", itemId);\n\
+      }"
+    language: cpp
+  notes: This method operates within the context of group loot mechanics in TrinityCore.
+    It assumes that the player has a valid group coordinator and that the group is
+    actively managing loot distribution. The actual loot assignment may depend on
+    additional factors such as loot rules, player roles, and item quality.
+  warnings: Ensure that the GroupCoordinator instance is valid before calling this
+    method. Calling RollForLoot without an active group context or with invalid itemId
+    values can lead to undefined behavior or errors. This method should only be called
+    during appropriate game events where group loot distribution is active.
+  related:
+  - GetGroupCoordinator
+  - IsLootMaster
+  - DistributeLoot
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T01:25:26.647833'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

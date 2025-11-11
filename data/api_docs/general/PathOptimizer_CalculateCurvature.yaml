@@ -1,0 +1,71 @@
+api:
+  class: PathOptimizer
+  method: CalculateCurvature
+  signature: float PathOptimizer::CalculateCurvature(const int & prev, const int &
+    current, const int & next) const
+documentation:
+  brief: Calculates the curvature of a path segment defined by three consecutive points
+    in a navigation mesh.
+  description: The CalculateCurvature method computes the curvature of a path at a
+    specific point by analyzing the angles formed between three consecutive waypoints.
+    This is used in pathfinding and movement optimization to determine how sharply
+    a character must turn when navigating through terrain or obstacles. The method
+    takes indices of previous, current, and next points in a path and returns a float
+    representing the curvature value, which can be used to adjust movement speed or
+    turning behavior for more natural-looking motion. It is typically called during
+    path smoothing or optimization processes within the TrinityCore AI system.
+  parameters:
+  - name: prev
+    description: Index of the previous point in the path sequence. Must be a valid
+      index pointing to a prior waypoint in the path array.
+  - name: current
+    description: Index of the current point in the path sequence. Must be a valid
+      index pointing to the waypoint being evaluated for curvature.
+  - name: next
+    description: Index of the next point in the path sequence. Must be a valid index
+      pointing to a subsequent waypoint in the path array.
+  returns: A float value representing the curvature at the current point. Positive
+    values indicate leftward curvature, negative values indicate rightward curvature,
+    and values near zero suggest straight movement. The magnitude of the value indicates
+    how sharply the path turns.
+  examples:
+  - title: Basic curvature calculation
+    code: 'PathOptimizer optimizer;
+
+      int prevIndex = 0;
+
+      int currentIndex = 1;
+
+      int nextIndex = 2;
+
+      float curvature = optimizer.CalculateCurvature(prevIndex, currentIndex, nextIndex);
+
+      // curvature will be a float value indicating turn sharpness at index 1'
+    language: cpp
+  - title: Using curvature to adjust movement speed
+    code: "PathOptimizer optimizer;\nfloat baseSpeed = 4.0f;\nfor (int i = 1; i <\
+      \ path.size() - 1; ++i) {\n    float curvature = optimizer.CalculateCurvature(i\
+      \ - 1, i, i + 1);\n    // Reduce speed for sharp turns\n    float adjustedSpeed\
+      \ = baseSpeed * (1.0f - std::abs(curvature) * 0.5f);\n    // Apply adjustedSpeed\
+      \ to movement logic\n}"
+    language: cpp
+  notes: This method assumes that the path points are stored in a continuous array
+    or container where indices can be directly used to access previous, current, and
+    next points. The curvature calculation is based on vector mathematics involving
+    angle computation between segments formed by the three points. Performance is
+    O(1) as it only performs geometric calculations without iteration.
+  warnings: Ensure that the provided indices are valid and within bounds of the path
+    array to avoid memory access violations or undefined behavior. The method does
+    not validate input parameters, so callers must ensure prev < current < next and
+    all indices are valid before calling.
+  related:
+  - CalculatePath
+  - OptimizePath
+  - GetPointAt
+  - IsPointValid
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:40:31.768276'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

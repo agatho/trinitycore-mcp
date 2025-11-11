@@ -1,0 +1,51 @@
+api:
+  class: RiptideTracker
+  method: GetActiveRiptideCount
+  signature: uint32 RiptideTracker::GetActiveRiptideCount() const
+documentation:
+  brief: Returns the count of active Riptide effects on the player
+  description: The GetActiveRiptideCount method retrieves the number of currently
+    active Riptide spells applied to the player. In World of Warcraft's TrinityCore
+    implementation, Riptide is a healing spell that can be cast by Enhancement Shamans.
+    This method tracks how many instances of the Riptide buff are currently active
+    on the player, which is important for calculating healing over time effects and
+    managing spell interactions. The returned count reflects the total number of Riptide
+    ticks that will occur in the future, including any overlapping or refreshed applications
+    of the spell.
+  parameters: []
+  returns: A uint32 value representing the number of active Riptide effects currently
+    applied to the player. This count includes all overlapping or refreshed instances
+    of the Riptide spell that are still active and will generate healing ticks in
+    the future.
+  examples:
+  - title: Basic usage to check active Riptides
+    code: "uint32 riptideCount = player->GetRiptideTracker()->GetActiveRiptideCount();\n\
+      if (riptideCount > 0)\n{\n    // Player has active Riptide effects\n    ChatHandler(player->GetSession()).PSendSysMessage(\"\
+      You have %u active Riptide effects.\", riptideCount);\n}"
+    language: cpp
+  - title: Using count to determine healing potential
+    code: "RiptideTracker* tracker = player->GetRiptideTracker();\nuint32 activeCount\
+      \ = tracker->GetActiveRiptideCount();\nif (activeCount > 0)\n{\n    // Calculate\
+      \ total healing from all active Riptides\n    float totalHealing = activeCount\
+      \ * baseRiptideHealingPerTick;\n    player->AddExtraAttackerDamage(totalHealing);\n\
+      }"
+    language: cpp
+  notes: This method is typically used in conjunction with other Riptide tracking
+    functionality to manage spell stacking, healing calculations, and cooldown management.
+    The count returned may include both the original Riptide application and any refreshed
+    or extended versions of the spell that have occurred within the same tick window.
+  warnings: Be aware that this count includes all active Riptide effects regardless
+    of their individual durations or sources. When implementing logic based on this
+    value, ensure proper handling of overlapping applications to avoid double-counting
+    healing contributions or incorrect cooldown calculations.
+  related:
+  - GetRiptideTracker
+  - AddRiptideEffect
+  - RemoveRiptideEffect
+  - HasActiveRiptide
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T15:15:43.967605'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

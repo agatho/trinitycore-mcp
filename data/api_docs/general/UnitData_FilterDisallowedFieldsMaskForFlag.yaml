@@ -1,0 +1,62 @@
+api:
+  class: UnitData
+  method: FilterDisallowedFieldsMaskForFlag
+  signature: void UnitData::FilterDisallowedFieldsMaskForFlag(int & changesMask, int
+    fieldVisibilityFlags)
+documentation:
+  brief: Filters a field changes mask based on visibility flags to ensure only allowed
+    fields are marked as changed.
+  description: The FilterDisallowedFieldsMaskForFlag method modifies the provided
+    changesMask parameter by removing bits that correspond to fields which are not
+    allowed to be visible according to the given fieldVisibilityFlags. This is typically
+    used in TrinityCore's packet serialization system to prevent sending unauthorized
+    or restricted data about a Unit (such as a player or creature) to clients. The
+    method ensures compliance with visibility rules defined by the game's access control
+    mechanisms, particularly when building update packets for network transmission.
+    It operates in-place on the changesMask and does not return any value.
+  parameters:
+  - name: changesMask
+    description: A reference to an integer that represents a bitmask of changed fields.
+      This mask will be modified in place to remove disallowed field bits.
+  - name: fieldVisibilityFlags
+    description: An integer flag that defines the visibility context for which fields
+      are allowed. This typically corresponds to client permissions or view modes
+      such as 'own', 'visible', or 'gm' access levels.
+  returns: null
+  examples:
+  - title: Basic usage in update packet preparation
+    code: 'int mask = 0x1F; // Example changes mask
+
+      UnitData* unitData = player->GetUnitData();
+
+      unitData->FilterDisallowedFieldsMaskForFlag(mask, VISIBILITY_FLAG_VISIBLE);
+
+      // mask now contains only allowed fields for visible state'
+    language: cpp
+  - title: Using with GM visibility flag
+    code: 'int mask = 0xFF;
+
+      UnitData* unitData = creature->GetUnitData();
+
+      unitData->FilterDisallowedFieldsMaskForFlag(mask, VISIBILITY_FLAG_GM);
+
+      // mask now filtered for GM-level access'
+    language: cpp
+  notes: This method is part of the internal update system and should only be called
+    during packet preparation or when constructing update data structures. It modifies
+    the input mask directly without returning a new value, so callers must ensure
+    they have a copy if they need to preserve the original mask.
+  warnings: Improper use of this method can lead to incorrect updates being sent to
+    clients, potentially causing visual glitches or security issues related to field
+    visibility. Always verify that the visibility flags match the intended access
+    level for the target client.
+  related:
+  - GetFieldVisibilityFlags
+  - SetFieldVisibilityFlags
+  - BuildUpdateData
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T17:55:31.538363'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

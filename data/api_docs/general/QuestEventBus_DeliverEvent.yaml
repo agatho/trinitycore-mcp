@@ -1,0 +1,58 @@
+api:
+  class: QuestEventBus
+  method: DeliverEvent
+  signature: bool QuestEventBus::DeliverEvent(BotAI * subscriber, const QuestEvent
+    & event)
+documentation:
+  brief: Delivers a quest event to a specified bot AI subscriber.
+  description: The QuestEventBus::DeliverEvent method is responsible for routing and
+    delivering quest-related events to subscribed bot AIs. This method ensures that
+    when a quest-related occurrence happens in the game world, such as quest acceptance,
+    completion, or objective updates, the appropriate bot AI is notified and can respond
+    accordingly. The method takes a pointer to a BotAI subscriber and a const reference
+    to a QuestEvent, then processes the event for that specific subscriber. It returns
+    true if the event was successfully delivered and handled by the subscriber, or
+    false if delivery failed or was not processed.
+  parameters:
+  - name: subscriber
+    description: A pointer to the BotAI instance that will receive and process the
+      quest event. Must be a valid pointer to an active bot AI object.
+  - name: event
+    description: A const reference to the QuestEvent structure containing the details
+      of the event being delivered. This includes information such as quest ID, event
+      type, and associated data.
+  returns: Returns true if the event was successfully delivered and processed by the
+    subscriber; returns false if delivery failed or the event could not be handled.
+  examples:
+  - title: Basic Event Delivery
+    code: "BotAI* bot = ...;\nQuestEvent questEvent;\nquestEvent.questId = 12345;\n\
+      questEvent.type = QuestEventType::QUEST_ACCEPTED;\nbool success = sQuestEventBus->DeliverEvent(bot,\
+      \ questEvent);\nif (success) {\n    // Event was delivered successfully\n}"
+    language: cpp
+  - title: Handling Delivery Result
+    code: "BotAI* bot = GetActiveBot();\nQuestEvent event;\nevent.questId = 67890;\n\
+      event.type = QuestEventType::QUEST_COMPLETE;\nif (sQuestEventBus->DeliverEvent(bot,\
+      \ event)) {\n    // Proceed with post-completion logic\n    bot->OnQuestComplete(event.questId);\n\
+      } else {\n    // Log error or retry mechanism\n    sLog->outError(\"Failed to\
+      \ deliver quest completion event to bot %u\", bot->GetGUID().GetCounter());\n\
+      }"
+    language: cpp
+  notes: This method is part of the TrinityCore's quest event system and is typically
+    used internally by the core quest management logic. It assumes that the BotAI
+    instance is properly initialized and registered with the event bus before attempting
+    delivery. The method does not perform any validation on the BotAI pointer or QuestEvent
+    data beyond basic null checks.
+  warnings: Ensure that the BotAI pointer passed to this method is valid and points
+    to an active bot AI object, otherwise undefined behavior may occur. Also, be aware
+    that delivering events to inactive or unregistered bots can lead to failed deliveries
+    without clear error reporting.
+  related:
+  - QuestEventBus::Subscribe
+  - QuestEventBus::Unsubscribe
+  - QuestEventBus::RegisterEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:39:06.962350'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

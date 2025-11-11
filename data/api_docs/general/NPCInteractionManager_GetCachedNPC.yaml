@@ -1,0 +1,53 @@
+api:
+  class: NPCInteractionManager
+  method: GetCachedNPC
+  signature: NPCInfo * NPCInteractionManager::GetCachedNPC(int guid)
+documentation:
+  brief: Retrieves cached NPC information by its unique identifier.
+  description: The GetCachedNPC method fetches a previously stored NPCInfo object
+    from an internal cache using the provided GUID. This method is typically used
+    during NPC interaction events to quickly access pre-loaded or recently accessed
+    NPC data without requiring expensive database lookups. The returned pointer may
+    be null if no cached entry exists for the specified GUID, indicating that the
+    NPC data has not yet been loaded or cached. This caching mechanism improves performance
+    in scenarios involving frequent NPC interactions or quest-related dialogue.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the NPC to retrieve from cache. Must
+      be a valid, non-zero GUID corresponding to an existing NPC in the game world.
+  returns: A pointer to the cached NPCInfo object if found; otherwise, returns nullptr
+    if no cached data exists for the given GUID.
+  examples:
+  - title: Basic Usage
+    code: "NPCInfo* npc = interactionManager->GetCachedNPC(12345);\nif (npc != nullptr)\
+      \ {\n    // Use cached NPC data\n    std::cout << \"Found NPC: \" << npc->name\
+      \ << std::endl;\n} else {\n    // Handle missing cache entry\n    std::cout\
+      \ << \"NPC not in cache\" << std::endl;\n}"
+    language: cpp
+  - title: Interaction Context
+    code: "void OnGossipHello(Player* player, Creature* creature) {\n    NPCInfo*\
+      \ cachedNpc = interactionManager->GetCachedNPC(creature->GetGUID().GetCounter());\n\
+      \    if (cachedNpc != nullptr) {\n        // Process cached NPC data for gossip\
+      \ options\n        AddGossipItemFor(player, GOSSIP_ICON_CHAT, \"Talk to me\"\
+      , GOSSIP_SENDER_MAIN, 1);\n    } else {\n        // Fallback logic when cache\
+      \ miss occurs\n        creature->Whisper(\"I'm not ready yet.\", LANG_UNIVERSAL,\
+      \ player);\n    }\n}"
+    language: cpp
+  notes: This method assumes that NPC data has already been loaded into the cache
+    via other mechanisms such as AddCachedNPC or similar. The cache is typically managed
+    by the NPCInteractionManager and may be automatically invalidated based on game
+    events or time-based expiration policies.
+  warnings: Do not assume that a non-null return value guarantees valid NPC state;
+    always validate the returned NPCInfo object before using it. Also, be aware that
+    cached entries might become stale if the underlying NPC is modified or destroyed
+    in the world.
+  related:
+  - AddCachedNPC
+  - RemoveCachedNPC
+  - ClearCache
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T23:26:02.396557'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

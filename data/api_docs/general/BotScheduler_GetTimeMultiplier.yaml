@@ -1,0 +1,78 @@
+api:
+  class: BotScheduler
+  method: GetTimeMultiplier
+  signature: float BotScheduler::GetTimeMultiplier(int time, const ActivityPattern
+    & pattern) const
+documentation:
+  brief: Calculates and returns a time multiplier based on the provided time and activity
+    pattern for bot scheduling.
+  description: The GetTimeMultiplier method computes a floating-point value that represents
+    a scaling factor for time-based activities within the bot scheduler. This multiplier
+    is derived from the input time and an activity pattern, which likely defines when
+    certain behaviors should be more or less frequent. The method is used internally
+    by the BotScheduler to adjust timing logic according to configured schedules or
+    patterns, such as varying bot activity levels during different hours of the day
+    or specific game events. It ensures that bots behave appropriately in relation
+    to time-sensitive game mechanics and player availability.
+  parameters:
+  - name: time
+    description: An integer representing the current time in a standardized format
+      (e.g., minutes since midnight or Unix timestamp). Used as input to determine
+      the appropriate multiplier based on activity patterns.
+  - name: pattern
+    description: A constant reference to an ActivityPattern object that defines how
+      activities should vary over time. This typically includes time ranges and associated
+      multipliers for different periods (e.g., peak hours vs off-peak).
+  returns: Returns a float value representing the calculated time multiplier. A value
+    greater than 1.0 increases activity duration or frequency, while a value less
+    than 1.0 decreases it. A value of 1.0 indicates no adjustment to normal timing.
+  examples:
+  - title: Basic Usage Example
+    code: 'int currentTime = 14 * 60 + 30; // 2:30 PM in minutes
+
+      ActivityPattern pattern;
+
+      // Assume pattern is initialized with time ranges and multipliers
+
+      float multiplier = scheduler.GetTimeMultiplier(currentTime, pattern);
+
+      // multiplier will be used to adjust bot behavior timing'
+    language: cpp
+  - title: Advanced Usage with Dynamic Pattern
+    code: '#include <chrono>
+
+      using namespace std::chrono;
+
+      auto now = system_clock::now();
+
+      int minutesSinceMidnight = duration_cast<minutes>(now.time_since_epoch()).count()
+      % (24 * 60);
+
+      ActivityPattern dynamicPattern;
+
+      dynamicPattern.AddTimeRange(0, 600, 0.5f);   // Low activity during early morning
+
+      dynamicPattern.AddTimeRange(600, 1200, 1.5f); // High activity in afternoon
+
+      float result = scheduler.GetTimeMultiplier(minutesSinceMidnight, dynamicPattern);
+
+      // Adjusts bot behavior based on current time of day'
+    language: cpp
+  notes: The method is const and does not modify internal state. It assumes that the
+    ActivityPattern has been properly initialized with valid time ranges and multipliers.
+    The time parameter should be normalized to a consistent unit (e.g., minutes since
+    midnight) for accurate pattern matching.
+  warnings: Ensure that the ActivityPattern passed into this method contains valid
+    time range definitions, otherwise unexpected multiplier values may occur. Be cautious
+    when using large time values or negative numbers as they might not map correctly
+    to defined patterns.
+  related:
+  - BotScheduler::SetActivityPattern
+  - BotScheduler::GetActivityPattern
+  - BotScheduler::ScheduleBotAction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T15:18:10.778302'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

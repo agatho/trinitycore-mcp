@@ -1,0 +1,62 @@
+api:
+  class: BotActionProcessor
+  method: GetGameObject
+  signature: GameObject * BotActionProcessor::GetGameObject(Player * bot, int guid)
+documentation:
+  brief: Retrieves a GameObject instance from the world based on the provided GUID
+    for use in bot AI logic.
+  description: The GetGameObject method is used within the BotActionProcessor class
+    to fetch a GameObject object from the game world using its unique identifier (GUID).
+    This method is essential for bots to interact with in-game objects such as chests,
+    doors, or quest items. The method takes a Player pointer representing the bot
+    and an integer GUID to locate and return the corresponding GameObject. It serves
+    as a bridge between the bot's AI logic and the actual game world state, enabling
+    bots to perform actions like opening containers or examining interactive objects.
+    The returned GameObject pointer can be null if the object does not exist in the
+    current world context or has been destroyed.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is requesting
+      the GameObject. This parameter is used to determine the context and location
+      of the bot within the game world.
+  - name: guid
+    description: Integer value representing the unique identifier (GUID) of the GameObject
+      to retrieve. This GUID must correspond to an existing GameObject in the current
+      world instance.
+  returns: Returns a pointer to the GameObject if found and valid; otherwise, returns
+    nullptr if no GameObject exists with the specified GUID or if it's invalid.
+  examples:
+  - title: Basic usage of GetGameObject to retrieve a chest
+    code: "GameObject* chest = botActionProcessor->GetGameObject(bot, 12345);\nif\
+      \ (chest && chest->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST)\n{\n    // Perform\
+      \ action on the chest\n    bot->HandleGameObject(chest->GetGUID(), true);\n}"
+    language: cpp
+  - title: Safe retrieval and usage of GameObject with null check
+    code: "uint32 chestGuid = 67890;\nGameObject* gameObject = botActionProcessor->GetGameObject(bot,\
+      \ chestGuid);\nif (gameObject != nullptr)\n{\n    // Use the game object\n \
+      \   TC_LOG_DEBUG(\"bot.ai\", \"Found GameObject with entry %u at position (%f,\
+      \ %f, %f)\",\n        gameObject->GetEntry(),\n        gameObject->GetPositionX(),\n\
+      \        gameObject->GetPositionY(),\n        gameObject->GetPositionZ());\n\
+      }\nelse\n{\n    TC_LOG_DEBUG(\"bot.ai\", \"GameObject with GUID %u not found.\"\
+      , chestGuid);\n}"
+    language: cpp
+  notes: This method performs a lookup in the world's GameObject registry using the
+    provided GUID. It is recommended to validate the returned pointer before use,
+    as objects may be destroyed or removed from the world between the time of lookup
+    and usage. The method relies on the bot's current world context to resolve the
+    GUID correctly.
+  warnings: Be cautious when using this method in scenarios where GameObjects might
+    be destroyed or despawned during execution. Always check for null return values
+    before dereferencing the returned pointer. Using stale GUIDs can lead to invalid
+    object references and potential crashes.
+  related:
+  - GetPlayer
+  - GetCreature
+  - GetObjectByType
+  - IsGameObjectInRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T15:28:39.601946'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

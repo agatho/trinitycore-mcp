@@ -1,0 +1,56 @@
+api:
+  class: ShadowDoTTracker
+  method: NeedsShadowWordPainRefresh
+  signature: bool ShadowDoTTracker::NeedsShadowWordPainRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: 'Determines whether Shadow Word: Pain needs to be refreshed based on pandemic
+    mechanics and target GUID.'
+  description: 'The NeedsShadowWordPainRefresh method evaluates if a Shadow Word:
+    Pain spell effect on a specified target should be refreshed, taking into account
+    the game''s pandemic mechanics. This mechanism prevents players from extending
+    an existing DoT''s duration beyond its maximum possible time by applying a new
+    application only when the remaining duration is less than a defined window (pandemicWindow).
+    The method uses the provided GUID to identify the specific target and checks if
+    refreshing the spell would be beneficial according to World of Warcraft''s combat
+    system rules. It returns true if the spell should be refreshed, false otherwise.'
+  parameters:
+  - name: guid
+    description: 'The unique identifier (GUID) of the target unit for which the Shadow
+      Word: Pain refresh check is performed.'
+  - name: pandemicWindow
+    description: The maximum time window in milliseconds during which a new application
+      can extend an existing DoT. If remaining duration is less than this value, refresh
+      is allowed.
+  returns: 'Returns true if the Shadow Word: Pain effect on the target should be refreshed
+    according to pandemic rules; otherwise returns false.'
+  examples:
+  - title: Basic usage to determine refresh requirement
+    code: "if (shadowDotTracker.NeedsShadowWordPainRefresh(targetGuid, 1500)) {\n\
+      \    // Refresh Shadow Word: Pain on target\n    DoSpellCast(SPELL_SHADOW_WORD_PAIN);\n\
+      }"
+    language: cpp
+  - title: Using with dynamic pandemic window based on talent
+    code: "uint32 pandemicWindow = player->HasTalent(SPELL_ID_TALENT_PANDONIC_SHADOW_WORD_PAIN)\
+      \ ? 3000 : 1500;\nbool shouldRefresh = shadowDotTracker.NeedsShadowWordPainRefresh(targetGuid,\
+      \ pandemicWindow);\nif (shouldRefresh) {\n    // Apply Shadow Word: Pain with\
+      \ updated window\n}"
+    language: cpp
+  notes: This method relies on internal tracking of DoT durations and target states.
+    It assumes that the ShadowDoTTracker maintains a data structure mapping GUIDs
+    to their current DoT status including remaining duration and application time.
+    The pandemicWindow parameter should be consistent with the game's defined mechanics
+    for each talent level or spell variant.
+  warnings: Ensure that the GUID corresponds to a valid unit in the current combat
+    state; otherwise, behavior is undefined. Misunderstanding the pandemic window
+    logic may lead to incorrect spell application timing and suboptimal damage output.
+  related:
+  - GetShadowWordPainDuration
+  - IsShadowWordPainActive
+  - UpdateShadowWordPain
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T22:04:12.791646'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,55 @@
+api:
+  class: GroupHooks
+  method: Hook_OnGroupUpdate
+  signature: void GroupHooks::Hook_OnGroupUpdate(Group * group, uint32 diff)
+documentation:
+  brief: Updates group-related data and handles group events during each game tick.
+  description: The Hook_OnGroupUpdate method is a callback function that is invoked
+    periodically to process updates for group objects within the TrinityCore framework.
+    It is typically called during the game loop's update cycle, allowing mods or extensions
+    to perform custom logic on groups, such as tracking member status, managing group
+    loot settings, or synchronizing group data with external systems. This method
+    receives a pointer to the Group object and the time difference (in milliseconds)
+    since the last update, enabling precise timing-based operations. The function
+    is part of the GroupHooks system which provides extension points for modifying
+    or enhancing standard group behavior without directly altering core TrinityCore
+    code.
+  parameters:
+  - name: group
+    description: Pointer to the Group object that needs updating. This parameter must
+      not be null and represents a valid group instance in the game world.
+  - name: diff
+    description: Time difference in milliseconds since the last update call for this
+      group. Used to calculate time-based events or cooldowns within the group context.
+  returns: This method does not return any value (void).
+  examples:
+  - title: Basic Group Update Handler
+    code: "void MyMod::Hook_OnGroupUpdate(Group* group, uint32 diff)\n{\n    // Example:\
+      \ Log group member count\n    sLog->outString(\"Group %u has %u members\", group->GetId(),\
+      \ group->GetMembersCount());\n}"
+    language: cpp
+  - title: Advanced Group Update with Time-based Logic
+    code: "void MyMod::Hook_OnGroupUpdate(Group* group, uint32 diff)\n{\n    if (group->IsLootMaster())\n\
+      \    {\n        // Example: Process loot settings every 5 seconds\n        static\
+      \ uint32 lootTimer = 0;\n        lootTimer += diff;\n        if (lootTimer >=\
+      \ 5000)\n        {\n            group->UpdateLootSettings();\n            lootTimer\
+      \ = 0;\n        }\n    }\n}"
+    language: cpp
+  notes: This method is called from the main game update loop, so performance considerations
+    are important. Avoid heavy computations or blocking operations within this function
+    to prevent impacting overall server performance. The group pointer passed in may
+    be invalid if the group has been disbanded or deleted during the update cycle.
+  warnings: Do not modify the group object directly in this hook unless you are certain
+    of the implications, as it might cause race conditions or unexpected behavior.
+    Also, ensure that your implementation handles potential null group pointers gracefully,
+    though they should typically be valid at the time of invocation.
+  related:
+  - Group::Update
+  - Group::IsLootMaster
+  - Group::GetMembersCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T03:39:46.096144'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

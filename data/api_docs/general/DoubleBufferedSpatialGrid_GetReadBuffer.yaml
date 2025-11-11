@@ -1,0 +1,45 @@
+api:
+  class: DoubleBufferedSpatialGrid
+  method: GetReadBuffer
+  signature: const GridBuffer & DoubleBufferedSpatialGrid::GetReadBuffer() const
+documentation:
+  brief: Returns the read buffer of the double-buffered spatial grid for safe concurrent
+    access.
+  description: The GetReadBuffer method provides access to the current read buffer
+    within a DoubleBufferedSpatialGrid instance. This pattern is commonly used in
+    multi-threaded environments where one thread updates data while another reads
+    from it, ensuring that readers always see a consistent snapshot of the data. The
+    returned GridBuffer reference allows for safe iteration and querying of spatial
+    grid data without risk of concurrent modification issues during updates. This
+    method is typically called by systems that need to read spatial data such as object
+    visibility checks or collision detection routines.
+  parameters: []
+  returns: A const reference to the current read buffer (GridBuffer) in the double-buffered
+    spatial grid, allowing safe read-only access to the spatial data structure.
+  examples:
+  - title: Accessing Read Buffer for Object Visibility Check
+    code: "void CheckVisibility(Player* player)\n{\n    const GridBuffer& buffer =\
+      \ spatialGrid.GetReadBuffer();\n    for (auto& object : buffer)\n    {\n   \
+      \     if (object->IsInRange(player, 50.0f))\n        {\n            // Process\
+      \ visible object\n        }\n    }\n}"
+    language: cpp
+  notes: This method is designed for thread-safe access patterns and should be used
+    in conjunction with appropriate synchronization mechanisms. The returned reference
+    remains valid only until the next buffer swap operation occurs, which typically
+    happens during grid update cycles. Developers should avoid modifying the returned
+    GridBuffer directly as it's meant for read-only operations.
+  warnings: Using this method in a multi-threaded context requires careful consideration
+    of synchronization boundaries. If the buffer is swapped while another thread holds
+    a reference to it, accessing that reference may result in undefined behavior or
+    stale data. Always ensure proper locking or use atomic operations when dealing
+    with concurrent access patterns.
+  related:
+  - GetWriteBuffer
+  - SwapBuffers
+  - Update
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T14:35:59.079329'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,58 @@
+api:
+  class: GroupStateMachine
+  method: ValidateTransition
+  signature: bool GroupStateMachine::ValidateTransition(GroupStateTransition transition,
+    Group * group) const
+documentation:
+  brief: Validates whether a group state transition is allowed based on current group
+    conditions
+  description: The ValidateTransition method checks if a proposed transition between
+    group states is valid according to the current state of the group and the rules
+    defined in the GroupStateMachine. This method ensures that group operations such
+    as joining, leaving, or changing leadership follow proper game mechanics and prevent
+    invalid state changes. It evaluates the transition against internal state constraints
+    and returns true if the transition is allowed, false otherwise. The validation
+    considers factors like player roles, group size limits, and existing group member
+    conditions.
+  parameters:
+  - name: transition
+    description: The GroupStateTransition enum value representing the intended state
+      change to validate
+  - name: group
+    description: Pointer to the Group object whose current state will be used for
+      validation context
+  returns: Returns true if the transition is valid and allowed, false if the transition
+    violates group state rules or constraints
+  examples:
+  - title: Basic Transition Validation
+    code: "Group *myGroup = ...;\nGroupStateTransition trans = GROUP_STATE_READY;\n\
+      bool isValid = groupStateMachine.ValidateTransition(trans, myGroup);\nif (isValid)\n\
+      {\n    // Proceed with the transition\n}"
+    language: cpp
+  - title: Validation in Group Command Handler
+    code: "void HandleGroupJoinCommand(Player* player, Group* group)\n{\n    GroupStateTransition\
+      \ trans = GROUP_STATE_JOINING;\n    if (groupStateMachine.ValidateTransition(trans,\
+      \ group))\n    {\n        // Allow player to join the group\n        group->AddMember(player);\n\
+      \    }\n    else\n    {\n        // Reject the join attempt\n        SendGroupJoinError(player,\
+      \ GROUP_JOIN_ERROR_INVALID_STATE);\n    }\n}"
+    language: cpp
+  notes: This method is typically called before executing a group state change to
+    prevent invalid transitions that could lead to inconsistent group states. The
+    validation logic may vary based on the current group type (raid, party) and player
+    permissions. This method does not modify the group state directly; it only performs
+    validation checks.
+  warnings: Do not call this method without providing a valid Group pointer as it
+    will likely cause a crash or undefined behavior. Ensure that the transition enum
+    value is valid before passing to this method. The method assumes the group object
+    is in a consistent state and may return unexpected results if the group's internal
+    state is corrupted.
+  related:
+  - GetGroupState
+  - ApplyTransition
+  - IsTransitionAllowed
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T03:36:02.764650'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

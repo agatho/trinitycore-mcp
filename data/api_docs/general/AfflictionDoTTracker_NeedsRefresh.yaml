@@ -1,0 +1,63 @@
+api:
+  class: AfflictionDoTTracker
+  method: NeedsRefresh
+  signature: bool AfflictionDoTTracker::NeedsRefresh(int targetGuid, uint32 spellId,
+    uint32 pandemicWindow) const
+documentation:
+  brief: Determines whether a DoT spell on a target needs to be refreshed based on
+    pandemic mechanics.
+  description: The NeedsRefresh method evaluates if a DoT (Damage over Time) spell
+    currently applied to a target should be renewed or extended, taking into account
+    the pandemic window mechanic. This is crucial for maintaining optimal damage output
+    in Affliction warlocks. The method checks if the remaining duration of the existing
+    DoT is within the specified pandemic window, and if so, returns true indicating
+    that refreshing the spell would be beneficial to avoid wasting time. If the DoT
+    has sufficient remaining time beyond the pandemic threshold, it returns false,
+    suggesting that refreshing is unnecessary or counterproductive.
+  parameters:
+  - name: targetGuid
+    description: The unique identifier (GUID) of the target unit affected by the DoT
+      spell. This value identifies which specific unit's DoT status is being evaluated.
+  - name: spellId
+    description: The ID of the spell being checked for refresh eligibility. This identifies
+      the specific DoT spell whose duration and refresh timing are being assessed.
+  - name: pandemicWindow
+    description: The time window (in milliseconds) that defines how much of a DoT's
+      duration can be wasted before refreshing becomes beneficial. Typically, this
+      is 40% of the spell's full duration in World of Warcraft's Affliction mechanics.
+  returns: Returns true if the DoT spell on the target needs to be refreshed according
+    to pandemic rules; otherwise returns false. A return value of true indicates that
+    refreshing the spell will provide better damage efficiency than allowing it to
+    expire naturally.
+  examples:
+  - title: Basic Usage in Affliction Warlock Logic
+    code: "if (afflictionDotTracker->NeedsRefresh(targetGuid, SPELL_AGONY_ID, PANDemic_WINDOW_MS))\
+      \ {\n    // Refresh the DoT spell\n    caster->CastSpell(target, SPELL_AGONY_ID,\
+      \ true);\n}"
+    language: cpp
+  - title: Integration with Spell Cooldown Management
+    code: "uint32 currentSpellId = SPELL_CORRUPTION_ID;\nuint32 pandemicWindow = 4000;\
+      \ // 4 seconds\nif (afflictionDotTracker->NeedsRefresh(targetGuid, currentSpellId,\
+      \ pandemicWindow)) {\n    // Ensure cooldown is ready before refreshing\n  \
+      \  if (caster->GetSpellCooldownDelay(currentSpellId) <= 0) {\n        caster->CastSpell(target,\
+      \ currentSpellId, true);\n    }\n}"
+    language: cpp
+  notes: This method relies on internal tracking of DoT durations and target states.
+    It assumes that the AfflictionDoTTracker has already been initialized with relevant
+    spell data and target information. The pandemic window value should typically
+    be set to approximately 40% of the full spell duration for optimal Affliction
+    gameplay mechanics.
+  warnings: Incorrectly setting the pandemic window can lead to suboptimal spell rotation
+    decisions, potentially reducing damage output. Ensure that the targetGuid and
+    spellId parameters are valid before calling this method to avoid unexpected behavior
+    or crashes.
+  related:
+  - GetDotDuration
+  - IsDotActive
+  - RefreshDot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T04:22:23.304457'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

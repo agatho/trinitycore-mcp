@@ -1,0 +1,56 @@
+api:
+  class: OwnerChangedAppend
+  method: OwnerChangedAppend
+  signature: void OwnerChangedAppend::OwnerChangedAppend(const int & guid)
+documentation:
+  brief: Appends a new owner GUID to the owner changed list for tracking object ownership
+    changes in the game world.
+  description: The OwnerChangedAppend method is used to add a new globally unique
+    identifier (GUID) to a list that tracks when an object's ownership has been modified.
+    This functionality is typically utilized within TrinityCore's core systems to
+    maintain synchronization of object ownership across the game world, particularly
+    for items, creatures, or game objects that may change hands during gameplay. The
+    method does not perform any validation on the input GUID and simply appends it
+    to an internal collection. It is generally called as part of a larger ownership
+    change mechanism and should be used in conjunction with other related methods
+    such as OwnerChangedClear or OwnerChangedGet to manage the complete lifecycle
+    of ownership tracking.
+  parameters:
+  - name: guid
+    description: The globally unique identifier (GUID) of the new owner to append
+      to the ownership change list. This value should represent a valid object GUID
+      from the game world, such as a player or creature GUID.
+  returns: null
+  examples:
+  - title: Appending a Player's GUID to Ownership List
+    code: 'OwnerChangedAppend playerGUID;
+
+      playerGUID.OwnerChangedAppend(player->GetGUID());'
+    language: cpp
+  - title: Tracking Item Ownership Change in a Trade Scenario
+    code: "void HandleItemTrade(Player* oldOwner, Player* newOwner, Item* item)\n\
+      {\n    // Clear previous ownership changes\n    OwnerChangedClear();\n    \n\
+      \    // Append the new owner's GUID\n    OwnerChangedAppend newOwnerGUID;\n\
+      \    newOwnerGUID.OwnerChangedAppend(newOwner->GetGUID());\n    \n    // Proceed\
+      \ with trade logic\n}"
+    language: cpp
+  notes: This method is part of a larger ownership tracking system and should be used
+    carefully in performance-sensitive contexts. It is recommended to batch multiple
+    GUID appends together rather than calling this method individually for each change.
+    The internal list may grow significantly during extended gameplay sessions, so
+    consider clearing or resetting the list periodically if memory usage becomes a
+    concern.
+  warnings: Improper use of this method without proper initialization or management
+    of the ownership tracking system can lead to incorrect behavior in object ownership
+    state. Avoid calling this method with invalid or null GUIDs as it may cause undefined
+    behavior in the underlying data structures.
+  related:
+  - OwnerChangedClear
+  - OwnerChangedGet
+  - OwnerChangedSize
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T11:30:21.876194'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

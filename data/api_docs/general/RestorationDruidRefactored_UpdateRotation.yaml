@@ -1,0 +1,57 @@
+api:
+  class: RestorationDruidRefactored
+  method: UpdateRotation
+  signature: void RestorationDruidRefactored::UpdateRotation(int * target)
+documentation:
+  brief: Updates the restoration druid's spell rotation based on current target and
+    combat state
+  description: The UpdateRotation method manages the core decision-making logic for
+    a restoration druid's spell casting sequence. It evaluates the current target's
+    health, the druid's resource levels, and combat conditions to determine the optimal
+    healing or utility spell to cast next. This method integrates with the TrinityCore
+    AI system to provide intelligent, context-aware spell selection for restoration
+    druids in both single-target and AoE scenarios. The method typically gets called
+    during the AI update cycle and modifies the druid's current spell target and casting
+    behavior accordingly.
+  parameters:
+  - name: target
+    description: Pointer to an integer representing the target's ID or index within
+      the combat system. This parameter is used to determine which unit the druid
+      should focus healing efforts on, and may be updated internally by the rotation
+      logic.
+  returns: null
+  examples:
+  - title: Basic Usage in AI Update Loop
+    code: "void RestorationDruidAI::UpdateAI(uint32 diff)\n{\n    if (Unit* target\
+      \ = SelectTarget(SELECT_TARGET_TOPAGGRO))\n    {\n        int targetId = target->GetGUID().GetRawValue();\n\
+      \        m_druid->UpdateRotation(&targetId);\n    }\n}"
+    language: cpp
+  - title: Integration with Custom Healing Logic
+    code: "void RestorationDruidRefactored::UpdateRotation(int* target)\n{\n    if\
+      \ (!target || *target <= 0) return;\n    \n    Unit* unitTarget = ObjectAccessor::GetUnit(*m_owner,\
+      \ *target);\n    if (!unitTarget || !unitTarget->IsAlive())\n        return;\n\
+      \    \n    // Core rotation logic would go here\n    // e.g., check health,\
+      \ mana, buffs, etc.\n    \n    // Example: cast Rejuvenation if target is below\
+      \ 70% health\n    if (unitTarget->GetHealthPct() < 70.0f)\n    {\n        //\
+      \ Logic to select and cast appropriate spell\n    }\n}"
+    language: cpp
+  notes: This method is part of the AI decision-making framework and should be called
+    regularly during combat updates. The target parameter may be modified internally
+    by the rotation logic to reflect updated targeting decisions. Performance considerations
+    include minimizing expensive checks like unit health calculations or aura status
+    lookups within this function.
+  warnings: Ensure that the target pointer passed to this method is valid and points
+    to a live, alive unit; otherwise, undefined behavior may occur. The method assumes
+    proper initialization of the druid's AI state and should not be called before
+    the AI system is fully set up.
+  related:
+  - CastSpell
+  - SelectTarget
+  - GetHealthPct
+  - HasAura
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T20:38:42.969586'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

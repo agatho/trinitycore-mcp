@@ -1,0 +1,69 @@
+api:
+  class: CreatureAI
+  method: DoSummon
+  signature: Creature * CreatureAI::DoSummon(int entry, WorldObject * obj, float radius,
+    int despawnTime, int summonType)
+documentation:
+  brief: Summons a creature of the specified entry near the given object within the
+    provided radius.
+  description: The DoSummon method is used by CreatureAI to spawn a new creature instance
+    in the world. It creates a summoned creature at or near the location of the specified
+    WorldObject, using the given entry ID for the creature type. The summoned creature
+    will automatically despawn after the specified time unless otherwise configured.
+    This method is commonly used in AI scripts for summoning minions, pets, or other
+    creatures during combat or special events. The summoning process respects the
+    game's object placement rules and can be used to create complex AI behaviors involving
+    multiple summoned units.
+  parameters:
+  - name: entry
+    description: The creature entry ID that defines what type of creature will be
+      summoned. This corresponds to the 'entry' field in the creature_template table.
+  - name: obj
+    description: A pointer to the WorldObject (such as a player or creature) that
+      serves as the reference point for summoning. The summoned creature will appear
+      near this object.
+  - name: radius
+    description: The maximum distance from the reference object where the summoned
+      creature can appear. A value of 0 typically means the creature spawns at the
+      exact location of the reference object.
+  - name: despawnTime
+    description: The time in milliseconds after which the summoned creature will automatically
+      despawn. A value of 0 means the creature will not despawn automatically.
+  - name: summonType
+    description: The type of summoning behavior to use, typically defined by constants
+      like SUMMON_TYPE_CREATURE, SUMMON_TYPE_GUARDIAN, etc. Controls how the summoned
+      creature behaves and interacts with its summoner.
+  returns: Returns a pointer to the newly created Creature object if successful, or
+    NULL if the summoning failed due to invalid parameters or other issues.
+  examples:
+  - title: Basic creature summon
+    code: "Creature* summoned = me->DoSummon(12345, me->GetVictim(), 5.0f, 60000,\
+      \ SUMMON_TYPE_CREATURE);\nif (summoned)\n{\n    summoned->SetReactState(REACT_AGGRESSIVE);\n\
+      }"
+    language: cpp
+  - title: Summon guardian with custom despawn time
+    code: "Creature* guardian = me->DoSummon(67890, me, 3.0f, 30000, SUMMON_TYPE_GUARDIAN);\n\
+      if (guardian)\n{\n    guardian->SetOwnerGUID(me->GetGUID());\n    guardian->SetReactState(REACT_DEFENSIVE);\n\
+      }"
+    language: cpp
+  notes: The summoned creature inherits properties from the template defined by the
+    'entry' parameter. The method uses the WorldObject's location and orientation
+    to determine where to place the summoned creature within the specified radius.
+    This function is typically called from AI scripts during combat or event handling,
+    so it should be used carefully to avoid performance issues with too many simultaneous
+    summons.
+  warnings: Calling DoSummon with invalid entry IDs or NULL objects will result in
+    failed summoning and return NULL. Be cautious about summoning too many creatures
+    at once as this can cause performance degradation. The despawnTime parameter must
+    be carefully considered to prevent memory leaks from persistent summoned creatures.
+  related:
+  - DoCast
+  - DoMoveTo
+  - DoTeleportTo
+  - DoDespawn
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T14:57:38.973913'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

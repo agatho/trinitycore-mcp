@@ -1,0 +1,61 @@
+api:
+  class: HostileEventBus
+  method: PublishEvent
+  signature: void HostileEventBus::PublishEvent(const HostileEvent & event)
+documentation:
+  brief: Publishes a hostile event to all registered listeners in the event bus.
+  description: The PublishEvent method dispatches a HostileEvent to all subscribers
+    of the HostileEventBus. This mechanism allows various subsystems within TrinityCore
+    to react to hostile actions such as aggro generation, threat updates, or combat
+    state changes. The method is typically invoked when an NPC or player enters a
+    hostile state, triggering appropriate responses across the game world. It operates
+    synchronously and ensures that all registered event handlers receive the event
+    in the order they were subscribed.
+  parameters:
+  - name: event
+    description: The HostileEvent object containing details about the hostile action
+      that occurred. This includes information such as the source unit, target unit,
+      event type, and associated data like threat amount or aggro status.
+  returns: null
+  examples:
+  - title: Basic Event Publishing
+    code: 'HostileEvent event;
+
+      event.type = HostileEventType::AGGRO;
+
+      event.source = playerUnit;
+
+      event.target = npcUnit;
+
+      hostileEventBus.PublishEvent(event);'
+    language: cpp
+  - title: Publishing Threat Update Event
+    code: 'HostileEvent threatEvent;
+
+      threatEvent.type = HostileEventType::THREAT_UPDATE;
+
+      threatEvent.source = mobUnit;
+
+      threatEvent.target = playerUnit;
+
+      threatEvent.threatAmount = 1000;
+
+      hostileEventBus.PublishEvent(threatEvent);'
+    language: cpp
+  notes: This method is designed to be thread-safe for event publishing, but subscribers
+    should ensure their handlers are also safe if called from different threads. The
+    event bus maintains a list of registered listeners and iterates through them sequentially
+    during each publish operation.
+  warnings: Avoid performing heavy operations or blocking calls within event handlers
+    as this may impact performance. Do not modify the HostileEvent object after publishing
+    it, as changes might affect other subscribers.
+  related:
+  - Subscribe
+  - Unsubscribe
+  - ProcessEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T01:06:37.741061'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

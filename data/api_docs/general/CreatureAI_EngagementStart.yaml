@@ -1,0 +1,51 @@
+api:
+  class: CreatureAI
+  method: EngagementStart
+  signature: void CreatureAI::EngagementStart(int * who)
+documentation:
+  brief: Initiates the creature's engagement with a target, starting combat behavior.
+  description: The EngagementStart method is used to begin the combat engagement process
+    for a CreatureAI instance. This method typically gets invoked when a creature
+    begins attacking a target, triggering the AI to enter combat state and initiate
+    appropriate behaviors such as targeting, threat generation, and attack execution.
+    It serves as a core part of the creature's AI lifecycle during combat scenarios.
+    The method may perform necessary setup operations like initializing threat tables,
+    updating creature states, and notifying relevant systems about the engagement
+    start event.
+  parameters:
+  - name: who
+    description: Pointer to an integer representing the target entity ID or index
+      that the creature is engaging with. This parameter identifies which unit (player,
+      pet, etc.) has initiated or will be engaged in combat.
+  returns: null
+  examples:
+  - title: Basic engagement start example
+    code: "void MyCreatureAI::OnTargetSelected(Unit* target)\n{\n    if (target)\n\
+      \    {\n        int targetId = target->GetGUID().GetRawValue();\n        EngagementStart(&targetId);\n\
+      \    }\n}"
+    language: cpp
+  - title: Advanced engagement with validation
+    code: "void CreatureAI::EngagementStart(int* who)\n{\n    if (!who || *who <=\
+      \ 0)\n        return;\n\n    // Validate target exists and is valid for engagement\n\
+      \    Unit* target = ObjectAccessor::GetUnit(*me, ObjectGuid(HighGuid::Player,\
+      \ *who));\n    if (!target || !target->IsAlive())\n        return;\n\n    //\
+      \ Start combat behavior\n    me->SetInCombatWith(target);\n    me->AddThreat(target,\
+      \ 1.0f);\n    // Additional engagement logic here\n}"
+    language: cpp
+  notes: This method is typically called internally by the core AI system when a creature
+    begins combat with a target. Developers should ensure that any custom implementation
+    properly handles null or invalid targets to avoid crashes. The method may be overridden
+    in derived classes to provide specific engagement behaviors.
+  warnings: Do not call this method directly without verifying that the target is
+    valid and alive, as it could lead to undefined behavior or crashes if passed an
+    invalid pointer or ID. Ensure proper synchronization if called from multiple threads.
+  related:
+  - EngagementStop
+  - UpdateAI
+  - AttackStart
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T14:54:54.855123'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,67 @@
+api:
+  class: LeaverInfo
+  method: WriteCreate
+  signature: void LeaverInfo::WriteCreate(ByteBuffer & data, const Player * owner,
+    const Player * receiver) const
+documentation:
+  brief: Serializes LeaverInfo data into a ByteBuffer for network transmission to
+    a specific player.
+  description: The WriteCreate method serializes the LeaverInfo object's data into
+    a ByteBuffer, preparing it for network transmission. This method is typically
+    used when sending information about a player who has left a group or instance
+    to a specific receiver player. The serialization includes relevant metadata and
+    state information that identifies the leaver and their departure context. It is
+    commonly invoked during group disbanding, instance exits, or player logout scenarios
+    where other players need to be notified of a player's departure.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized LeaverInfo data will
+      be written. This buffer is typically used for constructing network packets.
+  - name: owner
+    description: Pointer to the Player object representing the player who owns or
+      initiated this LeaverInfo instance. May be null if not applicable.
+  - name: receiver
+    description: Pointer to the Player object who will receive this LeaverInfo data.
+      Used to determine appropriate serialization format or filtering based on visibility
+      rules.
+  returns: null
+  examples:
+  - title: Basic usage in group leave notification
+    code: 'LeaverInfo leaverInfo;
+
+      ByteBuffer data;
+
+      Player* owner = session->GetPlayer();
+
+      Player* receiver = group->GetLeader();
+
+      leaverInfo.WriteCreate(data, owner, receiver);
+
+      session->SendPacket(&data);'
+    language: cpp
+  - title: Instance exit notification with multiple receivers
+    code: "LeaverInfo leaverInfo;\nByteBuffer data;\nPlayer* owner = player;\nfor\
+      \ (auto& member : instance->GetPlayers()) {\n    if (member != owner) {\n  \
+      \      leaverInfo.WriteCreate(data, owner, member);\n        member->GetSession()->SendPacket(&data);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's packet serialization system and
+    should only be called when preparing data for network transmission. The ByteBuffer
+    must be properly initialized before calling this method, and the owner/receiver
+    parameters should not be null unless explicitly handled by the implementation.
+    Performance-wise, this method may involve multiple data serialization steps depending
+    on the internal structure of LeaverInfo.
+  warnings: Ensure that both owner and receiver player pointers are valid before calling
+    this method to prevent undefined behavior. The method does not perform any validation
+    on the ByteBuffer itself, so it's the caller's responsibility to ensure proper
+    buffer management and size allocation.
+  related:
+  - LeaverInfo::ReadCreate
+  - LeaverInfo::WriteUpdate
+  - LeaverInfo::Clear
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T01:30:54.804362'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

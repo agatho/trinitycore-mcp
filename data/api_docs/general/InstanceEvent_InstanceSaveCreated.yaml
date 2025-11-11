@@ -1,0 +1,63 @@
+api:
+  class: InstanceEvent
+  method: InstanceSaveCreated
+  signature: InstanceEvent InstanceEvent::InstanceSaveCreated(int playerGuid, uint32
+    mapId, uint32 instanceId)
+documentation:
+  brief: Creates and returns a new instance event for a player entering a map instance
+  description: The InstanceSaveCreated method constructs and returns a new InstanceEvent
+    object that represents the creation of an instance save for a specific player
+    and map. This event is typically triggered when a player enters a dungeon, raid,
+    or any instanceable map for the first time, or when a new instance is generated
+    for them. The method initializes the event with the player's GUID, the map ID
+    they are entering, and a unique instance identifier. This functionality is essential
+    for tracking player progress, managing instance data persistence, and ensuring
+    proper cleanup of instance resources when players leave or complete instances.
+  parameters:
+  - name: playerGuid
+    description: The unique global identifier (GUID) of the player entering the instance.
+      This value identifies the specific player character in the game world.
+  - name: mapId
+    description: The identifier of the map or zone that the player is entering. This
+      corresponds to the Map ID defined in the game's database and determines which
+      instance template is used.
+  - name: instanceId
+    description: A unique identifier assigned to this specific instance of the map.
+      Each time a new instance is created for a group or player, this ID increments
+      to ensure uniqueness across all active instances.
+  returns: Returns an InstanceEvent object containing the event data for the newly
+    created instance save. This object can be used to track and manage the lifecycle
+    of the instance, including player entry, completion, and cleanup.
+  examples:
+  - title: Basic usage example
+    code: 'InstanceEvent event = InstanceEvent::InstanceSaveCreated(12345, 109, 67890);
+
+      // This creates an event for player with GUID 12345 entering instance 67890
+      of map 109 (e.g., Karazhan)'
+    language: cpp
+  - title: Usage in instance management system
+    code: "void HandlePlayerEnterInstance(Player* player, uint32 mapId)\n{\n    uint32\
+      \ instanceId = sMapMgr->CreateInstanceId();\n    InstanceEvent event = InstanceEvent::InstanceSaveCreated(player->GetGUID().GetCounter(),\
+      \ mapId, instanceId);\n    // Store or process the event for tracking\n    sInstanceSaveMgr->AddInstanceEvent(event);\n\
+      }"
+    language: cpp
+  notes: This method is typically called internally by the TrinityCore instance management
+    system when a player enters an instance. Developers should not need to call this
+    directly unless implementing custom instance handling logic. The instance ID should
+    be unique per instance and generated using the appropriate instance manager functions.
+  warnings: Ensure that the player GUID, map ID, and instance ID are valid before
+    calling this method. Invalid or duplicate instance IDs may cause synchronization
+    issues with the instance save system. This method does not perform any validation
+    on input parameters.
+  related:
+  - InstanceEvent::InstanceSaveDestroyed
+  - InstanceEvent::InstanceSaveUpdated
+  - InstanceEvent::GetInstanceId
+  - InstanceEvent::GetPlayerGuid
+  - InstanceEvent::GetMapId
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:40:55.449663'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

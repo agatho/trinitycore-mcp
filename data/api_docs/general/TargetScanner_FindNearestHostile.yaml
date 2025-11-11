@@ -1,0 +1,52 @@
+api:
+  class: TargetScanner
+  method: FindNearestHostile
+  signature: int TargetScanner::FindNearestHostile(float range)
+documentation:
+  brief: Finds and returns the GUID of the nearest hostile target within the specified
+    range.
+  description: The FindNearestHostile method scans the surrounding area for hostile
+    units and identifies the closest one within the defined search range. This method
+    is typically used in AI behavior scripts to determine which enemy to prioritize
+    for attack or targeting. The method performs a spatial search using the internal
+    target scanner's range parameter, returning the GUID of the nearest valid hostile
+    unit. If no hostile targets are found within range, it returns 0. This functionality
+    is essential for implementing basic combat AI logic in TrinityCore-based game
+    servers.
+  parameters: []
+  returns: Returns the GUID (Global Unique Identifier) of the nearest hostile target
+    within range. Returns 0 if no hostile targets are found within the specified range.
+  examples:
+  - title: Basic usage in AI script
+    code: "void CreatureAI::UpdateAI(uint32 diff)\n{\n    if (me->IsInCombat())\n\
+      \    {\n        uint64 nearestHostile = FindNearestHostile(50.0f);\n       \
+      \ if (nearestHostile)\n        {\n            // Attack the nearest hostile\
+      \ target\n            me->Attack((Unit*)nullptr, true);\n        }\n    }\n}"
+    language: cpp
+  - title: Using with conditional targeting
+    code: "void BossAI::UpdateAI(uint32 diff)\n{\n    if (me->IsInCombat())\n    {\n\
+      \        uint64 nearestHostile = FindNearestHostile(100.0f);\n        if (nearestHostile\
+      \ && !me->GetVictim())\n        {\n            // Set the nearest hostile as\
+      \ target\n            Unit* target = ObjectAccessor::GetUnit(*me, nearestHostile);\n\
+      \            if (target)\n                me->AI()->AttackStart(target);\n \
+      \       }\n    }\n}"
+    language: cpp
+  notes: The method relies on the internal range configuration of the TargetScanner
+    instance. Performance may be impacted by large numbers of nearby units, though
+    TrinityCore's spatial indexing should mitigate this. The method does not perform
+    any additional checks beyond basic range and hostility, so it's recommended to
+    validate the returned GUID before use.
+  warnings: This method returns a raw GUID value which must be validated before being
+    used as a Unit pointer. Using an invalid GUID can cause crashes or undefined behavior.
+    Also note that this method will only find targets that are considered hostile
+    according to the AI's hostility rules, not all nearby units.
+  related:
+  - FindNearestFriendly
+  - FindNearestTarget
+  - GetRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T21:25:38.017853'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

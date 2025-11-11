@@ -1,0 +1,75 @@
+api:
+  class: UpdateFetcher
+  method: FillFileListRecursively
+  signature: void UpdateFetcher::FillFileListRecursively(const Path & path, LocaleFileStorage
+    & storage, const State state, const uint32 depth) const
+documentation:
+  brief: Recursively scans a directory path and populates a storage container with
+    file information based on specified state and depth limits.
+  description: The FillFileListRecursively method performs a recursive traversal of
+    the provided directory path, collecting file information and storing it in the
+    given LocaleFileStorage container. It respects a maximum recursion depth to prevent
+    excessive traversal and applies filtering based on the specified State enum value
+    which likely determines whether to include or exclude certain types of files.
+    This functionality is commonly used in World of Warcraft's update system to manage
+    locale-specific resources and ensure proper file synchronization across different
+    client versions and locales.
+  parameters:
+  - name: path
+    description: The absolute or relative path to the directory from which files will
+      be recursively scanned.
+  - name: storage
+    description: A reference to a LocaleFileStorage object where collected file information
+      will be stored during traversal.
+  - name: state
+    description: An enum value of type State that determines which files should be
+      included in the storage based on their current state (e.g., modified, missing,
+      up-to-date).
+  - name: depth
+    description: The maximum depth level to traverse into subdirectories. A value
+      of 0 means no recursion, while higher values allow deeper traversal.
+  returns: null
+  examples:
+  - title: Basic usage example
+    code: 'UpdateFetcher fetcher;
+
+      Path rootPath = "./locale/";
+
+      LocaleFileStorage storage;
+
+      State currentState = State::Modified;
+
+      fetcher.FillFileListRecursively(rootPath, storage, currentState, 3);'
+    language: cpp
+  - title: Recursive scan with depth limit
+    code: 'UpdateFetcher fetcher;
+
+      Path rootPath = "./dbc/";
+
+      LocaleFileStorage storage;
+
+      State currentState = State::All;
+
+      fetcher.FillFileListRecursively(rootPath, storage, currentState, 0); // No recursion
+
+      fetcher.FillFileListRecursively(rootPath, storage, currentState, 5); // Up to
+      5 levels deep'
+    language: cpp
+  notes: This method is designed to be thread-safe when used with separate storage
+    containers per thread. Performance may degrade significantly if the directory
+    structure contains many files or deep nesting without a reasonable depth limit.
+    The State enum likely controls filtering logic for different update scenarios
+    such as patching, localization updates, or incremental file synchronization.
+  warnings: Excessive recursion depth can lead to stack overflow or performance degradation.
+    Ensure that the path parameter points to an existing directory to avoid undefined
+    behavior. Be cautious when using large depth values with directories containing
+    many files or symbolic links.
+  related:
+  - UpdateFetcher::FillFileList
+  - UpdateFetcher::GetFileList
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T17:51:36.841211'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

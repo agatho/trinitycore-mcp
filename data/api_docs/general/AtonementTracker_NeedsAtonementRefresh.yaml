@@ -1,0 +1,55 @@
+api:
+  class: AtonementTracker
+  method: NeedsAtonementRefresh
+  signature: bool AtonementTracker::NeedsAtonementRefresh(int guid, uint32 refreshWindow)
+    const
+documentation:
+  brief: Determines whether a player's atonement effect requires a refresh based on
+    the provided GUID and refresh window.
+  description: The NeedsAtonementRefresh method evaluates if a specific player's atonement
+    effect needs to be refreshed. It takes a player's unique identifier (GUID) and
+    a time-based refresh window in seconds, checking whether the current atonement
+    duration has expired or is nearing expiration. This method is crucial for maintaining
+    proper atonement mechanics in World of Warcraft, particularly in scenarios where
+    atonement effects are tied to combat actions or time-based cooldowns. The method
+    returns true if the atonement effect should be refreshed, and false otherwise.
+    It relies on internal tracking of atonement timers and player states.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the player whose atonement status
+      is being checked. This value must correspond to a valid player in the game world.
+  - name: refreshWindow
+    description: The time window in seconds before the atonement effect expires, after
+      which a refresh is considered necessary. A typical value might be 5-10 seconds
+      depending on game mechanics.
+  returns: Returns true if the atonement effect for the specified player needs to
+    be refreshed based on the provided refresh window; otherwise returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (atoneTracker.NeedsAtonementRefresh(playerGuid, 5)) {\n    // Trigger\
+      \ atonement refresh logic\n    player->ApplyAtonementEffect();\n}"
+    language: cpp
+  - title: Integration with Combat System
+    code: "void OnPlayerAttack(Unit* target) {\n    if (atoneTracker.NeedsAtonementRefresh(player->GetGUID(),\
+      \ 10)) {\n        atoneTracker.RefreshAtonement(player->GetGUID());\n    }\n\
+      }"
+    language: cpp
+  notes: This method assumes that the AtonementTracker maintains internal state for
+    each player's atonement effect, including timestamps and durations. It is recommended
+    to call this method only when necessary to avoid unnecessary performance overhead.
+    The refresh window parameter allows flexibility in defining how early before expiration
+    a refresh should be triggered.
+  warnings: Ensure that the GUID passed to this method corresponds to an active player
+    in the game world; otherwise, behavior may be undefined or cause assertion failures.
+    Incorrectly setting the refresh window may lead to atonement effects being refreshed
+    too frequently or not soon enough.
+  related:
+  - RefreshAtonement
+  - GetAtonementDuration
+  - IsAtonementActive
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T04:04:27.052560'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

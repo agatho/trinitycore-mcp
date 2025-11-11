@@ -1,0 +1,50 @@
+api:
+  class: VehicleSeat
+  method: IsEmpty
+  signature: bool VehicleSeat::IsEmpty() const
+documentation:
+  brief: Checks whether the vehicle seat is currently unoccupied by any passenger.
+  description: The IsEmpty method determines if a vehicle seat has no passenger assigned
+    to it. This method is commonly used in vehicle-related game mechanics to verify
+    seat availability before attempting to board a vehicle or to check if a seat can
+    be occupied. The method performs a simple check against the internal passenger
+    reference stored within the VehicleSeat object. It does not validate the passenger's
+    state beyond checking for null presence, meaning it will return true even if a
+    passenger has been removed from the seat but the seat hasn't been properly cleared
+    yet.
+  parameters: []
+  returns: Returns true if the vehicle seat is unoccupied (no passenger assigned),
+    false otherwise. The method returns false if a passenger is currently seated in
+    the vehicle seat, regardless of whether that passenger is valid or active.
+  examples:
+  - title: Basic Seat Availability Check
+    code: "VehicleSeat* seat = vehicle->GetSeat(0);\nif (seat->IsEmpty()) {\n    //\
+      \ Proceed with boarding logic\n    player->EnterVehicle(vehicle, 0);\n} else\
+      \ {\n    // Seat is occupied, handle accordingly\n    player->SendSystemMessage(\"\
+      This seat is already occupied.\");\n}"
+    language: cpp
+  - title: Preventing Multiple Boarding Attempts
+    code: "VehicleSeat* seat = player->GetVehicleSeat();\nif (seat && seat->IsEmpty())\
+      \ {\n    // Safe to board vehicle\n    player->EnterVehicle(vehicle, 0);\n}\
+      \ else if (seat) {\n    // Seat is occupied or invalid\n    player->SendSystemMessage(\"\
+      You cannot board this vehicle.\");\n}"
+    language: cpp
+  notes: This method only checks for the presence of a passenger reference and does
+    not perform any validation on the passenger's actual state. It's recommended to
+    combine this check with additional validation when implementing boarding logic
+    to ensure proper game state consistency. The method is thread-safe as it only
+    reads from immutable internal state.
+  warnings: Be cautious when using this method in scenarios where passengers might
+    be removed asynchronously, as there could be a brief window where the seat appears
+    empty but is still being processed for removal. This can lead to race conditions
+    if not properly handled with synchronization mechanisms.
+  related:
+  - VehicleSeat::GetPassenger
+  - VehicleSeat::SetPassenger
+  - VehicleSeat::Clear
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T14:05:52.608458'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

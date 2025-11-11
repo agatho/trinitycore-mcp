@@ -1,0 +1,70 @@
+api:
+  class: AreaTriggerPolygon
+  method: WriteUpdate
+  signature: void AreaTriggerPolygon::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const AreaTrigger * owner, const Player * receiver) const
+documentation:
+  brief: Serializes area trigger polygon data into a ByteBuffer for client update
+    packets.
+  description: The WriteUpdate method serializes the state of an AreaTriggerPolygon
+    object into a ByteBuffer, which is then used to send update packets to players.
+    This method handles the encoding of polygon-specific properties such as vertices,
+    dimensions, and trigger flags. It's typically invoked during packet construction
+    for area trigger updates in the World of Warcraft client communication protocol.
+    The method respects change masks when ignoreChangesMask is false, ensuring only
+    modified data is sent to reduce network overhead.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized polygon data will
+      be written. This buffer is used to construct the update packet sent to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore change tracking masks.
+      When true, all data fields are serialized regardless of modification status.
+  - name: owner
+    description: Pointer to the AreaTrigger that owns this polygon. Used for accessing
+      owner-specific properties and state during serialization.
+  - name: receiver
+    description: Pointer to the Player who will receive this update packet. Allows
+      for conditional serialization based on player-specific visibility or permissions.
+  returns: null
+  examples:
+  - title: Basic usage in area trigger update
+    code: 'ByteBuffer data;
+
+      AreaTriggerPolygon polygon;
+
+      Player* player = ...;
+
+      AreaTrigger* trigger = ...;
+
+      polygon.WriteUpdate(data, false, trigger, player);'
+    language: cpp
+  - title: Force serialization with ignore mask
+    code: 'ByteBuffer data;
+
+      AreaTriggerPolygon polygon;
+
+      Player* player = ...;
+
+      AreaTrigger* trigger = ...;
+
+      polygon.WriteUpdate(data, true, trigger, player); // Forces full serialization'
+    language: cpp
+  notes: This method is part of the network synchronization system for area triggers.
+    It's called internally by the update system and should not typically be invoked
+    directly by external code. The implementation may perform optimizations based
+    on change tracking to minimize bandwidth usage.
+  warnings: Modifying polygon data during serialization can lead to inconsistent state
+    between server and client. Ensure that all modifications are complete before calling
+    this method. The receiver parameter is crucial for proper visibility handling
+    in multi-player scenarios.
+  related:
+  - AreaTriggerPolygon::Update
+  - AreaTriggerPolygon::BuildUpdateData
+  - AreaTrigger::WriteUpdate
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:22:21.213055'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

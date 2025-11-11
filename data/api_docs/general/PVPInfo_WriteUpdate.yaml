@@ -1,0 +1,88 @@
+api:
+  class: PVPInfo
+  method: WriteUpdate
+  signature: void PVPInfo::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Player * owner, const Player * receiver) const
+documentation:
+  brief: Writes PvP information update to a ByteBuffer for transmission to a client.
+  description: The WriteUpdate method serializes the current PvP state of a player
+    into a ByteBuffer, which is then sent to the client. This method is typically
+    used during packet construction for player updates, ensuring that the client receives
+    accurate PvP-related data such as faction standing, honor points, and arena team
+    information. The ignoreChangesMask parameter allows bypassing change tracking
+    logic, useful when full synchronization is required regardless of previous state
+    changes. The owner parameter identifies the player whose data is being written,
+    while the receiver specifies the target player for whom the update is intended,
+    which may affect how certain PvP data is presented.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized PvP update data will
+      be written. This buffer is typically used to construct network packets sent
+      to clients.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether change tracking should be ignored.
+      When true, all PvP information is written regardless of previous changes; when
+      false, only changed fields are included.
+  - name: owner
+    description: Pointer to the Player object whose PvP information is being serialized.
+      This represents the source of the data being written.
+  - name: receiver
+    description: Pointer to the Player object who will receive this update. Used to
+      determine appropriate PvP data presentation based on the relationship between
+      players (e.g., faction visibility).
+  returns: null
+  examples:
+  - title: Basic usage in packet creation
+    code: 'ByteBuffer data;
+
+      Player* owner = ...; // current player
+
+      Player* receiver = ...; // target player
+
+      PVPInfo pvpInfo;
+
+      pvpInfo.WriteUpdate(data, false, owner, receiver);
+
+      WorldPacket packet(SMSG_PVP_UPDATE, data.size());
+
+      packet.append(data);
+
+      sendPacket(packet);'
+    language: cpp
+  - title: Forcing full synchronization with ignoreChangesMask
+    code: 'ByteBuffer data;
+
+      Player* owner = ...;
+
+      Player* receiver = ...;
+
+      PVPInfo pvpInfo;
+
+      pvpInfo.WriteUpdate(data, true, owner, receiver); // Force write all fields
+
+      WorldPacket packet(SMSG_PVP_UPDATE, data.size());
+
+      packet.append(data);
+
+      sendPacket(packet);'
+    language: cpp
+  notes: This method is part of the player update system in TrinityCore and integrates
+    with the broader packet handling infrastructure. It's commonly called during player
+    movement updates or when specific PvP events occur. The implementation likely
+    uses bitmasks to track which fields have changed, optimizing network traffic by
+    sending only updated data when ignoreChangesMask is false.
+  warnings: Incorrect use of the receiver parameter can lead to improper PvP data
+    visibility for players (e.g., showing enemy faction data to friendly players).
+    Always ensure that owner and receiver are valid Player pointers before calling
+    this method. The method does not perform bounds checking on the ByteBuffer, so
+    ensure sufficient capacity exists.
+  related:
+  - PVPInfo::ReadUpdate
+  - PVPInfo::GetHonorPoints
+  - PVPInfo::SetHonorPoints
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T22:52:59.755487'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

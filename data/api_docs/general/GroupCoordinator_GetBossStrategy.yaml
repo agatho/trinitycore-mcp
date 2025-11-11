@@ -1,0 +1,53 @@
+api:
+  class: GroupCoordinator
+  method: GetBossStrategy
+  signature: BossStrategy * GroupCoordinator::GetBossStrategy(uint32 bossEntry)
+documentation:
+  brief: Retrieves the boss strategy associated with a specific boss entry ID for
+    group coordination.
+  description: The GetBossStrategy method fetches the appropriate BossStrategy object
+    that defines how a group should handle encounters with a particular boss. This
+    is used internally by the GroupCoordinator to determine encounter behavior, such
+    as positioning, mechanics, and phase management during raid encounters. The method
+    looks up the strategy based on the provided boss entry ID, which corresponds to
+    the creature template entry of the boss in the game database. If no specific strategy
+    exists for the given boss, it may return a default or fallback strategy depending
+    on implementation details.
+  parameters:
+  - name: bossEntry
+    description: The unique identifier (entry ID) of the boss creature for which to
+      retrieve the strategy. This corresponds to the entry field in the creature_template
+      table in the TrinityCore database.
+  returns: A pointer to the BossStrategy object associated with the specified boss
+    entry. Returns nullptr if no strategy is found for the given boss entry ID.
+  examples:
+  - title: Retrieve and use a boss strategy
+    code: "uint32 bossId = 12345;\nBossStrategy* strategy = groupCoordinator->GetBossStrategy(bossId);\n\
+      if (strategy)\n{\n    // Use the strategy for encounter handling\n    strategy->OnEncounterStart();\n\
+      }"
+    language: cpp
+  - title: Check if a boss strategy exists before using it
+    code: "uint32 bossEntry = 54321;\nBossStrategy* strategy = groupCoordinator->GetBossStrategy(bossEntry);\n\
+      if (strategy != nullptr)\n{\n    // Proceed with encounter logic\n    strategy->ExecutePhase(0);\n\
+      }\nelse\n{\n    // Fallback behavior when no specific strategy exists\n    LOG_ERROR(\"\
+      world\", \"No boss strategy found for entry {}\", bossEntry);\n}"
+    language: cpp
+  notes: This method is typically used during raid encounter initialization and may
+    be called multiple times per encounter. It's important to note that the returned
+    BossStrategy pointer should not be deleted or modified directly, as it's managed
+    by the GroupCoordinator. The method assumes valid boss entry IDs are passed; invalid
+    entries might result in a null return value.
+  warnings: Do not assume that all boss entries have defined strategies. Always check
+    for a null return value before using the returned BossStrategy object to avoid
+    crashes. Additionally, since this is part of a coordination system, ensure thread
+    safety if used from multiple contexts.
+  related:
+  - GroupCoordinator::SetBossStrategy
+  - GroupCoordinator::GetGroup
+  - GroupCoordinator::AddMember
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T09:26:45.098213'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

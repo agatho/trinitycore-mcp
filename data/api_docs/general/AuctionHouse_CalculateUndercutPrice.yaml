@@ -1,0 +1,76 @@
+api:
+  class: AuctionHouse
+  method: CalculateUndercutPrice
+  signature: uint32 AuctionHouse::CalculateUndercutPrice(uint32 itemId, uint32 currentLowest,
+    float undercutRate)
+documentation:
+  brief: Calculates the undercut price for an auction item based on the current lowest
+    bid and a specified undercut rate.
+  description: The CalculateUndercutPrice method determines the appropriate bid price
+    for an auction item that is slightly lower than the current lowest bid to ensure
+    competitiveness while adhering to the specified undercut rate. This function is
+    typically used by the auction house system to automatically set competitive bids
+    when placing items for sale or when outbidding other players. The undercut rate
+    defines how much lower the new price should be compared to the current lowest,
+    expressed as a decimal (e.g., 0.10 for 10% undercut). The method ensures that
+    the calculated price is valid and meets minimum auction requirements.
+  parameters:
+  - name: itemId
+    description: The unique identifier of the item being auctioned. Used to validate
+      item properties and ensure proper pricing logic.
+  - name: currentLowest
+    description: The current lowest bid price for the item in the auction house, represented
+      in copper (1 gold = 100 silver = 10000 copper).
+  - name: undercutRate
+    description: The rate at which to undercut the current lowest bid, expressed as
+      a decimal. For example, 0.10 represents a 10% undercut.
+  returns: Returns the calculated undercut price in copper. The value will always
+    be less than or equal to the current lowest bid, but never below the minimum auction
+    price allowed by the game system.
+  examples:
+  - title: Basic Undercut Calculation
+    code: 'uint32 itemId = 12345;
+
+      uint32 currentLowest = 50000; // 5 gold
+
+      float undercutRate = 0.10f; // 10% undercut
+
+      uint32 undercutPrice = auctionHouse->CalculateUndercutPrice(itemId, currentLowest,
+      undercutRate);
+
+      // undercutPrice would be 45000 (4.5 gold)
+
+      '
+    language: cpp
+  - title: Using Different Undercut Rates
+    code: 'uint32 itemId = 67890;
+
+      uint32 currentLowest = 100000; // 10 gold
+
+      float undercutRate = 0.05f; // 5% undercut
+
+      uint32 undercutPrice = auctionHouse->CalculateUndercutPrice(itemId, currentLowest,
+      undercutRate);
+
+      // undercutPrice would be 95000 (9.5 gold)
+
+      '
+    language: cpp
+  notes: The method assumes that the input parameters are valid and that the item
+    exists in the auction house system. It does not perform any validation on the
+    itemId or currentLowest values beyond basic type checking. The undercut rate is
+    expected to be between 0 and 1, where 0 means no undercut and 1 means undercutting
+    by 100% (which would result in a price of 0).
+  warnings: Ensure that the undercutRate parameter does not exceed 1.0, as this could
+    lead to negative or zero prices. Also, be aware that very small undercut rates
+    may result in minimal price differences, potentially reducing competitiveness.
+  related:
+  - AuctionHouse::PlaceBid
+  - AuctionHouse::GetAuctionItem
+  - AuctionHouse::UpdateAuction
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:06:40.327097'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

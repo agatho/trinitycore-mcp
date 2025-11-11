@@ -1,0 +1,52 @@
+api:
+  class: RestorationHoTTracker
+  method: NeedsLifebloomRefresh
+  signature: bool RestorationHoTTracker::NeedsLifebloomRefresh(int guid, uint32 pandemicWindow)
+    const
+documentation:
+  brief: Determines whether a Lifebloom HoT needs to be refreshed based on the pandemic
+    window and GUID.
+  description: The NeedsLifebloomRefresh method evaluates if a Lifebloom spell's periodic
+    healing effect (HoT) should be refreshed for a given target. This decision is
+    made by checking if the existing HoT is still within its pandemic window, which
+    prevents immediate refreshes to avoid spamming the same HoT. The method uses the
+    provided GUID to identify the specific target and the pandemicWindow parameter
+    to define how long the HoT can be extended before requiring a new application.
+    This mechanism ensures that players cannot endlessly extend the duration of Lifebloom
+    without reapplying it, maintaining game balance and resource management.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target unit for which the Lifebloom
+      HoT status is being evaluated.
+  - name: pandemicWindow
+    description: The time window in milliseconds during which a Lifebloom HoT can
+      be refreshed without needing to reapply the spell. If the current HoT duration
+      is within this window, a refresh is not needed.
+  returns: Returns true if the Lifebloom HoT for the specified target needs to be
+    refreshed; otherwise, returns false.
+  examples:
+  - title: Basic Usage
+    code: "if (tracker->NeedsLifebloomRefresh(playerGuid, 3000)) {\n    // Refresh\
+      \ Lifebloom on player\n}"
+    language: cpp
+  - title: Integration with Spell Logic
+    code: "void ApplyLifebloom(Unit* target) {\n    if (tracker->NeedsLifebloomRefresh(target->GetGUID(),\
+      \ 3000)) {\n        // Do not refresh, let existing HoT continue\n        return;\n\
+      \    }\n    // Apply new Lifebloom HoT\n}"
+    language: cpp
+  notes: This method assumes that the RestorationHoTTracker maintains internal state
+    about active HoTs for each GUID. It is typically used in conjunction with other
+    methods managing spell duration and refresh logic within the restoration class.
+  warnings: Ensure that the pandemicWindow value passed to this function aligns with
+    the game's intended mechanics, as incorrect values may lead to unbalanced gameplay
+    or unexpected behavior regarding spell refreshes.
+  related:
+  - GetLifebloomDuration
+  - IsLifebloomActive
+  - RefreshLifebloom
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T22:18:48.961636'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

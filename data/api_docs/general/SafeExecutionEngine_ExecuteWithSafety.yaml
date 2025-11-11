@@ -1,0 +1,68 @@
+api:
+  class: SafeExecutionEngine
+  method: ExecuteWithSafety
+  signature: int SafeExecutionEngine::ExecuteWithSafety(int * stmt, bool async, int
+    callback)
+documentation:
+  brief: Executes a database statement with safety checks and optional asynchronous
+    handling.
+  description: The ExecuteWithSafety method provides a secure way to execute database
+    statements within the TrinityCore framework. It performs necessary safety validations
+    before executing the provided statement, ensuring data integrity and preventing
+    potential SQL injection or malformed query issues. The method supports both synchronous
+    and asynchronous execution modes based on the async parameter. When async is set
+    to true, the operation runs in the background without blocking the calling thread,
+    which is particularly useful for non-critical database operations that don't require
+    immediate results. This method is commonly used in game logic where database interactions
+    must be handled safely to maintain server stability and prevent crashes due to
+    malformed queries or connection issues.
+  parameters:
+  - name: stmt
+    description: Pointer to the database statement to be executed. This should point
+      to a valid prepared statement object that has been properly initialized with
+      SQL query text.
+  - name: async
+    description: Boolean flag indicating whether the execution should be asynchronous
+      (true) or synchronous (false). When true, the method returns immediately without
+      waiting for database completion.
+  - name: callback
+    description: Integer identifier representing the callback function to be invoked
+      upon completion of the database operation. This is used in asynchronous mode
+      to handle results or errors appropriately.
+  returns: Returns an integer value indicating the success or failure status of the
+    execution. A return value of 0 typically indicates successful execution, while
+    non-zero values may represent various error conditions such as connection failures,
+    query syntax errors, or execution timeouts.
+  examples:
+  - title: Basic Synchronous Execution
+    code: "int result = engine.ExecuteWithSafety(&stmt, false, 0);\nif (result ==\
+      \ 0) {\n    // Statement executed successfully\n    printf(\"Query executed\
+      \ successfully\\n\");\n} else {\n    // Handle error\n    printf(\"Query execution\
+      \ failed with code: %d\\n\", result);\n}"
+    language: cpp
+  - title: Asynchronous Execution with Callback
+    code: "int callbackId = 12345;\nint asyncResult = engine.ExecuteWithSafety(&stmt,\
+      \ true, callbackId);\nif (asyncResult == 0) {\n    // Asynchronous execution\
+      \ started successfully\n    printf(\"Async query started with callback ID: %d\\\
+      n\", callbackId);\n} else {\n    // Handle asynchronous start failure\n    printf(\"\
+      Failed to start async query: %d\\n\", asyncResult);\n}"
+    language: cpp
+  notes: The method internally manages thread safety for database connections and
+    ensures proper resource cleanup. It is designed to work with prepared statements
+    that have already been validated and compiled by the database subsystem. The callback
+    parameter should reference a valid registered callback handler in the system's
+    event processing framework.
+  warnings: Incorrect usage of the stmt pointer can lead to segmentation faults or
+    undefined behavior. Always ensure that the statement has been properly initialized
+    before calling this method. Using invalid callback IDs may result in runtime errors
+    or missed notifications when handling asynchronous operations.
+  related:
+  - ExecuteWithSafetyAsync
+  - ExecuteWithSafetySync
+  - PrepareStatement
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T22:06:50.550837'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

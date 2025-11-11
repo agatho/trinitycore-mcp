@@ -1,0 +1,57 @@
+api:
+  class: Garrison
+  method: CheckBuildingPlacement
+  signature: GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId,
+    uint32 garrBuildingId) const
+documentation:
+  brief: Checks if a building can be placed at the specified garrison plot instance.
+  description: The CheckBuildingPlacement method validates whether a given building
+    ID can be placed on a specific garrison plot instance. It performs various checks
+    including building prerequisites, plot compatibility, resource requirements, and
+    faction restrictions. This method is typically called before attempting to place
+    a building to ensure the operation will succeed. The method returns a GarrisonError
+    enum value indicating success or the specific reason for failure.
+  parameters:
+  - name: garrPlotInstanceId
+    description: The unique identifier of the garrison plot instance where the building
+      is to be placed. This ID corresponds to a specific plot within the player's
+      garrison.
+  - name: garrBuildingId
+    description: The unique identifier of the building to be placed. This ID maps
+      to a specific building type in the game's database.
+  returns: A GarrisonError enum value indicating the result of the placement check.
+    Possible values include GARRISON_ERROR_NONE for success, or various error codes
+    such as GARRISON_ERROR_INVALID_PLOT, GARRISON_ERROR_INVALID_BUILDING, GARRISON_ERROR_MISSING_RESOURCES,
+    etc.
+  examples:
+  - title: Basic building placement validation
+    code: "GarrisonError result = player->GetGarrison()->CheckBuildingPlacement(12345,\
+      \ 67890);\nif (result == GARRISON_ERROR_NONE) {\n    // Building can be placed\n\
+      \    printf(\"Building placement is valid\\n\");\n} else {\n    // Handle error\n\
+      \    printf(\"Building placement failed with error: %d\\n\", result);\n}"
+    language: cpp
+  - title: Using placement check in a garrison management system
+    code: "class GarrisonManager {\npublic:\n    bool CanPlaceBuilding(Player* player,\
+      \ uint32 plotId, uint32 buildingId) {\n        Garrison* garrison = player->GetGarrison();\n\
+      \        if (!garrison) return false;\n        \n        GarrisonError error\
+      \ = garrison->CheckBuildingPlacement(plotId, buildingId);\n        return error\
+      \ == GARRISON_ERROR_NONE;\n    }\n};"
+    language: cpp
+  notes: This method performs server-side validation and should be called before any
+    actual building placement operations. The method may access database records to
+    verify prerequisites and resource availability. It's important to note that this
+    check only validates the conditions for placement, not the actual placement itself.
+  warnings: Calling this method without proper player or garrison context may result
+    in undefined behavior. Ensure that the provided plot and building IDs are valid
+    before calling this method. The method does not modify any game state, but it
+    may trigger database queries which could impact performance if called excessively.
+  related:
+  - Garrison::PlaceBuilding
+  - Garrison::RemoveBuilding
+  - Garrison::GetBuildingInfo
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T04:23:08.506020'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

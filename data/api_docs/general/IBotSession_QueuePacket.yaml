@@ -1,0 +1,50 @@
+api:
+  class: IBotSession
+  method: QueuePacket
+  signature: void IBotSession::QueuePacket(WorldPacket && packet)
+documentation:
+  brief: Queues a WorldPacket for transmission to the client.
+  description: The QueuePacket method schedules a WorldPacket to be sent to the connected
+    client at a later time. This method is typically used by bot implementations to
+    defer packet sending until the appropriate moment in the game loop or script execution.
+    The packet is added to an internal queue and will be processed according to the
+    session's transmission logic. This approach allows for better control over network
+    traffic and ensures that packets are sent in a timely manner without blocking
+    the main execution thread.
+  parameters:
+  - name: packet
+    description: An rvalue reference to a WorldPacket object containing the data to
+      be queued for transmission. The packet should be properly constructed with valid
+      opcode and data before being passed to this method.
+  returns: null
+  examples:
+  - title: Basic Packet Queueing
+    code: 'WorldPacket packet(CMSG_PLAYER_LOGIN);
+
+      packet << uint32(12345);
+
+      botSession->QueuePacket(std::move(packet));'
+    language: cpp
+  - title: Queuing Multiple Packets
+    code: "for (int i = 0; i < 5; ++i)\n{\n    WorldPacket packet(SMSG_UPDATE_OBJECT);\n\
+      \    packet << uint32(i);\n    botSession->QueuePacket(std::move(packet));\n\
+      }"
+    language: cpp
+  notes: This method does not immediately send the packet. It only queues it for later
+    transmission. The actual sending occurs during the session's update cycle or when
+    explicitly flushed. This design helps prevent network congestion and ensures proper
+    timing of packet delivery.
+  warnings: Ensure that the WorldPacket is properly constructed before queuing, as
+    invalid packets may cause client-side errors or disconnections. Avoid queuing
+    extremely large packets repeatedly as this can lead to memory issues or performance
+    degradation.
+  related:
+  - SendPacket
+  - FlushPackets
+  - IsConnected
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-09T00:54:32.481767'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

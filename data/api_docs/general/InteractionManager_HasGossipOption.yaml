@@ -1,0 +1,62 @@
+api:
+  class: InteractionManager
+  method: HasGossipOption
+  signature: bool InteractionManager::HasGossipOption(Creature * npc, uint32 option)
+    const
+documentation:
+  brief: Checks if a creature has a specific gossip option available.
+  description: The HasGossipOption method determines whether a given NPC (Creature)
+    contains a specific gossip option identified by its unique option ID. This functionality
+    is commonly used within World of Warcraft's TrinityCore server to manage interactive
+    dialogue trees and ensure that only valid options are presented to players during
+    gossip interactions. The method performs a lookup in the creature's gossip menu
+    data structure to verify the existence of the specified option before returning
+    a boolean result. It is typically called during gossip processing to validate
+    user selections or to conditionally display options based on player state or quest
+    progress.
+  parameters:
+  - name: npc
+    description: Pointer to the Creature object representing the NPC whose gossip
+      options are being checked. Must not be null for valid operation.
+  - name: option
+    description: The unique identifier (uint32) of the gossip option to check for
+      existence within the creature's gossip menu. This ID corresponds to a specific
+      entry in the gossip menu configuration.
+  returns: Returns true if the specified gossip option exists for the given NPC; otherwise,
+    returns false. A return value of false typically indicates that either the option
+    ID is invalid or the NPC does not have this particular option configured in its
+    gossip menu.
+  examples:
+  - title: Basic Usage to Check Gossip Option
+    code: "if (interactionManager.HasGossipOption(npc, 12345)) {\n    // Proceed with\
+      \ handling the gossip option\n    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,\
+      \ \"Selected Option\", GOSSIP_SENDER_MAIN, 12345);\n}"
+    language: cpp
+  - title: Conditional Gossip Option Display
+    code: "if (!interactionManager.HasGossipOption(npc, 98765)) {\n    // Add the\
+      \ option only if it doesn't already exist\n    npc->AddGossipItem(98765, \"\
+      Special Quest\", GOSSIP_SENDER_MAIN, 98765);\n}\nif (interactionManager.HasGossipOption(npc,\
+      \ 98765)) {\n    // Perform action when option exists\n    player->PlayerTalkClass->SendGossipMenu(10001,\
+      \ npc->GetGUID());\n}"
+    language: cpp
+  notes: This method relies on internal gossip menu data structures and should be
+    used carefully in performance-sensitive contexts. The method assumes that the
+    NPC pointer is valid and that the gossip options have been properly initialized.
+    It does not perform any validation of the option ID itself, so invalid IDs may
+    return false without error.
+  warnings: Ensure that the Creature pointer passed to this method is valid and not
+    null, as passing a null pointer will likely cause undefined behavior or crashes.
+    Also, be aware that gossip options are typically managed through database entries
+    or scripted configurations, so relying on hardcoded option IDs may lead to inconsistencies
+    if those values change.
+  related:
+  - GetGossipOption
+  - AddGossipOption
+  - RemoveGossipOption
+  - ClearGossipOptions
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T13:25:03.709998'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

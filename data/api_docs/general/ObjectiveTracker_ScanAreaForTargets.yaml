@@ -1,0 +1,66 @@
+api:
+  class: ObjectiveTracker
+  method: ScanAreaForTargets
+  signature: int ObjectiveTracker::ScanAreaForTargets(const int & center, float radius,
+    uint32 targetId)
+documentation:
+  brief: Scans a specified area for targets matching a given target ID and returns
+    the count of found objects.
+  description: The ScanAreaForTargets method performs a spatial search within a defined
+    radius around a central point to identify and count game objects or units that
+    match a specific target identifier. This functionality is commonly used in quest
+    tracking, objective monitoring, and area-based event detection systems within
+    TrinityCore's framework. The method leverages the underlying world object management
+    system to efficiently query nearby entities without requiring explicit iteration
+    through all world objects. It is designed to support real-time updates for dynamic
+    objectives such as killing specific creatures, collecting items, or interacting
+    with game environment elements.
+  parameters:
+  - name: center
+    description: A reference to an integer representing the center point of the scanning
+      area. In TrinityCore, this typically corresponds to a WorldObject's GUID or
+      a coordinate-based identifier used for spatial queries.
+  - name: radius
+    description: The radius of the circular area around the center point where targets
+      will be scanned. This value defines how far the search extends from the center
+      in world units (typically yards).
+  - name: targetId
+    description: A unique identifier used to filter and match specific target types.
+      This could represent a creature entry ID, game object entry ID, or quest objective
+      ID depending on the context of usage.
+  returns: Returns an integer value indicating the number of matching targets found
+    within the specified area. A return value of zero means no matching objects were
+    located in the scanned region. Negative values may indicate errors or invalid
+    parameters, though this behavior should be verified based on implementation details.
+  examples:
+  - title: Basic Usage for Quest Objective Tracking
+    code: "int count = objectiveTracker->ScanAreaForTargets(playerGuid, 10.0f, 12345);\
+      \ // Scan for 10 yards around player for creature with entry ID 12345\nif (count\
+      \ > 0)\n{\n    // Update quest progress or trigger event\n}"
+    language: cpp
+  - title: Advanced Usage with Dynamic Radius
+    code: "float searchRadius = player->GetDistance(targetPosition) * 0.5f;\nint foundCount\
+      \ = objectiveTracker->ScanAreaForTargets(targetPosition, searchRadius, questObjectiveEntry);\n\
+      // Adjust quest progress based on number of found targets\nif (foundCount >=\
+      \ requiredTargetCount)\n{\n    // Complete quest objective\n}"
+    language: cpp
+  notes: This method relies heavily on the spatial indexing system of TrinityCore
+    and may perform better when used with pre-calculated center points rather than
+    dynamic positions. The performance impact increases with larger search radii and
+    higher numbers of matching objects. Consider caching frequently accessed target
+    IDs to reduce redundant database lookups.
+  warnings: Ensure that the center parameter is a valid WorldObject GUID or coordinate
+    reference; invalid references may lead to undefined behavior or crashes. Be cautious
+    when scanning large areas as it can cause performance degradation in high-traffic
+    zones. The method assumes that targetId corresponds to an existing game object
+    type, otherwise results are unpredictable.
+  related:
+  - GetTargetCount
+  - UpdateObjectiveProgress
+  - QueryAreaTargets
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T22:55:54.001862'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

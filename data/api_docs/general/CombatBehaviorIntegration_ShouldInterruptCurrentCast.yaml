@@ -1,0 +1,45 @@
+api:
+  class: CombatBehaviorIntegration
+  method: ShouldInterruptCurrentCast
+  signature: bool CombatBehaviorIntegration::ShouldInterruptCurrentCast()
+documentation:
+  brief: Determines whether the current spell cast should be interrupted based on
+    combat behavior rules.
+  description: The ShouldInterruptCurrentCast method evaluates the current state of
+    the unit's casting behavior to decide if an ongoing spell cast should be interrupted.
+    This method is typically used in AI logic to determine when a creature or player
+    should stop casting a spell due to incoming threats, changes in target, or other
+    combat-related conditions. It considers factors such as threat level, target validity,
+    and interruptibility flags set on the current spell. The method returns true if
+    the cast should be interrupted, false otherwise.
+  parameters: []
+  returns: Returns true if the current spell cast should be interrupted according
+    to combat behavior rules; otherwise returns false.
+  examples:
+  - title: Basic usage in AI update loop
+    code: "void CombatBehaviorIntegration::UpdateAI()\n{\n    if (ShouldInterruptCurrentCast())\n\
+      \    {\n        me->InterruptNonMeleeSpell(CURRENT_GENERIC_SPELL);\n    }\n}"
+    language: cpp
+  - title: Conditional interrupt with target check
+    code: "bool CombatBehaviorIntegration::ShouldInterruptCurrentCast()\n{\n    if\
+      \ (!me->GetVictim())\n        return false;\n\n    // Check if target is no\
+      \ longer valid or too far away\n    if (me->GetVictim()->IsDead() || !me->IsWithinDist(me->GetVictim(),\
+      \ 30.0f))\n        return true;\n\n    return false;\n}"
+    language: cpp
+  notes: This method is commonly called during AI update cycles and should be lightweight
+    to avoid performance impact. It's designed to integrate with TrinityCore's existing
+    spell interruption system, so it's recommended to use the standard interrupt methods
+    like InterruptNonMeleeSpell() when this returns true.
+  warnings: Do not call this method directly from spell handlers or combat state changes
+    without checking if the cast is actually interruptible. Always verify that the
+    current spell supports interruption before calling InterruptNonMeleeSpell().
+  related:
+  - InterruptNonMeleeSpell
+  - IsCasting
+  - GetVictim
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T19:17:23.314525'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

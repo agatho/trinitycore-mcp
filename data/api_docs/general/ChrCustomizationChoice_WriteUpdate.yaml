@@ -1,0 +1,78 @@
+api:
+  class: ChrCustomizationChoice
+  method: WriteUpdate
+  signature: void ChrCustomizationChoice::WriteUpdate(ByteBuffer & data, bool ignoreChangesMask,
+    const Object * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes the customization choice data to a ByteBuffer for network
+    transmission to a specific player.
+  description: The WriteUpdate method serializes the current state of a ChrCustomizationChoice
+    object into a ByteBuffer, preparing it for transmission over the network to a
+    specific player. This method is typically used in World of Warcraft's TrinityCore
+    server implementation to send updates about character customization options or
+    choices to clients. The serialization process respects the changes mask unless
+    explicitly ignored via the ignoreChangesMask parameter. It ensures that only relevant
+    data is sent based on the owner object and receiver player context, optimizing
+    network usage. This method plays a crucial role in maintaining synchronization
+    between server-side customization data and client-side UI representations.
+  parameters:
+  - name: data
+    description: Reference to a ByteBuffer where the serialized update data will be
+      written. This buffer is typically used for constructing network packets.
+  - name: ignoreChangesMask
+    description: Boolean flag indicating whether to ignore the internal changes mask
+      when serializing data. If true, all fields are written regardless of change
+      status.
+  - name: owner
+    description: Pointer to the Object that owns this customization choice. Used to
+      determine context and potentially filter what data is sent.
+  - name: receiver
+    description: Pointer to the Player who will receive this update. Used for player-specific
+      data filtering or conditional serialization.
+  returns: null
+  examples:
+  - title: Basic usage in packet construction
+    code: 'ByteBuffer data;
+
+      ChrCustomizationChoice choice;
+
+      Player* receiver = ...; // some player
+
+      Object* owner = ...; // some object
+
+      choice.WriteUpdate(data, false, owner, receiver);
+
+      // Now ''data'' contains the serialized update for network transmission'
+    language: cpp
+  - title: Forcing full update with ignore flag
+    code: 'ByteBuffer data;
+
+      ChrCustomizationChoice choice;
+
+      Player* receiver = ...;
+
+      Object* owner = ...;
+
+      choice.WriteUpdate(data, true, owner, receiver);
+
+      // Forces serialization of all fields regardless of change status'
+    language: cpp
+  notes: This method is part of the object update system in TrinityCore. It's typically
+    called during packet construction for updates sent to players. The method respects
+    the internal changes tracking mechanism to minimize bandwidth usage. Developers
+    should be aware that this method may modify the provided ByteBuffer directly and
+    should ensure proper synchronization if used in multi-threaded contexts.
+  warnings: Improper use of the ignoreChangesMask parameter can lead to unnecessary
+    network traffic. When set to true, all fields are serialized even if they haven't
+    changed, which is inefficient. Ensure that the owner and receiver parameters are
+    valid pointers to avoid undefined behavior during serialization.
+  related:
+  - ChrCustomizationChoice::BuildUpdateData
+  - ChrCustomizationChoice::GetChangesMask
+  - ChrCustomizationChoice::SetChangesMask
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T07:10:35.620732'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

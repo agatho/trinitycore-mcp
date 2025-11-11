@@ -1,0 +1,56 @@
+api:
+  class: InteractionManager
+  method: HandleVendorList
+  signature: void InteractionManager::HandleVendorList(Player * bot, const WorldPacket
+    & packet)
+documentation:
+  brief: Handles the vendor list request from a bot player, retrieving and sending
+    available items for purchase.
+  description: The HandleVendorList method processes a vendor list request initiated
+    by a bot player in the World of Warcraft environment. It retrieves the items available
+    for purchase from a specified vendor and sends them to the client as a packet.
+    This method is part of the InteractionManager's functionality, which handles various
+    interactions between players (especially bots) and NPCs such as vendors. The method
+    typically gets invoked when a bot approaches a vendor NPC and requests to see
+    what items are available for sale. It ensures that the player receives an updated
+    list of vendor items, including pricing, item quality, and availability status.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot requesting the
+      vendor list. This parameter is essential for identifying which character is
+      making the request and ensuring proper interaction with the vendor.
+  - name: packet
+    description: The WorldPacket received from the client containing the vendor list
+      request. This packet typically includes information such as the vendor's GUID
+      or other identifying data needed to retrieve the correct item list.
+  returns: null
+  examples:
+  - title: Basic Usage in Bot AI
+    code: "void MyBotAI::OnVendorRequest(Player* bot)\n{\n    WorldPacket packet(CMSG_SELL_ITEM);\n\
+      \    // Assume packet is properly initialized with vendor GUID\n    interactionManager->HandleVendorList(bot,\
+      \ packet);\n}"
+    language: cpp
+  - title: Processing Vendor List Response
+    code: "void InteractionManager::HandleVendorList(Player* bot, const WorldPacket&\
+      \ packet)\n{\n    if (!bot || !packet.size())\n        return;\n\n    uint64\
+      \ vendorGuid = 0;\n    packet >> vendorGuid;\n\n    if (Creature* vendor = bot->GetMap()->GetCreature(vendorGuid))\n\
+      \    {\n        // Send vendor items to player\n        vendor->SendVendorList(bot);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the packet contains valid vendor identification
+    data. It's important to ensure that the bot has proper access rights and is within
+    range of the vendor NPC before calling this method. The method may involve asynchronous
+    operations depending on how the vendor list is cached or retrieved from the server.
+  warnings: Improper handling of the packet or invalid vendor GUIDs can lead to client-side
+    errors or disconnects. Always validate input parameters and ensure that the vendor
+    exists in the current map before attempting to send a vendor list.
+  related:
+  - SendVendorList
+  - HandleBuyItem
+  - GetVendorItems
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T02:25:15.116855'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

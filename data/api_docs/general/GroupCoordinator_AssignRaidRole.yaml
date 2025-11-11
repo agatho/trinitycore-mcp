@@ -1,0 +1,58 @@
+api:
+  class: GroupCoordinator
+  method: AssignRaidRole
+  signature: bool GroupCoordinator::AssignRaidRole(Player * target, GroupRole role)
+documentation:
+  brief: Assigns a raid role to a player within the group coordinator system
+  description: The AssignRaidRole method assigns a specific GroupRole to a target
+    player in the group coordinator. This method is used to manage player roles within
+    a raid environment, such as designating tanks, healers, or damage dealers. The
+    assignment process validates that the target player is part of the current group
+    and that the role being assigned is valid for the group's configuration. The method
+    returns true upon successful assignment, or false if the assignment fails due
+    to invalid parameters, group membership issues, or role conflicts.
+  parameters:
+  - name: target
+    description: Pointer to the Player object that will receive the raid role assignment.
+      Must be a valid player who is currently a member of the group.
+  - name: role
+    description: The GroupRole enum value specifying the role to assign to the target
+      player. Valid roles typically include TANK, HEALER, DAMAGE, and others depending
+      on the group's raid configuration.
+  returns: Returns true if the raid role was successfully assigned to the target player,
+    false otherwise. Failure conditions may include invalid player pointer, player
+    not in group, or invalid role value.
+  examples:
+  - title: Basic Raid Role Assignment
+    code: "Player* targetPlayer = ...; // Get a valid player reference\nGroupRole\
+      \ role = GroupRole::TANK;\nbool success = groupCoordinator->AssignRaidRole(targetPlayer,\
+      \ role);\nif (success)\n{\n    // Role assignment successful\n    targetPlayer->GetSession()->SendNotification(\"\
+      Assigned as Tank\");\n}"
+    language: cpp
+  - title: Conditional Role Assignment with Validation
+    code: "Player* player = ...; // Assume valid player reference\nif (player && player->GetGroup()\
+      \ == groupCoordinator->GetGroup())\n{\n    GroupRole role = GroupRole::HEALER;\n\
+      \    if (groupCoordinator->AssignRaidRole(player, role))\n    {\n        //\
+      \ Successfully assigned healer role\n        LOG_INFO(\"server\", \"Player {}\
+      \ assigned as healer\", player->GetName());\n    }\n    else\n    {\n      \
+      \  // Assignment failed\n        LOG_ERROR(\"server\", \"Failed to assign healer\
+      \ role to player {}\");\n    }\n}"
+    language: cpp
+  notes: This method likely interacts with internal group management systems and may
+    trigger UI updates or notifications to other players in the group. The method
+    should only be called when the group coordinator has proper authority over the
+    target player's group.
+  warnings: Ensure that the target player is actually part of the group before calling
+    this method, as attempting to assign roles to non-group members may result in
+    undefined behavior or failure. Also verify that the GroupRole enum value is valid
+    for the current raid configuration.
+  related:
+  - GetRaidRole
+  - RemoveRaidRole
+  - IsPlayerInGroup
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T01:36:06.899533'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,70 @@
+api:
+  class: PathOptimizer
+  method: ApplyDouglasPeucker
+  signature: void PathOptimizer::ApplyDouglasPeucker(MovementPath & path, float epsilon)
+documentation:
+  brief: Applies the Douglas-Peucker algorithm to simplify a movement path by reducing
+    unnecessary waypoints while preserving overall trajectory.
+  description: The ApplyDouglasPeucker method implements the Douglas-Peucker line
+    simplification algorithm to reduce the number of waypoints in a MovementPath.
+    This optimization is crucial for performance in World of Warcraft's TrinityCore,
+    as it minimizes network traffic and CPU overhead when sending path data to clients.
+    The epsilon parameter controls the tolerance for simplification; higher values
+    result in more aggressive reduction of waypoints. The method modifies the input
+    path in-place, removing intermediate points that do not significantly deviate
+    from the straight line between start and end points of a segment. This algorithm
+    is commonly used in pathfinding systems to balance path accuracy with computational
+    efficiency.
+  parameters:
+  - name: path
+    description: Reference to the MovementPath object containing waypoints to be simplified.
+      The method modifies this path in-place by removing unnecessary waypoints.
+  - name: epsilon
+    description: A floating-point value representing the maximum allowed distance
+      between a point and the line segment formed by its neighbors. Points closer
+      than epsilon to the straight line will be removed during simplification. Higher
+      values produce more simplified paths, while lower values preserve more detail.
+  returns: null
+  examples:
+  - title: Basic Path Simplification
+    code: 'MovementPath path;
+
+      // ... populate path with waypoints ...
+
+      float epsilon = 0.5f;
+
+      PathOptimizer optimizer;
+
+      optimizer.ApplyDouglasPeucker(path, epsilon);'
+    language: cpp
+  - title: Performance Optimization for AI Navigation
+    code: 'MovementPath npcPath;
+
+      // ... generate complex NPC path with many waypoints ...
+
+      float epsilon = 2.0f; // Aggressive simplification for better performance
+
+      PathOptimizer::ApplyDouglasPeucker(npcPath, epsilon);
+
+      // Simplified path sent to client for movement'
+    language: cpp
+  notes: The Douglas-Peucker algorithm is a recursive process that works by finding
+    the point farthest from the line segment connecting the start and end points of
+    a path segment. If this distance exceeds epsilon, the point is kept and the algorithm
+    recurses on the two subsegments. The method assumes that the input path has at
+    least three waypoints for meaningful simplification to occur. For very small epsilon
+    values, the path may not be simplified at all.
+  warnings: Using extremely low epsilon values can result in minimal or no simplification,
+    potentially leading to performance degradation due to excessive waypoints. Conversely,
+    using too high an epsilon value may cause significant loss of path accuracy, resulting
+    in unnatural movement behavior. Careful tuning of epsilon is required based on
+    the specific use case and desired balance between performance and path fidelity.
+  related:
+  - PathOptimizer::SimplifyPath
+  - PathOptimizer::OptimizeWaypoints
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T22:40:56.541546'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

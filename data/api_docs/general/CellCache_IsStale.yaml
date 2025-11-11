@@ -1,0 +1,48 @@
+api:
+  class: CellCache
+  method: IsStale
+  signature: bool CellCache::IsStale(uint32 currentTime) const
+documentation:
+  brief: Determines whether the cell cache has become stale and requires updating.
+  description: The IsStale method checks if the current cell cache entry has exceeded
+    its valid time window and needs to be refreshed. This is typically used in the
+    context of world object management where cells containing game entities are cached
+    for performance reasons. The method compares the internal timestamp of the cache
+    with the provided current time to determine staleness. When a cell cache becomes
+    stale, it indicates that the cached data may no longer reflect the current state
+    of the world, and a refresh operation should be initiated.
+  parameters: []
+  returns: Returns true if the cell cache is considered stale (i.e., its timestamp
+    has expired relative to the provided current time), otherwise returns false. A
+    stale cache indicates that the cached data should be refreshed with updated information
+    from the world state.
+  examples:
+  - title: Basic Staleness Check
+    code: "uint32 currentTime = WorldTimer::getMSTime();\nif (cellCache.IsStale(currentTime))\
+      \ {\n    // Refresh the cell cache\n    cellCache.Update();\n}"
+    language: cpp
+  - title: Integration with Cell Update Logic
+    code: "void UpdatePlayerCells(Player* player) {\n    for (auto& pair : player->GetCellCache())\
+      \ {\n        uint32 currentTime = WorldTimer::getMSTime();\n        if (pair.second.IsStale(currentTime))\
+      \ {\n            // Perform cell refresh logic\n            RefreshCell(pair.first,\
+      \ player);\n        }\n    }\n}"
+    language: cpp
+  notes: This method is typically called in performance-critical sections of the game
+    loop where cell caching is used to optimize object visibility calculations. The
+    staleness threshold is usually configured based on game mechanics and network
+    update frequencies. Implementation may involve comparing internal timestamps against
+    a configurable timeout value.
+  warnings: Calling this method without proper time synchronization can lead to incorrect
+    staleness detection. Ensure that currentTime parameter represents the actual current
+    world time for accurate results. Improper use may cause unnecessary cache refreshes
+    or stale data usage.
+  related:
+  - CellCache::Update
+  - CellCache::GetLastUpdateTime
+  - CellCache::SetStale
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-08T19:36:52.536093'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

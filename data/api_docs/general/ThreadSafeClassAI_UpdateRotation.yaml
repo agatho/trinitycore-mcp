@@ -1,0 +1,54 @@
+api:
+  class: ThreadSafeClassAI
+  method: UpdateRotation
+  signature: void ThreadSafeClassAI::UpdateRotation(uint32 diff)
+documentation:
+  brief: Updates the AI rotation logic based on elapsed time since last update
+  description: The UpdateRotation method is responsible for executing the core AI
+    decision-making process within the ThreadSafeClassAI class. It processes the current
+    state of the AI entity and determines appropriate actions to take based on the
+    time elapsed since the last execution cycle. This method typically handles spell
+    casting, movement decisions, target selection, and other behavioral logic that
+    drives NPC or creature AI behavior in World of Warcraft. The method is designed
+    to be thread-safe and should be called regularly by the game loop to maintain
+    responsive AI behavior.
+  parameters:
+  - name: diff
+    description: The time elapsed (in milliseconds) since the last call to UpdateRotation.
+      This value is used to determine when to trigger AI actions, manage cooldowns,
+      and update timing-based behaviors.
+  returns: null
+  examples:
+  - title: Basic usage in game loop
+    code: "void GameLoop()\n{\n    while (true)\n    {\n        uint32 diff = sWorld->GetLastTickTime();\n\
+      \        if (Creature* creature = GetNearbyCreature())\n        {\n        \
+      \    if (ThreadSafeClassAI* ai = dynamic_cast<ThreadSafeClassAI*>(creature->AI()))\n\
+      \            {\n                ai->UpdateRotation(diff);\n            }\n \
+      \       }\n        std::this_thread::sleep_for(std::chrono::milliseconds(100));\n\
+      \    }\n}"
+    language: cpp
+  - title: Custom AI rotation with timing
+    code: "void ThreadSafeClassAI::UpdateRotation(uint32 diff)\n{\n    _updateTimer\
+      \ += diff;\n    if (_updateTimer < 1000) // Update every second\n        return;\n\
+      \    \n    _updateTimer = 0;\n    \n    // Perform AI logic here\n    if (me->IsInCombat())\n\
+      \    {\n        // Execute combat rotation\n        DoCombatAI();\n    }\n \
+      \   else\n    {\n        // Execute idle rotation\n        DoIdleAI();\n   \
+      \ }\n}"
+    language: cpp
+  notes: This method is expected to be called from the main game thread and should
+    not block for extended periods. The 'diff' parameter represents actual elapsed
+    time and may vary between calls due to system load or frame rate changes. Implementations
+    should account for variable timing to ensure consistent AI behavior.
+  warnings: Do not call this method directly from multiple threads without proper
+    synchronization. The method assumes that the AI entity is in a valid state and
+    may cause undefined behavior if called on destroyed or invalid entities.
+  related:
+  - AI
+  - Update
+  - OnUpdate
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-08T21:18:47.748191'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

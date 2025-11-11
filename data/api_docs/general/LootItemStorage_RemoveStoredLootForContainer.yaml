@@ -1,0 +1,56 @@
+api:
+  class: LootItemStorage
+  method: RemoveStoredLootForContainer
+  signature: void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
+documentation:
+  brief: Removes all stored loot items associated with a specific container GUID from
+    the loot storage system.
+  description: The RemoveStoredLootForContainer method is responsible for cleaning
+    up and removing all loot entries that are linked to a particular container identified
+    by its unique identifier (GUID). This function ensures that when a container such
+    as a chest or corpse is looted and the loot is no longer needed in the system,
+    the associated loot data is properly cleared from memory. It typically gets invoked
+    during container cleanup processes, such as when a player opens a lootable object
+    and the system needs to ensure no stale loot remains in the storage. The method
+    operates on the internal storage structure of the LootItemStorage class, removing
+    all entries that match the provided containerId.
+  parameters:
+  - name: containerId
+    description: A 64-bit unique identifier (GUID) representing the container from
+      which stored loot should be removed. This GUID typically corresponds to a game
+      object such as a chest, corpse, or treasure chest in the World of Warcraft instance.
+  returns: null
+  examples:
+  - title: Basic Usage Example
+    code: 'LootItemStorage* lootStorage = sObjectMgr->GetLootItemStorage();
+
+      uint64 containerGuid = 123456789ULL;
+
+      lootStorage->RemoveStoredLootForContainer(containerGuid);'
+    language: cpp
+  - title: Usage in Loot Cleanup Context
+    code: "void HandlePlayerLootCleanup(Player* player, uint64 containerGuid)\n{\n\
+      \    // Remove stored loot for the container\n    sObjectMgr->GetLootItemStorage()->RemoveStoredLootForContainer(containerGuid);\n\
+      \    \n    // Optionally send a message or update UI\n    player->SendNotification(\"\
+      Loot removed from container.\");\n}"
+    language: cpp
+  notes: This method is typically called as part of the loot system's cleanup process,
+    ensuring that no stale loot data remains in memory after a container has been
+    looted. It is important to note that this function does not directly interact
+    with the database; it only affects the in-memory storage. The method assumes that
+    the provided GUID is valid and corresponds to an existing container.
+  warnings: Calling this method with an invalid or non-existent containerId may result
+    in no-op behavior, but it's still recommended to validate the existence of the
+    container before invoking this function. Additionally, ensure thread safety if
+    this method is called from a multithreaded context, as direct access to internal
+    storage structures might not be protected.
+  related:
+  - GetStoredLootForContainer
+  - StoreLootItem
+  - ClearAllLoot
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T00:10:02.714927'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,62 @@
+api:
+  class: TradeSystem
+  method: MeetsTradeRequirements
+  signature: bool TradeSystem::MeetsTradeRequirements(Player * player, const TradeSession
+    & session)
+documentation:
+  brief: Checks whether a player meets all requirements to initiate or continue a
+    trade session.
+  description: The MeetsTradeRequirements method evaluates if a given player satisfies
+    all necessary conditions to engage in a trade with another player. This includes
+    checking for valid player states, such as being in a valid location, not in combat,
+    and having sufficient inventory space. It also verifies that the trade session
+    is in an appropriate state for the player to proceed. The method ensures that
+    players cannot trade under invalid circumstances like being in a PvP zone without
+    proper permissions or while stunned or feared. This function acts as a gatekeeper
+    to prevent exploits and maintain game balance during trading interactions.
+  parameters:
+  - name: player
+    description: Pointer to the Player object that is attempting to perform trade
+      actions. Must be a valid player instance; null pointers will result in undefined
+      behavior.
+  - name: session
+    description: Reference to the TradeSession object representing the current trade
+      interaction between two players. Contains state information about the trade
+      and must be properly initialized before calling this method.
+  returns: Returns true if all trade requirements are met for the player, allowing
+    them to proceed with the trade; returns false otherwise, indicating that one or
+    more conditions prevent the trade from continuing.
+  examples:
+  - title: Basic Trade Requirement Check
+    code: "if (TradeSystem::MeetsTradeRequirements(player, session)) {\n    // Proceed\
+      \ with trade logic\n    player->GetSession()->SendTradeStatus(TRADE_STATUS_INITIATED);\n\
+      } else {\n    // Cancel or deny the trade\n    player->GetSession()->SendTradeStatus(TRADE_STATUS_CANCELLED);\n\
+      }"
+    language: cpp
+  - title: Integration with Trade Initiation
+    code: "void HandleTradeRequest(Player* player, Player* target) {\n    if (!player\
+      \ || !target) return;\n    \n    TradeSession& session = sTradeMgr->GetTradeSession(player,\
+      \ target);\n    if (session.IsTrading() && TradeSystem::MeetsTradeRequirements(player,\
+      \ session)) {\n        // Allow trade to proceed\n        player->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPTED);\n\
+      \    } else {\n        // Prevent invalid trade initiation\n        player->GetSession()->SendTradeStatus(TRADE_STATUS_CANCELLED);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method performs multiple checks including player state validation, zone
+    restrictions, and session integrity. It is recommended to call this method before
+    any trade-related operations to avoid inconsistencies in the trade system. The
+    implementation may vary depending on server settings such as PvP rules or custom
+    trade restrictions.
+  warnings: Calling this function with an uninitialized TradeSession or null Player
+    pointer will likely cause crashes or undefined behavior. Always ensure that both
+    parameters are valid and properly initialized before invoking this method.
+  related:
+  - TradeSystem::StartTrade
+  - TradeSystem::CancelTrade
+  - TradeSession::IsTrading
+  - Player::GetSession
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T18:10:25.595596'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

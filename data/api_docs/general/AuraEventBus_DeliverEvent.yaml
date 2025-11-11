@@ -1,0 +1,60 @@
+api:
+  class: AuraEventBus
+  method: DeliverEvent
+  signature: bool AuraEventBus::DeliverEvent(BotAI * subscriber, const AuraEvent &
+    event)
+documentation:
+  brief: Delivers an aura event to a specified bot AI subscriber.
+  description: 'The DeliverEvent method is responsible for routing and dispatching
+    aura-related events to registered BotAI subscribers within the TrinityCore framework.
+    This method ensures that when an aura effect occurs or changes, the appropriate
+    AI logic can respond accordingly. It handles the communication between aura systems
+    and AI behavior modules, enabling dynamic responses based on in-game aura states.
+    The method returns true if the event was successfully delivered to the subscriber,
+    and false otherwise. Precondition: The subscriber must be a valid BotAI instance,
+    and the event must contain valid data. Postcondition: The event is processed by
+    the subscriber''s event handling logic.'
+  parameters:
+  - name: subscriber
+    description: Pointer to the BotAI instance that will receive the aura event. Must
+      not be null and must represent a valid AI subscriber.
+  - name: event
+    description: The AuraEvent object containing details about the aura state change
+      or occurrence. This includes information such as aura type, duration, stack
+      count, and other relevant metadata.
+  returns: True if the event was successfully delivered to the subscriber's event
+    handler; false if delivery failed due to invalid parameters or processing errors.
+  examples:
+  - title: Basic Event Delivery
+    code: "AuraEvent auraEvent;\nauraEvent.type = AuraEventType::AURA_APPLIED;\nauraEvent.auraId\
+      \ = 12345;\n\nBotAI* bot = ...; // Get valid BotAI instance\nbool success =\
+      \ auraEventBus.DeliverEvent(bot, auraEvent);\nif (success) {\n    // Event processed\
+      \ successfully\n}"
+    language: cpp
+  - title: Event Delivery with Error Handling
+    code: "AuraEvent event;\nevent.type = AuraEventType::AURA_REMOVED;\nevent.auraId\
+      \ = 67890;\n\nBotAI* bot = GetBotAI();\nif (bot != nullptr) {\n    bool delivered\
+      \ = auraEventBus.DeliverEvent(bot, event);\n    if (!delivered) {\n        //\
+      \ Log error or handle delivery failure\n        sLog->outError(\"Failed to deliver\
+      \ aura event to BotAI\");\n    }\n} else {\n    sLog->outError(\"Invalid BotAI\
+      \ subscriber provided\");\n}"
+    language: cpp
+  notes: This method is part of the core AI event system in TrinityCore and is typically
+    called internally by aura management systems. It's designed to be efficient and
+    thread-safe where possible, though direct usage should consider potential race
+    conditions if multiple threads are involved. The method assumes that the BotAI
+    instance has properly registered its event handlers before attempting delivery.
+  warnings: Ensure that the BotAI pointer passed is valid and not null, as passing
+    an invalid pointer may lead to undefined behavior or crashes. Also, avoid calling
+    this method from within an event handler that might cause recursive event processing
+    unless explicitly designed for such scenarios.
+  related:
+  - RegisterSubscriber
+  - UnregisterSubscriber
+  - HandleAuraEvent
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T08:55:33.397054'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

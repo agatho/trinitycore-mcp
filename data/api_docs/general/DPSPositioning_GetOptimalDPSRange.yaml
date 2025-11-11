@@ -1,0 +1,63 @@
+api:
+  class: DPSPositioning
+  method: GetOptimalDPSRange
+  signature: float DPSPositioning::GetOptimalDPSRange(Player * dps, Unit * target)
+documentation:
+  brief: Calculates and returns the optimal distance for a DPS player to maintain
+    from their target for maximum damage output.
+  description: The GetOptimalDPSRange method determines the ideal positional range
+    a Damage Per Second (DPS) player should maintain relative to their target unit.
+    This calculation considers various combat mechanics such as weapon reach, spell
+    range, and attack speed to optimize damage efficiency. The method evaluates the
+    player's current equipment, abilities, and the target's defensive capabilities
+    to compute an optimal distance that maximizes DPS potential while ensuring the
+    player remains within effective striking or casting range. It is commonly used
+    in AI decision-making processes for positioning during combat scenarios.
+  parameters:
+  - name: dps
+    description: Pointer to the Player object representing the DPS character whose
+      optimal range is being calculated
+  - name: target
+    description: Pointer to the Unit object representing the target enemy or creature
+      being analyzed for optimal positioning
+  returns: Returns a float value representing the optimal distance in yards. A return
+    value of 0.0 indicates an error condition such as invalid input parameters or
+    inability to calculate range due to missing combat data.
+  examples:
+  - title: Basic usage example
+    code: "Player* player = ...;\nUnit* target = ...;\nfloat optimalRange = DPSPositioning::GetOptimalDPSRange(player,\
+      \ target);\nif (optimalRange > 0.0f)\n{\n    // Use the calculated range for\
+      \ positioning logic\n    player->SetFacingToObject(target);\n    player->MoveTowards(target,\
+      \ optimalRange);\n}"
+    language: cpp
+  - title: Advanced usage with combat state validation
+    code: "Player* player = ...;\nUnit* target = ...;\nif (player && target && player->IsInCombat()\
+      \ && target->IsAlive())\n{\n    float optimalRange = DPSPositioning::GetOptimalDPSRange(player,\
+      \ target);\n    if (optimalRange > 0.0f)\n    {\n        // Calculate current\
+      \ distance\n        float currentDistance = player->GetDistance(target);\n \
+      \       \n        // Adjust positioning based on difference\n        if (currentDistance\
+      \ < optimalRange - 1.0f)\n        {\n            // Move closer to target\n\
+      \            player->MoveTowards(target, optimalRange);\n        }\n       \
+      \ else if (currentDistance > optimalRange + 1.0f)\n        {\n            //\
+      \ Move away from target\n            player->MoveAwayFrom(target, optimalRange);\n\
+      \        }\n    }\n}"
+    language: cpp
+  notes: This method likely performs complex calculations involving weapon statistics,
+    spell ranges, attack speeds, and target mobility. It may cache previous calculations
+    for performance optimization in frequently called scenarios. The returned value
+    represents a theoretical optimal range that may need adjustment based on environmental
+    factors or specific encounter mechanics.
+  warnings: The method assumes valid Player and Unit pointers. Passing null or invalid
+    pointers will likely result in undefined behavior or return values of 0.0. This
+    function should not be called during combat transitions or when player state is
+    unstable, as it may produce inaccurate results due to incomplete combat data.
+  related:
+  - GetDPSRange
+  - CalculateOptimalPosition
+  - IsInOptimalRange
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-07T14:50:41.890677'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

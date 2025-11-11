@@ -1,0 +1,59 @@
+api:
+  class: InteractionValidator
+  method: CheckVendorRequirements
+  signature: bool InteractionValidator::CheckVendorRequirements(::Player * bot, ::Creature
+    * vendor) const
+documentation:
+  brief: Checks if a player meets all requirements to interact with a vendor.
+  description: The CheckVendorRequirements method validates whether a given player
+    character has met all necessary conditions to successfully interact with a vendor
+    NPC. This includes checking for proper faction standing, level requirements, quest
+    completion status, and any other game-specific constraints that might prevent
+    the player from purchasing items or accessing vendor services. The method returns
+    true if all requirements are satisfied and false otherwise. This validation is
+    typically performed before allowing vendor interactions to ensure game balance
+    and logical progression.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the character attempting
+      to interact with the vendor.
+  - name: vendor
+    description: Pointer to the Creature object representing the vendor NPC with which
+      the player is attempting to interact.
+  returns: Returns true if the player meets all vendor interaction requirements, false
+    otherwise. A return value of false typically indicates that the player cannot
+    currently access the vendor's services due to unmet conditions such as insufficient
+    level, bad faction status, or missing required quests.
+  examples:
+  - title: Basic Vendor Interaction Check
+    code: "if (validator.CheckVendorRequirements(player, vendor)) {\n    // Proceed\
+      \ with vendor interaction\n    player->GetSession()->SendListInventory(vendor->GetGUID());\n\
+      } else {\n    // Inform player they cannot interact with vendor\n    player->SendSystemMessage(\"\
+      You do not meet the requirements to interact with this vendor.\");\n}"
+    language: cpp
+  - title: Integration in AI Behavior
+    code: "class VendorAI {\npublic:\n    bool CanInteractWithVendor(Player* bot,\
+      \ Creature* vendor) {\n        return InteractionValidator().CheckVendorRequirements(bot,\
+      \ vendor);\n    }\n};\n\n// Usage in AI decision making\nif (vendorAI.CanInteractWithVendor(player,\
+      \ npc)) {\n    // Perform vendor actions\n    player->GetSession()->SendListInventory(npc->GetGUID());\n\
+      }"
+    language: cpp
+  notes: This method likely performs multiple checks internally including faction
+    validation, level thresholds, quest state verification, and possibly item or currency
+    requirements. It may also cache results for performance optimization in frequent
+    interactions. The implementation should be thread-safe as it's expected to be
+    called from various game threads during player interactions.
+  warnings: Ensure that both the bot and vendor parameters are valid pointers before
+    calling this method; passing null pointers will likely result in crashes or undefined
+    behavior. Be aware that this check might be bypassed in certain debugging or admin
+    scenarios, so it should not be relied upon for critical security checks.
+  related:
+  - CheckQuestRequirements
+  - CheckFactionRequirements
+  - CheckLevelRequirements
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-09T11:43:31.785080'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

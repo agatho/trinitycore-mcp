@@ -1,0 +1,64 @@
+api:
+  class: NPCInteractionManager
+  method: InteractWithFlightMaster
+  signature: bool NPCInteractionManager::InteractWithFlightMaster(Creature * flightMaster)
+documentation:
+  brief: Initiates interaction with a flight master NPC to access flight path services.
+  description: The InteractWithFlightMaster method handles the process of engaging
+    a flight master creature in the game world, allowing players to view available
+    flight paths, purchase tickets, and manage their character's travel options. This
+    method typically triggers the flight master's gossip menu, which presents the
+    player with a list of reachable locations based on their current zone and faction.
+    The interaction is designed to be part of the standard NPC interaction flow in
+    TrinityCore, where the player must be within appropriate range and have sufficient
+    reputation or quest completion status to access certain flight paths. It returns
+    true if the interaction was successfully initiated and false if the operation
+    failed due to invalid parameters or game state constraints.
+  parameters:
+  - name: flightMaster
+    description: Pointer to a Creature object representing the flight master NPC with
+      which to interact. Must be a valid creature instance of type NPC_TYPE_FLIGHTMASTER
+      or equivalent. The creature must be within interaction range and not in an invalid
+      state such as being dead or despawned.
+  returns: Returns true if the interaction with the flight master was successfully
+    initiated, meaning the player's gossip menu for the flight master was opened.
+    Returns false if the interaction failed due to invalid input (null pointer), creature
+    not being a valid flight master, or other game state issues preventing interaction.
+  examples:
+  - title: Basic Flight Master Interaction
+    code: "Creature* flightMaster = player->GetNPCIfCanInteractWith(targetGuid, UNIT_NPC_FLAG_FLIGHTMASTER);\n\
+      if (flightMaster)\n{\n    bool success = npcInteractionManager->InteractWithFlightMaster(flightMaster);\n\
+      \    if (success)\n        TC_LOG_INFO(\"player\", \"Successfully initiated\
+      \ flight master interaction.\");\n    else\n        TC_LOG_ERROR(\"player\"\
+      , \"Failed to initiate flight master interaction.\");\n}"
+    language: cpp
+  - title: Flight Master Interaction with Error Handling
+    code: "if (player->IsInCombat())\n{\n    player->SendSystemMessage(\"You cannot\
+      \ interact with NPCs while in combat.\");\n    return false;\n}\n\nCreature*\
+      \ flightMaster = player->GetNPCIfCanInteractWith(targetGuid, UNIT_NPC_FLAG_FLIGHTMASTER);\n\
+      if (!flightMaster)\n{\n    player->SendSystemMessage(\"Invalid target for flight\
+      \ master interaction.\");\n    return false;\n}\n\nbool result = npcInteractionManager->InteractWithFlightMaster(flightMaster);\n\
+      if (result)\n{\n    player->PlayerTalkClass->SendGossipMenu(1, flightMaster->GetGUID());\n\
+      }\nelse\n{\n    player->SendSystemMessage(\"Failed to initiate flight master\
+      \ interaction.\");\n}"
+    language: cpp
+  notes: This method assumes that the calling code has already validated that the
+    player is within appropriate range and in a state where NPC interaction is allowed.
+    The actual flight path data and menu generation are handled internally by the
+    game's gossip system, not directly by this method. It is recommended to check
+    for valid creature type and player state before invoking this method.
+  warnings: Passing a null pointer or an invalid Creature object will result in undefined
+    behavior or failure. Ensure that the flightMaster parameter points to a valid,
+    alive creature of correct type. Do not call this method during combat or while
+    the player is in a state that prevents interaction with NPCs (e.g., being mounted,
+    dead, or in a vehicle).
+  related:
+  - InteractWithGossip
+  - GetNPCIfCanInteractWith
+  - SendGossipMenu
+metadata:
+  confidence: 0.92
+  generated_at: '2025-11-07T23:17:43.034464'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

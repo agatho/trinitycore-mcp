@@ -1,0 +1,63 @@
+api:
+  class: DynamicQuestSystem
+  method: MeetsQuestRequirements
+  signature: bool DynamicQuestSystem::MeetsQuestRequirements(const Quest * quest,
+    Player * bot)
+documentation:
+  brief: Determines whether a player meets all requirements to accept and progress
+    through a specified quest.
+  description: The MeetsQuestRequirements method evaluates if a given Player character
+    satisfies all conditions necessary to take and advance in a specific Quest. This
+    includes checking level requirements, previous quest completions, faction standing,
+    item inventory, and any other prerequisite conditions defined by the quest. The
+    method is typically used internally by the dynamic quest system to validate quest
+    eligibility before allowing players to interact with quest-related actions such
+    as accepting, turning in, or progressing through objectives. It ensures that game
+    balance and logical progression are maintained within the questing system.
+  parameters:
+  - name: quest
+    description: A pointer to the Quest object that contains the requirements to be
+      checked against the player. Must not be null.
+  - name: bot
+    description: A pointer to the Player object representing the character whose quest
+      eligibility is being evaluated. Must not be null.
+  returns: Returns true if all quest requirements are met by the player, otherwise
+    returns false. If either parameter is invalid (null), behavior is undefined and
+    may result in a crash.
+  examples:
+  - title: Basic usage to check if player can accept a quest
+    code: "if (dynamicQuestSystem->MeetsQuestRequirements(quest, player)) {\n    //\
+      \ Proceed with quest acceptance logic\n    player->AddQuest(quest);\n} else\
+      \ {\n    // Inform player they cannot take the quest\n    player->SendNotification(\"\
+      You do not meet the requirements for this quest.\");\n}"
+    language: cpp
+  - title: Advanced usage in a custom quest validation system
+    code: "bool CanPlayerAcceptQuest(Player* player, Quest* quest) {\n    // Perform\
+      \ additional checks beyond basic requirement validation\n    if (!player ||\
+      \ !quest) return false;\n    \n    // Custom logic for faction or reputation\
+      \ requirements\n    if (quest->GetRequiredFaction() && player->GetReputation(quest->GetRequiredFaction())\
+      \ < quest->GetRequiredReputation()) {\n        return false;\n    }\n    \n\
+      \    // Use the core system to validate standard requirements\n    return dynamicQuestSystem->MeetsQuestRequirements(quest,\
+      \ player);\n}"
+    language: cpp
+  notes: This method relies on internal quest data structures and may involve database
+    lookups or cached values depending on how the DynamicQuestSystem is implemented.
+    It should be called only when necessary to avoid performance degradation during
+    frequent checks. The method assumes that both parameters are valid pointers and
+    does not perform null checks internally.
+  warnings: Calling this method with a null pointer for either parameter will likely
+    cause undefined behavior or a crash. Ensure that all quest and player objects
+    are properly initialized before invoking this method. Additionally, changes to
+    quest data during runtime may affect the validity of cached results if the system
+    uses caching mechanisms.
+  related:
+  - GetQuestRequirements
+  - ValidateQuestProgression
+  - CheckPlayerLevelRequirement
+  - CheckQuestCompletionStatus
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T05:45:23.790385'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

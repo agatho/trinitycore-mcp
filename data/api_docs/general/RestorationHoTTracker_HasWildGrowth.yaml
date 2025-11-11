@@ -1,0 +1,52 @@
+api:
+  class: RestorationHoTTracker
+  method: HasWildGrowth
+  signature: bool RestorationHoTTracker::HasWildGrowth(int guid) const
+documentation:
+  brief: Checks if a player has the Wild Growth HoT effect active.
+  description: The HasWildGrowth method determines whether a specific player currently
+    has the Wild Growth heal-over-time effect applied to them. This method is typically
+    used in restoration shaman spell handling to track active HoTs and prevent stacking
+    or overlapping effects. The method takes a GUID parameter representing the target
+    player and returns true if the Wild Growth HoT is active on that player, false
+    otherwise. This functionality is crucial for maintaining proper spell mechanics
+    and ensuring that players do not receive multiple instances of the same HoT effect.
+  parameters:
+  - name: guid
+    description: The unique identifier (GUID) of the target player to check for Wild
+      Growth HoT status
+  returns: Returns true if the specified player has an active Wild Growth HoT effect,
+    false if the effect is not active or the player does not exist
+  examples:
+  - title: Basic usage to check if player has Wild Growth active
+    code: "if (restorationHoTTracker->HasWildGrowth(playerGuid)) {\n    // Player\
+      \ already has Wild Growth active, handle accordingly\n    SendSpellFailedMessage(player,\
+      \ SPELL_FAILED_AURA_BOUNCED);\n}"
+    language: cpp
+  - title: Using HasWildGrowth in spell application logic
+    code: "void ApplyWildGrowth(Spell* spell) {\n    Unit* target = spell->GetHitTarget();\n\
+      \    if (!target || !target->IsPlayer()) return;\n    \n    uint64 playerGuid\
+      \ = target->GetGUID();\n    if (restorationHoTTracker->HasWildGrowth(playerGuid))\
+      \ {\n        // Prevent stacking - Wild Growth already active\n        spell->SendCastResult(SPELL_FAILED_AURA_BOUNCED);\n\
+      \        return;\n    }\n    \n    // Apply the new Wild Growth HoT effect\n\
+      \    ApplyNewWildGrowthEffect(target);\n}"
+    language: cpp
+  notes: This method likely maintains an internal data structure (such as a map or
+    set) of active HoT effects keyed by GUID for efficient lookup. The implementation
+    should be thread-safe if accessed from multiple threads, though this depends on
+    the specific TrinityCore threading model in use.
+  warnings: Be aware that GUIDs may become invalid after player logout or server resets,
+    so callers should validate that the target player is still active before calling
+    this method. Also, ensure proper synchronization if this method is called from
+    different threads.
+  related:
+  - AddWildGrowth
+  - RemoveWildGrowth
+  - HasHoT
+  - GetActiveHoTs
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T15:17:13.787267'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

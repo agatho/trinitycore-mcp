@@ -1,0 +1,57 @@
+api:
+  class: HostileEventHooks
+  method: GetUnitZone
+  signature: uint32 HostileEventHooks::GetUnitZone(int * unit)
+documentation:
+  brief: Retrieves the zone identifier where the specified unit is currently located.
+  description: The GetUnitZone method retrieves the zone ID associated with a given
+    unit's current location within the game world. This function is typically used
+    in hostile event handling to determine the geographical context of units involved
+    in combat or other hostile interactions. The method takes a pointer to an integer
+    representing the unit and returns a 32-bit unsigned integer corresponding to the
+    zone identifier. Zone IDs are essential for determining area-based mechanics,
+    quest triggers, and location-specific behaviors in World of Warcraft. This function
+    assumes that the provided unit pointer is valid and points to a legitimate game
+    object within the server's memory space.
+  parameters:
+  - name: unit
+    description: A pointer to an integer representing the unit identifier. This parameter
+      should point to a valid unit object within the TrinityCore server environment.
+      The integer typically represents the unit's GUID (Global Unique Identifier)
+      used internally by the game engine.
+  returns: Returns a 32-bit unsigned integer representing the zone ID where the specified
+    unit is currently located. A value of 0 may indicate an invalid location or unknown
+    zone, while other values correspond to specific zones defined in the game's database.
+  examples:
+  - title: Basic usage example
+    code: "int unitGuid = 12345;\nuint32 zoneId = HostileEventHooks::GetUnitZone(&unitGuid);\n\
+      if (zoneId != 0)\n{\n    // Process the zone information\n    printf(\"Unit\
+      \ is in zone: %u\\n\", zoneId);\n}"
+    language: cpp
+  - title: Integration with hostile event handling
+    code: "class MyHostileEventHandler : public HostileEventHooks\n{\npublic:\n  \
+      \  void OnHostileAction(int* attacker, int* target)\n    {\n        uint32 attackerZone\
+      \ = GetUnitZone(attacker);\n        uint32 targetZone = GetUnitZone(target);\n\
+      \        \n        if (attackerZone != targetZone)\n        {\n            //\
+      \ Handle cross-zone hostile interactions\n            HandleCrossZoneCombat(attacker,\
+      \ target);\n        }\n    }\n};"
+    language: cpp
+  notes: This method relies on the internal unit tracking system of TrinityCore. The
+    zone ID returned corresponds to the ZoneId field in the game's database tables.
+    Ensure that the unit pointer passed is valid and points to an active unit object,
+    otherwise behavior is undefined. This function may involve server-side lookups
+    and should be used judiciously in performance-critical code paths.
+  warnings: Passing a null or invalid unit pointer will likely result in undefined
+    behavior or crashes. Always validate the unit's existence before calling this
+    method. The returned zone ID might not always reflect the most current location
+    if the unit has recently moved but the internal tracking hasn't been updated yet.
+  related:
+  - GetUnitMap
+  - GetUnitLocation
+  - IsUnitInCombat
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T09:08:31.920011'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

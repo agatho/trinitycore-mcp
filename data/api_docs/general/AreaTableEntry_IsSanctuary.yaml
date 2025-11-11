@@ -1,0 +1,52 @@
+api:
+  class: AreaTableEntry
+  method: IsSanctuary
+  signature: bool AreaTableEntry::IsSanctuary() const
+documentation:
+  brief: Determines whether the area represented by this AreaTableEntry is designated
+    as a sanctuary zone.
+  description: The IsSanctuary method checks if the current area is marked as a sanctuary
+    in the game's area table. Sanctuary zones are areas where certain game mechanics,
+    such as player combat and PvP interactions, are restricted or disabled. This method
+    returns true if the area has the sanctuary flag set, indicating that it's a protected
+    zone where players cannot engage in combat with other players unless specific
+    conditions are met. The check is performed against internal flags stored within
+    the AreaTableEntry structure and does not require additional database queries
+    or external state checks.
+  parameters: []
+  returns: Returns true if the area is designated as a sanctuary, false otherwise.
+    A sanctuary area typically disables PvP combat, prevents player killing, and may
+    restrict certain hostile actions within that zone.
+  examples:
+  - title: Basic Usage to Check Sanctuary Status
+    code: "AreaTableEntry const* area = sAreaStore.LookupEntry(player->GetMapId(),\
+      \ player->GetZoneId());\nif (area && area->IsSanctuary()) {\n    // Handle sanctuary\
+      \ zone logic\n    player->SendNotification(\"You are in a sanctuary zone.\"\
+      );\n}"
+    language: cpp
+  - title: Using IsSanctuary in Combat Validation
+    code: "if (attacker->GetZoneId() == victim->GetZoneId()) {\n    AreaTableEntry\
+      \ const* area = sAreaStore.LookupEntry(attacker->GetMapId(), attacker->GetZoneId());\n\
+      \    if (area && !area->IsSanctuary()) {\n        // Allow PvP combat\n    \
+      \    HandlePvPCombat(attacker, victim);\n    } else {\n        // Prevent PvP\
+      \ in sanctuary zones\n        attacker->SendEquipError(EQUIP_ERR_NOT_IN_SANCTUARY);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method relies on the internal area table data structure which is loaded
+    at server startup. The sanctuary flag is defined in the AreaTableEntry's flags
+    field and corresponds to a specific bit flag value. This check is fast and does
+    not involve database lookups or complex logic.
+  warnings: Be aware that some areas may have multiple flags set, including sanctuary,
+    and this method only checks for the sanctuary designation specifically. Also note
+    that certain zones might be marked as sanctuaries in one context but not another
+    (e.g., PvP vs. PvE zones).
+  related:
+  - AreaTableEntry::GetFlags
+  - AreaTableEntry::IsPvP
+  - AreaTableEntry::IsInstance
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T20:17:04.439675'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

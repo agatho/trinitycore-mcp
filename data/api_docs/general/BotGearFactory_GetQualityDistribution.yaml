@@ -1,0 +1,50 @@
+api:
+  class: BotGearFactory
+  method: GetQualityDistribution
+  signature: const QualityDistribution * BotGearFactory::GetQualityDistribution(uint32
+    level) const
+documentation:
+  brief: Retrieves the quality distribution data for a specified player level.
+  description: The GetQualityDistribution method returns a pointer to a QualityDistribution
+    object that defines how item qualities are distributed for a given player level.
+    This is used internally by the bot gear factory to determine what types of items
+    (common, uncommon, rare, etc.) should be generated for bots at different levels.
+    The returned pointer is valid for the lifetime of the BotGearFactory instance
+    and should not be freed by the caller. This method is typically called during
+    bot initialization or when generating new gear to ensure that the quality distribution
+    matches the appropriate level range.
+  parameters: []
+  returns: A const pointer to a QualityDistribution object which contains information
+    about item quality probabilities for the specified level, or nullptr if no distribution
+    data exists for the requested level.
+  examples:
+  - title: Basic Usage
+    code: "const QualityDistribution* dist = factory.GetQualityDistribution(60);\n\
+      if (dist)\n{\n    // Use the quality distribution data\n    uint32 commonChance\
+      \ = dist->GetChanceForQuality(Quality::COMMON);\n}"
+    language: cpp
+  - title: Safe Access with Null Check
+    code: "const QualityDistribution* dist = factory.GetQualityDistribution(playerLevel);\n\
+      if (dist != nullptr)\n{\n    // Process quality distribution\n    for (uint32\
+      \ i = 0; i < MAX_QUALITY; ++i)\n    {\n        uint32 chance = dist->GetChanceForQuality(static_cast<Quality>(i));\n\
+      \        // Use chance value\n    }\n}\nelse\n{\n    // Handle case where no\
+      \ distribution is available for this level\n}"
+    language: cpp
+  notes: The method performs a lookup based on the provided level, and may return
+    nullptr if no quality distribution data exists for that specific level. The QualityDistribution
+    objects are typically precomputed and cached during initialization of the BotGearFactory
+    to improve performance. This method is thread-safe as long as the underlying data
+    structures are not modified concurrently.
+  warnings: Do not attempt to modify or free the returned QualityDistribution object,
+    as it is managed by the BotGearFactory instance. Accessing the returned pointer
+    after the factory has been destroyed results in undefined behavior.
+  related:
+  - GetItemQuality
+  - GenerateBotGear
+  - GetLevelRange
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T15:22:15.733324'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

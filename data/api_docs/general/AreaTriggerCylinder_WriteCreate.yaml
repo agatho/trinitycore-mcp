@@ -1,0 +1,63 @@
+api:
+  class: AreaTriggerCylinder
+  method: WriteCreate
+  signature: void AreaTriggerCylinder::WriteCreate(ByteBuffer & data, const AreaTrigger
+    * owner, const Player * receiver) const
+documentation:
+  brief: Serializes and writes area trigger cylinder data to a byte buffer for client
+    synchronization.
+  description: The WriteCreate method serializes the state of an AreaTriggerCylinder
+    object into a ByteBuffer, preparing it for transmission to a specific player client.
+    This method is typically invoked during the initial creation or update of area
+    trigger visuals and effects for players in proximity to the trigger. It ensures
+    that the client receives all necessary data to render the cylinder-shaped area
+    trigger correctly, including its position, dimensions, and associated properties.
+    The serialization process includes handling of the owner trigger reference and
+    the target receiver player, ensuring proper network synchronization.
+  parameters:
+  - name: data
+    description: The ByteBuffer object where serialized area trigger data will be
+      written. This buffer is used to construct the packet sent to the client.
+  - name: owner
+    description: A pointer to the AreaTrigger object that owns this cylinder. This
+      reference provides context about the trigger's properties and state.
+  - name: receiver
+    description: A pointer to the Player object who will receive the serialized data.
+      Used to determine what specific information should be included for that player's
+      client.
+  returns: null
+  examples:
+  - title: Basic Usage in Area Trigger Initialization
+    code: 'ByteBuffer data;
+
+      AreaTriggerCylinder cylinder;
+
+      Player* player = ...; // Get player reference
+
+      AreaTrigger* trigger = ...; // Get area trigger reference
+
+      cylinder.WriteCreate(data, trigger, player);'
+    language: cpp
+  - title: Sending Area Trigger Update to Player
+    code: "void SendAreaTriggerUpdate(Player* player, AreaTriggerCylinder* cylinder,\
+      \ AreaTrigger* owner) {\n    ByteBuffer data;\n    cylinder->WriteCreate(data,\
+      \ owner, player);\n    player->SendDirectMessage(&data);\n}"
+    language: cpp
+  notes: This method is part of the TrinityCore's network synchronization system for
+    area triggers. It should only be called when preparing data to send over the network
+    to a client. The method assumes that all parameters are valid and not null, as
+    it does not perform null checks.
+  warnings: Incorrect usage of the ByteBuffer may result in malformed packets or client-side
+    errors. Ensure that the 'data' buffer is properly initialized before calling this
+    method. Also, be cautious about calling this method on triggers that have not
+    been fully initialized or configured.
+  related:
+  - AreaTriggerCylinder::WriteUpdate
+  - AreaTriggerCylinder::WriteDestroy
+  - AreaTriggerCylinder::GetOwner
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T09:27:22.029067'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

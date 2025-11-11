@@ -1,0 +1,65 @@
+api:
+  class: UpdateTimeHistogram
+  method: RecordTime
+  signature: void UpdateTimeHistogram::RecordTime(uint32 microseconds)
+documentation:
+  brief: Records a time measurement in microseconds to the histogram for performance
+    tracking.
+  description: The RecordTime method captures a time duration measured in microseconds
+    and adds it to an internal histogram data structure used for performance monitoring
+    and profiling within the TrinityCore server. This method is typically invoked
+    after completing a timed operation to collect statistical data about execution
+    times. The histogram aggregates these measurements to provide insights into system
+    performance, such as average latency, percentiles, and distribution of time spent
+    on various operations. It is commonly used in systems where tracking and analyzing
+    performance metrics is critical for maintaining server responsiveness and identifying
+    bottlenecks.
+  parameters:
+  - name: microseconds
+    description: The time duration to record, measured in microseconds. This value
+      represents the elapsed time of an operation being tracked. Valid values are
+      non-negative integers representing time intervals.
+  returns: null
+  examples:
+  - title: Basic usage for recording a timed operation
+    code: 'uint32 startTime = getMSTime();
+
+      // ... perform some operation ...
+
+      uint32 endTime = getMSTime();
+
+      uint32 duration = endTime - startTime;
+
+      UpdateTimeHistogram::RecordTime(duration * 1000); // Convert to microseconds'
+    language: cpp
+  - title: Recording time for a database query operation
+    code: 'QueryResult result = WorldDatabase.Query("SELECT id, name FROM creatures
+      WHERE type = 1");
+
+      uint32 queryTime = getMSTime();
+
+      // ... process query results ...
+
+      UpdateTimeHistogram::RecordTime(queryTime); // Record the time taken for the
+      query'
+    language: cpp
+  notes: This method is part of a performance monitoring system and should be used
+    carefully to avoid excessive overhead. The histogram data can be accessed via
+    related methods like GetHistogramData() or exported for analysis. It's recommended
+    to record times in microseconds for consistency with other TrinityCore timing
+    mechanisms.
+  warnings: Recording too many time measurements frequently may impact server performance
+    due to the overhead of histogram updates. Ensure that only significant operations
+    are recorded, and avoid calling this method in tight loops or high-frequency code
+    paths.
+  related:
+  - GetHistogramData
+  - ResetHistogram
+  - GetAverageTime
+  - GetPercentile
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-08T20:57:17.000715'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

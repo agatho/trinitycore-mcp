@@ -1,0 +1,56 @@
+api:
+  class: MistweaverMonkRefactored
+  method: SelectHealingTarget
+  signature: int * MistweaverMonkRefactored::SelectHealingTarget(const int & group)
+documentation:
+  brief: Selects and returns the GUID of the most suitable healing target within the
+    specified group.
+  description: The SelectHealingTarget method identifies and returns the appropriate
+    target for healing abilities based on the current state of the Mistweaver Monk's
+    group. It evaluates factors such as health percentage, proximity, and target priority
+    to determine which unit should receive healing next. This method is typically
+    used by AI logic to make decisions about which target to heal when multiple options
+    are available. The method operates within a specified group context, ensuring
+    that only valid group members are considered for healing selection.
+  parameters:
+  - name: group
+    description: An integer reference representing the group identifier or index from
+      which to select a healing target. Valid values are typically non-negative integers
+      corresponding to group indices in the game's internal group management system.
+  returns: A pointer to an integer representing the GUID (Global Unique Identifier)
+    of the selected healing target. Returns NULL if no suitable target is found or
+    if the specified group is invalid.
+  examples:
+  - title: Basic usage example
+    code: "int groupIndex = 0;\nint* targetGUID = monk.SelectHealingTarget(groupIndex);\n\
+      if (targetGUID != nullptr) {\n    // Proceed with healing logic using the target\
+      \ GUID\n    std::cout << \"Selected target GUID: \" << *targetGUID << std::endl;\n\
+      } else {\n    // No valid target found\n    std::cout << \"No suitable healing\
+      \ target found.\" << std::endl;\n}"
+    language: cpp
+  - title: Advanced usage with error handling
+    code: "int groupIndex = 1;\nint* targetGUID = monk.SelectHealingTarget(groupIndex);\n\
+      if (targetGUID != nullptr && *targetGUID > 0) {\n    // Validate that the target\
+      \ is still alive and within range\n    Unit* target = ObjectAccessor::GetUnit(*targetGUID);\n\
+      \    if (target && target->IsAlive() && target->IsInWorld()) {\n        // Execute\
+      \ healing spell on selected target\n        DoHeal(target);\n    }\n} else {\n\
+      \    // Handle case where no valid target is available\n    HandleNoTargetAvailable();\n\
+      }"
+    language: cpp
+  notes: This method assumes that the group has been properly initialized and contains
+    valid units. The returned GUID should be used with caution as it may become invalid
+    if the unit dies or leaves the game world. Consider checking the validity of the
+    returned target before performing any actions on it.
+  warnings: Ensure that the group parameter is valid and corresponds to an existing
+    group in the current context. Using an invalid group index can lead to undefined
+    behavior or incorrect targeting decisions.
+  related:
+  - GetGroupMembers
+  - IsTargetValidForHealing
+  - CalculateHealingPriority
+metadata:
+  confidence: 0.85
+  generated_at: '2025-11-09T11:33:46.566725'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

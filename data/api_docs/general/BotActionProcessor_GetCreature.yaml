@@ -1,0 +1,58 @@
+api:
+  class: BotActionProcessor
+  method: GetCreature
+  signature: Creature * BotActionProcessor::GetCreature(Player * bot, int guid)
+documentation:
+  brief: Retrieves a Creature object from the world based on a bot player and creature
+    GUID
+  description: The GetCreature method is used to fetch a Creature instance from the
+    game world using a bot player's context and a specified creature GUID. This method
+    serves as a utility for bot AI logic to access and interact with specific creatures
+    in the game environment. It typically involves looking up the creature within
+    the player's current map and visibility range, ensuring that the creature is valid
+    and accessible before returning it. The method may perform checks to ensure the
+    creature exists and is within the bot's operational scope, which is crucial for
+    proper bot behavior in World of Warcraft environments.
+  parameters:
+  - name: bot
+    description: Pointer to the Player object representing the bot that is requesting
+      access to the creature. This parameter defines the context and visibility range
+      for the lookup.
+  - name: guid
+    description: Integer value representing the unique identifier (GUID) of the creature
+      to be retrieved. This GUID must correspond to an existing creature in the game
+      world.
+  returns: Returns a pointer to the Creature object if found and accessible within
+    the bot's context. Returns nullptr if no valid creature exists with the given
+    GUID or if the creature is not accessible to the specified bot player.
+  examples:
+  - title: Basic usage of GetCreature
+    code: "Creature* target = botActionProcessor->GetCreature(bot, 12345);\nif (target)\n\
+      {\n    // Proceed with interaction logic\n    bot->Attack(target, true);\n}"
+    language: cpp
+  - title: Safe usage with null check
+    code: "Creature* creature = botActionProcessor->GetCreature(bot, creatureGuid);\n\
+      if (creature && creature->IsAlive())\n{\n    // Perform actions only if creature\
+      \ exists and is alive\n    bot->CastSpell(creature, SPELL_ATTACK, true);\n}\n\
+      else\n{\n    // Handle case where creature is not found or dead\n    bot->Say(\"\
+      Target not available.\", LANG_UNIVERSAL);\n}"
+    language: cpp
+  notes: This method relies on the TrinityCore's object management system to locate
+    creatures. It may involve map and visibility checks, so performance can be impacted
+    if called frequently in tight loops. The returned Creature pointer should not
+    be stored for long periods without re-validation, as creatures can be despawned
+    or removed from the world.
+  warnings: Do not assume that a non-null return value guarantees the creature is
+    alive or in combat. Always validate the creature's state before performing actions.
+    Calling this method with an invalid GUID may result in undefined behavior or crashes
+    if not properly handled.
+  related:
+  - GetPlayer
+  - GetGameObject
+  - GetUnit
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T15:29:58.160008'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

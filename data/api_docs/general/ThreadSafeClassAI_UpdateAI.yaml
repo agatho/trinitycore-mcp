@@ -1,0 +1,52 @@
+api:
+  class: ThreadSafeClassAI
+  method: UpdateAI
+  signature: void ThreadSafeClassAI::UpdateAI(uint32 diff)
+documentation:
+  brief: Updates the AI behavior of the thread-safe class instance based on elapsed
+    game time.
+  description: The UpdateAI method is responsible for executing the core artificial
+    intelligence logic for a thread-safe class instance within the TrinityCore framework.
+    This method is called periodically by the game loop and receives a time delta
+    (diff) parameter indicating how much real time has passed since the last update.
+    It processes AI behaviors such as target selection, spell casting, movement decisions,
+    or other NPC actions. The method ensures thread safety when accessing shared data
+    structures and is typically overridden in derived classes to implement specific
+    AI logic for different creature types or game entities.
+  parameters:
+  - name: diff
+    description: The time elapsed in milliseconds since the last call to UpdateAI.
+      This value is used to determine how much time has passed for AI decision-making,
+      movement calculations, and cooldown management.
+  returns: null
+  examples:
+  - title: Basic AI Update Implementation
+    code: "void MyCreatureAI::UpdateAI(uint32 diff)\n{\n    if (!UpdateVictim())\n\
+      \        return;\n\n    // Perform basic AI actions\n    if (me->HasUnitState(UNIT_STATE_CASTING))\n\
+      \        return;\n\n    // Cast spell with cooldown\n    if (SpellTimer <= diff)\n\
+      \    {\n        DoCast(me->GetVictim(), SPELL_FIREBALL);\n        SpellTimer\
+      \ = 2000; // Reset timer\n    }\n    else\n        SpellTimer -= diff;\n\n \
+      \   // Move towards target\n    me->GetMotionMaster()->MoveChase(me->GetVictim());\n\
+      }"
+    language: cpp
+  notes: This method is invoked from the main game thread and must not block or perform
+    long-running operations. It's designed to be lightweight and efficient, as it's
+    called frequently during gameplay. The 'diff' parameter represents actual elapsed
+    time in milliseconds and should be used for timing-based logic rather than frame-based
+    calculations.
+  warnings: Do not call this method directly from outside the game loop; always let
+    the core framework invoke it. Avoid performing heavy computations or blocking
+    operations within this function as it can cause performance issues or lag in the
+    game. Be cautious when modifying shared data structures without proper locking
+    mechanisms.
+  related:
+  - AI::UpdateVictim
+  - AI::DoCast
+  - AI::GetVictim
+  - AI::MoveChase
+metadata:
+  confidence: 0.95
+  generated_at: '2025-11-07T18:24:55.663963'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

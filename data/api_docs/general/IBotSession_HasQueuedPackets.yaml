@@ -1,0 +1,44 @@
+api:
+  class: IBotSession
+  method: HasQueuedPackets
+  signature: bool IBotSession::HasQueuedPackets() const
+documentation:
+  brief: Checks whether the bot session has any queued packets waiting to be processed.
+  description: The HasQueuedPackets method determines if there are any pending network
+    packets in the bot's outgoing queue. This is typically used to check if the session
+    is ready to send data or if there are buffered messages that need to be flushed.
+    The method returns true when packets exist in the queue and false otherwise. In
+    the context of TrinityCore's bot system, this can be important for managing network
+    I/O efficiency and ensuring proper message delivery order.
+  parameters: []
+  returns: Returns true if there are queued packets waiting to be sent, false if the
+    packet queue is empty.
+  examples:
+  - title: Basic packet queue check
+    code: "if (botSession->HasQueuedPackets()) {\n    // Process or flush queued packets\n\
+      \    botSession->SendQueuedPackets();\n}"
+    language: cpp
+  - title: Network flow control
+    code: "while (botSession->HasQueuedPackets()) {\n    // Ensure all queued packets\
+      \ are sent before proceeding\n    botSession->ProcessOutgoingPackets();\n  \
+      \  std::this_thread::sleep_for(std::chrono::milliseconds(10));\n}"
+    language: cpp
+  notes: This method is typically used in conjunction with packet queuing and network
+    sending logic. It's important to note that checking this flag does not guarantee
+    immediate availability of network resources, as the actual transmission may still
+    be pending. The implementation likely uses atomic operations or thread-safe data
+    structures for queue state management.
+  warnings: Calling this method repeatedly in tight loops without proper delay can
+    cause unnecessary CPU overhead. Additionally, relying solely on this check without
+    considering other session states (like connection status) may lead to incorrect
+    assumptions about the session's readiness to send data.
+  related:
+  - SendQueuedPackets
+  - QueuePacket
+  - ClearQueuedPackets
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-08T17:10:59.557153'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core

@@ -1,0 +1,52 @@
+api:
+  class: QuestCompletion
+  method: SynchronizeObjectiveStates
+  signature: void QuestCompletion::SynchronizeObjectiveStates(Group * group, uint32
+    questId)
+documentation:
+  brief: Synchronizes quest objective states for all members of a group.
+  description: The SynchronizeObjectiveStates method ensures that all players within
+    a specified group have their quest objective progress updated to match the current
+    state of the quest. This is typically used when a quest is completed or modified
+    in a way that affects all group members, such as when a shared objective is fulfilled.
+    The method iterates through each player in the group and updates their individual
+    quest progress accordingly. It's commonly called during group-based quest completion
+    events or when a quest is triggered by group actions.
+  parameters:
+  - name: group
+    description: Pointer to the Group object containing the players whose quest states
+      need synchronization. Must not be null.
+  - name: questId
+    description: The unique identifier of the quest whose objectives should be synchronized
+      across all group members. Must correspond to a valid quest in the database.
+  returns: null
+  examples:
+  - title: Basic usage for synchronizing group quest progress
+    code: "Group* playerGroup = player->GetGroup();\nif (playerGroup)\n{\n    QuestCompletion::SynchronizeObjectiveStates(playerGroup,\
+      \ 12345);\n}"
+    language: cpp
+  - title: Synchronizing quest progress after group completion of a shared objective
+    code: "void OnQuestComplete(Player* player, uint32 questId)\n{\n    Group* group\
+      \ = player->GetGroup();\n    if (group && group->GetMembersCount() > 1)\n  \
+      \  {\n        QuestCompletion::SynchronizeObjectiveStates(group, questId);\n\
+      \    }\n}"
+    language: cpp
+  notes: This method assumes that the quest data is already properly initialized and
+    that all players in the group have the quest active. It does not validate whether
+    the quest is actually complete or if objectives are properly updated; it simply
+    synchronizes existing progress. The method may be called multiple times without
+    side effects, but performance could degrade with large groups.
+  warnings: Calling this method with a null group pointer will result in undefined
+    behavior. Ensure that the questId corresponds to an actual quest in the database
+    or unexpected results may occur. This method should not be used during quest creation
+    or initialization phases when quest data might not yet be fully loaded.
+  related:
+  - Quest::GetQuestObjective
+  - Player::GetQuestStatus
+  - Group::GetMembersCount
+metadata:
+  confidence: 0.9
+  generated_at: '2025-11-07T21:40:08.180015'
+  generator: lmstudio-qwen3-coder-30b
+  version: 1.0.0
+  source: core
