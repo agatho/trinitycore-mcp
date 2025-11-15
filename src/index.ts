@@ -17,6 +17,8 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+import { getProfileLoader } from "./profiles/ProfileLoader.js";
+import { getDynamicToolManager } from "./profiles/DynamicToolManager.js";
 import { getSpellInfo } from "./tools/spell";
 import { getItemInfo } from "./tools/item";
 import { getQuestInfo } from "./tools/quest";
@@ -304,6 +306,12 @@ import {
   isOnNavMesh
 } from "./tools/mmap-tools";
 import {
+  getMapMinimap,
+  getMinimapTile,
+  getMinimapTilesBatch,
+  clearMinimapCache
+} from "./tools/minimap";
+import {
   exportAllDatabases,
   exportTables
 } from "./database/export-engine";
@@ -356,8 +364,17 @@ const server = new Server(
   }
 );
 
-// Define available tools
-const TOOLS: Tool[] = [
+// Initialize profile loader for conditional tool loading
+const profileLoader = getProfileLoader();
+
+// Initialize dynamic tool manager for runtime loading/unloading
+const dynamicToolManager = getDynamicToolManager();
+
+// Log profile information at startup
+profileLoader.logProfileInfo();
+
+// Define available tools (all 120 tools defined here)
+const ALL_TOOLS: Tool[] = [
   {
     name: "get-spell-info",
     description: "Get detailed information about a spell from TrinityCore database and Spell.db2 (Week 7: Enhanced with DB2 caching, merged data sources, <1ms cache hits)",
@@ -2584,6 +2601,78 @@ const TOOLS: Tool[] = [
       required: ["mmapDir", "mapId", "posX", "posY", "posZ"],
     },
   },
+  // Minimap Tools (Phase 1.1c)
+  {
+    name: "get-map-minimap",
+    description: "Get map information including starting FileDataID for minimap tiles. Modern WoW 11.x stores minimap tiles as consecutive BLP files starting from Map.db2 WdtFileDataID.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mapId: {
+          type: "number",
+          description: "Map ID from Map.db2 (e.g. 0=Azeroth, 1=Kalimdor, 530=Outland)"
+        }
+      },
+      required: ["mapId"]
+    }
+  },
+  {
+    name: "get-minimap-tile",
+    description: "Extract and convert a minimap tile from CASC to PNG format with caching. Returns PNG image converted from DXT-compressed BLP texture.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        fileDataId: {
+          type: "number",
+          description: "FileDataID of the BLP tile to extract (e.g. 1579844 for first Azeroth tile)"
+        },
+        forceRefresh: {
+          type: "boolean",
+          description: "Force re-extraction bypassing cache (default: false)"
+        }
+      },
+      required: ["fileDataId"]
+    }
+  },
+  {
+    name: "get-minimap-tiles-batch",
+    description: "Extract multiple minimap tiles in batch for improved performance. Provide either an array of FileDataIDs, a map ID, or a starting ID with count.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        fileDataIds: {
+          type: "array",
+          items: { type: "number" },
+          description: "Array of FileDataIDs to extract"
+        },
+        mapId: {
+          type: "number",
+          description: "Map ID to extract all tiles for (e.g., 58441 for Azeroth, 58276 for Kalimdor)"
+        },
+        startFileDataId: {
+          type: "number",
+          description: "Starting FileDataID for consecutive extraction"
+        },
+        count: {
+          type: "number",
+          description: "Number of consecutive tiles to extract (used with startFileDataId)"
+        }
+      }
+    }
+  },
+  {
+    name: "clear-minimap-cache",
+    description: "Clear cached minimap tiles for a specific map or all maps. Use to free disk space or force re-extraction.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mapId: {
+          type: "number",
+          description: "Map ID to clear cache for (omit to clear all cached tiles)"
+        }
+      }
+    }
+  },
   // Database Tools (Phase 1.1c)
   {
     name: "export-database",
@@ -2990,18 +3079,144 @@ const TOOLS: Tool[] = [
       required: ["outputPath"],
     },
   },
+  {
+    name: "mcp-load-tool",
+    description: "Load a tool on-demand (DYNAMIC profile only). Enables runtime tool loading to minimize token costs.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        toolName: {
+          type: "string",
+          description: "Name of the tool to load",
+        },
+      },
+      required: ["toolName"],
+    },
+  },
+  {
+    name: "mcp-unload-tool",
+    description: "Unload a tool to free resources (DYNAMIC profile only). Part of automatic token optimization.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        toolName: {
+          type: "string",
+          description: "Name of the tool to unload",
+        },
+      },
+      required: ["toolName"],
+    },
+  },
+  {
+    name: "mcp-switch-profile",
+    description: "Switch to a different tool profile (DYNAMIC profile only). Changes which tools are loaded.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        profile: {
+          type: "string",
+          enum: ["full", "core-data", "code-review", "playerbot-dev", "performance", "database", "dynamic"],
+          description: "Profile to switch to",
+        },
+      },
+      required: ["profile"],
+    },
+  },
+  {
+    name: "mcp-get-tool-stats",
+    description: "Get tool usage statistics and recommendations (DYNAMIC profile only). Shows which tools are used most.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        maxRecommendations: {
+          type: "number",
+          description: "Maximum number of recommendations (default: 5)",
+        },
+      },
+    },
+  },
+  {
+    name: "mcp-get-registry-status",
+    description: "Get dynamic tool registry status (DYNAMIC profile only). Shows loaded/available tools and auto-unload config.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+    },
+  },
 ];
 
-// List tools handler
+// Initialize dynamic tool manager with all available tools
+// This enables runtime loading/unloading for DYNAMIC profile
+const isDynamicMode = process.env.MCP_LAZY_LOAD === 'true' || profileLoader.getProfile() === 'dynamic';
+
+if (isDynamicMode) {
+  console.log(`[MCP Server] Dynamic tool loading ENABLED`);
+  dynamicToolManager.initialize(server, ALL_TOOLS);
+}
+
+// Filter tools based on active profile
+// This enables 60-90% token reduction for Claude Code while maintaining full functionality for Web UI
+// FULL profile bypasses filtering to ensure all tools load
+// DYNAMIC profile uses runtime registry
+let TOOLS: Tool[];
+
+if (isDynamicMode) {
+  // Dynamic mode: Use runtime registry
+  TOOLS = dynamicToolManager.getRegistryStats().loadedTools > 0
+    ? [] // Will be populated dynamically
+    : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
+} else {
+  // Static mode: Use profile filtering
+  TOOLS = profileLoader.getProfile() === 'full'
+    ? ALL_TOOLS
+    : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
+}
+
+// Log filtered tool count
+if (isDynamicMode) {
+  const stats = dynamicToolManager.getRegistryStats();
+  console.log(`[MCP Server] Dynamic mode: ${stats.loadedTools} tools loaded, ${stats.availableTools} available for on-demand loading`);
+} else {
+  console.log(`[MCP Server] Static mode: Loaded ${TOOLS.length} / ${ALL_TOOLS.length} tools based on profile`);
+}
+
+// List tools handler (returns only tools loaded for current profile or dynamic registry)
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: TOOLS,
-  };
+  if (isDynamicMode) {
+    // Dynamic mode: Return currently loaded tools from dynamic registry
+    const loadedTools = [];
+    for (const tool of ALL_TOOLS) {
+      if (dynamicToolManager.getRegistryStats().loadedTools > 0) {
+        // Check if this specific tool is loaded
+        const registry = getDynamicToolManager();
+        const toolStats = registry.getToolUsageStats();
+        const isLoaded = toolStats.some(stat =>
+          stat.toolName === tool.name && stat.isCurrentlyLoaded
+        );
+        if (isLoaded) {
+          loadedTools.push(tool);
+        }
+      }
+    }
+    return {
+      tools: loadedTools.length > 0 ? loadedTools : TOOLS
+    };
+  } else {
+    // Static mode: Return pre-filtered tools
+    return {
+      tools: TOOLS,
+    };
+  }
 });
 
 // Call tool handler with enterprise error handling
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+
+  // Record tool usage for analytics and dynamic loading
+  if (isDynamicMode) {
+    dynamicToolManager.recordToolUsage(name);
+  }
 
   if (!args) {
     throw new ValidationError("Missing arguments for tool execution", {
@@ -4431,6 +4646,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      // Minimap Tools (Phase 1.1c)
+      case "get-map-minimap": {
+        return await getMapMinimap({ mapId: args.mapId as number });
+      }
+
+      case "get-minimap-tile": {
+        return await getMinimapTile({
+          fileDataId: args.fileDataId as number,
+          forceRefresh: args.forceRefresh as boolean | undefined
+        });
+      }
+
+      case "get-minimap-tiles-batch": {
+        return await getMinimapTilesBatch({
+          fileDataIds: (args.fileDataIds as number[] | undefined) || [],
+          mapId: args.mapId as number | undefined,
+          startFileDataId: args.startFileDataId as number | undefined,
+          count: args.count as number | undefined
+        });
+      }
+
+      case "clear-minimap-cache": {
+        return await clearMinimapCache({ mapId: args.mapId as number | undefined });
+      }
+
       // Database Tools (Phase 1.1c)
       case "export-database": {
         const baseConfig = {
@@ -4898,6 +5138,136 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         return {
           content: [{ type: "text", text: formatted }],
+        };
+      }
+
+      // ============================================================
+      // MCP Dynamic Tool Management (Phase 4)
+      // ============================================================
+
+      case "mcp-load-tool": {
+        if (!isDynamicMode) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                success: false,
+                message: "Dynamic tool loading only available in DYNAMIC profile or with MCP_LAZY_LOAD=true"
+              }, null, 2)
+            }]
+          };
+        }
+
+        const toolName = args.toolName as string;
+        const result = await dynamicToolManager.loadToolOnDemand(toolName);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+
+      case "mcp-unload-tool": {
+        if (!isDynamicMode) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                success: false,
+                message: "Dynamic tool unloading only available in DYNAMIC profile or with MCP_LAZY_LOAD=true"
+              }, null, 2)
+            }]
+          };
+        }
+
+        const toolName = args.toolName as string;
+        const result = await dynamicToolManager.unloadTool(toolName);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+
+      case "mcp-switch-profile": {
+        if (!isDynamicMode) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                success: false,
+                message: "Profile switching only available in DYNAMIC profile or with MCP_LAZY_LOAD=true"
+              }, null, 2)
+            }]
+          };
+        }
+
+        const profile = args.profile as any;
+        const result = await dynamicToolManager.switchProfile(profile);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+
+      case "mcp-get-tool-stats": {
+        if (!isDynamicMode) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                success: false,
+                message: "Tool statistics only available in DYNAMIC profile or with MCP_LAZY_LOAD=true"
+              }, null, 2)
+            }]
+          };
+        }
+
+        const maxRecommendations = (args.maxRecommendations as number) || 5;
+        const stats = dynamicToolManager.getToolUsageStats();
+        const recommendations = dynamicToolManager.getToolRecommendations(maxRecommendations);
+        const profileRecommendation = dynamicToolManager.getProfileRecommendation();
+
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              toolUsageStats: stats.slice(0, 20), // Top 20 tools
+              recommendations,
+              profileRecommendation
+            }, null, 2)
+          }]
+        };
+      }
+
+      case "mcp-get-registry-status": {
+        if (!isDynamicMode) {
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify({
+                success: false,
+                message: "Registry status only available in DYNAMIC profile or with MCP_LAZY_LOAD=true"
+              }, null, 2)
+            }]
+          };
+        }
+
+        const stats = dynamicToolManager.getRegistryStats();
+        const usageData = dynamicToolManager.exportUsageData();
+
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({
+              registryStats: stats,
+              detailedUsage: JSON.parse(usageData)
+            }, null, 2)
+          }]
         };
       }
 
