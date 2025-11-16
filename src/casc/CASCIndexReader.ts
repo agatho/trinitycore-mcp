@@ -35,48 +35,262 @@ export class CASCIndexReader {
   private entries: Map<string, CASCIndexEntry> = new Map();
 
   /**
-   * Load all index files from CASC indices directory
+   * Load all index files from CASC data directory
+   * Uses Data/data/*.idx files (not Data/indices/*.index!)
    */
-  async loadIndices(indicesPath: string): Promise<void> {
-    logger.info('CASCIndexReader', `Loading index files from: ${indicesPath}`);
+  async loadIndices(dataPath: string): Promise<void> {
+    // The actual .idx files are in Data/data/, not Data/indices/
+    const idxPath = path.join(path.dirname(dataPath), 'data');
+
+    console.log(`[CASCIndexReader] Loading index files from: ${idxPath}`);
+    logger.info('CASCIndexReader', `Loading index files from: ${idxPath}`);
 
     try {
-      const files = await fs.readdir(indicesPath);
-      const idxFiles = files.filter(f => f.endsWith('.idx'));
+      const files = await fs.readdir(idxPath);
+      // Get latest .idx file for each prefix (00-0f)
+      const latestIdx: string[] = [];
 
-      logger.info('CASCIndexReader', `Found ${idxFiles.length} index files`);
+      for (let i = 0; i < 0x10; i++) {
+        const prefix = i.toString(16).padStart(2, '0');
+        const matching = files.filter(f => f.startsWith(prefix) && f.endsWith('.idx'));
 
-      for (const file of idxFiles) {
-        const filePath = path.join(indicesPath, file);
+        if (matching.length > 0) {
+          // Get the latest version (highest number)
+          const latest = matching.sort().pop();
+          if (latest) {
+            latestIdx.push(path.join(idxPath, latest));
+          }
+        }
+      }
+
+      console.log(`[CASCIndexReader] Found ${latestIdx.length} index files`);
+      logger.info('CASCIndexReader', `Found ${latestIdx.length} index files`);
+
+      for (const filePath of latestIdx) {
         await this.parseIndexFile(filePath);
       }
 
+      console.log(`[CASCIndexReader] Loaded ${this.entries.size} index entries total`);
       logger.info('CASCIndexReader', `Loaded ${this.entries.size} index entries`);
     } catch (error: any) {
+      console.error(`[CASCIndexReader] ERROR loading indices:`, error);
       logger.error('CASCIndexReader', error);
       throw error;
     }
   }
 
   /**
-   * Parse a single index file
+   * Parse a single index file (supports both .idx and .index formats)
    */
   private async parseIndexFile(filePath: string): Promise<void> {
     const data = await fs.readFile(filePath);
+    const fileName = path.basename(filePath);
 
-    // Index file header
+    // Try parsing as wow.export format (fixed 18-byte entries after header)
+    await this.parseIndexFileWowExport(data, fileName);
+  }
+
+  /**
+   * Parse index file using CASCExplorer format
+   * Based on https://github.com/WoW-Tools/CASCExplorer
+   *
+   * Format from CASCExplorer LocalIndexHandler.cs:
+   * - HeaderHashSize (4 bytes LE)
+   * - HeaderHash (4 bytes LE) - IGNORED
+   * - Header hash data (HeaderHashSize bytes)
+   * - Align to 0x10 boundary
+   * - EntriesSize (4 bytes LE)
+   * - EntriesHash (4 bytes LE) - IGNORED
+   * - Fixed 18-byte entries: 9-byte key + 1-byte indexHigh + 4-byte indexLow (BE) + 4-byte size (LE)
+   *
+   * Archive/Offset decoding:
+   * - archive = (indexHigh << 2) | ((indexLow & 0xC0000000) >> 30)
+   * - offset = indexLow & 0x3FFFFFFF
+   */
+  private async parseIndexFileWowExport(data: Buffer, fileName: string): Promise<void> {
+    try {
+      let offset = 0;
+
+      // Read header
+      const headerHashSize = data.readInt32LE(offset);
+      offset += 4;
+
+      // Validate headerHashSize (typically 16, but could vary)
+      if (headerHashSize < 0 || headerHashSize > 256) {
+        console.log(`[CASCIndexReader] WARNING: ${fileName} has invalid headerHashSize: ${headerHashSize}, skipping`);
+        return;
+      }
+
+      const headerHash = data.readInt32LE(offset);  // Read but ignore
+      offset += 4;
+
+      // Read hash data
+      const hashData = data.subarray(offset, offset + headerHashSize);
+      offset += headerHashSize;
+
+      // Align to 0x10 boundary
+      offset = (8 + headerHashSize + 0x0F) & 0xFFFFFFF0;
+
+      if (offset + 8 > data.length) {
+        console.log(`[CASCIndexReader] WARNING: ${fileName} insufficient data after header`);
+        return;
+      }
+
+      // Read entries section
+      const entriesSize = data.readInt32LE(offset);
+      offset += 4;
+
+      const entriesHash = data.readInt32LE(offset);  // Read but ignore
+      offset += 4;
+
+      console.log(`[CASCIndexReader] ${fileName}: headerHashSize=${headerHashSize}, entriesSize=${entriesSize}`);
+
+      // Parse fixed 18-byte entries
+      const numBlocks = Math.floor(entriesSize / 18);
+      let entryCount = 0;
+
+      for (let i = 0; i < numBlocks && offset + 18 <= data.length; i++) {
+        // 9-byte key (EKey, first 9 bytes of MD5)
+        const key = data.subarray(offset, offset + 9);
+        offset += 9;
+
+        // 1 byte indexHigh
+        const indexHigh = data.readUInt8(offset);
+        offset += 1;
+
+        // 4 bytes indexLow (BIG-ENDIAN!)
+        const indexLow = data.readInt32BE(offset);
+        offset += 4;
+
+        // 4 bytes size (LITTLE-ENDIAN)
+        const size = data.readInt32LE(offset);
+        offset += 4;
+
+        // Decode archive and offset using CASCExplorer's logic
+        const archive = (indexHigh << 2) | ((indexLow & 0xC0000000) >>> 30);
+        const fileOffset = indexLow & 0x3FFFFFFF;
+
+        const entry: CASCIndexEntry = {
+          hash: key,
+          size,
+          offset: fileOffset,
+          archive
+        };
+
+        // Use 9-byte key as hash for lookup
+        const hashKey = key.toString('hex');
+
+        // Use first occurrence only (as CASCExplorer does)
+        if (!this.entries.has(hashKey)) {
+          this.entries.set(hashKey, entry);
+          entryCount++;
+        }
+      }
+
+      console.log(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries`);
+    } catch (error) {
+      console.error(`[CASCIndexReader] Error parsing ${fileName}:`, error);
+    }
+  }
+
+  /**
+   * Parse modern CASC index file (Version 7, used in WoW 11.x)
+   *
+   * Format specification from CascLib:
+   * - Guarded block wrapper (BlockSize + BlockHash)
+   * - FILE_INDEX_HEADER_V2 inside guarded block
+   * - Variable-length entries
+   */
+  private async parseIndexFileV7(data: Buffer, fileName: string): Promise<void> {
+    try {
+      // Modern .index files start directly with FILE_INDEX_HEADER
+      // No guarded block wrapper in these files
+      const headerOffset = 0;
+
+      // Read version as BIG-ENDIAN
+      const version = data.readUInt16BE(headerOffset + 0x00);
+      if (version !== 7 && version !== 5) {
+        console.log(`[CASCIndexReader] WARNING: ${fileName} has unsupported version: ${version}`);
+        return;
+      }
+
+      const bucketIndex = data.readUInt8(headerOffset + 0x02);
+
+      // Entry specification (4 bytes at 0x03-0x06) per CASC_INDEX_HEADER struct
+      const offsetBytes = data.readUInt8(headerOffset + 0x03); // StorageOffsetLength
+      const sizeBytes = data.readUInt8(headerOffset + 0x04);   // EncodedSizeLength
+      const keyBytes = data.readUInt8(headerOffset + 0x05);    // EKeyLength
+      const offsetBits = data.readUInt8(headerOffset + 0x06);  // FileOffsetBits
+
+      const entriesSize = data.readUInt32LE(headerOffset + 0x18);
+      const entriesOffset = headerOffset + 0x20; // Entries start after header
+
+      console.log(`[CASCIndexReader] ${fileName}: version=${version}, bucket=${bucketIndex}, keyBytes=${keyBytes}, offsetBytes=${offsetBytes}, sizeBytes=${sizeBytes}, offsetBits=${offsetBits}`);
+
+      // Parse variable-length entries
+      let offset = entriesOffset;
+      const endOffset = entriesOffset + entriesSize;
+      let entryCount = 0;
+
+      while (offset < endOffset && offset + keyBytes + offsetBytes + sizeBytes <= data.length) {
+        // Key: First N bytes of content hash
+        const key = data.subarray(offset, offset + keyBytes);
+        offset += keyBytes;
+
+        // Offset: Big-endian N-byte integer (contains archive number and file offset)
+        let encodedOffset = 0n;
+        for (let i = 0; i < offsetBytes; i++) {
+          encodedOffset = (encodedOffset << 8n) | BigInt(data[offset + i]);
+        }
+        offset += offsetBytes;
+
+        // Size: Little-endian M-byte integer
+        let size = 0;
+        for (let i = 0; i < sizeBytes; i++) {
+          size |= data[offset + i] << (i * 8);
+        }
+        offset += sizeBytes;
+
+        // Decode offset and archive from encodedOffset
+        const offsetMask = (1n << BigInt(offsetBits)) - 1n;
+        const fileOffset = Number(encodedOffset & offsetMask);
+        const archive = Number(encodedOffset >> BigInt(offsetBits));
+
+        const entry: CASCIndexEntry = {
+          hash: key,
+          size,
+          offset: fileOffset,
+          archive
+        };
+
+        // Use key as hash for lookup
+        const hashKey = key.toString('hex');
+        this.entries.set(hashKey, entry);
+        entryCount++;
+      }
+
+      console.log(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries`);
+    } catch (error) {
+      console.error(`[CASCIndexReader] Error parsing ${fileName}:`, error);
+    }
+  }
+
+  /**
+   * Parse legacy CASC index file (.idx format)
+   */
+  private async parseIndexFileLegacy(data: Buffer, fileName: string): Promise<void> {
+    // Legacy format header
     const headerHashSize = data.readUInt32LE(0);
     const headerHash = data.subarray(4, 4 + headerHashSize);
 
     let offset = 4 + headerHashSize;
 
-    // Read all entries
-    // Each entry is 18 bytes: hash(9) + indexHigh(1) + sizeLow(4) + offsetLow(4)
+    // Read all entries (fixed 18-byte format)
     while (offset + 18 <= data.length) {
       // Last 9 bytes of content hash
       const hash = data.subarray(offset, offset + 9);
 
-      // Index high byte (upper 2 bits) + archive index (lower 6 bits)
+      // Index high byte + archive index
       const indexHigh = data[offset + 9];
 
       // Size (4 bytes, little-endian)
@@ -85,7 +299,7 @@ export class CASCIndexReader {
       // Offset (4 bytes, little-endian)
       const fileOffset = data.readUInt32LE(offset + 14);
 
-      // Archive number from indexHigh
+      // Archive number
       const archive = indexHigh & 0x0F;
 
       const entry: CASCIndexEntry = {
@@ -95,7 +309,7 @@ export class CASCIndexReader {
         archive
       };
 
-      // Use hash as key (hex string for easy lookup)
+      // Use hash as key
       const hashKey = hash.toString('hex');
       this.entries.set(hashKey, entry);
 
@@ -104,7 +318,7 @@ export class CASCIndexReader {
 
     logger.debug(
       'CASCIndexReader',
-      `Parsed ${path.basename(filePath)}: ${this.entries.size} total entries`
+      `Parsed ${fileName}: ${this.entries.size} total entries`
     );
   }
 
@@ -116,15 +330,26 @@ export class CASCIndexReader {
     let hashKey = hash.toString('hex');
     let entry = this.entries.get(hashKey);
 
-    if (entry) return entry;
-
-    // Try last 9 bytes (what's stored in index)
-    if (hash.length > 9) {
-      hashKey = hash.subarray(hash.length - 9).toString('hex');
-      entry = this.entries.get(hashKey);
+    if (entry) {
+      console.log(`[CASCIndexReader] Found entry with full hash: ${hashKey.substring(0, 16)}...`);
+      return entry;
     }
 
-    return entry || null;
+    // Try FIRST 9 bytes (what's stored in index!)
+    if (hash.length > 9) {
+      hashKey = hash.subarray(0, 9).toString('hex');
+      entry = this.entries.get(hashKey);
+
+      if (entry) {
+        console.log(`[CASCIndexReader] Found entry with first 9 bytes: ${hashKey}`);
+        return entry;
+      } else {
+        console.log(`[CASCIndexReader] Entry not found. Full hash: ${hash.toString('hex').substring(0, 16)}..., First 9: ${hashKey}`);
+        console.log(`[CASCIndexReader] Total entries in index: ${this.entries.size}`);
+      }
+    }
+
+    return null;
   }
 
   /**

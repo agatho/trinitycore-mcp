@@ -141,20 +141,35 @@ export class TrinityCoreMCPClient {
     return this.tools.filter((tool) => tool.category === category);
   }
 
-  
+
 /*
     Call an MCP tool
    */
-  async callTool<T = any>(toolName: string, args: Record<string, any> = {}): Promise<T> {
+  async callTool<T = any>(
+    toolName: string,
+    args: Record<string, any> = {},
+    options?: { timeout?: number }
+  ): Promise<T> {
     if (!this.client || !this.isConnected) {
       throw new Error("MCP client not connected");
     }
 
     try {
-      const response = await this.client.callTool({
+      // Create a promise with custom timeout for long-running operations
+      const timeoutMs = options?.timeout || 600000; // Default 10 minutes for large extractions
+
+      const toolCallPromise = this.client.callTool({
         name: toolName,
         arguments: args,
       });
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error(`Tool call timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+      });
+
+      const response = await Promise.race([toolCallPromise, timeoutPromise]);
 
       // Parse response content
       if (response.content && Array.isArray(response.content) && response.content.length > 0) {

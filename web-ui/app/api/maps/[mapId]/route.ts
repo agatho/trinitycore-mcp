@@ -3,26 +3,30 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
+import { deleteExtractedMap } from '@/lib/mapextraction';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { mapId: string } }
+  { params }: { params: Promise<{ mapId: string }> }
 ) {
   try {
-    const mapId = parseInt(params.mapId);
+    const resolvedParams = await params;
+    const mapId = parseInt(resolvedParams.mapId);
 
-    // Import from the compiled dist directory
-    const mapExtractionPath = path.join(process.cwd(), '..', 'dist', 'tools', 'mapextraction.js');
-    const { deleteExtractedMap } = await import(mapExtractionPath);
+    if (isNaN(mapId) || mapId < 0) {
+      return NextResponse.json(
+        { error: 'Invalid map ID' },
+        { status: 400 }
+      );
+    }
 
     const success = await deleteExtractedMap({ mapId });
 
     return NextResponse.json({ success });
   } catch (error: any) {
-    console.error('Failed to delete map:', error);
+    console.error('Error in /api/maps/[mapId] DELETE:', error);
     return NextResponse.json(
-      { error: error.message, stack: error.stack },
+      { error: error.message },
       { status: 500 }
     );
   }

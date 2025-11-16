@@ -134,7 +134,7 @@ const DEFAULT_LAYERS: Layer[] = [
 
 export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
   // State
-  const [selectedMap, setSelectedMap] = useState(0);
+  const [selectedMap, setSelectedMap] = useState(58441); // Default to Azeroth (Retail 11.x)
   const [mapImage, setMapImage] = useState<HTMLImageElement | null>(null);
   const [coordinates, setCoordinates] = useState<MapCoordinate[]>([]);
   const [roads, setRoads] = useState<Road[]>([]);

@@ -26,9 +26,15 @@ export class CASCDataReader {
   /**
    * Read data from archive file at specified offset and size
    *
+   * CASC archive data block format (from CASCExplorer):
+   * - 16 bytes: MD5 hash (EKey, reversed byte order)
+   * - 4 bytes: Size (must match idxInfo.Size)
+   * - 10 bytes: Unknown/padding
+   * - Remaining: BLTE-encoded data
+   *
    * @param archive - Archive number (e.g., 0 for data.000)
    * @param offset - Offset in archive file
-   * @param size - Size of data to read
+   * @param size - Size of data to read (includes 30-byte header)
    * @returns Decompressed data
    */
   async readData(archive: number, offset: number, size: number): Promise<Buffer> {
@@ -38,19 +44,40 @@ export class CASCDataReader {
       // Get or open archive file handle
       const handle = await this.getArchiveHandle(archive);
 
-      // Read BLTE-encoded data
+      // Read entire block including 30-byte header
       const buffer = Buffer.allocUnsafe(size);
       await handle.read(buffer, 0, size, offset);
 
+      // Parse 30-byte CASC header
+      // 16 bytes: MD5 hash (reversed)
+      const md5Reversed = buffer.subarray(0, 16);
+      const md5 = Buffer.from(md5Reversed).reverse(); // Reverse to get actual EKey
+
+      // 4 bytes: Size (should match size parameter)
+      const blockSize = buffer.readInt32LE(16);
+      if (blockSize !== size) {
+        logger.warn('CASCDataReader', `Block size mismatch: expected ${size}, got ${blockSize}`);
+      }
+
+      // 10 bytes: Unknown/padding (skip)
+      // Total header: 30 bytes
+
+      // Extract BLTE data (after 30-byte header)
+      const blteData = buffer.subarray(30);
+
+      logger.debug('CASCDataReader', `Block EKey: ${md5.toString('hex').substring(0, 18)}..., data size: ${blteData.length}`);
+      console.log(`[CASCDataReader] First 32 bytes of BLTE data: ${blteData.subarray(0, Math.min(32, blteData.length)).toString('hex')}`);
+      console.log(`[CASCDataReader] First 4 bytes as ASCII: "${blteData.toString('ascii', 0, 4)}"`);
+
       // Check if data is BLTE-encoded
-      if (BLTEDecompressor.isBLTE(buffer)) {
+      if (BLTEDecompressor.isBLTE(blteData)) {
         logger.debug('CASCDataReader', 'Decompressing BLTE data');
-        return BLTEDecompressor.decompress(buffer);
+        return BLTEDecompressor.decompress(blteData);
       }
 
       // Return raw data if not BLTE-encoded
       logger.debug('CASCDataReader', 'Returning raw data (not BLTE)');
-      return buffer;
+      return blteData;
     } catch (error) {
       logger.error('CASCDataReader', error as Error, {
         archive,

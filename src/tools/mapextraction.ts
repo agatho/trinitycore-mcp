@@ -216,22 +216,28 @@ export async function getExtractionStatus(args: {
 
 /**
  * List all available maps in WoW installation
+ *
+ * IMPORTANT: These Map IDs correspond to minimap folder names in world/minimaps/
+ * They are NOT the traditional gameplay Map IDs from Map.db2!
  */
 export async function listAvailableMaps(): Promise<
   Array<{ id: number; name: string; extracted: boolean }>
 > {
   const maps = [
-    { id: 0, name: 'Eastern Kingdoms' },
-    { id: 1, name: 'Kalimdor' },
-    { id: 530, name: 'Outland' },
-    { id: 571, name: 'Northrend' },
-    { id: 860, name: 'Pandaria' },
-    { id: 870, name: 'Draenor' },
-    { id: 1116, name: 'Broken Isles' },
-    { id: 1220, name: 'Kul Tiras' },
-    { id: 1642, name: 'Shadowlands' },
+    // Classic continents
+    { id: 58441, name: 'Azeroth (Eastern Kingdoms)' },
+    { id: 58276, name: 'Kalimdor' },
+    { id: 58346, name: 'Outland' },
+    { id: 59446, name: 'Northrend' },
+
+    // Expansion continents
+    { id: 870, name: 'Pandaria' },
+    { id: 1220, name: 'Broken Isles' },
+    { id: 59838, name: 'Draenor' },
+    { id: 60399, name: 'Kul Tiras' },
+    { id: 60621, name: 'Zandalar' },
     { id: 2444, name: 'Dragon Isles' },
-    { id: 2552, name: 'The War Within' }
+    { id: 2601, name: 'Khaz Algar' }
   ];
 
   // Check which maps are extracted

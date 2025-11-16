@@ -58,9 +58,18 @@ export class BLTEDecompressor {
 
     if (headerSize > 0) {
       // Multiple chunks
-      const chunkCount = data[8] >>> 16 | data[9] << 8 | data[10];
-      dataOffset = 8 + headerSize;
+      // Format: 0x0F (flag byte) + 3 bytes for chunk count (big-endian, 24-bit)
+      const flagByte = data[8];
+      if (flagByte !== 0x0F) {
+        throw new Error(`Invalid BLTE chunk flag byte: expected 0x0F, got 0x${flagByte.toString(16)}`);
+      }
+      const chunkCount = (data[9] << 16) | (data[10] << 8) | data[11];
+      // headerSize represents total header size from byte 0 (includes BLTE magic + headerSize field)
+      // So data starts at byte headerSize, not 8 + headerSize
+      dataOffset = headerSize;
 
+      console.log(`[BLTEDecompressor] Header size: ${headerSize}, Chunk count: ${chunkCount}`);
+      console.log(`[BLTEDecompressor] Data will start at offset: ${headerSize}`);
       logger.debug('BLTEDecompressor', `Decompressing ${chunkCount} chunks`);
 
       // Read chunk info table
@@ -70,6 +79,8 @@ export class BLTEDecompressor {
         const decompressedSize = data.readUInt32BE(chunkInfoOffset + 4);
         const checksum = data.subarray(chunkInfoOffset + 8, chunkInfoOffset + 24);
 
+        console.log(`[BLTEDecompressor] Chunk ${i}: compressed=${compressedSize}, decompressed=${decompressedSize}`);
+
         chunks.push({
           compressedSize,
           decompressedSize,
@@ -78,6 +89,7 @@ export class BLTEDecompressor {
 
         chunkInfoOffset += 24;
       }
+      console.log(`[BLTEDecompressor] Chunk table ends at offset: ${chunkInfoOffset}`);
     } else {
       // Single chunk (entire file)
       chunks.push({
@@ -90,8 +102,12 @@ export class BLTEDecompressor {
     // Decompress chunks
     const decompressedChunks: Buffer[] = [];
 
-    for (const chunk of chunks) {
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      console.log(`[BLTEDecompressor] Extracting chunk ${i} from offset ${dataOffset}, size ${chunk.compressedSize}`);
       const chunkData = data.subarray(dataOffset, dataOffset + chunk.compressedSize);
+      console.log(`[BLTEDecompressor] Chunk ${i} first 16 bytes: ${chunkData.subarray(0, Math.min(16, chunkData.length)).toString('hex')}`);
+      console.log(`[BLTEDecompressor] Chunk ${i} encoding type byte: 0x${chunkData[0].toString(16)}`);
       const decompressed = this.decompressChunk(chunkData);
       decompressedChunks.push(decompressed);
       dataOffset += chunk.compressedSize;

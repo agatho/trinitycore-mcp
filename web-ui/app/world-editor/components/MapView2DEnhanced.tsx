@@ -44,7 +44,7 @@ export function MapView2DEnhanced({
     const checkForTiles = async () => {
       setCheckingTiles(true);
       try {
-        const response = await fetch(`/maps/tiles/${state.selectedMap}/metadata.json`);
+        const response = await fetch(`/tile-data/${state.selectedMap}/metadata.json`);
         setHasTiledMaps(response.ok);
       } catch {
         setHasTiledMaps(false);

@@ -11,6 +11,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 import type { WorldEditorState, WorldEditorActions } from '../hooks/useWorldEditorState';
 import { canvasToWow, wowToCanvas, loadMapImage } from '@/lib/map-editor';
 import { getHeightAtPosition } from '@/lib/height-query';
+import { createMinimapComposite } from '@/lib/minimap';
 
 interface MapView2DProps {
   state: WorldEditorState;
@@ -34,13 +35,35 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
 
     const loadMap = async () => {
       try {
-        const img = await loadMapImage(state.selectedMap);
-        if (img) {
-          actions.setMapImage(img);
+        // First try to load minimap tiles composite
+        console.log(`[MapView2D] Attempting to load minimap tiles for map ${state.selectedMap}`);
+        const canvas = await createMinimapComposite(state.selectedMap, 64);
+
+        // Convert canvas to Image element
+        const img = new Image();
+        img.src = canvas.toDataURL();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        console.log(`[MapView2D] Successfully loaded minimap composite for map ${state.selectedMap}`);
+        actions.setMapImage(img);
+      } catch (minimapError) {
+        console.warn(`[MapView2D] Failed to load minimap tiles: ${minimapError instanceof Error ? minimapError.message : String(minimapError)}`);
+        console.log(`[MapView2D] Falling back to loadMapImage for map ${state.selectedMap}`);
+
+        // Fall back to existing loadMapImage
+        try {
+          const img = await loadMapImage(state.selectedMap);
+          if (img) {
+            console.log(`[MapView2D] Successfully loaded map image for map ${state.selectedMap}`);
+            actions.setMapImage(img);
+          }
+        } catch (error) {
+          console.error(`[MapView2D] Failed to load map: ${error instanceof Error ? error.message : String(error)}`);
+          actions.setMapImage(null);
         }
-      } catch (error) {
-        console.error('Failed to load map:', error);
-        actions.setMapImage(null);
       }
     };
     loadMap();
@@ -202,7 +225,7 @@ export function MapView2D({ state, actions, width = 1200, height = 800 }: MapVie
     }
 
     ctx.restore();
-  }, [state, mapImage, width, height]);
+  }, [state, width, height]);
 
   // Redraw on changes
   useEffect(() => {

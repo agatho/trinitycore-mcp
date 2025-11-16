@@ -25,6 +25,7 @@ const WEB_UI_URL = `http://localhost:${WEB_UI_PORT}`;
 const SKIP_BROWSER = process.env.NO_OPEN === 'true';
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const WEB_UI_DIR = path.join(PROJECT_ROOT, 'web-ui');
+const PID_FILE = path.join(PROJECT_ROOT, '.webui.pid');
 
 // ANSI color codes for terminal output
 const colors = {
@@ -176,13 +177,30 @@ async function main() {
     },
   });
 
+  // Write PID to file for process management
+  try {
+    fs.writeFileSync(PID_FILE, webUiProcess.pid.toString(), 'utf8');
+    log(`✓ Web UI PID ${webUiProcess.pid} written to: ${path.basename(PID_FILE)}`, colors.green);
+  } catch (error) {
+    log(`⚠️  Failed to write PID file: ${error.message}`, colors.yellow);
+  }
+
   // Handle Web UI errors
   webUiProcess.on('error', (error) => {
     log(`\n✗ Failed to start Web UI: ${error.message}`, colors.red);
+    // Clean up PID file
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
     process.exit(1);
   });
 
   webUiProcess.on('exit', (code) => {
+    // Clean up PID file
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
+
     if (code !== 0 && code !== null) {
       log(`\n✗ Web UI exited with code ${code}`, colors.red);
       process.exit(code);
@@ -228,11 +246,19 @@ async function main() {
   process.on('SIGINT', () => {
     log('\n\n⏹️  Shutting down services...', colors.yellow);
     webUiProcess.kill('SIGINT');
+    // Clean up PID file
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
     process.exit(0);
   });
 
   process.on('SIGTERM', () => {
     webUiProcess.kill('SIGTERM');
+    // Clean up PID file
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
     process.exit(0);
   });
 }

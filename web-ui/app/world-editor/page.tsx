@@ -57,10 +57,12 @@ import { MapView2DEnhanced } from './components/MapView2DEnhanced';
 import { MapView3D } from './components/MapView3D';
 import { UndoRedoPanel } from './components/UndoRedoPanel';
 import MapExtractionPanel from '@/components/map/MapExtractionPanel';
+import WDTExtractionPanel from '@/components/map/WDTExtractionPanel';
 
 export default function WorldEditorPage() {
   const [state, actions] = useWorldEditorState();
   const [showExtractionPanel, setShowExtractionPanel] = useState(false);
+  const [showWDTExtractionPanel, setShowWDTExtractionPanel] = useState(false);
 
   // Auto-load collision data from configured paths
   const autoLoadResult = useAutoLoadCollisionData(state.selectedMap, {
@@ -439,6 +441,10 @@ export default function WorldEditorPage() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowWDTExtractionPanel(true)}>
+                <Download className="w-4 h-4 mr-2" />
+                Extract WDT
+              </Button>
               <Button variant="outline" onClick={exportSQL}>
                 <Download className="w-4 h-4 mr-2" />
                 Export SQL
@@ -730,6 +736,19 @@ export default function WorldEditorPage() {
               window.location.reload();
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* WDT MAID Extraction Panel Dialog */}
+      <Dialog open={showWDTExtractionPanel} onOpenChange={setShowWDTExtractionPanel}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Extract WDT MAID Chunks</DialogTitle>
+            <DialogDescription>
+              Extract minimap FileDataIDs from WDT MAID chunks to generate the minimap listfile needed for tile extraction.
+            </DialogDescription>
+          </DialogHeader>
+          <WDTExtractionPanel />
         </DialogContent>
       </Dialog>
     </div>

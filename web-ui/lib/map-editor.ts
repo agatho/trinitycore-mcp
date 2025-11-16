@@ -91,17 +91,17 @@ export const WOW_COORD_CONSTANTS = {
  * WoW Maps Registry with coordinate metadata
  */
 export const WoWMaps = {
-  // Classic Maps
+  // Classic Maps (Retail 11.x Map IDs)
   EASTERN_KINGDOMS: {
-    id: 0,
+    id: 58441, // Retail 11.x: Azeroth (Eastern Kingdoms)
     name: 'Eastern Kingdoms',
     expansion: 'classic',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
-    imageUrl: '/maps/eastern_kingdoms.jpg', // Placeholder - replace with actual path
+    imageUrl: '/maps/eastern_kingdoms.jpg',
     hasImage: false,
   },
   KALIMDOR: {
-    id: 1,
+    id: 58276, // Retail 11.x: Kalimdor
     name: 'Kalimdor',
     expansion: 'classic',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -129,9 +129,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // TBC Maps
+  // TBC Maps (Retail 11.x Map IDs)
   OUTLAND: {
-    id: 530,
+    id: 58346, // Retail 11.x: Outland
     name: 'Outland',
     expansion: 'tbc',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -139,9 +139,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // WotLK Maps
+  // WotLK Maps (Retail 11.x Map IDs)
   NORTHREND: {
-    id: 571,
+    id: 59446, // Retail 11.x: Northrend
     name: 'Northrend',
     expansion: 'wotlk',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -159,9 +159,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // MoP Maps
+  // MoP Maps (Retail 11.x Map IDs)
   PANDARIA: {
-    id: 860,
+    id: 870, // Retail 11.x: Pandaria
     name: 'Pandaria',
     expansion: 'mop',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -169,9 +169,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // WoD Maps
+  // WoD Maps (Retail 11.x Map IDs)
   DRAENOR: {
-    id: 870,
+    id: 59838, // Retail 11.x: Draenor
     name: 'Draenor',
     expansion: 'wod',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -179,9 +179,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // Legion Maps
+  // Legion Maps (Retail 11.x Map IDs)
   BROKEN_ISLES: {
-    id: 1116,
+    id: 1220, // Retail 11.x: Broken Isles
     name: 'Broken Isles',
     expansion: 'legion',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -189,9 +189,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // BfA Maps
+  // BfA Maps (Retail 11.x Map IDs)
   KUL_TIRAS: {
-    id: 1643,
+    id: 60399, // Retail 11.x: Kul Tiras
     name: 'Kul Tiras',
     expansion: 'bfa',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -199,7 +199,7 @@ export const WoWMaps = {
     hasImage: false,
   },
   ZANDALAR: {
-    id: 1642,
+    id: 60621, // Retail 11.x: Zandalar
     name: 'Zandalar',
     expansion: 'bfa',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -225,9 +225,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // Dragonflight Maps
+  // Dragonflight Maps (Retail 11.x Map IDs)
   DRAGON_ISLES: {
-    id: 2444,
+    id: 2444, // Retail 11.x: Dragon Isles
     name: 'Dragon Isles',
     expansion: 'dragonflight',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },
@@ -235,9 +235,9 @@ export const WoWMaps = {
     hasImage: false,
   },
 
-  // The War Within Maps
+  // The War Within Maps (Retail 11.x Map IDs)
   KHAZ_ALGAR: {
-    id: 2552,
+    id: 2601, // Retail 11.x: Khaz Algar
     name: 'Khaz Algar (The War Within)',
     expansion: 'tww',
     coordRange: { minX: -17066.66, maxX: 17066.66, minY: -17066.66, maxY: 17066.66 },

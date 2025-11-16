@@ -3,16 +3,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
+import { extractMapTextures } from '@/lib/mapextraction';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { mapId, quality, enableTiling, tileSize } = body;
-
-    // Import from the compiled dist directory
-    const mapExtractionPath = path.join(process.cwd(), '..', 'dist', 'tools', 'mapextraction.js');
-    const { extractMapTextures } = await import(mapExtractionPath);
 
     const status = await extractMapTextures({
       mapId,
@@ -23,9 +19,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(status);
   } catch (error: any) {
-    console.error('Failed to extract map:', error);
+    console.error('Error in /api/maps/extract:', error);
     return NextResponse.json(
-      { error: error.message, stack: error.stack },
+      { error: error.message },
       { status: 500 }
     );
   }

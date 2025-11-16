@@ -3,19 +3,16 @@
  */
 
 import { NextResponse } from 'next/server';
-import path from 'path';
+import { listAvailableMaps } from '@/lib/mapextraction';
 
 export async function GET() {
   try {
-    // Import from the compiled dist directory
-    const mapExtractionPath = path.join(process.cwd(), '..', 'dist', 'tools', 'mapextraction.js');
-    const { listAvailableMaps } = await import(mapExtractionPath);
     const maps = await listAvailableMaps();
     return NextResponse.json(maps);
   } catch (error: any) {
-    console.error('Failed to load maps:', error);
+    console.error('Error in /api/maps/list:', error);
     return NextResponse.json(
-      { error: error.message, stack: error.stack },
+      { error: error.message },
       { status: 500 }
     );
   }

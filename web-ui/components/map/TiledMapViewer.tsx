@@ -21,6 +21,10 @@ interface TileMetadata {
   tileSize: number;
   cols: number;
   rows: number;
+  minCol?: number;
+  minRow?: number;
+  maxCol?: number;
+  maxRow?: number;
   totalTiles: number;
   zoomLevels?: number[];
   format: string;
@@ -78,7 +82,7 @@ export default function TiledMapViewer({
     setLoading(true);
     setError(null);
 
-    fetch(`/maps/tiles/${mapId}/metadata.json`)
+    fetch(`/tile-data/${mapId}/metadata.json`)
       .then(res => {
         if (!res.ok) {
           throw new Error(`Map ${mapId} not extracted. Please extract the map first.`);
@@ -86,7 +90,30 @@ export default function TiledMapViewer({
         return res.json();
       })
       .then(data => {
-        setMetadata(data);
+        console.log('[TiledMapViewer] Raw metadata loaded:', data);
+
+        // Validate and provide defaults for required fields
+        const tileSize = data.tileSize || 256;
+        const cols = data.cols || 32;
+        const rows = data.rows || 32;
+        const validatedMetadata: TileMetadata = {
+          originalWidth: data.originalWidth || (cols * tileSize) || 8192,
+          originalHeight: data.originalHeight || (rows * tileSize) || 8192,
+          tileSize,
+          cols,
+          rows,
+          minCol: data.minCol,
+          minRow: data.minRow,
+          maxCol: data.maxCol,
+          maxRow: data.maxRow,
+          totalTiles: data.totalTiles || data.tileCount || 0,
+          zoomLevels: data.zoomLevels,
+          format: data.format || 'png'
+        };
+
+        console.log('[TiledMapViewer] Validated metadata:', validatedMetadata);
+
+        setMetadata(validatedMetadata);
         setLoading(false);
       })
       .catch(err => {
@@ -112,23 +139,29 @@ export default function TiledMapViewer({
     const viewportRight = viewportLeft + container.clientWidth;
     const viewportBottom = viewportTop + container.clientHeight;
 
-    // Calculate tile range with padding
-    const startCol = Math.max(
-      0,
-      Math.floor(viewportLeft / scaledTileSize) - tilePadding
-    );
-    const endCol = Math.min(
-      metadata.cols - 1,
-      Math.ceil(viewportRight / scaledTileSize) + tilePadding
-    );
-    const startRow = Math.max(
-      0,
-      Math.floor(viewportTop / scaledTileSize) - tilePadding
-    );
-    const endRow = Math.min(
-      metadata.rows - 1,
-      Math.ceil(viewportBottom / scaledTileSize) + tilePadding
-    );
+    // Calculate tile range with padding, accounting for min/max bounds
+    const minCol = metadata.minCol ?? 0;
+    const minRow = metadata.minRow ?? 0;
+    const maxCol = metadata.maxCol ?? (metadata.cols - 1);
+    const maxRow = metadata.maxRow ?? (metadata.rows - 1);
+
+    console.log('[TiledMapViewer] Metadata bounds:', { minCol, minRow, maxCol, maxRow, cols: metadata.cols, rows: metadata.rows });
+
+    // Calculate visible display tile range (0-based relative to display)
+    const displayStartCol = Math.floor(viewportLeft / scaledTileSize) - tilePadding;
+    const displayEndCol = Math.ceil(viewportRight / scaledTileSize) + tilePadding;
+    const displayStartRow = Math.floor(viewportTop / scaledTileSize) - tilePadding;
+    const displayEndRow = Math.ceil(viewportBottom / scaledTileSize) + tilePadding;
+
+    console.log('[TiledMapViewer] Display tile range:', { displayStartCol, displayEndCol, displayStartRow, displayEndRow });
+
+    // Convert to actual tile coordinates by adding minCol/minRow offset
+    const startCol = Math.max(minCol, displayStartCol + minCol);
+    const endCol = Math.min(maxCol, displayEndCol + minCol);
+    const startRow = Math.max(minRow, displayStartRow + minRow);
+    const endRow = Math.min(maxRow, displayEndRow + minRow);
+
+    console.log('[TiledMapViewer] Actual tile range:', { startCol, endCol, startRow, endRow });
 
     // Generate tile keys
     const tiles = new Set<string>();
@@ -137,6 +170,8 @@ export default function TiledMapViewer({
         tiles.add(`${zoom}_${col}_${row}`);
       }
     }
+
+    console.log('[TiledMapViewer] Generated tile keys:', Array.from(tiles).slice(0, 5), `... (${tiles.size} total)`);
 
     setVisibleTiles(tiles);
   }, [metadata, zoom, tilePadding]);
@@ -228,10 +263,17 @@ export default function TiledMapViewer({
     return null;
   }
 
+  // Defensive guard: Ensure metadata fields are valid numbers
+  const tileSize = metadata.tileSize || 256;
+  const cols = metadata.cols || 32;
+  const rows = metadata.rows || 32;
+  const originalWidth = metadata.originalWidth || (cols * tileSize) || 8192;
+  const originalHeight = metadata.originalHeight || (rows * tileSize) || 8192;
+
   const scale = Math.pow(2, -zoom);
-  const displayWidth = metadata.originalWidth * scale;
-  const displayHeight = metadata.originalHeight * scale;
-  const scaledTileSize = metadata.tileSize * scale;
+  const displayWidth = originalWidth * scale;
+  const displayHeight = originalHeight * scale;
+  const scaledTileSize = tileSize * scale;
 
   return (
     <div className="relative" style={{ height }}>
@@ -263,8 +305,10 @@ export default function TiledMapViewer({
       </div>
 
       {/* Tile info */}
-      <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white text-xs p-2 rounded">
-        Tiles loaded: {visibleTiles.size} / {metadata.totalTiles}
+      <div className="absolute bottom-4 left-4 z-10 bg-gray-800 text-white text-xs p-2 rounded space-y-1">
+        <div>Tiles loaded: {visibleTiles.size} / {metadata.totalTiles}</div>
+        <div>Bounds: col {metadata.minCol ?? 0}-{metadata.maxCol ?? (metadata.cols - 1)}, row {metadata.minRow ?? 0}-{metadata.maxRow ?? (metadata.rows - 1)}</div>
+        <div>First tile: {Array.from(visibleTiles)[0] || 'none'}</div>
       </div>
 
       {/* Map container with scroll */}
@@ -287,19 +331,25 @@ export default function TiledMapViewer({
           {Array.from(visibleTiles).map(tileKey => {
             const [z, col, row] = tileKey.split('_').map(Number);
 
+            // Adjust position based on minCol/minRow offset
+            const minCol = metadata.minCol ?? 0;
+            const minRow = metadata.minRow ?? 0;
+            const displayCol = col - minCol;
+            const displayRow = row - minRow;
+
             return (
               <div
                 key={tileKey}
                 className="absolute"
                 style={{
-                  left: col * scaledTileSize,
-                  top: row * scaledTileSize,
+                  left: displayCol * scaledTileSize,
+                  top: displayRow * scaledTileSize,
                   width: scaledTileSize,
                   height: scaledTileSize
                 }}
               >
                 <img
-                  src={`/maps/tiles/${mapId}/${z}/${col}_${row}.${metadata.format}`}
+                  src={`/tile-data/${mapId}/${z}/${col}_${row}.${metadata.format}`}
                   alt=""
                   style={{
                     width: '100%',
