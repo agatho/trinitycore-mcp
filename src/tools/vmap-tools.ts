@@ -93,6 +93,16 @@ interface SpawnQueryOptions extends VMapToolOptions {
 /**
  * List available VMap files
  *
+ * TrinityCore 11.2.7+ directory structure:
+ * vmaps/
+ *   0000/
+ *     0000.vmtree
+ *     0000_xx_yy.vmtile
+ *     0000_xx_yy.vmtileidx
+ *   0001/
+ *     0001.vmtree
+ *     ...
+ *
  * @param vmapDir VMap directory
  * @returns List of available maps
  */
@@ -104,21 +114,43 @@ export async function listVMapFiles(vmapDir: string): Promise<{
   const tiles: Map<string, string[]> = new Map();
 
   try {
-    const files = await fs.readdir(vmapDir);
+    // TrinityCore 11.2.7+: VMap files are in map ID subdirectories
+    const subdirs = await fs.readdir(vmapDir);
 
-    for (const file of files) {
-      if (file.endsWith(".vmtree")) {
-        trees.push(file);
-      } else if (file.endsWith(".vmtile")) {
-        // Extract map ID from filename
-        const match = file.match(/^(\d{4})_\d+_\d+\.vmtile$/);
-        if (match) {
-          const mapId = match[1];
-          if (!tiles.has(mapId)) {
-            tiles.set(mapId, []);
+    for (const subdir of subdirs) {
+      // Check if it's a 4-digit map ID directory
+      if (!/^\d{4}$/.test(subdir)) {
+        continue;
+      }
+
+      const mapDir = path.join(vmapDir, subdir);
+      const stat = await fs.stat(mapDir);
+
+      if (!stat.isDirectory()) {
+        continue;
+      }
+
+      try {
+        const files = await fs.readdir(mapDir);
+
+        for (const file of files) {
+          if (file.endsWith(".vmtree")) {
+            trees.push(`${subdir}/${file}`);
+          } else if (file.endsWith(".vmtile")) {
+            // Extract map ID from filename
+            const match = file.match(/^(\d{4})_\d+_\d+\.vmtile$/);
+            if (match) {
+              const mapId = match[1];
+              if (!tiles.has(mapId)) {
+                tiles.set(mapId, []);
+              }
+              tiles.get(mapId)!.push(`${subdir}/${file}`);
+            }
           }
-          tiles.get(mapId)!.push(file);
         }
+      } catch (error) {
+        // Skip directories we can't read
+        continue;
       }
     }
   } catch (error) {
@@ -130,6 +162,8 @@ export async function listVMapFiles(vmapDir: string): Promise<{
 
 /**
  * Get VMap file info
+ *
+ * TrinityCore 11.2.7+: Files are in subdirectories with 4-digit map IDs
  *
  * @param vmapFile Path to VMap file
  * @returns File information
@@ -152,7 +186,8 @@ export async function getVMapFileInfo(vmapFile: string): Promise<{
 
   if (filename.endsWith(".vmtree")) {
     type = "tree";
-    const match = filename.match(/^(\d{3})\.vmtree$/);
+    // TrinityCore 11.2.7+: vmtree filename is 4 digits (e.g., 0000.vmtree)
+    const match = filename.match(/^(\d{4})\.vmtree$/);
     if (match) {
       mapId = parseInt(match[1], 10);
     }
@@ -179,6 +214,8 @@ export async function getVMapFileInfo(vmapFile: string): Promise<{
 /**
  * Validate VMap files
  *
+ * TrinityCore 11.2.7+: Files are in subdirectories (e.g., vmaps/0000/0000.vmtree)
+ *
  * @param vmapDir VMap directory
  * @param mapId Map ID
  * @returns Validation result
@@ -193,21 +230,21 @@ export async function validateVMapFiles(
   issues: string[];
 }> {
   const issues: string[] = [];
+  const mapIdStr = mapId.toString().padStart(4, "0");
 
-  // Check if tree file exists
-  const treeFile = path.join(vmapDir, `${mapId.toString().padStart(3, "0")}.vmtree`);
+  // TrinityCore 11.2.7+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
+  const treeFile = path.join(vmapDir, mapIdStr, `${mapIdStr}.vmtree`);
   let hasTree = false;
 
   try {
     await fs.access(treeFile);
     hasTree = true;
   } catch {
-    issues.push(`Missing tree file: ${path.basename(treeFile)}`);
+    issues.push(`Missing tree file: ${mapIdStr}/${mapIdStr}.vmtree`);
   }
 
   // Count tile files
   const { tiles } = await listVMapFiles(vmapDir);
-  const mapIdStr = mapId.toString().padStart(4, "0");
   const tileFiles = tiles.get(mapIdStr) || [];
 
   if (tileFiles.length === 0) {
@@ -308,6 +345,8 @@ export async function findSpawnsInRadius(
 /**
  * Get VMap statistics
  *
+ * TrinityCore 11.2.7+: Files are in subdirectories
+ *
  * @param vmapDir VMap directory
  * @param mapId Map ID
  * @returns Statistics
@@ -330,8 +369,8 @@ export async function getVMapStatistics(
   // Calculate total size
   let totalSize = 0;
 
-  // Tree file
-  const treeFile = path.join(vmapDir, `${mapId.toString().padStart(3, "0")}.vmtree`);
+  // TrinityCore 11.2.7+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
+  const treeFile = path.join(vmapDir, mapIdStr, `${mapIdStr}.vmtree`);
   try {
     const stats = await fs.stat(treeFile);
     totalSize += stats.size;
@@ -339,10 +378,14 @@ export async function getVMapStatistics(
     // Tree file doesn't exist
   }
 
-  // Tile files
+  // Tile files (already include subdir path from listVMapFiles)
   for (const tileFile of tileFiles) {
-    const stats = await fs.stat(path.join(vmapDir, tileFile));
-    totalSize += stats.size;
+    try {
+      const stats = await fs.stat(path.join(vmapDir, tileFile));
+      totalSize += stats.size;
+    } catch {
+      // Skip files we can't stat
+    }
   }
 
   // Estimate coverage (rough approximation)

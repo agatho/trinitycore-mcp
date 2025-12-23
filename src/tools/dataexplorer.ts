@@ -240,10 +240,11 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
 
     case "quests":
       table = "quest_template qt LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID";
+      // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
-          : "qt.ID, qt.LogTitle, qta.MaxLevel as QuestLevel, qt.MinLevel, qt.QuestInfoID as QuestType";
+          : "qt.ID, qt.LogTitle, qta.MaxLevel as QuestLevel, qt.ContentTuningID, qt.QuestInfoID as QuestType";
       database = "world";
       break;
 

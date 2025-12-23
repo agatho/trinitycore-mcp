@@ -10,7 +10,8 @@ export interface QuestInfo {
   details: string;
   objectives: string;
   level: number;
-  minLevel: number;
+  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID for scaling
+  contentTuningId?: number; // TrinityCore 11.2.7+: Content scaling ID
   type: string;
   rewards: QuestRewards;
   error?: string;
@@ -25,6 +26,8 @@ export interface QuestRewards {
 
 export async function getQuestInfo(questId: number): Promise<QuestInfo> {
   try {
+    // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
+    // MaxLevel is in quest_template_addon, quest level determined by ContentTuningID
     const query = `
       SELECT
         qt.ID as questId,
@@ -32,10 +35,10 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo> {
         qt.LogDescription as details,
         qt.QuestDescription as objectives,
         qta.MaxLevel as level,
-        qt.MinLevel as minLevel,
+        qt.ContentTuningID as contentTuningId,
         qt.QuestInfoID as type,
         qt.RewardXPDifficulty as experience,
-        qt.RewardMoney as money
+        qt.RewardMoneyDifficulty as money
       FROM quest_template qt
       LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       WHERE qt.ID = ?
@@ -70,8 +73,9 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo> {
       title: quest.title,
       details: quest.details,
       objectives: quest.objectives,
-      level: quest.level,
-      minLevel: quest.minLevel,
+      level: quest.level || 0,
+      minLevel: 0, // Deprecated in 11.2.7 - use contentTuningId
+      contentTuningId: quest.contentTuningId,
       type: getQuestTypeName(quest.type),
       rewards: {
         experience: quest.experience,

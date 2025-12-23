@@ -1225,10 +1225,11 @@ export async function optimizeQuestPath(
   maxQuests: number = 20
 ): Promise<QuestFlowAnalysis> {
   // Get available quests in level range
+  // TrinityCore 11.2.7: RewardMoney -> RewardMoneyDifficulty
   const query = `
     SELECT DISTINCT qt.ID as questId, qt.LogTitle as name,
            qta.MaxLevel as MinLevel, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty,
-           qt.RewardMoney
+           qt.RewardMoneyDifficulty as RewardMoney
     FROM quest_template qt
     LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     INNER JOIN creature_queststarter cqs ON qt.ID = cqs.quest

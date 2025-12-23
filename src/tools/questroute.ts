@@ -46,7 +46,8 @@ export interface QuestInfo {
   questId: number;
   questName: string;
   level: number;
-  minLevel: number;
+  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID
+  contentTuningId?: number; // TrinityCore 11.2.7+
   type: "kill" | "collect" | "explore" | "escort" | "dungeon" | "daily" | "weekly";
   xpReward: number;
   goldReward: number;
@@ -157,26 +158,27 @@ export async function optimizeQuestRoute(
   maxQuests: number = 30
 ): Promise<QuestRoute> {
   // Query quests in zone
+  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
   const query = `
     SELECT
       qt.ID as questId,
       qt.QuestDescription as questName,
-      qt.MinLevel as minLevel,
+      0 as minLevel,
+      qt.ContentTuningID as contentTuningId,
       qta.MaxLevel as level,
-      qt.RewardXP as xpReward,
-      qt.RewardMoney as goldReward,
-      qt.RequiredRaces,
-      qt.RequiredClasses
+      qt.RewardXPDifficulty as xpReward,
+      qt.RewardMoneyDifficulty as goldReward,
+      qt.Flags
     FROM quest_template qt
+    LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     LEFT JOIN quest_poi qp ON qt.ID = qp.QuestID
     WHERE qp.MapID = ?
-      AND qt.MinLevel <= ?
       AND qta.MaxLevel >= ?
-    ORDER BY qta.MaxLevel, qt.MinLevel
+    ORDER BY qta.MaxLevel
     LIMIT ?
   `;
 
-  const results = await queryWorld(query, [zoneId, playerLevel + 5, playerLevel - 3, maxQuests]);
+  const results = await queryWorld(query, [zoneId, playerLevel - 3, maxQuests]);
 
   const quests: QuestInfo[] = [];
   let totalXP = 0;
@@ -434,12 +436,14 @@ export async function getDailyQuestCircuit(hubName: string): Promise<DailyQuestC
  */
 export async function findBreadcrumbChains(zoneId: number): Promise<BreadcrumbChain[]> {
   // Query for quests that lead to other quests
+  // TrinityCore 11.2.7: NextQuestID is in quest_template_addon, RewardXP -> RewardXPDifficulty
   const query = `
-    SELECT qt.ID, qt.NextQuestID, qt.RewardXP
+    SELECT qt.ID, qta.NextQuestID, qt.RewardXPDifficulty as RewardXP
     FROM quest_template qt
+    LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
     LEFT JOIN quest_poi qp ON qt.ID = qp.QuestID
     WHERE qp.MapID = ?
-      AND qt.NextQuestID > 0
+      AND qta.NextQuestID > 0
   `;
 
   const results = await queryWorld(query, [zoneId]);
@@ -485,8 +489,9 @@ export async function optimizeCurrentQuests(
   for (const questId of currentQuests) {
     try {
       // Get quest details from database
+      // TrinityCore 11.2.7: RewardMoney -> RewardMoneyDifficulty
       const query = `
-        SELECT qt.ID, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty as RewardXP, qt.RewardMoney, qt.RewardItem1, qt.RewardItem2, qt.RewardItem3, qt.RewardItem4
+        SELECT qt.ID, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty as RewardXP, qt.RewardMoneyDifficulty as RewardMoney, qt.RewardItem1, qt.RewardItem2, qt.RewardItem3, qt.RewardItem4
         FROM quest_template qt
         LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
         WHERE qt.ID = ?

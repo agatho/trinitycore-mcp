@@ -214,18 +214,19 @@ export async function analyzeMobStats(zoneId: number): Promise<MobStats> {
  * Analyze quest statistics in a zone
  */
 export async function analyzeQuestStats(zoneId: number): Promise<QuestStats> {
+  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
   const questData = await queryWorld(
     `SELECT
       qt.ID,
       qta.MaxLevel as QuestLevel,
-      qt.MinLevel,
+      qt.ContentTuningID,
       qt.QuestInfoID as QuestType,
       qt.Flags,
       qta.SpecialFlags
      FROM quest_template qt
      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
-     WHERE (qt.QuestSortID = ? OR qt.ZoneOrSort = ?)`,
-    [zoneId, zoneId]
+     WHERE qt.QuestSortID = ?`,
+    [zoneId]
   );
 
   if (questData.length === 0) {
@@ -249,9 +250,10 @@ export async function analyzeQuestStats(zoneId: number): Promise<QuestStats> {
   const questTypes: Record<string, number> = {};
 
   for (const quest of questData) {
-    totalLevel += quest.QuestLevel;
-    minLevel = Math.min(minLevel, quest.MinLevel);
-    maxLevel = Math.max(maxLevel, quest.QuestLevel);
+    totalLevel += quest.QuestLevel || 0;
+    // TrinityCore 11.2.7: Use QuestLevel for min/max since MinLevel was removed
+    minLevel = Math.min(minLevel, quest.QuestLevel || 0);
+    maxLevel = Math.max(maxLevel, quest.QuestLevel || 0);
 
     // Quest type
     const typeName = getQuestTypeName(quest.QuestType);

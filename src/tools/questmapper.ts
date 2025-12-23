@@ -15,7 +15,8 @@ export interface QuestInfo {
   id: number;
   title: string;
   level: number;
-  minLevel: number;
+  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID
+  contentTuningId?: number; // TrinityCore 11.2.7+
   type: string;
   prevQuest?: number;
   nextQuest?: number;
@@ -62,12 +63,14 @@ export interface MermaidOptions {
  * Get quest information by ID
  */
 export async function getQuestInfo(questId: number): Promise<QuestInfo | null> {
+  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
   const rows = await queryWorld(
     `SELECT
       qt.ID as id,
       qt.LogTitle as title,
       qta.MaxLevel as level,
-      qt.MinLevel as minLevel,
+      0 as minLevel,
+      qt.ContentTuningID as contentTuningId,
       qt.QuestInfoID as type,
       qta.PrevQuestID as prevQuest,
       qta.NextQuestID as nextQuest,
