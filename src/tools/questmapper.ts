@@ -386,10 +386,10 @@ export async function findQuestChainsByZone(zoneId: number): Promise<number[]> {
     `SELECT DISTINCT qt.ID
      FROM quest_template qt
      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
-     WHERE (qt.QuestSortID = ? OR qt.ZoneOrSort = ?)
+     WHERE qt.QuestSortID = ?
        AND (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
      ORDER BY qta.MaxLevel, qt.ID`,
-    [zoneId, zoneId]
+    [zoneId]
   );
 
   return rows.map((row: any) => row.ID);
@@ -523,10 +523,11 @@ export async function getQuestRewards(questId: number): Promise<{
   items: Array<{ id: number; name: string; quantity: number }>;
   reputation: Array<{ faction: string; amount: number }>;
 }> {
+  // TrinityCore 11.2.7: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
   const questData = await queryWorld(
     `SELECT
-      RewardXP as experience,
-      RewardMoney as money,
+      RewardXPDifficulty as experience,
+      RewardMoneyDifficulty as money,
       RewardItem1, RewardAmount1,
       RewardItem2, RewardAmount2,
       RewardItem3, RewardAmount3,

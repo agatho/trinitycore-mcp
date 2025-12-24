@@ -104,18 +104,22 @@ export async function getZoneInfo(zoneId: number): Promise<ZoneInfo | null> {
  * Analyze mob statistics in a zone
  */
 export async function analyzeMobStats(zoneId: number): Promise<MobStats> {
-  // Get all creatures in the zone
+  // TrinityCore 11.2.7: minlevel/maxlevel removed from creature_template
+  // Now uses ContentTuningID in creature_template_difficulty for level scaling
+  // rank is now Classification in creature_template
   const mobData = await queryWorld(
     `SELECT
-      ct.minlevel,
-      ct.maxlevel,
-      ct.rank,
+      ctd.ContentTuningID,
+      ctd.LevelScalingDeltaMin as minlevel,
+      ctd.LevelScalingDeltaMax as maxlevel,
+      ct.Classification as rank,
       ct.name,
       COUNT(*) as spawnCount
      FROM creature c
      JOIN creature_template ct ON c.id1 = ct.entry
+     LEFT JOIN creature_template_difficulty ctd ON ct.entry = ctd.Entry AND ctd.DifficultyID = 0
      WHERE c.zoneId = ?
-     GROUP BY ct.entry, ct.name, ct.minlevel, ct.maxlevel, ct.rank`,
+     GROUP BY ct.entry, ct.name, ctd.ContentTuningID, ctd.LevelScalingDeltaMin, ctd.LevelScalingDeltaMax, ct.Classification`,
     [zoneId]
   );
 

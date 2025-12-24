@@ -240,12 +240,13 @@ export async function findMissingCollectibles(
  * Get farming route for a collectible
  */
 export async function getFarmingRoute(collectibleId: number, type: "pet" | "mount" | "toy"): Promise<FarmingRoute> {
-  // Query item source
+  // TrinityCore 11.2.7: lootid now in creature_template_difficulty
   const query = `
     SELECT it.entry, it.name, cl.ChanceOrQuestChance, ct.entry as creatureId, ct.name as creatureName
     FROM item_template it
     LEFT JOIN creature_loot_template cl ON it.entry = cl.Item
-    LEFT JOIN creature_template ct ON cl.Entry = ct.lootid
+    LEFT JOIN creature_template_difficulty ctd ON cl.Entry = ctd.LootID AND ctd.DifficultyID = 0
+    LEFT JOIN creature_template ct ON ctd.Entry = ct.entry
     WHERE it.entry = ?
     LIMIT 10
   `;

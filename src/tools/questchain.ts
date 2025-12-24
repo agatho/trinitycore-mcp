@@ -574,7 +574,7 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
   const query = `
     SELECT
       ID as questId, LogTitle as name,
-      RewardXPDifficulty as rewardXPDifficulty, RewardMoney as rewardMoney,
+      RewardXPDifficulty as rewardXPDifficulty, RewardMoneyDifficulty as rewardMoney,
       RewardBonusMoney as rewardMoneyDifficulty,
       RewardItem1, RewardAmount1,
       RewardItem2, RewardAmount2,

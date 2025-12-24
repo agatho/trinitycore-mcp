@@ -332,9 +332,10 @@ export async function getOptimalLevelingPath(
  * Analyze quest reward value
  */
 export async function analyzeQuestReward(questId: number, playerLevel: number): Promise<RewardAnalysis> {
+  // TrinityCore 11.2.7: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
   const query = `
     SELECT
-      ID, QuestDescription, RewardXP, RewardMoney,
+      ID, QuestDescription, RewardXPDifficulty as RewardXP, RewardMoneyDifficulty as RewardMoney,
       RewardItem1, RewardItem2, RewardItem3, RewardItem4
     FROM quest_template
     WHERE ID = ?
@@ -683,8 +684,8 @@ function calculateDistance(loc1: { x: number; y: number; z: number }, loc2: { x:
 async function buildQuestChain(startQuestId: number): Promise<number[]> {
   const chain: number[] = [startQuestId];
 
-  // Query next quest in chain
-  const query = `SELECT NextQuestID FROM quest_template WHERE ID = ?`;
+  // TrinityCore 11.2.7: NextQuestID is in quest_template_addon, not quest_template
+  const query = `SELECT NextQuestID FROM quest_template_addon WHERE ID = ?`;
   let currentId = startQuestId;
 
   for (let i = 0; i < 10; i++) { // Max 10 quests in chain

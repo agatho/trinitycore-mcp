@@ -725,11 +725,12 @@ export function analyzeMarketSupplyDemand(
 export async function getMaterialFarmingGuide(materialId: number): Promise<MaterialFarmingGuide> {
   const material = await getItemPricing(materialId);
 
-  // Query for creature drops
+  // TrinityCore 11.2.7: minlevel/maxlevel removed, lootid now in creature_template_difficulty
   const dropQuery = `
-    SELECT ct.entry, ct.name, ct.minlevel, ct.maxlevel, cl.ChanceOrQuestChance as dropRate
+    SELECT ct.entry, ct.name, ctd.ContentTuningID, cl.ChanceOrQuestChance as dropRate
     FROM creature_loot_template cl
-    JOIN creature_template ct ON ct.lootid = cl.Entry
+    JOIN creature_template_difficulty ctd ON ctd.LootID = cl.Entry AND ctd.DifficultyID = 0
+    JOIN creature_template ct ON ct.entry = ctd.Entry
     WHERE cl.Item = ?
     ORDER BY cl.ChanceOrQuestChance DESC
     LIMIT 10

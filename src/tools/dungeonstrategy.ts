@@ -326,12 +326,12 @@ export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLay
 
   const dungeon = results[0];
 
-  // Get all bosses in this dungeon
+  // TrinityCore 11.2.7: rank is now Classification (3 = Boss)
   const bossQuery = `
     SELECT DISTINCT ct.entry, ct.name
     FROM creature_template ct
     JOIN creature c ON ct.entry = c.id
-    WHERE c.map = ? AND ct.rank = 3
+    WHERE c.map = ? AND ct.Classification = 3
     ORDER BY c.position_x
   `;
 

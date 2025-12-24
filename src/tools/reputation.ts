@@ -541,7 +541,7 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
   const faction = await getFactionInfo(factionId);
   const rewards: ReputationReward[] = [];
 
-  // Query items sold by faction vendors
+  // TrinityCore 11.2.7: faction_A/faction_H removed, now just 'faction' column
   const vendorQuery = `
     SELECT
       nv.item, it.name, it.Quality, it.BuyPrice,
@@ -550,13 +550,13 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
     JOIN item_template it ON nv.item = it.entry
     WHERE nv.entry IN (
       SELECT entry FROM creature_template
-      WHERE faction_A = ? OR faction_H = ?
+      WHERE faction = ?
     )
     LIMIT 50
   `;
 
   try {
-    const vendorResults = await queryWorld(vendorQuery, [factionId, factionId]);
+    const vendorResults = await queryWorld(vendorQuery, [factionId]);
 
     for (const item of vendorResults) {
       // Determine reward type based on item class/subclass

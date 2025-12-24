@@ -230,11 +230,13 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
       break;
 
     case "creatures":
-      table = "creature_template";
+      // TrinityCore 11.2.7: minlevel/maxlevel removed, rank -> Classification
+      // Level info now in creature_template_difficulty via ContentTuningID
+      table = "creature_template ct LEFT JOIN creature_template_difficulty ctd ON ct.entry = ctd.Entry AND ctd.DifficultyID = 0";
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
-          : "entry, name, minlevel, maxlevel, rank, type, family";
+          : "ct.entry, ct.name, ctd.ContentTuningID, ct.Classification as rank, ct.type, ct.family";
       database = "world";
       break;
 
