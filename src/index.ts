@@ -153,6 +153,9 @@ import {
   listScaffoldTypes,
 } from "./tools/scaffold";
 import {
+  processGameMasterCommand,
+} from "./tools/gamemaster";
+import {
   analyzeBotPerformance,
   simulateScaling,
   getOptimizationSuggestions,
@@ -3204,6 +3207,24 @@ const ALL_TOOLS: Tool[] = [
       properties: {},
     },
   },
+  {
+    name: "game-master",
+    description: "Natural Language Game Master - parse natural language commands into TrinityCore GM commands. Supports: spawn creatures, teleport players, modify stats, give items, change weather, announcements, lookups, and more. Returns executable .commands with risk assessment.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        command: {
+          type: "string",
+          description: "Natural language GM command (e.g., 'spawn 5 wolves near Goldshire', 'teleport me to Orgrimmar', 'set Player1 level to 80', 'give item 19019 to Player1', 'make it rain', 'announce Server maintenance in 30 minutes')",
+        },
+        dryRun: {
+          type: "boolean",
+          description: "If true (default), only generates commands without executing. Set to false to execute via SOAP.",
+        },
+      },
+      required: ["command"],
+    },
+  },
 ];
 
 // Initialize dynamic tool manager with all available tools
@@ -5398,6 +5419,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               registryStats: stats,
               detailedUsage: JSON.parse(usageData)
             }, null, 2)
+          }]
+        };
+      }
+
+      case "game-master": {
+        const command = args.command as string;
+        const dryRun = args.dryRun !== false; // Default true
+        const result = await processGameMasterCommand(command, dryRun);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(result, null, 2)
           }]
         };
       }
