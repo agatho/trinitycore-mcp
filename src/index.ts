@@ -149,6 +149,10 @@ import {
   getTemplateInfo
 } from "./tools/codegen";
 import {
+  generateScaffold,
+  listScaffoldTypes,
+} from "./tools/scaffold";
+import {
   analyzeBotPerformance,
   simulateScaling,
   getOptimizationSuggestions,
@@ -1331,6 +1335,63 @@ const ALL_TOOLS: Tool[] = [
         },
       },
       required: ["filePath"],
+    },
+  },
+
+  // Smart Code Scaffold Generator (List 2 #1)
+  {
+    name: "generate-scaffold",
+    description: "Smart code scaffold generator - creates production-ready scaffolds for MCP tools, database tools, parsers, web pages, API routes, components, tests, migrations, and utilities. Analyzes project conventions and generates complete, context-aware code.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          description: "Scaffold type to generate",
+          enum: ["mcp-tool", "database-tool", "parser", "web-page", "api-route", "web-component", "unit-test", "database-migration", "utility"],
+        },
+        name: {
+          type: "string",
+          description: "Component name in kebab-case (e.g., 'arena-stats', 'reputation-tracker')",
+        },
+        description: {
+          type: "string",
+          description: "Human-readable description of the component",
+        },
+        features: {
+          type: "array",
+          description: "Optional features to include: caching, pagination, filtering, sorting, export, validation, logging, error-handling, performance, websocket, dark-mode, responsive",
+        },
+        databaseTables: {
+          type: "array",
+          description: "For database-tool type: tables to query (e.g., ['creature_template', 'creature_loot_template'])",
+        },
+        db2Files: {
+          type: "array",
+          description: "For parser type: DB2 files to parse (e.g., ['Spell.db2'])",
+        },
+        parameters: {
+          type: "array",
+          description: "For MCP tools: input parameters as [{name, type, description, required}]",
+        },
+        includeTests: {
+          type: "boolean",
+          description: "Generate corresponding unit tests (default: false)",
+        },
+        category: {
+          type: "string",
+          description: "Optional: custom category for organization",
+        },
+      },
+      required: ["type", "name", "description"],
+    },
+  },
+  {
+    name: "list-scaffold-types",
+    description: "List all available scaffold types with their descriptions, default features, and output directories",
+    inputSchema: {
+      type: "object",
+      properties: {},
     },
   },
 
@@ -3954,6 +4015,76 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: JSON.stringify(result, null, 2),
             },
           ],
+        };
+      }
+
+      // Smart Code Scaffold Generator (List 2 #1)
+      case "generate-scaffold": {
+        const result = await generateScaffold({
+          type: args.type as any,
+          name: args.name as string,
+          description: args.description as string,
+          features: args.features as any,
+          databaseTables: args.databaseTables as string[] | undefined,
+          db2Files: args.db2Files as string[] | undefined,
+          parameters: args.parameters as any,
+          includeTests: args.includeTests as boolean | undefined,
+          category: args.category as string | undefined,
+        });
+
+        // Format output
+        let scaffoldOutput = `## Scaffold Generated: ${args.name}\n\n`;
+        scaffoldOutput += `**Type:** ${args.type}\n`;
+        scaffoldOutput += `**Files:** ${result.files.length}\n`;
+        scaffoldOutput += `**Total Lines:** ${result.totalLinesOfCode}\n`;
+        scaffoldOutput += `**Generation Time:** ${result.generationTime.toFixed(1)}ms\n\n`;
+
+        for (const file of result.files) {
+          scaffoldOutput += `### ${file.path}\n`;
+          scaffoldOutput += `${file.description} (${file.linesOfCode} lines)\n\n`;
+          scaffoldOutput += "```typescript\n";
+          scaffoldOutput += file.content;
+          scaffoldOutput += "\n```\n\n";
+        }
+
+        if (result.registrationSnippet) {
+          scaffoldOutput += `### Registration Snippet (add to src/index.ts)\n\n`;
+          scaffoldOutput += "```typescript\n";
+          scaffoldOutput += result.registrationSnippet;
+          scaffoldOutput += "\n```\n\n";
+        }
+
+        if (result.instructions.length > 0) {
+          scaffoldOutput += `### Next Steps\n\n`;
+          for (const instruction of result.instructions) {
+            scaffoldOutput += `${instruction}\n`;
+          }
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: scaffoldOutput,
+          }],
+        };
+      }
+
+      case "list-scaffold-types": {
+        const types = listScaffoldTypes();
+        let typesOutput = "## Available Scaffold Types\n\n";
+
+        for (const t of types) {
+          typesOutput += `### ${t.type}\n`;
+          typesOutput += `${t.description}\n`;
+          typesOutput += `**Output:** ${t.outputDirectory}\n`;
+          typesOutput += `**Default Features:** ${t.defaultFeatures.join(', ') || 'none'}\n\n`;
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: typesOutput,
+          }],
         };
       }
 
