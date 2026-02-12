@@ -10,6 +10,7 @@
 import type { DatabaseConfig } from "../types/database";
 import { executeQuery, executeBatch, executeTransaction } from "./db-client";
 import { EventEmitter } from "events";
+import { validateIdentifier } from "../utils/sql-safety";
 
 // ============================================================================
 // Types
@@ -387,7 +388,8 @@ export class DatabaseSyncEngine extends EventEmitter {
     database: DatabaseConfig,
     table: string,
   ): Promise<Record<string, any>[]> {
-    const query = `SELECT * FROM \`${table}\``;
+    const safeTable = validateIdentifier(table, 'table name');
+    const query = `SELECT * FROM \`${safeTable}\``;
     const result = await executeQuery(database, query);
     return result.rows;
   }
@@ -493,9 +495,11 @@ export class DatabaseSyncEngine extends EventEmitter {
   ): Promise<void> {
     if (rows.length === 0) return;
 
+    const safeTable = validateIdentifier(table, 'table name');
     const columns = Object.keys(rows[0]);
+    const safeColumns = columns.map(col => validateIdentifier(col, 'column name'));
     const placeholders = columns.map(() => "?").join(", ");
-    const query = `INSERT INTO \`${table}\` (\`${columns.join("`, `")}\`) VALUES (${placeholders})`;
+    const query = `INSERT INTO \`${safeTable}\` (\`${safeColumns.join("`, `")}\`) VALUES (${placeholders})`;
 
     for (let i = 0; i < rows.length; i += this.config.batchSize) {
       const batch = rows.slice(i, i + this.config.batchSize);
@@ -519,12 +523,16 @@ export class DatabaseSyncEngine extends EventEmitter {
   ): Promise<void> {
     if (rows.length === 0) return;
 
+    const safeTable = validateIdentifier(table, 'table name');
+    const safePkColumns = pkColumns.map(col => validateIdentifier(col, 'primary key column'));
+
     for (const { row } of rows) {
       const columns = Object.keys(row).filter((col) => !pkColumns.includes(col));
-      const setClause = columns.map((col) => `\`${col}\` = ?`).join(", ");
-      const whereClause = pkColumns.map((col) => `\`${col}\` = ?`).join(" AND ");
+      const safeColumns = columns.map(col => validateIdentifier(col, 'column name'));
+      const setClause = safeColumns.map((col) => `\`${col}\` = ?`).join(", ");
+      const whereClause = safePkColumns.map((col) => `\`${col}\` = ?`).join(" AND ");
 
-      const query = `UPDATE \`${table}\` SET ${setClause} WHERE ${whereClause}`;
+      const query = `UPDATE \`${safeTable}\` SET ${setClause} WHERE ${whereClause}`;
       const params = [
         ...columns.map((col) => row[col]),
         ...pkColumns.map((col) => row[col]),
@@ -545,8 +553,10 @@ export class DatabaseSyncEngine extends EventEmitter {
   ): Promise<void> {
     if (keys.length === 0) return;
 
-    const whereClause = pkColumns.map((col) => `\`${col}\` = ?`).join(" AND ");
-    const query = `DELETE FROM \`${table}\` WHERE ${whereClause}`;
+    const safeTable = validateIdentifier(table, 'table name');
+    const safePkColumns = pkColumns.map((col) => validateIdentifier(col, 'primary key column'));
+    const whereClause = safePkColumns.map((col) => `\`${col}\` = ?`).join(" AND ");
+    const query = `DELETE FROM \`${safeTable}\` WHERE ${whereClause}`;
 
     for (const key of keys) {
       const values = key.split(":");

@@ -12,6 +12,7 @@ import { queryWorld } from "../database/connection";
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from '../utils/logger';
+import { buildSafeInClause, validateNumericValue } from '../utils/sql-safety';
 
 // ============================================================================
 // CREATURE CACHE (DBCD-generated JSON from Creature.db2)
@@ -589,18 +590,19 @@ export async function getCreatureFullInfo(
       .filter(id => id > 0);
 
     if (lootIds.length > 0) {
+      const { placeholders, params: inParams } = buildSafeInClause(lootIds);
       const lootQuery = `
         SELECT
           Entry as entry, ItemType as itemType, Item as item, Chance as chance,
           QuestRequired as questRequired, LootMode as lootMode, GroupId as groupId,
           MinCount as minCount, MaxCount as maxCount, Comment as comment
         FROM creature_loot_template
-        WHERE Entry IN (${lootIds.join(',')})
+        WHERE Entry IN (${placeholders})
         ORDER BY Chance DESC
         LIMIT 100
       `;
 
-      lootTable = await queryWorld(lootQuery) as LootEntry[];
+      lootTable = await queryWorld(lootQuery, inParams) as LootEntry[];
     }
   }
 
@@ -686,7 +688,8 @@ export async function searchCreatures(
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-  const limit = filters.limit || 50;
+  const limit = validateNumericValue(filters.limit || 50, 'limit');
+  const safeLimit = Math.min(Math.max(1, limit), 10000);
 
   const query = `
     SELECT
@@ -698,9 +701,10 @@ export async function searchCreatures(
     FROM creature_template
     ${whereClause}
     ORDER BY entry
-    LIMIT ${limit}
+    LIMIT ?
   `;
 
+  params.push(safeLimit);
   return await queryWorld(query, params) as CreatureTemplate[];
 }
 

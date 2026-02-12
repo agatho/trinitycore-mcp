@@ -17,6 +17,15 @@
  */
 
 import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
+import {
+  validateIdentifier,
+  validateAggregateFunction,
+  validateJoinType,
+  validateOperator,
+  validateSortDirection,
+  validateNumericValue,
+  buildSafeInClause,
+} from "../utils/sql-safety";
 
 export interface DatabaseTable {
   database: "world" | "auth" | "characters";
@@ -129,71 +138,119 @@ export async function suggestJoins(tables: string[]): Promise<QueryCanvas["joins
   return joins;
 }
 
-export async function generateSQL(query: QueryDefinition): Promise<string> {
+/**
+ * Generate parameterized SQL from a QueryDefinition.
+ * All identifiers are validated against injection patterns.
+ * All filter values use parameterized placeholders (?).
+ *
+ * @param query - Query definition with tables, columns, filters, etc.
+ * @returns Object containing the SQL string and parameter values array
+ */
+export async function generateSQL(query: QueryDefinition): Promise<{ sql: string; params: (string | number)[] }> {
   const parts: string[] = [];
+  const params: (string | number)[] = [];
 
-  // SELECT clause
+  // SELECT clause - validate all identifiers
   const selectCols = query.columns.map(col => {
-    let expr = `${col.table}.${col.column}`;
+    const safeTable = validateIdentifier(col.table, 'SELECT table');
+    const safeColumn = validateIdentifier(col.column, 'SELECT column');
+    let expr = `\`${safeTable}\`.\`${safeColumn}\``;
     if (col.aggregateFunction) {
-      expr = `${col.aggregateFunction}(${expr})`;
+      const safeFunc = validateAggregateFunction(col.aggregateFunction);
+      expr = `${safeFunc}(${expr})`;
     }
     if (col.alias) {
-      expr += ` AS ${col.alias}`;
+      const safeAlias = validateIdentifier(col.alias, 'column alias');
+      expr += ` AS \`${safeAlias}\``;
     }
     return expr;
   });
   parts.push(`SELECT ${selectCols.join(", ")}`);
 
-  // FROM clause
-  parts.push(`FROM ${query.tables[0]}`);
+  // FROM clause - validate table name
+  const safeFromTable = validateIdentifier(query.tables[0], 'FROM table');
+  parts.push(`FROM \`${safeFromTable}\``);
 
-  // JOIN clauses
+  // JOIN clauses - validate all identifiers
   for (const join of query.joins) {
-    parts.push(`${join.type} JOIN ${join.rightTable} ON ${join.leftTable}.${join.leftColumn} = ${join.rightTable}.${join.rightColumn}`);
+    const safeJoinType = validateJoinType(join.type);
+    const safeRightTable = validateIdentifier(join.rightTable, 'JOIN right table');
+    const safeLeftTable = validateIdentifier(join.leftTable, 'JOIN left table');
+    const safeLeftColumn = validateIdentifier(join.leftColumn, 'JOIN left column');
+    const safeRightColumn = validateIdentifier(join.rightColumn, 'JOIN right column');
+    parts.push(
+      `${safeJoinType} JOIN \`${safeRightTable}\` ON \`${safeLeftTable}\`.\`${safeLeftColumn}\` = \`${safeRightTable}\`.\`${safeRightColumn}\``
+    );
   }
 
-  // WHERE clause
+  // WHERE clause - use parameterized values (?) instead of string interpolation
   if (query.filters.length > 0) {
     const whereClauses = query.filters.map((f, i) => {
-      let clause = `${f.column} ${f.operator} `;
+      const safeColumn = validateIdentifier(f.column, 'filter column');
+      const safeOperator = validateOperator(f.operator);
+      let clause: string;
+
       if (Array.isArray(f.value)) {
-        clause += `(${f.value.map(v => typeof v === "string" ? `'${v}'` : v).join(", ")})`;
+        // IN clause with parameterized values
+        const { placeholders, params: inParams } = buildSafeInClause(f.value);
+        clause = `\`${safeColumn}\` ${safeOperator} (${placeholders})`;
+        params.push(...inParams);
       } else {
-        clause += typeof f.value === "string" ? `'${f.value}'` : f.value;
+        // Single value with parameterized placeholder
+        clause = `\`${safeColumn}\` ${safeOperator} ?`;
+        params.push(f.value as string | number);
       }
+
       if (i > 0 && f.logicalOp) {
-        clause = `${f.logicalOp} ${clause}`;
+        const safeLogicalOp = f.logicalOp === 'OR' ? 'OR' : 'AND';
+        clause = `${safeLogicalOp} ${clause}`;
       }
       return clause;
     });
     parts.push(`WHERE ${whereClauses.join(" ")}`);
   }
 
-  // GROUP BY
+  // GROUP BY - validate column names
   if (query.groupBy && query.groupBy.length > 0) {
-    parts.push(`GROUP BY ${query.groupBy.join(", ")}`);
+    const safeGroupBy = query.groupBy.map(col => {
+      const safeCol = validateIdentifier(col, 'GROUP BY column');
+      return `\`${safeCol}\``;
+    });
+    parts.push(`GROUP BY ${safeGroupBy.join(", ")}`);
   }
 
-  // ORDER BY
+  // ORDER BY - validate column names and directions
   if (query.orderBy && query.orderBy.length > 0) {
-    const orderClauses = query.orderBy.map(o => `${o.column} ${o.direction}`);
+    const orderClauses = query.orderBy.map(o => {
+      const safeCol = validateIdentifier(o.column, 'ORDER BY column');
+      const safeDir = validateSortDirection(o.direction);
+      return `\`${safeCol}\` ${safeDir}`;
+    });
     parts.push(`ORDER BY ${orderClauses.join(", ")}`);
   }
 
-  // LIMIT
+  // LIMIT - validate as positive integer
   if (query.limit) {
-    parts.push(`LIMIT ${query.limit}`);
+    const safeLimit = validateNumericValue(query.limit, 'LIMIT');
+    parts.push(`LIMIT ${Math.min(Math.max(0, safeLimit), 10000)}`);
   }
 
-  return parts.join("\n");
+  return { sql: parts.join("\n"), params };
 }
 
+/**
+ * Execute a QueryDefinition against the world database.
+ * Uses parameterized queries for all filter values.
+ *
+ * @param query - Query definition to execute
+ * @param limit - Optional row limit override
+ * @returns Query result with rows, SQL, and execution time
+ */
 export async function executeQuery(query: QueryDefinition, limit?: number): Promise<QueryResult> {
-  const sql = await generateSQL({ ...query, limit: limit || query.limit });
+  const { sql, params } = await generateSQL({ ...query, limit: limit || query.limit });
   const startTime = Date.now();
 
-  const rows = await queryWorld(sql, []) as any;
+  const rows = await queryWorld(sql, params) as any;
   const executionTime = Date.now() - startTime;
 
   return {

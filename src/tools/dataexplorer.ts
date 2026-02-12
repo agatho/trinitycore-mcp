@@ -7,6 +7,7 @@
  */
 
 import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
+import { validateIdentifier, validateSortDirection, validateNumericValue } from "../utils/sql-safety";
 
 /**
  * Query result with metadata
@@ -270,28 +271,29 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
       throw new Error(`Unknown entity type: ${intent.entity}`);
   }
 
-  // Build WHERE clause
+  // Build WHERE clause (validate field names as safe identifiers)
   const whereClauses: string[] = [];
   for (const filter of intent.filters) {
+    const safeField = validateIdentifier(filter.field, 'filter field');
     switch (filter.operator) {
       case "=":
-        whereClauses.push(`${filter.field} = ?`);
+        whereClauses.push(`\`${safeField}\` = ?`);
         params.push(filter.value);
         break;
       case ">":
-        whereClauses.push(`${filter.field} > ?`);
+        whereClauses.push(`\`${safeField}\` > ?`);
         params.push(filter.value);
         break;
       case "<":
-        whereClauses.push(`${filter.field} < ?`);
+        whereClauses.push(`\`${safeField}\` < ?`);
         params.push(filter.value);
         break;
       case "LIKE":
-        whereClauses.push(`${filter.field} LIKE ?`);
+        whereClauses.push(`\`${safeField}\` LIKE ?`);
         params.push(filter.value);
         break;
       case "&":
-        whereClauses.push(`(${filter.field} & ?) != 0`);
+        whereClauses.push(`(\`${safeField}\` & ?) != 0`);
         params.push(filter.value);
         break;
     }
@@ -299,13 +301,20 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
 
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
-  // Build ORDER BY clause
-  const orderClause = intent.sort
-    ? `ORDER BY ${intent.sort.field} ${intent.sort.direction}`
-    : "";
+  // Build ORDER BY clause (validate identifier and direction to prevent injection)
+  let orderClause = "";
+  if (intent.sort) {
+    const safeField = validateIdentifier(intent.sort.field, 'sort field');
+    const safeDirection = validateSortDirection(intent.sort.direction);
+    orderClause = `ORDER BY \`${safeField}\` ${safeDirection}`;
+  }
 
-  // Build LIMIT clause
-  const limitClause = intent.limit ? `LIMIT ${intent.limit}` : "";
+  // Build LIMIT clause (validate as positive integer)
+  let limitClause = "";
+  if (intent.limit) {
+    const safeLimit = validateNumericValue(intent.limit, 'limit');
+    limitClause = `LIMIT ${Math.min(Math.max(0, safeLimit), 10000)}`;
+  }
 
   // Build complete SQL
   const sql = `SELECT ${fields} FROM ${table} ${whereClause} ${orderClause} ${limitClause}`;

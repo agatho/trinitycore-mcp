@@ -7,6 +7,7 @@
  */
 
 import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
+import { validateTableName } from "../utils/sql-safety";
 
 /**
  * Column information from INFORMATION_SCHEMA
@@ -499,7 +500,10 @@ export async function getCreateTableStatement(
 ): Promise<string> {
   const queryFn = getQueryFunction(database);
 
-  const result = await queryFn(`SHOW CREATE TABLE ${tableName}`, []);
+  // Validate table name to prevent SQL injection
+  const safeTableName = validateTableName(tableName, database);
+
+  const result = await queryFn(`SHOW CREATE TABLE ${safeTableName}`, []);
 
   return result[0]["Create Table"];
 }

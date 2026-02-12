@@ -169,18 +169,18 @@ export async function getItemPricing(itemId: number): Promise<ItemPricing> {
   // Check if item is tradeable (not soulbound)
   const isTradeable = item.bonding !== 1; // 1 = Binds on Pickup
 
-  // Check if item is craftable
+  // Check if item is craftable (parameterized query to prevent SQL injection)
   const craftQuery = `
     SELECT COUNT(*) as count
     FROM npc_trainer
     WHERE spell IN (
-      SELECT id FROM spell_template WHERE effect_1 = ${itemId} OR effect_2 = ${itemId}
+      SELECT id FROM spell_template WHERE effect_1 = ? OR effect_2 = ?
     )
   `;
 
   let isCraftable = false;
   try {
-    const craftResults = await queryWorld(craftQuery, []);
+    const craftResults = await queryWorld(craftQuery, [itemId, itemId]);
     isCraftable = craftResults && craftResults[0]?.count > 0;
   } catch (e) {
     // Ignore craft check errors

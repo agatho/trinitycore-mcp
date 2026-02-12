@@ -11,6 +11,7 @@ import type { DatabaseConfig } from "../types/database";
 import { executeQuery, executeBatch } from "./db-client";
 import fs from "fs/promises";
 import path from "path";
+import { validateIdentifier } from "../utils/sql-safety";
 
 // ============================================================================
 // Types
@@ -513,10 +514,11 @@ export class DatabaseExportEngine {
    * Export table data as SQL
    */
   private async exportTableDataAsSQL(table: string, filepath: string): Promise<void> {
+    const safeTable = validateIdentifier(table, 'table name');
     let sql = "";
 
     if (this.config.includeTimestamps) {
-      sql += `-- Table: ${table}\n`;
+      sql += `-- Table: ${safeTable}\n`;
       sql += `-- Exported: ${new Date().toISOString()}\n\n`;
     }
 
@@ -525,7 +527,7 @@ export class DatabaseExportEngine {
     let hasMore = true;
 
     while (hasMore) {
-      const query = `SELECT * FROM \`${table}\` LIMIT ? OFFSET ?`;
+      const query = `SELECT * FROM \`${safeTable}\` LIMIT ? OFFSET ?`;
       const result = await executeQuery(this.config.database, query, [
         this.config.batchSize,
         offset,
@@ -539,6 +541,7 @@ export class DatabaseExportEngine {
       // Generate INSERT statements
       for (const row of result.rows) {
         const columns = Object.keys(row);
+        const safeColumns = columns.map(col => validateIdentifier(col, 'column name'));
         const values = columns.map((col) => {
           const val = row[col];
           if (val === null) return "NULL";
@@ -547,7 +550,7 @@ export class DatabaseExportEngine {
           return `'${String(val).replace(/'/g, "''")}'`;
         });
 
-        sql += `INSERT INTO \`${table}\` (\`${columns.join("`, `")}\`) VALUES (${values.join(", ")});\n`;
+        sql += `INSERT INTO \`${safeTable}\` (\`${safeColumns.join("`, `")}\`) VALUES (${values.join(", ")});\n`;
       }
 
       offset += this.config.batchSize;
@@ -561,7 +564,8 @@ export class DatabaseExportEngine {
    * Export table data as JSON
    */
   private async exportTableDataAsJSON(table: string, filepath: string): Promise<void> {
-    const query = `SELECT * FROM \`${table}\``;
+    const safeTable = validateIdentifier(table, 'table name');
+    const query = `SELECT * FROM \`${safeTable}\``;
     const result = await executeQuery(this.config.database, query);
 
     const data = {
@@ -578,7 +582,8 @@ export class DatabaseExportEngine {
    * Export table data as CSV
    */
   private async exportTableDataAsCSV(table: string, filepath: string): Promise<void> {
-    const query = `SELECT * FROM \`${table}\``;
+    const safeTable = validateIdentifier(table, 'table name');
+    const query = `SELECT * FROM \`${safeTable}\``;
     const result = await executeQuery(this.config.database, query);
 
     if (result.rows.length === 0) {
@@ -608,7 +613,8 @@ export class DatabaseExportEngine {
    * Get table row count
    */
   private async getTableRowCount(table: string): Promise<number> {
-    const query = `SELECT COUNT(*) as count FROM \`${table}\``;
+    const safeTable = validateIdentifier(table, 'table name');
+    const query = `SELECT COUNT(*) as count FROM \`${safeTable}\``;
     const result = await executeQuery(this.config.database, query);
     return result.rows[0]?.count || 0;
   }
