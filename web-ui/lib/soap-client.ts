@@ -49,8 +49,8 @@ export function getSOAPConfig(): SOAPConfig {
   return {
     host: process.env.TRINITY_SOAP_HOST || '127.0.0.1',
     port: parseInt(process.env.TRINITY_SOAP_PORT || '7878'),
-    username: process.env.TRINITY_SOAP_USERNAME || 'admin',
-    password: process.env.TRINITY_SOAP_PASSWORD || 'admin',
+    username: process.env.TRINITY_SOAP_USERNAME || '',
+    password: process.env.TRINITY_SOAP_PASSWORD || '',
   };
 }
 

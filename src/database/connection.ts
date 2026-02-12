@@ -12,7 +12,7 @@ import { withRetry, DATABASE_RETRY_OPTIONS } from "../utils/retry";
 const DB_CONFIG = {
   host: process.env.TRINITY_DB_HOST || "localhost",
   port: parseInt(process.env.TRINITY_DB_PORT || "3306"),
-  user: process.env.TRINITY_DB_USER || "trinity",
+  user: process.env.TRINITY_DB_USER || "",
   password: process.env.TRINITY_DB_PASSWORD || "",
 };
 

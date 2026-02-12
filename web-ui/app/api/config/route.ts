@@ -82,7 +82,7 @@ function loadConfigFromEnv(): TrinityMCPConfig {
     database: {
       host: process.env.TRINITY_DB_HOST || process.env.DB_HOST || "localhost",
       port: parseInt(process.env.TRINITY_DB_PORT || process.env.DB_PORT || "3306"),
-      user: process.env.TRINITY_DB_USER || process.env.DB_USERNAME || "trinity",
+      user: process.env.TRINITY_DB_USER || process.env.DB_USERNAME || "",
       password: process.env.TRINITY_DB_PASSWORD || process.env.DB_PASSWORD || "",
       world: process.env.TRINITY_DB_WORLD || process.env.DB_WORLD_DATABASE || "world",
       auth: process.env.TRINITY_DB_AUTH || process.env.DB_AUTH_DATABASE || "auth",

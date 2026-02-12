@@ -120,7 +120,7 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
   database: {
     host: "localhost",
     port: 3306,
-    user: "trinity",
+    user: "",
     password: "",
     world: "world",
     auth: "auth",

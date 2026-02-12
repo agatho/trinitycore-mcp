@@ -242,7 +242,7 @@ export function getMCPClient(): TrinityCoreMCPClient {
       env: {
         TRINITY_DB_HOST: process.env.TRINITY_DB_HOST || "localhost",
         TRINITY_DB_PORT: process.env.TRINITY_DB_PORT || "3306",
-        TRINITY_DB_USER: process.env.TRINITY_DB_USER || "trinity",
+        TRINITY_DB_USER: process.env.TRINITY_DB_USER || "",
         TRINITY_DB_PASSWORD: process.env.TRINITY_DB_PASSWORD || "",
         TRINITY_ROOT: process.env.TRINITY_ROOT || "C:\\TrinityBots\\TrinityCore",
         DBC_PATH: process.env.DBC_PATH || "C:\\TrinityBots\\Server\\data\\dbc",

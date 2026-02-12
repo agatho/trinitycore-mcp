@@ -21,8 +21,8 @@ export function mockDatabaseConfig(overrides: Partial<DatabaseConfig> = {}): Dat
     host: "localhost",
     port: 3306,
     database: "world",
-    user: "trinity",
-    password: "trinity",
+    user: "test-db-user",
+    password: "test-db-password",
     ...overrides,
   };
 }
@@ -34,8 +34,8 @@ export function mockSOAPConfig(overrides: Partial<SOAPConnectionConfig> = {}): S
   return {
     host: "localhost",
     port: 7878,
-    username: "admin",
-    password: "admin",
+    username: "test-soap-user",
+    password: "test-soap-password",
     ...overrides,
   };
 }
