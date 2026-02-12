@@ -55,7 +55,7 @@ export interface CacheWarmingResult {
 }
 
 /**
- * Common spell IDs used in WoW 11.2 gameplay
+ * Common spell IDs used in WoW 12.0 gameplay
  * Based on frequently queried spells by bots
  */
 const COMMON_SPELL_IDS = [
@@ -93,7 +93,7 @@ const COMMON_SPELL_IDS = [
 ];
 
 /**
- * Common item IDs used in WoW 11.2
+ * Common item IDs used in WoW 12.0
  * Based on frequently queried items by bots
  */
 const COMMON_ITEM_IDS = [

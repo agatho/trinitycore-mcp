@@ -1,5 +1,5 @@
 /**
- * Item.db2 and ItemSparse.db2 Schema for WoW 11.2 (The War Within)
+ * Item.db2 and ItemSparse.db2 Schema for WoW 12.0 (Midnight)
  * Based on TrinityCore's ItemTemplate structure
  * Source: src/server/game/Entities/Item/ItemTemplate.h
  */

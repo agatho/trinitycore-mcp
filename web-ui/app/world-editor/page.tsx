@@ -68,8 +68,33 @@ export default function WorldEditorPage() {
   const autoLoadResult = useAutoLoadCollisionData(state.selectedMap, {
     autoLoad: true,
     maxTiles: 100,
-    verbose: false,
+    verbose: true, // Enable verbose logging for debugging
   });
+
+  // Debug: Log when collision data changes
+  useEffect(() => {
+    console.log('[WorldEditor] VMap data changed:', state.vmapData ? {
+      tiles: state.vmapData.tiles.size,
+      spawns: state.vmapData.allSpawns.length,
+    } : 'null');
+  }, [state.vmapData]);
+
+  useEffect(() => {
+    console.log('[WorldEditor] MMap data changed:', state.mmapData ? {
+      tiles: state.mmapData.tiles.size,
+    } : 'null');
+  }, [state.mmapData]);
+
+  useEffect(() => {
+    console.log('[WorldEditor] MapData changed:', state.mapData ? {
+      tiles: state.mapData.tiles.size,
+      mapName: state.mapData.mapName,
+    } : 'null');
+  }, [state.mapData]);
+
+  useEffect(() => {
+    console.log('[WorldEditor] Auto-load status:', autoLoadResult.status);
+  }, [autoLoadResult.status]);
 
   // Update collision data when auto-load completes
   useEffect(() => {
@@ -78,6 +103,9 @@ export default function WorldEditorPage() {
     }
     if (autoLoadResult.mmap && !state.mmapData) {
       actions.setMMapData(autoLoadResult.mmap);
+    }
+    if (autoLoadResult.mapTerrain && !state.mapData) {
+      actions.setMapData(autoLoadResult.mapTerrain);
     }
 
     // Update status
@@ -88,9 +116,12 @@ export default function WorldEditorPage() {
       mmap: autoLoadResult.status.mmap === 'loaded' ? 'loaded' :
             autoLoadResult.status.mmap === 'loading' ? 'loading' :
             autoLoadResult.status.mmap === 'error' ? 'error' : 'none',
-      message: autoLoadResult.status.vmapMessage || autoLoadResult.status.mmapMessage,
+      map: autoLoadResult.status.mapTerrain === 'loaded' ? 'loaded' :
+           autoLoadResult.status.mapTerrain === 'loading' ? 'loading' :
+           autoLoadResult.status.mapTerrain === 'error' ? 'error' : 'none',
+      message: autoLoadResult.status.vmapMessage || autoLoadResult.status.mmapMessage || autoLoadResult.status.mapTerrainMessage,
     });
-  }, [autoLoadResult.vmap, autoLoadResult.mmap, autoLoadResult.status]);
+  }, [autoLoadResult.vmap, autoLoadResult.mmap, autoLoadResult.mapTerrain, autoLoadResult.status]);
 
   // Handle VMap file upload
   const handleVMapUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -575,6 +606,14 @@ export default function WorldEditorPage() {
             {/* Collision Data Status */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
+                {/* Auto-load status indicator for Map terrain */}
+                {autoLoadResult.status.mapTerrain === 'checking' && (
+                  <span className="text-xs text-blue-400">Checking...</span>
+                )}
+                {autoLoadResult.status.mapTerrain === 'unavailable' && (
+                  <span className="text-xs text-slate-500">Not configured</span>
+                )}
+
                 <input
                   type="file"
                   accept=".map"

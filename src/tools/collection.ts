@@ -2,7 +2,7 @@
  * Pet/Mount/Toy Collection Manager MCP
  *
  * Provides comprehensive collectible tracking, farming routes, rarity analysis,
- * and completion optimization for pets, mounts, toys, and heirlooms in WoW 11.2.
+ * and completion optimization for pets, mounts, toys, and heirlooms in WoW 12.0.
  *
  * @module collection
  */
@@ -240,7 +240,7 @@ export async function findMissingCollectibles(
  * Get farming route for a collectible
  */
 export async function getFarmingRoute(collectibleId: number, type: "pet" | "mount" | "toy"): Promise<FarmingRoute> {
-  // TrinityCore 11.2.7: lootid now in creature_template_difficulty
+  // TrinityCore 12.0.0: lootid now in creature_template_difficulty
   const query = `
     SELECT it.entry, it.name, cl.ChanceOrQuestChance, ct.entry as creatureId, ct.name as creatureName
     FROM item_template it

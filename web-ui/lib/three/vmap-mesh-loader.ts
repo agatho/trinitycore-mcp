@@ -124,68 +124,90 @@ export class VMapMeshLoader {
 
   /**
    * Extract triangles from tile
+   *
+   * Note: VMap spawns only contain metadata (position, rotation, scale, bounds).
+   * The actual geometry is in .vmo files which need to be loaded separately.
+   * Use VMapModelLoader for actual geometry loading.
+   *
+   * This method is kept for backwards compatibility but now returns empty
+   * since bounding boxes were not useful for visualization.
    */
   private extractTriangles(tile: VMapTile): Float32Array[] {
     const triangles: Float32Array[] = [];
 
-    // Traverse BIH tree to extract all geometry spawns
-    const extractFromNode = (nodeIndex: number) => {
-      if (nodeIndex >= tile.bihTree.nodes.length) return;
-
-      const node = tile.bihTree.nodes[nodeIndex];
-
-      // Leaf node - extract triangles from referenced spawns
-      if (node.isLeaf && node.spawnIndices) {
-        for (const spawnIndex of node.spawnIndices) {
-          if (spawnIndex < tile.spawns.length) {
-            const spawn = tile.spawns[spawnIndex];
-
-            // Extract vertices from spawn's model
-            if (spawn.vertices && spawn.indices) {
-              const vertices = spawn.vertices;
-              const indices = spawn.indices;
-
-              // Create triangles from indexed vertices
-              for (let i = 0; i < indices.length; i += 3) {
-                const i1 = indices[i] * 3;
-                const i2 = indices[i + 1] * 3;
-                const i3 = indices[i + 2] * 3;
-
-                if (i1 + 2 < vertices.length && i2 + 2 < vertices.length && i3 + 2 < vertices.length) {
-                  const triangle = new Float32Array(9);
-
-                  // Vertex 1
-                  triangle[0] = vertices[i1];
-                  triangle[1] = vertices[i1 + 1];
-                  triangle[2] = vertices[i1 + 2];
-
-                  // Vertex 2
-                  triangle[3] = vertices[i2];
-                  triangle[4] = vertices[i2 + 1];
-                  triangle[5] = vertices[i2 + 2];
-
-                  // Vertex 3
-                  triangle[6] = vertices[i3];
-                  triangle[7] = vertices[i3 + 1];
-                  triangle[8] = vertices[i3 + 2];
-
-                  triangles.push(triangle);
-                }
-              }
+    // Process spawns - check if any have actual vertex data
+    if (tile.spawns && tile.spawns.length > 0) {
+      for (const spawn of tile.spawns) {
+        // Only process spawns that have actual vertex data (populated from .vmo files)
+        if (spawn.vertices && spawn.indices) {
+          const vertices = spawn.vertices as number[];
+          const indices = spawn.indices as number[];
+          for (let i = 0; i < indices.length; i += 3) {
+            const i1 = indices[i] * 3;
+            const i2 = indices[i + 1] * 3;
+            const i3 = indices[i + 2] * 3;
+            if (i1 + 2 < vertices.length && i2 + 2 < vertices.length && i3 + 2 < vertices.length) {
+              const triangle = new Float32Array(9);
+              triangle[0] = vertices[i1]; triangle[1] = vertices[i1 + 1]; triangle[2] = vertices[i1 + 2];
+              triangle[3] = vertices[i2]; triangle[4] = vertices[i2 + 1]; triangle[5] = vertices[i2 + 2];
+              triangle[6] = vertices[i3]; triangle[7] = vertices[i3 + 1]; triangle[8] = vertices[i3 + 2];
+              triangles.push(triangle);
             }
           }
         }
+        // Bounding boxes are no longer rendered - use VMapModelLoader for actual geometry
       }
+    }
 
-      // Internal node - traverse children
-      if (!node.isLeaf) {
-        if (node.leftChild !== undefined) extractFromNode(node.leftChild);
-        if (node.rightChild !== undefined) extractFromNode(node.rightChild);
-      }
-    };
+    return triangles;
+  }
 
-    // Start extraction from root
-    extractFromNode(0);
+  /**
+   * Create triangles for a bounding box (12 triangles, 6 faces)
+   */
+  private createBoxTriangles(
+    minX: number, minY: number, minZ: number,
+    maxX: number, maxY: number, maxZ: number
+  ): Float32Array[] {
+    const triangles: Float32Array[] = [];
+
+    // 8 vertices of the box
+    const v = [
+      [minX, minY, minZ], // 0: bottom-left-front
+      [maxX, minY, minZ], // 1: bottom-right-front
+      [maxX, maxY, minZ], // 2: top-right-front
+      [minX, maxY, minZ], // 3: top-left-front
+      [minX, minY, maxZ], // 4: bottom-left-back
+      [maxX, minY, maxZ], // 5: bottom-right-back
+      [maxX, maxY, maxZ], // 6: top-right-back
+      [minX, maxY, maxZ], // 7: top-left-back
+    ];
+
+    // 6 faces, 2 triangles each (indices for each face)
+    const faces = [
+      [0, 1, 2, 0, 2, 3], // front
+      [5, 4, 7, 5, 7, 6], // back
+      [4, 0, 3, 4, 3, 7], // left
+      [1, 5, 6, 1, 6, 2], // right
+      [3, 2, 6, 3, 6, 7], // top
+      [4, 5, 1, 4, 1, 0], // bottom
+    ];
+
+    for (const face of faces) {
+      // First triangle
+      const t1 = new Float32Array(9);
+      t1[0] = v[face[0]][0]; t1[1] = v[face[0]][1]; t1[2] = v[face[0]][2];
+      t1[3] = v[face[1]][0]; t1[4] = v[face[1]][1]; t1[5] = v[face[1]][2];
+      t1[6] = v[face[2]][0]; t1[7] = v[face[2]][1]; t1[8] = v[face[2]][2];
+      triangles.push(t1);
+
+      // Second triangle
+      const t2 = new Float32Array(9);
+      t2[0] = v[face[3]][0]; t2[1] = v[face[3]][1]; t2[2] = v[face[3]][2];
+      t2[3] = v[face[4]][0]; t2[4] = v[face[4]][1]; t2[5] = v[face[4]][2];
+      t2[6] = v[face[5]][0]; t2[7] = v[face[5]][1]; t2[8] = v[face[5]][2];
+      triangles.push(t2);
+    }
 
     return triangles;
   }

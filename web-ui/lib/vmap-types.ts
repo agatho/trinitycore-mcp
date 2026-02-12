@@ -148,7 +148,13 @@ export interface BIHNode {
   /** Is this a leaf node? */
   isLeaf: boolean;
 
-  /** For leaf nodes: indices of ModelSpawns contained */
+  /** For leaf nodes: start index into objects array */
+  objectStart?: number;
+
+  /** For leaf nodes: count of objects */
+  objectCount?: number;
+
+  /** For leaf nodes: resolved indices of ModelSpawns contained (deprecated, use objectStart/objectCount) */
   objects?: number[];
 }
 

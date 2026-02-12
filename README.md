@@ -8,7 +8,7 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![MCP Tools](https://img.shields.io/badge/MCP%20Tools-107%20registered-success.svg)](src/index.ts)
 
-> **Enterprise-grade Model Context Protocol server** providing **107 MCP tools** for TrinityCore bot development with World of Warcraft 11.2 (The War Within). Includes comprehensive game data access, AI-powered code analysis, performance profiling, and a full-featured web interface.
+> **Enterprise-grade Model Context Protocol server** providing **107 MCP tools** for TrinityCore bot development with World of Warcraft 12.0 (Midnight). Includes comprehensive game data access, AI-powered code analysis, performance profiling, and a full-featured web interface.
 
 ---
 
@@ -115,7 +115,7 @@ The **TrinityCore MCP Server** is a comprehensive development platform for build
 - **Code Review** - 1,020+ rules across 7 categories (Null Safety, Memory, Concurrency, etc.)
 - **Thread Safety** - Race condition detection, deadlock analysis, lock pattern validation
 - **Memory Analysis** - Memory leak detection, RAII violations, circular references
-- **API Migration** - Version migration support (3.3.5a → 11.2)
+- **API Migration** - Version migration support (3.3.5a → 12.0)
 - **Bot AI Analysis** - Decision tree visualization, Mermaid flowchart generation
 - **Combat Log Analysis** - DPS/HPS/TPS metrics, rotation quality, optimization suggestions
 

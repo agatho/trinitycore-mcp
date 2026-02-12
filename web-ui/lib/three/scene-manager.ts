@@ -155,10 +155,12 @@ export class SceneManager {
     renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap at 2x for performance
 
-    // Enable shadows if requested
+    // Enable shadows if requested (but limit for performance)
     if (this.options.shadows) {
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      // Use basic shadows for better performance (PCFSoftShadowMap is expensive)
+      renderer.shadowMap.type = THREE.BasicShadowMap;
+      renderer.shadowMap.autoUpdate = false; // Only update when needed
     }
 
     // Output encoding for proper colors

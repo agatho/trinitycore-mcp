@@ -1,5 +1,5 @@
 /**
- * Spell.db2 Schema for WoW 11.2 (The War Within)
+ * Spell.db2 Schema for WoW 12.0 (Midnight)
  * Based on TrinityCore's SpellNameEntry structure (NOT SpellInfo!)
  * Source: src/server/game/DataStores/DB2Structure.h lines 4012-4016
  *

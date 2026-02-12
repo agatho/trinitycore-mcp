@@ -76,7 +76,7 @@ export async function getBotState(botId: string): Promise<BotState> {
     botId,
     name: `Bot${botId}`,
     class: "Priest",
-    level: 80,
+    level: 90,
     hp: { current: 3200, max: 8500 },
     mana: { current: 4500, max: 6200 },
     target: { guid: "tank42", name: "Tank42", hp: 12000, maxHp: 15000 },

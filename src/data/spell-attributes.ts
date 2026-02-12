@@ -1,5 +1,5 @@
 /**
- * Spell Attribute Flag Database for WoW 11.2 (The War Within)
+ * Spell Attribute Flag Database for WoW 12.0 (Midnight)
  *
  * Complete database of all 512 TrinityCore spell attribute flags across 16 attribute fields.
  * Extracted from SharedDefines.h SpellAttr0-15 enums.

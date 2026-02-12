@@ -33,6 +33,7 @@ export function TimeOfDayControl({
   position = 'top-left',
 }: TimeOfDayControlProps) {
   const [localTime, setLocalTime] = useState(currentTime);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Start collapsed
 
   useEffect(() => {
     setLocalTime(currentTime);
@@ -83,9 +84,23 @@ export function TimeOfDayControl({
     onTimeChange(preset);
   };
 
+  // Collapsed view - just show icon and time
+  if (isCollapsed) {
+    return (
+      <button
+        onClick={() => setIsCollapsed(false)}
+        className={`absolute ${positionClasses[position]} z-40 bg-slate-800/90 backdrop-blur border border-slate-600 rounded-lg px-3 py-2 flex items-center gap-2 hover:bg-slate-700 transition-colors`}
+        title="Time of Day (click to expand)"
+      >
+        {getTimeIcon(localTime)}
+        <span className="text-sm text-white font-medium">{formatTime(localTime)}</span>
+      </button>
+    );
+  }
+
   return (
     <div
-      className={`fixed ${positionClasses[position]} z-40 bg-slate-900/95 backdrop-blur border border-slate-700 rounded-lg shadow-2xl min-w-[320px]`}
+      className={`absolute ${positionClasses[position]} z-40 bg-slate-900/95 backdrop-blur border border-slate-700 rounded-lg shadow-2xl min-w-[280px]`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-slate-700">
@@ -93,20 +108,30 @@ export function TimeOfDayControl({
           <Clock className="w-4 h-4 text-blue-400" />
           <span className="text-sm font-semibold text-white">Time of Day</span>
         </div>
-        {getTimeIcon(localTime)}
+        <div className="flex items-center gap-2">
+          {getTimeIcon(localTime)}
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="text-slate-400 hover:text-white p-1"
+            title="Minimize"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 space-y-3">
         {/* Time Display */}
         <div className="text-center space-y-1">
-          <div className="text-2xl font-bold text-white">{formatTime(localTime)}</div>
-          <div className="text-sm text-slate-400">{getTimePeriod(localTime)}</div>
+          <div className="text-xl font-bold text-white">{formatTime(localTime)}</div>
+          <div className="text-xs text-slate-400">{getTimePeriod(localTime)}</div>
         </div>
 
         {/* Time Slider */}
-        <div className="space-y-2">
-          <Label className="text-xs text-slate-300">Time (24h)</Label>
+        <div className="space-y-1">
           <Slider
             value={[localTime]}
             onValueChange={handleSliderChange}
@@ -118,110 +143,49 @@ export function TimeOfDayControl({
           />
           <div className="flex justify-between text-xs text-slate-500">
             <span>00:00</span>
-            <span>06:00</span>
             <span>12:00</span>
-            <span>18:00</span>
             <span>24:00</span>
           </div>
         </div>
 
-        {/* Presets */}
-        <div className="space-y-2">
-          <Label className="text-xs text-slate-300">Quick Presets</Label>
-          <div className="grid grid-cols-4 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePreset(6)}
-              className="flex-col h-auto py-2"
-            >
-              <Sunrise className="w-4 h-4 mb-1 text-orange-400" />
-              <span className="text-xs">Sunrise</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePreset(12)}
-              className="flex-col h-auto py-2"
-            >
-              <Sun className="w-4 h-4 mb-1 text-yellow-400" />
-              <span className="text-xs">Noon</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePreset(18)}
-              className="flex-col h-auto py-2"
-            >
-              <Sunset className="w-4 h-4 mb-1 text-orange-600" />
-              <span className="text-xs">Sunset</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePreset(0)}
-              className="flex-col h-auto py-2"
-            >
-              <Moon className="w-4 h-4 mb-1 text-blue-300" />
-              <span className="text-xs">Midnight</span>
-            </Button>
-          </div>
+        {/* Presets - Compact */}
+        <div className="flex gap-1">
+          <Button variant="outline" size="sm" onClick={() => handlePreset(6)} className="flex-1 p-1" title="Sunrise">
+            <Sunrise className="w-3 h-3 text-orange-400" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handlePreset(12)} className="flex-1 p-1" title="Noon">
+            <Sun className="w-3 h-3 text-yellow-400" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handlePreset(18)} className="flex-1 p-1" title="Sunset">
+            <Sunset className="w-3 h-3 text-orange-600" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handlePreset(0)} className="flex-1 p-1" title="Midnight">
+            <Moon className="w-3 h-3 text-blue-300" />
+          </Button>
         </div>
 
         {/* Auto Progress */}
-        <div className="space-y-3 border-t border-slate-700 pt-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs text-slate-300">Auto Progress</Label>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={autoProgress}
-                onCheckedChange={onAutoProgressChange}
-              />
-              {autoProgress ? (
-                <Play className="w-4 h-4 text-green-400" />
-              ) : (
-                <Pause className="w-4 h-4 text-slate-500" />
-              )}
-            </div>
-          </div>
-
-          {/* Time Speed */}
-          {autoProgress && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs text-slate-300">Speed</Label>
-                <span className="text-xs text-slate-400">
-                  {timeSpeed.toFixed(1)}x
-                </span>
-              </div>
-              <Slider
-                value={[timeSpeed]}
-                onValueChange={(v) => onTimeSpeedChange(v[0])}
-                min={0.1}
-                max={10}
-                step={0.1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>Slow</span>
-                <span>Fast</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Info */}
-        <div className="bg-slate-800/50 rounded p-2">
-          <div className="text-xs text-slate-400 space-y-1">
-            <div>• Sunrise: 6:00 AM</div>
-            <div>• Sunset: 6:00 PM</div>
+        <div className="flex items-center justify-between pt-2 border-t border-slate-700">
+          <Label className="text-xs text-slate-300">Auto</Label>
+          <div className="flex items-center gap-2">
+            <Switch checked={autoProgress} onCheckedChange={onAutoProgressChange} />
             {autoProgress && (
-              <div className="text-blue-400 mt-2">
-                Time progressing at {timeSpeed.toFixed(1)}x speed
-              </div>
+              <span className="text-xs text-slate-400">{timeSpeed.toFixed(1)}x</span>
             )}
           </div>
         </div>
+
+        {/* Time Speed - only when auto progress is enabled */}
+        {autoProgress && (
+          <Slider
+            value={[timeSpeed]}
+            onValueChange={(v) => onTimeSpeedChange(v[0])}
+            min={0.1}
+            max={10}
+            step={0.1}
+            className="w-full"
+          />
+        )}
       </div>
     </div>
   );

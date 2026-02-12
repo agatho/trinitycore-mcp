@@ -192,6 +192,34 @@ export function MapView2DEnhanced({
       ctx.globalAlpha = 1;
     }
 
+    // Draw focus position marker (shows 3D camera target)
+    if (state.focusPosition && state.focusPosition.source !== '2d') {
+      const focusCanvasPos = wowToCanvas(
+        state.focusPosition.x,
+        state.focusPosition.y,
+        state.selectedMap,
+        width / camera2D.scale,
+        height / camera2D.scale
+      );
+
+      // Draw crosshair at focus position
+      ctx.strokeStyle = '#ff6b6b';
+      ctx.lineWidth = 2 / camera2D.scale;
+      const crossSize = 15 / camera2D.scale;
+
+      ctx.beginPath();
+      ctx.moveTo(focusCanvasPos.x - crossSize, focusCanvasPos.y);
+      ctx.lineTo(focusCanvasPos.x + crossSize, focusCanvasPos.y);
+      ctx.moveTo(focusCanvasPos.x, focusCanvasPos.y - crossSize);
+      ctx.lineTo(focusCanvasPos.x, focusCanvasPos.y + crossSize);
+      ctx.stroke();
+
+      // Draw circle around crosshair
+      ctx.beginPath();
+      ctx.arc(focusCanvasPos.x, focusCanvasPos.y, crossSize * 1.2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     ctx.restore();
   }, [state, width, height]);
 
@@ -315,30 +343,48 @@ export function MapView2DEnhanced({
   if (hasTiledMaps) {
     return (
       <div className="relative" style={{ width, height }}>
-        {/* Tiled map background */}
-        <div className="absolute inset-0">
+        {/* Tiled map background - now handles scroll/pan directly */}
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
           <TiledMapViewer
             mapId={state.selectedMap}
             initialZoom={0}
-            onTileClick={(tileX, tileY, zoom) => {
-              console.log(`Tile clicked: ${tileX}, ${tileY} at zoom ${zoom}`);
+            height={`${height}px`}
+            onTileClick={(x, y) => {
+              console.log(`Map clicked at: ${x}, ${y}`);
+              // Convert canvas coordinates to WoW coordinates
+              const wowCoords = canvasToWow(x, y, state.selectedMap, width, height);
+
+              // Get height at position
+              let z = 0;
+              if (state.autoDetectHeight && (state.mapData || state.vmapData || state.mmapData)) {
+                const heightResult = getHeightAtPosition(
+                  wowCoords.x,
+                  wowCoords.y,
+                  state.vmapData || undefined,
+                  state.mmapData || undefined,
+                  state.mapData || undefined,
+                  { preferVMap: true, searchRadius: 10.0 }
+                );
+                if (heightResult.z !== null) z = heightResult.z;
+              }
+
+              if (currentTool === 'spawn') {
+                addSpawnPoint(x, y);
+              } else {
+                // Focus 3D view on this position
+                actions.focusOnWowCoords(wowCoords.x, wowCoords.y, z, '2d');
+              }
             }}
           />
         </div>
 
-        {/* Overlay canvas for spawn points, waypoints, etc. */}
+        {/* Overlay canvas for spawn points, waypoints, etc. - pointer-events:none so map can scroll */}
         <canvas
           ref={canvasRef}
           width={width}
           height={height}
-          onClick={handleCanvasClick}
-          onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          className="absolute inset-0 cursor-crosshair"
-          style={{ pointerEvents: 'auto' }}
+          className="absolute inset-0"
+          style={{ pointerEvents: 'none', zIndex: 2 }}
         />
 
         {/* Tool selector overlay */}

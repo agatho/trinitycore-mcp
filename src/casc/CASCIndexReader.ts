@@ -194,7 +194,7 @@ export class CASCIndexReader {
   }
 
   /**
-   * Parse modern CASC index file (Version 7, used in WoW 11.x)
+   * Parse modern CASC index file (Version 7, used in WoW 11.x/12.x)
    *
    * Format specification from CascLib:
    * - Guarded block wrapper (BlockSize + BlockHash)

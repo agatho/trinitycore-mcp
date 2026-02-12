@@ -104,7 +104,7 @@ export async function getZoneInfo(zoneId: number): Promise<ZoneInfo | null> {
  * Analyze mob statistics in a zone
  */
 export async function analyzeMobStats(zoneId: number): Promise<MobStats> {
-  // TrinityCore 11.2.7: minlevel/maxlevel removed from creature_template
+  // TrinityCore 12.0.0: minlevel/maxlevel removed from creature_template
   // Now uses ContentTuningID in creature_template_difficulty for level scaling
   // rank is now Classification in creature_template
   const mobData = await queryWorld(
@@ -218,7 +218,7 @@ export async function analyzeMobStats(zoneId: number): Promise<MobStats> {
  * Analyze quest statistics in a zone
  */
 export async function analyzeQuestStats(zoneId: number): Promise<QuestStats> {
-  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
+  // TrinityCore 12.0.0: MinLevel removed, now uses ContentTuningID for scaling
   const questData = await queryWorld(
     `SELECT
       qt.ID,
@@ -255,7 +255,7 @@ export async function analyzeQuestStats(zoneId: number): Promise<QuestStats> {
 
   for (const quest of questData) {
     totalLevel += quest.QuestLevel || 0;
-    // TrinityCore 11.2.7: Use QuestLevel for min/max since MinLevel was removed
+    // TrinityCore 12.0.0: Use QuestLevel for min/max since MinLevel was removed
     minLevel = Math.min(minLevel, quest.QuestLevel || 0);
     maxLevel = Math.max(maxLevel, quest.QuestLevel || 0);
 

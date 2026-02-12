@@ -15,8 +15,8 @@ export interface QuestInfo {
   id: number;
   title: string;
   level: number;
-  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID
-  contentTuningId?: number; // TrinityCore 11.2.7+
+  minLevel: number; // Deprecated in 12.0.0 - now uses ContentTuningID
+  contentTuningId?: number; // TrinityCore 12.0.0+
   type: string;
   prevQuest?: number;
   nextQuest?: number;
@@ -63,7 +63,7 @@ export interface MermaidOptions {
  * Get quest information by ID
  */
 export async function getQuestInfo(questId: number): Promise<QuestInfo | null> {
-  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
+  // TrinityCore 12.0.0: MinLevel removed, now uses ContentTuningID for scaling
   const rows = await queryWorld(
     `SELECT
       qt.ID as id,
@@ -523,7 +523,7 @@ export async function getQuestRewards(questId: number): Promise<{
   items: Array<{ id: number; name: string; quantity: number }>;
   reputation: Array<{ faction: string; amount: number }>;
 }> {
-  // TrinityCore 11.2.7: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
+  // TrinityCore 12.0.0: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
   const questData = await queryWorld(
     `SELECT
       RewardXPDifficulty as experience,

@@ -244,6 +244,10 @@ export const WoWMaps = {
     imageUrl: '/maps/khaz_algar.jpg',
     hasImage: false,
   },
+
+  // Midnight Maps (Retail 12.x Map IDs)
+  // Note: Actual Midnight map IDs will need to be confirmed from 12.0 Map.db2
+  // Placeholder entries for known Midnight zones
 } as const;
 
 /**

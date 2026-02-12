@@ -209,6 +209,9 @@ export class TransformControlsWrapper {
    * Handle change event
    */
   private handleChange(): void {
+    // Guard against undefined object
+    if (!this.controls.object) return;
+
     // Apply terrain snapping if enabled
     if (this.options.snapToTerrain && this.options.mode === 'translate') {
       this.applyTerrainSnap();
@@ -216,10 +219,10 @@ export class TransformControlsWrapper {
 
     // Emit change event
     const event: TransformEvent = {
-      object: this.controls.object!,
-      position: this.controls.object!.position.clone(),
-      rotation: this.controls.object!.rotation.clone(),
-      scale: this.controls.object!.scale.clone(),
+      object: this.controls.object,
+      position: this.controls.object.position.clone(),
+      rotation: this.controls.object.rotation.clone(),
+      scale: this.controls.object.scale.clone(),
     };
 
     this.emit('change', event);
@@ -229,18 +232,21 @@ export class TransformControlsWrapper {
    * Handle dragging state change
    */
   private handleDraggingChanged(event: any): void {
+    // Guard against undefined object
+    if (!this.controls.object) return;
+
     const isDragging = event.value;
 
     if (isDragging) {
       this.emit('dragStart', {
-        object: this.controls.object!,
+        object: this.controls.object,
       });
     } else {
       this.emit('dragEnd', {
-        object: this.controls.object!,
-        position: this.controls.object!.position.clone(),
-        rotation: this.controls.object!.rotation.clone(),
-        scale: this.controls.object!.scale.clone(),
+        object: this.controls.object,
+        position: this.controls.object.position.clone(),
+        rotation: this.controls.object.rotation.clone(),
+        scale: this.controls.object.scale.clone(),
       });
     }
 

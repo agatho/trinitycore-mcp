@@ -68,43 +68,58 @@ class BinaryReader {
     return this.buffer.byteLength - this.offset;
   }
 
+  private checkBounds(size: number): void {
+    if (this.offset + size > this.buffer.byteLength) {
+      throw new Error(
+        `Buffer overflow: trying to read ${size} bytes at offset ${this.offset}, but buffer is only ${this.buffer.byteLength} bytes`
+      );
+    }
+  }
+
   readUInt8(): number {
+    this.checkBounds(1);
     const value = this.view.getUint8(this.offset);
     this.offset += 1;
     return value;
   }
 
   readUInt16(): number {
+    this.checkBounds(2);
     const value = this.view.getUint16(this.offset, this.littleEndian);
     this.offset += 2;
     return value;
   }
 
   readInt32(): number {
+    this.checkBounds(4);
     const value = this.view.getInt32(this.offset, this.littleEndian);
     this.offset += 4;
     return value;
   }
 
   readUInt32(): number {
+    this.checkBounds(4);
     const value = this.view.getUint32(this.offset, this.littleEndian);
     this.offset += 4;
     return value;
   }
 
   readFloat32(): number {
+    this.checkBounds(4);
     const value = this.view.getFloat32(this.offset, this.littleEndian);
     this.offset += 4;
     return value;
   }
 
   readFloat64(): number {
+    this.checkBounds(8);
     const value = this.view.getFloat64(this.offset, this.littleEndian);
     this.offset += 8;
     return value;
   }
 
   readString(length: number): string {
+    this.checkBounds(length);
     const bytes = new Uint8Array(this.buffer, this.offset, length);
     this.offset += length;
 
@@ -153,6 +168,7 @@ class BinaryReader {
   }
 
   readBytes(length: number): Uint8Array {
+    this.checkBounds(length);
     const bytes = new Uint8Array(this.buffer, this.offset, length);
     this.offset += length;
     return bytes;
@@ -228,91 +244,32 @@ export function parseVMapTree(
 /**
  * Parse BIH (Bounding Interval Hierarchy) tree
  *
- * Format (simplified):
- * - bounds (AABox)
- * - node_count (uint32)
- * - nodes[node_count]
- * - object_count (uint32)
- * - objects[object_count]
+ * TrinityCore BIH format is compact - the tree structure is stored
+ * differently than a naive node array. For visualization, we don't
+ * actually need to parse the full BIH tree - we only need the spawns
+ * from the .vmtile files.
+ *
+ * For now, skip the tree parsing and create a minimal tree structure.
+ * The spawns in .vmtile files are what we need for visualization.
  */
 function parseBIHTree(reader: BinaryReader, fileName: string): BIHTree {
   // Read bounding box
   const bounds = reader.readAABox();
 
-  // Read node count
-  const nodeCount = reader.readUInt32();
-  if (nodeCount === 0 || nodeCount > 1000000) {
-    throw new VMapParseError(
-      `Invalid node count: ${nodeCount}`,
-      fileName,
-      reader.getOffset(),
-    );
-  }
+  console.log(`[VMapParser] BIH Tree bounds:`, bounds);
+  console.log(`[VMapParser] After bounds, offset: ${reader.getOffset()}, remaining: ${reader.remaining()}`);
 
-  // Read nodes
-  const nodes: BIHNode[] = [];
-  for (let i = 0; i < nodeCount; i++) {
-    nodes.push(parseBIHNode(reader));
-  }
-
-  // Read object count
-  const objectCount = reader.readUInt32();
-  if (objectCount > 10000000) {
-    throw new VMapParseError(
-      `Invalid object count: ${objectCount}`,
-      fileName,
-      reader.getOffset(),
-    );
-  }
-
-  // Read object indices
-  const objects: number[] = [];
-  for (let i = 0; i < objectCount; i++) {
-    objects.push(reader.readUInt32());
-  }
+  // The BIH tree format in TrinityCore is complex and uses a packed format.
+  // For visualization purposes, we don't need to parse it - we just need
+  // the spawns from .vmtile files which have their own bounding boxes.
+  //
+  // Skip the tree data and return a minimal tree structure.
+  console.log(`[VMapParser] Skipping BIH tree parsing (not needed for visualization)`);
 
   return {
-    nodes,
-    objects,
+    nodes: [],
+    objects: [],
     bounds,
-  };
-}
-
-/**
- * Parse a single BIH node
- */
-function parseBIHNode(reader: BinaryReader): BIHNode {
-  // Read children indices
-  const child0 = reader.readUInt32();
-  const child1 = reader.readUInt32();
-
-  // Read bounds
-  const bound0 = reader.readFloat32();
-  const bound1 = reader.readFloat32();
-
-  // Read axis (0=X, 1=Y, 2=Z)
-  const axis = reader.readUInt32() as BIHAxis;
-
-  // Determine if leaf node
-  // Convention: leaf nodes have high bit set on child0
-  const isLeaf = (child0 & 0x80000000) !== 0;
-
-  // If leaf, read object indices
-  let objects: number[] | undefined;
-  if (isLeaf) {
-    const objectCount = child0 & 0x7fffffff; // Clear high bit
-    objects = [];
-    for (let i = 0; i < objectCount; i++) {
-      objects.push(reader.readUInt32());
-    }
-  }
-
-  return {
-    children: [child0, child1],
-    bounds: [bound0, bound1],
-    axis,
-    isLeaf,
-    objects,
   };
 }
 
@@ -383,33 +340,38 @@ export function parseVMapTile(
 }
 
 /**
+ * ModelSpawnFlags - matches TrinityCore ModelInstanceFlags
+ */
+const MOD_HAS_BOUND = 1 << 0; // 0x01
+
+/**
  * Parse a ModelSpawn structure
  *
- * Format (approximate):
- * - flags (uint32)
- * - id (uint32)
- * - name_length (uint32)
- * - name (string)
- * - position (Vector3)
- * - rotation (Vector3)
+ * Modern TrinityCore VMAP4 format (11.x):
+ * - flags (uint8)
+ * - adtId (uint8)
+ * - uniqueId (uint32)
+ * - position (Vector3 - 3 floats)
+ * - rotation (Vector3 - 3 floats, Euler angles)
  * - scale (float32)
- * - bounds (AABox)
+ * - bounds (AABox - 6 floats) - ONLY if MOD_HAS_BOUND flag is set
+ * - nameLength (uint32)
+ * - name (string, NOT null-terminated)
  */
 function parseModelSpawn(reader: BinaryReader): ModelSpawn {
-  // Read flags
-  const flags = reader.readUInt32();
+  // Read flags (uint8 in modern format)
+  const flags = reader.readUInt8();
 
-  // Read unique ID
+  // Read ADT ID (uint8)
+  const adtId = reader.readUInt8();
+
+  // Read unique ID (uint32)
   const id = reader.readUInt32();
-
-  // Read model name (null-terminated string)
-  const nameLength = reader.readUInt32();
-  const name = reader.readString(nameLength);
 
   // Read position
   const position = reader.readVector3();
 
-  // Read rotation (unit vector)
+  // Read rotation (Euler angles as Vector3)
   const rotation: Rotation = {
     x: reader.readFloat32(),
     y: reader.readFloat32(),
@@ -419,8 +381,21 @@ function parseModelSpawn(reader: BinaryReader): ModelSpawn {
   // Read scale
   const scale = reader.readFloat32();
 
-  // Read bounding box
-  const bounds = reader.readAABox();
+  // Read bounding box - ONLY if MOD_HAS_BOUND flag is set
+  let bounds: AABox;
+  if (flags & MOD_HAS_BOUND) {
+    bounds = reader.readAABox();
+  } else {
+    // No bounds in file, create empty bounds (will be calculated later if needed)
+    bounds = {
+      min: { x: 0, y: 0, z: 0 },
+      max: { x: 0, y: 0, z: 0 },
+    };
+  }
+
+  // Read model name (length-prefixed string)
+  const nameLength = reader.readUInt32();
+  const name = reader.readString(nameLength);
 
   return {
     flags,
@@ -430,6 +405,7 @@ function parseModelSpawn(reader: BinaryReader): ModelSpawn {
     rotation,
     scale,
     bounds,
+    adtId,
   };
 }
 
@@ -510,6 +486,7 @@ export function loadVMapData(
   const allSpawns: ModelSpawn[] = [];
 
   let tileCount = 0;
+  let parseErrors = 0;
   for (const [key, buffer] of tileBuffers.entries()) {
     // Check max tiles limit
     if (options.maxTiles && options.maxTiles > 0 && tileCount >= options.maxTiles) {
@@ -526,13 +503,25 @@ export function loadVMapData(
     const tileX = parseInt(xStr, 10);
     const tileY = parseInt(yStr, 10);
 
-    // Parse tile
-    const tile = parseVMapTile(buffer, tileX, tileY, options);
-    tiles.set(key, tile);
+    // Parse tile with error handling
+    try {
+      const tile = parseVMapTile(buffer, tileX, tileY, options);
+      tiles.set(key, tile);
 
-    // Collect all spawns
-    allSpawns.push(...tile.spawns);
-    tileCount++;
+      // Collect all spawns
+      allSpawns.push(...tile.spawns);
+      tileCount++;
+    } catch (error) {
+      parseErrors++;
+      if (options.verbose) {
+        console.warn(`[VMapParser] Failed to parse tile ${key}:`, error instanceof Error ? error.message : error);
+      }
+      // Continue with other tiles
+    }
+  }
+
+  if (parseErrors > 0 && options.verbose) {
+    console.warn(`[VMapParser] ${parseErrors} tiles failed to parse, ${tileCount} tiles parsed successfully`);
   }
 
   // Calculate overall bounding box
@@ -593,8 +582,9 @@ function calculateOverallBounds(spawns: ModelSpawn[]): AABox {
 
 /**
  * Query BIH tree for spawns intersecting a bounding box
+ * Falls back to linear search if BIH tree is not available
  *
- * @param tree BIH tree
+ * @param tree BIH tree (may be empty if not parsed)
  * @param bounds Query bounding box
  * @param spawns All spawns
  * @returns Array of spawn indices
@@ -605,6 +595,20 @@ export function queryBIHTree(
   spawns: ModelSpawn[],
 ): number[] {
   const results: number[] = [];
+
+  // If BIH tree is not available or empty, fall back to linear search
+  if (!tree || !tree.nodes || tree.nodes.length === 0 || !tree.nodes[0]) {
+    // Linear search through all spawns
+    for (let i = 0; i < spawns.length; i++) {
+      const spawn = spawns[i];
+      if (spawn && spawn.bounds && aabbIntersects(bounds, spawn.bounds)) {
+        results.push(i);
+      }
+    }
+    return results;
+  }
+
+  // Use BIH tree for accelerated search
   queryBIHTreeRecursive(tree, tree.nodes[0], bounds, spawns, results);
   return results;
 }
@@ -617,11 +621,18 @@ function queryBIHTreeRecursive(
   results: number[],
 ): void {
   // If leaf node, check objects
-  if (node.isLeaf && node.objects) {
-    for (const objIndex of node.objects) {
-      const spawn = spawns[objIndex];
-      if (spawn && aabbIntersects(bounds, spawn.bounds)) {
-        results.push(objIndex);
+  if (node.isLeaf) {
+    // Use objectStart/objectCount to get object indices from tree.objects
+    const start = node.objectStart ?? 0;
+    const count = node.objectCount ?? 0;
+
+    for (let i = 0; i < count; i++) {
+      const objIndex = tree.objects[start + i];
+      if (objIndex !== undefined) {
+        const spawn = spawns[objIndex];
+        if (spawn && aabbIntersects(bounds, spawn.bounds)) {
+          results.push(objIndex);
+        }
       }
     }
     return;

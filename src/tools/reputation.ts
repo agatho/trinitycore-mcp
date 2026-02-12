@@ -152,7 +152,7 @@ export interface ReputationGainResult {
 }
 
 /**
- * Racial reputation bonuses for WoW 11.2
+ * Racial reputation bonuses for WoW 12.0
  * Based on race-specific passive abilities
  */
 export const RACIAL_REPUTATION_BONUSES: ReputationMultiplier[] = [
@@ -163,7 +163,7 @@ export const RACIAL_REPUTATION_BONUSES: ReputationMultiplier[] = [
     description: "Human racial: +10% reputation gains",
     raceId: 1  // Human
   }
-  // Note: As of WoW 11.2, Human Diplomacy is the only remaining racial reputation bonus
+  // Note: As of WoW 12.0, Human Diplomacy is the only remaining racial reputation bonus
   // Previous bonuses for other races were removed in various expansions
 ];
 
@@ -501,7 +501,7 @@ function getGrindMethods(factionId: number, factionName: string): GrindMethod[] 
       actionsPerHour: 4,
       repPerHour: 1200,
       repeatability: "unlimited",
-      requiredLevel: 80,
+      requiredLevel: 90,
       difficulty: "medium",
       notes: "Equip faction tabard and run level-appropriate dungeons"
     },
@@ -541,7 +541,7 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
   const faction = await getFactionInfo(factionId);
   const rewards: ReputationReward[] = [];
 
-  // TrinityCore 11.2.7: faction_A/faction_H removed, now just 'faction' column
+  // TrinityCore 12.0.0: faction_A/faction_H removed, now just 'faction' column
   const vendorQuery = `
     SELECT
       nv.item, it.name, it.Quality, it.BuyPrice,
@@ -880,7 +880,7 @@ async function parseReputationGainFromItem(itemId: number, expectedFactionId: nu
             const basePoints = spell[`EffectBasePoints_${i}`];
             const miscValue = spell[`EffectMiscValue_${i}`];
 
-            // Effect 193 = SPELL_EFFECT_REPUTATION_REWARD (WoW 11.2)
+            // Effect 193 = SPELL_EFFECT_REPUTATION_REWARD (WoW 12.0)
             // Effect 103 = SPELL_EFFECT_REPUTATION (legacy, also check for backward compatibility)
             if ((effect === 193 || effect === 103) && miscValue === expectedFactionId) {
               // BasePoints is the reputation amount (usually needs +1)

@@ -1,7 +1,7 @@
 /**
  * ChrClassesSchema.ts
  *
- * Schema parser for ChrClasses.db2 (WoW 11.2 - The War Within)
+ * Schema parser for ChrClasses.db2 (WoW 12.0 - Midnight)
  * Defines all playable character classes with properties, visuals, and configuration.
  *
  * Based on TrinityCore DB2Structure.h:666-711
@@ -138,7 +138,7 @@ export interface ChrClassesEntry {
   spellTextureBlobFileDataID: number; // Spell texture file data
   armorTypeMask: number; // Armor types this class can wear (bitfield)
 
-  // Character creation visuals (WoW 11.0.2+)
+  // Character creation visuals (WoW 11.0.2+/12.x)
   charStartKitUnknown901: number; // Unknown purpose (11.0.2+)
   maleCharacterCreationVisualFallback: number; // Male creation visual
   maleCharacterCreationIdleVisualFallback: number; // Male idle visual

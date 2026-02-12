@@ -326,7 +326,7 @@ export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLay
 
   const dungeon = results[0];
 
-  // TrinityCore 11.2.7: rank is now Classification (3 = Boss)
+  // TrinityCore 12.0.0: rank is now Classification (3 = Boss)
   const bossQuery = `
     SELECT DISTINCT ct.entry, ct.name
     FROM creature_template ct
@@ -353,7 +353,7 @@ export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLay
     name: `Dungeon ${dungeonMapId}`,
     levelRange: {
       min: dungeon.levelMin || 1,
-      max: dungeon.levelMax || 80
+      max: dungeon.levelMax || 90
     },
     estimatedDuration: bosses.length * 5, // 5 minutes per boss estimate
     bosses,
@@ -621,7 +621,7 @@ export function analyzeGroupReadiness(
     }
   }
 
-  // Check item level (rough estimates for WoW 11.2)
+  // Check item level (rough estimates for WoW 12.0)
   const recommendedIlvl: { [key: string]: number } = {
     "normal_dungeon": 450,
     "heroic_dungeon": 463,

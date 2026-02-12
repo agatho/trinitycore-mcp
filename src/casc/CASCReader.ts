@@ -421,7 +421,7 @@ export class CASCReader {
   ): Promise<string[]> {
     const files: string[] = [];
 
-    // Map texture paths in CASC follow this pattern (modern WoW 11.x):
+    // Map texture paths in CASC follow this pattern (modern WoW 11.x/12.x):
     // world/minimaps/{zonename}/*.blp - Minimap tiles (map##_##.blp format)
     // world/maptextures/{zonename}/*.blp - High-res map textures
     // world/maps/{zonename}/*.adt - Terrain/ADT files

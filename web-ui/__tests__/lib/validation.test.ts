@@ -172,7 +172,7 @@ describe('Validation Framework', () => {
     describe('levelSchema', () => {
       it('should accept valid levels', () => {
         expect(levelSchema.parse(1)).toBe(1);
-        expect(levelSchema.parse(80)).toBe(80);
+        expect(levelSchema.parse(90)).toBe(90);
         expect(levelSchema.parse(255)).toBe(255);
       });
 

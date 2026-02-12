@@ -2043,7 +2043,7 @@ const ALL_TOOLS: Tool[] = [
   // Priority #6: API Development Assistance
   {
     name: "migrate-trinity-api",
-    description: "Migrate code between TrinityCore versions (3.3.5a → 11.2). Auto-detects deprecated APIs and suggests fixes. Reduces migration time from 2 weeks to 2 days.",
+    description: "Migrate code between TrinityCore versions (3.3.5a → 12.0). Auto-detects deprecated APIs and suggests fixes. Reduces migration time from 2 weeks to 2 days.",
     inputSchema: {
       type: "object",
       properties: {
@@ -2057,7 +2057,7 @@ const ALL_TOOLS: Tool[] = [
         },
         toVersion: {
           type: "string",
-          description: "Target TrinityCore version (e.g., '11.2')",
+          description: "Target TrinityCore version (e.g., '12.0')",
         },
         autoFix: {
           type: "boolean",
@@ -2604,7 +2604,7 @@ const ALL_TOOLS: Tool[] = [
   // Minimap Tools (Phase 1.1c)
   {
     name: "get-map-minimap",
-    description: "Get map information including starting FileDataID for minimap tiles. Modern WoW 11.x stores minimap tiles as consecutive BLP files starting from Map.db2 WdtFileDataID.",
+    description: "Get map information including starting FileDataID for minimap tiles. Modern WoW (11.x/12.x) stores minimap tiles as consecutive BLP files starting from Map.db2 WdtFileDataID.",
     inputSchema: {
       type: "object",
       properties: {
@@ -4306,7 +4306,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (simulationType === "combat") {
           result = await simulateCombat({
             playerStats: args.playerStats as any,
-            targetStats: args.targetStats as any || { level: 80, armor: 10000, hp: 1000000 },
+            targetStats: args.targetStats as any || { level: 90, armor: 10000, hp: 1000000 },
             rotation: args.rotation as any || { abilities: [], cycleDuration: 6.0 },
             duration: (args.duration as number) || 300,
           });
@@ -4315,7 +4315,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           result = await analyzeWhatIf(
             {
               playerStats: args.playerStats as any,
-              targetStats: args.targetStats as any || { level: 80, armor: 10000, hp: 1000000 },
+              targetStats: args.targetStats as any || { level: 90, armor: 10000, hp: 1000000 },
               rotation: args.rotation as any || { abilities: [], cycleDuration: 6.0 },
               duration: (args.duration as number) || 300,
             },

@@ -568,7 +568,7 @@ export async function findQuestChainsInZone(zoneId: number): Promise<QuestChain[
 
 /**
  * Get quest rewards with optimization suggestions
- * TrinityCore 11.2 schema - uses quest_reward_choice_items and quest_template columns
+ * TrinityCore 12.0 schema - uses quest_reward_choice_items and quest_template columns
  */
 export async function getQuestRewards(questId: number, classId?: number): Promise<QuestReward> {
   const query = `
@@ -597,7 +597,7 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
 
   const quest = results[0];
 
-  // TrinityCore 11.2: Get choice rewards from quest_reward_choice_items
+  // TrinityCore 12.0: Get choice rewards from quest_reward_choice_items
   const choiceQuery = `
     SELECT
       ItemID as itemId, Quantity as quantity
@@ -607,7 +607,7 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
 
   const choiceRewards = await queryWorld(choiceQuery, [questId]);
 
-  // TrinityCore 11.2: Parse guaranteed rewards from quest_template columns
+  // TrinityCore 12.0: Parse guaranteed rewards from quest_template columns
   const rewards = [];
   for (let i = 1; i <= 4; i++) {
     const itemId = quest[`RewardItem${i}`];
@@ -617,7 +617,7 @@ export async function getQuestRewards(questId: number, classId?: number): Promis
     }
   }
 
-  // TrinityCore 11.2: Parse reputation rewards from quest_template columns
+  // TrinityCore 12.0: Parse reputation rewards from quest_template columns
   const reputationRewards = [];
   for (let i = 1; i <= 5; i++) {
     const factionId = quest[`RewardFactionID${i}`];
@@ -1136,12 +1136,12 @@ export async function findQuestHubs(zoneId: number, minQuestCount: number = 3): 
 
 /**
  * Analyze quest objectives and estimate difficulty
- * TrinityCore 11.2 schema - uses quest_objectives table
+ * TrinityCore 12.0 schema - uses quest_objectives table
  */
 export async function analyzeQuestObjectives(questId: number): Promise<QuestObjective[]> {
   const objectives: QuestObjective[] = [];
 
-  // TrinityCore 11.2: quest_objectives table with Type field
+  // TrinityCore 12.0: quest_objectives table with Type field
   const query = `
     SELECT
       ID, QuestID, Type, \`Order\`, StorageIndex, ObjectID, Amount, Description
@@ -1156,7 +1156,7 @@ export async function analyzeQuestObjectives(questId: number): Promise<QuestObje
     return objectives;
   }
 
-  // TrinityCore 11.2 objective type mapping
+  // TrinityCore 12.0 objective type mapping
   const typeMap: Record<number, string> = {
     0: "kill",        // QUEST_OBJECTIVE_MONSTER - Kill creatures
     1: "collect",     // QUEST_OBJECTIVE_ITEM - Collect items
@@ -1225,7 +1225,7 @@ export async function optimizeQuestPath(
   maxQuests: number = 20
 ): Promise<QuestFlowAnalysis> {
   // Get available quests in level range
-  // TrinityCore 11.2.7: RewardMoney -> RewardMoneyDifficulty
+  // TrinityCore 12.0.0: RewardMoney -> RewardMoneyDifficulty
   const query = `
     SELECT DISTINCT qt.ID as questId, qt.LogTitle as name,
            qta.MaxLevel as MinLevel, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty,

@@ -8,7 +8,9 @@
  */
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three-stdlib';
+// Use OrbitControls directly from three/examples to avoid module duplication issues
+// with three-stdlib that cause "unknown camera type" warnings
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export interface ControlsOptions {
   enableDamping?: boolean;

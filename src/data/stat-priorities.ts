@@ -1,5 +1,5 @@
 /**
- * Stat Priorities Database for WoW 11.2 (The War Within)
+ * Stat Priorities Database for WoW 12.0 (Midnight)
  *
  * IMPORTANT: Stat priorities are GUIDELINES, not absolute values.
  * Real stat weights vary based on:
@@ -9,7 +9,7 @@
  * - Fight type (single-target vs AoE)
  * - Encounter length
  *
- * These priorities are based on Icy Veins guides (updated for 11.2.5) and represent
+ * These priorities are based on Icy Veins guides (updated for 12.0.0) and represent
  * typical stat valuations for each spec in raid environments.
  *
  * For accurate optimization, use SimulationCraft to sim your specific character.
@@ -76,21 +76,21 @@ export interface StatPriority {
     statCaps?: { stat: StatType; value: number; reason: string }[];
 
     // Metadata
-    source: string;               // "Icy Veins 11.2.5"
-    updatedDate: string;          // "2025-11-01"
-    patch: string;                // "11.2.5"
+    source: string;               // "Icy Veins 12.0.0"
+    updatedDate: string;          // "2026-02-12"
+    patch: string;                // "12.0.0"
 }
 
 /**
  * Comprehensive stat priority database for all 13 classes and 39 specializations
  *
  * Data sourced from:
- * - Icy Veins (The War Within 11.2.5 guides)
+ * - Icy Veins (Midnight 12.0.0 guides)
  * - Community theorycrafting (class Discords)
  * - SimulationCraft baseline recommendations
  *
- * Updated: November 1, 2025
- * Patch: 11.2.5 (The War Within)
+ * Updated: February 12, 2026
+ * Patch: 12.0.0 (Midnight)
  */
 export const STAT_PRIORITIES: StatPriority[] = [
 
@@ -113,9 +113,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Crit doubles damage and increases Rage. Stats converge at high gear levels due to diminishing returns.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -133,9 +133,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Haste reduces GCD and compresses rotation. Enrage uptime is crucial.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -154,9 +154,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
         notes: 'Haste reduces rage generation and block uptime. Versatility provides damage reduction.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -178,9 +178,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Haste reduces GCD and cast times. Mastery increases healing on low-health targets.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -199,9 +199,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
         notes: 'Haste improves Holy Power generation. Mastery increases block chance.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -219,9 +219,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Crit increases damage and Holy Power generation through Art of War procs.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -243,9 +243,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste and Crit are roughly equal in value. Dark Ranger hero spec prioritizes Haste >= Crit.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -263,9 +263,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY],
         notes: 'Crit is practically always best. Mastery/Haste/Vers are close in value after Crit.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -283,9 +283,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste improves focus regeneration and cooldown reduction.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -307,9 +307,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Crit increases poison proc chance and Envenom damage.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -327,9 +327,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY],
         notes: 'Versatility is strong for Outlaw. Stats are relatively close in value.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -347,9 +347,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.HASTE, StatType.MASTERY],
         notes: 'Crit increases Eviscerate and Shadow Dance damage.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -371,9 +371,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste increases throughput through faster casts and more Atonement applications.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -391,9 +391,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'Mastery increases healing on low-health targets (Echo of Light).',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -414,9 +414,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         statCaps: [
             { stat: StatType.HASTE, value: 20, reason: 'Optimal GCD compression for Voidweaver' },
         ],
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -439,9 +439,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
         notes: 'Haste improves rune regeneration and Blood Boil frequency.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -459,9 +459,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
         notes: 'Balance Mastery and Crit. Haste and Versatility have lower priority.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -479,9 +479,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'Mastery increases pet damage significantly.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -503,9 +503,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.VERSATILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY],
         notes: 'Farseer hero spec: Versatility becomes more desirable than Haste with 2-piece tier set.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -523,9 +523,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'Haste improves Maelstrom Weapon stack generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -543,9 +543,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Crit increases Resurgence mana regen and healing throughput.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -567,9 +567,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'Haste improves mana regeneration and spell cast speed.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -587,9 +587,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Crit enables Pyroblast procs through Hot Streak.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -610,9 +610,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         statCaps: [
             { stat: StatType.CRITICAL_STRIKE, value: 33.34, reason: 'Shatter cap - effective drop-off beyond this point' },
         ],
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -634,9 +634,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'Haste increases dot tick rate and soul shard generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -654,9 +654,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste reduces cast times and improves Demonbolt generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -674,9 +674,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Crit increases Chaos Bolt damage and soul shard generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -699,9 +699,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste improves energy regeneration and purifying brew availability.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -719,9 +719,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.HASTE, StatType.MASTERY],
         notes: 'Crit increases throughput and mana efficiency through mana tea.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -739,9 +739,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY],
         notes: 'Versatility provides consistent damage increase for all abilities.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -763,9 +763,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Haste improves Astral Power generation and dot tick rate.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -783,9 +783,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Crit increases bleed damage through Bloodtalons and direct damage.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -804,9 +804,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
         notes: 'Armor provides huge survivability boost. Haste improves rage generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -824,9 +824,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
         notes: 'Haste reduces GCD and improves HoT tick rate.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -848,9 +848,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
         notes: 'Crit increases Chaos Strike damage and fury generation.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -869,9 +869,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY],
         notes: 'Haste improves soul fragment generation and reduces GCD.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     // ============================================================================
@@ -893,9 +893,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
         notes: 'Mastery increases damage of all spells. Crit close behind.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -913,9 +913,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
         notes: 'Mastery increases healing based on proximity to target.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 
     {
@@ -933,9 +933,9 @@ export const STAT_PRIORITIES: StatPriority[] = [
         },
         priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
         notes: 'IMPORTANT: Do NOT use stat weight sims for Augmentation. Stat priorities vary significantly by fight.',
-        source: 'Icy Veins 11.2.5',
-        updatedDate: '2025-11-01',
-        patch: '11.2.5',
+        source: 'Icy Veins 12.0.0',
+        updatedDate: '2026-02-12',
+        patch: '12.0.0',
     },
 ];
 

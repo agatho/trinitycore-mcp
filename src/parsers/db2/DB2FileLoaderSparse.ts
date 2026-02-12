@@ -1,5 +1,5 @@
 /**
- * DB2 Sparse File Loader for WoW 11.2 (The War Within)
+ * DB2 Sparse File Loader for WoW 12.0 (Midnight)
  * Handles catalog-based sparse records where records are stored non-contiguously
  * Based on TrinityCore's DB2FileLoaderSparseImpl
  */

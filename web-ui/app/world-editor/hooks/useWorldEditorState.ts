@@ -26,6 +26,17 @@ export interface Camera3DState {
   fov: number;
 }
 
+/**
+ * Shared focus position between 2D and 3D views
+ * Uses WoW world coordinates (X = East/West, Y = North/South, Z = Height)
+ */
+export interface FocusPosition {
+  x: number;  // WoW X (East/West)
+  y: number;  // WoW Y (North/South)
+  z: number;  // WoW Z (Height)
+  source: '2d' | '3d' | 'external';  // Which view triggered the focus
+}
+
 export interface WorldEditorState {
   // Map and data
   selectedMap: number;
@@ -58,6 +69,7 @@ export interface WorldEditorState {
   activeView: ActiveView;
   camera2D: Camera2DState;
   camera3D: Camera3DState;
+  focusPosition: FocusPosition | null;  // Shared focus point for 2D/3D sync
 
   // UI state
   showGrid: boolean;
@@ -74,6 +86,7 @@ export interface WorldEditorActions {
   addCoordinate: (coord: MapCoordinate) => void;
   updateCoordinate: (id: string, updates: Partial<MapCoordinate>) => void;
   removeCoordinate: (id: string) => void;
+  deleteCoordinate: (id: string) => void;  // Alias for removeCoordinate
   setCoordinates: (coords: MapCoordinate[]) => void;
 
   // Road actions
@@ -116,6 +129,8 @@ export interface WorldEditorActions {
   setActiveView: (view: ActiveView) => void;
   setCamera2D: (camera: Camera2DState) => void;
   setCamera3D: (camera: Camera3DState) => void;
+  setFocusPosition: (position: FocusPosition | null) => void;
+  focusOnWowCoords: (x: number, y: number, z: number, source: '2d' | '3d' | 'external') => void;
 
   // Settings actions
   setAutoDetectHeight: (enabled: boolean) => void;
@@ -167,6 +182,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     target: { x: 0, y: 0, z: 0 },
     fov: 75,
   });
+  const [focusPosition, setFocusPosition] = useState<FocusPosition | null>(null);
 
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState(10);
@@ -253,6 +269,11 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     setLayers(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
   }, []);
 
+  // Focus action - sets a shared focus position that both 2D and 3D views can respond to
+  const focusOnWowCoords = useCallback((x: number, y: number, z: number, source: '2d' | '3d' | 'external') => {
+    setFocusPosition({ x, y, z, source });
+  }, []);
+
   const state: WorldEditorState = {
     selectedMap,
     mapImage,
@@ -273,6 +294,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     activeView,
     camera2D,
     camera3D,
+    focusPosition,
     showGrid,
     gridSize,
     snapToGridEnabled,
@@ -284,6 +306,7 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     addCoordinate,
     updateCoordinate,
     removeCoordinate,
+    deleteCoordinate: removeCoordinate,  // Alias
     setCoordinates,
     addRoad,
     updateRoad,
@@ -312,6 +335,8 @@ export function useWorldEditorState(): [WorldEditorState, WorldEditorActions] {
     setActiveView,
     setCamera2D,
     setCamera3D,
+    setFocusPosition,
+    focusOnWowCoords,
     setAutoDetectHeight,
     setShowGrid,
     setGridSize,

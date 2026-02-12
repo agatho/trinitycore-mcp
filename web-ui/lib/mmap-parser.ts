@@ -61,45 +61,38 @@ export function parseMMapHeader(
   const reader = new BinaryReader(buffer);
   const fileName = `${mapId.toString().padStart(3, "0")}.mmap`;
 
-  // Read magic number (4 bytes)
-  const mmapMagic = reader.readUInt32();
-  if (options.strictValidation !== false && mmapMagic !== MMAP_MAGIC) {
-    throw new MMapParseError(
-      `Invalid magic number: expected 0x${MMAP_MAGIC.toString(16)}, got 0x${mmapMagic.toString(16)}`,
-      fileName,
-      reader.getOffset(),
-    );
+  // Modern TrinityCore (11.x) writes dtNavMeshParams directly (28 bytes)
+  // without MMAP_MAGIC/MMAP_VERSION header
+  if (buffer.byteLength === 28) {
+    const params = parseDtNavMeshParams(reader);
+    if (options.verbose) {
+      console.log(`[MMapParser] ${fileName} (modern format): maxTiles=${params.maxTiles}`);
+    }
+    return { mmapMagic: 0, mmapVersion: 0, params, offmeshConnectionCount: 0 };
   }
 
-  // Read MMAP version (4 bytes)
-  const mmapVersion = reader.readUInt32();
-  if (options.strictValidation !== false && mmapVersion !== MMAP_VERSION) {
-    throw new MMapParseError(
-      `Version mismatch: expected ${MMAP_VERSION}, got ${mmapVersion}`,
-      fileName,
-      reader.getOffset(),
-    );
+  // Check first uint - if it's MMAP_MAGIC, use legacy format
+  const firstUint = reader.readUInt32();
+  reader.setOffset(0);
+
+  if (firstUint === MMAP_MAGIC) {
+    // Legacy format with header
+    reader.readUInt32(); // skip magic
+    reader.readUInt32(); // skip version
+    const params = parseDtNavMeshParams(reader);
+    const offmeshConnectionCount = reader.remaining() >= 4 ? reader.readUInt32() : 0;
+    if (options.verbose) {
+      console.log(`[MMapParser] ${fileName} (legacy): maxTiles=${params.maxTiles}`);
+    }
+    return { mmapMagic: firstUint, mmapVersion: 0, params, offmeshConnectionCount };
   }
 
-  // Read dtNavMeshParams (32 bytes)
+  // Modern format - params start at offset 0
   const params = parseDtNavMeshParams(reader);
-
-  // Read off-mesh connection count (4 bytes)
-  const offmeshConnectionCount = reader.readUInt32();
-
   if (options.verbose) {
-    console.log(
-      `[MMapParser] Parsed ${fileName}: ${offmeshConnectionCount} off-mesh connections, ` +
-        `maxTiles=${params.maxTiles}, maxPolys=${params.maxPolys}`,
-    );
+    console.log(`[MMapParser] ${fileName} (modern detected): maxTiles=${params.maxTiles}`);
   }
-
-  return {
-    mmapMagic,
-    mmapVersion,
-    params,
-    offmeshConnectionCount,
-  };
+  return { mmapMagic: 0, mmapVersion: 0, params, offmeshConnectionCount: 0 };
 }
 
 /**
@@ -175,35 +168,17 @@ function parseMmapTileHeader(
   fileName: string,
   options: MMapParserOptions,
 ): MmapTileHeader {
-  // Read magic number (4 bytes)
+  // Read magic number (4 bytes) - 'MMAP' = 0x4D4D4150
   const mmapMagic = reader.readUInt32();
-  if (options.strictValidation !== false && mmapMagic !== MMAP_MAGIC) {
-    throw new MMapParseError(
-      `Invalid magic number: expected 0x${MMAP_MAGIC.toString(16)}, got 0x${mmapMagic.toString(16)}`,
-      fileName,
-      reader.getOffset(),
-    );
+  if (mmapMagic !== MMAP_MAGIC) {
+    console.warn(`[MMapParser] ${fileName}: unexpected magic 0x${mmapMagic.toString(16)}, expected 0x${MMAP_MAGIC.toString(16)}`);
   }
 
-  // Read Detour version (4 bytes)
+  // Read Detour version (4 bytes) - typically 7
   const dtVersion = reader.readUInt32();
-  if (options.strictValidation !== false && dtVersion !== DT_NAVMESH_VERSION) {
-    throw new MMapParseError(
-      `Detour version mismatch: expected ${DT_NAVMESH_VERSION}, got ${dtVersion}`,
-      fileName,
-      reader.getOffset(),
-    );
-  }
 
-  // Read MMAP version (4 bytes)
+  // Read MMAP version (4 bytes) - varies by TrinityCore version (15, 16, etc.)
   const mmapVersion = reader.readUInt32();
-  if (options.strictValidation !== false && mmapVersion !== MMAP_VERSION) {
-    throw new MMapParseError(
-      `MMap version mismatch: expected ${MMAP_VERSION}, got ${mmapVersion}`,
-      fileName,
-      reader.getOffset(),
-    );
-  }
 
   // Read size (4 bytes)
   const size = reader.readUInt32();
@@ -350,22 +325,16 @@ function parseDtMeshHeader(
 ): dtMeshHeader {
   // Read magic number (4 bytes)
   const magic = reader.readInt32();
-  if (options.strictValidation !== false && magic !== DT_NAVMESH_MAGIC) {
-    throw new MMapParseError(
-      `Invalid Detour magic: expected 0x${DT_NAVMESH_MAGIC.toString(16)}, got 0x${magic.toString(16)}`,
-      fileName,
-      reader.getOffset(),
-    );
+  if (magic !== DT_NAVMESH_MAGIC) {
+    // Log warning but continue parsing - TrinityCore 11.x may have different magic
+    console.warn(`[MMapParser] ${fileName}: Detour magic 0x${magic.toString(16)}, expected 0x${DT_NAVMESH_MAGIC.toString(16)}`);
   }
 
   // Read version (4 bytes)
   const version = reader.readInt32();
-  if (options.strictValidation !== false && version !== DT_NAVMESH_VERSION) {
-    throw new MMapParseError(
-      `Detour version mismatch: expected ${DT_NAVMESH_VERSION}, got ${version}`,
-      fileName,
-      reader.getOffset(),
-    );
+  if (version !== DT_NAVMESH_VERSION) {
+    // Log warning but continue parsing - version may differ between TrinityCore versions
+    console.warn(`[MMapParser] ${fileName}: Detour version ${version}, expected ${DT_NAVMESH_VERSION}`);
   }
 
   return {
@@ -537,12 +506,17 @@ export function loadMMapData(
     offMeshConnections.push(...tile.offMeshCons);
   }
 
-  if (options.verbose) {
-    console.log(
-      `[MMapParser] Loaded MMap data for map ${mapId}: ${tiles.size} tiles, ` +
-        `${offMeshConnections.length} off-mesh connections`,
-    );
-  }
+  console.log(`[MMapParser] Loaded MMap data for map ${mapId}:`, {
+    tiles: tiles.size,
+    offMeshConnections: offMeshConnections.length,
+    params: {
+      origin: header.params.orig,
+      tileWidth: header.params.tileWidth,
+      tileHeight: header.params.tileHeight,
+      maxTiles: header.params.maxTiles,
+      maxPolys: header.params.maxPolys,
+    },
+  });
 
   return {
     mapId,

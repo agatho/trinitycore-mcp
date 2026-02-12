@@ -4,22 +4,70 @@
  * Parses terrain height map files (.map) extracted by TrinityCore mapextractor.
  * These files contain height data, area information, and liquid data.
  *
- * File format (from mapextractor):
+ * File format (from TrinityCore GridMap.cpp / MapDefines.h):
  * - Folder: maps/
- * - Tilelist: <mapId>.tilelist (e.g., 0001.tilelist)
  * - Naming: <mapId>_<x>_<y>.map (e.g., 0001_55_42.map = map 1, grid 55,42)
- * - Header with offsets and sizes
- * - Area map (grid of zone IDs)
- * - Height map (129x129 grid of heights)
- * - Liquid map (water/lava information)
+ *
+ * File structure:
+ * 1. map_fileheader (40 bytes):
+ *    - mapMagic: 4 bytes "MAPS"
+ *    - versionMagic: 4 bytes
+ *    - buildMagic: 4 bytes
+ *    - areaMapOffset/Size: 4+4 bytes
+ *    - heightMapOffset/Size: 4+4 bytes
+ *    - liquidMapOffset/Size: 4+4 bytes
+ *    - holesOffset/Size: 4+4 bytes
+ *
+ * 2. Area section (at areaMapOffset):
+ *    - areaMagic: 4 bytes "AREA"
+ *    - flags: 2 bytes (NoArea flag)
+ *    - gridArea: 2 bytes
+ *    - areaMap: 16*16 uint16 (if no NoArea flag)
+ *
+ * 3. Height section (at heightMapOffset):
+ *    - heightMagic: 4 bytes "MHGT"
+ *    - flags: 4 bytes (NoHeight, HeightAsInt16, HeightAsInt8, HasFlightBounds)
+ *    - gridHeight: float32
+ *    - gridMaxHeight: float32
+ *    - Height data based on flags:
+ *      - NoHeight: no data, use gridHeight for all
+ *      - HeightAsInt8: uint8 V9[129*129] + uint8 V8[128*128]
+ *      - HeightAsInt16: uint16 V9[129*129] + uint16 V8[128*128]
+ *      - else: float V9[129*129] + float V8[128*128]
+ *
+ * 4. Liquid section (at liquidMapOffset)
+ * 5. Holes section (at holesOffset)
  *
  * @module lib/map-parser
  */
+
+// Magic constants (little-endian)
+const MAP_MAGIC = 0x5350414D; // "MAPS" = { 'M', 'A', 'P', 'S' }
+const MAP_AREA_MAGIC = 0x41455241; // "AREA" = { 'A', 'R', 'E', 'A' }
+const MAP_HEIGHT_MAGIC = 0x5447484D; // "MHGT" = { 'M', 'H', 'G', 'T' }
+const MAP_LIQUID_MAGIC = 0x51494C4D; // "MLIQ" = { 'M', 'L', 'I', 'Q' }
+
+// Height header flags
+enum MapHeightHeaderFlags {
+  None = 0x0000,
+  NoHeight = 0x0001,
+  HeightAsInt16 = 0x0002,
+  HeightAsInt8 = 0x0004,
+  HasFlightBounds = 0x0008,
+}
+
+// Area header flags
+enum MapAreaHeaderFlags {
+  None = 0x0000,
+  NoArea = 0x0001,
+}
 
 /**
  * Map file header structure
  */
 export interface MapFileHeader {
+  mapMagic: number;
+  versionMagic: number;
   buildMagic: number;
   areaMapOffset: number;
   areaMapSize: number;
@@ -42,12 +90,21 @@ export interface AreaMapData {
 
 /**
  * Height map data
+ *
+ * TrinityCore uses V9 (129x129) for corner heights and V8 (128x128) for center heights.
+ * V9 grid defines the height at each corner of the 128x128 cells.
+ * V8 grid defines the center height of each cell.
+ *
+ * The final height at any point is interpolated using V8 and V9 values.
  */
 export interface HeightMapData {
-  gridHeight: number;
-  gridMaxHeight: number;
-  flags: Uint8Array;
-  heights: Float32Array; // 129x129 grid
+  gridHeight: number;      // Minimum/base height for this tile
+  gridMaxHeight: number;   // Maximum height for this tile (used for compression)
+  heightFlags: number;     // Flags (NoHeight, HeightAsInt16, HeightAsInt8, etc.)
+  v9Heights: Float32Array; // 129x129 corner heights
+  v8Heights: Float32Array; // 128x128 center heights
+  // Legacy: combined heights array for backwards compatibility
+  heights: Float32Array;   // 129x129 grid (from V9)
 }
 
 /**
@@ -87,11 +144,9 @@ export interface MapDataCollection {
   };
 }
 
-const MAP_MAGIC = 0x5350414D; // 'MAPS' in little-endian
-const MAP_VERSION_MAGIC = 0x322E3176; // 'v1.2' for TrinityCore
-
 const GRID_SIZE = 533.33333; // yards
-const GRID_PART_SIZE = 129;
+const V9_SIZE = 129; // V9 grid is 129x129
+const V8_SIZE = 128; // V8 grid is 128x128
 
 /**
  * Parse a single .map file
@@ -119,15 +174,44 @@ export function parseMapFile(
   const gridX = parseInt(match[2], 10);
   const gridY = parseInt(match[3], 10);
 
-  // Read header
+  // Read map_fileheader (40 bytes total)
+  // struct map_fileheader {
+  //   u_map_magic mapMagic;     // 4 bytes "MAPS"
+  //   uint32 versionMagic;      // 4 bytes
+  //   uint32 buildMagic;        // 4 bytes
+  //   uint32 areaMapOffset;     // 4 bytes
+  //   uint32 areaMapSize;       // 4 bytes
+  //   uint32 heightMapOffset;   // 4 bytes
+  //   uint32 heightMapSize;     // 4 bytes
+  //   uint32 liquidMapOffset;   // 4 bytes
+  //   uint32 liquidMapSize;     // 4 bytes
+  //   uint32 holesOffset;       // 4 bytes
+  //   uint32 holesSize;         // 4 bytes
+  // };
+
+  const mapMagic = view.getUint32(offset, true);
+  offset += 4;
+
+  if (mapMagic !== MAP_MAGIC) {
+    // Try reading as string for debug
+    const magicStr = String.fromCharCode(
+      mapMagic & 0xFF,
+      (mapMagic >> 8) & 0xFF,
+      (mapMagic >> 16) & 0xFF,
+      (mapMagic >> 24) & 0xFF
+    );
+    throw new Error(`Invalid map file magic: 0x${mapMagic.toString(16)} ("${magicStr}"), expected 0x${MAP_MAGIC.toString(16)} ("MAPS")`);
+  }
+
+  const versionMagic = view.getUint32(offset, true);
+  offset += 4;
+
   const buildMagic = view.getUint32(offset, true);
   offset += 4;
 
-  if (buildMagic !== MAP_MAGIC) {
-    throw new Error(`Invalid map file magic: 0x${buildMagic.toString(16)}`);
-  }
-
   const header: MapFileHeader = {
+    mapMagic,
+    versionMagic,
     buildMagic,
     areaMapOffset: view.getUint32(offset, true),
     areaMapSize: view.getUint32(offset + 4, true),
@@ -139,6 +223,8 @@ export function parseMapFile(
     holesSize: view.getUint32(offset + 28, true),
   };
   offset += 32;
+
+  console.log(`[MapParser] File ${filename}: mapMagic=0x${mapMagic.toString(16)}, version=0x${versionMagic.toString(16)}, build=${buildMagic}`);
 
   // Parse area map
   let areaMap: AreaMapData | null = null;
@@ -171,27 +257,53 @@ export function parseMapFile(
 
 /**
  * Parse area map section
+ *
+ * TrinityCore format (from GridMap.cpp):
+ * struct map_areaHeader {
+ *   u_map_magic areaMagic;                       // 4 bytes "AREA"
+ *   EnumFlag<map_areaHeaderFlags> flags;         // 2 bytes (NoArea flag)
+ *   uint16 gridArea;                             // 2 bytes
+ * };
+ *
+ * If NoArea flag is not set, followed by uint16[16*16] area IDs
  */
 function parseAreaMap(
   view: DataView,
   offset: number,
   size: number
 ): AreaMapData {
-  const gridArea = view.getUint32(offset, true);
+  // Read area header (8 bytes)
+  const areaMagic = view.getUint32(offset, true);
   offset += 4;
 
-  const flagCount = 16;
-  const flags: number[] = [];
-  for (let i = 0; i < flagCount; i++) {
-    flags.push(view.getUint16(offset, true));
-    offset += 2;
+  if (areaMagic !== MAP_AREA_MAGIC) {
+    const magicStr = String.fromCharCode(
+      areaMagic & 0xFF,
+      (areaMagic >> 8) & 0xFF,
+      (areaMagic >> 16) & 0xFF,
+      (areaMagic >> 24) & 0xFF
+    );
+    console.warn(`[MapParser] Invalid area magic: 0x${areaMagic.toString(16)} ("${magicStr}"), expected 0x${MAP_AREA_MAGIC.toString(16)} ("AREA")`);
   }
 
-  const areaIdCount = 16 * 16;
+  const areaFlags = view.getUint16(offset, true);
+  offset += 2;
+
+  const gridArea = view.getUint16(offset, true);
+  offset += 2;
+
+  const hasNoArea = (areaFlags & MapAreaHeaderFlags.NoArea) !== 0;
+
+  const flags: number[] = [areaFlags];
   const areaIds: number[] = [];
-  for (let i = 0; i < areaIdCount; i++) {
-    areaIds.push(view.getUint16(offset, true));
-    offset += 2;
+
+  if (!hasNoArea) {
+    // Read 16x16 area IDs
+    const areaIdCount = 16 * 16;
+    for (let i = 0; i < areaIdCount && offset + 1 < view.byteLength; i++) {
+      areaIds.push(view.getUint16(offset, true));
+      offset += 2;
+    }
   }
 
   return {
@@ -203,75 +315,255 @@ function parseAreaMap(
 
 /**
  * Parse height map section
+ *
+ * TrinityCore format (from GridMap.cpp):
+ * struct map_heightHeader {
+ *   u_map_magic heightMagic;                    // 4 bytes "MHGT"
+ *   EnumFlag<map_heightHeaderFlags> flags;      // 4 bytes
+ *   float gridHeight;                           // 4 bytes - base height
+ *   float gridMaxHeight;                        // 4 bytes - max height (for compression)
+ * };
+ *
+ * Height data formats:
+ * - NoHeight flag: no data, use gridHeight for all points
+ * - HeightAsInt8 flag: uint8 V9[129*129] + uint8 V8[128*128]
+ *   Formula: height = gridHeight + value * (gridMaxHeight - gridHeight) / 255
+ * - HeightAsInt16 flag: uint16 V9[129*129] + uint16 V8[128*128]
+ *   Formula: height = gridHeight + value * (gridMaxHeight - gridHeight) / 65535
+ * - No compression flags: float V9[129*129] + float V8[128*128]
  */
 function parseHeightMap(
   view: DataView,
   offset: number,
   size: number
 ): HeightMapData {
+  const startOffset = offset;
+
+  // Read height header (16 bytes)
+  const heightMagic = view.getUint32(offset, true);
+  offset += 4;
+
+  if (heightMagic !== MAP_HEIGHT_MAGIC) {
+    const magicStr = String.fromCharCode(
+      heightMagic & 0xFF,
+      (heightMagic >> 8) & 0xFF,
+      (heightMagic >> 16) & 0xFF,
+      (heightMagic >> 24) & 0xFF
+    );
+    console.warn(`[MapParser] Invalid height magic: 0x${heightMagic.toString(16)} ("${magicStr}"), expected 0x${MAP_HEIGHT_MAGIC.toString(16)} ("MHGT")`);
+  }
+
+  const heightFlags = view.getUint32(offset, true);
+  offset += 4;
+
   const gridHeight = view.getFloat32(offset, true);
   offset += 4;
 
   const gridMaxHeight = view.getFloat32(offset, true);
   offset += 4;
 
-  // Flags for each cell (indicate if height data exists)
-  const flagCount = Math.ceil((GRID_PART_SIZE * GRID_PART_SIZE) / 8);
-  const flags = new Uint8Array(view.buffer, view.byteOffset + offset, flagCount);
-  offset += flagCount;
+  const hasNoHeight = (heightFlags & MapHeightHeaderFlags.NoHeight) !== 0;
+  const hasInt16 = (heightFlags & MapHeightHeaderFlags.HeightAsInt16) !== 0;
+  const hasInt8 = (heightFlags & MapHeightHeaderFlags.HeightAsInt8) !== 0;
+  const hasFlightBounds = (heightFlags & MapHeightHeaderFlags.HasFlightBounds) !== 0;
 
-  // Height values (129x129 grid)
-  const heightCount = GRID_PART_SIZE * GRID_PART_SIZE;
-  const heights = new Float32Array(heightCount);
+  console.log('[MapParser] parseHeightMap:', {
+    startOffset,
+    size,
+    heightMagic: `0x${heightMagic.toString(16)}`,
+    heightFlags: `0x${heightFlags.toString(16)}`,
+    hasNoHeight,
+    hasInt16,
+    hasInt8,
+    hasFlightBounds,
+    gridHeight: isFinite(gridHeight) ? gridHeight.toFixed(2) : 'NaN/Inf',
+    gridMaxHeight: isFinite(gridMaxHeight) ? gridMaxHeight.toFixed(2) : 'NaN/Inf',
+  });
 
-  for (let i = 0; i < heightCount; i++) {
-    // Check if this cell has height data
-    const byteIndex = Math.floor(i / 8);
-    const bitIndex = i % 8;
-    const hasHeight = (flags[byteIndex] & (1 << bitIndex)) !== 0;
+  const v9Count = V9_SIZE * V9_SIZE; // 129 * 129 = 16641
+  const v8Count = V8_SIZE * V8_SIZE; // 128 * 128 = 16384
 
-    if (hasHeight && offset + 4 <= view.byteOffset + view.byteLength) {
-      heights[i] = view.getFloat32(offset, true);
+  const v9Heights = new Float32Array(v9Count);
+  const v8Heights = new Float32Array(v8Count);
+
+  // Fill with base height initially
+  const baseHeight = isFinite(gridHeight) ? gridHeight : 0;
+  v9Heights.fill(baseHeight);
+  v8Heights.fill(baseHeight);
+
+  if (hasNoHeight) {
+    // Flat tile - all heights are gridHeight
+    console.log('[MapParser] NoHeight flag - flat tile at height', baseHeight.toFixed(2));
+  } else if (hasInt8) {
+    // uint8 compressed format
+    const multiplier = (gridMaxHeight - gridHeight) / 255;
+    console.log('[MapParser] Using uint8 compression, multiplier:', multiplier.toFixed(4));
+
+    // Read V9 (129*129 uint8)
+    for (let i = 0; i < v9Count && offset < view.byteLength; i++) {
+      const value = view.getUint8(offset);
+      offset += 1;
+      v9Heights[i] = gridHeight + value * multiplier;
+    }
+
+    // Read V8 (128*128 uint8)
+    for (let i = 0; i < v8Count && offset < view.byteLength; i++) {
+      const value = view.getUint8(offset);
+      offset += 1;
+      v8Heights[i] = gridHeight + value * multiplier;
+    }
+  } else if (hasInt16) {
+    // uint16 compressed format
+    const multiplier = (gridMaxHeight - gridHeight) / 65535;
+    console.log('[MapParser] Using uint16 compression, multiplier:', multiplier.toFixed(6));
+
+    // Read V9 (129*129 uint16)
+    for (let i = 0; i < v9Count && offset + 1 < view.byteLength; i++) {
+      const value = view.getUint16(offset, true);
+      offset += 2;
+      v9Heights[i] = gridHeight + value * multiplier;
+    }
+
+    // Read V8 (128*128 uint16)
+    for (let i = 0; i < v8Count && offset + 1 < view.byteLength; i++) {
+      const value = view.getUint16(offset, true);
+      offset += 2;
+      v8Heights[i] = gridHeight + value * multiplier;
+    }
+  } else {
+    // Float format (uncompressed)
+    console.log('[MapParser] Using float (uncompressed) format');
+
+    // Read V9 (129*129 float)
+    for (let i = 0; i < v9Count && offset + 3 < view.byteLength; i++) {
+      v9Heights[i] = view.getFloat32(offset, true);
       offset += 4;
-    } else {
-      heights[i] = gridHeight; // Use default grid height
+    }
+
+    // Read V8 (128*128 float)
+    for (let i = 0; i < v8Count && offset + 3 < view.byteLength; i++) {
+      v8Heights[i] = view.getFloat32(offset, true);
+      offset += 4;
     }
   }
 
+  // Calculate statistics
+  let minV9 = Infinity, maxV9 = -Infinity;
+  for (let i = 0; i < v9Heights.length; i++) {
+    const h = v9Heights[i];
+    if (isFinite(h)) {
+      minV9 = Math.min(minV9, h);
+      maxV9 = Math.max(maxV9, h);
+    }
+  }
+
+  console.log('[MapParser] V9 heights parsed:', {
+    count: v9Count,
+    min: isFinite(minV9) ? minV9.toFixed(2) : 'N/A',
+    max: isFinite(maxV9) ? maxV9.toFixed(2) : 'N/A',
+    range: isFinite(maxV9 - minV9) ? (maxV9 - minV9).toFixed(2) : 'N/A',
+    sample: Array.from(v9Heights.slice(0, 5)).map(h => h.toFixed(1)),
+  });
+
+  // For backwards compatibility, use V9 as the heights array
   return {
-    gridHeight,
-    gridMaxHeight,
-    flags,
-    heights,
+    gridHeight: isFinite(gridHeight) ? gridHeight : 0,
+    gridMaxHeight: isFinite(gridMaxHeight) ? gridMaxHeight : 0,
+    heightFlags,
+    v9Heights,
+    v8Heights,
+    heights: v9Heights, // Legacy compatibility
   };
 }
 
 /**
  * Parse liquid map section
+ *
+ * TrinityCore format (from GridMap.cpp):
+ * struct map_liquidHeader {
+ *   u_map_magic liquidMagic;                             // 4 bytes "MLIQ"
+ *   EnumFlag<map_liquidHeaderFlags> flags;               // 1 byte (NoType, NoHeight)
+ *   EnumFlag<map_liquidHeaderTypeFlags> liquidFlags;     // 1 byte
+ *   uint16 liquidType;                                   // 2 bytes
+ *   uint8  offsetX;                                      // 1 byte
+ *   uint8  offsetY;                                      // 1 byte
+ *   uint8  width;                                        // 1 byte
+ *   uint8  height;                                       // 1 byte
+ *   float  liquidLevel;                                  // 4 bytes
+ * };
+ *
+ * Data following header:
+ * - If !NoType: uint16[16*16] liquidEntry + uint8[16*16] liquidTypeFlags
+ * - If !NoHeight: float[width*height] liquidHeights
  */
 function parseLiquidMap(
   view: DataView,
   offset: number,
   size: number
 ): LiquidMapData {
+  // Read liquid header
+  const liquidMagic = view.getUint32(offset, true);
+  offset += 4;
+
+  if (liquidMagic !== MAP_LIQUID_MAGIC) {
+    const magicStr = String.fromCharCode(
+      liquidMagic & 0xFF,
+      (liquidMagic >> 8) & 0xFF,
+      (liquidMagic >> 16) & 0xFF,
+      (liquidMagic >> 24) & 0xFF
+    );
+    console.warn(`[MapParser] Invalid liquid magic: 0x${liquidMagic.toString(16)} ("${magicStr}"), expected 0x${MAP_LIQUID_MAGIC.toString(16)} ("MLIQ")`);
+  }
+
+  const liquidHeaderFlags = view.getUint8(offset);
+  offset += 1;
+
+  const liquidTypeFlags = view.getUint8(offset);
+  offset += 1;
+
   const liquidType = view.getUint16(offset, true);
   offset += 2;
 
-  const flagCount = 128;
-  const flags = new Uint8Array(view.buffer, view.byteOffset + offset, flagCount);
-  offset += flagCount;
+  const offsetX = view.getUint8(offset);
+  offset += 1;
 
-  const heightCount = 128 * 128;
+  const offsetY = view.getUint8(offset);
+  offset += 1;
+
+  const width = view.getUint8(offset);
+  offset += 1;
+
+  const height = view.getUint8(offset);
+  offset += 1;
+
+  const liquidLevel = view.getFloat32(offset, true);
+  offset += 4;
+
+  const hasNoType = (liquidHeaderFlags & 0x01) !== 0;
+  const hasNoHeight = (liquidHeaderFlags & 0x02) !== 0;
+
+  // Skip type data if present (not used for terrain)
+  if (!hasNoType) {
+    // Skip uint16[16*16] liquidEntry + uint8[16*16] liquidTypeFlags
+    offset += 16 * 16 * 2 + 16 * 16;
+  }
+
+  // Read liquid heights
+  const heightCount = width * height;
   const heights = new Float32Array(heightCount);
 
-  for (let i = 0; i < heightCount && offset + 4 <= view.byteOffset + view.byteLength; i++) {
-    heights[i] = view.getFloat32(offset, true);
-    offset += 4;
+  if (!hasNoHeight && heightCount > 0) {
+    for (let i = 0; i < heightCount && offset + 3 < view.byteLength; i++) {
+      heights[i] = view.getFloat32(offset, true);
+      offset += 4;
+    }
+  } else {
+    heights.fill(liquidLevel);
   }
 
   return {
     liquidType,
-    flags,
+    flags: new Uint8Array([liquidHeaderFlags, liquidTypeFlags]),
     heights,
   };
 }
@@ -378,10 +670,10 @@ export function getHeightFromMapData(
   const localY = (32 - worldX / GRID_SIZE - gridY) * GRID_SIZE;
 
   // Convert to height map indices (0-128)
-  const cellX = Math.floor((localX / GRID_SIZE) * (GRID_PART_SIZE - 1));
-  const cellY = Math.floor((localY / GRID_SIZE) * (GRID_PART_SIZE - 1));
+  const cellX = Math.floor((localX / GRID_SIZE) * (V9_SIZE - 1));
+  const cellY = Math.floor((localY / GRID_SIZE) * (V9_SIZE - 1));
 
-  const index = cellY * GRID_PART_SIZE + cellX;
+  const index = cellY * V9_SIZE + cellX;
 
   if (index < 0 || index >= tile.heightMap.heights.length) {
     return tile.heightMap.gridHeight;

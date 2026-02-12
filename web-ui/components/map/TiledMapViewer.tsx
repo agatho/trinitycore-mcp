@@ -28,6 +28,7 @@ interface TileMetadata {
   totalTiles: number;
   zoomLevels?: number[];
   format: string;
+  existingTiles?: string[]; // List of existing tile keys (e.g., "17_37")
 }
 
 /**
@@ -75,6 +76,10 @@ export default function TiledMapViewer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mouse drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollX: 0, scrollY: 0 });
+
   /**
    * Load tile metadata
    */
@@ -108,10 +113,12 @@ export default function TiledMapViewer({
           maxRow: data.maxRow,
           totalTiles: data.totalTiles || data.tileCount || 0,
           zoomLevels: data.zoomLevels,
-          format: data.format || 'png'
+          format: data.format || 'png',
+          existingTiles: data.existingTiles, // Array of existing tile keys
         };
 
         console.log('[TiledMapViewer] Validated metadata:', validatedMetadata);
+        console.log('[TiledMapViewer] Existing tiles count:', data.existingTiles?.length || 0);
 
         setMetadata(validatedMetadata);
         setLoading(false);
@@ -163,15 +170,24 @@ export default function TiledMapViewer({
 
     console.log('[TiledMapViewer] Actual tile range:', { startCol, endCol, startRow, endRow });
 
-    // Generate tile keys
+    // Create a set of existing tiles for fast lookup
+    const existingTilesSet = metadata.existingTiles
+      ? new Set(metadata.existingTiles)
+      : null;
+
+    // Generate tile keys - only include tiles that exist
     const tiles = new Set<string>();
     for (let row = startRow; row <= endRow; row++) {
       for (let col = startCol; col <= endCol; col++) {
-        tiles.add(`${zoom}_${col}_${row}`);
+        const tileKey = `${col}_${row}`;
+        // If we have an existing tiles list, check if this tile exists
+        if (!existingTilesSet || existingTilesSet.has(tileKey)) {
+          tiles.add(`${zoom}_${col}_${row}`);
+        }
       }
     }
 
-    console.log('[TiledMapViewer] Generated tile keys:', Array.from(tiles).slice(0, 5), `... (${tiles.size} total)`);
+    console.log('[TiledMapViewer] Generated tile keys:', Array.from(tiles).slice(0, 5), `... (${tiles.size} total, filtered: ${existingTilesSet ? 'yes' : 'no'})`);
 
     setVisibleTiles(tiles);
   }, [metadata, zoom, tilePadding]);
@@ -207,6 +223,42 @@ export default function TiledMapViewer({
   }, [zoom, updateVisibleTiles]);
 
   /**
+   * Scroll to center of existing tiles on initial load
+   */
+  useEffect(() => {
+    if (!metadata || !containerRef.current) return;
+
+    const container = containerRef.current;
+    const { tileSize, existingTiles, minCol = 0, minRow = 0 } = metadata;
+
+    // Find center of existing tiles
+    if (existingTiles && existingTiles.length > 0) {
+      let sumCol = 0, sumRow = 0;
+      existingTiles.forEach(key => {
+        const [col, row] = key.split('_').map(Number);
+        sumCol += col;
+        sumRow += row;
+      });
+      const centerCol = sumCol / existingTiles.length;
+      const centerRow = sumRow / existingTiles.length;
+
+      // Calculate scroll position to center on these tiles
+      const scale = Math.pow(2, -zoom);
+      const scaledTileSize = tileSize * scale;
+
+      // Position in display coordinates
+      const centerX = (centerCol - minCol) * scaledTileSize;
+      const centerY = (centerRow - minRow) * scaledTileSize;
+
+      // Scroll to center
+      container.scrollLeft = centerX - container.clientWidth / 2;
+      container.scrollTop = centerY - container.clientHeight / 2;
+
+      console.log('[TiledMapViewer] Scrolled to center:', { centerCol, centerRow, scrollLeft: container.scrollLeft, scrollTop: container.scrollTop });
+    }
+  }, [metadata]); // Only run on initial metadata load
+
+  /**
    * Handle map click
    */
   const handleMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -223,14 +275,88 @@ export default function TiledMapViewer({
    * Zoom controls
    */
   const zoomIn = () => {
-    if (!metadata?.zoomLevels) return;
-    setZoom(Math.max(0, zoom - 1));
+    setZoom(Math.max(-2, zoom - 1)); // Allow zoom in up to 4x
   };
 
   const zoomOut = () => {
-    if (!metadata?.zoomLevels) return;
-    const maxZoom = metadata.zoomLevels[metadata.zoomLevels.length - 1];
-    setZoom(Math.min(maxZoom, zoom + 1));
+    setZoom(Math.min(3, zoom + 1)); // Allow zoom out to 12.5%
+  };
+
+  /**
+   * Mouse drag handlers for panning
+   */
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only handle left mouse button
+    if (e.button !== 0) return;
+
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+      scrollX: containerRef.current?.scrollLeft || 0,
+      scrollY: containerRef.current?.scrollTop || 0,
+    });
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+
+    containerRef.current.scrollLeft = dragStart.scrollX - deltaX;
+    containerRef.current.scrollTop = dragStart.scrollY - deltaY;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  /**
+   * Wheel zoom handler
+   */
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+
+    // Get mouse position relative to container
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Calculate position in map coordinates before zoom
+    const scale = Math.pow(2, -zoom);
+    const mapX = (container.scrollLeft + mouseX) / scale;
+    const mapY = (container.scrollTop + mouseY) / scale;
+
+    // Calculate new zoom
+    const delta = e.deltaY > 0 ? 1 : -1;
+    const newZoom = Math.max(-2, Math.min(3, zoom + delta * 0.5));
+
+    if (newZoom !== zoom) {
+      setZoom(newZoom);
+
+      // Calculate new scale and adjust scroll to keep mouse position fixed
+      const newScale = Math.pow(2, -newZoom);
+      const newScrollLeft = mapX * newScale - mouseX;
+      const newScrollTop = mapY * newScale - mouseY;
+
+      // Use requestAnimationFrame to apply scroll after zoom render
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollLeft = newScrollLeft;
+          containerRef.current.scrollTop = newScrollTop;
+        }
+      });
+    }
   };
 
   // Rendering states
@@ -315,21 +441,28 @@ export default function TiledMapViewer({
       <div
         ref={containerRef}
         className="overflow-auto w-full bg-gray-900"
-        style={{ height: '100%' }}
+        style={{
+          height: '100%',
+          cursor: isDragging ? 'grabbing' : (onTileClick ? 'crosshair' : 'grab')
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onWheel={handleWheel}
       >
         <div
           ref={mapRef}
           className="relative"
           style={{
             width: displayWidth,
-            height: displayHeight,
-            cursor: onTileClick ? 'crosshair' : 'default'
+            height: displayHeight
           }}
           onClick={handleMapClick}
         >
           {/* Render visible tiles */}
           {Array.from(visibleTiles).map(tileKey => {
-            const [z, col, row] = tileKey.split('_').map(Number);
+            const [, col, row] = tileKey.split('_').map(Number);
 
             // Adjust position based on minCol/minRow offset
             const minCol = metadata.minCol ?? 0;
@@ -337,6 +470,8 @@ export default function TiledMapViewer({
             const displayCol = col - minCol;
             const displayRow = row - minRow;
 
+            // Always request tiles at zoom level 0 (the base tiles)
+            // Visual scaling is handled by CSS, not by tile pyramids
             return (
               <div
                 key={tileKey}
@@ -349,7 +484,7 @@ export default function TiledMapViewer({
                 }}
               >
                 <img
-                  src={`/tile-data/${mapId}/${z}/${col}_${row}.${metadata.format}`}
+                  src={`/tile-data/${mapId}/0/${col}_${row}.${metadata.format}`}
                   alt=""
                   style={{
                     width: '100%',

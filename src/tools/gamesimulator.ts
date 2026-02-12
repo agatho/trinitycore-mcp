@@ -86,7 +86,7 @@ export interface WhatIfScenario {
 }
 
 function calculateCritChance(critRating: number, level: number): number {
-  const ratingPerPercent = 45.91; // WoW 11.2
+  const ratingPerPercent = 45.91; // WoW 12.0
   return (critRating / ratingPerPercent) / 100;
 }
 

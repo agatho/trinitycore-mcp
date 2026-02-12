@@ -1,5 +1,5 @@
 /**
- * DB2 Parser for WoW 11.2 (The War Within)
+ * DB2 Parser for WoW 12.0 (Midnight)
  * Public API exports
  */
 

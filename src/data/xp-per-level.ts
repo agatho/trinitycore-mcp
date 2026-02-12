@@ -1,5 +1,5 @@
 /**
- * XP Per Level Database for WoW 11.2 (The War Within)
+ * XP Per Level Database for WoW 12.0 (Midnight)
  *
  * Experience requirements for each level extracted from GameTable xp.txt
  * Represents the accurate XP needed to progress from one level to the next
@@ -11,12 +11,13 @@
  *
  * Level Breakdown:
  * - Levels 1-10: Tutorial/starter zones (low XP, fast progression)
- * - Levels 10-30: Early game content (moderate XP curve)
- * - Levels 30-50: Mid-game content (reduced XP for "level squish")
- * - Levels 50-60: Shadowlands expansion (increased curve)
- * - Levels 60-70: Dragonflight expansion (steep curve)
- * - Levels 70-80: The War Within expansion (very steep curve, divisor 9)
- * - Level 80: Max level (99,999,999 placeholder = no further progression)
+ * - Levels 10-29: Early game content (moderate XP curve)
+ * - Levels 30-49: Mid-game content (reduced XP for "level squish")
+ * - Levels 50-60: Shadowlands expansion (gradual increase)
+ * - Levels 61-69: Dragonflight expansion (moderate curve)
+ * - Levels 70-80: The War Within expansion (restructured curve)
+ * - Levels 81-90: Midnight expansion (divisor 9, steep curve)
+ * - Level 90: Max level (99,999,999 placeholder = no further progression)
  *
  * @module data/xp-per-level
  */
@@ -31,125 +32,145 @@ export interface XPLevelEntry {
 }
 
 /**
- * XP per level database with 80 entries
+ * XP per level database with 90 entries
  *
  * Data based on:
- * - TrinityCore GameTable xp.txt
- * - WoW 11.2 (The War Within) game data
- * - Accurate XP requirements for leveling 1-80
+ * - TrinityCore GameTable xp.txt (build 12.0.0.65028)
+ * - WoW 12.0 (Midnight) game data
+ * - Accurate XP requirements for leveling 1-90
  *
  * Key Level Milestones:
- * - Level 10: Tutorial complete (8,490 total XP)
- * - Level 20: Early game milestone (19,770 total XP)
- * - Level 30: Mid-game start (38,075 total XP)
- * - Level 50: Shadowlands start (34,395 total XP after level squish)
- * - Level 60: Dragonflight start (55,665 total XP)
- * - Level 70: The War Within start (225,105 total XP)
- * - Level 80: Max level (2,481,285 total XP from 70-80)
+ * - Level 10: Tutorial complete (10,590 total XP)
+ * - Level 20: Early game milestone (22,195 total XP)
+ * - Level 30: Mid-game start (32,075 total XP)
+ * - Level 50: Shadowlands start (40,435 total XP)
+ * - Level 60: Dragonflight start (52,555 total XP)
+ * - Level 70: The War Within start (58,645 total XP)
+ * - Level 80: Midnight start (403,725 total XP)
+ * - Level 90: Max level (99,999,999 total XP)
  *
- * Updated: November 1, 2025
- * Version: WoW 11.2 (The War Within)
+ * Updated: February 12, 2026
+ * Version: WoW 12.0 (Midnight) build 65028
  */
 export const XP_PER_LEVEL: XPLevelEntry[] = [
     // Level 1-10: Tutorial and starter zones
-    { level: 1, totalXP: 0, xpToNext: 250, perKillXP: 20, divisor: 1, expansion: 'Classic' },
-    { level: 2, totalXP: 250, xpToNext: 345, perKillXP: 25, divisor: 1, expansion: 'Classic' },
-    { level: 3, totalXP: 595, xpToNext: 490, perKillXP: 30, divisor: 1, expansion: 'Classic' },
-    { level: 4, totalXP: 1085, xpToNext: 630, perKillXP: 35, divisor: 1, expansion: 'Classic' },
-    { level: 5, totalXP: 1715, xpToNext: 770, perKillXP: 40, divisor: 1, expansion: 'Classic' },
-    { level: 6, totalXP: 2485, xpToNext: 920, perKillXP: 45, divisor: 1, expansion: 'Classic' },
-    { level: 7, totalXP: 3405, xpToNext: 1055, perKillXP: 50, divisor: 1, expansion: 'Classic' },
-    { level: 8, totalXP: 4460, xpToNext: 1200, perKillXP: 55, divisor: 1, expansion: 'Classic' },
-    { level: 9, totalXP: 5660, xpToNext: 1345, perKillXP: 60, divisor: 1, expansion: 'Classic' },
-    { level: 10, totalXP: 7005, xpToNext: 1485, perKillXP: 65, divisor: 1, expansion: 'Classic' },
+    { level: 1, totalXP: 250, xpToNext: 405, perKillXP: 20, divisor: 1, expansion: 'Classic' },
+    { level: 2, totalXP: 655, xpToNext: 590, perKillXP: 25, divisor: 1, expansion: 'Classic' },
+    { level: 3, totalXP: 1245, xpToNext: 780, perKillXP: 30, divisor: 1, expansion: 'Classic' },
+    { level: 4, totalXP: 2025, xpToNext: 970, perKillXP: 35, divisor: 1, expansion: 'Classic' },
+    { level: 5, totalXP: 2995, xpToNext: 1160, perKillXP: 40, divisor: 1, expansion: 'Classic' },
+    { level: 6, totalXP: 4155, xpToNext: 1350, perKillXP: 45, divisor: 1, expansion: 'Classic' },
+    { level: 7, totalXP: 5505, xpToNext: 1535, perKillXP: 50, divisor: 1, expansion: 'Classic' },
+    { level: 8, totalXP: 7040, xpToNext: 1730, perKillXP: 55, divisor: 1, expansion: 'Classic' },
+    { level: 9, totalXP: 8770, xpToNext: 1820, perKillXP: 60, divisor: 1, expansion: 'Classic' },
+    { level: 10, totalXP: 10590, xpToNext: 1095, perKillXP: 65, divisor: 1, expansion: 'Classic' },
 
-    // Level 11-30: Early game progression
-    { level: 11, totalXP: 8490, xpToNext: 1660, perKillXP: 70, divisor: 1, expansion: 'Classic' },
-    { level: 12, totalXP: 10150, xpToNext: 1060, perKillXP: 75, divisor: 1, expansion: 'Classic' },
-    { level: 13, totalXP: 11210, xpToNext: 1125, perKillXP: 80, divisor: 1, expansion: 'Classic' },
-    { level: 14, totalXP: 12335, xpToNext: 1175, perKillXP: 85, divisor: 1, expansion: 'Classic' },
-    { level: 15, totalXP: 13510, xpToNext: 1235, perKillXP: 90, divisor: 1, expansion: 'Classic' },
-    { level: 16, totalXP: 14745, xpToNext: 1290, perKillXP: 95, divisor: 1, expansion: 'Classic' },
-    { level: 17, totalXP: 16035, xpToNext: 1350, perKillXP: 100, divisor: 1, expansion: 'Classic' },
-    { level: 18, totalXP: 17385, xpToNext: 1405, perKillXP: 105, divisor: 1, expansion: 'Classic' },
-    { level: 19, totalXP: 18790, xpToNext: 1460, perKillXP: 110, divisor: 1, expansion: 'Classic' },
-    { level: 20, totalXP: 20250, xpToNext: 1520, perKillXP: 115, divisor: 1, expansion: 'Classic' },
-    { level: 21, totalXP: 21770, xpToNext: 1575, perKillXP: 120, divisor: 1, expansion: 'Classic' },
-    { level: 22, totalXP: 23345, xpToNext: 1630, perKillXP: 125, divisor: 1, expansion: 'Classic' },
-    { level: 23, totalXP: 24975, xpToNext: 1690, perKillXP: 130, divisor: 1, expansion: 'Classic' },
-    { level: 24, totalXP: 26665, xpToNext: 1745, perKillXP: 135, divisor: 1, expansion: 'Classic' },
-    { level: 25, totalXP: 28410, xpToNext: 1800, perKillXP: 140, divisor: 1, expansion: 'Classic' },
-    { level: 26, totalXP: 30210, xpToNext: 1860, perKillXP: 145, divisor: 1, expansion: 'Classic' },
-    { level: 27, totalXP: 32070, xpToNext: 1915, perKillXP: 150, divisor: 1, expansion: 'Classic' },
-    { level: 28, totalXP: 33985, xpToNext: 1975, perKillXP: 155, divisor: 1, expansion: 'Classic' },
-    { level: 29, totalXP: 35960, xpToNext: 2025, perKillXP: 160, divisor: 1, expansion: 'Classic' },
-    { level: 30, totalXP: 37985, xpToNext: 2090, perKillXP: 165, divisor: 1, expansion: 'Classic' },
+    // Level 11-29: Early game progression
+    { level: 11, totalXP: 11685, xpToNext: 1110, perKillXP: 70, divisor: 1, expansion: 'Classic' },
+    { level: 12, totalXP: 12795, xpToNext: 1125, perKillXP: 75, divisor: 1, expansion: 'Classic' },
+    { level: 13, totalXP: 13920, xpToNext: 1135, perKillXP: 80, divisor: 1, expansion: 'Classic' },
+    { level: 14, totalXP: 15055, xpToNext: 1155, perKillXP: 85, divisor: 1, expansion: 'Classic' },
+    { level: 15, totalXP: 16210, xpToNext: 1170, perKillXP: 90, divisor: 1, expansion: 'Classic' },
+    { level: 16, totalXP: 17380, xpToNext: 1180, perKillXP: 95, divisor: 1, expansion: 'Classic' },
+    { level: 17, totalXP: 18560, xpToNext: 1195, perKillXP: 100, divisor: 1, expansion: 'Classic' },
+    { level: 18, totalXP: 19755, xpToNext: 1215, perKillXP: 105, divisor: 1, expansion: 'Classic' },
+    { level: 19, totalXP: 20970, xpToNext: 1225, perKillXP: 110, divisor: 1, expansion: 'Classic' },
+    { level: 20, totalXP: 22195, xpToNext: 1240, perKillXP: 115, divisor: 1, expansion: 'Classic' },
+    { level: 21, totalXP: 23435, xpToNext: 1255, perKillXP: 120, divisor: 1, expansion: 'Classic' },
+    { level: 22, totalXP: 24690, xpToNext: 1270, perKillXP: 125, divisor: 1, expansion: 'Classic' },
+    { level: 23, totalXP: 25960, xpToNext: 1285, perKillXP: 130, divisor: 1, expansion: 'Classic' },
+    { level: 24, totalXP: 27245, xpToNext: 1300, perKillXP: 135, divisor: 1, expansion: 'Classic' },
+    { level: 25, totalXP: 28545, xpToNext: 1315, perKillXP: 140, divisor: 1, expansion: 'Classic' },
+    { level: 26, totalXP: 29860, xpToNext: 1330, perKillXP: 145, divisor: 1, expansion: 'Classic' },
+    { level: 27, totalXP: 31190, xpToNext: 1345, perKillXP: 150, divisor: 1, expansion: 'Classic' },
+    { level: 28, totalXP: 32535, xpToNext: 1355, perKillXP: 155, divisor: 1, expansion: 'Classic' },
+    { level: 29, totalXP: 33890, xpToNext: -1815, perKillXP: 160, divisor: 1, expansion: 'Classic' },
 
-    // Level 31-50: Mid-game "level squish" content (reduced XP requirements)
-    { level: 31, totalXP: 40075, xpToNext: 355, perKillXP: 170, divisor: 1, expansion: 'Classic' },
-    { level: 32, totalXP: 40430, xpToNext: 295, perKillXP: 175, divisor: 1, expansion: 'Classic' },
-    { level: 33, totalXP: 40725, xpToNext: 245, perKillXP: 180, divisor: 1, expansion: 'Classic' },
-    { level: 34, totalXP: 40970, xpToNext: 185, perKillXP: 185, divisor: 1, expansion: 'Classic' },
-    { level: 35, totalXP: 41155, xpToNext: 125, perKillXP: 190, divisor: 1, expansion: 'Classic' },
-    { level: 36, totalXP: 41280, xpToNext: 75, perKillXP: 195, divisor: 1, expansion: 'Classic' },
-    { level: 37, totalXP: 41355, xpToNext: 15, perKillXP: 200, divisor: 1, expansion: 'Classic' },
-    { level: 38, totalXP: 41370, xpToNext: -45, perKillXP: 205, divisor: 1, expansion: 'Classic' },
-    { level: 39, totalXP: 41325, xpToNext: -100, perKillXP: 210, divisor: 1, expansion: 'Classic' },
-    { level: 40, totalXP: 41225, xpToNext: -155, perKillXP: 215, divisor: 1, expansion: 'Classic' },
-    { level: 41, totalXP: 41070, xpToNext: -210, perKillXP: 220, divisor: 1, expansion: 'Classic' },
-    { level: 42, totalXP: 40860, xpToNext: -270, perKillXP: 225, divisor: 1, expansion: 'Classic' },
-    { level: 43, totalXP: 40590, xpToNext: -325, perKillXP: 230, divisor: 1, expansion: 'Classic' },
-    { level: 44, totalXP: 40265, xpToNext: -385, perKillXP: 235, divisor: 1, expansion: 'Classic' },
-    { level: 45, totalXP: 39880, xpToNext: -440, perKillXP: 240, divisor: 1, expansion: 'Classic' },
-    { level: 46, totalXP: 39440, xpToNext: -495, perKillXP: 245, divisor: 1, expansion: 'Classic' },
-    { level: 47, totalXP: 38945, xpToNext: -550, perKillXP: 250, divisor: 1, expansion: 'Classic' },
-    { level: 48, totalXP: 38395, xpToNext: -610, perKillXP: 255, divisor: 1, expansion: 'Classic' },
-    { level: 49, totalXP: 37785, xpToNext: -670, perKillXP: 260, divisor: 1, expansion: 'Classic' },
-    { level: 50, totalXP: 37115, xpToNext: -720, perKillXP: 265, divisor: 1, expansion: 'Shadowlands' },
+    // Level 30-49: Mid-game "level squish" content
+    { level: 30, totalXP: 32075, xpToNext: 625, perKillXP: 165, divisor: 1, expansion: 'Classic' },
+    { level: 31, totalXP: 32700, xpToNext: 595, perKillXP: 170, divisor: 1, expansion: 'Classic' },
+    { level: 32, totalXP: 33295, xpToNext: 570, perKillXP: 175, divisor: 1, expansion: 'Classic' },
+    { level: 33, totalXP: 33865, xpToNext: 545, perKillXP: 180, divisor: 1, expansion: 'Classic' },
+    { level: 34, totalXP: 34410, xpToNext: 515, perKillXP: 185, divisor: 1, expansion: 'Classic' },
+    { level: 35, totalXP: 34925, xpToNext: 490, perKillXP: 190, divisor: 1, expansion: 'Classic' },
+    { level: 36, totalXP: 35415, xpToNext: 460, perKillXP: 195, divisor: 1, expansion: 'Classic' },
+    { level: 37, totalXP: 35875, xpToNext: 435, perKillXP: 200, divisor: 1, expansion: 'Classic' },
+    { level: 38, totalXP: 36310, xpToNext: 410, perKillXP: 205, divisor: 1, expansion: 'Classic' },
+    { level: 39, totalXP: 36720, xpToNext: 380, perKillXP: 210, divisor: 1, expansion: 'Classic' },
+    { level: 40, totalXP: 37100, xpToNext: 350, perKillXP: 215, divisor: 1, expansion: 'Classic' },
+    { level: 41, totalXP: 37450, xpToNext: 330, perKillXP: 220, divisor: 1, expansion: 'Classic' },
+    { level: 42, totalXP: 37780, xpToNext: 295, perKillXP: 225, divisor: 1, expansion: 'Classic' },
+    { level: 43, totalXP: 38075, xpToNext: 275, perKillXP: 230, divisor: 1, expansion: 'Classic' },
+    { level: 44, totalXP: 38350, xpToNext: 245, perKillXP: 235, divisor: 1, expansion: 'Classic' },
+    { level: 45, totalXP: 38595, xpToNext: 215, perKillXP: 240, divisor: 1, expansion: 'Classic' },
+    { level: 46, totalXP: 38810, xpToNext: 190, perKillXP: 245, divisor: 1, expansion: 'Classic' },
+    { level: 47, totalXP: 39000, xpToNext: 165, perKillXP: 250, divisor: 1, expansion: 'Classic' },
+    { level: 48, totalXP: 39165, xpToNext: 135, perKillXP: 255, divisor: 1, expansion: 'Classic' },
+    { level: 49, totalXP: 39300, xpToNext: 1135, perKillXP: 260, divisor: 1, expansion: 'Classic' },
 
-    // Level 51-60: Shadowlands expansion (gradual increase)
-    { level: 51, totalXP: 36395, xpToNext: 1910, perKillXP: 270, divisor: 1, expansion: 'Shadowlands' },
-    { level: 52, totalXP: 38305, xpToNext: 1960, perKillXP: 275, divisor: 1, expansion: 'Shadowlands' },
-    { level: 53, totalXP: 40265, xpToNext: 2010, perKillXP: 280, divisor: 1, expansion: 'Shadowlands' },
-    { level: 54, totalXP: 42275, xpToNext: 2055, perKillXP: 285, divisor: 1, expansion: 'Shadowlands' },
-    { level: 55, totalXP: 44330, xpToNext: 2100, perKillXP: 290, divisor: 1, expansion: 'Shadowlands' },
-    { level: 56, totalXP: 46430, xpToNext: 2150, perKillXP: 295, divisor: 1, expansion: 'Shadowlands' },
-    { level: 57, totalXP: 48580, xpToNext: 2200, perKillXP: 300, divisor: 1, expansion: 'Shadowlands' },
-    { level: 58, totalXP: 50780, xpToNext: 2250, perKillXP: 305, divisor: 1, expansion: 'Shadowlands' },
-    { level: 59, totalXP: 53030, xpToNext: 2290, perKillXP: 310, divisor: 1, expansion: 'Shadowlands' },
-    { level: 60, totalXP: 55320, xpToNext: 2345, perKillXP: 315, divisor: 1, expansion: 'Shadowlands' },
+    // Level 50-60: Shadowlands expansion (gradual increase)
+    { level: 50, totalXP: 40435, xpToNext: 1155, perKillXP: 265, divisor: 1, expansion: 'Shadowlands' },
+    { level: 51, totalXP: 41590, xpToNext: 1160, perKillXP: 270, divisor: 1, expansion: 'Shadowlands' },
+    { level: 52, totalXP: 42750, xpToNext: 1180, perKillXP: 275, divisor: 1, expansion: 'Shadowlands' },
+    { level: 53, totalXP: 43930, xpToNext: 1190, perKillXP: 280, divisor: 1, expansion: 'Shadowlands' },
+    { level: 54, totalXP: 45120, xpToNext: 1205, perKillXP: 285, divisor: 1, expansion: 'Shadowlands' },
+    { level: 55, totalXP: 46325, xpToNext: 1220, perKillXP: 290, divisor: 1, expansion: 'Shadowlands' },
+    { level: 56, totalXP: 47545, xpToNext: 1230, perKillXP: 295, divisor: 1, expansion: 'Shadowlands' },
+    { level: 57, totalXP: 48775, xpToNext: 1245, perKillXP: 300, divisor: 1, expansion: 'Shadowlands' },
+    { level: 58, totalXP: 50020, xpToNext: 1260, perKillXP: 305, divisor: 1, expansion: 'Shadowlands' },
+    { level: 59, totalXP: 51280, xpToNext: 1275, perKillXP: 310, divisor: 1, expansion: 'Shadowlands' },
+    { level: 60, totalXP: 52555, xpToNext: 1285, perKillXP: 315, divisor: 1, expansion: 'Shadowlands' },
 
-    // Level 61-70: Dragonflight expansion (moderate steep curve)
-    { level: 61, totalXP: 57665, xpToNext: 2390, perKillXP: 320, divisor: 1, expansion: 'Dragonflight' },
-    { level: 62, totalXP: 60055, xpToNext: 2435, perKillXP: 325, divisor: 1, expansion: 'Dragonflight' },
-    { level: 63, totalXP: 62490, xpToNext: 2490, perKillXP: 330, divisor: 1, expansion: 'Dragonflight' },
-    { level: 64, totalXP: 64980, xpToNext: 2530, perKillXP: 335, divisor: 1, expansion: 'Dragonflight' },
-    { level: 65, totalXP: 67510, xpToNext: 2585, perKillXP: 340, divisor: 1, expansion: 'Dragonflight' },
-    { level: 66, totalXP: 70095, xpToNext: 2625, perKillXP: 345, divisor: 1, expansion: 'Dragonflight' },
-    { level: 67, totalXP: 72720, xpToNext: 2680, perKillXP: 350, divisor: 1, expansion: 'Dragonflight' },
-    { level: 68, totalXP: 75400, xpToNext: 2725, perKillXP: 355, divisor: 1, expansion: 'Dragonflight' },
-    { level: 69, totalXP: 78125, xpToNext: 2770, perKillXP: 360, divisor: 1, expansion: 'Dragonflight' },
-    { level: 70, totalXP: 80895, xpToNext: 144210, perKillXP: 400, divisor: 1, expansion: 'Dragonflight' },
+    // Level 61-69: Dragonflight expansion (moderate curve)
+    { level: 61, totalXP: 53840, xpToNext: 1300, perKillXP: 320, divisor: 1, expansion: 'Dragonflight' },
+    { level: 62, totalXP: 55140, xpToNext: 1315, perKillXP: 325, divisor: 1, expansion: 'Dragonflight' },
+    { level: 63, totalXP: 56455, xpToNext: 1325, perKillXP: 330, divisor: 1, expansion: 'Dragonflight' },
+    { level: 64, totalXP: 57780, xpToNext: 1340, perKillXP: 335, divisor: 1, expansion: 'Dragonflight' },
+    { level: 65, totalXP: 59120, xpToNext: 1355, perKillXP: 340, divisor: 1, expansion: 'Dragonflight' },
+    { level: 66, totalXP: 60475, xpToNext: 1370, perKillXP: 345, divisor: 1, expansion: 'Dragonflight' },
+    { level: 67, totalXP: 61845, xpToNext: 1380, perKillXP: 350, divisor: 1, expansion: 'Dragonflight' },
+    { level: 68, totalXP: 63225, xpToNext: 1395, perKillXP: 355, divisor: 1, expansion: 'Dragonflight' },
+    { level: 69, totalXP: 64620, xpToNext: -5975, perKillXP: 360, divisor: 1, expansion: 'Dragonflight' },
 
-    // Level 71-80: The War Within expansion (very steep curve, divisor 9)
+    // Level 70-80: The War Within expansion
+    { level: 70, totalXP: 58645, xpToNext: 1690, perKillXP: 365, divisor: 1, expansion: 'The War Within' },
+    { level: 71, totalXP: 60335, xpToNext: 1710, perKillXP: 370, divisor: 1, expansion: 'The War Within' },
+    { level: 72, totalXP: 62045, xpToNext: 1735, perKillXP: 375, divisor: 1, expansion: 'The War Within' },
+    { level: 73, totalXP: 63780, xpToNext: 1760, perKillXP: 380, divisor: 1, expansion: 'The War Within' },
+    { level: 74, totalXP: 65540, xpToNext: 1785, perKillXP: 385, divisor: 1, expansion: 'The War Within' },
+    { level: 75, totalXP: 67325, xpToNext: 1805, perKillXP: 390, divisor: 1, expansion: 'The War Within' },
+    { level: 76, totalXP: 69130, xpToNext: 1835, perKillXP: 395, divisor: 1, expansion: 'The War Within' },
+    { level: 77, totalXP: 70965, xpToNext: 1855, perKillXP: 400, divisor: 1, expansion: 'The War Within' },
+    { level: 78, totalXP: 72820, xpToNext: 1880, perKillXP: 405, divisor: 1, expansion: 'The War Within' },
+    { level: 79, totalXP: 74700, xpToNext: 329025, perKillXP: 410, divisor: 1, expansion: 'The War Within' },
+
+    // Level 80-89: Midnight expansion (divisor 9, steep curve)
     // Note: Divisor 9 means quest XP and other rewards are divided by 9 at these levels
-    { level: 71, totalXP: 225105, xpToNext: 22270, perKillXP: 405, divisor: 9, expansion: 'The War Within' },
-    { level: 72, totalXP: 247375, xpToNext: 22815, perKillXP: 410, divisor: 9, expansion: 'The War Within' },
-    { level: 73, totalXP: 270190, xpToNext: 23350, perKillXP: 415, divisor: 9, expansion: 'The War Within' },
-    { level: 74, totalXP: 293540, xpToNext: 23890, perKillXP: 420, divisor: 9, expansion: 'The War Within' },
-    { level: 75, totalXP: 317430, xpToNext: 24435, perKillXP: 425, divisor: 9, expansion: 'The War Within' },
-    { level: 76, totalXP: 341865, xpToNext: 24970, perKillXP: 430, divisor: 9, expansion: 'The War Within' },
-    { level: 77, totalXP: 366835, xpToNext: 25515, perKillXP: 435, divisor: 9, expansion: 'The War Within' },
-    { level: 78, totalXP: 392350, xpToNext: 26055, perKillXP: 440, divisor: 9, expansion: 'The War Within' },
-    { level: 79, totalXP: 418405, xpToNext: 26595, perKillXP: 445, divisor: 9, expansion: 'The War Within' },
-    { level: 80, totalXP: 445000, xpToNext: 0, perKillXP: 480, divisor: 9, expansion: 'The War Within' }, // Max level
+    { level: 80, totalXP: 403725, xpToNext: 19665, perKillXP: 450, divisor: 1, expansion: 'Midnight' },
+    { level: 81, totalXP: 423390, xpToNext: 20005, perKillXP: 455, divisor: 9, expansion: 'Midnight' },
+    { level: 82, totalXP: 443395, xpToNext: 20345, perKillXP: 460, divisor: 9, expansion: 'Midnight' },
+    { level: 83, totalXP: 463740, xpToNext: 20690, perKillXP: 465, divisor: 9, expansion: 'Midnight' },
+    { level: 84, totalXP: 484430, xpToNext: 21025, perKillXP: 470, divisor: 9, expansion: 'Midnight' },
+    { level: 85, totalXP: 505455, xpToNext: 21370, perKillXP: 475, divisor: 9, expansion: 'Midnight' },
+    { level: 86, totalXP: 526825, xpToNext: 21710, perKillXP: 480, divisor: 9, expansion: 'Midnight' },
+    { level: 87, totalXP: 548535, xpToNext: 22055, perKillXP: 485, divisor: 9, expansion: 'Midnight' },
+    { level: 88, totalXP: 570590, xpToNext: 22390, perKillXP: 490, divisor: 9, expansion: 'Midnight' },
+    { level: 89, totalXP: 592980, xpToNext: 0, perKillXP: 495, divisor: 9, expansion: 'Midnight' },
+
+    // Level 90: Max level
+    { level: 90, totalXP: 99999999, xpToNext: 0, perKillXP: 530, divisor: 9, expansion: 'Midnight' },
 ];
+
+/**
+ * Maximum player level in WoW 12.0 (Midnight)
+ */
+export const MAX_LEVEL = 90;
 
 /**
  * Get XP entry for a specific level
  */
 export function getXPForLevel(level: number): XPLevelEntry | undefined {
-    if (level < 1 || level > 80) {
+    if (level < 1 || level > MAX_LEVEL) {
         return undefined;
     }
     return XP_PER_LEVEL[level - 1]; // Array is 0-indexed, levels are 1-indexed
@@ -167,7 +188,7 @@ export function getXPToNextLevel(currentLevel: number): number {
  * Calculate total XP needed to reach target level from current level
  */
 export function calculateTotalXPNeeded(currentLevel: number, targetLevel: number): number {
-    if (currentLevel >= targetLevel || currentLevel < 1 || targetLevel > 80) {
+    if (currentLevel >= targetLevel || currentLevel < 1 || targetLevel > MAX_LEVEL) {
         return 0;
     }
 
@@ -184,7 +205,7 @@ export function calculateTotalXPNeeded(currentLevel: number, targetLevel: number
  * Returns fractional levels (e.g., 2.5 levels)
  */
 export function calculateLevelsFromXP(xpAmount: number, currentLevel: number): number {
-    if (xpAmount <= 0 || currentLevel >= 80) {
+    if (xpAmount <= 0 || currentLevel >= MAX_LEVEL) {
         return 0;
     }
 
@@ -192,7 +213,7 @@ export function calculateLevelsFromXP(xpAmount: number, currentLevel: number): n
     let levelsGained = 0;
     let checkLevel = currentLevel;
 
-    while (remainingXP > 0 && checkLevel < 80) {
+    while (remainingXP > 0 && checkLevel < MAX_LEVEL) {
         const xpForLevel = getXPToNextLevel(checkLevel);
 
         if (xpForLevel <= 0) {
@@ -256,7 +277,7 @@ export function getLevelRangeStats(startLevel: number, endLevel: number): {
     levelCount: number;
     expansions: string[];
 } {
-    if (startLevel < 1 || endLevel > 80 || startLevel >= endLevel) {
+    if (startLevel < 1 || endLevel > MAX_LEVEL || startLevel >= endLevel) {
         return { totalXP: 0, averageXPPerLevel: 0, levelCount: 0, expansions: [] };
     }
 
@@ -296,7 +317,7 @@ export enum QuestColor {
 
 /**
  * XP modifier multipliers for each quest color
- * Based on WoW 11.2 (The War Within) XP scaling mechanics
+ * Based on WoW 12.0 (Midnight) XP scaling mechanics
  */
 export const QUEST_XP_MODIFIERS: Record<QuestColor, number> = {
     [QuestColor.GRAY]: 0.0,      // No XP (trivial content)
@@ -343,7 +364,6 @@ export function getQuestXPModifier(questLevel: number, playerLevel: number): num
 
 /**
  * Calculate quest XP reward with all modifiers applied
- * Enhancement #6 (Phase 7): Now includes level-based XP modifiers
  *
  * @param baseQuestXP - The base XP reward from quest_template
  * @param questLevel - The minimum level requirement of the quest
@@ -385,12 +405,12 @@ export function calculateRestBonusPool(playerLevel: number, hoursRested: number)
     // Rest XP accumulates at 5% of level bar per 8 hours
     // Maximum: 150% of level bar (30 bubbles * 5% each)
     const xpToNextLevel = getXPToNextLevel(playerLevel);
-    
-    // Handle level squish levels (31-50) where XP is negative
+
+    // Handle level squish levels where XP might be negative or zero
     if (xpToNextLevel <= 0) {
         return 0;
     }
-    
+
     const maxRestXP = Math.floor(xpToNextLevel * 1.5); // 150% of level bar
 
     // Accumulation rate: 5% per 8 hours = 0.625% per hour

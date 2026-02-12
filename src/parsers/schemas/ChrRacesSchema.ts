@@ -1,7 +1,7 @@
 /**
  * ChrRacesSchema.ts
  *
- * Schema parser for ChrRaces.db2 (WoW 11.2 - The War Within)
+ * Schema parser for ChrRaces.db2 (WoW 12.0 - Midnight)
  * Defines all playable character races with properties, models, and configuration.
  *
  * Based on TrinityCore DB2Structure.h:833 and DB2LoadInfo.h:1161
@@ -56,9 +56,9 @@ export enum Races {
   RACE_DRACTHYR_ALLIANCE = 52, // Alliance - Evoker only (RaceMask bit 16)
   RACE_DRACTHYR_HORDE = 70, // Horde - Evoker only (RaceMask bit 15)
 
-  // The War Within (84-85)
-  RACE_EARTHEN_DWARF_HORDE = 84, // Horde - New in 11.2 (RaceMask bit 17)
-  RACE_EARTHEN_DWARF_ALLIANCE = 85, // Alliance - New in 11.2 (RaceMask bit 18)
+  // Midnight (84-85)
+  RACE_EARTHEN_DWARF_HORDE = 84, // Horde - New in 12.0 (RaceMask bit 17)
+  RACE_EARTHEN_DWARF_ALLIANCE = 85, // Alliance - New in 12.0 (RaceMask bit 18)
 
   MAX_RACES = 88,
 }

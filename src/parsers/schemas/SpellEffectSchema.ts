@@ -1,12 +1,12 @@
 /**
  * SpellEffectSchema.ts
  *
- * Schema parser for SpellEffect.db2 (WoW 11.2 The War Within)
+ * Schema parser for SpellEffect.db2 (WoW 12.0 Midnight)
  * Defines individual spell effects - each spell can have up to 3 effects
  *
  * Based on TrinityCore DB2Structure.h:3836 and DB2LoadInfo.h:5264
  * Total Fields: 36 (arrays expanded from 29 compressed fields)
- * Layout Hash: 0x239B1B53 (WoW 11.2)
+ * Layout Hash: 0x239B1B53 (WoW 12.0)
  * File Data ID: 1140088
  *
  * Week 5: Phase 3.1 - Extended DB2 File Schemas
@@ -43,7 +43,7 @@ export enum SpellEffectName {
   RECRAFT_ITEM = 297, // New in TWW
   GATHERING = 302, // New in TWW
   CREATE_TRAIT_TREE_CONFIG = 303, // New in TWW
-  ASSIST_ACTION = 345, // Latest (11.2)
+  ASSIST_ACTION = 345, // Latest (12.0)
   TOTAL_SPELL_EFFECTS = 346,
 }
 
@@ -744,5 +744,5 @@ export const SpellEffectDB2Metadata = {
   hasParentIndexField: true,
   parentIndexField: 35, // SpellID field
   hotfixSelector: 'HOTFIX_SEL_SPELL_EFFECT',
-  note: 'Each spell can have up to 3 effects (EffectIndex 0-2). Contains ~200,000 entries for WoW 11.2.',
+  note: 'Each spell can have up to 3 effects (EffectIndex 0-2). Contains ~200,000 entries for WoW 12.0.',
 };

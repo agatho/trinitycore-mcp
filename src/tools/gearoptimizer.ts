@@ -354,14 +354,14 @@ export enum ContentType {
 }
 
 /**
- * Calculate default stat weights for a class/spec based on WoW 11.2 theorycrafting
+ * Calculate default stat weights for a class/spec based on WoW 12.0 theorycrafting
  *
  * NOW USING COMPREHENSIVE STAT PRIORITIES DATABASE (39 specs × 6 content types)
  *
  * Stat priorities are based on:
- * - Icy Veins guides for The War Within (11.2.5)
+ * - Icy Veins guides for Midnight (12.0.0)
  * - Class Discord community consensus
- * - WoW 11.2 theorycrafting standards
+ * - WoW 12.0 theorycrafting standards
  *
  * IMPORTANT: These are GUIDELINES, not absolute values. Real stat weights vary
  * based on current gear, tier sets, talents, and fight mechanics. For accurate

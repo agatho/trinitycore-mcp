@@ -200,11 +200,11 @@ async function learnPatterns(module: string): Promise<CodePattern[]> {
   });
 
   patterns.push({
-    name: "ObjectGuid usage (11.2)",
+    name: "ObjectGuid usage (12.0)",
     frequency: 45,
     template: "ObjectGuid guid = object->GetGUID();",
     example: "ObjectGuid playerGuid = player->GetGUID();",
-    usageContext: "ObjectGuid is a class in 11.2, not uint64",
+    usageContext: "ObjectGuid is a class in 12.0, not uint64",
   });
 
   return patterns;
@@ -297,7 +297,7 @@ async function generateSuggestions(
     suggestions.push({
       rank: 45,
       code: "Object::GetGUID()",
-      description: "Get ObjectGuid (11.2 class type)",
+      description: "Get ObjectGuid (12.0 class type)",
       type: "ObjectGuid",
       usageCount: 45,
       requiredIncludes: ["ObjectGuid.h"],

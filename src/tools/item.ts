@@ -423,7 +423,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
 
 /**
  * Get stat type name from stat type ID
- * Based on WoW 11.2 item stat types
+ * Based on WoW 12.0 item stat types
  */
 function getStatTypeName(statType: number): string {
   const statTypes: { [key: number]: string } = {

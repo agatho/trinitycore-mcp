@@ -1,5 +1,5 @@
 /**
- * SpellRange Database for WoW 11.2 (The War Within)
+ * SpellRange Database for WoW 12.0 (Midnight)
  *
  * Spell range data extracted from SpellRange.dbc/db2
  * Represents the 68 standard spell range definitions used throughout WoW
@@ -35,7 +35,7 @@ export interface SpellRangeEntry {
  * - WoW DBC/DB2 structure (SpellRange.dbc)
  * - TrinityCore spell range documentation
  * - Wowdev.wiki DB/SpellRange reference
- * - WoW 11.2 (The War Within) game data
+ * - WoW 12.0 (Midnight) game data
  *
  * Common Range IDs:
  * - 1: Melee (0-5 yards)
@@ -47,7 +47,7 @@ export interface SpellRangeEntry {
  * - 13: Unlimited (0-0 yards with special flag)
  *
  * Updated: November 1, 2025
- * Version: WoW 11.2 (The War Within)
+ * Version: WoW 12.0 (Midnight)
  */
 export const SPELL_RANGES: SpellRangeEntry[] = [
     // ID 1: Melee Range

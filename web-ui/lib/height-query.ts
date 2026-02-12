@@ -480,8 +480,4 @@ export function rayIntersectsTriangle(
   return null; // Line intersection, but not ray
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export type { HeightQueryOptions, HeightQueryResult };
+// HeightQueryOptions and HeightQueryResult are exported where defined above

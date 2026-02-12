@@ -22,7 +22,9 @@ export interface GameTableRow {
 }
 
 /**
- * Available GameTables in TrinityCore
+ * Available GameTables in TrinityCore (WoW 12.0 Midnight - 20 tables)
+ *
+ * Note: ChallengeModeDamage.txt and ChallengeModeHealth.txt were removed in 12.0
  */
 export const GAME_TABLES = {
   // Artifact System

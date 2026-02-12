@@ -1,5 +1,5 @@
 /**
- * DB2 Record accessor for WoW 11.2 (The War Within)
+ * DB2 Record accessor for WoW 12.0 (Midnight)
  * Based on TrinityCore's DB2Record implementation
  */
 

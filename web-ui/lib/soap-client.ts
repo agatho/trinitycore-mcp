@@ -376,7 +376,7 @@ Uptime: 2d 14h 32m`,
 
   async getOnlinePlayers(): Promise<OnlinePlayer[]> {
     return [
-      { guid: 1, name: 'PlayerOne', level: 80, race: 'Human', class: 'Warrior', zone: 'Stormwind' },
+      { guid: 1, name: 'PlayerOne', level: 90, race: 'Human', class: 'Warrior', zone: 'Stormwind' },
       { guid: 2, name: 'PlayerTwo', level: 70, race: 'Orc', class: 'Shaman', zone: 'Orgrimmar' },
       { guid: 3, name: 'PlayerThree', level: 75, race: 'Night Elf', class: 'Druid', zone: 'Darnassus' },
     ];

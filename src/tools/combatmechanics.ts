@@ -3,7 +3,7 @@
  *
  * Deep combat calculations: melee damage, armor mitigation, threat generation,
  * diminishing returns, proc chances, and resource regeneration.
- * Leverages GameTable data for accurate retail WoW 11.2 formulas.
+ * Leverages GameTable data for accurate retail WoW 12.0 formulas.
  *
  * @module combatmechanics
  */
@@ -243,7 +243,7 @@ export function calculateThreat(params: {
 // ============================================================================
 
 /**
- * WoW 11.2 (The War Within) Diminishing Returns Breakpoints
+ * WoW 12.0 (Midnight) Diminishing Returns Breakpoints
  * Based on official retail secondary stat DR curves
  *
  * Piecewise linear approximation of hyperbolic DR formula:
@@ -269,7 +269,7 @@ const DR_BREAKPOINTS: DRBreakpoint[] = [
 ];
 
 /**
- * Apply WoW 11.2 piecewise linear diminishing returns
+ * Apply WoW 12.0 piecewise linear diminishing returns
  *
  * @param linearPercent - The raw percentage without DR applied
  * @returns The effective percentage after DR
@@ -310,7 +310,7 @@ function applyDiminishingReturns(linearPercent: number): number {
 }
 
 /**
- * Get stat-specific DR caps for WoW 11.2
+ * Get stat-specific DR caps for WoW 12.0
  * Different stats have slightly different practical caps
  *
  * @param stat - The secondary stat type
@@ -327,7 +327,7 @@ function getDRCapsForStat(
     hardCap: 66,  // 66% effective = where 50% efficiency begins
   };
 
-  // Stat-specific adjustments for WoW 11.2
+  // Stat-specific adjustments for WoW 12.0
   switch (stat) {
     case "crit":
       // Crit has natural 5% base, effective cap slightly higher
@@ -388,12 +388,12 @@ export async function calculateDiminishingReturns(params: {
   const linearPercentBefore = (currentRating / ratingValue) * 100;
   const percentBefore = applyDiminishingReturns(linearPercentBefore);
 
-  // Calculate percent after (with accurate WoW 11.2 Diminishing Returns)
+  // Calculate percent after (with accurate WoW 12.0 Diminishing Returns)
   // WoW uses piecewise linear DR breakpoints for secondary stats
   const newRating = currentRating + ratingToAdd;
   const linearPercentAfter = (newRating / ratingValue) * 100;
 
-  // Apply WoW 11.2 (The War Within) Diminishing Returns Formula
+  // Apply WoW 12.0 (Midnight) Diminishing Returns Formula
   // Piecewise linear breakpoints based on retail data
   const percentAfter = applyDiminishingReturns(linearPercentAfter);
 
@@ -500,11 +500,11 @@ export async function calculateResourceRegen(params: {
 
   let regenPerSecond = baseRegen;
 
-  // Mana regeneration (WoW 11.2 - The War Within)
+  // Mana regeneration (WoW 12.0 - Midnight)
   // Note: Spirit was removed in Legion. Modern mana regen is class/spec-based
   if (resourceType === "mana") {
     // Base mana regen varies by class and spec
-    // For WoW 11.2, typical in-combat mana regen is 1-2% of max mana per 5 seconds
+    // For WoW 12.0, typical in-combat mana regen is 1-2% of max mana per 5 seconds
     // Out-of-combat regen is significantly higher (~5-10% per 5 seconds)
 
     // If spirit is provided (legacy support or private server), use classic formula
@@ -517,7 +517,7 @@ export async function calculateResourceRegen(params: {
       const spiritRegen = 5 * Math.sqrt(estimatedIntellect) * Math.sqrt(spirit) * 0.009327;
       regenPerSecond += spiritRegen / 5; // Convert MP5 to per second
     } else {
-      // Modern WoW 11.2 mana regeneration (no spirit)
+      // Modern WoW 12.0 mana regeneration (no spirit)
       // Base regen is 1% of max mana per 5 seconds in combat
       // Assumes character is in combat; out-of-combat would be 5-10x higher
       const baseManaRegenPer5 = maxResource * 0.01; // 1% per 5 seconds

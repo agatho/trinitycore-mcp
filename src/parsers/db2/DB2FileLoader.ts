@@ -1,5 +1,5 @@
 /**
- * DB2 File Loader for WoW 11.2 (The War Within)
+ * DB2 File Loader for WoW 12.0 (Midnight)
  * Based on TrinityCore's DB2FileLoader implementation
  * Supports WDC5/WDC6 formats with compression
  */

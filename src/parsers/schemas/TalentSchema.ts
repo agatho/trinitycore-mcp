@@ -2,13 +2,13 @@
  * TalentSchema.ts
  *
  * Schema parser for Talent.db2 (LEGACY WoW talent system, pre-Dragonflight)
- * NOTE: This represents the pre-10.0 talent system. Modern WoW 11.2 uses the
+ * NOTE: This represents the pre-10.0 talent system. Modern WoW 12.0 uses the
  * Trait system (TraitTree.db2, TraitNode.db2, etc.) for class/spec talents
  * and Hero Talents.
  *
  * Based on TrinityCore DB2Structure.h:4276 and DB2LoadInfo.h:5976
  * Total Fields: 28
- * Layout Hash: 0x147B0045 (WoW 11.2)
+ * Layout Hash: 0x147B0045 (WoW 12.0)
  * File Data ID: 1369062
  *
  * Week 5: Phase 3.1 - Extended DB2 File Schemas
@@ -396,5 +396,5 @@ export const TalentDB2Metadata = {
   hasIndexField: false,
   hasParentIndexField: false,
   hotfixSelector: 'HOTFIX_SEL_TALENT',
-  note: 'LEGACY talent system (pre-Dragonflight). Modern WoW 11.2 uses Trait system for class/spec talents and Hero Talents.',
+  note: 'LEGACY talent system (pre-Dragonflight). Modern WoW 12.0 uses Trait system for class/spec talents and Hero Talents.',
 };

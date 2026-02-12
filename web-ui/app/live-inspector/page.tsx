@@ -72,7 +72,7 @@ export default function LiveInspectorPage() {
       // Fallback to mock data in development
       if (process.env.NODE_ENV === 'development') {
         setOnlinePlayers([
-          { guid: 1, name: 'PlayerOne', level: 80, race: 'Human', class: 'Warrior', zone: 'Stormwind' },
+          { guid: 1, name: 'PlayerOne', level: 90, race: 'Human', class: 'Warrior', zone: 'Stormwind' },
           { guid: 2, name: 'PlayerTwo', level: 70, race: 'Orc', class: 'Shaman', zone: 'Orgrimmar' },
           { guid: 3, name: 'PlayerThree', level: 75, race: 'Night Elf', class: 'Druid', zone: 'Darnassus' },
         ]);

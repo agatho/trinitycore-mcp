@@ -2,7 +2,7 @@
  * Quest Route Optimizer MCP
  *
  * Provides quest routing optimization, XP/hour calculations, reward analysis,
- * and efficient leveling path planning for WoW 11.2.
+ * and efficient leveling path planning for WoW 12.0.
  *
  * @module questroute
  */
@@ -46,8 +46,8 @@ export interface QuestInfo {
   questId: number;
   questName: string;
   level: number;
-  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID
-  contentTuningId?: number; // TrinityCore 11.2.7+
+  minLevel: number; // Deprecated in 12.0.0 - now uses ContentTuningID
+  contentTuningId?: number; // TrinityCore 12.0.0+
   type: "kill" | "collect" | "explore" | "escort" | "dungeon" | "daily" | "weekly";
   xpReward: number;
   goldReward: number;
@@ -158,7 +158,7 @@ export async function optimizeQuestRoute(
   maxQuests: number = 30
 ): Promise<QuestRoute> {
   // Query quests in zone
-  // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
+  // TrinityCore 12.0.0: MinLevel removed, now uses ContentTuningID for scaling
   const query = `
     SELECT
       qt.ID as questId,
@@ -332,7 +332,7 @@ export async function getOptimalLevelingPath(
  * Analyze quest reward value
  */
 export async function analyzeQuestReward(questId: number, playerLevel: number): Promise<RewardAnalysis> {
-  // TrinityCore 11.2.7: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
+  // TrinityCore 12.0.0: RewardXP -> RewardXPDifficulty, RewardMoney -> RewardMoneyDifficulty
   const query = `
     SELECT
       ID, QuestDescription, RewardXPDifficulty as RewardXP, RewardMoneyDifficulty as RewardMoney,
@@ -437,7 +437,7 @@ export async function getDailyQuestCircuit(hubName: string): Promise<DailyQuestC
  */
 export async function findBreadcrumbChains(zoneId: number): Promise<BreadcrumbChain[]> {
   // Query for quests that lead to other quests
-  // TrinityCore 11.2.7: NextQuestID is in quest_template_addon, RewardXP -> RewardXPDifficulty
+  // TrinityCore 12.0.0: NextQuestID is in quest_template_addon, RewardXP -> RewardXPDifficulty
   const query = `
     SELECT qt.ID, qta.NextQuestID, qt.RewardXPDifficulty as RewardXP
     FROM quest_template qt
@@ -490,7 +490,7 @@ export async function optimizeCurrentQuests(
   for (const questId of currentQuests) {
     try {
       // Get quest details from database
-      // TrinityCore 11.2.7: RewardMoney -> RewardMoneyDifficulty
+      // TrinityCore 12.0.0: RewardMoney -> RewardMoneyDifficulty
       const query = `
         SELECT qt.ID, qta.MaxLevel as QuestLevel, qt.RewardXPDifficulty as RewardXP, qt.RewardMoneyDifficulty as RewardMoney, qt.RewardItem1, qt.RewardItem2, qt.RewardItem3, qt.RewardItem4
         FROM quest_template qt
@@ -684,7 +684,7 @@ function calculateDistance(loc1: { x: number; y: number; z: number }, loc2: { x:
 async function buildQuestChain(startQuestId: number): Promise<number[]> {
   const chain: number[] = [startQuestId];
 
-  // TrinityCore 11.2.7: NextQuestID is in quest_template_addon, not quest_template
+  // TrinityCore 12.0.0: NextQuestID is in quest_template_addon, not quest_template
   const query = `SELECT NextQuestID FROM quest_template_addon WHERE ID = ?`;
   let currentId = startQuestId;
 
@@ -708,16 +708,16 @@ async function buildQuestChain(startQuestId: number): Promise<number[]> {
  * Week 1 Enhancement: Replaced hardcoded estimates with xp.txt GameTable data
  *
  * The old XP_PER_LEVEL table has been removed and replaced with:
- * - src/data/xp-per-level.ts - Complete 80-level database from GameTable
+ * - src/data/xp-per-level.ts - Complete 90-level database from GameTable
  * - Accurate XP requirements from TrinityCore xp.txt
- * - Support for XP divisors (levels 71-80 use divisor 9)
+ * - Support for XP divisors (levels 81-90 use divisor 9)
  * - Expansion tracking for each level
  *
  * Key improvements over old hardcoded values:
  * - Accurate "level squish" behavior (levels 31-50 have reduced/negative XP deltas)
- * - Proper divisor handling for The War Within levels (71-80 use divisor 9)
+ * - Proper divisor handling for Midnight levels (81-90 use divisor 9)
  * - Per-kill XP values for mob grinding calculations
- * - Expansion-specific XP curves (Classic, Shadowlands, Dragonflight, War Within)
+ * - Expansion-specific XP curves (Classic, Shadowlands, Dragonflight, Midnight)
  * - Helper functions for quest XP calculations with divisor support
  */
 
@@ -800,7 +800,7 @@ function getDungeonRecommendations(startLevel: number, targetLevel: number): Arr
     { dungeonId: 2526, dungeonName: "The Nokhud Offensive", level: 65, xpGain: 480000, runs: 2 },
     { dungeonId: 2527, dungeonName: "Brackenhide Hollow", level: 68, xpGain: 540000, runs: 2 },
 
-    // The War Within dungeons (70-80)
+    // Midnight dungeons (80-90)
     { dungeonId: 2660, dungeonName: "Priory of the Sacred Flame", level: 72, xpGain: 680000, runs: 2 },
     { dungeonId: 2662, dungeonName: "The Rookery", level: 75, xpGain: 760000, runs: 2 },
     { dungeonId: 2664, dungeonName: "The Stonevault", level: 78, xpGain: 840000, runs: 2 },

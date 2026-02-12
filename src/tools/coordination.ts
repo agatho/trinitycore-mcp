@@ -836,7 +836,7 @@ function estimateDpsFromItemLevel(itemLevel: number, role: string): number {
 
   if (!role.includes("dps")) return 0;
 
-  // Rough DPS estimation (WoW 11.2 values)
+  // Rough DPS estimation (WoW 12.0 values)
   const baseDps = 30000;
   const dpsPerIlvl = 500;
 
@@ -1049,7 +1049,7 @@ function estimateHpsFromBot(bot: BotInfo): number {
  * Estimate HPS from item level (fallback when stats not available)
  */
 function estimateHpsFromItemLevel(itemLevel: number): number {
-  // Healer HPS estimation (WoW 11.2 values)
+  // Healer HPS estimation (WoW 12.0 values)
   // HPS scales with intellect and secondary stats
   const baseHps = 25000;
   const hpsPerIlvl = 450;
@@ -1121,13 +1121,13 @@ function calculateTankThreat(tank: BotInfo, allBots: BotInfo[]): {
 }
 
 function getResourceRegenRate(bot: BotInfo): number {
-  // WoW 11.2 resource regeneration rates
+  // WoW 12.0 resource regeneration rates
   const powerType = bot.powerType.toLowerCase();
   const stats = bot.stats;
 
   switch (powerType) {
     case "mana":
-      // Mana regen formula (WoW 11.2):
+      // Mana regen formula (WoW 12.0):
       // Base regen = 0.05 * Intellect * sqrt(Intellect) per 5 seconds
       // In-combat regen = Base regen (changed in recent expansions, no longer reduced)
       //

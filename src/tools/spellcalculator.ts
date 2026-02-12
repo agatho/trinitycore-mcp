@@ -2,7 +2,7 @@
  * Spell Calculator MCP Tool
  *
  * Provides spell damage/healing calculations, coefficient analysis,
- * stat scaling, and power cost computations for TrinityCore WoW 11.2.
+ * stat scaling, and power cost computations for TrinityCore WoW 12.0.
  * Helps bot AI make intelligent casting decisions.
  *
  * @module spellcalculator

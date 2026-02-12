@@ -108,15 +108,35 @@ export class TerrainMeshLoader {
     );
 
     // Apply height data to vertices
+    //
+    // TrinityCore V9 indexing: m_V9[x_int * 129 + y_int]
+    // - x_int increases as worldX decreases (going west)
+    // - y_int increases as worldY decreases (going south)
+    // - So V9[0] is the northeast corner of the tile
+    //
+    // PlaneGeometry vertex ordering: vertices[iy * 129 + ix]
+    // - ix: 0 = left (-X), 128 = right (+X)
+    // - iy: 0 = top (+Y before rotation), 128 = bottom (-Y before rotation)
+    // - After rotation.x = -PI/2: top becomes north (-Z), bottom becomes south (+Z)
+    //
+    // Mapping for correct tile orientation:
+    // PlaneGeometry (ix, iy) should get height from V9 where:
+    // - ix=0 (west edge) -> x_int=128 (west in TrinityCore)
+    // - ix=128 (east edge) -> x_int=0 (east in TrinityCore)
+    // - iy=0 (north edge after rotation) -> y_int=0 (north in TrinityCore)
+    // - iy=128 (south edge after rotation) -> y_int=128 (south in TrinityCore)
     const vertices = geometry.attributes.position;
-    for (let y = 0; y < gridSize; y++) {
-      for (let x = 0; x < gridSize; x++) {
-        const idx = y * gridSize + x;
-        const heightIdx = idx;
+    for (let iy = 0; iy < gridSize; iy++) {
+      for (let ix = 0; ix < gridSize; ix++) {
+        const vertexIdx = iy * gridSize + ix;
+        // Map PlaneGeometry to TrinityCore V9 coordinates
+        const x_int = gridSize - 1 - ix;  // Flip X: west(0)->128, east(128)->0
+        const y_int = iy;                  // Y matches: north(0)->0, south(128)->128
+        const heightIdx = x_int * gridSize + y_int;
 
         if (heightIdx < heightMap.heights.length) {
           const height = heightMap.heights[heightIdx] * this.options.heightScale;
-          vertices.setZ(idx, height);
+          vertices.setZ(vertexIdx, height);
         }
       }
     }
@@ -131,12 +151,17 @@ export class TerrainMeshLoader {
     const mesh = new THREE.Mesh(geometry, material);
 
     // Position mesh based on grid coordinates
-    // WoW coordinates: X increases east, Y increases north
-    const centerX = (32 - gridX) * tileSize - tileSize / 2;
-    const centerY = (32 - gridY) * tileSize - tileSize / 2;
+    // TrinityCore grid system: grid (32,32) = world (0,0)
+    // Grid X increases = world X decreases (west)
+    // Grid Y increases = world Y decreases (south)
+    //
+    // Tile center position in WoW world coordinates:
+    const worldX = (32 - gridX - 0.5) * tileSize;
+    const worldY = (32 - gridY - 0.5) * tileSize;
 
-    mesh.position.set(centerX, 0, centerY);
-    mesh.rotation.x = -Math.PI / 2; // Rotate to horizontal
+    // Map to Three.js: WoW X -> Three.js X, WoW Y -> Three.js -Z
+    mesh.position.set(worldX, 0, -worldY);
+    mesh.rotation.x = -Math.PI / 2; // Rotate plane to horizontal
     mesh.receiveShadow = true;
     mesh.castShadow = false; // Terrain doesn't cast shadows (performance)
 

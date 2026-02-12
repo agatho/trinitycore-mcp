@@ -10,8 +10,8 @@ export interface QuestInfo {
   details: string;
   objectives: string;
   level: number;
-  minLevel: number; // Deprecated in 11.2.7 - now uses ContentTuningID for scaling
-  contentTuningId?: number; // TrinityCore 11.2.7+: Content scaling ID
+  minLevel: number; // Deprecated in 12.0.0 - now uses ContentTuningID for scaling
+  contentTuningId?: number; // TrinityCore 12.0.0+: Content scaling ID
   type: string;
   rewards: QuestRewards;
   error?: string;
@@ -26,7 +26,7 @@ export interface QuestRewards {
 
 export async function getQuestInfo(questId: number): Promise<QuestInfo> {
   try {
-    // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID for scaling
+    // TrinityCore 12.0.0: MinLevel removed, now uses ContentTuningID for scaling
     // MaxLevel is in quest_template_addon, quest level determined by ContentTuningID
     const query = `
       SELECT
@@ -74,7 +74,7 @@ export async function getQuestInfo(questId: number): Promise<QuestInfo> {
       details: quest.details,
       objectives: quest.objectives,
       level: quest.level || 0,
-      minLevel: 0, // Deprecated in 11.2.7 - use contentTuningId
+      minLevel: 0, // Deprecated in 12.0.0 - use contentTuningId
       contentTuningId: quest.contentTuningId,
       type: getQuestTypeName(quest.type),
       rewards: {

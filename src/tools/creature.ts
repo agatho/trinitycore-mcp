@@ -1,7 +1,7 @@
 /**
  * Creature/NPC MCP Tool
  *
- * Comprehensive creature and NPC data access for TrinityCore WoW 11.2
+ * Comprehensive creature and NPC data access for TrinityCore WoW 12.0
  * Provides bot AI with detailed creature information for target selection,
  * threat assessment, vendor interactions, and trainer identification.
  *
@@ -79,7 +79,7 @@ function getCreatureFromCache(creatureId: number): CreatureCacheEntry | null {
 }
 
 // ============================================================================
-// TYPE DEFINITIONS - WoW 11.2 Retail
+// TYPE DEFINITIONS - WoW 12.0 Retail
 // ============================================================================
 
 /**

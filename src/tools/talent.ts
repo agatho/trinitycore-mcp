@@ -92,7 +92,7 @@ export interface TalentOptimization {
 // ============================================================================
 
 /**
- * Comprehensive talent build database for WoW 11.2 (The War Within)
+ * Comprehensive talent build database for WoW 12.0 (Midnight)
  * Based on top performing builds from Icy Veins, Wowhead, and class Discords
  */
 const TALENT_BUILDS: { [key: string]: Partial<TalentBuild> } = {
@@ -357,7 +357,7 @@ const TALENT_BUILDS: { [key: string]: Partial<TalentBuild> } = {
  * Get all available specializations for a class
  */
 export async function getClassSpecializations(classId: number): Promise<SpecializationInfo[]> {
-  // WoW 11.2 has specs primarily in DB2/DBC, but we can provide known specs
+  // WoW 12.0 has specs primarily in DB2/DBC, but we can provide known specs
   const specs: SpecializationInfo[] = [];
 
   const classSpecs: { [key: number]: Array<Partial<SpecializationInfo>> } = {

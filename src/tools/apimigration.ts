@@ -3,10 +3,10 @@
  * AI Agent Development Tool - List 1, Tool 2
  *
  * Purpose: Auto-detect deprecated APIs and migrate code between TrinityCore versions.
- * Essential for keeping PlayerBot updated (3.3.5a → 11.2).
+ * Essential for keeping PlayerBot updated (3.3.5a → 12.0).
  *
  * Features:
- * - Deprecation database (3.3.5a through 11.2)
+ * - Deprecation database (3.3.5a through 12.0)
  * - Automatic API scanner
  * - Auto-refactoring engine
  * - Breaking change detector
@@ -33,7 +33,7 @@ const TRINITY_CORE_PATH =
  * API change types
  */
 export interface APIChange {
-  version: string; // "3.3.5a", "11.2", etc.
+  version: string; // "3.3.5a", "12.0", etc.
   type:
     | "method_rename"
     | "signature_change"
@@ -148,7 +148,7 @@ const API_CHANGES: APIChange[] = [
     oldPattern: "CMSG_CAST_SPELL",
     newPattern: "CMSG_CAST_SPELL_2",
     description: "Spell cast opcode changed",
-    reason: "Packet structure updated for 11.2 client",
+    reason: "Packet structure updated for 12.0 client",
     exampleOld: "WorldPacket data(CMSG_CAST_SPELL);",
     exampleNew:
       "WorldPacket data(CMSG_CAST_SPELL_2); // NOTE: Packet layout changed!",
@@ -478,7 +478,7 @@ export async function analyzeAPIMigration(options: {
   const {
     directory = "src/modules/Playerbot",
     fromVersion = "3.3.5a",
-    toVersion = "11.2",
+    toVersion = "12.0",
     autoFix = false,
     modernize = true,
   } = options;
@@ -595,7 +595,7 @@ export function getMigrationPath(
   fromVersion: string,
   toVersion: string
 ): string[] {
-  const versions = ["3.3.5a", "6.0", "7.0", "8.0", "9.0", "10.0", "11.2"];
+  const versions = ["3.3.5a", "6.0", "7.0", "8.0", "9.0", "10.0", "11.2", "12.0"];
 
   const fromIndex = versions.indexOf(fromVersion);
   const toIndex = versions.indexOf(toVersion);

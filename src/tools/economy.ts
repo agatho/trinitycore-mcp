@@ -618,7 +618,7 @@ export function getGoldMakingStrategies(playerLevel: number, professions: string
       type: "farming",
       description: "Solo old raids for transmog and vendor gold",
       estimatedGoldPerHour: 8000,
-      requiredLevel: 80,
+      requiredLevel: 90,
       requiredProfessions: [],
       difficulty: "easy",
       initialInvestment: 0,
@@ -725,7 +725,7 @@ export function analyzeMarketSupplyDemand(
 export async function getMaterialFarmingGuide(materialId: number): Promise<MaterialFarmingGuide> {
   const material = await getItemPricing(materialId);
 
-  // TrinityCore 11.2.7: minlevel/maxlevel removed, lootid now in creature_template_difficulty
+  // TrinityCore 12.0.0: minlevel/maxlevel removed, lootid now in creature_template_difficulty
   const dropQuery = `
     SELECT ct.entry, ct.name, ctd.ContentTuningID, cl.ChanceOrQuestChance as dropRate
     FROM creature_loot_template cl

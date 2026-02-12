@@ -230,7 +230,7 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
       break;
 
     case "creatures":
-      // TrinityCore 11.2.7: minlevel/maxlevel removed, rank -> Classification
+      // TrinityCore 12.0.0: minlevel/maxlevel removed, rank -> Classification
       // Level info now in creature_template_difficulty via ContentTuningID
       table = "creature_template ct LEFT JOIN creature_template_difficulty ctd ON ct.entry = ctd.Entry AND ctd.DifficultyID = 0";
       fields =
@@ -242,7 +242,7 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
 
     case "quests":
       table = "quest_template qt LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID";
-      // TrinityCore 11.2.7: MinLevel removed, now uses ContentTuningID
+      // TrinityCore 12.0.0: MinLevel removed, now uses ContentTuningID
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
@@ -490,7 +490,7 @@ export function generateRelatedQueries(
       category: "trending",
     },
     {
-      query: "Show me level 80 quests",
+      query: "Show me level 90 quests",
       description: "Max level quests",
       category: "trending",
     }

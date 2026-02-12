@@ -93,7 +93,7 @@ interface SpawnQueryOptions extends VMapToolOptions {
 /**
  * List available VMap files
  *
- * TrinityCore 11.2.7+ directory structure:
+ * TrinityCore 12.0.0+ directory structure:
  * vmaps/
  *   0000/
  *     0000.vmtree
@@ -114,7 +114,7 @@ export async function listVMapFiles(vmapDir: string): Promise<{
   const tiles: Map<string, string[]> = new Map();
 
   try {
-    // TrinityCore 11.2.7+: VMap files are in map ID subdirectories
+    // TrinityCore 12.0.0+: VMap files are in map ID subdirectories
     const subdirs = await fs.readdir(vmapDir);
 
     for (const subdir of subdirs) {
@@ -163,7 +163,7 @@ export async function listVMapFiles(vmapDir: string): Promise<{
 /**
  * Get VMap file info
  *
- * TrinityCore 11.2.7+: Files are in subdirectories with 4-digit map IDs
+ * TrinityCore 12.0.0+: Files are in subdirectories with 4-digit map IDs
  *
  * @param vmapFile Path to VMap file
  * @returns File information
@@ -186,7 +186,7 @@ export async function getVMapFileInfo(vmapFile: string): Promise<{
 
   if (filename.endsWith(".vmtree")) {
     type = "tree";
-    // TrinityCore 11.2.7+: vmtree filename is 4 digits (e.g., 0000.vmtree)
+    // TrinityCore 12.0.0+: vmtree filename is 4 digits (e.g., 0000.vmtree)
     const match = filename.match(/^(\d{4})\.vmtree$/);
     if (match) {
       mapId = parseInt(match[1], 10);
@@ -214,7 +214,7 @@ export async function getVMapFileInfo(vmapFile: string): Promise<{
 /**
  * Validate VMap files
  *
- * TrinityCore 11.2.7+: Files are in subdirectories (e.g., vmaps/0000/0000.vmtree)
+ * TrinityCore 12.0.0+: Files are in subdirectories (e.g., vmaps/0000/0000.vmtree)
  *
  * @param vmapDir VMap directory
  * @param mapId Map ID
@@ -232,7 +232,7 @@ export async function validateVMapFiles(
   const issues: string[] = [];
   const mapIdStr = mapId.toString().padStart(4, "0");
 
-  // TrinityCore 11.2.7+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
+  // TrinityCore 12.0.0+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
   const treeFile = path.join(vmapDir, mapIdStr, `${mapIdStr}.vmtree`);
   let hasTree = false;
 
@@ -345,7 +345,7 @@ export async function findSpawnsInRadius(
 /**
  * Get VMap statistics
  *
- * TrinityCore 11.2.7+: Files are in subdirectories
+ * TrinityCore 12.0.0+: Files are in subdirectories
  *
  * @param vmapDir VMap directory
  * @param mapId Map ID
@@ -369,7 +369,7 @@ export async function getVMapStatistics(
   // Calculate total size
   let totalSize = 0;
 
-  // TrinityCore 11.2.7+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
+  // TrinityCore 12.0.0+: Tree file is in subdirectory: vmaps/0000/0000.vmtree
   const treeFile = path.join(vmapDir, mapIdStr, `${mapIdStr}.vmtree`);
   try {
     const stats = await fs.stat(treeFile);

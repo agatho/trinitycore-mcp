@@ -2,7 +2,7 @@
  * PvP Arena/Battleground Tactician MCP
  *
  * Provides comprehensive PvP strategy, arena compositions, battleground tactics,
- * counter-play analysis, and rated PvP optimization for WoW 11.2.
+ * counter-play analysis, and rated PvP optimization for WoW 12.0.
  *
  * @module pvptactician
  */
@@ -721,7 +721,7 @@ export function analyzeCounterMatchup(
   strategy: string;
   keyPoints: string[];
 } {
-  // Comprehensive WoW 11.2 (The War Within) 3v3 Arena composition counter matrix
+  // Comprehensive WoW 12.0 (Midnight) 3v3 Arena composition counter matrix
   // Favorability scale: -50 (hard counter) to +50 (heavily favored)
   const counters: { [key: string]: { [key: string]: { favorability: number; strategy: string; keyPoints: string[] } } } = {
     "rmp": { // Rogue/Mage/Priest (Control)
