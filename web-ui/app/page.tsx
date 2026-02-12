@@ -127,6 +127,13 @@ export default function HomePage() {
       color: "text-violet-400",
     },
     {
+      name: "World Dashboard",
+      icon: Activity,
+      description: "Live world state with WebSocket real-time events",
+      href: "/world-dashboard",
+      color: "text-emerald-400",
+    },
+    {
       name: "Live Inspector",
       icon: Eye,
       description: "Real-time server data monitoring",
