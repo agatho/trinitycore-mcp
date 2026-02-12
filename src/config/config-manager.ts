@@ -139,7 +139,7 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
     port: 3000,
     host: "localhost",
     corsEnabled: true,
-    corsOrigin: "*",
+    corsOrigin: "http://localhost:3000",
     maxConnections: 100,
   },
   websocket: {

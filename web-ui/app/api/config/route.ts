@@ -101,7 +101,7 @@ function loadConfigFromEnv(): TrinityMCPConfig {
       port: parseInt(process.env.MCP_PORT || process.env.PORT || "3000"),
       host: process.env.MCP_HOST || "localhost",
       corsEnabled: process.env.CORS_ENABLED !== "false",
-      corsOrigin: process.env.CORS_ORIGIN || "*",
+      corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
       maxConnections: parseInt(process.env.MAX_CONNECTIONS || "100"),
     },
     websocket: {

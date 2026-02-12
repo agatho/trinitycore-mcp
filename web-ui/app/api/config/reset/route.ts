@@ -92,7 +92,7 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
     port: parseInt(process.env.MCP_PORT || "3000"),
     host: process.env.MCP_HOST || "localhost",
     corsEnabled: true,
-    corsOrigin: "*",
+    corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
     maxConnections: 100,
   },
   websocket: {
