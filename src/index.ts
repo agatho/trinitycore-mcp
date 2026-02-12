@@ -156,6 +156,11 @@ import {
   processGameMasterCommand,
 } from "./tools/gamemaster";
 import {
+  diffDB2Files,
+  diffDB2Directories,
+  inspectDB2File,
+} from "./tools/db2schemadiff";
+import {
   analyzeBotPerformance,
   simulateScaling,
   getOptimizationSuggestions,
@@ -3225,6 +3230,33 @@ const ALL_TOOLS: Tool[] = [
       required: ["command"],
     },
   },
+  {
+    name: "db2-schema-diff",
+    description: "Compare two DB2 files or directories to detect schema changes. Reports header diffs (table hash, layout hash, field count, record size), field-level changes (added/removed/modified fields with size and offset), section diffs, and produces a compatibility assessment with migration notes. Supports single-file comparison, directory batch comparison, and single-file inspection.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mode: {
+          type: "string",
+          enum: ["diff", "directory-diff", "inspect"],
+          description: "Operation mode: 'diff' compares two files, 'directory-diff' compares all DB2 files in two directories, 'inspect' shows metadata for a single file",
+        },
+        fileA: {
+          type: "string",
+          description: "Path to the first (old/baseline) DB2 file or directory",
+        },
+        fileB: {
+          type: "string",
+          description: "Path to the second (new/updated) DB2 file or directory (not needed for 'inspect' mode)",
+        },
+        fileFilter: {
+          type: "string",
+          description: "Optional filename filter for directory-diff mode (e.g., 'Spell*' to only compare Spell files)",
+        },
+      },
+      required: ["mode", "fileA"],
+    },
+  },
 ];
 
 // Initialize dynamic tool manager with all available tools
@@ -5427,6 +5459,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const command = args.command as string;
         const dryRun = args.dryRun !== false; // Default true
         const result = await processGameMasterCommand(command, dryRun);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+
+      case "db2-schema-diff": {
+        const mode = args.mode as string;
+        const fileA = args.fileA as string;
+        const fileB = args.fileB as string | undefined;
+        const fileFilter = args.fileFilter as string | undefined;
+
+        let result: unknown;
+
+        switch (mode) {
+          case "diff": {
+            if (!fileB) {
+              throw new Error("fileB is required for 'diff' mode");
+            }
+            result = diffDB2Files(fileA, fileB);
+            break;
+          }
+          case "directory-diff": {
+            if (!fileB) {
+              throw new Error("fileB is required for 'directory-diff' mode");
+            }
+            result = diffDB2Directories(fileA, fileB, fileFilter);
+            break;
+          }
+          case "inspect": {
+            result = inspectDB2File(fileA);
+            break;
+          }
+          default:
+            throw new Error(`Unknown mode: ${mode}. Use 'diff', 'directory-diff', or 'inspect'.`);
+        }
+
         return {
           content: [{
             type: "text",
