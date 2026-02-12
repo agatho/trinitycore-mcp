@@ -265,7 +265,6 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const shouldReload = searchParams.get('reload') === 'true';
-    const showPassword = searchParams.get('showPassword') === 'true';
 
     if (shouldReload) {
       // Reload environment variables from .env.local
@@ -274,12 +273,12 @@ export async function GET(request: NextRequest) {
       currentConfig = loadConfigFromEnv();
     }
 
-    // Return current configuration (optionally sanitized)
+    // Return current configuration (always sanitized - never expose passwords via API)
     const responseConfig = {
       ...currentConfig,
       database: {
         ...currentConfig.database,
-        password: showPassword ? currentConfig.database.password : (currentConfig.database.password ? "••••••••" : ""),
+        password: currentConfig.database.password ? "••••••••" : "",
       },
     };
 
