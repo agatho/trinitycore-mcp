@@ -20,6 +20,7 @@ export class DB2Record {
   private recordSize: number; // Size of a single record (for inline files)
   private recordCount: number; // Total record count in section (for inline files)
   private sectionFileOffset: number; // File offset where section's records begin (for string offset calculation)
+  private stringOffsetCorrection: number; // Correction to translate TrinityCore combined-buffer offsets to per-section buffer positions
 
   constructor(
     recordData: Buffer,
@@ -31,7 +32,8 @@ export class DB2Record {
     isSparseFile?: boolean, // Optional: Indicates file type (true = sparse/variable-size records, false = inline/fixed-size records)
     recordSize?: number, // Optional: Record size (for inline files to calculate string table offset)
     recordCount?: number, // Optional: Total records in section (for inline files to calculate string table offset)
-    sectionFileOffset?: number // Optional: File offset where section begins (for inline files to calculate string offset)
+    sectionFileOffset?: number, // Optional: File offset where section begins (for inline files to calculate string offset)
+    stringOffsetCorrection?: number // Optional: Correction for translating raw string offsets to per-section buffer positions
   ) {
     this.recordData = recordData;
     this.stringBlock = stringBlock;
@@ -43,6 +45,7 @@ export class DB2Record {
     this.recordSize = recordSize || recordData.length;
     this.recordCount = recordCount || 0;
     this.sectionFileOffset = sectionFileOffset || 0;
+    this.stringOffsetCorrection = stringOffsetCorrection || 0;
   }
 
   /**
@@ -177,79 +180,49 @@ export class DB2Record {
     } else {
       // INLINE/DENSE FILE: Strings are in section-specific string table
       //
-      // **CRITICAL FIX:** We now use COMBINED buffers like TrinityCore!
-      // Combined buffer layout: [All Records: recordCount * recordSize][String Table]
-      // this.recordData = view into combined buffer at record position
-      // this.stringBlock = view into combined buffer starting at string table
+      // TrinityCore's DB2FileLoaderRegularImpl::RecordGetString() formula:
+      //   return reinterpret_cast<char const*>(record + fieldOffset + stringOffset);
       //
-      // Trinity's formula: record + fieldOffset + stringOffset
-      // Where:
-      //   - record = pointer to current record in combined buffer
-      //   - fieldOffset = offset within record
-      //   - stringOffset = raw value from field (relative offset)
+      // In TrinityCore's combined buffer layout:
+      //   [Section 0 Records][Section 1 Records]...[Section 0 Strings][Section 1 Strings]...
+      //   String table starts at: header.recordCount * header.recordSize
       //
-      // Since we receive recordData as a subarray view at the record position,
-      // the calculation simplifies to: fieldOffset + stringOffset
-      // This gives us the offset into the string table relative to its start.
+      // Our per-section buffer layout:
+      //   [Section Records][Section Strings]
+      //   String table starts at: section.recordCount * recordSize
+      //
+      // The raw string offset is calibrated for TrinityCore's full combined buffer.
+      // stringOffsetCorrection translates from TrinityCore layout to our per-section layout:
+      //   correction = (sectionRecordCount - headerRecordCount) * recordSize
+      //              + sectionRecordStartOffset - sectionStringTableStartOffset
+      //
+      // Final formula:
+      //   bufferPosition = recordIndex * recordSize + fieldOffset + rawOffset + correction
 
-      // CRITICAL FIX: Now recordData is the FULL combined buffer, not a subarray!
-      // Trinity's formula: record + fieldOffset + stringOffset
-      // Where 'record' is the pointer to record's position in combined buffer
-
-      // Get field offset within the record
       const fieldOffset = this.getFieldOffset(field, arrayIndex);
-
-      // Calculate absolute position in combined buffer where the string offset field is stored
-      const recordPositionInCombinedBuffer = this.recordIndex * this.recordSize;
-      const fieldPositionInCombinedBuffer = recordPositionInCombinedBuffer + fieldOffset;
-
-      // Read the raw string offset value from that position
-      const rawStringOffset = this.recordData.readUInt32LE(fieldPositionInCombinedBuffer);
+      const recordPositionInBuffer = this.recordIndex * this.recordSize;
+      const rawStringOffset = this.recordData.readUInt32LE(recordPositionInBuffer + fieldOffset);
 
       if (rawStringOffset === 0) {
         return '';
       }
 
-      // CRITICAL WDC5 STRING TABLE OFFSET QUIRK:
-      // Raw string offset values in SpellName.db2 (and potentially other WDC5 inline files)
-      // encode positions that are 5 bytes too high relative to the actual string positions.
-      //
-      // Evidence from testing:
-      // - Record 0: rawOffset=697698, actual string at 697693 (delta: -5)
-      // - Record 1: rawOffset=697715, actual string at 697714 (delta: -1)
-      // - Record 2: rawOffset=697737, actual string at 697739 (delta: +2)
-      //
-      // The dominant pattern is -5, which fixes ~83% of records.
-      // Root cause: Unknown WDC5 format encoding quirk. Trinity's C++ pointer arithmetic
-      // may handle this differently, or there's an undocumented string table prefix.
-      //
-      // For now, we apply -5 correction as it's the most reliable fix we've found.
-      // This is a KNOWN LIMITATION requiring future investigation.
-      const WDC5_STRING_OFFSET_CORRECTION = -5;
+      // Apply TrinityCore formula with correction for per-section buffer layout
+      const bufferPosition = recordPositionInBuffer + fieldOffset + rawStringOffset + this.stringOffsetCorrection;
 
-      // Trinity's formula with correction: record + fieldOffset + (stringOffset + correction)
-      const absolutePositionInCombinedBuffer = recordPositionInCombinedBuffer + fieldOffset + rawStringOffset + WDC5_STRING_OFFSET_CORRECTION;
-
-      // String table starts at position (recordCount * recordSize) in the combined buffer
-      const stringTableStartInCombinedBuffer = this.recordCount * this.recordSize;
-
-      // Convert absolute position to offset within string table
-      const stringTableOffset = absolutePositionInCombinedBuffer - stringTableStartInCombinedBuffer;
-
-      // Validate offset
-      if (stringTableOffset < 0 || stringTableOffset >= this.stringBlock.length - stringTableStartInCombinedBuffer) {
+      // Validate: position must be within the string table portion of our buffer
+      const stringTableStart = this.recordCount * this.recordSize;
+      if (bufferPosition < stringTableStart || bufferPosition >= this.stringBlock.length) {
         return '';
       }
 
-      // Look up string in the string table (which is the full combined buffer)
-      // String is at position: stringTableStartInCombinedBuffer + stringTableOffset
-      const stringPositionInCombinedBuffer = stringTableStartInCombinedBuffer + stringTableOffset;
-      const nullIndex = this.stringBlock.indexOf(0, stringPositionInCombinedBuffer);
+      // Read null-terminated string
+      const nullIndex = this.stringBlock.indexOf(0, bufferPosition);
       if (nullIndex === -1) {
-        return this.stringBlock.toString('utf8', stringPositionInCombinedBuffer);
+        return this.stringBlock.toString('utf8', bufferPosition);
       }
 
-      return this.stringBlock.toString('utf8', stringPositionInCombinedBuffer, nullIndex);
+      return this.stringBlock.toString('utf8', bufferPosition, nullIndex);
     }
   }
 

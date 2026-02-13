@@ -189,7 +189,9 @@ export class DB2FileLoader {
     // Trinity allocates: _data[RecordSize * RecordCount + StringTableSize]
     // Then sets: _stringTable = &_data[RecordSize * RecordCount]
     //
-    // This is CRITICAL for string offset calculation to work correctly!
+    // In TrinityCore's buffer, ALL sections' records come first, then ALL sections' strings.
+    // Our per-section buffer only has ONE section's records then ONE section's strings.
+    // We compute a stringOffsetCorrection to translate raw offsets to our buffer layout.
     const section = this.sections[mapping.sectionIndex];
     const recordDataSize = section.recordCount * this.header!.recordSize;
     const combinedSize = recordDataSize + section.stringTableSize;
@@ -218,35 +220,38 @@ export class DB2FileLoader {
       }
     }
 
-    // CRITICAL FIX: Pass FULL buffers to DB2Record, not subarray views!
-    // Trinity's formula assumes 'record' pointer is positioned at record's location in combined buffer.
-    // When we pass a subarray view, the view starts at position 0, breaking the math.
-    // Solution: Pass full combined buffer as both recordData AND stringTable.
-    // DB2Record will use recordIndex to calculate correct positions.
-
-    // Pass the ENTIRE combined buffer as recordData (DB2Record will extract the right record)
-    const recordData = combinedBuffer;
-
-    // Pass the ENTIRE combined buffer as stringTable (DB2Record will calculate string offsets correctly)
-    const stringTable = combinedBuffer;
-
-    // DEBUG: Log section file offset for spell 1
-    if (spellId === 1) {
-      logger.info(`\n🔍 DEBUG Spell 1 - Section File Offset:`);
-      logger.info(`  section.fileOffset: ${section.fileOffset}`);
-      logger.info(`  recordIndex (localIndex): ${mapping.localIndex}`);
-      logger.info(`  recordSize: ${this.header!.recordSize}`);
-      logger.info(`  recordCount: ${section.recordCount}`);
+    // Compute string offset correction for this section.
+    //
+    // TrinityCore's combined buffer layout:
+    //   [Sec0 Records][Sec1 Records]...[SecN Records][Sec0 Strings][Sec1 Strings]...[SecN Strings]
+    //   String table base = header.recordCount * recordSize (total across ALL sections)
+    //
+    // Our per-section buffer layout:
+    //   [Section Records][Section Strings]
+    //   String table base = section.recordCount * recordSize
+    //
+    // Raw string offsets in records are calibrated for TrinityCore's layout.
+    // Correction translates TrinityCore absolute positions to our per-section positions:
+    //   correction = (section.recordCount - header.recordCount) * recordSize
+    //              + sectionRecordStartOffset - sectionStringTableStartOffset
+    //
+    // Where sectionRecordStartOffset = sum of previous sections' record data sizes
+    //       sectionStringTableStartOffset = sum of previous sections' string table sizes
+    let sectionRecordStartOffset = 0;
+    let sectionStringTableStartOffset = 0;
+    for (let i = 0; i < mapping.sectionIndex; i++) {
+      sectionRecordStartOffset += this.sections[i].recordCount * this.header!.recordSize;
+      sectionStringTableStartOffset += this.sections[i].stringTableSize;
     }
 
-    // Pass the spellId as the 6th parameter for both sparse and inline files
-    // The ID comes from the ID list/catalog, NOT from the record data
-    // Pass isSparse flag as 7th parameter so getString() knows how to read strings
-    // Pass recordSize, recordCount, and sectionFileOffset for inline files to calculate string offset
-    // DB2Record constructor: (recordData, stringBlock, columnMeta, recordIndex, fieldEntries?, recordId?, isSparseFile?, recordSize?, recordCount?, sectionFileOffset?)
+    const stringOffsetCorrection =
+      (section.recordCount - this.header!.recordCount) * this.header!.recordSize
+      + sectionRecordStartOffset
+      - sectionStringTableStartOffset;
+
     return new DB2Record(
-      recordData,
-      stringTable,
+      combinedBuffer,
+      combinedBuffer,
       this.columnMeta,
       mapping.localIndex,
       this.fieldEntries,
@@ -254,7 +259,8 @@ export class DB2FileLoader {
       isSparse,
       this.header!.recordSize,
       section.recordCount,
-      section.fileOffset
+      section.fileOffset,
+      stringOffsetCorrection
     );
   }
 
