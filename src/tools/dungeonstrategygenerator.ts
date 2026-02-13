@@ -17,6 +17,7 @@ import { queryWorld } from "../database/connection";
 import { logger } from "../utils/logger";
 import * as fs from "fs";
 import * as path from "path";
+import { JsonCacheLoader } from "../utils/json-cache-loader";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -237,33 +238,11 @@ interface RouteStep {
 // SPELL CACHE HELPERS
 // ============================================================================
 
-/** In-memory spell name cache loaded from disk */
-let spellNameCache: Map<number, string> | null = null;
-
-function loadSpellNameCache(): Map<number, string> {
-  if (spellNameCache) return spellNameCache;
-
-  spellNameCache = new Map();
-  try {
-    const cachePath = path.resolve("./data/cache/spell_names_cache.json");
-    if (fs.existsSync(cachePath)) {
-      const data = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
-      if (typeof data === "object" && data !== null) {
-        for (const [id, name] of Object.entries(data)) {
-          spellNameCache.set(Number(id), name as string);
-        }
-      }
-      logger.info(`Loaded ${spellNameCache.size} spell names for strategy generation`);
-    }
-  } catch (e) {
-    logger.warn(`Could not load spell name cache: ${e}`);
-  }
-  return spellNameCache;
-}
+// Lazy-loaded spell name cache (replaces ~25 lines of duplicate boilerplate)
+const spellNameCacheForStrategy = new JsonCacheLoader<string>("./data/cache/spell_names_cache.json", "spell name (strategy)");
 
 function getSpellName(spellId: number): string {
-  const cache = loadSpellNameCache();
-  return cache.get(spellId) || `Spell ${spellId}`;
+  return spellNameCacheForStrategy.get(spellId) || `Spell ${spellId}`;
 }
 
 /**

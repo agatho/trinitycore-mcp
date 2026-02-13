@@ -23,6 +23,7 @@ import {
   AttributeCategory,
   type AttributeFlag
 } from "../data/spell-attributes";
+import { JsonCacheLoader } from "../utils/json-cache-loader";
 
 export interface SpellInfo {
   spellId: number;
@@ -84,127 +85,26 @@ const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 // Based on TrinityCore's sSpellNameStore("SpellName.db2")
 const SPELL_DB2_FILE = "SpellName.db2";
 
-// Spell name cache (loaded from DBCD-generated JSON)
-const SPELL_NAME_CACHE_PATH = "./data/cache/spell_names_cache.json";
-let spellNameCache: Map<number, string> | null = null;
-
-// Spell data cache (loaded from DBCD-generated JSON - complete Spell.db2 data)
-const SPELL_DATA_CACHE_PATH = "./data/cache/spell_data_cache.json";
+// Spell data cache entry (descriptions, ranks from Spell.db2)
 interface SpellDataCacheEntry {
   ID: number;
   NameSubtext_lang?: string;
   Description_lang?: string;
   AuraDescription_lang?: string;
 }
-let spellDataCache: Map<number, SpellDataCacheEntry> | null = null;
 
-/**
- * Load spell name cache from DBCD-generated JSON
- * This provides 100% accurate spell names extracted using the proven DBCD library
- * @returns True if cache loaded successfully
- */
-function loadSpellNameCache(): boolean {
-  if (spellNameCache !== null) {
-    return true; // Already loaded
-  }
+// Lazy-loaded JSON caches (replaces ~120 lines of duplicate boilerplate)
+const spellNameCacheLoader = new JsonCacheLoader<string>("./data/cache/spell_names_cache.json", "spell name");
+const spellDataCacheLoader = new JsonCacheLoader<SpellDataCacheEntry>("./data/cache/spell_data_cache.json", "spell data");
 
-  try {
-    if (!fs.existsSync(SPELL_NAME_CACHE_PATH)) {
-      logger.warn(`Spell name cache not found at ${SPELL_NAME_CACHE_PATH}. Falling back to DB2 parsing.`);
-      return false;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(SPELL_NAME_CACHE_PATH, 'utf8'));
-    spellNameCache = new Map<number, string>();
-
-    // Convert JSON object to Map
-    for (const [key, value] of Object.entries(cacheData)) {
-      spellNameCache.set(parseInt(key), value as string);
-    }
-
-    logger.info(`✅ Loaded spell name cache: ${spellNameCache.size} entries`);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to load spell name cache: ${error}`);
-    spellNameCache = null;
-    return false;
-  }
-}
-
-/**
- * Get spell name from cache (100% accurate, O(1) lookup)
- * Falls back to DB2 parsing if cache unavailable
- * @param spellId Spell ID to query
- * @returns Spell name or null if not found
- */
+/** Get spell name from cache (100% accurate, O(1) lookup) */
 function getSpellNameFromCache(spellId: number): string | null {
-  // Lazy load cache on first access
-  if (spellNameCache === null) {
-    loadSpellNameCache();
-  }
-
-  // If cache available, use it (100% accurate)
-  if (spellNameCache !== null) {
-    return spellNameCache.get(spellId) || null;
-  }
-
-  // Cache unavailable, caller will fall back to DB2 parsing
-  return null;
+  return spellNameCacheLoader.get(spellId);
 }
 
-/**
- * Load spell data cache from DBCD-generated JSON
- * This provides complete Spell.db2 data (descriptions, ranks, etc.) as fallback
- * when Trinity database doesn't have the data
- * @returns True if cache loaded successfully
- */
-function loadSpellDataCache(): boolean {
-  if (spellDataCache !== null) {
-    return true; // Already loaded
-  }
-
-  try {
-    if (!fs.existsSync(SPELL_DATA_CACHE_PATH)) {
-      logger.warn(`Spell data cache not found at ${SPELL_DATA_CACHE_PATH}. Using database only.`);
-      return false;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(SPELL_DATA_CACHE_PATH, 'utf8'));
-    spellDataCache = new Map<number, SpellDataCacheEntry>();
-
-    // Convert JSON object to Map
-    for (const [key, value] of Object.entries(cacheData)) {
-      spellDataCache.set(parseInt(key), value as SpellDataCacheEntry);
-    }
-
-    logger.info(`✅ Loaded spell data cache: ${spellDataCache.size} entries`);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to load spell data cache: ${error}`);
-    spellDataCache = null;
-    return false;
-  }
-}
-
-/**
- * Get complete spell data from cache (descriptions, ranks, etc.)
- * This is used as fallback when Trinity database doesn't have the spell data
- * @param spellId Spell ID to query
- * @returns Spell data entry or null if not found
- */
+/** Get complete spell data from cache (descriptions, ranks, etc.) */
 function getSpellDataFromCache(spellId: number): SpellDataCacheEntry | null {
-  // Lazy load cache on first access
-  if (spellDataCache === null) {
-    loadSpellDataCache();
-  }
-
-  // If cache available, use it
-  if (spellDataCache !== null) {
-    return spellDataCache.get(spellId) || null;
-  }
-
-  // Cache unavailable
-  return null;
+  return spellDataCacheLoader.get(spellId);
 }
 
 /**

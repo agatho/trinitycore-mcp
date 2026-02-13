@@ -13,12 +13,11 @@ import * as fs from "fs";
 import * as path from "path";
 import { logger } from '../utils/logger';
 import { buildSafeInClause, validateNumericValue } from '../utils/sql-safety';
+import { JsonCacheLoader } from "../utils/json-cache-loader";
 
 // ============================================================================
 // CREATURE CACHE (DBCD-generated JSON from Creature.db2)
 // ============================================================================
-
-const CREATURE_CACHE_PATH = "./data/cache/creature_cache.json";
 
 interface CreatureCacheEntry {
   ID: number;
@@ -36,47 +35,12 @@ interface CreatureCacheEntry {
   [key: string]: any;
 }
 
-let creatureCache: Map<number, CreatureCacheEntry> | null = null;
+// Lazy-loaded JSON cache (replaces ~40 lines of duplicate boilerplate)
+const creatureCacheLoader = new JsonCacheLoader<CreatureCacheEntry>("./data/cache/creature_cache.json", "creature");
 
-/**
- * Load creature cache from DBCD-generated JSON (lazy loading)
- */
-function loadCreatureCache(): boolean {
-  if (creatureCache !== null) {
-    return true; // Already loaded
-  }
-
-  try {
-    if (!fs.existsSync(CREATURE_CACHE_PATH)) {
-      logger.warn(`Creature cache not found at ${CREATURE_CACHE_PATH}.`);
-      return false;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(CREATURE_CACHE_PATH, 'utf8'));
-    creatureCache = new Map<number, CreatureCacheEntry>();
-
-    for (const [key, value] of Object.entries(cacheData)) {
-      creatureCache.set(parseInt(key), value as CreatureCacheEntry);
-    }
-
-    logger.info(`✅ Loaded creature cache: ${creatureCache.size} entries`);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to load creature cache: ${error}`);
-    creatureCache = null;
-    return false;
-  }
-}
-
-/**
- * Get creature from JSON cache
- */
+/** Get creature from JSON cache */
 function getCreatureFromCache(creatureId: number): CreatureCacheEntry | null {
-  if (!loadCreatureCache() || !creatureCache) {
-    return null;
-  }
-
-  return creatureCache.get(creatureId) || null;
+  return creatureCacheLoader.get(creatureId);
 }
 
 // ============================================================================

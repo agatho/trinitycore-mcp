@@ -9,6 +9,7 @@ import { ItemSchema } from "../parsers/schemas/ItemSchema";
 import * as path from "path";
 import * as fs from "fs";
 import { logger } from '../utils/logger';
+import { JsonCacheLoader } from "../utils/json-cache-loader";
 
 export interface ItemInfo {
   itemId: number;
@@ -60,10 +61,6 @@ const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 const ITEM_DB2_FILE = "Item.db2";
 const ITEM_SPARSE_DB2_FILE = "ItemSparse.db2";
 
-// Item cache (loaded from DBCD-generated JSON)
-const ITEM_CACHE_PATH = "./data/cache/item_cache.json";
-const ITEM_SPARSE_CACHE_PATH = "./data/cache/item_sparse_cache.json";
-
 interface ItemCacheEntry {
   ID: number;
   ClassID?: number;
@@ -90,92 +87,19 @@ interface ItemSparseCacheEntry {
   [key: string]: any;
 }
 
-let itemCache: Map<number, ItemCacheEntry> | null = null;
-let itemSparseCache: Map<number, ItemSparseCacheEntry> | null = null;
+// Lazy-loaded JSON caches (replaces ~80 lines of duplicate boilerplate)
+const itemCacheLoader = new JsonCacheLoader<ItemCacheEntry>("./data/cache/item_cache.json", "item");
+const itemSparseCacheLoader = new JsonCacheLoader<ItemSparseCacheEntry>("./data/cache/item_sparse_cache.json", "item sparse");
 
-/**
- * Load item cache from DBCD-generated JSON
- * @returns True if cache loaded successfully
- */
-function loadItemCache(): boolean {
-  if (itemCache !== null) {
-    return true; // Already loaded
-  }
-
-  try {
-    if (!fs.existsSync(ITEM_CACHE_PATH)) {
-      logger.warn(`Item cache not found at ${ITEM_CACHE_PATH}. Using DB2 parser or database only.`);
-      return false;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(ITEM_CACHE_PATH, 'utf8'));
-    itemCache = new Map<number, ItemCacheEntry>();
-
-    for (const [key, value] of Object.entries(cacheData)) {
-      itemCache.set(parseInt(key), value as ItemCacheEntry);
-    }
-
-    logger.info(`✅ Loaded item cache: ${itemCache.size} entries`);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to load item cache: ${error}`);
-    itemCache = null;
-    return false;
-  }
-}
-
-/**
- * Load item sparse cache from DBCD-generated JSON
- * @returns True if cache loaded successfully
- */
-function loadItemSparseCache(): boolean {
-  if (itemSparseCache !== null) {
-    return true; // Already loaded
-  }
-
-  try {
-    if (!fs.existsSync(ITEM_SPARSE_CACHE_PATH)) {
-      logger.warn(`Item sparse cache not found at ${ITEM_SPARSE_CACHE_PATH}. Using DB2 parser or database only.`);
-      return false;
-    }
-
-    const cacheData = JSON.parse(fs.readFileSync(ITEM_SPARSE_CACHE_PATH, 'utf8'));
-    itemSparseCache = new Map<number, ItemSparseCacheEntry>();
-
-    for (const [key, value] of Object.entries(cacheData)) {
-      itemSparseCache.set(parseInt(key), value as ItemSparseCacheEntry);
-    }
-
-    logger.info(`✅ Loaded item sparse cache: ${itemSparseCache.size} entries`);
-    return true;
-  } catch (error) {
-    logger.error(`Failed to load item sparse cache: ${error}`);
-    itemSparseCache = null;
-    return false;
-  }
-}
-
-/**
- * Get item data from cache
- * @param itemId Item ID to query
- * @returns Item cache entries or null if not found
- */
+/** Get item data from cache */
 function getItemFromCache(itemId: number): {
   item: ItemCacheEntry | null;
   itemSparse: ItemSparseCacheEntry | null;
 } {
-  // Lazy load caches on first access
-  if (itemCache === null) {
-    loadItemCache();
-  }
-  if (itemSparseCache === null) {
-    loadItemSparseCache();
-  }
-
-  const item = itemCache?.get(itemId) || null;
-  const itemSparse = itemSparseCache?.get(itemId) || null;
-
-  return { item, itemSparse };
+  return {
+    item: itemCacheLoader.get(itemId),
+    itemSparse: itemSparseCacheLoader.get(itemId),
+  };
 }
 
 /**
