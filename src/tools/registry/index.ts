@@ -27,6 +27,7 @@ import { mapTools } from "./map-tools";
 import { databaseOpsTools } from "./database-ops";
 import { learningSystemsTools } from "./learning-systems";
 import { replayTools } from "./replay-tools";
+import { economySimulationTools } from "./economy-simulation-tools";
 import { createConfigManagementTools, ConfigManagementDeps } from "./config-management";
 
 // Re-export types for convenience
@@ -52,6 +53,7 @@ const STATIC_TOOL_ENTRIES: ToolRegistryEntry[] = [
   ...databaseOpsTools,
   ...learningSystemsTools,
   ...replayTools,
+  ...economySimulationTools,
 ];
 
 /**
