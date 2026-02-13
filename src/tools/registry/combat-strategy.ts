@@ -6,12 +6,13 @@
  * @module tools/registry/combat-strategy
  */
 
-import { ToolRegistryEntry, jsonResponse } from "./types";
+import { ToolRegistryEntry, jsonResponse, textResponse } from "./types";
 import { getClassSpecializations, getRecommendedTalentBuild } from "../talent";
 import { calculateMeleeDamage, calculateArmorMitigation } from "../combatmechanics";
 import { getBuffRecommendations } from "../buffoptimizer";
 import { getBossMechanics, getMythicPlusStrategy } from "../dungeonstrategy";
 import { analyzeGroupComposition, coordinateCooldowns } from "../coordination";
+import { generateDungeonStrategy, formatStrategyMarkdown } from "../dungeonstrategygenerator";
 import {
   analyzeArenaComposition,
   getBattlegroundStrategy,
@@ -276,6 +277,38 @@ export const combatStrategyTools: ToolRegistryEntry[] = [
     handler: async (args) => {
       const result = getPvPTalentBuild(args.specId as number, args.bracket as any);
       return jsonResponse(result);
+    },
+  },
+  // Automatic Dungeon Strategy Generator
+  {
+    definition: {
+      name: "generate-dungeon-strategy",
+      description: "Auto-generate a comprehensive dungeon strategy from live database data. Discovers all creatures in the dungeon, groups them into spatial packs via proximity clustering, analyzes their abilities using spell data, identifies CC targets and interrupt priorities, generates pull orders with nearest-neighbor routing, and produces per-pack and per-boss tactical recommendations. Returns a complete strategy with group composition requirements, estimated clear time, and formatted markdown summary.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          dungeonMapId: { type: "number", description: "Map ID of the dungeon/instance (e.g. 33=Shadowfang Keep, 36=Deadmines, 389=Ragefire Chasm)" },
+          groupLevel: { type: "number", description: "Average group level for difficulty scaling (default: 90)" },
+          groupSize: { type: "number", description: "Number of players in the group (default: 5)" },
+          packRadius: { type: "number", description: "Proximity radius in yards for grouping creatures into packs (default: 30)" },
+          outputFormat: { type: "string", enum: ["json", "markdown"], description: "Output format: 'json' for structured data, 'markdown' for formatted text (default: markdown)" },
+        },
+        required: ["dungeonMapId"],
+      },
+    },
+    handler: async (args) => {
+      const strategy = await generateDungeonStrategy({
+        dungeonMapId: args.dungeonMapId as number,
+        groupLevel: args.groupLevel as number | undefined,
+        groupSize: args.groupSize as number | undefined,
+        packRadius: args.packRadius as number | undefined,
+      });
+
+      const format = (args.outputFormat as string) || "markdown";
+      if (format === "markdown") {
+        return textResponse(formatStrategyMarkdown(strategy));
+      }
+      return jsonResponse(strategy);
     },
   },
 ];
