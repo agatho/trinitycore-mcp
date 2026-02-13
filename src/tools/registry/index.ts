@@ -28,6 +28,7 @@ import { databaseOpsTools } from "./database-ops";
 import { learningSystemsTools } from "./learning-systems";
 import { replayTools } from "./replay-tools";
 import { economySimulationTools } from "./economy-simulation-tools";
+import { cppTestTools } from "./cpp-test-tools";
 import { createConfigManagementTools, ConfigManagementDeps } from "./config-management";
 
 // Re-export types for convenience
@@ -54,6 +55,7 @@ const STATIC_TOOL_ENTRIES: ToolRegistryEntry[] = [
   ...learningSystemsTools,
   ...replayTools,
   ...economySimulationTools,
+  ...cppTestTools,
 ];
 
 /**
