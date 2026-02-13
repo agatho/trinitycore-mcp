@@ -5,59 +5,37 @@
  * Provides collision testing, spawn validation, and analysis capabilities.
  *
  * ============================================================================
- * IMPLEMENTATION STATUS: PLACEHOLDER / HEURISTIC IMPLEMENTATION
+ * IMPLEMENTATION STATUS: REAL COLLISION (v2.0)
  * ============================================================================
  *
- * CURRENT VERSION (v1.0):
+ * CURRENT VERSION (v2.0):
  * - File listing and metadata extraction: FULLY FUNCTIONAL
- * - Line-of-sight testing: HEURISTIC IMPLEMENTATION (distance-based)
- * - Spawn finding: HEURISTIC IMPLEMENTATION (database-only, no collision)
+ * - Line-of-sight testing: REAL RAY-AABB COLLISION against VMap spawn data
+ * - Spawn finding: REAL SPATIAL QUERY against VMap spawn bounding boxes
  *
- * LIMITATIONS:
- * 1. Line-of-sight (testLineOfSight):
- *    - Returns `clear: true` for all distances < 1000 units
- *    - Does NOT parse VMap binary format (.vmtree/.vmtile)
- *    - Does NOT perform actual 3D raycast collision detection
- *    - Useful for basic proximity checks, NOT accurate LoS
+ * COLLISION APPROACH:
+ * - Parses TrinityCore .vmtile binary files to extract model spawn bounding boxes
+ * - Performs ray-AABB intersection (slab method) for line-of-sight testing
+ * - Lazy tile loading: only loads tiles along the ray path
+ * - LRU cache: keeps recently used map data in memory
  *
- * 2. Spawn finding (findSpawnsInRadius):
- *    - Queries database for spawns in radius
- *    - Does NOT filter by VMap collision data
- *    - May return spawns behind walls/obstacles
- *    - Useful for "nearby entities" queries, NOT precise spawn validation
- *
- * ROADMAP FOR v2.0 (Estimated 4-6 weeks development):
- * - Full VMap binary format parser (.vmtree and .vmtile)
- * - Actual 3D raycast collision detection using VMap geometry
- * - Spatial indexing (octree/BVH) for fast queries
- * - Integration with TrinityCore G3D library
- * - Precise spawn validation with collision filtering
- * - Height map queries for Z-coordinate validation
- *
- * WHY THIS APPROACH:
- * - VMap binary format is complex (proprietary TrinityCore format)
- * - Full implementation requires:
- *   * Binary format reverse engineering
- *   * 3D geometry processing
- *   * Spatial data structures
- *   * Collision detection algorithms
- * - Heuristic implementation provides 80% of use cases NOW
- * - Production-grade implementation coming in v2.0
- *
- * USAGE RECOMMENDATIONS:
- * - Use for approximate distance/proximity checks ✅
- * - Use for finding nearby entities (with collision caveat) ✅
- * - DO NOT rely on for precise line-of-sight validation ❌
- * - DO NOT use for spawn placement validation ❌
- * - For production LoS: Wait for v2.0 or use TrinityCore server API
+ * ACCURACY NOTES:
+ * - Tests against model bounding boxes (AABB), not triangle meshes
+ * - May have false positives (ray hits bounding box but misses actual geometry)
+ * - For triangle-level precision, .vmo model files would need parsing
+ * - AABB-level testing is sufficient for most game mechanic checks
  *
  * @module vmap-tools
- * @version 1.0.0-heuristic
- * @see docs/TECHNICAL_DEBT.md for full implementation plan
+ * @version 2.0.0
  */
 
 import fs from "fs/promises";
 import path from "path";
+import {
+  testLineOfSight as realTestLineOfSight,
+  findSpawnsInRadius as realFindSpawnsInRadius,
+  getVMapCacheStats,
+} from "../collision";
 
 // ============================================================================
 // Types
@@ -264,13 +242,13 @@ export async function validateVMapFiles(
 // ============================================================================
 
 /**
- * Test line-of-sight between two points
+ * Test line-of-sight between two points using real VMap collision data.
  *
- * Note: This is a placeholder. In production, this would use the VMap parser
- * to load the actual collision data and perform ray-AABB intersection tests.
+ * Loads VMap tiles along the ray path, parses model spawn bounding boxes,
+ * and performs ray-AABB intersection testing (slab method).
  *
  * @param options Raycast options
- * @returns Raycast result
+ * @returns Raycast result with collision details
  */
 export async function testLineOfSight(
   options: RaycastOptions,
@@ -278,63 +256,74 @@ export async function testLineOfSight(
   clear: boolean;
   distance: number;
   message: string;
+  blockingModel?: string;
+  blockingModelId?: number;
+  hitPoint?: { x: number; y: number; z: number };
+  hitDistance?: number;
+  testedCount?: number;
+  tilesLoaded?: number;
 }> {
-  // Validate VMap files exist
-  const validation = await validateVMapFiles(options.vmapDir, options.mapId);
-
-  if (!validation.valid) {
-    return {
-      clear: false,
-      distance: 0,
-      message: `VMap validation failed: ${validation.issues.join(", ")}`,
-    };
-  }
-
-  // Calculate distance
-  const dx = options.endX - options.startX;
-  const dy = options.endY - options.startY;
-  const dz = options.endZ - options.startZ;
-  const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-  // TODO: Load VMap data and perform actual raycast
-  // For now, return placeholder response
+  const result = await realTestLineOfSight(
+    options.vmapDir,
+    options.mapId,
+    { x: options.startX, y: options.startY, z: options.startZ },
+    { x: options.endX, y: options.endY, z: options.endZ },
+  );
 
   return {
-    clear: true, // Placeholder
-    distance,
-    message: `LoS test from (${options.startX}, ${options.startY}, ${options.startZ}) to (${options.endX}, ${options.endY}, ${options.endZ}) - ${distance.toFixed(2)} units`,
+    clear: result.clear,
+    distance: result.distance,
+    message: result.message,
+    blockingModel: result.blockingSpawn?.name,
+    blockingModelId: result.blockingSpawn?.id,
+    hitPoint: result.hitPoint ?? undefined,
+    hitDistance: result.hitDistance ?? undefined,
+    testedCount: result.testedCount,
+    tilesLoaded: result.tilesLoaded,
   };
 }
 
 /**
- * Find spawns within radius
+ * Find VMap model spawns within a radius of a point.
  *
- * Note: This is a placeholder. In production, this would use the VMap parser
- * to load spawn data and perform spatial queries.
+ * Loads nearby tiles and checks each model spawn's bounding box
+ * against the query sphere. Returns spawns sorted by distance.
  *
  * @param options Query options
- * @returns Found spawns
+ * @returns Found spawns with distances
  */
 export async function findSpawnsInRadius(
   options: SpawnQueryOptions,
 ): Promise<{
   count: number;
   message: string;
+  spawns: Array<{
+    name: string;
+    id: number;
+    distance: number;
+    position: { x: number; y: number; z: number };
+  }>;
+  testedCount: number;
+  tilesLoaded: number;
 }> {
-  const validation = await validateVMapFiles(options.vmapDir, options.mapId);
-
-  if (!validation.valid) {
-    return {
-      count: 0,
-      message: `VMap validation failed: ${validation.issues.join(", ")}`,
-    };
-  }
-
-  // TODO: Load VMap data and perform spatial query
+  const result = await realFindSpawnsInRadius(
+    options.vmapDir,
+    options.mapId,
+    { x: options.centerX, y: options.centerY, z: options.centerZ },
+    options.radius,
+  );
 
   return {
-    count: 0, // Placeholder
-    message: `Query for spawns within ${options.radius} units of (${options.centerX}, ${options.centerY}, ${options.centerZ})`,
+    count: result.spawns.length,
+    message: `Found ${result.spawns.length} spawns within ${options.radius} units. Tested ${result.testedCount} spawns across ${result.tilesLoaded} tiles.`,
+    spawns: result.spawns.map(s => ({
+      name: s.spawn.name,
+      id: s.spawn.id,
+      distance: Math.round(s.distance * 100) / 100,
+      position: s.spawn.position,
+    })),
+    testedCount: result.testedCount,
+    tilesLoaded: result.tilesLoaded,
   };
 }
 

@@ -50,7 +50,7 @@ export const mapTools: ToolRegistryEntry[] = [
   {
     definition: {
       name: "vmap-test-line-of-sight",
-      description: "Test line-of-sight between two points using VMap collision data. NOTE: Current implementation uses distance-based heuristics.",
+      description: "Test line-of-sight between two points using real VMap collision data. Loads VMap tiles along the ray path, parses model spawn bounding boxes, and performs ray-AABB intersection. Returns whether LoS is clear or blocked, with blocking model details.",
       inputSchema: {
         type: "object",
         properties: {
@@ -83,7 +83,7 @@ export const mapTools: ToolRegistryEntry[] = [
   {
     definition: {
       name: "vmap-find-spawns-in-radius",
-      description: "Find creature/gameobject spawns within radius of a point. NOTE: Current implementation queries database only.",
+      description: "Find VMap model spawns within radius of a point using real VMap collision data. Loads nearby tiles, checks model bounding boxes against query sphere, and returns spawns sorted by distance.",
       inputSchema: {
         type: "object",
         properties: {
