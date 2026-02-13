@@ -1,22 +1,27 @@
 /**
  * Database Client
  *
- * MySQL/MariaDB client for TrinityCore databases with connection pooling,
- * query execution, and transaction support.
+ * MySQL/MariaDB client for TrinityCore database operations (export, import,
+ * diff, backup, health checks) with connection pooling, batch execution,
+ * and transaction support.
+ *
+ * CONSOLIDATION: This module reuses connection pools from connection.ts for
+ * the standard TrinityCore databases (world, auth, characters). Standalone
+ * pools are only created for non-standard database configs (e.g., when
+ * diff-tool compares against a different database instance).
  *
  * @module db-client
  */
 
 import type { DatabaseConfig } from "../types/database";
 import mysql from "mysql2/promise";
+import { getWorldPool, getAuthPool, getCharactersPool } from "./connection";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-/**
- * Query result
- */
+/** Query result */
 export interface QueryResult {
   rows: any[];
   fields: any[];
@@ -24,22 +29,57 @@ export interface QueryResult {
   insertId?: number;
 }
 
+// ============================================================================
+// Connection Management - Unified Pool Resolution
+// ============================================================================
+
 /**
- * Connection pool
+ * Standard TrinityCore database configuration from environment.
+ * Used to detect when a config matches a standard pool (avoiding duplicate pools).
  */
-let pools: Map<string, mysql.Pool> = new Map();
+const STANDARD_DB_CONFIG = {
+  host: process.env.TRINITY_DB_HOST || "localhost",
+  port: parseInt(process.env.TRINITY_DB_PORT || "3306"),
+  world: process.env.TRINITY_DB_WORLD || "world",
+  auth: process.env.TRINITY_DB_AUTH || "auth",
+  characters: process.env.TRINITY_DB_CHARACTERS || "characters",
+};
 
-// ============================================================================
-// Connection Management
-// ============================================================================
+/** Standalone pools for non-standard database configs */
+let standalonePools: Map<string, mysql.Pool> = new Map();
 
 /**
- * Get or create connection pool
+ * Check if a config matches one of the standard TrinityCore databases.
+ * If so, return the shared pool from connection.ts to avoid duplicate connections.
+ */
+function matchStandardPool(config: DatabaseConfig): mysql.Pool | null {
+  if (config.host !== STANDARD_DB_CONFIG.host || config.port !== STANDARD_DB_CONFIG.port) {
+    return null;
+  }
+
+  if (config.database === STANDARD_DB_CONFIG.world) return getWorldPool();
+  if (config.database === STANDARD_DB_CONFIG.auth) return getAuthPool();
+  if (config.database === STANDARD_DB_CONFIG.characters) return getCharactersPool();
+
+  return null;
+}
+
+/**
+ * Get or create connection pool for a database config.
+ *
+ * Reuses standard TrinityCore pools from connection.ts when the config matches
+ * (same host:port + standard database name). Creates a standalone pool only
+ * for non-standard configs (e.g., comparing against a remote database).
  */
 export function getPool(config: DatabaseConfig): mysql.Pool {
+  // Try to reuse a standard TrinityCore pool
+  const standardPool = matchStandardPool(config);
+  if (standardPool) return standardPool;
+
+  // Create standalone pool for non-standard config
   const key = `${config.host}:${config.port}:${config.database}`;
 
-  if (!pools.has(key)) {
+  if (!standalonePools.has(key)) {
     const pool = mysql.createPool({
       host: config.host,
       port: config.port,
@@ -51,32 +91,33 @@ export function getPool(config: DatabaseConfig): mysql.Pool {
       queueLimit: 0,
     });
 
-    pools.set(key, pool);
+    standalonePools.set(key, pool);
   }
 
-  return pools.get(key)!;
+  return standalonePools.get(key)!;
 }
 
 /**
- * Close all connection pools
+ * Close all standalone connection pools.
+ * Does NOT close standard TrinityCore pools (those are managed by connection.ts).
  */
 export async function closeAllPools(): Promise<void> {
-  for (const pool of pools.values()) {
+  for (const pool of standalonePools.values()) {
     await pool.end();
   }
-  pools.clear();
+  standalonePools.clear();
 }
 
 /**
- * Close specific pool
+ * Close a specific standalone pool.
  */
 export async function closePool(config: DatabaseConfig): Promise<void> {
   const key = `${config.host}:${config.port}:${config.database}`;
-  const pool = pools.get(key);
+  const pool = standalonePools.get(key);
 
   if (pool) {
     await pool.end();
-    pools.delete(key);
+    standalonePools.delete(key);
   }
 }
 
@@ -84,9 +125,7 @@ export async function closePool(config: DatabaseConfig): Promise<void> {
 // Query Execution
 // ============================================================================
 
-/**
- * Execute query
- */
+/** Execute a single query */
 export async function executeQuery(
   config: DatabaseConfig,
   query: string,
@@ -103,9 +142,7 @@ export async function executeQuery(
   };
 }
 
-/**
- * Execute batch of queries
- */
+/** Execute a batch of queries in a single transaction */
 export async function executeBatch(
   config: DatabaseConfig,
   queries: Array<{ query: string; params?: any[] }>,
@@ -138,9 +175,7 @@ export async function executeBatch(
   }
 }
 
-/**
- * Execute with transaction
- */
+/** Execute operations within a transaction */
 export async function executeTransaction(
   config: DatabaseConfig,
   callback: (connection: mysql.PoolConnection) => Promise<void>,
@@ -160,16 +195,14 @@ export async function executeTransaction(
   }
 }
 
-/**
- * Test connection
- */
+/** Test if a database connection is reachable */
 export async function testConnection(config: DatabaseConfig): Promise<boolean> {
   try {
     const pool = getPool(config);
     const connection = await pool.getConnection();
     connection.release();
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
