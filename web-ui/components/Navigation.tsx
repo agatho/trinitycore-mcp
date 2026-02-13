@@ -20,6 +20,7 @@ import {
   X,
   Home,
   Search,
+  TreeDeciduous,
 } from "lucide-react";
 import { GlobalSearch } from "./GlobalSearch";
 import { Button } from "./ui/button";
@@ -51,6 +52,7 @@ const navigation: NavItem[] = [
   { label: "SAI Editor", href: "/sai-editor-enhanced", icon: <FileCode className="w-4 h-4" />, category: "tools" },
   { label: "Map Picker", href: "/map-picker", icon: <Globe className="w-4 h-4" />, category: "tools" },
   { label: "3D Viewer", href: "/3d-viewer", icon: <Layers className="w-4 h-4" />, category: "tools" },
+  { label: "Behavior Tree", href: "/behavior-tree", icon: <TreeDeciduous className="w-4 h-4" />, category: "tools" },
 
   // System
   { label: "Monitoring", href: "/monitoring", icon: <Activity className="w-4 h-4" />, category: "system" },
