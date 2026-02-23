@@ -18,7 +18,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 
 // =============================================================================
 // Configuration
@@ -167,6 +166,8 @@ export function extractApiKey(request: NextRequest): string | null {
 
 /**
  * Validate an API key using constant-time comparison.
+ * Uses a portable XOR-based approach compatible with Edge Runtime
+ * (no Node.js crypto module required).
  *
  * @param providedKey - Key from the request
  * @returns True if the key is valid
@@ -175,21 +176,28 @@ export function validateApiKey(providedKey: string): boolean {
   const secretKey = getApiSecretKey();
   if (!secretKey) return false;
 
-  // Use constant-time comparison to prevent timing attacks
+  // Constant-time comparison to prevent timing attacks
+  // Works in Edge Runtime without Node.js crypto
   try {
-    const providedBuffer = Buffer.from(providedKey, 'utf-8');
-    const secretBuffer = Buffer.from(secretKey, 'utf-8');
+    const encoder = new TextEncoder();
+    const providedBytes = encoder.encode(providedKey);
+    const secretBytes = encoder.encode(secretKey);
 
-    if (providedBuffer.length !== secretBuffer.length) {
-      // Still do a comparison to maintain constant time
-      crypto.timingSafeEqual(
-        Buffer.alloc(32),
-        Buffer.alloc(32)
-      );
+    if (providedBytes.length !== secretBytes.length) {
+      // Still perform a dummy comparison to maintain constant time
+      const dummy = new Uint8Array(32);
+      let dummyResult = 0;
+      for (let i = 0; i < dummy.length; i++) {
+        dummyResult |= dummy[i] ^ dummy[i];
+      }
       return false;
     }
 
-    return crypto.timingSafeEqual(providedBuffer, secretBuffer);
+    let result = 0;
+    for (let i = 0; i < providedBytes.length; i++) {
+      result |= providedBytes[i] ^ secretBytes[i];
+    }
+    return result === 0;
   } catch {
     return false;
   }
@@ -338,10 +346,15 @@ export function addRateLimitHeaders(
 /**
  * Generate a cryptographically secure API key.
  * Use this to generate the initial API_SECRET_KEY value.
+ * Uses Web Crypto API (compatible with Edge Runtime).
  *
  * @param length - Key length in bytes (default: 32, produces 64 hex chars)
  * @returns Hex-encoded random key
  */
 export function generateApiKey(length: number = 32): string {
-  return crypto.randomBytes(length).toString('hex');
+  const buffer = new Uint8Array(length);
+  crypto.getRandomValues(buffer);
+  return Array.from(buffer)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
