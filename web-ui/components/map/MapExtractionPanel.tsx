@@ -39,10 +39,15 @@ interface WoWInfo {
   autoDetected?: string;
 }
 
+interface MapExtractionPanelProps {
+  selectedMapId?: number;
+  onExtractionComplete?: () => void;
+}
+
 /**
  * Map extraction panel component
  */
-export default function MapExtractionPanel() {
+export default function MapExtractionPanel({ selectedMapId, onExtractionComplete }: MapExtractionPanelProps) {
   const [maps, setMaps] = useState<MapInfo[]>([]);
   const [wowInfo, setWoWInfo] = useState<WoWInfo | null>(null);
   const [extractionStatus, setExtractionStatus] = useState<Map<number, ExtractionStatus>>(
@@ -122,9 +127,10 @@ export default function MapExtractionPanel() {
       const status = await res.json();
       setExtractionStatus(prev => new Map(prev).set(mapId, status));
 
-      // Reload maps list
+      // Reload maps list and notify parent
       if (status.status === 'completed') {
         await loadMaps();
+        onExtractionComplete?.();
       }
     } catch (error: any) {
       setExtractionStatus(prev => new Map(prev).set(mapId, {

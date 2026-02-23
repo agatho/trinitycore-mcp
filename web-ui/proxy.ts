@@ -1,7 +1,7 @@
 /**
- * Next.js Middleware - API Authentication, Rate Limiting & CORS
+ * Next.js Proxy - API Authentication, Rate Limiting & CORS
  *
- * This middleware runs on every request matching the configured paths.
+ * This proxy runs on every request matching the configured paths.
  * It enforces API key authentication for all `/api/` routes except
  * explicitly listed public routes.
  *
@@ -12,7 +12,10 @@
  * Defaults to http://localhost:3000. Set to comma-separated origins
  * for multiple allowed origins. Use "*" only for development.
  *
- * @module middleware
+ * Note: Renamed from middleware.ts to proxy.ts for Next.js 16 compatibility.
+ * The "middleware" file convention is deprecated in favor of "proxy".
+ *
+ * @module proxy
  * @see {@link lib/auth} for authentication implementation
  */
 
@@ -95,7 +98,7 @@ function addCorsHeaders(response: NextResponse, origin: string): void {
  * @param request - Incoming Next.js request
  * @returns NextResponse or undefined (passthrough)
  */
-export function middleware(request: NextRequest): NextResponse | undefined {
+export function proxy(request: NextRequest): NextResponse | undefined {
   const { pathname } = request.nextUrl;
   const requestOrigin = request.headers.get('origin');
 

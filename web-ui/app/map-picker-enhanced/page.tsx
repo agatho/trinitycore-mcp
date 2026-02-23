@@ -706,7 +706,7 @@ export default function EnhancedMapPickerPage() {
     // Auto-detect height if enabled and collision data is available
     let z = 0;
     if (autoDetectHeight && (vmapData || mmapData)) {
-      const heightResult = getHeightAtPosition(wowCoords.x, wowCoords.y, vmapData || undefined, mmapData || undefined, {
+      const heightResult = getHeightAtPosition(wowCoords.x, wowCoords.y, vmapData || undefined, mmapData || undefined, undefined, {
         preferVMap: true,
         searchRadius: 10.0,
         verbose: false,
@@ -914,7 +914,7 @@ export default function EnhancedMapPickerPage() {
       // Query height at cursor position if collision data is available
       let z = 0;
       if ((vmapData || mmapData) && autoDetectHeight) {
-        const heightResult = getHeightAtPosition(wow.x, wow.y, vmapData || undefined, mmapData || undefined, {
+        const heightResult = getHeightAtPosition(wow.x, wow.y, vmapData || undefined, mmapData || undefined, undefined, {
           preferVMap: true,
           searchRadius: 10.0,
           verbose: false,

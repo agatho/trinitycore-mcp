@@ -8,7 +8,9 @@
  */
 
 import * as THREE from 'three';
-import type { MMapData, MMapTile } from '@/lib/mmap-types';
+import type { MMapData, NavMeshTile } from '@/lib/mmap-types';
+
+type MMapTile = NavMeshTile;
 
 export interface MMapLoadOptions {
   wireframe?: boolean;
@@ -126,34 +128,37 @@ export class MMapMeshLoader {
   }> {
     const polygons: Array<{ vertices: Float32Array; walkable: boolean }> = [];
 
-    // Extract from detailMesh if available
-    if (tile.detailMesh && tile.detailMesh.verts && tile.detailMesh.tris) {
-      const verts = tile.detailMesh.verts;
-      const tris = tile.detailMesh.tris;
+    // Extract from detailVerts/detailTris if available
+    if (tile.detailVerts && tile.detailVerts.length > 0 && tile.detailTris && tile.detailTris.length > 0) {
+      const verts = tile.detailVerts;
+      const tris = tile.detailTris;
 
-      // Each triangle is a polygon
+      // Each detail triangle uses 4 values (3 indices + flags)
       for (let i = 0; i < tris.length; i += 4) {
-        const i1 = tris[i] * 3;
-        const i2 = tris[i + 1] * 3;
-        const i3 = tris[i + 2] * 3;
+        const i1 = tris[i];
+        const i2 = tris[i + 1];
+        const i3 = tris[i + 2];
 
-        if (i1 + 2 < verts.length && i2 + 2 < verts.length && i3 + 2 < verts.length) {
+        if (i1 < verts.length && i2 < verts.length && i3 < verts.length) {
           const vertices = new Float32Array(9);
+          const v1 = verts[i1];
+          const v2 = verts[i2];
+          const v3 = verts[i3];
 
           // Vertex 1
-          vertices[0] = verts[i1];
-          vertices[1] = verts[i1 + 1];
-          vertices[2] = verts[i1 + 2];
+          vertices[0] = v1[0];
+          vertices[1] = v1[1];
+          vertices[2] = v1[2];
 
           // Vertex 2
-          vertices[3] = verts[i2];
-          vertices[4] = verts[i2 + 1];
-          vertices[5] = verts[i2 + 2];
+          vertices[3] = v2[0];
+          vertices[4] = v2[1];
+          vertices[5] = v2[2];
 
           // Vertex 3
-          vertices[6] = verts[i3];
-          vertices[7] = verts[i3 + 1];
-          vertices[8] = verts[i3 + 2];
+          vertices[6] = v3[0];
+          vertices[7] = v3[1];
+          vertices[8] = v3[2];
 
           polygons.push({
             vertices,
@@ -163,38 +168,42 @@ export class MMapMeshLoader {
       }
     }
 
-    // Fallback to polyMesh if no detailMesh
-    else if (tile.polyMesh && tile.polyMesh.verts && tile.polyMesh.polys) {
-      const verts = tile.polyMesh.verts;
-      const polys = tile.polyMesh.polys;
+    // Fallback to tile verts/polys if no detailVerts
+    else if (tile.verts && tile.verts.length > 0 && tile.polys && tile.polys.length > 0) {
+      const verts = tile.verts;
+      const polys = tile.polys;
 
       // Each poly can have multiple vertices (typically 3-6)
       for (const poly of polys) {
-        if (poly.vertIndices && poly.vertIndices.length >= 3) {
+        if (poly.verts && poly.vertCount >= 3) {
           // Triangulate polygon (simple fan triangulation)
-          for (let i = 1; i < poly.vertIndices.length - 1; i++) {
-            const i1 = poly.vertIndices[0] * 3;
-            const i2 = poly.vertIndices[i] * 3;
-            const i3 = poly.vertIndices[i + 1] * 3;
+          const validVerts = poly.verts.slice(0, poly.vertCount);
+          for (let i = 1; i < validVerts.length - 1; i++) {
+            const i1 = validVerts[0];
+            const i2 = validVerts[i];
+            const i3 = validVerts[i + 1];
 
-            if (i1 + 2 < verts.length && i2 + 2 < verts.length && i3 + 2 < verts.length) {
+            if (i1 < verts.length && i2 < verts.length && i3 < verts.length) {
               const vertices = new Float32Array(9);
+              const v1 = verts[i1];
+              const v2 = verts[i2];
+              const v3 = verts[i3];
 
-              vertices[0] = verts[i1];
-              vertices[1] = verts[i1 + 1];
-              vertices[2] = verts[i1 + 2];
+              vertices[0] = v1[0];
+              vertices[1] = v1[1];
+              vertices[2] = v1[2];
 
-              vertices[3] = verts[i2];
-              vertices[4] = verts[i2 + 1];
-              vertices[5] = verts[i2 + 2];
+              vertices[3] = v2[0];
+              vertices[4] = v2[1];
+              vertices[5] = v2[2];
 
-              vertices[6] = verts[i3];
-              vertices[7] = verts[i3 + 1];
-              vertices[8] = verts[i3 + 2];
+              vertices[6] = v3[0];
+              vertices[7] = v3[1];
+              vertices[8] = v3[2];
 
               polygons.push({
                 vertices,
-                walkable: poly.areaType !== 0, // Area type 0 = unwalkable
+                walkable: (poly.areaAndtype & 0x3f) !== 0, // Lower 6 bits = area type
               });
             }
           }

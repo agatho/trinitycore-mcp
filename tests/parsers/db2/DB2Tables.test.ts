@@ -5,110 +5,130 @@
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import {
-  DB2IdTable,
+  DB2IdList,
   DB2CopyTable,
   DB2ParentLookupTable,
 } from '../../../src/parsers/db2/DB2Tables';
 
-describe('DB2IdTable', () => {
-  let idTable: DB2IdTable;
+describe('DB2IdList', () => {
+  let idList: DB2IdList;
 
   beforeEach(() => {
-    idTable = new DB2IdTable();
+    idList = new DB2IdList();
   });
 
-  it('should add ID table entries', () => {
-    idTable.add(100, 0);
-    idTable.add(200, 1);
-    idTable.add(300, 2);
+  it('should load IDs from buffer', () => {
+    // Create buffer with 3 entries (4 bytes each: uint32)
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    expect(idTable.getSize()).toBe(3);
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    expect(idList.getSize()).toBe(3);
   });
 
-  it('should retrieve record index by ID', () => {
-    idTable.add(100, 5);
-    idTable.add(200, 10);
-    idTable.add(300, 15);
+  it('should retrieve index for ID using minId offset', () => {
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    expect(idTable.getRecordIndex(100)).toBe(5);
-    expect(idTable.getRecordIndex(200)).toBe(10);
-    expect(idTable.getRecordIndex(300)).toBe(15);
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    expect(idList.getIndexForId(100)).toBe(0);
+    expect(idList.getIndexForId(101)).toBe(1);
+    expect(idList.getIndexForId(102)).toBe(2);
   });
 
   it('should return null for non-existent ID', () => {
-    idTable.add(100, 0);
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    expect(idTable.getRecordIndex(999)).toBeNull();
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    expect(idList.getIndexForId(99)).toBeNull();
+    expect(idList.getIndexForId(103)).toBeNull();
+    expect(idList.getIndexForId(999)).toBeNull();
   });
 
-  it('should check if ID exists', () => {
-    idTable.add(100, 0);
-    idTable.add(200, 1);
+  it('should get ID at index', () => {
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    expect(idTable.has(100)).toBe(true);
-    expect(idTable.has(200)).toBe(true);
-    expect(idTable.has(999)).toBe(false);
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    expect(idList.getIdAtIndex(0)).toBe(100);
+    expect(idList.getIdAtIndex(1)).toBe(101);
+    expect(idList.getIdAtIndex(2)).toBe(102);
+    expect(idList.getIdAtIndex(5)).toBeNull();
+    expect(idList.getIdAtIndex(-1)).toBeNull();
   });
 
-  it('should get all record IDs sorted', () => {
-    idTable.add(300, 2);
-    idTable.add(100, 0);
-    idTable.add(200, 1);
+  it('should get all IDs', () => {
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    const allIds = idTable.getAllIds();
-    expect(allIds).toEqual([100, 200, 300]);
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    const allIds = idList.getAllIds();
+    expect(allIds).toEqual([100, 101, 102]);
   });
 
   it('should clear all entries', () => {
-    idTable.add(100, 0);
-    idTable.add(200, 1);
-
-    expect(idTable.getSize()).toBe(2);
-
-    idTable.clear();
-
-    expect(idTable.getSize()).toBe(0);
-    expect(idTable.has(100)).toBe(false);
-    expect(idTable.has(200)).toBe(false);
-  });
-
-  it('should load from buffer', () => {
-    // Create buffer with 3 entries (each 8 bytes: uint32 + uint32)
-    const buffer = Buffer.alloc(24);
-
-    // Entry 0: ID 100, Index 0
+    const buffer = Buffer.alloc(8);
     buffer.writeUInt32LE(100, 0);
-    buffer.writeUInt32LE(0, 4);
+    buffer.writeUInt32LE(101, 4);
 
-    // Entry 1: ID 200, Index 1
-    buffer.writeUInt32LE(200, 8);
-    buffer.writeUInt32LE(1, 12);
+    idList.loadFromBuffer(buffer, 100, 101);
+    expect(idList.getSize()).toBe(2);
 
-    // Entry 2: ID 300, Index 2
-    buffer.writeUInt32LE(300, 16);
-    buffer.writeUInt32LE(2, 20);
+    idList.clear();
 
-    idTable.loadFromBuffer(buffer, 3);
-
-    expect(idTable.getSize()).toBe(3);
-    expect(idTable.getRecordIndex(100)).toBe(0);
-    expect(idTable.getRecordIndex(200)).toBe(1);
-    expect(idTable.getRecordIndex(300)).toBe(2);
+    expect(idList.getSize()).toBe(0);
   });
 
   it('should handle empty buffer load', () => {
     const buffer = Buffer.alloc(0);
-    idTable.loadFromBuffer(buffer, 0);
+    idList.loadFromBuffer(buffer, 0, 0);
 
-    expect(idTable.getSize()).toBe(0);
+    expect(idList.getSize()).toBe(0);
   });
 
-  it('should overwrite existing ID on duplicate add', () => {
-    idTable.add(100, 5);
-    idTable.add(100, 10); // Overwrite
+  it('should convert to Map', () => {
+    const buffer = Buffer.alloc(12);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(101, 4);
+    buffer.writeUInt32LE(102, 8);
 
-    expect(idTable.getRecordIndex(100)).toBe(10);
-    expect(idTable.getSize()).toBe(1);
+    idList.loadFromBuffer(buffer, 100, 102);
+
+    const map = idList.toMap();
+    expect(map.get(100)).toBe(0);
+    expect(map.get(101)).toBe(1);
+    expect(map.get(102)).toBe(2);
+    expect(map.size).toBe(3);
+  });
+
+  it('should return null for mismatched ID at position', () => {
+    // Create a sparse buffer where position 0 has ID 100 but position 1 has ID 200 (not 101)
+    const buffer = Buffer.alloc(8);
+    buffer.writeUInt32LE(100, 0);
+    buffer.writeUInt32LE(200, 4);
+
+    idList.loadFromBuffer(buffer, 100, 200);
+
+    // Index for 100: 100-100=0, ids[0]=100 => match => 0
+    expect(idList.getIndexForId(100)).toBe(0);
+    // Index for 101: 101-100=1, ids[1]=200 => mismatch => null
+    expect(idList.getIndexForId(101)).toBeNull();
   });
 });
 

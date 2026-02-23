@@ -5,6 +5,7 @@
  * performance optimization utilities.
  */
 
+import { vi } from 'vitest';
 import {
   debounce,
   throttle,
@@ -20,51 +21,51 @@ import type { SAIScript } from '@/lib/sai-unified/types';
 
 describe('Performance Utilities', () => {
   describe('debounce', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     test('delays function execution', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
 
       debounced();
       expect(fn).not.toHaveBeenCalled();
 
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
     test('cancels previous calls', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
 
       debounced();
       debounced();
       debounced();
 
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       expect(fn).toHaveBeenCalledTimes(1); // Only last call
     });
 
     test('passes arguments correctly', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
 
       debounced('a', 'b', 'c');
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
 
       expect(fn).toHaveBeenCalledWith('a', 'b', 'c');
     });
 
     afterEach(() => {
-      jest.clearAllTimers();
+      vi.clearAllTimers();
     });
   });
 
   describe('throttle', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     test('limits execution frequency', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const throttled = throttle(fn, 100);
 
       throttled();
@@ -73,14 +74,14 @@ describe('Performance Utilities', () => {
 
       expect(fn).toHaveBeenCalledTimes(1); // Only first call
 
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       throttled();
 
       expect(fn).toHaveBeenCalledTimes(2);
     });
 
     test('executes immediately on first call', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const throttled = throttle(fn, 100);
 
       throttled();
@@ -88,7 +89,7 @@ describe('Performance Utilities', () => {
     });
 
     afterEach(() => {
-      jest.clearAllTimers();
+      vi.clearAllTimers();
     });
   });
 
@@ -162,16 +163,16 @@ describe('Performance Utilities', () => {
     });
 
     test('respects TTL', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       const cache = new MemoCache<string, number>(10, 1000); // 1 second TTL
 
       cache.set('key1', 100);
       expect(cache.get('key1')).toBe(100);
 
-      jest.advanceTimersByTime(1001);
+      vi.advanceTimersByTime(1001);
       expect(cache.get('key1')).toBeUndefined(); // Expired
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     test('respects max size', () => {
@@ -313,7 +314,7 @@ describe('Performance Utilities', () => {
   describe('processBatch', () => {
     test('processes items in batches', async () => {
       const items = [1, 2, 3, 4, 5];
-      const processor = jest.fn((item) => Promise.resolve(item * 2));
+      const processor = vi.fn((item) => Promise.resolve(item * 2));
 
       const results = await processBatch(items, processor, 2, 0);
 
@@ -322,7 +323,7 @@ describe('Performance Utilities', () => {
     });
 
     test('handles empty array', async () => {
-      const processor = jest.fn();
+      const processor = vi.fn();
 
       const results = await processBatch([], processor, 2, 0);
 
@@ -332,7 +333,7 @@ describe('Performance Utilities', () => {
 
     test('handles batch size larger than array', async () => {
       const items = [1, 2, 3];
-      const processor = jest.fn((item) => Promise.resolve(item * 2));
+      const processor = vi.fn((item) => Promise.resolve(item * 2));
 
       const results = await processBatch(items, processor, 10, 0);
 
@@ -381,7 +382,7 @@ describe('Performance Utilities', () => {
     });
 
     test('logs performance data', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       const timer = new PerformanceTimer();
       timer.start();

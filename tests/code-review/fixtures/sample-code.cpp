@@ -1,51 +1,65 @@
 /**
  * Test Fixtures - Sample C++ Code for Testing
  * Contains various code patterns that should trigger different rules
+ *
+ * NOTE: TrinityCore null safety rules specifically detect missing null checks
+ * on TrinityCore pointer types (Player*, Unit*, Creature*, etc.)
  */
 
-// NULL SAFETY VIOLATIONS
+// NULL SAFETY VIOLATIONS - TrinityCore Pointer Types
 
-// 1. Null pointer dereference without check
-void nullDereference(int* ptr) {
-    *ptr = 42; // Should trigger null safety warning
+// 1. Player pointer without null check
+void HandlePlayerLogin(Player* player) {
+    // Missing null check before dereference - should trigger null_safety
+    ObjectGuid guid = player->GetGUID();
+    std::string name = player->GetName();
+    player->SendSystemMessage("Welcome");
 }
 
-// 2. Missing null check after allocation
-void missingNullCheck() {
-    int* data = new int[100];
-    data[0] = 1; // Should trigger null safety warning
+// 2. Unit pointer without null check
+void ProcessUnitDamage(Unit* target) {
+    // Missing null check - should trigger null_safety
+    uint32 health = target->GetHealth();
+    target->CastSpell(target, 12345, true);
 }
 
-// 3. Proper null checking (should NOT trigger)
-void properNullCheck(int* ptr) {
-    if (!ptr)
+// 3. Creature pointer without null check
+void UpdateCreatureAI(Creature* creature) {
+    // Missing null check - should trigger null_safety
+    std::string name = creature->GetName();
+    creature->SetInCombatWithZone();
+}
+
+// 4. Proper null checking (should NOT trigger)
+void ProperNullCheck(Player* player) {
+    if (!player)
         return;
-    *ptr = 42;
+    player->GetGUID();
 }
 
 // MEMORY MANAGEMENT VIOLATIONS
 
-// 4. Memory leak - no delete
-void memoryLeak() {
-    int* data = new int[100];
-    // No delete[] - should trigger memory leak warning
+// 5. Memory leak - no delete
+void MemoryLeak() {
+    Player* player = new Player(nullptr);
+    // No delete - should trigger memory leak warning
 }
 
-// 5. Double delete
-void doubleFree(int* ptr) {
-    delete ptr;
-    delete ptr; // Should trigger double delete warning
+// 6. Double delete
+void DoubleFree(Unit* unit) {
+    delete unit;
+    delete unit; // Should trigger double delete warning
 }
 
-// 6. Proper RAII (should NOT trigger)
-void properRAII() {
-    std::unique_ptr<int[]> data(new int[100]);
+// 7. Proper RAII (should NOT trigger)
+void ProperRAII() {
+    std::unique_ptr<Player> player(new Player(nullptr));
     // Automatic cleanup
 }
 
 // CONCURRENCY VIOLATIONS
 
-// 7. Missing mutex protection
+// 8. Missing mutex protection on shared data
 class UnsafeCounter {
     int count = 0;
 
@@ -54,7 +68,7 @@ class UnsafeCounter {
     }
 };
 
-// 8. Proper mutex usage (should NOT trigger)
+// 9. Proper mutex usage (should NOT trigger)
 class SafeCounter {
     int count = 0;
     std::mutex mtx;
@@ -67,33 +81,33 @@ class SafeCounter {
 
 // CONVENTION VIOLATIONS
 
-// 9. Non-TrinityCore naming (snake_case)
+// 10. Non-TrinityCore naming (snake_case)
 class bad_class_name {
     void bad_method_name() {}
 };
 
-// 10. Proper TrinityCore naming (PascalCase)
+// 11. Proper TrinityCore naming (PascalCase)
 class GoodClassName {
     void GoodMethodName() {}
 };
 
 // SECURITY VIOLATIONS
 
-// 11. SQL injection risk
-void sqlInjection(const std::string& userInput) {
-    std::string query = "SELECT * FROM users WHERE name = '" + userInput + "'";
-    // Should trigger SQL injection warning
+// 12. SQL injection risk - TrinityCore Query pattern
+void SQLInjection(WorldSession* session, const std::string& userInput) {
+    std::string query = "SELECT * FROM characters WHERE name = '" + userInput + "'";
+    WorldDatabase.Query(query.c_str()); // Should trigger SQL injection warning
 }
 
-// 12. Buffer overflow risk
-void bufferOverflow(char* dest, const char* src) {
+// 13. Buffer overflow risk
+void BufferOverflow(char* dest, const char* src) {
     strcpy(dest, src); // Should trigger buffer overflow warning
 }
 
 // PERFORMANCE VIOLATIONS
 
-// 13. Inefficient string concatenation in loop
-std::string inefficientConcat() {
+// 14. Inefficient string concatenation in loop
+std::string InefficientConcat() {
     std::string result;
     for (int i = 0; i < 1000; ++i) {
         result += std::to_string(i); // Should trigger performance warning
@@ -101,33 +115,33 @@ std::string inefficientConcat() {
     return result;
 }
 
-// 14. Passing large object by value
+// 15. Passing large object by value
 struct LargeObject {
     char data[10000];
 };
 
-void passByValue(LargeObject obj) { // Should trigger performance warning
+void PassByValue(LargeObject obj) { // Should trigger performance warning
     // Processing
 }
 
 // ARCHITECTURE VIOLATIONS
 
-// 15. God class (too many responsibilities)
+// 16. God class (too many responsibilities)
 class GodClass {
-    void handleNetwork() {}
-    void handleDatabase() {}
-    void handleUI() {}
-    void handleLogging() {}
-    void handleSecurity() {}
-    void handleConfiguration() {}
+    void HandleNetwork() {}
+    void HandleDatabase() {}
+    void HandleUI() {}
+    void HandleLogging() {}
+    void HandleSecurity() {}
+    void HandleConfiguration() {}
     // Should trigger architecture warning
 };
 
-// 16. Proper separation of concerns (should NOT trigger)
+// 17. Proper separation of concerns (should NOT trigger)
 class NetworkHandler {
-    void handleNetwork() {}
+    void HandleNetwork() {}
 };
 
 class DatabaseHandler {
-    void handleDatabase() {}
+    void HandleDatabase() {}
 };

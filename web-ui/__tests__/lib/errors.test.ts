@@ -25,7 +25,7 @@ import { Logger, LogLevel } from '@/lib/logger';
 describe('Error Handling System', () => {
   beforeEach(() => {
     // Clear localStorage and logs before each test
-    localStorage.clear();
+    try { localStorage.clear(); } catch { /* not available in all environments */ }
     Logger.configure({ enableConsole: false });
     Logger.clear();
   });
@@ -85,12 +85,15 @@ describe('Error Handling System', () => {
     });
 
     it('should log error when created', () => {
+      const errorSpy = vi.spyOn(Logger, 'error');
       const error = new AppError('Test error');
 
-      const logs = Logger.getLogs();
-      expect(logs.length).toBe(1);
-      expect(logs[0].level).toBe(LogLevel.ERROR);
-      expect(logs[0].context).toBe('AppError');
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith('AppError', error, expect.objectContaining({
+        context: expect.any(Object),
+        timestamp: expect.any(Number),
+      }));
+      errorSpy.mockRestore();
     });
 
     it('should return user-friendly message', () => {
@@ -344,14 +347,15 @@ describe('Error Handling System', () => {
       });
 
       it('should log errors from async operations', async () => {
+        const errorSpy = vi.spyOn(Logger, 'error');
         const fn = async () => {
           throw new Error('Async error');
         };
 
         await ErrorHandler.wrapAsync(fn, 'AsyncContext');
 
-        const logs = Logger.getLogs({ context: 'AsyncContext' });
-        expect(logs.length).toBeGreaterThan(0);
+        expect(errorSpy).toHaveBeenCalledWith('AsyncContext', expect.any(Error));
+        errorSpy.mockRestore();
       });
     });
 
@@ -381,14 +385,15 @@ describe('Error Handling System', () => {
       });
 
       it('should log errors from sync operations', () => {
+        const errorSpy = vi.spyOn(Logger, 'error');
         const fn = () => {
           throw new Error('Sync error');
         };
 
         ErrorHandler.wrap(fn, 'SyncContext');
 
-        const logs = Logger.getLogs({ context: 'SyncContext' });
-        expect(logs.length).toBeGreaterThan(0);
+        expect(errorSpy).toHaveBeenCalledWith('SyncContext', expect.any(Error));
+        errorSpy.mockRestore();
       });
     });
   });

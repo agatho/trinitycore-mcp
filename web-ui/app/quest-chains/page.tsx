@@ -191,7 +191,7 @@ export default function QuestChainsPage() {
             prevQuestId: q.previousQuest,
             nextQuestId: q.nextQuest,
             depth: q.depth,
-            zone: zones.find((z) => z.id === zoneId)?.name || `Zone ${zoneId}`,
+            zone: zones.find((z) => z.zoneId === zoneId)?.name || `Zone ${zoneId}`,
             zoneId,
             objectives: q.objectives,
             rewards: q.rewards,

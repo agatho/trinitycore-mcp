@@ -340,7 +340,7 @@ export function MapView3D({ state, actions, width = 1200, height = 800 }: MapVie
     // Transform events
     transform?.on('dragEnd', ({ position }: any) => {
       // Update coordinate in state
-      const markerId = transform.getControls().object?.userData.markerId;
+      const markerId = (transform.getControls() as any).object?.userData.markerId;
       if (markerId) {
         const coord = state.coordinates.find(c => c.id === markerId);
         if (coord) {

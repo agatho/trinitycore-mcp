@@ -110,7 +110,7 @@ export class SpawnMarkerManager {
     (material as THREE.MeshLambertMaterial).color = color;
 
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(coord.x, coord.z, coord.y); // Note: WoW coords to Three.js
+    mesh.position.set(coord.x, coord.z ?? 0, coord.y); // Note: WoW coords to Three.js
     mesh.scale.setScalar(markerStyle.scale);
     mesh.castShadow = true;
     mesh.userData = { markerId: coord.id, coordinate: coord };
@@ -177,7 +177,7 @@ export class SpawnMarkerManager {
     if (!marker) return;
 
     marker.coordinate = coord;
-    marker.mesh.position.set(coord.x, coord.z, coord.y);
+    marker.mesh.position.set(coord.x, coord.z ?? 0, coord.y);
 
     if (marker.label) {
       marker.label.position.copy(marker.mesh.position);

@@ -167,7 +167,7 @@ export class BatchOperationsManager {
           const newState = {
             x: target.x * scale + offsetX,
             y: target.y * scale + offsetY,
-            z: target.z * scale + offsetZ,
+            z: (target.z ?? 0) * scale + offsetZ,
           };
           updateCoordinate(target.id, newState);
         }
