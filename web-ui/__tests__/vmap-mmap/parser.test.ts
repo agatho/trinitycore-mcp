@@ -6,7 +6,7 @@
  * @jest-environment node
  */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 import type { MMapParserOptions, VMapParserOptions } from "../../lib/mmap-types";
 import {
   DT_NAVMESH_MAGIC,
@@ -339,7 +339,7 @@ describe("VMap Parser", () => {
       const buffer = createMockVMapTreeBuffer();
       const options: VMapParserOptions = { verbose: true };
 
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       parseVMapTree(buffer, 0, options);
 
       expect(consoleSpy).toHaveBeenCalled();

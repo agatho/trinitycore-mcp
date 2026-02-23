@@ -57,7 +57,7 @@ describe('Schema Smoke Tests', () => {
       const mockRecord = new MockDB2Record({
         0: 8326, // id
         5: 0x00000100, // attributes
-        95: 64, // schoolMask (field index 95)
+        13: 64, // schoolMask (field index 13)
       });
 
       const spell = SpellSchema.parse(mockRecord);
@@ -68,7 +68,7 @@ describe('Schema Smoke Tests', () => {
     });
 
     it('should have helper methods', () => {
-      const mockRecord = new MockDB2Record({ 0: 100, 5: 0x00000040, 95: 64 }); // 0x40 = PASSIVE
+      const mockRecord = new MockDB2Record({ 0: 100, 5: 0x00000040, 13: 64 }); // 0x40 = PASSIVE
       const spell = SpellSchema.parse(mockRecord);
 
       // Test hasAttribute

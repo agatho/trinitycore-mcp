@@ -29,7 +29,7 @@ jest.mock('../../../src/parsers/db2/DB2FileLoader', () => {
         const buffer = Buffer.alloc(64);
         buffer.writeUInt32LE(index, 0); // ID field
         const stringTable = Buffer.from('MockString\0', 'utf-8');
-        return new DB2Record(buffer, stringTable, [], index);
+        return new DB2Record(buffer, stringTable, [], 0);
       }),
     })),
   };

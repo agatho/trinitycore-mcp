@@ -41,7 +41,7 @@ describe('SAI Validation Engine', () => {
         id: 'conn-1',
         source: 'event-1',
         target: 'action-1',
-        type: 'event-action',
+        type: 'event-to-action',
       },
     ],
     metadata: {
@@ -151,7 +151,7 @@ describe('SAI Validation Engine', () => {
         id: 'conn-invalid',
         source: 'nonexistent-node',
         target: 'action-1',
-        type: 'event-action',
+        type: 'event-to-action',
       });
 
       const result = validateScript(script);
@@ -188,7 +188,7 @@ describe('SAI Validation Engine', () => {
         id: 'conn-2',
         source: 'event-1',
         target: 'action-2',
-        type: 'event-action',
+        type: 'event-to-action',
       });
 
       const result = validateScript(script);
@@ -351,7 +351,7 @@ describe('SAI Validation Engine', () => {
           id: `conn-${i}`,
           source: 'event-1',
           target: `action-${i}`,
-          type: 'event-action',
+          type: 'event-to-action',
         });
       }
 
@@ -379,7 +379,7 @@ describe('SAI Validation Engine', () => {
           id: `conn-chain-${i}`,
           source: i === 0 ? 'event-1' : `action-chain-${i - 1}`,
           target: `action-chain-${i}`,
-          type: 'event-action',
+          type: 'event-to-action',
         });
       }
 

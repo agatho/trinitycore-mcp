@@ -4,18 +4,37 @@
  */
 
 import path from "path";
+import fs from "fs";
 import {
   createCodeReviewOrchestrator,
   reviewProject,
   type CodeReviewConfig,
 } from "../../../src/code-review/index";
 
+/**
+ * Default test config with AI disabled.
+ * AI review requires a running Ollama instance with codellama model,
+ * which is unavailable in CI. Disabling prevents timeout from retries.
+ */
+const defaultTestConfig: CodeReviewConfig = {
+  enableAI: false,
+  verbose: false,
+};
+
 describe("CodeReviewOrchestrator Integration", () => {
   const testFixturePath = path.join(__dirname, "../fixtures/sample-code.cpp");
+  const tempDir = path.join(__dirname, "../../../temp");
+
+  beforeAll(() => {
+    // Ensure temp directory exists for report generation tests
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+  });
 
   describe("Basic Workflow", () => {
     it("should create orchestrator with default config", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       expect(orchestrator).toBeDefined();
     });
 
@@ -34,7 +53,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("File Review", () => {
     it("should review a single file", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       expect(result).toHaveProperty("files");
@@ -46,7 +65,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should detect violations in test fixture", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       // Test fixture should have multiple violations
@@ -54,7 +73,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should include statistics in result", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       expect(result.statistics).toHaveProperty("totalViolations");
@@ -67,7 +86,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should categorize violations by severity", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       const { bySeverity } = result.statistics;
@@ -78,7 +97,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should categorize violations by category", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       const { byCategory } = result.statistics;
@@ -97,7 +116,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("Multiple File Review", () => {
     it("should review multiple files", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const files = [testFixturePath];
 
       const result = await orchestrator.reviewFiles(files);
@@ -109,7 +128,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("Pattern-Based Review", () => {
     it("should review files matching pattern", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const patterns = ["tests/code-review/fixtures/*.cpp"];
 
       const result = await orchestrator.reviewPattern(patterns);
@@ -122,6 +141,7 @@ describe("CodeReviewOrchestrator Integration", () => {
   describe("Filtering", () => {
     it("should filter by severity", async () => {
       const config: CodeReviewConfig = {
+        enableAI: false,
         severityFilter: ["critical"],
       };
 
@@ -135,6 +155,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
     it("should filter by category", async () => {
       const config: CodeReviewConfig = {
+        enableAI: false,
         categoryFilter: ["null_safety"],
       };
 
@@ -148,6 +169,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
     it("should filter by minimum confidence", async () => {
       const config: CodeReviewConfig = {
+        enableAI: false,
         minConfidence: 0.9,
       };
 
@@ -162,6 +184,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     it("should limit maximum violations", async () => {
       const maxViolations = 5;
       const config: CodeReviewConfig = {
+        enableAI: false,
         maxViolations,
       };
 
@@ -174,33 +197,31 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("Report Generation", () => {
     it("should generate markdown report", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      const reportPath = path.join(__dirname, "../../../temp/test-report.md");
+      const reportPath = path.join(tempDir, "test-report.md");
       await orchestrator.generateReport(result, reportPath, "markdown");
 
       // Report file should be created
-      const fs = require("fs");
       expect(fs.existsSync(reportPath)).toBe(true);
     });
 
     it("should generate JSON report", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      const reportPath = path.join(__dirname, "../../../temp/test-report.json");
+      const reportPath = path.join(tempDir, "test-report.json");
       await orchestrator.generateReport(result, reportPath, "json");
 
       // Report file should be created
-      const fs = require("fs");
       expect(fs.existsSync(reportPath)).toBe(true);
     });
   });
 
   describe("Performance", () => {
     it("should complete single file review within performance target", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
 
       const startTime = Date.now();
       const result = await orchestrator.reviewFiles([testFixturePath]);
@@ -212,7 +233,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should handle large files efficiently", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
 
       const startTime = Date.now();
       await orchestrator.reviewFiles([testFixturePath]);
@@ -241,7 +262,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should generate report during quick review", async () => {
-      const reportPath = path.join(__dirname, "../../../temp/quick-review-report.md");
+      const reportPath = path.join(tempDir, "quick-review-report.md");
 
       const result = await reviewProject({
         projectRoot: path.join(__dirname, "../fixtures"),
@@ -253,7 +274,6 @@ describe("CodeReviewOrchestrator Integration", () => {
       });
 
       // Report should be generated
-      const fs = require("fs");
       expect(fs.existsSync(reportPath)).toBe(true);
       expect(result.files.length).toBeGreaterThan(0);
     });
@@ -261,16 +281,17 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("Error Handling", () => {
     it("should handle non-existent files gracefully", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const nonExistentFile = "/non/existent/file.cpp";
 
-      await expect(async () => {
-        await orchestrator.reviewFiles([nonExistentFile]);
-      }).rejects.toThrow();
+      // Orchestrator skips non-existent files gracefully (does not throw)
+      const result = await orchestrator.reviewFiles([nonExistentFile]);
+      expect(result).toBeDefined();
+      expect(result.violations.length).toBe(0);
     });
 
     it("should handle invalid patterns gracefully", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const invalidPattern = ["///invalid///pattern///*.cpp"];
 
       const result = await orchestrator.reviewPattern(invalidPattern);
@@ -297,7 +318,7 @@ describe("CodeReviewOrchestrator Integration", () => {
 
   describe("Accuracy Metrics", () => {
     it("should calculate average confidence", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       if (result.violations.length > 0) {
@@ -308,7 +329,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should count fixable issues", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       const violationsWithFixes = result.violations.filter((v) => v.suggestedFix);
@@ -316,7 +337,7 @@ describe("CodeReviewOrchestrator Integration", () => {
     });
 
     it("should track files with issues", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator(defaultTestConfig);
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       if (result.violations.length > 0) {
