@@ -9,10 +9,16 @@
 
 import * as THREE from 'three';
 
+interface ShaderDefinition {
+  uniforms: Record<string, THREE.IUniform>;
+  vertexShader: string;
+  fragmentShader: string;
+}
+
 /**
  * Elevation-based terrain shader
  */
-export const ElevationTerrainShader: THREE.Shader = {
+export const ElevationTerrainShader: ShaderDefinition = {
   uniforms: {
     minHeight: { value: -500.0 },
     maxHeight: { value: 500.0 },
@@ -103,7 +109,7 @@ export const ElevationTerrainShader: THREE.Shader = {
 /**
  * Water surface shader with animation
  */
-export const WaterShader: THREE.Shader = {
+export const WaterShader: ShaderDefinition = {
   uniforms: {
     time: { value: 0.0 },
     waterColor: { value: new THREE.Color(0x1e90ff) },

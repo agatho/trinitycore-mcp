@@ -74,7 +74,7 @@ export class TransformControlsWrapper {
     };
 
     // Create TransformControls
-    this.controls = new TransformControls(camera, domElement);
+    this.controls = new TransformControls(camera as any, domElement);
     this.controls.setMode(this.options.mode);
     this.controls.setSpace(this.options.space);
     this.controls.setSize(this.options.size);
@@ -85,7 +85,7 @@ export class TransformControlsWrapper {
     this.controls.setScaleSnap(this.options.scaleSnap);
 
     // Add to scene
-    this.scene.add(this.controls);
+    this.scene.add(this.controls as any);
 
     // Bind events
     this.controls.addEventListener('change', this.handleChange.bind(this));
@@ -99,7 +99,7 @@ export class TransformControlsWrapper {
    */
   public attach(object: THREE.Object3D): void {
     this.attachedObjects = [object];
-    this.controls.attach(object);
+    this.controls.attach(object as any);
 
     this.emit('attached', { object });
   }
@@ -113,7 +113,7 @@ export class TransformControlsWrapper {
     this.attachedObjects = objects;
 
     if (objects.length === 1) {
-      this.controls.attach(objects[0]);
+      this.controls.attach(objects[0] as any);
     } else {
       // Create group at center of objects
       this.transformGroup = new THREE.Group();
@@ -133,7 +133,7 @@ export class TransformControlsWrapper {
         this.transformGroup.attach(obj);
       }
 
-      this.controls.attach(this.transformGroup);
+      this.controls.attach(this.transformGroup as any);
     }
 
     this.emit('attached', { objects });

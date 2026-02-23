@@ -129,9 +129,8 @@ export class SyncManager {
 
       this.actions.setCamera2D({
         ...this.state.camera2D,
-        centerX: x,
-        centerY: y,
-        zoom,
+        offset: { x, y },
+        scale: zoom,
       });
 
       this.emit('cameraSync2D', { x, y, zoom });
@@ -147,8 +146,7 @@ export class SyncManager {
 
     this.actions.setCamera2D({
       ...this.state.camera2D,
-      centerX: x,
-      centerY: y,
+      offset: { x, y },
     });
 
     this.emit('focus2D', { x, y });

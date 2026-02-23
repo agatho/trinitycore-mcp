@@ -254,8 +254,8 @@ export class SAISimulator {
         // HEALTH_PCT (Health Percentage)
         typeId: '2',
         condition: (state) => {
-          const param1 = eventNode.parameters[0]?.value || 0;
-          const param2 = eventNode.parameters[1]?.value || 100;
+          const param1 = Number(eventNode.parameters[0]?.value) || 0;
+          const param2 = Number(eventNode.parameters[1]?.value) || 100;
           return state.healthPercent >= param1 && state.healthPercent <= param2;
         },
         description: 'Triggers when health is within range',
@@ -264,8 +264,8 @@ export class SAISimulator {
         // MANA_PCT (Mana Percentage)
         typeId: '3',
         condition: (state) => {
-          const param1 = eventNode.parameters[0]?.value || 0;
-          const param2 = eventNode.parameters[1]?.value || 100;
+          const param1 = Number(eventNode.parameters[0]?.value) || 0;
+          const param2 = Number(eventNode.parameters[1]?.value) || 100;
           return state.manaPercent >= param1 && state.manaPercent <= param2;
         },
         description: 'Triggers when mana is within range',

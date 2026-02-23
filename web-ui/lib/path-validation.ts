@@ -81,19 +81,19 @@ export class PathValidationManager {
         errors.push({
           type: 'missing-height',
           waypointIndex: i,
-          position: { x: wp.x, y: wp.y, z: wp.z },
+          position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
           message: `No terrain data at waypoint ${i + 1}`,
         });
         continue;
       }
 
       // Check if waypoint Z matches terrain
-      const heightDiff = Math.abs(wp.z - heightResult.z);
+      const heightDiff = Math.abs((wp.z ?? 0) - heightResult.z);
       if (heightDiff > 5) {
         warnings.push({
           type: 'height-difference',
           waypointIndex: i,
-          position: { x: wp.x, y: wp.y, z: wp.z },
+          position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
           message: `Waypoint ${i + 1} is ${heightDiff.toFixed(1)} yards above/below terrain`,
         });
       }
@@ -101,19 +101,19 @@ export class PathValidationManager {
       // Check distance to next waypoint
       if (i < path.waypoints.length - 1) {
         const next = path.waypoints[i + 1];
-        const distance = Math.hypot(next.x - wp.x, next.y - wp.y, next.z - wp.z);
+        const distance = Math.hypot(next.x - wp.x, next.y - wp.y, (next.z ?? 0) - (wp.z ?? 0));
 
         if (distance > opts.maxWaypointDistance) {
           warnings.push({
             type: 'long-distance',
             waypointIndex: i,
-            position: { x: wp.x, y: wp.y, z: wp.z },
+            position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
             message: `Distance to waypoint ${i + 2} is ${distance.toFixed(1)} yards (max: ${opts.maxWaypointDistance})`,
           });
         }
 
         // Check slope between waypoints
-        const heightChange = next.z - wp.z;
+        const heightChange = (next.z ?? 0) - (wp.z ?? 0);
         const horizontalDist = Math.hypot(next.x - wp.x, next.y - wp.y);
         const slopeAngle = Math.abs(Math.atan2(heightChange, horizontalDist) * (180 / Math.PI));
 
@@ -121,7 +121,7 @@ export class PathValidationManager {
           errors.push({
             type: 'steep-slope',
             waypointIndex: i,
-            position: { x: wp.x, y: wp.y, z: wp.z },
+            position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
             message: `Slope to waypoint ${i + 2} is ${slopeAngle.toFixed(1)}° (max: ${opts.maxSlopeAngle}°)`,
           });
         }
@@ -130,13 +130,17 @@ export class PathValidationManager {
       // Check reachability (simplified - full implementation would use A*)
       if (opts.checkReachability && i > 0 && mmapData) {
         const prev = path.waypoints[i - 1];
-        const reachable = this.checkReachability(prev, wp, mmapData);
+        const reachable = this.checkReachability(
+          { x: prev.x, y: prev.y, z: prev.z ?? 0 },
+          { x: wp.x, y: wp.y, z: wp.z ?? 0 },
+          mmapData
+        );
 
         if (!reachable) {
           errors.push({
             type: 'unreachable',
             waypointIndex: i,
-            position: { x: wp.x, y: wp.y, z: wp.z },
+            position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
             message: `Waypoint ${i + 1} may not be reachable from waypoint ${i}`,
           });
         }
@@ -144,13 +148,13 @@ export class PathValidationManager {
 
       // Check collisions
       if (opts.checkCollisions && vmapData) {
-        const hasCollision = this.checkCollision(wp, opts.npcRadius, vmapData);
+        const hasCollision = this.checkCollision({ x: wp.x, y: wp.y, z: wp.z ?? 0 }, opts.npcRadius, vmapData);
 
         if (hasCollision) {
           errors.push({
             type: 'collision',
             waypointIndex: i,
-            position: { x: wp.x, y: wp.y, z: wp.z },
+            position: { x: wp.x, y: wp.y, z: wp.z ?? 0 },
             message: `Waypoint ${i + 1} collides with geometry`,
           });
         }
@@ -247,7 +251,7 @@ export class PathValidationManager {
       const from = path.waypoints[currentWaypointIndex];
       const to = path.waypoints[(currentWaypointIndex + 1) % path.waypoints.length];
 
-      const distance = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
+      const distance = Math.hypot(to.x - from.x, to.y - from.y, (to.z ?? 0) - (from.z ?? 0));
       const duration = distance / speed; // seconds
 
       progress += 0.016; // Assume 60 FPS
@@ -261,7 +265,7 @@ export class PathValidationManager {
       const position = {
         x: from.x + (to.x - from.x) * t,
         y: from.y + (to.y - from.y) * t,
-        z: from.z + (to.z - from.z) * t,
+        z: (from.z ?? 0) + ((to.z ?? 0) - (from.z ?? 0)) * t,
       };
 
       onProgress(currentWaypointIndex, position);
