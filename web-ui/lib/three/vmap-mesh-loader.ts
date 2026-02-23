@@ -139,9 +139,10 @@ export class VMapMeshLoader {
     if (tile.spawns && tile.spawns.length > 0) {
       for (const spawn of tile.spawns) {
         // Only process spawns that have actual vertex data (populated from .vmo files)
-        if (spawn.vertices && spawn.indices) {
-          const vertices = spawn.vertices as number[];
-          const indices = spawn.indices as number[];
+        const spawnAny = spawn as any;
+        if (spawnAny.vertices && spawnAny.indices) {
+          const vertices = spawnAny.vertices as number[];
+          const indices = spawnAny.indices as number[];
           for (let i = 0; i < indices.length; i += 3) {
             const i1 = indices[i] * 3;
             const i2 = indices[i + 1] * 3;

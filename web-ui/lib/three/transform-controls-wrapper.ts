@@ -53,6 +53,11 @@ export class TransformControlsWrapper {
   private terrainLayer: THREE.Object3D | null = null;
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
 
+  /** Access the attached object from TransformControls (typed as private in @types/three) */
+  private get controlObject(): THREE.Object3D | undefined {
+    return (this.controls as any).object;
+  }
+
   constructor(
     camera: THREE.Camera,
     domElement: HTMLElement,
@@ -178,21 +183,21 @@ export class TransformControlsWrapper {
    * Enable/disable translation snap
    */
   public setTranslationSnap(snap: number | null): void {
-    this.controls.setTranslationSnap(snap);
+    this.controls.setTranslationSnap(snap as any);
   }
 
   /**
    * Enable/disable rotation snap
    */
   public setRotationSnap(snap: number | null): void {
-    this.controls.setRotationSnap(snap);
+    this.controls.setRotationSnap(snap as any);
   }
 
   /**
    * Enable/disable scale snap
    */
   public setScaleSnap(snap: number | null): void {
-    this.controls.setScaleSnap(snap);
+    this.controls.setScaleSnap(snap as any);
   }
 
   /**
@@ -210,7 +215,7 @@ export class TransformControlsWrapper {
    */
   private handleChange(): void {
     // Guard against undefined object
-    if (!this.controls.object) return;
+    if (!this.controlObject) return;
 
     // Apply terrain snapping if enabled
     if (this.options.snapToTerrain && this.options.mode === 'translate') {
@@ -219,10 +224,10 @@ export class TransformControlsWrapper {
 
     // Emit change event
     const event: TransformEvent = {
-      object: this.controls.object,
-      position: this.controls.object.position.clone(),
-      rotation: this.controls.object.rotation.clone(),
-      scale: this.controls.object.scale.clone(),
+      object: this.controlObject,
+      position: this.controlObject.position.clone(),
+      rotation: this.controlObject.rotation.clone(),
+      scale: this.controlObject.scale.clone(),
     };
 
     this.emit('change', event);
@@ -233,20 +238,20 @@ export class TransformControlsWrapper {
    */
   private handleDraggingChanged(event: any): void {
     // Guard against undefined object
-    if (!this.controls.object) return;
+    if (!this.controlObject) return;
 
     const isDragging = event.value;
 
     if (isDragging) {
       this.emit('dragStart', {
-        object: this.controls.object,
+        object: this.controlObject,
       });
     } else {
       this.emit('dragEnd', {
-        object: this.controls.object,
-        position: this.controls.object.position.clone(),
-        rotation: this.controls.object.rotation.clone(),
-        scale: this.controls.object.scale.clone(),
+        object: this.controlObject,
+        position: this.controlObject.position.clone(),
+        rotation: this.controlObject.rotation.clone(),
+        scale: this.controlObject.scale.clone(),
       });
     }
 
@@ -258,9 +263,9 @@ export class TransformControlsWrapper {
    * Apply terrain snapping
    */
   private applyTerrainSnap(): void {
-    if (!this.controls.object || !this.terrainLayer) return;
+    if (!this.controlObject || !this.terrainLayer) return;
 
-    const object = this.controls.object;
+    const object = this.controlObject;
     const position = object.position;
 
     // Cast ray downward from object
@@ -288,14 +293,14 @@ export class TransformControlsWrapper {
    * Show/hide controls
    */
   public setVisible(visible: boolean): void {
-    this.controls.visible = visible;
+    (this.controls as any).visible = visible;
   }
 
   /**
    * Enable/disable controls
    */
   public setEnabled(enabled: boolean): void {
-    this.controls.enabled = enabled;
+    (this.controls as any).enabled = enabled;
   }
 
   /**

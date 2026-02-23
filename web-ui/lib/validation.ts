@@ -457,11 +457,11 @@ export function safeValidate<T>(
 /**
  * Validate partial data (all fields optional)
  */
-export function validatePartial<T>(
-  schema: z.ZodSchema<T>,
+export function validatePartial<T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>,
   data: unknown,
   context: string = 'data'
-): Partial<T> {
+): Partial<z.infer<z.ZodObject<T>>> {
   const partialSchema = schema.partial();
   return validate(partialSchema, data, context);
 }
