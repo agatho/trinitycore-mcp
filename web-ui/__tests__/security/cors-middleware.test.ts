@@ -37,13 +37,14 @@ function createRequest(
 }
 
 /**
- * Dynamically import middleware to pick up env changes
+ * Dynamically import proxy to pick up env changes
+ * (Renamed from middleware.ts to proxy.ts for Next.js 16 compatibility)
  */
 async function importMiddleware() {
   // Clear module cache to get fresh env reads
   vi.resetModules();
-  const mod = await import('../../middleware');
-  return mod.middleware;
+  const mod = await import('../../proxy');
+  return mod.proxy;
 }
 
 describe('CORS Middleware', () => {
