@@ -156,7 +156,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     }));
 
     // Generate link edges from node.link field (visual representation of event chains)
-    const linkEdges: Edge[] = saiScript.nodes
+    const linkEdges = saiScript.nodes
       .filter((node) => node.type === 'event' && node.link && node.link > 0)
       .map((node) => {
         // Find target node by link ID
@@ -182,7 +182,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
         }
         return null;
       })
-      .filter((edge): edge is Edge => edge !== null);
+      .filter((edge) => edge !== null) as Edge[];
 
     setNodes(flowNodes);
     setEdges([...flowEdges, ...linkEdges]);
@@ -441,7 +441,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
     // Record history before deletion
     historyManager.record(
       convertFromReactFlow(),
-      `Delete ${selectedNodeIds.length} node(s) and ${selectedEdgeIds.length} edge(s)`,
+      'delete',
       'user'
     );
 
@@ -464,7 +464,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific node
   const handleDeleteNode = useCallback((nodeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete node ${nodeId}`, 'user');
+    historyManager.record(convertFromReactFlow(), 'delete', 'user');
 
     setNodes((nds) => nds.filter(n => n.id !== nodeId));
     setEdges((eds) => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
@@ -478,7 +478,7 @@ const SAIEditorInner: React.FC<SAIEditorProps> = ({
 
   // Delete specific edge
   const handleDeleteEdge = useCallback((edgeId: string) => {
-    historyManager.record(convertFromReactFlow(), `Delete edge ${edgeId}`, 'user');
+    historyManager.record(convertFromReactFlow(), 'delete', 'user');
     setEdges((eds) => eds.filter(e => e.id !== edgeId));
     toast.success('Connection deleted');
   }, [setEdges, convertFromReactFlow, historyManager]);

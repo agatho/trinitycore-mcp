@@ -131,7 +131,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
       bottlenecks,
       nodeMetrics: nodeMetricsMap,
       renderTime: performance.now() % 100, // Simulated render time
-      memoryUsage: performance.memory ? performance.memory.usedJSHeapSize / 1048576 : undefined, // MB
+      memoryUsage: (performance as any).memory ? (performance as any).memory.usedJSHeapSize / 1048576 : undefined, // MB
     };
   }, [script]);
 

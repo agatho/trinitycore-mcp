@@ -5,6 +5,25 @@
  * for the World Editor.
  */
 
+/**
+ * Minimal renderer info interface - avoids importing THREE.WebGLRenderer directly
+ * to prevent type version mismatches between different module resolution paths.
+ * Only the properties actually used by PerformanceMonitor are defined here.
+ */
+export interface RendererInfo {
+  info: {
+    render: {
+      calls: number;
+      triangles: number;
+    };
+    memory: {
+      geometries: number;
+      textures: number;
+    };
+    programs?: unknown[] | null;
+  };
+}
+
 export interface PerformanceMetrics {
   fps: number;
   frameTime: number; // ms
@@ -57,7 +76,7 @@ export class PerformanceMonitor {
   /**
    * Update frame statistics (call every frame)
    */
-  public updateFrame(renderer?: THREE.WebGLRenderer): void {
+  public updateFrame(renderer?: RendererInfo): void {
     this.frameCount++;
     const currentTime = performance.now();
     const deltaTime = currentTime - this.lastTime;
@@ -88,7 +107,7 @@ export class PerformanceMonitor {
   /**
    * Get current performance metrics
    */
-  public getMetrics(renderer?: THREE.WebGLRenderer): PerformanceMetrics {
+  public getMetrics(renderer?: RendererInfo): PerformanceMetrics {
     const memory = this.getMemoryInfo();
     const renderInfo = this.getRenderInfo(renderer);
 
@@ -118,7 +137,7 @@ export class PerformanceMonitor {
   /**
    * Get rendering information from Three.js renderer
    */
-  private getRenderInfo(renderer?: THREE.WebGLRenderer): {
+  private getRenderInfo(renderer?: RendererInfo): {
     drawCalls: number;
     triangles: number;
     geometries: number;
