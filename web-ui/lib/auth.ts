@@ -184,12 +184,15 @@ export function validateApiKey(providedKey: string): boolean {
     const secretBytes = encoder.encode(secretKey);
 
     if (providedBytes.length !== secretBytes.length) {
-      // Still perform a dummy comparison to maintain constant time
-      const dummy = new Uint8Array(32);
+      // Still perform a dummy comparison to maintain constant time behavior
+      // XOR provided bytes against a constant to avoid timing side-channel leaks
+      const dummyLen = Math.max(providedBytes.length, 32);
       let dummyResult = 0;
-      for (let i = 0; i < dummy.length; i++) {
-        dummyResult |= dummy[i] ^ dummy[i];
+      for (let i = 0; i < dummyLen; i++) {
+        dummyResult |= (providedBytes[i % providedBytes.length] || 0) ^ 0xFF;
       }
+      // Use dummyResult to prevent dead-code elimination
+      void dummyResult;
       return false;
     }
 
