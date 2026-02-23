@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['child_process', 'fs', 'path'],
+  /* config options here */
 };
 
 export default nextConfig;

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       args.push(`--map=${mapName}`);
     }
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       let output = '';
       let errorOutput = '';
       let processedMaps = 0;
