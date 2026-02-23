@@ -5,13 +5,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
-import { join } from 'path';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { mapName, forceReExtract } = body;
+
+    // Dynamic imports prevent Turbopack from statically analyzing spawn arguments
+    const { spawn } = await import('child_process');
+    const { join } = await import('path');
 
     const projectRoot = join(process.cwd(), '..');
     const scriptPath = join(projectRoot, 'scripts', 'extract-wdt-minimap-tiles-optimized.js');
