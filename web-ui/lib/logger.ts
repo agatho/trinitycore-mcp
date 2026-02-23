@@ -239,7 +239,11 @@ class LoggerService {
   clearLogs(): void {
     this.logs = [];
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('trinitycore-logs');
+      try {
+        localStorage.removeItem('trinitycore-logs');
+      } catch {
+        // localStorage may not be fully available
+      }
     }
   }
 
@@ -272,9 +276,8 @@ class LoggerService {
 
       const logsToStore = importantLogs.slice(-this.config.maxStoredLogs);
       localStorage.setItem('trinitycore-logs', JSON.stringify(logsToStore));
-    } catch (error) {
-      // Storage quota exceeded or disabled
-      console.warn('Failed to persist logs:', error);
+    } catch {
+      // Storage quota exceeded, disabled, or not fully available in test environments
     }
   }
 
@@ -290,8 +293,8 @@ class LoggerService {
         const logs = JSON.parse(stored) as LogEntry[];
         this.logs.push(...logs);
       }
-    } catch (error) {
-      console.warn('Failed to load persisted logs:', error);
+    } catch {
+      // localStorage may not be fully available in test environments
     }
   }
 

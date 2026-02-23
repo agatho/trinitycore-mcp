@@ -618,7 +618,7 @@ function checkDocumentation(script: SAIScript): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
 
   // Check script description
-  if (!script.metadata.description || script.metadata.description.trim() === '') {
+  if (!script.metadata?.description || script.metadata.description.trim() === '') {
     warnings.push({
       nodeId: '',
       message: 'Script has no description',
