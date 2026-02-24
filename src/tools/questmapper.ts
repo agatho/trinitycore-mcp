@@ -6,7 +6,7 @@
  * Benefit: Humans can understand complex quest dependencies and progression paths visually.
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 
 /**
  * Quest information
@@ -555,8 +555,9 @@ export async function getQuestRewards(questId: number): Promise<{
     const amount = quest[`RewardAmount${i}`];
 
     if (itemId && amount) {
-      const itemData = await queryWorld(
-        `SELECT name FROM item_template WHERE entry = ?`,
+      // TrinityCore 12.0: item_template removed. Use item_sparse in hotfixes DB.
+      const itemData = await queryHotfixes(
+        `SELECT COALESCE(isl.Display_lang, isp.Display, '') as name FROM item_sparse isp LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS' WHERE isp.ID = ?`,
         [itemId]
       );
 

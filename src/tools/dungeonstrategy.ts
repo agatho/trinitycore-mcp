@@ -130,11 +130,13 @@ export async function getBossMechanics(
 
   const boss = results[0];
 
-  // Get boss spells
+  // Get boss spells from creature_template_spell table (12.0.1 schema)
+  // In TrinityCore 12.0.1, creature spells moved from Spell1-8 columns to creature_template_spell
   const spellQuery = `
-    SELECT Spell1, Spell2, Spell3, Spell4, Spell5, Spell6, Spell7, Spell8
-    FROM creature_template
-    WHERE entry = ?
+    SELECT \`Index\`, Spell
+    FROM creature_template_spell
+    WHERE CreatureID = ?
+    ORDER BY \`Index\` ASC
   `;
 
   const spells = await queryWorld(spellQuery, [bossCreatureId]);
@@ -142,8 +144,8 @@ export async function getBossMechanics(
   const abilities: BossAbility[] = [];
 
   if (spells && spells.length > 0) {
-    for (let i = 1; i <= 8; i++) {
-      const spellId = spells[0][`Spell${i}`];
+    for (const spellRow of spells) {
+      const spellId = spellRow.Spell;
       if (spellId && spellId > 0) {
         abilities.push({
           spellId,
@@ -312,8 +314,10 @@ export function recommendCCTargets(
  */
 export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLayout> {
   // Query instance template for dungeon info
+  // TrinityCore 12.0.1: instance_template only has map, parent, script (no levelMin/levelMax)
+  // Level scaling data moved to ContentTuning.db2
   const query = `
-    SELECT map, levelMin, levelMax
+    SELECT map, parent, script
     FROM instance_template
     WHERE map = ?
   `;
@@ -351,9 +355,11 @@ export async function getDungeonLayout(dungeonMapId: number): Promise<DungeonLay
   return {
     dungeonId: dungeonMapId,
     name: `Dungeon ${dungeonMapId}`,
+    // TrinityCore 12.0.1: Level range no longer in instance_template
+    // Would require ContentTuning.db2 lookup for accurate values
     levelRange: {
-      min: dungeon.levelMin || 1,
-      max: dungeon.levelMax || 90
+      min: 1,
+      max: 90
     },
     estimatedDuration: bosses.length * 5, // 5 minutes per boss estimate
     bosses,

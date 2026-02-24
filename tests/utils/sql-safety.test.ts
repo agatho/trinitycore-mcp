@@ -32,11 +32,12 @@ import {
 describe('validateTableName', () => {
   it('should accept valid TrinityCore world tables', () => {
     expect(validateTableName('creature_template', 'world')).toBe('`creature_template`');
-    expect(validateTableName('item_template', 'world')).toBe('`item_template`');
+    expect(validateTableName('serverside_spell', 'world')).toBe('`serverside_spell`');
+    expect(validateTableName('serverside_spell_effect', 'world')).toBe('`serverside_spell_effect`');
     expect(validateTableName('quest_template', 'world')).toBe('`quest_template`');
-    expect(validateTableName('spell_template', 'world')).toBe('`spell_template`');
     expect(validateTableName('npc_vendor', 'world')).toBe('`npc_vendor`');
     expect(validateTableName('creature_loot_template', 'world')).toBe('`creature_loot_template`');
+    expect(validateTableName('item_template_addon', 'world')).toBe('`item_template_addon`');
   });
 
   it('should accept valid TrinityCore auth tables', () => {

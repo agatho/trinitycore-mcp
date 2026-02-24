@@ -77,6 +77,22 @@ export interface SpellEffect {
   auraName?: string;
   implicitTargetA: number;
   implicitTargetB: number;
+  /** Spell power scaling coefficient per effect (EffectBonusCoefficient) */
+  effectBonusCoefficient: number;
+  /** Attack power scaling coefficient (BonusCoefficientFromAP) */
+  bonusCoefficientFromAP: number;
+  /** General coefficient (Coefficient) */
+  coefficient: number;
+  /** Damage variance multiplier (Variance) — 0 = no variance, 0.15 = ±15% */
+  variance: number;
+  /** Trigger spell ID (EffectTriggerSpell) */
+  triggerSpell: number;
+  /** Aura tick period in milliseconds (EffectAuraPeriod) */
+  auraPeriod: number;
+  /** Chain target count (EffectChainTargets) */
+  chainTargets: number;
+  /** PvP damage multiplier (PvpMultiplier) */
+  pvpMultiplier: number;
 }
 
 // DB2 file paths
@@ -279,7 +295,15 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
           EffectRadiusIndex1 as radiusIndex,
           EffectAura as aura,
           ImplicitTarget1 as targetA,
-          ImplicitTarget2 as targetB
+          ImplicitTarget2 as targetB,
+          EffectBonusCoefficient as effectBonusCoefficient,
+          BonusCoefficientFromAP as bonusCoefficientFromAP,
+          Coefficient as coefficient,
+          Variance as variance,
+          EffectTriggerSpell as triggerSpell,
+          EffectAuraPeriod as auraPeriod,
+          EffectChainTargets as chainTargets,
+          PvpMultiplier as pvpMultiplier
         FROM serverside_spell_effect
         WHERE SpellID = ? AND DifficultyID = 0
         ORDER BY EffectIndex
@@ -299,6 +323,14 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
             auraName: getAuraName(effectRow.aura),
             implicitTargetA: effectRow.targetA || 0,
             implicitTargetB: effectRow.targetB || 0,
+            effectBonusCoefficient: effectRow.effectBonusCoefficient || 0,
+            bonusCoefficientFromAP: effectRow.bonusCoefficientFromAP || 0,
+            coefficient: effectRow.coefficient || 0,
+            variance: effectRow.variance || 0,
+            triggerSpell: effectRow.triggerSpell || 0,
+            auraPeriod: effectRow.auraPeriod || 0,
+            chainTargets: effectRow.chainTargets || 0,
+            pvpMultiplier: effectRow.pvpMultiplier || 1.0,
           });
         }
       }
