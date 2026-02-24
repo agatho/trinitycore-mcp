@@ -87,7 +87,7 @@ export interface ProcAnalysis {
 
 /**
  * Known ability cooldowns (in milliseconds)
- * This should ideally come from spell_template database
+ * This should ideally come from serverside_spell database
  */
 export const COOLDOWN_DATABASE: Map<number, CooldownInfo> = new Map([
   // Warrior
@@ -471,7 +471,7 @@ const COOLDOWN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Load cooldowns from spell database
- * Queries the TrinityCore spell_template table and caches results
+ * Queries the TrinityCore serverside_spell table and caches results
  */
 export async function loadCooldownsFromDatabase(): Promise<void> {
   // Check if cache is still valid
@@ -482,21 +482,23 @@ export async function loadCooldownsFromDatabase(): Promise<void> {
   }
 
   try {
-    logger.info('[Cooldown Tracker] Loading cooldowns from spell_template database...');
+    logger.info('[Cooldown Tracker] Loading cooldowns from serverside_spell database...');
 
-    // Query spell_template for cooldown data
+    // Query serverside_spell for cooldown data (TrinityCore 12.0: spell_template was removed)
     // RecoveryTime = cooldown in milliseconds
     // CategoryRecoveryTime = category cooldown (used by some spells)
+    // ChargeCategoryId replaces MaxCharges (non-zero means spell uses charge system)
     const query = `
       SELECT
-        ID as spellId,
+        Id as spellId,
         SpellName as spellName,
         RecoveryTime as cooldownDuration,
         CategoryRecoveryTime as categoryCooldown,
-        MaxCharges as charges
-      FROM spell_template
-      WHERE RecoveryTime > 0 OR CategoryRecoveryTime > 0
-      ORDER BY ID
+        ChargeCategoryId as charges
+      FROM serverside_spell
+      WHERE (RecoveryTime > 0 OR CategoryRecoveryTime > 0)
+        AND DifficultyID = 0
+      ORDER BY Id
     `;
 
     const results = await queryWorld(query);

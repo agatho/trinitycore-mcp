@@ -7,7 +7,7 @@
  * @module questchain
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { getQuestInfo, QuestInfo } from "./quest";
 import {
   getStatPriority,
@@ -799,23 +799,35 @@ const CLASS_STAT_PRIORITIES: { [classId: number]: { [stat: string]: number } } =
  */
 async function getItemStatsForReward(itemId: number): Promise<any> {
   try {
+    // TrinityCore 12.0: item_template removed. Use item + item_sparse from hotfixes DB.
+    // Combines item metadata and stat fields in a single query.
     const query = `
       SELECT
-        ItemID as itemId,
-        Class as itemClass,
-        SubClass as itemSubClass,
-        InventoryType as inventoryType,
-        ItemLevel as itemLevel,
-        RequiredLevel as requiredLevel,
-        SellPrice as sellPrice,
-        Quality as quality,
-        BonusStats as bonusStats
-      FROM item_template
-      WHERE ItemID = ?
+        i.ID as itemId,
+        i.ClassID as itemClass,
+        i.SubclassID as itemSubClass,
+        i.InventoryType as inventoryType,
+        isp.ItemLevel as itemLevel,
+        isp.RequiredLevel as requiredLevel,
+        isp.SellPrice as sellPrice,
+        isp.OverallQualityID as quality,
+        isp.StatModifierBonusStat1 as stat_type1, isp.StatPercentEditor1 as stat_value1,
+        isp.StatModifierBonusStat2 as stat_type2, isp.StatPercentEditor2 as stat_value2,
+        isp.StatModifierBonusStat3 as stat_type3, isp.StatPercentEditor3 as stat_value3,
+        isp.StatModifierBonusStat4 as stat_type4, isp.StatPercentEditor4 as stat_value4,
+        isp.StatModifierBonusStat5 as stat_type5, isp.StatPercentEditor5 as stat_value5,
+        isp.StatModifierBonusStat6 as stat_type6, isp.StatPercentEditor6 as stat_value6,
+        isp.StatModifierBonusStat7 as stat_type7, isp.StatPercentEditor7 as stat_value7,
+        isp.StatModifierBonusStat8 as stat_type8, isp.StatPercentEditor8 as stat_value8,
+        isp.StatModifierBonusStat9 as stat_type9, isp.StatPercentEditor9 as stat_value9,
+        isp.StatModifierBonusStat10 as stat_type10, isp.StatPercentEditor10 as stat_value10
+      FROM item i
+      INNER JOIN item_sparse isp ON i.ID = isp.ID
+      WHERE i.ID = ?
       LIMIT 1
     `;
 
-    const results = await queryWorld(query, [itemId]);
+    const results = await queryHotfixes(query, [itemId]);
 
     if (!results || results.length === 0) {
       return { itemId, itemLevel: 0, sellPrice: 0, stats: {} };
@@ -823,28 +835,11 @@ async function getItemStatsForReward(itemId: number): Promise<any> {
 
     const item = results[0];
 
-    // Parse item stats (simplified - real implementation would parse all stat fields)
+    // Parse item stats from the combined query result
     const stats: { [key: string]: number } = {};
 
-    // Get primary stats from item stat fields
-    const statQuery = `
-      SELECT
-        stat_type1, stat_value1,
-        stat_type2, stat_value2,
-        stat_type3, stat_value3,
-        stat_type4, stat_value4,
-        stat_type5, stat_value5,
-        stat_type6, stat_value6,
-        stat_type7, stat_value7,
-        stat_type8, stat_value8,
-        stat_type9, stat_value9,
-        stat_type10, stat_value10,
-        armor
-      FROM item_template
-      WHERE ItemID = ?
-    `;
-
-    const statResults = await queryWorld(statQuery, [itemId]);
+    // Stats are already included in the combined query result
+    const statResults = results;
 
     if (statResults && statResults.length > 0) {
       const itemStats = statResults[0];
@@ -872,10 +867,8 @@ async function getItemStatsForReward(itemId: number): Promise<any> {
         }
       }
 
-      // Add armor if present
-      if (itemStats.armor) {
-        stats.armor = itemStats.armor;
-      }
+      // Note: Armor value is not directly available in item_sparse;
+      // it is computed from ItemLevel, Quality, InventoryType, and SubclassID.
     }
 
     return {

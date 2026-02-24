@@ -3,7 +3,7 @@
  * Week 7: Enhanced with Item.db2 + ItemSparse.db2 integration via DB2CachedFileLoader
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader";
 import { ItemSchema } from "../parsers/schemas/ItemSchema";
 import * as path from "path";
@@ -214,25 +214,27 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
     const db2Result = await loadItemFromDB2(itemId);
     const db2Item = db2Result.data;
 
-    // Step 2: Query item_template for database data (with error handling)
+    // Step 2: Query hotfixes DB for item data (TrinityCore 12.0: item_template removed)
     let dbItem = null;
     try {
       const query = `
         SELECT
-          entry as itemId,
-          name,
-          Quality as quality,
-          ItemLevel as itemLevel,
-          RequiredLevel as requiredLevel,
-          class as itemClass,
-          subclass as itemSubClass,
-          InventoryType as inventoryType
-        FROM item_template
-        WHERE entry = ?
+          i.ID as itemId,
+          COALESCE(isl.Display_lang, isp.Display, '') as name,
+          isp.OverallQualityID as quality,
+          isp.ItemLevel as itemLevel,
+          isp.RequiredLevel as requiredLevel,
+          i.ClassID as itemClass,
+          i.SubclassID as itemSubClass,
+          i.InventoryType as inventoryType
+        FROM item i
+        INNER JOIN item_sparse isp ON i.ID = isp.ID
+        LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
+        WHERE i.ID = ?
         LIMIT 1
       `;
 
-      const items = await queryWorld(query, [itemId]);
+      const items = await queryHotfixes(query, [itemId]);
       dbItem = items && items.length > 0 ? items[0] : null;
     } catch (dbError) {
       logger.warn(`Database query failed for item ${itemId}, using DB2 cache only:`,

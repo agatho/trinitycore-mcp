@@ -7,7 +7,7 @@
  * @module collection
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -153,14 +153,17 @@ export async function getCollectionStatus(
   accountId?: number
 ): Promise<CollectionStatus> {
   // Query total available collectibles
+  // TrinityCore 12.0: item_template removed. Use item/item_sparse from hotfixes DB.
   let totalQuery = "";
+  let useHotfixes = false;
 
   if (type === "mount") {
     totalQuery = `
       SELECT COUNT(*) as total
-      FROM item_template
-      WHERE class = 15 AND subclass = 5
+      FROM item i
+      WHERE i.ClassID = 15 AND i.SubclassID = 5
     `;
+    useHotfixes = true;
   } else if (type === "pet") {
     totalQuery = `
       SELECT COUNT(*) as total
@@ -169,12 +172,13 @@ export async function getCollectionStatus(
   } else if (type === "toy") {
     totalQuery = `
       SELECT COUNT(*) as total
-      FROM item_template
-      WHERE Flags & 0x8000
+      FROM item_sparse
+      WHERE (Flags1 & 0x8000) != 0
     `;
+    useHotfixes = true;
   }
 
-  const totalResults = await queryWorld(totalQuery, []);
+  const totalResults = useHotfixes ? await queryHotfixes(totalQuery, []) : await queryWorld(totalQuery, []);
   const total = totalResults[0]?.total || 0;
 
   // Simulate collected count (would query character data in real implementation)
@@ -203,15 +207,20 @@ export async function findMissingCollectibles(
   const missing: CollectibleInfo[] = [];
 
   if (type === "mount") {
+    // TrinityCore 12.0: item_template removed. Use item + item_sparse from hotfixes DB.
     const query = `
-      SELECT entry, name, Quality
-      FROM item_template
-      WHERE class = 15 AND subclass = 5
-      ORDER BY Quality DESC
+      SELECT i.ID as entry,
+        COALESCE(isl.Display_lang, isp.Display, '') as name,
+        isp.OverallQualityID as Quality
+      FROM item i
+      INNER JOIN item_sparse isp ON i.ID = isp.ID
+      LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
+      WHERE i.ClassID = 15 AND i.SubclassID = 5
+      ORDER BY isp.OverallQualityID DESC
       LIMIT 50
     `;
 
-    const results = await queryWorld(query, []);
+    const results = await queryHotfixes(query, []);
 
     for (const item of results) {
       const rarity = mapQualityToRarity(item.Quality);
@@ -240,18 +249,28 @@ export async function findMissingCollectibles(
  * Get farming route for a collectible
  */
 export async function getFarmingRoute(collectibleId: number, type: "pet" | "mount" | "toy"): Promise<FarmingRoute> {
+  // TrinityCore 12.0: item_template removed. Get item name from hotfixes DB,
+  // then query loot sources from world DB separately.
+  const itemNameQuery = `
+    SELECT COALESCE(isl.Display_lang, isp.Display, '') as name
+    FROM item_sparse isp
+    LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS'
+    WHERE isp.ID = ?
+  `;
+  const itemNameResults = await queryHotfixes(itemNameQuery, [collectibleId]);
+  const itemName = (itemNameResults && itemNameResults.length > 0) ? itemNameResults[0].name : `Item #${collectibleId}`;
+
   // TrinityCore 12.0.0: lootid now in creature_template_difficulty
-  const query = `
-    SELECT it.entry, it.name, cl.ChanceOrQuestChance, ct.entry as creatureId, ct.name as creatureName
-    FROM item_template it
-    LEFT JOIN creature_loot_template cl ON it.entry = cl.Item
+  const lootQuery = `
+    SELECT cl.ChanceOrQuestChance, ct.entry as creatureId, ct.name as creatureName
+    FROM creature_loot_template cl
     LEFT JOIN creature_template_difficulty ctd ON cl.Entry = ctd.LootID AND ctd.DifficultyID = 0
     LEFT JOIN creature_template ct ON ctd.Entry = ct.entry
-    WHERE it.entry = ?
+    WHERE cl.Item = ?
     LIMIT 10
   `;
 
-  const results = await queryWorld(query, [collectibleId]);
+  const results = await queryWorld(lootQuery, [collectibleId]);
 
   const locations: FarmingLocation[] = [];
 
@@ -278,7 +297,7 @@ export async function getFarmingRoute(collectibleId: number, type: "pet" | "moun
           respawnTime: 5,
           dropRate: Math.abs(result.ChanceOrQuestChance) || 0.1,
           competition: "medium",
-          notes: `Farm ${result.creatureName} for ${result.name}`
+          notes: `Farm ${result.creatureName} for ${itemName}`
         });
       }
     }
@@ -294,7 +313,7 @@ export async function getFarmingRoute(collectibleId: number, type: "pet" | "moun
 
   return {
     collectibleId,
-    collectibleName: results[0]?.name || `Item ${collectibleId}`,
+    collectibleName: itemName || `Item ${collectibleId}`,
     type,
     locations,
     estimatedTimePerRun,

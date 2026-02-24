@@ -7,7 +7,7 @@
  * @module questroute
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { getItemPricing } from "./economy";
 import {
   getXPForLevel,
@@ -758,8 +758,9 @@ async function calculateQuestItemValue(itemId: number): Promise<number> {
   } catch (error) {
     // Fallback: use vendor sell price or default
     try {
-      const query = `SELECT SellPrice FROM item_template WHERE entry = ?`;
-      const results = await queryWorld(query, [itemId]);
+      // TrinityCore 12.0: item_template removed. Use item_sparse in hotfixes DB.
+      const query = `SELECT SellPrice FROM item_sparse WHERE ID = ?`;
+      const results = await queryHotfixes(query, [itemId]);
       if (results && results.length > 0) {
         return (results[0].SellPrice || 0) * 2.5; // Market value ~2.5x vendor
       }

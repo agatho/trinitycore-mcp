@@ -42,10 +42,11 @@ const ALLOWED_TABLES: Record<string, ReadonlySet<string>> = {
     'creature_onkill_reputation',
     'creature_summon_groups',
 
-    // Item tables
-    'item_template',
-    'item_enchantment_template',
+    // Item tables (world DB - server-side only; core item data is in hotfixes DB)
+    'item_template_addon',
     'item_loot_template',
+    'item_random_bonus_list_template',
+    'item_script_names',
 
     // Quest tables
     'quest_template',
@@ -56,8 +57,9 @@ const ALLOWED_TABLES: Record<string, ReadonlySet<string>> = {
     'quest_poi',
     'quest_poi_points',
 
-    // Spell tables
-    'spell_template',
+    // Spell tables (12.0.1: spell_template removed, use serverside_spell)
+    'serverside_spell',
+    'serverside_spell_effect',
     'spell_target_position',
     'spell_linked_spell',
     'spell_group',
@@ -159,6 +161,41 @@ const ALLOWED_TABLES: Record<string, ReadonlySet<string>> = {
     'battlenet_accounts',
     'battlenet_account_bans',
   ]),
+  hotfixes: new Set([
+    // Core item data (12.0.1: item data moved from world.item_template to hotfixes DB)
+    'item',
+    'item_sparse',
+    'item_sparse_locale',
+    'item_appearance',
+    'item_effect',
+    'item_set',
+    'item_set_spell',
+    'item_search_name',
+    'item_search_name_locale',
+    'item_x_item_effect',
+    'item_x_bonus_tree',
+    'item_bonus',
+    'item_bonus_tree',
+    'item_bonus_tree_node',
+    'item_bonus_list_group_entry',
+    'item_class',
+    'item_class_locale',
+    'item_extended_cost',
+    'item_modified_appearance',
+    'item_name_description',
+    'item_level_selector',
+    'item_price_base',
+    'item_spec',
+    'item_spec_override',
+
+    // Spell data tables (hotfixes DB)
+    'spell_reagents',
+    'spell_reagents_currency',
+
+    // Battle pet tables
+    'battle_pet_species',
+    'battle_pet_species_locale',
+  ]),
   characters: new Set([
     'characters',
     'character_inventory',
@@ -207,6 +244,7 @@ const ALL_ALLOWED_TABLES: ReadonlySet<string> = new Set([
   ...ALLOWED_TABLES.world,
   ...ALLOWED_TABLES.auth,
   ...ALLOWED_TABLES.characters,
+  ...ALLOWED_TABLES.hotfixes,
 ]);
 
 /**

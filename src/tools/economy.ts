@@ -7,7 +7,7 @@
  * @module economy
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { logger } from '../utils/logger';
 
 // ============================================================================
@@ -134,18 +134,31 @@ export interface MaterialFarmingGuide {
  * Get item pricing information from database
  */
 export async function getItemPricing(itemId: number): Promise<ItemPricing> {
+  // TrinityCore 12.0: item_template removed. Item data is now in hotfixes DB
+  // (item + item_sparse + item_sparse_locale tables).
   const query = `
     SELECT
-      entry, name, Quality, BuyPrice, SellPrice, stackable,
-      Flags, bonding, RequiredLevel, ItemLevel,
-      class as itemClass, subclass as itemSubclass,
-      stat_type1, stat_value1, stat_type2, stat_value2,
-      armor
-    FROM item_template
-    WHERE entry = ?
+      i.ID as entry,
+      COALESCE(isl.Display_lang, isp.Display, '') as name,
+      isp.OverallQualityID as Quality,
+      isp.BuyPrice, isp.SellPrice,
+      isp.Stackable as stackable,
+      isp.Flags1 as Flags,
+      isp.Bonding as bonding,
+      isp.RequiredLevel, isp.ItemLevel,
+      i.ClassID as itemClass, i.SubclassID as itemSubclass,
+      isp.StatModifierBonusStat1 as stat_type1,
+      isp.StatPercentEditor1 as stat_value1,
+      isp.StatModifierBonusStat2 as stat_type2,
+      isp.StatPercentEditor2 as stat_value2,
+      0 as armor
+    FROM item i
+    INNER JOIN item_sparse isp ON i.ID = isp.ID
+    LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
+    WHERE i.ID = ?
   `;
 
-  const results = await queryWorld(query, [itemId]);
+  const results = await queryHotfixes(query, [itemId]);
 
   if (!results || results.length === 0) {
     throw new Error(`Item ${itemId} not found`);
@@ -169,18 +182,18 @@ export async function getItemPricing(itemId: number): Promise<ItemPricing> {
   // Check if item is tradeable (not soulbound)
   const isTradeable = item.bonding !== 1; // 1 = Binds on Pickup
 
-  // Check if item is craftable (parameterized query to prevent SQL injection)
+  // Check if item is craftable via serverside_spell_effect (TrinityCore 12.0: spell_template was removed)
   const craftQuery = `
     SELECT COUNT(*) as count
-    FROM npc_trainer
-    WHERE spell IN (
-      SELECT id FROM spell_template WHERE effect_1 = ? OR effect_2 = ?
+    FROM trainer_spell ts
+    WHERE ts.SpellId IN (
+      SELECT DISTINCT SpellID FROM serverside_spell_effect WHERE Effect = ? AND DifficultyID = 0
     )
   `;
 
   let isCraftable = false;
   try {
-    const craftResults = await queryWorld(craftQuery, [itemId, itemId]);
+    const craftResults = await queryWorld(craftQuery, [itemId]);
     isCraftable = craftResults && craftResults[0]?.count > 0;
   } catch (e) {
     // Ignore craft check errors
@@ -383,13 +396,15 @@ export async function calculateProfessionProfitability(
 
   const professionName = professionNames[professionId] || `Profession ${professionId}`;
 
-  // Query recipes for this profession
+  // Query recipes for this profession via trainer_spell + serverside_spell
+  // TrinityCore 12.0: spell_template was removed; skillLine is not in serverside_spell.
+  // Use trainer_spell.ReqSkillLine to find profession recipes instead.
   const query = `
-    SELECT s.id, s.name, s.effect_1 as outputItem
-    FROM spell_template s
-    WHERE s.skillLine = ?
-      AND s.skillLevel <= ?
-      AND s.effect_1 > 0
+    SELECT ts.SpellId as id, ss.SpellName as name, 0 as outputItem
+    FROM trainer_spell ts
+    LEFT JOIN serverside_spell ss ON ts.SpellId = ss.Id AND ss.DifficultyID = 0
+    WHERE ts.ReqSkillLine = ?
+      AND ts.ReqSkillRank <= ?
     LIMIT 100
   `;
 
@@ -456,45 +471,12 @@ async function calculateRecipeProfitability(
   let craftingCost = 0;
 
   try {
-    // Query spell template for reagent data
-    const spellQuery = `
-      SELECT
-        Reagent_1, Reagent_2, Reagent_3, Reagent_4, Reagent_5, Reagent_6, Reagent_7, Reagent_8,
-        ReagentCount_1, ReagentCount_2, ReagentCount_3, ReagentCount_4,
-        ReagentCount_5, ReagentCount_6, ReagentCount_7, ReagentCount_8
-      FROM spell_template
-      WHERE ID = ?
-    `;
-    const spellResults = await queryWorld(spellQuery, [recipeId]);
-
-    if (spellResults && spellResults.length > 0) {
-      const spell = spellResults[0];
-
-      // Process each reagent slot (1-8)
-      for (let i = 1; i <= 8; i++) {
-        const reagentId = spell[`Reagent_${i}`];
-        const reagentCount = spell[`ReagentCount_${i}`];
-
-        if (reagentId && reagentId > 0 && reagentCount && reagentCount > 0) {
-          try {
-            const mat = await getItemPricing(reagentId);
-            const cost = mat.marketValue * reagentCount;
-
-            materials.push({
-              itemId: reagentId,
-              name: mat.name,
-              quantity: reagentCount,
-              cost
-            });
-
-            craftingCost += cost;
-          } catch (e) {
-            // Skip materials that can't be loaded
-            logger.warn(`Could not load reagent ${reagentId} for recipe ${recipeId}`);
-          }
-        }
-      }
-    }
+    // TrinityCore 12.0: spell_template was removed. Reagent data is stored in
+    // SpellReagents.db2 (client-side DB2 file), not in the SQL world database.
+    // Reagent columns (Reagent_1..8, ReagentCount_1..8) are not available in
+    // serverside_spell or serverside_spell_effect tables.
+    // We cannot query reagents from SQL; fall through to the fallback estimation below.
+    logger.debug(`Reagent data for recipe ${recipeId} is in DB2 files (SpellReagents.db2), not available via SQL query`);
   } catch (error) {
     logger.warn(`Could not parse reagents for recipe ${recipeId}:`, error);
   }

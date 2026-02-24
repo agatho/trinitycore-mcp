@@ -6,7 +6,7 @@
  * Benefit: Humans can explore data without writing SQL, getting instant insights and visualizations.
  */
 
-import { queryWorld, queryAuth, queryCharacters } from "../database/connection";
+import { queryWorld, queryAuth, queryCharacters, queryHotfixes } from "../database/connection";
 import { validateIdentifier, validateSortDirection, validateNumericValue } from "../utils/sql-safety";
 
 /**
@@ -209,25 +209,28 @@ export function intentToSQL(intent: QueryIntent): { sql: string; params: any[] }
   // Determine table and fields based on entity
   let table: string;
   let fields: string;
-  let database: "world" | "auth" | "characters";
+  let database: "world" | "auth" | "characters" | "hotfixes";
 
   switch (intent.entity) {
     case "spells":
-      table = "spell_template";
+      // TrinityCore 12.0.1: spell_template removed, use serverside_spell for server-side spells
+      table = "serverside_spell";
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
-          : "ID, SpellName, SpellLevel, BaseLevel, MaxLevel";
+          : "Id as ID, SpellName, SpellLevel, BaseLevel, MaxLevel";
       database = "world";
       break;
 
     case "items":
-      table = "item_template";
+      // TrinityCore 12.0.1: item_template removed, item data now in hotfixes DB
+      // item + item_sparse tables joined by ID
+      table = "item i JOIN item_sparse isp ON i.ID = isp.ID LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS'";
       fields =
         intent.action === "count"
           ? "COUNT(*) as count"
-          : "entry, name, Quality, ItemLevel, RequiredLevel, class, subclass";
-      database = "world";
+          : "i.ID as entry, COALESCE(isl.Display_lang, isp.Display, '') as name, isp.OverallQualityID as Quality, isp.ItemLevel, isp.RequiredLevel, i.ClassID as class, i.SubclassID as subclass";
+      database = "hotfixes";
       break;
 
     case "creatures":
@@ -334,20 +337,23 @@ export async function executeNaturalLanguageQuery(query: string): Promise<QueryR
   // Convert intent to SQL
   const { sql, params } = intentToSQL(intent);
 
-  // Determine database
-  const database =
+  // Execute query against correct database
+  let rows: any[];
+  const targetDb =
     intent.entity === "accounts"
       ? "auth"
       : intent.entity === "characters" || intent.entity === "players"
         ? "characters"
-        : "world";
+        : intent.entity === "items"
+          ? "hotfixes"
+          : "world";
 
-  // Execute query
-  let rows: any[];
-  if (database === "world") {
+  if (targetDb === "world") {
     rows = await queryWorld(sql, params);
-  } else if (database === "auth") {
+  } else if (targetDb === "auth") {
     rows = await queryAuth(sql, params);
+  } else if (targetDb === "hotfixes") {
+    rows = await queryHotfixes(sql, params);
   } else {
     rows = await queryCharacters(sql, params);
   }
