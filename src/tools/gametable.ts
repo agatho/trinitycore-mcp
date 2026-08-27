@@ -5,8 +5,15 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { resolveDataPath } from "../version/BuildManifest";
 
-const GT_PATH = process.env.GT_PATH || "./data/gt";
+/**
+ * Resolve the directory holding GameTable (GT) files for the active build.
+ * Must be a function, not a module constant: the manifest loads after import.
+ */
+function gtPath(): string {
+  return resolveDataPath("gt");
+}
 
 export interface GameTableInfo {
   file: string;
@@ -75,7 +82,7 @@ export async function queryGameTable(
   maxRows: number = 100
 ): Promise<GameTableInfo> {
   try {
-    const filePath = path.join(GT_PATH, tableName);
+    const filePath = path.join(gtPath(), tableName);
 
     if (!fs.existsSync(filePath)) {
       return {

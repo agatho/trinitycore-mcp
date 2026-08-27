@@ -76,8 +76,10 @@ describe("loadBuildManifest", () => {
     expect(listBuilds()).toHaveLength(1);
   });
 
-  it("throws a clear error when accessors are used before load", () => {
+  it("falls back to a synthesized 'unknown' build when accessors are used before load", () => {
     resetManifestForTesting();
-    expect(() => getActiveBuild()).toThrow(/loadBuildManifest/);
+    const entry = getActiveBuild();
+    expect(entry.id).toBe("unknown");
+    expect(entry.synthesized).toBe(true);
   });
 });

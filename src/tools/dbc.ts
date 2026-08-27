@@ -7,9 +7,15 @@ import * as fs from "fs";
 import * as path from "path";
 import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader";
 import { SchemaFactory } from "../parsers/schemas/SchemaFactory";
+import { resolveDataPath } from "../version/BuildManifest";
 
-const DBC_PATH = process.env.DBC_PATH || "./data/dbc";
-const DB2_PATH = process.env.DB2_PATH || "./data/db2";
+/**
+ * Resolve the directory holding a DBC or DB2 file for the active build.
+ * Must be a function, not a module constant: the manifest loads after import.
+ */
+function basePathFor(fileName: string): string {
+  return fileName.toLowerCase().endsWith(".dbc") ? resolveDataPath("dbc") : resolveDataPath("db2");
+}
 
 /**
  * Query result for DBC/DB2 records
@@ -35,10 +41,7 @@ export interface DBCQueryResult {
  */
 export async function queryDBC(dbcFile: string, recordId: number): Promise<DBCQueryResult> {
   try {
-    // Determine if it's DBC or DB2
-    const isDBC = dbcFile.toLowerCase().endsWith(".dbc");
-    const basePath = isDBC ? DBC_PATH : DB2_PATH;
-    const filePath = path.join(basePath, dbcFile);
+    const filePath = path.join(basePathFor(dbcFile), dbcFile);
 
     // Check if file exists
     if (!fs.existsSync(filePath)) {
@@ -131,9 +134,7 @@ export async function queryAllDBC(
   limit: number = 100
 ): Promise<DBCQueryResult> {
   try {
-    const isDBC = dbcFile.toLowerCase().endsWith(".dbc");
-    const basePath = isDBC ? DBC_PATH : DB2_PATH;
-    const filePath = path.join(basePath, dbcFile);
+    const filePath = path.join(basePathFor(dbcFile), dbcFile);
 
     if (!fs.existsSync(filePath)) {
       return {

@@ -233,27 +233,65 @@ export async function loadBuildManifest(manifestPath?: string): Promise<BuildMan
   return manifest;
 }
 
-function requireManifest(): BuildManifest {
+/**
+ * True once the "no manifest loaded" fallback warning has fired for this
+ * process. Ensures the warning is emitted at most once, even though
+ * ensureManifest() may be called on every tool invocation.
+ */
+let warnedNoManifest = false;
+
+/**
+ * Return the loaded manifest, or synthesize one from `process.env` when
+ * nothing has been loaded yet. This is the backward-compatibility path:
+ * 179 registered tools call accessors like getActiveBuild() without ever
+ * calling loadBuildManifest() during startup (see e.g.
+ * tests/tools/gametable.test.ts, tests/tools/combatmechanics.test.ts,
+ * tests/integration/DatabaseOperations.test.ts,
+ * tests/integration/MCPToolRegistration.test.ts), so accessors must never
+ * throw merely because the manifest was never loaded.
+ */
+function ensureManifest(): BuildManifest {
   if (!manifest) {
-    throw new Error("Build manifest not loaded. Call loadBuildManifest() during startup before using build accessors.");
+    if (!warnedNoManifest) {
+      logger.warn(
+        "Build manifest accessed before loadBuildManifest() was called; synthesizing from environment variables (DB2_PATH, DBC_PATH, GT_PATH, VMAP_PATH, MMAP_PATH, LISTFILE_PATH)."
+      );
+      warnedNoManifest = true;
+    }
+    manifest = synthesizeFromEnv(process.env);
   }
   return manifest;
 }
 
 export function getActiveBuild(): BuildEntry {
-  const m = requireManifest();
+  const m = ensureManifest();
   return m.builds[m.activeBuild];
 }
 
 export function getBuild(id: string): BuildEntry | null {
-  return requireManifest().builds[id] || null;
+  return ensureManifest().builds[id] || null;
 }
 
 export function listBuilds(): BuildEntry[] {
-  return Object.values(requireManifest().builds);
+  return Object.values(ensureManifest().builds);
+}
+
+/**
+ * Resolve a data directory for a build.
+ * @param kind Which data path to resolve
+ * @param buildId Build to resolve against; defaults to the active build
+ * @throws Error when buildId names a build not in the manifest
+ */
+export function resolveDataPath(kind: keyof BuildDataPaths, buildId?: string): string {
+  const entry = buildId ? getBuild(buildId) : getActiveBuild();
+  if (!entry) {
+    throw new Error(`Cannot resolve ${kind} path: no build "${buildId}" in the manifest`);
+  }
+  return entry.dataPaths[kind];
 }
 
 /** Test-only: clear module state between cases. */
 export function resetManifestForTesting(): void {
   manifest = null;
+  warnedNoManifest = false;
 }
