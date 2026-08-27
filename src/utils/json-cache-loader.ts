@@ -13,6 +13,14 @@
 
 import * as fs from "fs";
 import { logger } from "./logger";
+import { readCacheMetadata } from "./cache-metadata";
+
+export interface JsonCacheLoaderOptions {
+  /** When set, refuse any cache whose sidecar build differs from this. */
+  expectedBuild?: number;
+  /** Shown in the refusal message so the caller knows how to fix it. */
+  regenerateCommand?: string;
+}
 
 /**
  * A lazy-loaded JSON cache that maps numeric IDs to typed entries.
@@ -30,10 +38,12 @@ export class JsonCacheLoader<T> {
   /**
    * @param filePath - Path to the JSON cache file
    * @param label - Human-readable label for log messages (e.g., "spell name", "item", "creature")
+   * @param options - Optional build-metadata enforcement (expectedBuild, regenerateCommand)
    */
   constructor(
     private readonly filePath: string,
-    private readonly label: string
+    private readonly label: string,
+    private readonly options: JsonCacheLoaderOptions = {}
   ) {}
 
   /**
@@ -51,6 +61,26 @@ export class JsonCacheLoader<T> {
       if (!fs.existsSync(this.filePath)) {
         logger.warn(`${this.label} cache not found at ${this.filePath}.`);
         return false;
+      }
+
+      if (this.options.expectedBuild !== undefined) {
+        const meta = readCacheMetadata(this.filePath);
+        if (!meta) {
+          logger.error(
+            `${this.label} cache at ${this.filePath} has no build metadata; refusing to load it for build ` +
+              `${this.options.expectedBuild}.` +
+              (this.options.regenerateCommand ? ` Regenerate with: ${this.options.regenerateCommand}` : "")
+          );
+          return false;
+        }
+        if (meta.build !== this.options.expectedBuild) {
+          logger.error(
+            `${this.label} cache at ${this.filePath} was generated for build ${meta.build} but the active build ` +
+              `is ${this.options.expectedBuild}; refusing to serve stale data.` +
+              (this.options.regenerateCommand ? ` Regenerate with: ${this.options.regenerateCommand}` : "")
+          );
+          return false;
+        }
       }
 
       const raw = JSON.parse(fs.readFileSync(this.filePath, "utf8"));
