@@ -24,6 +24,8 @@ import {
   type AttributeFlag
 } from "../data/spell-attributes";
 import { JsonCacheLoader } from "../utils/json-cache-loader";
+import { cachePathFor } from "../utils/cache-metadata";
+import { getActiveBuild } from "../version/BuildManifest";
 
 export interface SpellInfo {
   spellId: number;
@@ -93,18 +95,41 @@ interface SpellDataCacheEntry {
   AuraDescription_lang?: string;
 }
 
-// Lazy-loaded JSON caches (replaces ~120 lines of duplicate boilerplate)
-const spellNameCacheLoader = new JsonCacheLoader<string>("./data/cache/spell_names_cache.json", "spell name");
-const spellDataCacheLoader = new JsonCacheLoader<SpellDataCacheEntry>("./data/cache/spell_data_cache.json", "spell data");
+// Lazy-loaded JSON caches (replaces ~120 lines of duplicate boilerplate).
+// Constructed lazily (not as module-scope constants) because cachePathFor()/
+// getActiveBuild() must run AFTER loadBuildManifest() has resolved the active
+// build at startup; a module-scope constant would capture whatever build was
+// active (or synthesized) at import time, which can be wrong.
+let spellNameCacheLoader: JsonCacheLoader<string> | null = null;
+function nameCache(): JsonCacheLoader<string> {
+  if (!spellNameCacheLoader) {
+    spellNameCacheLoader = new JsonCacheLoader<string>(
+      cachePathFor("spell_names_cache.json"), "spell name",
+      { expectedBuild: getActiveBuild().build, regenerateCommand: "npm run generate:spell-cache" }
+    );
+  }
+  return spellNameCacheLoader;
+}
+
+let spellDataCacheLoader: JsonCacheLoader<SpellDataCacheEntry> | null = null;
+function dataCache(): JsonCacheLoader<SpellDataCacheEntry> {
+  if (!spellDataCacheLoader) {
+    spellDataCacheLoader = new JsonCacheLoader<SpellDataCacheEntry>(
+      cachePathFor("spell_data_cache.json"), "spell data",
+      { expectedBuild: getActiveBuild().build, regenerateCommand: "npm run generate:spell-cache" }
+    );
+  }
+  return spellDataCacheLoader;
+}
 
 /** Get spell name from cache (100% accurate, O(1) lookup) */
 function getSpellNameFromCache(spellId: number): string | null {
-  return spellNameCacheLoader.get(spellId);
+  return nameCache().get(spellId);
 }
 
 /** Get complete spell data from cache (descriptions, ranks, etc.) */
 function getSpellDataFromCache(spellId: number): SpellDataCacheEntry | null {
-  return spellDataCacheLoader.get(spellId);
+  return dataCache().get(spellId);
 }
 
 /**

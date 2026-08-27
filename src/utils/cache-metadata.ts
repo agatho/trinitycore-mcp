@@ -9,6 +9,8 @@
  */
 
 import * as fs from "fs";
+import * as path from "path";
+import { getActiveBuild } from "../version/BuildManifest";
 
 export interface CacheMetadata {
   build: number;
@@ -47,4 +49,12 @@ export function readCacheMetadata(cacheFilePath: string): CacheMetadata | null {
 
 export function writeCacheMetadata(cacheFilePath: string, meta: CacheMetadata): void {
   fs.writeFileSync(sidecarPath(cacheFilePath), JSON.stringify(meta, null, 2), "utf8");
+}
+
+/**
+ * Resolve a cache file inside the active build's cache directory.
+ * @param fileName Bare cache file name, e.g. "spell_names_cache.json"
+ */
+export function cachePathFor(fileName: string): string {
+  return path.join(getActiveBuild().cacheDir, fileName);
 }

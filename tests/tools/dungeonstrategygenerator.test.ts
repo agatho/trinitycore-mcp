@@ -30,26 +30,50 @@ jest.mock("../../src/utils/logger", () => ({
   },
 }));
 
-// Mock fs for spell cache
+// Mock fs for spell cache.
+//
+// The spell name loader now enforces build-stamped cache metadata (see
+// src/utils/cache-metadata.ts / src/utils/json-cache-loader.ts): it reads a
+// `<file>.meta.json` sidecar and refuses to serve the cache when the
+// sidecar's `build` field doesn't match the active build. Since no
+// config/builds.json exists in this test environment, getActiveBuild()
+// synthesizes a fallback build with `build: 0`, so the sidecar fixture below
+// must report `build: 0` to be accepted. readFileSync is path-aware so the
+// `.meta.json` sidecar and the real cache file return distinct fixtures.
+const SPELL_NAMES_FIXTURE: Record<string, string> = {
+  "774": "Rejuvenation",
+  "8936": "Regrowth",
+  "118": "Polymorph",
+  "133": "Fireball",
+  "11366": "Pyroblast",
+  "2948": "Scorch",
+  "1449": "Arcane Explosion",
+  "12058": "Chain Lightning",
+  "5143": "Arcane Missiles",
+  "6358": "Seduction",
+  "688": "Summon Imp",
+  "8599": "Enrage",
+  "642": "Divine Shield",
+  "589": "Shadow Word: Pain",
+  "34428": "Victory Rush",
+};
+
+const SPELL_NAMES_CACHE_META = {
+  build: 0,
+  generatedAt: "2026-08-27T00:00:00.000Z",
+  sourceFile: "SpellName.db2",
+  sourceLayoutHash: "0x00000000",
+  recordCount: Object.keys(SPELL_NAMES_FIXTURE).length,
+};
+
 jest.mock("fs", () => ({
   existsSync: jest.fn().mockReturnValue(true),
-  readFileSync: jest.fn().mockReturnValue(JSON.stringify({
-    "774": "Rejuvenation",
-    "8936": "Regrowth",
-    "118": "Polymorph",
-    "133": "Fireball",
-    "11366": "Pyroblast",
-    "2948": "Scorch",
-    "1449": "Arcane Explosion",
-    "12058": "Chain Lightning",
-    "5143": "Arcane Missiles",
-    "6358": "Seduction",
-    "688": "Summon Imp",
-    "8599": "Enrage",
-    "642": "Divine Shield",
-    "589": "Shadow Word: Pain",
-    "34428": "Victory Rush",
-  })),
+  readFileSync: jest.fn((filePath: unknown) => {
+    if (typeof filePath === "string" && filePath.endsWith(".meta.json")) {
+      return JSON.stringify(SPELL_NAMES_CACHE_META);
+    }
+    return JSON.stringify(SPELL_NAMES_FIXTURE);
+  }),
 }));
 
 import { queryWorld } from "../../src/database/connection";

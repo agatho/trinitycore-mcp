@@ -18,6 +18,8 @@ import { logger } from "../utils/logger";
 import * as fs from "fs";
 import * as path from "path";
 import { JsonCacheLoader } from "../utils/json-cache-loader";
+import { cachePathFor } from "../utils/cache-metadata";
+import { getActiveBuild } from "../version/BuildManifest";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -238,11 +240,24 @@ interface RouteStep {
 // SPELL CACHE HELPERS
 // ============================================================================
 
-// Lazy-loaded spell name cache (replaces ~25 lines of duplicate boilerplate)
-const spellNameCacheForStrategy = new JsonCacheLoader<string>("./data/cache/spell_names_cache.json", "spell name (strategy)");
+// Lazy-loaded spell name cache (replaces ~25 lines of duplicate boilerplate).
+// Constructed lazily (not as a module-scope constant) because cachePathFor()/
+// getActiveBuild() must run AFTER loadBuildManifest() has resolved the active
+// build at startup; a module-scope constant would capture whatever build was
+// active (or synthesized) at import time, which can be wrong.
+let spellNameCacheForStrategy: JsonCacheLoader<string> | null = null;
+function strategyNameCache(): JsonCacheLoader<string> {
+  if (!spellNameCacheForStrategy) {
+    spellNameCacheForStrategy = new JsonCacheLoader<string>(
+      cachePathFor("spell_names_cache.json"), "spell name (strategy)",
+      { expectedBuild: getActiveBuild().build, regenerateCommand: "npm run generate:spell-cache" }
+    );
+  }
+  return spellNameCacheForStrategy;
+}
 
 function getSpellName(spellId: number): string {
-  return spellNameCacheForStrategy.get(spellId) || `Spell ${spellId}`;
+  return strategyNameCache().get(spellId) || `Spell ${spellId}`;
 }
 
 /**
