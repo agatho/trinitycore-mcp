@@ -112,12 +112,18 @@ export async function validateBuildSchemas(
           : { schema: schema.name, file, status: "unverified", detail: verdict.reason }
       );
     } catch (error) {
-      rows.push({
-        schema: schema.name,
-        file,
-        status: "mismatch",
-        detail: error instanceof SchemaLayoutMismatchError ? error.message : String(error),
-      });
+      // SchemaLayoutMismatchError means the build IS in range and a hash WAS
+      // recorded, but the file's hash differs: positive evidence the schema
+      // is stale, so it's a genuine mismatch. Any other Error here comes from
+      // checkSchemaLayout's build-range guard (build < from / build > to): the
+      // build simply isn't one this schema has declared authority over, which
+      // is "we could not check" rather than "we checked and it is wrong" -
+      // that's what unverified is for (spec section 3.3).
+      rows.push(
+        error instanceof SchemaLayoutMismatchError
+          ? { schema: schema.name, file, status: "mismatch", detail: error.message }
+          : { schema: schema.name, file, status: "unverified", detail: String(error) }
+      );
     }
   }
 

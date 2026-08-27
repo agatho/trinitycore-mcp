@@ -1,5 +1,9 @@
 // tests/tools/buildvalidation.test.ts
-import { summarizeValidation, SchemaValidationRow } from "../../src/tools/buildvalidation";
+import { summarizeValidation, SchemaValidationRow, validateBuildSchemas } from "../../src/tools/buildvalidation";
+import { resetManifestForTesting } from "../../src/version/BuildManifest";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 
 describe("summarizeValidation", () => {
   const rows: SchemaValidationRow[] = [
@@ -35,5 +39,45 @@ describe("summarizeValidation", () => {
     const s = summarizeValidation([rows[0], rows[2]]);
     expect(s.ok).toBe(true);
     expect(s.unverified).toBe(1);
+  });
+});
+
+describe("validateBuildSchemas - build-range refusal vs. hash mismatch", () => {
+  let tempDir: string;
+  let originalDb2Path: string | undefined;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "buildvalidation-"));
+    // A schema's DB2 file must exist for the code to reach checkSchemaLayout at
+    // all (otherwise the row is "missing" before any range/hash check runs).
+    // The bytes' content is irrelevant here: with no manifest loaded, the
+    // synthesized build is 0, which is below every schema's declared
+    // VALID_BUILDS.from (65390) - checkSchemaLayout throws its plain
+    // build-range Error before it ever reads LAYOUT_HASHES or compares hashes.
+    fs.writeFileSync(path.join(tempDir, "SpellName.db2"), Buffer.alloc(200));
+
+    originalDb2Path = process.env.DB2_PATH;
+    process.env.DB2_PATH = tempDir;
+    resetManifestForTesting();
+  });
+
+  afterEach(() => {
+    resetManifestForTesting();
+    if (originalDb2Path === undefined) {
+      delete process.env.DB2_PATH;
+    } else {
+      process.env.DB2_PATH = originalDb2Path;
+    }
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it("reports unverified, not mismatch, when the build is outside a schema's declared range", async () => {
+    const report = await validateBuildSchemas({});
+    const spellRow = report.rows.find((r) => r.schema === "SpellSchema");
+
+    expect(spellRow).toBeDefined();
+    expect(spellRow?.status).toBe("unverified");
+    expect(spellRow?.detail).toMatch(/valid from build 65390/);
+    expect(report.summary.mismatch).toBe(0);
   });
 });
