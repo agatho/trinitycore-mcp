@@ -5,6 +5,10 @@
  * @module version/BuildManifest
  */
 
+import * as fs from "fs";
+import * as path from "path";
+import { logger } from "../utils/logger";
+
 export interface BuildDataPaths {
   db2: string;
   dbc: string;
@@ -157,4 +161,99 @@ export function parseBuildManifest(raw: unknown): BuildManifest {
   }
 
   return { manifestVersion: SUPPORTED_MANIFEST_VERSION, activeBuild: raw.activeBuild, builds };
+}
+
+/** Module-level manifest, populated by loadBuildManifest(). */
+let manifest: BuildManifest | null = null;
+
+/** Default manifest location, relative to the process working directory. */
+export const DEFAULT_MANIFEST_PATH = path.join("config", "builds.json");
+
+/**
+ * Build a single-build manifest from environment variables.
+ *
+ * This is the compatibility path: 179 registered tools read DB2_PATH and
+ * friends directly, so an absent config/builds.json must not change behavior.
+ */
+export function synthesizeFromEnv(env: NodeJS.ProcessEnv): BuildManifest {
+  const entry: BuildEntry = {
+    id: "unknown",
+    build: 0,
+    product: "wow",
+    expansion: "unknown",
+    status: "active",
+    db2Format: "WDC5",
+    dataPaths: {
+      db2: env.DB2_PATH || "./data/db2",
+      dbc: env.DBC_PATH || "./data/dbc",
+      gt: env.GT_PATH || "./data/gt",
+      vmap: env.VMAP_PATH || "./data/vmaps",
+      mmap: env.MMAP_PATH || "./data/mmaps",
+      listfile: env.LISTFILE_PATH || "./data/listfile/listfile.csv",
+    },
+    cacheDir: "./data/cache",
+    synthesized: true,
+  };
+  return { manifestVersion: SUPPORTED_MANIFEST_VERSION, activeBuild: "unknown", builds: { unknown: entry } };
+}
+
+/**
+ * Load the build manifest from disk, or synthesize one from the environment
+ * when the file is absent. Declared data paths that do not exist produce a
+ * warning, never a failure — an archived build whose data was deleted is legitimate.
+ */
+export async function loadBuildManifest(manifestPath?: string): Promise<BuildManifest> {
+  const target = manifestPath || DEFAULT_MANIFEST_PATH;
+
+  if (!fs.existsSync(target)) {
+    logger.warn(`Build manifest not found at ${target}; synthesizing from environment variables`);
+    manifest = synthesizeFromEnv(process.env);
+    return manifest;
+  }
+
+  let raw: unknown;
+  try {
+    raw = JSON.parse(await fs.promises.readFile(target, "utf8"));
+  } catch (error) {
+    throw new ManifestValidationError(`Failed to read build manifest at ${target}: ${String(error)}`);
+  }
+
+  manifest = parseBuildManifest(raw);
+
+  for (const entry of Object.values(manifest.builds)) {
+    for (const key of REQUIRED_PATH_KEYS) {
+      const p = entry.dataPaths[key];
+      if (!fs.existsSync(p)) {
+        logger.warn(`Build "${entry.id}" declares ${key} path that does not exist: ${p}`);
+      }
+    }
+  }
+
+  logger.info(`Loaded build manifest: ${Object.keys(manifest.builds).length} build(s), active=${manifest.activeBuild}`);
+  return manifest;
+}
+
+function requireManifest(): BuildManifest {
+  if (!manifest) {
+    throw new Error("Build manifest not loaded. Call loadBuildManifest() during startup before using build accessors.");
+  }
+  return manifest;
+}
+
+export function getActiveBuild(): BuildEntry {
+  const m = requireManifest();
+  return m.builds[m.activeBuild];
+}
+
+export function getBuild(id: string): BuildEntry | null {
+  return requireManifest().builds[id] || null;
+}
+
+export function listBuilds(): BuildEntry[] {
+  return Object.values(requireManifest().builds);
+}
+
+/** Test-only: clear module state between cases. */
+export function resetManifestForTesting(): void {
+  manifest = null;
 }
