@@ -97,10 +97,10 @@ export function parseOpcodesCs(content: string): ParsedOpcodeFile {
       continue;
     }
 
-    if (!trimmed.startsWith("{")) {
-      continue;
-    }
-
+    // Every other non-blank, non-comment, non-closing-brace line inside a
+    // block must be an entry. Do NOT silently skip anything else here —
+    // an unrecognized line inside a block is exactly the "quietly
+    // incomplete table" failure this parser exists to make impossible.
     const entry = ENTRY.exec(line);
     if (!entry) {
       throw new OpcodesParseError(

@@ -24,8 +24,20 @@ describe("parseOpcodesCs", () => {
     expect(o.index).toBe("0x029");
   });
 
-  it("ignores comments between entries", () => {
-    expect(parseOpcodesCs(fixture).opcodes.map((o) => o.name)).not.toContain("a");
+  it("ignores comments between entries and they contribute no opcode entry", () => {
+    const r = parseOpcodesCs(fixture);
+    // The fixture's ClientOpcodes block has exactly 2 real entries plus one
+    // `// a comment between entries` line. If comment-skipping were removed,
+    // this would now throw OpcodesParseError (per the "fail loudly" rule),
+    // so asserting success here already discriminates a regression; the
+    // exact-name assertion additionally rules out the comment silently
+    // becoming a phantom entry.
+    expect(r.opcodes).toHaveLength(3);
+    expect(r.opcodes.map((o) => o.name)).toEqual([
+      "CMSG_ACCEPT_GUILD_INVITE",
+      "CMSG_ACCEPT_TRADE",
+      "SMSG_ABORT_NEW_WORLD",
+    ]);
   });
 
   it("tolerates an empty MiscOpcodes block", () => {
@@ -47,5 +59,15 @@ describe("parseOpcodesCs", () => {
       "{ Opcode.CMSG_ACCEPT_GUILD_INVITE, 0x3D0004 },"
     );
     expect(() => parseOpcodesCs(dup)).toThrow(/duplicate/i);
+  });
+
+  it("throws with a line number on an unrecognized non-comment line inside a block", () => {
+    // A future Opcodes.cs format change could introduce a line inside a
+    // block that is neither blank, a comment, a closing brace, nor an
+    // entry. The parser must fail loudly rather than silently skip it —
+    // a silent skip would produce a quietly incomplete opcode table.
+    const bad = fixture.replace("            // a comment between entries", "            garbage line here");
+    expect(() => parseOpcodesCs(bad)).toThrow(OpcodesParseError);
+    expect(() => parseOpcodesCs(bad)).toThrow(/line \d+/);
   });
 });
