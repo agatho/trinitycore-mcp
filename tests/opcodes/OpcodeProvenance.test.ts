@@ -40,6 +40,33 @@ describe("parseProvenance", () => {
   it("rejects a missing family_shift block", () => {
     expect(() => parseProvenance({ _meta: {} })).toThrow(/family_shift/i);
   });
+
+  it("parses a descriptive ambiguous provenance string with a null shift", () => {
+    const withDescriptive = JSON.parse(JSON.stringify(raw));
+    withDescriptive.family_shift["0x2F"] = {
+      shift: null,
+      provenance: "ambiguous: +1 or +2, never observed",
+      client_family: null,
+    };
+    const p = parseProvenance(withDescriptive);
+    expect(p.familyShift["0x2F"].provenance).toBe("ambiguous");
+    expect(p.familyShift["0x2F"].shift).toBeNull();
+    expect(p.familyShift["0x2F"].provenanceDetail).toBe("ambiguous: +1 or +2, never observed");
+    expect(p.ambiguousFamilies).toContain("0x2F");
+    expect(confidenceFor(p, "0x2F")).toBeNull();
+  });
+
+  it("rejects a null shift paired with a non-ambiguous provenance", () => {
+    const bad = JSON.parse(JSON.stringify(raw));
+    bad.family_shift["0x29"].shift = null;
+    expect(() => parseProvenance(bad)).toThrow(/shift/i);
+  });
+
+  it("rejects a genuinely unknown provenance code", () => {
+    const bad = JSON.parse(JSON.stringify(raw));
+    bad.family_shift["0x29"].provenance = "vibes";
+    expect(() => parseProvenance(bad)).toThrow(/provenance/i);
+  });
 });
 
 describe("confidenceFor", () => {
