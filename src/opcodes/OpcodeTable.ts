@@ -40,11 +40,6 @@ interface OpcodeTableFile {
   opcodes: ParsedOpcode[];
 }
 
-export interface OpcodeLookupResult {
-  entry: OpcodeEntry | null;
-  undeterminedIndex: boolean;
-}
-
 export const DEFAULT_OPCODE_DIR = path.join("data", "opcodes");
 
 export class OpcodeTable {
