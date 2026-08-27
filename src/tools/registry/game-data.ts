@@ -14,6 +14,7 @@ import { queryDBC } from "../dbc";
 import { getTrinityAPI } from "../api";
 import { getOpcodeInfo } from "../opcode";
 import { validateBuildSchemas } from "../buildvalidation";
+import { listOpcodes, diffOpcodes } from "../opcodetools";
 
 export const gameDataTools: ToolRegistryEntry[] = [
   {
@@ -169,5 +170,39 @@ export const gameDataTools: ToolRegistryEntry[] = [
       const result = await validateBuildSchemas({ buildId: args.buildId as string | undefined });
       return jsonResponse(result);
     },
+  },
+  {
+    definition: {
+      name: "list-opcodes",
+      description: "List network opcodes for the active build, filtered by name pattern, direction or protocol family.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          pattern: { type: "string", description: "Substring to match against opcode names" },
+          direction: { type: "string", description: "CMSG, SMSG or MSG" },
+          family: { type: "string", description: "Protocol family, e.g. '0x43'" },
+          offset: { type: "number", description: "Pagination offset (default 0)" },
+          limit: { type: "number", description: "Maximum results (default 100)" },
+        },
+        required: [],
+      },
+    },
+    handler: async (args) => jsonResponse(await listOpcodes(args as Parameters<typeof listOpcodes>[0])),
+  },
+  {
+    definition: {
+      name: "diff-opcodes",
+      description: "Compare two builds' opcode tables, reporting added, removed and moved opcodes.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          fromBuild: { type: "string", description: "Baseline table id, e.g. '12.0.7.67808'" },
+          toBuild: { type: "string", description: "Comparison table id, e.g. '12.1.0.69214'" },
+        },
+        required: ["fromBuild", "toBuild"],
+      },
+    },
+    handler: async (args) =>
+      jsonResponse(await diffOpcodes({ fromBuild: args.fromBuild as string, toBuild: args.toBuild as string })),
   },
 ];
