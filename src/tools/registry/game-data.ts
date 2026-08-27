@@ -13,6 +13,7 @@ import { getQuestInfo } from "../quest";
 import { queryDBC } from "../dbc";
 import { getTrinityAPI } from "../api";
 import { getOpcodeInfo } from "../opcode";
+import { validateBuildSchemas } from "../buildvalidation";
 
 export const gameDataTools: ToolRegistryEntry[] = [
   {
@@ -140,6 +141,29 @@ export const gameDataTools: ToolRegistryEntry[] = [
     },
     handler: async (args) => {
       const result = await getOpcodeInfo(args.opcode as string);
+      return jsonResponse(result);
+    },
+  },
+  {
+    definition: {
+      name: "validate-build-schemas",
+      description:
+        "Validate that every registered DB2 schema matches the extracted client data for a build. " +
+        "Reports verified, unverified, mismatched and missing schemas, plus any drift between the " +
+        "manifest's active build and the installed client.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          buildId: {
+            type: "string",
+            description: "Build id to validate; defaults to the active build",
+          },
+        },
+        required: [],
+      },
+    },
+    handler: async (args) => {
+      const result = await validateBuildSchemas({ buildId: args.buildId as string | undefined });
       return jsonResponse(result);
     },
   },
