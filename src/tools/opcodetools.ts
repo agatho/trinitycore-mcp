@@ -4,7 +4,7 @@
  * @module tools/opcodetools
  */
 
-import { getOpcodeTable, loadOpcodeTable, OpcodeEntry } from "../opcodes/OpcodeTable";
+import { getOpcodeTable, loadOpcodeTable, OpcodeEntry, OpcodeTable } from "../opcodes/OpcodeTable";
 import { OpcodeDirection } from "../opcodes/OpcodesCsParser";
 
 export interface ListOpcodesResult {
@@ -26,6 +26,14 @@ export interface OpcodeDiffResult {
   removed: OpcodeEntry[];
   moved: MovedOpcode[];
   summary: { added: number; removed: number; moved: number; unchanged: number };
+  /**
+   * Present only when `to` was mechanically generated from `from` (its
+   * `source.derivedFrom` names `from`'s source directory). Explains why
+   * `added`/`unchanged` in that case are artifacts of the derivation, not
+   * observations about the real game builds. Absent for a pair of
+   * independently-sourced tables.
+   */
+  note?: string;
 }
 
 const DEFAULT_LIMIT = 100;
@@ -103,16 +111,72 @@ export function computeDiff(from: OpcodeEntry[], to: OpcodeEntry[]): OpcodeDiffR
 }
 
 /**
+ * Detect whether `to`'s table was mechanically generated from `from` (as
+ * opposed to two independently-sourced tables being compared), and if so,
+ * build the note explaining what that means for the diff's `added` and
+ * `unchanged` counts.
+ *
+ * The condition is read entirely from table metadata: `import-opcodes.js`
+ * writes `source.derivedFrom` on a derived table as the source directory
+ * name of the table it was derived from (e.g. `"V12_0_7_67808"`), which is
+ * exactly the first path segment of that source table's own `source.file`
+ * (e.g. `"V12_0_7_67808/Opcodes.cs"`). Matching on that — rather than on
+ * hardcoded build ids — means a future derivation (12.2 from 12.1, etc.)
+ * gets the same treatment automatically.
+ *
+ * Deliberately kept out of `computeDiff`: the note depends on table
+ * provenance metadata that a pure entry-array diff has no business knowing
+ * about. This function only reads `OpcodeTable.sourceInfo` and the summary
+ * counts `computeDiff` already produced; it performs no diffing itself.
+ */
+function deriveDerivationNote(
+  from: OpcodeTable,
+  to: OpcodeTable,
+  fromBuildId: string,
+  toBuildId: string,
+  diff: OpcodeDiffResult
+): string | undefined {
+  const derivedFrom = to.sourceInfo.derivedFrom;
+  if (derivedFrom === null) {
+    return undefined;
+  }
+  const fromSourceDir = from.sourceInfo.file.split("/")[0];
+  if (derivedFrom !== fromSourceDir) {
+    return undefined;
+  }
+
+  return (
+    `The ${toBuildId} table was generated from ${fromBuildId} by applying a "${to.sourceInfo.method}" ` +
+    `derivation (source.derivedFrom = "${derivedFrom}"), not independently extracted from a client for ` +
+    `${toBuildId}. A table produced this way cannot contain names absent from its source, so this diff's ` +
+    `added: ${diff.summary.added} is structurally guaranteed by how ${toBuildId} was built and is NOT ` +
+    `evidence that the newer game build introduced no opcodes. Likewise unchanged: ${diff.summary.unchanged} ` +
+    `only reports how many families this particular derivation happened to leave at a zero offset, not a ` +
+    `discovery about which opcodes stayed stable between the two game builds. This diff shows the ` +
+    `derivation's renumbering, not content differences independently observed between the two builds.`
+  );
+}
+
+/**
  * Compare two builds' opcode tables by loading them from disk and diffing
- * the full entry sets by name.
+ * the full entry sets by name. When `to` was mechanically derived from
+ * `from` (see {@link deriveDerivationNote}), the result carries a `note`
+ * explaining why `added`/`unchanged` reflect the derivation rather than the
+ * real game builds.
  *
  * @param args.fromBuild - Baseline table id, e.g. "12.0.7.67808"
  * @param args.toBuild - Comparison table id, e.g. "12.1.0.69214"
+ * @param args.dir - Table directory override, for tests; defaults to `data/opcodes`
  */
-export async function diffOpcodes(args: { fromBuild: string; toBuild: string }): Promise<OpcodeDiffResult> {
-  const from = loadOpcodeTable(args.fromBuild);
+export async function diffOpcodes(
+  args: { fromBuild: string; toBuild: string; dir?: string }
+): Promise<OpcodeDiffResult> {
+  const from = loadOpcodeTable(args.fromBuild, args.dir);
   const fromEntries = from.search("");
-  const to = loadOpcodeTable(args.toBuild);
+  const to = loadOpcodeTable(args.toBuild, args.dir);
   const toEntries = to.search("");
-  return computeDiff(fromEntries, toEntries);
+  const diff = computeDiff(fromEntries, toEntries);
+
+  const note = deriveDerivationNote(from, to, args.fromBuild, args.toBuild, diff);
+  return note ? { ...diff, note } : diff;
 }
