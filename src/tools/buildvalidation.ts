@@ -80,6 +80,31 @@ export function summarizeValidation(rows: SchemaValidationRow[]): ValidationSumm
   };
 }
 
+/**
+ * List a directory's entries once and index them by lowercased filename, so
+ * a declared canonical name (e.g. "SpellName.db2") can be resolved against
+ * whatever case the file actually landed on disk in. CASC listfiles are
+ * lowercase (see src/casc/CASCListFile.ts), so an extraction can produce
+ * "spellname.db2" while SCHEMA_FILES still declares "SpellName.db2" - on a
+ * case-insensitive filesystem (Windows, default macOS) that mismatch is
+ * invisible, but on Linux / case-sensitive macOS it would make every schema
+ * report "missing". A missing directory is not an error here - it yields an
+ * empty index, and every schema below resolves to "missing" as before.
+ */
+function indexDirByLowercaseName(dir: string): Map<string, string> {
+  const index = new Map<string, string>();
+  let entries: string[];
+  try {
+    entries = fs.readdirSync(dir);
+  } catch {
+    return index;
+  }
+  for (const entry of entries) {
+    index.set(entry.toLowerCase(), entry);
+  }
+  return index;
+}
+
 export async function validateBuildSchemas(
   args: { buildId?: string } = {}
 ): Promise<BuildValidationReport> {
@@ -89,6 +114,7 @@ export async function validateBuildSchemas(
   }
 
   const db2Dir = resolveDataPath("db2", entry.id);
+  const db2DirIndex = indexDirByLowercaseName(db2Dir);
   const rows: SchemaValidationRow[] = [];
 
   for (const schema of SchemaFactory.getBuildAwareSchemas()) {
@@ -98,11 +124,12 @@ export async function validateBuildSchemas(
       continue;
     }
 
-    const filePath = path.join(db2Dir, file);
-    if (!fs.existsSync(filePath)) {
-      rows.push({ schema: schema.name, file, status: "missing", detail: `Not found: ${filePath}` });
+    const onDiskName = db2DirIndex.get(file.toLowerCase());
+    if (!onDiskName) {
+      rows.push({ schema: schema.name, file, status: "missing", detail: `Not found: ${path.join(db2Dir, file)}` });
       continue;
     }
+    const filePath = path.join(db2Dir, onDiskName);
 
     try {
       const verdict = checkSchemaLayout(schema, readLayoutHash(filePath), entry.build);
