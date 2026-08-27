@@ -127,7 +127,10 @@ export const gameDataTools: ToolRegistryEntry[] = [
   {
     definition: {
       name: "get-opcode-info",
-      description: "Get information about a network packet opcode",
+      description:
+        "Get information about a network packet opcode. Accepts an opcode name " +
+        "(e.g. 'CMSG_CAST_SPELL') or a wire value (e.g. '0x430029'). Returns direction, " +
+        "family, index, derivation confidence and source build.",
       inputSchema: {
         type: "object",
         properties: {
