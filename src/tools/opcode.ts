@@ -14,6 +14,17 @@
  * Discarding still-meaningful documentation because a build's derivation
  * doesn't cover it would be a regression, not a cleanup.
  *
+ * A value lookup that misses is deliberately NOT diagnosed against
+ * `OpcodeTable.isUnmappedCatalogFamily` / `isUndeterminedCatalogIndex`. Those
+ * methods report gaps in the 12.0.7 CATALOG-space derivation, but a value
+ * passed here is decoded into a CLIENT wire family/index — a different
+ * namespace with no known mapping back to catalog space for exactly the
+ * families/ranges those methods flag as undetermined. Comparing a client
+ * family against a catalog-space "unmapped" list would silently assume the
+ * catalog-to-client mapping those methods exist to say is unknown. A generic
+ * miss carries a standing note about the table's known catalog-space gaps
+ * instead, without attributing this specific miss to any of them.
+ *
  * @module tools/opcode
  */
 
@@ -56,15 +67,22 @@ function directionFromName(name: string): "CMSG" | "SMSG" | "MSG" {
   return "MSG";
 }
 
-/** Format the high 16 bits of a wire value as the protocol family channel. */
+/** Format the high 16 bits of a wire value as the protocol family channel, for display only. */
 function familyOfValue(value: number): string {
   return `0x${(value >>> 16).toString(16).toUpperCase().padStart(2, "0")}`;
 }
 
-/** The low 16 bits of a wire value, as the within-family message index. */
-function indexOfValue(value: number): number {
-  return value & 0xffff;
-}
+/**
+ * Standing note attached to every generic value-lookup miss, explaining that
+ * this table has known catalog-space gaps without attributing this specific
+ * miss to any of them — see the module doc for why a client-decoded family
+ * cannot be checked against those catalog-space gaps directly.
+ */
+const CATALOG_GAP_NOTE =
+  "This table omits 193 catalog opcodes for known reasons: catalog families 0x2E and 0x35 " +
+  "have undetermined 12.1 shifts, and 3 catalog index ranges have undecided offsets. A missing " +
+  "value cannot be attributed to a specific gap, because the client-side family of an " +
+  "undetermined catalog family is by definition unknown.";
 
 /**
  * Look up an opcode by name, hex value (e.g. "0x430029") or decimal value
@@ -72,10 +90,10 @@ function indexOfValue(value: number): number {
  *
  * Name lookups fall back to annotation-only documentation when the name has
  * no wire value in the current build's table but does have hand-written
- * documentation. Value lookups that miss are diagnosed against the table's
- * unmapped-family and undetermined-index-range metadata before falling back
- * to a generic "no opcode at this value" response, so a known gap in the
- * 12.1 derivation is never reported as a plain absence.
+ * documentation. Value lookups that miss return a generic "no opcode at this
+ * value" response with a standing note about the table's known catalog-space
+ * gaps — see the module doc for why those gaps cannot be attributed to a
+ * specific client-wire miss.
  *
  * @param opcode Opcode name (e.g. "CMSG_CAST_SPELL") or value (e.g. "0x430029")
  */
@@ -90,31 +108,6 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
     }
 
     const family = familyOfValue(value);
-    const index = indexOfValue(value);
-
-    if (table.isUnmappedFamily(family)) {
-      return {
-        opcode: opcode.toUpperCase(),
-        direction: "MSG",
-        description: "Opcode family not resolved for this build",
-        family,
-        error:
-          `Opcode family ${family} is present on the wire but its 12.1 shift is not uniquely determined, ` +
-          `so no name can be assigned. This is a known gap in the derivation, not a missing opcode.`,
-      };
-    }
-
-    if (table.isUndeterminedIndex(family, index)) {
-      return {
-        opcode: opcode.toUpperCase(),
-        direction: "MSG",
-        description: "Opcode index range not resolved for this build",
-        family,
-        error:
-          `Opcode family ${family} index ${indexHex(index)} falls in a sub-range whose offset could not be ` +
-          `decided in the 12.1 derivation. This is a known-unknown, not a missing opcode.`,
-      };
-    }
 
     return {
       opcode: opcode.toUpperCase(),
@@ -122,6 +115,7 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
       description: "No opcode at this value",
       family,
       error: `No opcode with value ${opcode} in the table for build ${table.build}.`,
+      note: CATALOG_GAP_NOTE,
     };
   }
 
@@ -157,10 +151,6 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
       `Opcode "${opcode}" is not in the table for build ${table.build}` +
       (suggestions.length ? `. Did you mean: ${suggestions.join(", ")}?` : "."),
   };
-}
-
-function indexHex(index: number): string {
-  return `0x${index.toString(16).toUpperCase().padStart(3, "0")}`;
 }
 
 function merge(entry: OpcodeEntry): OpcodeInfo {

@@ -24,24 +24,31 @@ describe("generated opcode tables", () => {
     expect(t.source.method).toBe("family-shift");
   });
 
-  it("lists exactly the deliberately unmapped families", () => {
+  it("lists exactly the deliberately unmapped catalog families", () => {
     const t = JSON.parse(fs.readFileSync(path.join(DIR, "12.1.0.69214.json"), "utf8"));
     // Exact equality, not arrayContaining: this must catch a regression where
     // a padding loop reintroduces extra families beyond the two genuinely
     // ambiguous ones (0x2E, 0x35) — arrayContaining would let that through.
-    expect(t.unmappedFamilies).toEqual(["0x2E", "0x35"]);
+    expect(t.unmappedCatalogFamilies).toEqual(["0x2E", "0x35"]);
   });
 
-  it("lists the deliberately unmapped index ranges", () => {
+  it("lists the deliberately unmapped catalog index ranges", () => {
     const t = JSON.parse(fs.readFileSync(path.join(DIR, "12.1.0.69214.json"), "utf8"));
-    expect(Array.isArray(t.unmappedIndexRanges)).toBe(true);
-    expect(t.unmappedIndexRanges.length).toBeGreaterThan(0);
-    for (const range of t.unmappedIndexRanges as Array<{ family: string; fromIndex: string }>) {
+    expect(Array.isArray(t.unmappedCatalogIndexRanges)).toBe(true);
+    expect(t.unmappedCatalogIndexRanges.length).toBeGreaterThan(0);
+    for (const range of t.unmappedCatalogIndexRanges as Array<{ family: string; fromIndex: string }>) {
       expect(typeof range.family).toBe("string");
       expect(range.family.length).toBeGreaterThan(0);
       expect(typeof range.fromIndex).toBe("string");
       expect(range.fromIndex.length).toBeGreaterThan(0);
     }
+  });
+
+  it("carries a namespace note distinguishing catalog-space identifiers from client wire families", () => {
+    const t = JSON.parse(fs.readFileSync(path.join(DIR, "12.1.0.69214.json"), "utf8"));
+    expect(typeof t._note).toBe("string");
+    expect(t._note).toMatch(/CATALOG/);
+    expect(t._note).toMatch(/client wire/i);
   });
 
   it("splits directions and finds no MSG entries", () => {

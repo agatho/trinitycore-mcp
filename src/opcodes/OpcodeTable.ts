@@ -17,14 +17,18 @@ export interface OpcodeEntry extends ParsedOpcode {
 }
 
 /**
- * A sub-range of a family's index space whose offset could not be decided in
- * the derivation that produced this table. `fromIndex` is inclusive,
- * `toIndex` is EXCLUSIVE; a `null` `toIndex` means "to the end of the family".
- * This is a known-unknown, distinct from a plain absence: a lookup that lands
- * in one of these ranges must be reported as "undetermined", never collapsed
- * into a generic "no opcode at this value".
+ * A sub-range of a CATALOG family's index space whose offset could not be
+ * decided in the derivation that produced this table. `family` and
+ * `fromIndex`/`toIndex` are 12.0.7 CATALOG-space identifiers, NOT client
+ * wire families/indices — they must never be compared against a family or
+ * index decoded from a client wire value. `fromIndex` is inclusive,
+ * `toIndex` is EXCLUSIVE; a `null` `toIndex` means "to the end of the
+ * family". This is a known-unknown, distinct from a plain absence: a
+ * catalog-space lookup that lands in one of these ranges must be reported
+ * as "undetermined", never collapsed into a generic "no opcode at this
+ * value".
  */
-export interface UnmappedIndexRange {
+export interface UnmappedCatalogIndexRange {
   family: string;
   fromIndex: string;
   toIndex: string | null;
@@ -34,8 +38,8 @@ interface OpcodeTableFile {
   build: number;
   version: string;
   source: { file: string; derivedFrom: string | null; method: string; importedAt: string };
-  unmappedFamilies: string[];
-  unmappedIndexRanges: UnmappedIndexRange[];
+  unmappedCatalogFamilies: string[];
+  unmappedCatalogIndexRanges: UnmappedCatalogIndexRange[];
   counts: Record<OpcodeDirection, number>;
   opcodes: ParsedOpcode[];
 }
@@ -80,9 +84,13 @@ export class OpcodeTable {
     return this.byName.size;
   }
 
-  /** Raw unmapped index ranges from the source table, for callers that need to report specifics. */
-  get unmappedIndexRanges(): UnmappedIndexRange[] {
-    return this.file.unmappedIndexRanges;
+  /**
+   * Raw unmapped CATALOG index ranges from the source table, for callers
+   * that need to report specifics. These are 12.0.7 catalog-space
+   * identifiers, NOT client wire families/indices.
+   */
+  get unmappedCatalogIndexRanges(): UnmappedCatalogIndexRange[] {
+    return this.file.unmappedCatalogIndexRanges;
   }
 
   lookupByName(name: string): OpcodeEntry | null {
@@ -97,19 +105,29 @@ export class OpcodeTable {
     return this.byFamily.get(family.toUpperCase()) ?? this.byFamily.get(family) ?? [];
   }
 
-  isUnmappedFamily(family: string): boolean {
-    return this.file.unmappedFamilies.includes(family.toUpperCase()) ||
-      this.file.unmappedFamilies.includes(family);
+  /**
+   * True when `family` is a 12.0.7 CATALOG family whose 12.1 shift is not
+   * uniquely determined. `family` must be a CATALOG identifier — a family
+   * decoded from a client wire value is a different namespace and must
+   * never be passed here; the catalog-to-client mapping for an ambiguous
+   * catalog family is, by definition, unknown, so no such comparison could
+   * ever be meaningful.
+   */
+  isUnmappedCatalogFamily(family: string): boolean {
+    return this.file.unmappedCatalogFamilies.includes(family.toUpperCase()) ||
+      this.file.unmappedCatalogFamilies.includes(family);
   }
 
   /**
-   * True when `family`/`index` falls inside one of the unmapped index ranges
-   * carried by the source table — an index sub-range whose offset the 12.1
-   * derivation could not decide. `fromIndex` is inclusive, `toIndex` is
-   * EXCLUSIVE, and a `null` `toIndex` means "to the end of the family".
+   * True when `family`/`index` falls inside one of the unmapped CATALOG
+   * index ranges carried by the source table — an index sub-range whose
+   * offset the 12.1 derivation could not decide. `family` and `index` must
+   * be CATALOG-space identifiers, NOT decoded from a client wire value.
+   * `fromIndex` is inclusive, `toIndex` is EXCLUSIVE, and a `null` `toIndex`
+   * means "to the end of the family".
    */
-  isUndeterminedIndex(family: string, index: number): boolean {
-    for (const range of this.file.unmappedIndexRanges) {
+  isUndeterminedCatalogIndex(family: string, index: number): boolean {
+    for (const range of this.file.unmappedCatalogIndexRanges) {
       if (range.family !== family) {
         continue;
       }

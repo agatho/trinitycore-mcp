@@ -11,8 +11,8 @@ describe("OpcodeTable", () => {
     fs.writeFileSync(path.join(dir, "12.1.0.69214.json"), JSON.stringify({
       build: 69214, version: "12.1.0",
       source: { file: "V12_1_0_69214/Opcodes.cs", derivedFrom: "V12_0_7_67808", method: "family-shift", importedAt: "2026-08-27T00:00:00.000Z" },
-      unmappedFamilies: ["0x2E", "0x35"],
-      unmappedIndexRanges: [
+      unmappedCatalogFamilies: ["0x2E", "0x35"],
+      unmappedCatalogIndexRanges: [
         { family: "0x3A", fromIndex: "0x100", toIndex: null },
         { family: "0x42", fromIndex: "0x039", toIndex: "0x040" },
         { family: "0x42", fromIndex: "0x11B", toIndex: "0x11E" },
@@ -66,10 +66,10 @@ describe("OpcodeTable", () => {
     expect(t.listFamily("0x43")).toHaveLength(1);
   });
 
-  it("reports unmapped families", () => {
+  it("reports unmapped catalog families", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
-    expect(t.isUnmappedFamily("0x2E")).toBe(true);
-    expect(t.isUnmappedFamily("0x43")).toBe(false);
+    expect(t.isUnmappedCatalogFamily("0x2E")).toBe(true);
+    expect(t.isUnmappedCatalogFamily("0x43")).toBe(false);
   });
 
   it("returns null for an unknown name", () => {
@@ -92,32 +92,32 @@ describe("OpcodeTable", () => {
     expect(() => loadOpcodeTable("12.9.9.99999", dir)).toThrow(/import-opcodes/);
   });
 
-  it("exposes the raw unmapped index ranges", () => {
+  it("exposes the raw unmapped catalog index ranges", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
-    expect(t.unmappedIndexRanges).toHaveLength(3);
-    expect(t.unmappedIndexRanges[0]).toEqual({ family: "0x3A", fromIndex: "0x100", toIndex: null });
+    expect(t.unmappedCatalogIndexRanges).toHaveLength(3);
+    expect(t.unmappedCatalogIndexRanges[0]).toEqual({ family: "0x3A", fromIndex: "0x100", toIndex: null });
   });
 
-  it("reports an index inside a bounded unmapped range as undetermined", () => {
+  it("reports a catalog index inside a bounded unmapped range as undetermined", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
     // 0x42 range is [0x039, 0x040); 0x03A is inside it.
-    expect(t.isUndeterminedIndex("0x42", 0x03a)).toBe(true);
+    expect(t.isUndeterminedCatalogIndex("0x42", 0x03a)).toBe(true);
   });
 
   it("treats the exclusive toIndex boundary as NOT undetermined", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
     // 0x040 is the exclusive upper bound of the [0x039, 0x040) range — outside it.
-    expect(t.isUndeterminedIndex("0x42", 0x040)).toBe(false);
+    expect(t.isUndeterminedCatalogIndex("0x42", 0x040)).toBe(false);
   });
 
-  it("reports an index inside an open-ended (toIndex: null) range as undetermined", () => {
+  it("reports a catalog index inside an open-ended (toIndex: null) range as undetermined", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
     // 0x3A range is [0x100, end); 0x200 is far past 0x100 but still open-ended.
-    expect(t.isUndeterminedIndex("0x3A", 0x200)).toBe(true);
+    expect(t.isUndeterminedCatalogIndex("0x3A", 0x200)).toBe(true);
   });
 
-  it("returns false for a family with no unmapped index ranges", () => {
+  it("returns false for a catalog family with no unmapped index ranges", () => {
     const t = loadOpcodeTable("12.1.0.69214", dir);
-    expect(t.isUndeterminedIndex("0x43", 0x029)).toBe(false);
+    expect(t.isUndeterminedCatalogIndex("0x43", 0x029)).toBe(false);
   });
 });

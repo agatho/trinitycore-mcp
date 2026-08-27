@@ -45,37 +45,43 @@ if (!Number.isInteger(buildNumber)) {
 
 const parsed = parseOpcodesCs(fs.readFileSync(sourcePath, "utf8"));
 
-// unmappedFamilies records families whose SHIFT is not uniquely determined
-// (the derivation's actual known-unknown). It is exactly the provenance's
-// ambiguousFamilies list — nothing is added for families that simply
-// contribute no opcodes to the parsed table, since "no opcodes" and
-// "shift not determined" are different claims and padding this list with
-// the former would misrepresent where the derivation's real gaps are.
-// clientFamily is also unreliable for ambiguous families (their shift is
-// null, so no client family can be computed), which rules out using it here.
-let unmappedFamilies = [];
+// unmappedCatalogFamilies records CATALOG families (12.0.7 identifiers) whose
+// SHIFT is not uniquely determined (the derivation's actual known-unknown).
+// It is exactly the provenance's ambiguousFamilies list — nothing is added
+// for families that simply contribute no opcodes to the parsed table, since
+// "no opcodes" and "shift not determined" are different claims and padding
+// this list with the former would misrepresent where the derivation's real
+// gaps are. clientFamily is also unreliable for ambiguous families (their
+// shift is null, so no client family can be computed), which rules out using
+// it here. IMPORTANT: these are catalog-space identifiers, NOT client wire
+// families — a client family whose shift is ambiguous has, by definition, no
+// known catalog-to-client mapping, so these values must never be compared
+// against a family decoded from a client wire value.
+let unmappedCatalogFamilies = [];
 
-// unmappedIndexRanges records, per family, the sub-ranges of the catalog index
-// space whose shift OFFSET could not be decided (provenance.indexOffsets entry
-// with offset === null). This is index-granularity ambiguity, distinct from
-// unmappedFamilies (family-granularity ambiguity) — an opcode landing inside
-// one of these ranges has no reliable 12.1 mapping, but it is NOT a plain
-// absence: the derivation deliberately could not decide, and that must stay
-// visible to consumers rather than collapsing into "no opcode at this value".
+// unmappedCatalogIndexRanges records, per CATALOG family, the sub-ranges of
+// the catalog index space whose shift OFFSET could not be decided
+// (provenance.indexOffsets entry with offset === null). This is
+// index-granularity ambiguity, distinct from unmappedCatalogFamilies
+// (family-granularity ambiguity) — an opcode landing inside one of these
+// ranges has no reliable 12.1 mapping, but it is NOT a plain absence: the
+// derivation deliberately could not decide, and that must stay visible to
+// consumers rather than collapsing into "no opcode at this value".
 // fromIndex is the null range's own catalogIndexFrom; toIndex is the next
 // range's catalogIndexFrom in the same family (exclusive upper bound) if one
-// exists, else null meaning "to the end of the family".
-let unmappedIndexRanges = [];
+// exists, else null meaning "to the end of the family". These indices are
+// CATALOG indices, not client wire indices.
+let unmappedCatalogIndexRanges = [];
 
 if (provenancePath) {
   const prov = parseProvenance(JSON.parse(fs.readFileSync(provenancePath, "utf8")));
-  unmappedFamilies = prov.ambiguousFamilies;
+  unmappedCatalogFamilies = prov.ambiguousFamilies;
 
   for (const [family, ranges] of Object.entries(prov.indexOffsets)) {
     for (let i = 0; i < ranges.length; i++) {
       if (ranges[i].offset === null) {
         const next = ranges[i + 1];
-        unmappedIndexRanges.push({
+        unmappedCatalogIndexRanges.push({
           family,
           fromIndex: ranges[i].catalogIndexFrom,
           toIndex: next ? next.catalogIndexFrom : null,
@@ -83,7 +89,7 @@ if (provenancePath) {
       }
     }
   }
-  unmappedIndexRanges.sort((a, b) => {
+  unmappedCatalogIndexRanges.sort((a, b) => {
     if (a.family !== b.family) {
       return a.family < b.family ? -1 : 1;
     }
@@ -107,8 +113,14 @@ const table = {
     method: derivedFrom ? "family-shift" : "catalog",
     importedAt: new Date().toISOString(),
   },
-  unmappedFamilies: unmappedFamilies.sort(),
-  unmappedIndexRanges,
+  _note:
+    "unmappedCatalogFamilies and unmappedCatalogIndexRanges are 12.0.7 CATALOG-space " +
+    "identifiers (from the family-shift derivation's provenance), not client wire families. " +
+    "A client wire family decoded from a value in this table's `opcodes` array must never be " +
+    "compared against these lists — the catalog-to-client mapping for an ambiguous catalog " +
+    "family is, by definition, unknown.",
+  unmappedCatalogFamilies: unmappedCatalogFamilies.sort(),
+  unmappedCatalogIndexRanges,
   counts: parsed.counts,
   opcodes: parsed.opcodes,
 };
@@ -119,5 +131,5 @@ fs.writeFileSync(path.join(outDir, `${buildId}.json`), JSON.stringify(table, nul
 console.log(
   `Wrote ${outDir}/${buildId}.json — ${parsed.opcodes.length} opcodes ` +
     `(CMSG ${parsed.counts.CMSG}, SMSG ${parsed.counts.SMSG}, MSG ${parsed.counts.MSG}), ` +
-    `${unmappedFamilies.length} unmapped families, ${unmappedIndexRanges.length} unmapped index ranges`
+    `${unmappedCatalogFamilies.length} unmapped catalog families, ${unmappedCatalogIndexRanges.length} unmapped catalog index ranges`
 );
