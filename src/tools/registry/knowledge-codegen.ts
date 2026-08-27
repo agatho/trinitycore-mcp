@@ -165,13 +165,13 @@ export const knowledgeCodegenTools: ToolRegistryEntry[] = [
   {
     definition: {
       name: "generate-packet-handler",
-      description: "Generate packet handler for client/server communication (Phase 5 code generation, <312ms p95)",
+      description: "Generate packet handler for client/server communication (Phase 5 code generation, <312ms p95). The opcode is validated against the active build's opcode table before anything is generated; the call throws if the opcode is unknown, misspelled, or documented but has no wire value in this build (no handler is ever generated around a fabricated opcode value).",
       inputSchema: {
         type: "object",
         properties: {
           handlerName: { type: "string", description: "Handler class name (e.g., 'SpellCastPacketHandler')" },
-          opcode: { type: "string", description: "Packet opcode (e.g., 'CMSG_CAST_SPELL')" },
-          direction: { type: "string", description: "Packet direction: client, server, or bidirectional" },
+          opcode: { type: "string", description: "Packet opcode name (e.g., 'CMSG_CAST_SPELL') — must exist in the active build's opcode table." },
+          direction: { type: "string", description: "Packet direction hint: client, server, or bidirectional. Informational only — the generated handler's actual direction and wire value come from the opcode table, not this field." },
           fields: { type: "array", description: "Packet fields array with {name, type, description, isGuid?, isString?}" },
           outputPath: { type: "string", description: "Optional: output file path" },
           namespace: { type: "string", description: "Optional: C++ namespace (default: Playerbot::Packets)" },

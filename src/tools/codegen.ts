@@ -9,6 +9,8 @@ import { CppValidator, validateCppFile } from '../codegen/CppValidator';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../utils/logger';
+import { getOpcodeTable, OpcodeEntry } from '../opcodes/OpcodeTable';
+import { OPCODE_ANNOTATIONS } from '../opcodes/annotations';
 
 const execAsync = promisify(exec);
 
@@ -177,6 +179,69 @@ export async function generateBotComponent(options: {
   };
 }
 
+export interface OpcodeValidation {
+  valid: boolean;
+  entry?: OpcodeEntry;
+  suggestions?: string[];
+  message: string;
+}
+
+/**
+ * Confirm an opcode exists in the active build's table before generating a
+ * handler for it. Generating a handler for a misspelled or stale opcode name
+ * produces code that compiles and is wrong.
+ *
+ * An opcode that has hand-written documentation in `OPCODE_ANNOTATIONS` but
+ * no wire value in the active build's table (e.g. a chat opcode renamed in
+ * modern WoW, or an `MSG_MOVE_*` opcode absent from this build's misc block)
+ * is still rejected — there is no concrete wire value to generate a handler
+ * around, and inventing one would be a fabricated placeholder. The rejection
+ * message says so explicitly, distinct from an ordinary unknown-name miss,
+ * so the caller isn't left thinking the name was simply misspelled.
+ */
+export function validateOpcodeForHandler(opcode: string): OpcodeValidation {
+  const table = getOpcodeTable();
+  const entry = table.lookupByName(opcode);
+
+  if (entry) {
+    return { valid: true, entry, message: `${entry.name} = ${entry.hex} (${entry.direction}, build ${entry.build})` };
+  }
+
+  const annotationName = Object.keys(OPCODE_ANNOTATIONS).find(
+    (name) => name.toUpperCase() === opcode.toUpperCase()
+  );
+  if (annotationName) {
+    return {
+      valid: false,
+      message:
+        `Opcode "${annotationName}" is documented but has no wire value in the table for build ${table.build}; ` +
+        `refusing to generate a handler with a fabricated value. It may have been renamed, merged into another ` +
+        `opcode, or removed in this build — look up its current name with get-opcode-info before generating a handler.`,
+    };
+  }
+
+  const suggestions = table.suggestNames(opcode);
+  return {
+    valid: false,
+    suggestions,
+    message:
+      `Opcode "${opcode}" is not in the table for build ${table.build}; refusing to generate a handler for it.` +
+      (suggestions.length ? ` Did you mean: ${suggestions.join(", ")}?` : ""),
+  };
+}
+
+/** Map the table's wire direction to the packet-template direction used by the C++ templates. */
+function packetDirectionFor(direction: OpcodeEntry["direction"]): 'client' | 'server' | 'bidirectional' {
+  switch (direction) {
+    case 'CMSG':
+      return 'client';
+    case 'SMSG':
+      return 'server';
+    case 'MSG':
+      return 'bidirectional';
+  }
+}
+
 /**
  * Generate a packet handler
  * Week 5 - Phase 1: Enhanced with C++ packet templates
@@ -205,6 +270,19 @@ export async function generatePacketHandler(options: {
 }> {
   const start = performance.now();
 
+  // Validate the opcode against the active build's table before emitting
+  // anything. A misspelled or stale opcode name would otherwise produce a
+  // handler that compiles and is silently wrong.
+  const validation = validateOpcodeForHandler(options.opcode);
+  if (!validation.valid) {
+    throw new Error(validation.message);
+  }
+  const entry = validation.entry!;
+
+  // The table is authoritative for direction and wire value — never trust
+  // the caller's `direction` argument, which may disagree with the table.
+  const effectiveDirection = packetDirectionFor(entry.direction);
+
   // Week 5 Phase 1: Select appropriate C++ packet template
   const packetTemplateMap = {
     client: 'cpp/packets/client_packet',
@@ -214,9 +292,13 @@ export async function generatePacketHandler(options: {
 
   const templateData = {
     className: options.handlerName,
-    description: options.description || `Packet handler for ${options.opcode}`,
-    opcode: options.opcode,
-    direction: options.direction,
+    description:
+      options.description ||
+      `Packet handler for ${entry.name} (${entry.hex}, build ${entry.build})`,
+    opcode: entry.name,
+    opcodeHex: entry.hex,
+    direction: effectiveDirection,
+    sourceBuild: entry.build,
     namespace: options.namespace || 'Playerbot::Packets',
     fields: options.fields,
     generationDate: new Date().toISOString(),
@@ -233,20 +315,20 @@ export async function generatePacketHandler(options: {
     }, 0),
 
     // Features
-    needsBuilder: options.direction === 'client' || options.direction === 'bidirectional',
+    needsBuilder: effectiveDirection === 'client' || effectiveDirection === 'bidirectional',
     includeLogging: true,
-    includeSpellPackets: options.opcode.includes('SPELL') || options.opcode.includes('CAST'),
-    includeMovementPackets: options.opcode.includes('MOVE') || options.opcode.includes('POSITION'),
+    includeSpellPackets: entry.name.includes('SPELL') || entry.name.includes('CAST'),
+    includeMovementPackets: entry.name.includes('MOVE') || entry.name.includes('POSITION'),
 
     // Packet type detection
-    isMovementPacket: options.opcode.includes('MOVE'),
-    isSpellPacket: options.opcode.includes('SPELL') || options.opcode.includes('CAST'),
-    isAuraPacket: options.opcode.includes('AURA'),
-    isItemPacket: options.opcode.includes('ITEM'),
+    isMovementPacket: entry.name.includes('MOVE'),
+    isSpellPacket: entry.name.includes('SPELL') || entry.name.includes('CAST'),
+    isAuraPacket: entry.name.includes('AURA'),
+    isItemPacket: entry.name.includes('ITEM'),
 
     // Frequency estimation
-    frequency: options.opcode.includes('MOVE') ? 'High (10-20 Hz)'
-             : options.opcode.includes('AURA') ? 'Medium (1-5 Hz)'
+    frequency: entry.name.includes('MOVE') ? 'High (10-20 Hz)'
+             : entry.name.includes('AURA') ? 'Medium (1-5 Hz)'
              : 'Low (<1 Hz)',
 
     // Validation
@@ -266,7 +348,7 @@ export async function generatePacketHandler(options: {
     path.join(process.cwd(), 'generated', 'packet_handlers', `${options.handlerName}.h`);
 
   const generated = await generator.generate({
-    templateName: packetTemplateMap[options.direction],
+    templateName: packetTemplateMap[effectiveDirection],
     outputPath,
     data: templateData,
     format: true,
