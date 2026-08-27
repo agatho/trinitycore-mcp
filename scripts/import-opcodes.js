@@ -54,9 +54,41 @@ const parsed = parseOpcodesCs(fs.readFileSync(sourcePath, "utf8"));
 // clientFamily is also unreliable for ambiguous families (their shift is
 // null, so no client family can be computed), which rules out using it here.
 let unmappedFamilies = [];
+
+// unmappedIndexRanges records, per family, the sub-ranges of the catalog index
+// space whose shift OFFSET could not be decided (provenance.indexOffsets entry
+// with offset === null). This is index-granularity ambiguity, distinct from
+// unmappedFamilies (family-granularity ambiguity) — an opcode landing inside
+// one of these ranges has no reliable 12.1 mapping, but it is NOT a plain
+// absence: the derivation deliberately could not decide, and that must stay
+// visible to consumers rather than collapsing into "no opcode at this value".
+// fromIndex is the null range's own catalogIndexFrom; toIndex is the next
+// range's catalogIndexFrom in the same family (exclusive upper bound) if one
+// exists, else null meaning "to the end of the family".
+let unmappedIndexRanges = [];
+
 if (provenancePath) {
   const prov = parseProvenance(JSON.parse(fs.readFileSync(provenancePath, "utf8")));
   unmappedFamilies = prov.ambiguousFamilies;
+
+  for (const [family, ranges] of Object.entries(prov.indexOffsets)) {
+    for (let i = 0; i < ranges.length; i++) {
+      if (ranges[i].offset === null) {
+        const next = ranges[i + 1];
+        unmappedIndexRanges.push({
+          family,
+          fromIndex: ranges[i].catalogIndexFrom,
+          toIndex: next ? next.catalogIndexFrom : null,
+        });
+      }
+    }
+  }
+  unmappedIndexRanges.sort((a, b) => {
+    if (a.family !== b.family) {
+      return a.family < b.family ? -1 : 1;
+    }
+    return parseInt(a.fromIndex, 16) - parseInt(b.fromIndex, 16);
+  });
 
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(
@@ -76,6 +108,7 @@ const table = {
     importedAt: new Date().toISOString(),
   },
   unmappedFamilies: unmappedFamilies.sort(),
+  unmappedIndexRanges,
   counts: parsed.counts,
   opcodes: parsed.opcodes,
 };
@@ -86,5 +119,5 @@ fs.writeFileSync(path.join(outDir, `${buildId}.json`), JSON.stringify(table, nul
 console.log(
   `Wrote ${outDir}/${buildId}.json — ${parsed.opcodes.length} opcodes ` +
     `(CMSG ${parsed.counts.CMSG}, SMSG ${parsed.counts.SMSG}, MSG ${parsed.counts.MSG}), ` +
-    `${unmappedFamilies.length} unmapped families`
+    `${unmappedFamilies.length} unmapped families, ${unmappedIndexRanges.length} unmapped index ranges`
 );
