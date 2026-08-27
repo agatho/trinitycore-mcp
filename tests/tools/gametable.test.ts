@@ -20,10 +20,51 @@ import {
   GameTableInfo,
 } from '../../src/tools/gametable';
 
-// Mock the fs module for file-based tests
+// Mock the fs module for file-based tests.
+//
+// jest.mock('fs', ...) replaces the 'fs' module for the ENTIRE require graph
+// loaded within this test file, not just gametable.ts's own direct fs calls.
+// src/tools/gametable.ts imports resolveDataPath from
+// src/version/BuildManifest, which imports the shared logger from
+// src/utils/logger. Constructing that logger at module-load time exercises
+// two layers of fs usage that must both be stubbed, or the module import
+// itself throws before any test body runs:
+//
+// 1. logger.ts's own module-scope side effect:
+//      if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+//    -> existsSync, mkdirSync
+//
+// 2. winston's File transport, constructed synchronously for each of the 5
+//    log files (error/combined/warn/exceptions/rejections) declared in
+//    logger.ts. Its constructor (node_modules/winston/lib/winston/transports/file.js)
+//    calls _createLogDirIfNotExist (existsSync/mkdirSync again) and then
+//    open() -> stat() -> fs.stat(path, callback) to size an existing file,
+//    followed by _createStream() -> fs.createWriteStream(path, options) to
+//    open the log stream and chain .on()/.once() listeners on the result.
+//    -> stat, createWriteStream
+//
+// Everything here is a stub of Node's own fs surface (winston's real,
+// unmodified code), not a change to gametable.ts, BuildManifest.ts, or
+// logger.ts. fs.stat reports ENOENT (as it would for a fresh log
+// directory) so winston takes its "file doesn't exist yet" branch;
+// createWriteStream returns a minimal chainable stream double so
+// winston's .on()/.once() calls don't throw.
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
   readFileSync: jest.fn(),
+  mkdirSync: jest.fn(),
+  stat: jest.fn((_path: string, callback: (err: NodeJS.ErrnoException | null, stats?: unknown) => void) => {
+    const enoent: NodeJS.ErrnoException = Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    callback(enoent);
+  }),
+  createWriteStream: jest.fn(() => {
+    const stream: Record<string, jest.Mock> = {};
+    stream.on = jest.fn(() => stream);
+    stream.once = jest.fn(() => stream);
+    stream.write = jest.fn(() => true);
+    stream.end = jest.fn();
+    return stream;
+  }),
 }));
 
 const fs = require('fs');
