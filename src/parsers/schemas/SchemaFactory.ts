@@ -14,11 +14,24 @@
 
 import { DB2Record } from '../db2/DB2Record';
 import { SpellSchema, SpellEntry } from './SpellSchema';
-import { ItemSchema, ItemEntry, ItemSparseEntry, ItemTemplate } from './ItemSchema';
+import { ItemSchema, ItemEntry, ItemSparseEntry, ItemTemplate, ItemSparseSchema } from './ItemSchema';
 import { ChrClassesSchema, ChrClassesEntry, ChrClassesXPowerTypesSchema, ChrClassesXPowerTypesEntry } from './ChrClassesSchema';
 import { ChrRacesSchema, ChrRacesEntry, CharBaseInfoSchema, CharBaseInfoEntry } from './ChrRacesSchema';
 import { TalentSchema, TalentEntry } from './TalentSchema';
 import { SpellEffectSchema, SpellEffectEntry } from './SpellEffectSchema';
+import { BuildAwareSchema } from '../../version/SchemaBuildGate';
+
+/**
+ * Shape every build-aware schema class exposes as static members.
+ * Used only to type SchemaFactory.getRegisteredSchemaClasses() — the nine
+ * schema classes themselves (SpellSchema, ItemSchema, etc.) satisfy this
+ * structurally via their static VALID_BUILDS/LAYOUT_HASHES/SCHEMA_NAME.
+ */
+interface BuildAwareSchemaClass {
+  readonly VALID_BUILDS: { from: number; to: number | null };
+  readonly LAYOUT_HASHES: Map<number, number>;
+  readonly SCHEMA_NAME: string;
+}
 
 /**
  * Schema Parser Interface
@@ -423,6 +436,42 @@ export class SchemaRegistry {
  * Provides type-safe factory methods for parsing DB2 records
  */
 export class SchemaFactory {
+  /**
+   * Every registered schema class, in one place. This is the single home for
+   * the nine hand-written DB2 schemas' build-declaration classes; add new
+   * schemas here so getBuildAwareSchemas() and the build gate pick them up.
+   */
+  private static readonly REGISTERED_SCHEMA_CLASSES: BuildAwareSchemaClass[] = [
+    SpellSchema,
+    SpellEffectSchema,
+    ItemSchema,
+    ItemSparseSchema,
+    ChrClassesSchema,
+    ChrClassesXPowerTypesSchema,
+    ChrRacesSchema,
+    CharBaseInfoSchema,
+    TalentSchema,
+  ];
+
+  /**
+   * Get every registered schema class exposing VALID_BUILDS/LAYOUT_HASHES/SCHEMA_NAME.
+   * @returns The nine build-aware schema classes
+   */
+  public static getRegisteredSchemaClasses(): BuildAwareSchemaClass[] {
+    return SchemaFactory.REGISTERED_SCHEMA_CLASSES;
+  }
+
+  /**
+   * Every registered schema, in the shape the layout gate consumes.
+   */
+  public static getBuildAwareSchemas(): BuildAwareSchema[] {
+    return SchemaFactory.getRegisteredSchemaClasses().map((c) => ({
+      name: c.SCHEMA_NAME,
+      VALID_BUILDS: c.VALID_BUILDS,
+      LAYOUT_HASHES: c.LAYOUT_HASHES,
+    }));
+  }
+
   /**
    * Parse a DB2 record using automatic schema detection by file name
    * @param fileName DB2 file name

@@ -296,6 +296,18 @@ export interface SpellEffectEntry {
  * SpellEffect.db2 Schema Parser
  */
 export class SpellEffectSchema {
+  /** Build range this schema's field indices are known to be correct for. */
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+
+  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
+   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
+    [65390, 0x239b1b53],
+  ]);
+
+  /** Name used in gate errors and the validate-build-schemas report. */
+  public static readonly SCHEMA_NAME = "SpellEffectSchema";
+
   /**
    * Convert uint16 to int16 (signed short)
    * @param value Unsigned 16-bit value

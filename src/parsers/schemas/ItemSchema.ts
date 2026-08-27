@@ -377,6 +377,18 @@ export interface ItemTemplate {
  * Parses Item.db2 and ItemSparse.db2 records
  */
 export class ItemSchema {
+  /** Build range this schema's field indices are known to be correct for. */
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+
+  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
+   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
+    [65390, 0x6d1dd0ce],
+  ]);
+
+  /** Name used in gate errors and the validate-build-schemas report. */
+  public static readonly SCHEMA_NAME = "ItemSchema";
+
   /**
    * Parse Item.db2 record (basic data)
    * @param record DB2Record from Item.db2
@@ -718,4 +730,28 @@ export class ItemSchema {
 
     return speed > 0 ? avgDamage / speed : 0;
   }
+}
+
+/**
+ * ItemSparse.db2 Build Declaration
+ *
+ * ItemSparse.db2 is a separate DB2 file from Item.db2 with its own layout
+ * hash. The parsing logic for it lives in ItemSchema.parseSparse() above
+ * (both files' parsers are kept together per the module's original
+ * design), but the hard-coded field indices in parseSparse() are only
+ * valid for ItemSparse.db2's layout, not Item.db2's — so build validity
+ * for the two files is declared and tracked separately here.
+ */
+export class ItemSparseSchema {
+  /** Build range this schema's field indices are known to be correct for. */
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+
+  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
+   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
+    [65390, 0xabf517cd],
+  ]);
+
+  /** Name used in gate errors and the validate-build-schemas report. */
+  public static readonly SCHEMA_NAME = "ItemSparseSchema";
 }

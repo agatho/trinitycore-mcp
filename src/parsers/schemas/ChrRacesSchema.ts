@@ -179,6 +179,18 @@ export interface ChrRacesEntry {
  * ChrRaces.db2 Schema Parser
  */
 export class ChrRacesSchema {
+  /** Build range this schema's field indices are known to be correct for. */
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+
+  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
+   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
+    [65390, 0x4f44c796],
+  ]);
+
+  /** Name used in gate errors and the validate-build-schemas report. */
+  public static readonly SCHEMA_NAME = "ChrRacesSchema";
+
   /**
    * Convert uint8 to int8 (signed byte)
    * @param value Unsigned 8-bit value
@@ -461,6 +473,18 @@ export interface CharBaseInfoEntry {
  * CharBaseInfo.db2 Schema Parser
  */
 export class CharBaseInfoSchema {
+  /** Build range this schema's field indices are known to be correct for. */
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+
+  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
+   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
+    [65390, 0xfec46fb7],
+  ]);
+
+  /** Name used in gate errors and the validate-build-schemas report. */
+  public static readonly SCHEMA_NAME = "CharBaseInfoSchema";
+
   /**
    * Convert uint8 to int8 (signed byte)
    * @param value Unsigned 8-bit value
