@@ -27,6 +27,19 @@ export class MockDB2Record extends DB2Record {
     });
   }
 
+  /**
+   * Override getId(). Real DB2 files keep the record id outside the inline
+   * fields when it is $noninline$ (Item.db2 among them), so schemas read it
+   * via getId() rather than field 0. Mocks must honour that.
+   * Supply it as the `id` key, falling back to field 0 for older mocks.
+   */
+  public getId(): number {
+    const explicit = this.fieldData.get(-1);
+    if (typeof explicit === 'number') return explicit;
+    const zero = this.fieldData.get(0);
+    return typeof zero === 'number' ? zero : 0;
+  }
+
   // Override getUInt32 to return mock data
   public getUInt32(field: number, arrayIndex: number = 0): number {
     const value = this.fieldData.get(field);

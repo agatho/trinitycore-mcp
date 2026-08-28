@@ -21,18 +21,22 @@ import { MockDB2Record } from './MockDB2Record';
 describe('ItemSchema', () => {
   describe('parseBasic()', () => {
     it('should parse basic item entry', () => {
+      // Item.db2 layout 0x996192AA (12.1). ID is $noninline$ so it comes from
+      // getId(); the inline fields start at 0 with ClassID.
       const mockRecord = new MockDB2Record({
-        0: 25, // id (Worn Shortsword)
-        1: ItemClass.WEAPON, // classId
-        2: 7, // subclassId (Sword)
-        3: 1, // material (Metal)
-        4: -1, // soundOverrideSubclassId
-        5: 135324, // iconFileDataId
-        6: 0, // itemGroupSoundsId
-        7: 0, // contentTuningId
-        8: 0, // modifiedCraftingReagentItemId
-        9: 0, // coincidesWithOppositeMinorPatch
-        10: 0, // expansionId (Classic)
+        [-1]: 25, // id (Worn Shortsword), via getId()
+        0: ItemClass.WEAPON, // classId
+        1: 7, // subclassId (Sword)
+        2: 1, // material (Metal)
+        3: 13, // inventoryType (WEAPON)
+        4: 0, // sheatheType
+        5: -1, // soundOverrideSubclassId
+        6: 135324, // iconFileDataId
+        7: 0, // itemGroupSoundsId
+        8: 0, // contentTuningId
+        9: 0, // modifiedCraftingReagentItemId
+        11: 0, // craftingQualityId (10 is unnamed in WoWDBDefs)
+        12: 0, // itemSquishEraId
       });
 
       const item = ItemSchema.parseBasic(mockRecord);
@@ -41,13 +45,15 @@ describe('ItemSchema', () => {
       expect(item.classId).toBe(ItemClass.WEAPON);
       expect(item.subclassId).toBe(7);
       expect(item.material).toBe(1);
+      expect(item.inventoryType).toBe(13);
+      expect(item.iconFileDataId).toBe(135324);
     });
 
     it('should parse consumable item', () => {
       const mockRecord = new MockDB2Record({
-        0: 858, // id (Lesser Healing Potion)
-        1: ItemClass.CONSUMABLE,
-        2: 1, // Potion
+        [-1]: 858, // id (Lesser Healing Potion), via getId()
+        0: ItemClass.CONSUMABLE, // classId
+        1: 1, // subclassId (Potion)
       });
 
       const item = ItemSchema.parseBasic(mockRecord);
@@ -189,13 +195,17 @@ describe('ItemSchema', () => {
         classId: ItemClass.WEAPON,
         subclassId: 7,
         material: 1,
+        inventoryType: 13,
+        sheatheType: 0,
         soundOverrideSubclassId: -1,
         iconFileDataId: 135324,
         itemGroupSoundsId: 0,
         contentTuningId: 0,
         modifiedCraftingReagentItemId: 0,
-        coincidesWithOppositeMinorPatch: 0,
-        expansionId: 0,
+        craftingQualityId: 0,
+        itemSquishEraId: 0,
+        recraftReagentCountPercentage: 0,
+        orderSource: 0,
       };
 
       const sparse: ItemSparseEntry = {
@@ -288,13 +298,17 @@ describe('ItemSchema', () => {
         classId: ItemClass.WEAPON,
         subclassId: 7,
         material: 1,
+        inventoryType: 13,
+        sheatheType: 0,
         soundOverrideSubclassId: -1,
         iconFileDataId: 135324,
         itemGroupSoundsId: 0,
         contentTuningId: 0,
         modifiedCraftingReagentItemId: 0,
-        coincidesWithOppositeMinorPatch: 0,
-        expansionId: 0,
+        craftingQualityId: 0,
+        itemSquishEraId: 0,
+        recraftReagentCountPercentage: 0,
+        orderSource: 0,
       };
 
       const sparse: ItemSparseEntry = {

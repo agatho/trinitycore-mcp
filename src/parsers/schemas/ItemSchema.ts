@@ -230,17 +230,21 @@ export interface ItemSpell {
  * Core item identification data
  */
 export interface ItemEntry {
-  id: number; // Item ID (uint32)
+  id: number; // Item ID - from the ID table, not an inline field
   classId: number; // Item class (ItemClass enum)
   subclassId: number; // Item subclass (varies by class)
-  material: number; // Item material (uint32)
-  soundOverrideSubclassId: number; // Sound override (int32)
-  iconFileDataId: number; // Icon file data ID (uint32)
-  itemGroupSoundsId: number; // Sound group ID (uint32)
-  contentTuningId: number; // Content tuning ID (uint32)
-  modifiedCraftingReagentItemId: number; // Modified crafting reagent (uint32)
-  coincidesWithOppositeMinorPatch: number; // Minor patch flag (uint8)
-  expansionId: number; // Expansion ID (uint8)
+  material: number; // Item material
+  inventoryType: number; // Equipment slot (InventoryType)
+  sheatheType: number; // How the item is sheathed
+  soundOverrideSubclassId: number; // Sound override (signed)
+  iconFileDataId: number; // Icon file data ID
+  itemGroupSoundsId: number; // Sound group ID
+  contentTuningId: number; // Content tuning ID
+  modifiedCraftingReagentItemId: number; // Modified crafting reagent
+  craftingQualityId: number; // Crafting quality
+  itemSquishEraId: number; // Item squish era
+  recraftReagentCountPercentage: number; // Recraft reagent count percentage
+  orderSource: number; // Order source
 }
 
 /**
@@ -378,13 +382,16 @@ export interface ItemTemplate {
  */
 export class ItemSchema {
   /** Build range this schema's field indices are known to be correct for. */
-  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 64438, to: null };
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 68209, to: null };
 
   /** build -> layoutHash. 65299 is the 2025-12-22 extraction, identified as WoW 11.2.7
    *  via WoWDBDefs (11 consistent builds 64438-65299, all sharing these layouts).
    *  Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
-    [65299, 0x6d1dd0ce],
+    // 12.1 only. The 11.2.7 layout (0x6d1dd0ce) is deliberately NOT listed:
+    // these field indices are written for 0x996192aa, so 11.2.7 data must
+    // report a mismatch rather than be parsed with the wrong offsets.
+    [69497, 0x996192aa],
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */
@@ -396,18 +403,30 @@ export class ItemSchema {
    * @returns Parsed ItemEntry
    */
   public static parseBasic(record: DB2Record): ItemEntry {
+    // Field indices follow Item.db2 layout 0x996192AA (WoW 12.1), per WoWDBDefs.
+    // ID is $noninline$ - it lives in the ID table, not the record - so the
+    // inline fields start at 0 with ClassID. The file confirms this:
+    // fieldCount is 15 while the definition lists 16 columns.
+    //
+    // Verified against hotfixes.item for 111 items: ClassID, SubclassID,
+    // Material, InventoryType, SheatheType and IconFileDataID all agree.
     return {
-      id: record.getUInt32(0),
-      classId: record.getUInt32(1),
-      subclassId: record.getUInt32(2),
-      material: record.getUInt32(3),
-      soundOverrideSubclassId: record.getInt32(4),
-      iconFileDataId: record.getUInt32(5),
-      itemGroupSoundsId: record.getUInt32(6),
-      contentTuningId: record.getUInt32(7),
-      modifiedCraftingReagentItemId: record.getUInt32(8),
-      coincidesWithOppositeMinorPatch: record.getUInt8(9),
-      expansionId: record.getUInt8(10),
+      id: record.getId(),
+      classId: record.getUInt32(0),
+      subclassId: record.getUInt32(1),
+      material: record.getUInt32(2),
+      inventoryType: record.getUInt32(3),
+      sheatheType: record.getUInt32(4),
+      soundOverrideSubclassId: record.getInt32(5),
+      iconFileDataId: record.getUInt32(6),
+      itemGroupSoundsId: record.getUInt32(7),
+      contentTuningId: record.getUInt32(8),
+      modifiedCraftingReagentItemId: record.getUInt32(9),
+      // field 10 is Field_12_0_0_63534_010, unnamed in WoWDBDefs - skipped
+      craftingQualityId: record.getUInt32(11),
+      itemSquishEraId: record.getUInt32(12),
+      recraftReagentCountPercentage: record.getUInt32(13),
+      orderSource: record.getUInt32(14),
     };
   }
 

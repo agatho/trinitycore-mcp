@@ -154,9 +154,11 @@ describe('SchemaFactory', () => {
 
     it('should parse Item.db2 record', () => {
       const mockRecord = new MockDB2Record({
-        0: 25, // id (Worn Shortsword)
-        1: 2, // classId (WEAPON)
-        2: 7, // subclassId (Sword)
+        // Item.db2 ID is $noninline$: it comes from getId(), and the inline
+        // fields begin at 0 with ClassID.
+        [-1]: 25, // id (Worn Shortsword)
+        0: 2, // classId (WEAPON)
+        1: 7, // subclassId (Sword)
       });
 
       const item = SchemaFactory.parseByFileName<ItemEntry>('Item.db2', mockRecord);
@@ -193,8 +195,8 @@ describe('SchemaFactory', () => {
 
     it('should parse by Item.db2 hash', () => {
       const mockRecord = new MockDB2Record({
-        0: 25,
-        1: 2,
+        [-1]: 25, // id via getId()
+        0: 2, // classId
       });
 
       const item = SchemaFactory.parseByTableHash<ItemEntry>(0x50238ec2, mockRecord);
@@ -223,9 +225,9 @@ describe('SchemaFactory', () => {
 
     it('should parse item basic with parseItemBasic()', () => {
       const mockRecord = new MockDB2Record({
-        0: 25,
-        1: 2,
-        2: 7,
+        [-1]: 25, // id via getId()
+        0: 2, // classId
+        1: 7, // subclassId
       });
 
       const item = SchemaFactory.parseItemBasic(mockRecord);
@@ -249,9 +251,9 @@ describe('SchemaFactory', () => {
 
     it('should combine item template with parseItemTemplate()', () => {
       const basicRecord = new MockDB2Record({
-        0: 25,
-        1: 2, // WEAPON
-        2: 7,
+        [-1]: 25, // id via getId(); Item.db2 ID is $noninline$
+        0: 2, // classId (WEAPON)
+        1: 7, // subclassId
       });
 
       const sparseRecord = new MockDB2Record({
