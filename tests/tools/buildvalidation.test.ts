@@ -77,7 +77,7 @@ describe("validateBuildSchemas - build-range refusal vs. hash mismatch", () => {
 
     expect(spellRow).toBeDefined();
     expect(spellRow?.status).toBe("unverified");
-    expect(spellRow?.detail).toMatch(/valid from build 65390/);
+    expect(spellRow?.detail).toMatch(/valid from build 64438/);
     expect(report.summary.mismatch).toBe(0);
   });
 });

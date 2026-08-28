@@ -201,12 +201,13 @@ const ATTRIBUTE_FIELD_INDICES: Record<number, keyof SpellEntry> = {
  */
 export class SpellSchema {
   /** Build range this schema's field indices are known to be correct for. */
-  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 65390, to: null };
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 64438, to: null };
 
-  /** build -> layoutHash. 65390 is a floor marker for "some 12.0.x"; the exact
-   *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
+  /** build -> layoutHash. 65299 is the 2025-12-22 extraction, identified as WoW 11.2.7
+   *  via WoWDBDefs (11 consistent builds 64438-65299, all sharing these layouts).
+   *  Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
-    [65390, 0x782ee721],
+    [65299, 0x782ee721],
     [69497, 0x782ee721],   // 12.1: layout unchanged from 12.0.x
   ]);
 
