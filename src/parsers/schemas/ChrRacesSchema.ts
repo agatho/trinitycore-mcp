@@ -186,6 +186,7 @@ export class ChrRacesSchema {
    *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
     [65390, 0x4f44c796],
+    [69497, 0x4f44c796],   // 12.1: layout unchanged from 12.0.x
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */
@@ -480,6 +481,7 @@ export class CharBaseInfoSchema {
    *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
     [65390, 0xfec46fb7],
+    [69497, 0xfec46fb7],   // 12.1: layout unchanged from 12.0.x
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */

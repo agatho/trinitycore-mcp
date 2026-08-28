@@ -181,6 +181,7 @@ export class ChrClassesSchema {
    *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
     [65390, 0xafc9b0c2],
+    [69497, 0xafc9b0c2],   // 12.1: layout unchanged from 12.0.x
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */
@@ -439,6 +440,7 @@ export class ChrClassesXPowerTypesSchema {
    *  build of the 2025-12-22 extraction is unrecoverable. Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
     [65390, 0x70da1f8c],
+    [69497, 0x70da1f8c],   // 12.1: layout unchanged from 12.0.x
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */
