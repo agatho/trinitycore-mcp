@@ -21,6 +21,12 @@ export class DB2Record {
   private recordCount: number; // Total record count in section (for inline files)
   private sectionFileOffset: number; // File offset where section's records begin (for string offset calculation)
   private stringOffsetCorrection: number; // Correction to translate TrinityCore combined-buffer offsets to per-section buffer positions
+  /** Per-field pallet value tables (Pallet / PalletArray compression). */
+  private palletValues: number[][];
+  /** Per-field record-id -> value maps (CommonData compression). */
+  private commonValues: Map<number, number>[];
+  /** header.packedDataOffset - base for bit-packed and pallet field offsets. */
+  private packedDataOffset: number;
 
   constructor(
     recordData: Buffer,
@@ -33,7 +39,10 @@ export class DB2Record {
     recordSize?: number, // Optional: Record size (for inline files to calculate string table offset)
     recordCount?: number, // Optional: Total records in section (for inline files to calculate string table offset)
     sectionFileOffset?: number, // Optional: File offset where section begins (for inline files to calculate string offset)
-    stringOffsetCorrection?: number // Optional: Correction for translating raw string offsets to per-section buffer positions
+    stringOffsetCorrection?: number, // Optional: Correction for translating raw string offsets to per-section buffer positions
+    palletValues?: number[][], // Optional: per-field pallet tables (compressed fields)
+    commonValues?: Map<number, number>[], // Optional: per-field common-value maps
+    packedDataOffset?: number // Optional: header.packedDataOffset for packed field addressing
   ) {
     this.recordData = recordData;
     this.stringBlock = stringBlock;
@@ -46,6 +55,9 @@ export class DB2Record {
     this.recordCount = recordCount || 0;
     this.sectionFileOffset = sectionFileOffset || 0;
     this.stringOffsetCorrection = stringOffsetCorrection || 0;
+    this.palletValues = palletValues || [];
+    this.commonValues = commonValues || [];
+    this.packedDataOffset = packedDataOffset || 0;
   }
 
   /**
@@ -356,39 +368,135 @@ export class DB2Record {
    * @param isSigned Whether to sign-extend the value
    * @returns Variable-width integer value
    */
+  /**
+   * Extract a bit-packed value starting at a byte boundary.
+   *
+   * Mirrors TrinityCore's RecordGetPackedValue: read 8 bytes from the byte
+   * containing the value, discard the leading bits, then keep bitWidth bits.
+   * BigInt is used because a 64-bit intermediate is required - JavaScript's
+   * 32-bit bitwise operators silently truncate fields wider than 32 bits.
+   */
+  private readPackedValue(byteOffset: number, bitWidth: number, bitOffset: number): bigint {
+    if (bitWidth === 0) {
+      return 0n;
+    }
+
+    const bitsToSkip = BigInt(bitOffset & 7);
+    const width = BigInt(bitWidth);
+
+    let raw = 0n;
+    for (let i = 0; i < 8; i++) {
+      const idx = byteOffset + i;
+      const byte = idx < this.recordData.length ? BigInt(this.recordData[idx]) : 0n;
+      raw |= byte << BigInt(i * 8);
+    }
+
+    return (raw >> bitsToSkip) & ((1n << width) - 1n);
+  }
+
+  /**
+   * Byte offset of a field within a record, per its storage type.
+   * CommonData fields live outside the record entirely.
+   */
+  private getStorageFieldOffset(field: number): number {
+    const meta = this.columnMeta[field];
+    if (!meta) {
+      return this.fieldEntries[field] ? this.fieldEntries[field].offset : 0;
+    }
+
+    switch (meta.compressionType) {
+      case DB2ColumnCompression.None:
+        return meta.bitOffset >> 3;
+      case DB2ColumnCompression.Immediate:
+      case DB2ColumnCompression.SignedImmediate:
+        return (meta.compressionData.immediate!.bitOffset >> 3) + this.packedDataOffset;
+      case DB2ColumnCompression.Pallet:
+      case DB2ColumnCompression.PalletArray:
+        return (meta.compressionData.pallet!.bitOffset >> 3) + this.packedDataOffset;
+      case DB2ColumnCompression.CommonData:
+        return -1; // not stored in the record
+      default:
+        return meta.bitOffset >> 3;
+    }
+  }
+
+  /**
+   * Read a field, honouring its storage type.
+   *
+   * WDC3+ stores fields four different ways beyond plain values: bit-packed
+   * immediates, pallet-indexed lookups, pallet arrays, and per-id common
+   * values. Treating everything as a plain read is why compressed tables
+   * previously returned zeroes.
+   */
   private recordGetVarInt(field: number, arrayIndex: number, isSigned: boolean): number {
-    if (field < 0 || field >= this.fieldEntries.length) {
-      throw new Error(`Field ${field} out of range (0-${this.fieldEntries.length - 1})`);
+    const meta = this.columnMeta[field];
+    const recordBase = this.recordIndex * this.recordSize;
+
+    // No storage metadata: fall back to the plain field-structure layout.
+    if (!meta) {
+      const entry = this.fieldEntries[field];
+      if (!entry) {
+        throw new Error(`Field ${field} out of range (0-${this.fieldEntries.length - 1})`);
+      }
+      const size = 4 - Math.floor(entry.unusedBits / 8);
+      const off = recordBase + entry.offset + arrayIndex * size;
+      let v = 0;
+      for (let i = 0; i < size; i++) {
+        v |= (this.recordData[off + i] ?? 0) << (i * 8);
+      }
+      return isSigned
+        ? (v << entry.unusedBits) >> entry.unusedBits
+        : (v << entry.unusedBits) >>> entry.unusedBits;
     }
 
-    const fieldEntry = this.fieldEntries[field];
+    switch (meta.compressionType) {
+      case DB2ColumnCompression.None: {
+        const size = Math.max(1, meta.bitSize >> 3);
+        const off = recordBase + this.getStorageFieldOffset(field) + arrayIndex * size;
+        let v = 0;
+        for (let i = 0; i < Math.min(size, 4); i++) {
+          v |= (this.recordData[off + i] ?? 0) << (i * 8);
+        }
+        return isSigned ? v | 0 : v >>> 0;
+      }
 
-    // Calculate field size: 4 - (unusedBits / 8)
-    const fieldSize = 4 - Math.floor(fieldEntry.unusedBits / 8);
+      case DB2ColumnCompression.Immediate:
+      case DB2ColumnCompression.SignedImmediate: {
+        const imm = meta.compressionData.immediate!;
+        const off = recordBase + this.getStorageFieldOffset(field);
+        let value = this.readPackedValue(off, imm.bitWidth, imm.bitOffset);
+        if (meta.compressionType === DB2ColumnCompression.SignedImmediate || (isSigned && imm.signed)) {
+          const mask = 1n << BigInt(imm.bitWidth - 1);
+          value = (value ^ mask) - mask;
+        }
+        return Number(BigInt.asIntN(64, value)) | (isSigned ? 0 : 0);
+      }
 
-    // Get offset for this field + array index
-    const offset = fieldEntry.offset + (arrayIndex * fieldSize);
+      case DB2ColumnCompression.Pallet:
+      case DB2ColumnCompression.PalletArray: {
+        const pal = meta.compressionData.pallet!;
+        const off = recordBase + this.getStorageFieldOffset(field);
+        const index = Number(this.readPackedValue(off, pal.bitWidth, pal.bitOffset));
+        const table = this.palletValues[field] || [];
+        const slot =
+          meta.compressionType === DB2ColumnCompression.PalletArray
+            ? index * Math.max(1, pal.arraySize) + arrayIndex
+            : index;
+        const value = table[slot] ?? 0;
+        return isSigned ? value | 0 : value >>> 0;
+      }
 
-    if (offset + fieldSize > this.recordData.length) {
-      throw new Error(`Field ${field} offset ${offset} + size ${fieldSize} exceeds record data length ${this.recordData.length}`);
+      case DB2ColumnCompression.CommonData: {
+        const id = this.recordId;
+        const map = this.commonValues[field];
+        const fallback = meta.compressionData.commonData?.value ?? 0;
+        const value = id !== null && map ? map.get(id) ?? fallback : fallback;
+        return isSigned ? value | 0 : value >>> 0;
+      }
+
+      default:
+        return 0;
     }
-
-    // Read variable-width value (1-4 bytes)
-    let val = 0;
-    for (let i = 0; i < fieldSize; i++) {
-      val |= this.recordData[offset + i] << (i * 8);
-    }
-
-    // Apply bit shifting for unused bits (sign-extend or zero-extend)
-    if (isSigned) {
-      // Sign-extend: shift left to clear unused bits, then arithmetic shift right
-      val = (val << fieldEntry.unusedBits) >> fieldEntry.unusedBits;
-    } else {
-      // Zero-extend: shift left then logical shift right
-      val = (val << fieldEntry.unusedBits) >>> fieldEntry.unusedBits;
-    }
-
-    return val;
   }
 
   /**

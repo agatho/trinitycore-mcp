@@ -26,6 +26,10 @@ export class DB2FileLoader {
   private header: DB2Header | null = null;
   private sections: DB2SectionHeader[] = [];
   private columnMeta: DB2ColumnMeta[] = [];
+  /** Per-field pallet value tables (Pallet / PalletArray compression). */
+  private palletValues: number[][] = [];
+  /** Per-field record-id -> value maps (CommonData compression). */
+  private commonValues: Map<number, number>[] = [];
   private fieldEntries: DB2FieldEntry[] = []; // TrinityCore-style simple field metadata
   private data: Buffer | null = null;
   private stringTable: Buffer | null = null;
@@ -85,10 +89,18 @@ export class DB2FileLoader {
       throw new Error('Headers not loaded');
     }
 
-    // Read column metadata if present
+    // WDC3+ block order after the section headers is fixed and must be read in
+    // full, even when a block is unused: field_structure, field_storage_info,
+    // pallet_data, common_data. Skipping any of them leaves the file position
+    // wrong for everything that follows (ID lists, copy tables, section data).
+    this.loadFieldStructure(source);
+
     if (this.header.columnMetaSize > 0) {
       this.loadColumnMeta(source, this.header.columnMetaSize);
     }
+
+    this.loadPalletData(source);
+    this.loadCommonData(source);
 
     // Load ID list and offset map for ALL sections (WoWDev format)
     // This handles both sparse and dense files with section manager
@@ -260,7 +272,10 @@ export class DB2FileLoader {
       this.header!.recordSize,
       section.recordCount,
       section.fileOffset,
-      stringOffsetCorrection
+      stringOffsetCorrection,
+      this.palletValues,
+      this.commonValues,
+      this.header!.packedDataOffset
     );
   }
 
@@ -301,41 +316,161 @@ export class DB2FileLoader {
    * @param source File source
    * @param size Size of metadata block
    */
-  private loadColumnMeta(source: IDB2FileSource, size: number): void {
-    const metaBuffer = Buffer.alloc(size);
-    if (!source.read(metaBuffer, size)) {
-      throw new Error('Failed to read column metadata');
+  /**
+   * Load the field_structure block (fieldCount * 4 bytes).
+   *
+   * This block precedes field_storage_info in the file. It carries the
+   * uncompressed field layout (unused bits + byte offset) and must be consumed
+   * even though compressed fields are described by field_storage_info instead.
+   */
+  private loadFieldStructure(source: IDB2FileSource): void {
+    const fieldCount = this.header!.fieldCount;
+    const size = fieldCount * 4;
+    if (size === 0) {
+      this.fieldEntries = [];
+      return;
+    }
+
+    const buffer = Buffer.alloc(size);
+    if (!source.read(buffer, size)) {
+      throw new Error('Failed to read field structure block');
     }
 
     this.fieldEntries = [];
-    this.columnMeta = []; // Keep for backward compatibility
-    const fieldCount = this.header!.fieldCount;
+    for (let i = 0; i < fieldCount; i++) {
+      this.fieldEntries.push({
+        unusedBits: buffer.readInt16LE(i * 4),
+        offset: buffer.readUInt16LE(i * 4 + 2),
+      });
+    }
+  }
 
-    // TrinityCore format: 4 bytes per field (int16 unusedBits + uint16 offset)
-    let bufferOffset = 0;
-    for (let i = 0; i < fieldCount && bufferOffset + 4 <= size; i++) {
-      const fieldEntry: DB2FieldEntry = {
-        unusedBits: metaBuffer.readInt16LE(bufferOffset),
-        offset: metaBuffer.readUInt16LE(bufferOffset + 2),
-      };
-      this.fieldEntries.push(fieldEntry);
-      bufferOffset += 4;
-
-      // Create legacy DB2ColumnMeta for backward compatibility
-      const fieldSize = 4 - Math.floor(fieldEntry.unusedBits / 8);
-      const meta: DB2ColumnMeta = {
-        bitOffset: fieldEntry.offset * 8,
-        bitSize: fieldSize * 8,
-        additionalDataSize: 0,
-        compressionType: DB2ColumnCompression.None,
-        compressionData: {},
-      };
-      this.columnMeta.push(meta);
+  /**
+   * Load the field_storage_info block.
+   *
+   * Each entry is 24 bytes, NOT 4:
+   *   uint16 bitOffset, uint16 bitSize, uint32 additionalDataSize,
+   *   uint32 compressionType, uint32 compressionData[3]
+   *
+   * This describes how each field is actually stored (plain, bit-packed,
+   * pallet-indexed or common-value), which is what makes compressed tables
+   * readable at all.
+   */
+  private loadColumnMeta(source: IDB2FileSource, size: number): void {
+    const metaBuffer = Buffer.alloc(size);
+    if (!source.read(metaBuffer, size)) {
+      throw new Error('Failed to read field storage info');
     }
 
-    logger.warn(`✅ Loaded ${this.fieldEntries.length} field entries (TrinityCore format)`);
-    if (this.fieldEntries.length > 0) {
-      logger.warn(`📊 First field: unusedBits=${this.fieldEntries[0].unusedBits}, offset=${this.fieldEntries[0].offset}`);
+    this.columnMeta = [];
+    const fieldCount = this.header!.fieldCount;
+    const ENTRY_SIZE = 24;
+
+    for (let i = 0; i < fieldCount && (i + 1) * ENTRY_SIZE <= size; i++) {
+      const o = i * ENTRY_SIZE;
+      const compressionType = metaBuffer.readUInt32LE(o + 8) as DB2ColumnCompression;
+      const c1 = metaBuffer.readUInt32LE(o + 12);
+      const c2 = metaBuffer.readUInt32LE(o + 16);
+      const c3 = metaBuffer.readUInt32LE(o + 20);
+
+      const meta: DB2ColumnMeta = {
+        bitOffset: metaBuffer.readUInt16LE(o),
+        bitSize: metaBuffer.readUInt16LE(o + 2),
+        additionalDataSize: metaBuffer.readUInt32LE(o + 4),
+        compressionType,
+        compressionData: {},
+      };
+
+      switch (compressionType) {
+        case DB2ColumnCompression.Immediate:
+        case DB2ColumnCompression.SignedImmediate:
+          meta.compressionData.immediate = { bitOffset: c1, bitWidth: c2, signed: c3 !== 0 };
+          break;
+        case DB2ColumnCompression.CommonData:
+          meta.compressionData.commonData = { value: c1 };
+          break;
+        case DB2ColumnCompression.Pallet:
+        case DB2ColumnCompression.PalletArray:
+          meta.compressionData.pallet = { bitOffset: c1, bitWidth: c2, arraySize: c3 };
+          break;
+        default:
+          break;
+      }
+
+      this.columnMeta.push(meta);
+    }
+  }
+
+  /**
+   * Load the pallet_data block into per-field value tables.
+   *
+   * Fields compressed as Pallet/PalletArray store a small index in the record;
+   * the real value lives here. Each field consumes additionalDataSize bytes of
+   * uint32 values, in field order.
+   */
+  private loadPalletData(source: IDB2FileSource): void {
+    this.palletValues = [];
+    const size = this.header!.palletDataSize;
+    if (size === 0) {
+      return;
+    }
+
+    const buffer = Buffer.alloc(size);
+    if (!source.read(buffer, size)) {
+      throw new Error('Failed to read pallet data');
+    }
+
+    let offset = 0;
+    for (let field = 0; field < this.columnMeta.length; field++) {
+      const meta = this.columnMeta[field];
+      const values: number[] = [];
+      if (
+        (meta.compressionType === DB2ColumnCompression.Pallet ||
+          meta.compressionType === DB2ColumnCompression.PalletArray) &&
+        meta.additionalDataSize > 0
+      ) {
+        const end = offset + meta.additionalDataSize;
+        for (let p = offset; p + 4 <= end && p + 4 <= size; p += 4) {
+          values.push(buffer.readUInt32LE(p));
+        }
+        offset = end;
+      }
+      this.palletValues.push(values);
+    }
+  }
+
+  /**
+   * Load the common_data block into per-field id->value maps.
+   *
+   * Fields compressed as CommonData store nothing in the record; values are
+   * held here keyed by record id, with a default in the column metadata for
+   * ids that are absent. Each field consumes additionalDataSize bytes of
+   * (uint32 id, uint32 value) pairs.
+   */
+  private loadCommonData(source: IDB2FileSource): void {
+    this.commonValues = [];
+    const size = this.header!.commonDataSize;
+    if (size === 0) {
+      return;
+    }
+
+    const buffer = Buffer.alloc(size);
+    if (!source.read(buffer, size)) {
+      throw new Error('Failed to read common data');
+    }
+
+    let offset = 0;
+    for (let field = 0; field < this.columnMeta.length; field++) {
+      const meta = this.columnMeta[field];
+      const map = new Map<number, number>();
+      if (meta.compressionType === DB2ColumnCompression.CommonData && meta.additionalDataSize > 0) {
+        const end = offset + meta.additionalDataSize;
+        for (let p = offset; p + 8 <= end && p + 8 <= size; p += 8) {
+          map.set(buffer.readUInt32LE(p), buffer.readUInt32LE(p + 4));
+        }
+        offset = end;
+      }
+      this.commonValues.push(map);
     }
   }
 
