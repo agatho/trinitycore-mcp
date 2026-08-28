@@ -26,142 +26,163 @@ import { getDynamicToolManager } from "./profiles/DynamicToolManager.js";
 import { getConfigManager } from "./config/config-manager";
 import { createErrorResponse, ValidationError } from "./utils/error-handler";
 import { buildToolRegistry, ConfigManagementDeps } from "./tools/registry/index";
+import { loadBuildManifest, getActiveBuild } from "./version/BuildManifest";
 
-// MCP Server instance
-const server = new Server(
-  {
-    name: "trinitycore-mcp-server",
-    version: "2.4.0",
-  },
-  {
-    capabilities: {
-      tools: {},
+/**
+ * Build the MCP server: load the build manifest first, then register tools.
+ *
+ * The manifest must be loaded before tool registration so that every tool's
+ * lazily-constructed, build-aware resources (DB2/DBC paths, JSON caches -
+ * see e.g. src/tools/spell.ts's nameCache()) resolve against the declared
+ * active build on their first real invocation, rather than a synthesized
+ * fallback built from raw environment variables.
+ */
+async function initializeServer(): Promise<Server> {
+  await loadBuildManifest();
+  const activeBuild = getActiveBuild();
+  logger.info(
+    `Build manifest loaded: active build "${activeBuild.id}" (${activeBuild.build})`
+  );
+
+  // MCP Server instance
+  const server = new Server(
+    {
+      name: "trinitycore-mcp-server",
+      version: "2.4.0",
     },
-  }
-);
+    {
+      capabilities: {
+        tools: {},
+      },
+    }
+  );
 
-// Initialize profile loader for conditional tool loading
-const profileLoader = getProfileLoader();
+  // Initialize profile loader for conditional tool loading
+  const profileLoader = getProfileLoader();
 
-// Initialize dynamic tool manager for runtime loading/unloading
-const dynamicToolManager = getDynamicToolManager();
+  // Initialize dynamic tool manager for runtime loading/unloading
+  const dynamicToolManager = getDynamicToolManager();
 
-// Log profile information at startup
-profileLoader.logProfileInfo();
+  // Log profile information at startup
+  profileLoader.logProfileInfo();
 
-// Determine dynamic mode
-const isDynamicMode = process.env.MCP_LAZY_LOAD === 'true' || profileLoader.getProfile() === 'dynamic';
+  // Determine dynamic mode
+  const isDynamicMode = process.env.MCP_LAZY_LOAD === 'true' || profileLoader.getProfile() === 'dynamic';
 
-// Build the complete tool registry with runtime dependencies
-const registry = buildToolRegistry({
-  getConfigManager: getConfigManager as unknown as ConfigManagementDeps["getConfigManager"],
-  isDynamicMode,
-  dynamicToolManager: dynamicToolManager as unknown as ConfigManagementDeps["dynamicToolManager"],
-});
+  // Build the complete tool registry with runtime dependencies
+  const registry = buildToolRegistry({
+    getConfigManager: getConfigManager as unknown as ConfigManagementDeps["getConfigManager"],
+    isDynamicMode,
+    dynamicToolManager: dynamicToolManager as unknown as ConfigManagementDeps["dynamicToolManager"],
+  });
 
-// Convert registry definitions to MCP Tool[] format for profile filtering and dynamic tool manager
-const ALL_TOOLS: Tool[] = registry.definitions.map((def) => ({
-  name: def.name,
-  description: def.description,
-  inputSchema: def.inputSchema,
-}));
+  // Convert registry definitions to MCP Tool[] format for profile filtering and dynamic tool manager
+  const ALL_TOOLS: Tool[] = registry.definitions.map((def) => ({
+    name: def.name,
+    description: def.description,
+    inputSchema: def.inputSchema,
+  }));
 
-// Initialize dynamic tool manager if in dynamic mode
-if (isDynamicMode) {
-  console.log(`[MCP Server] Dynamic tool loading ENABLED`);
-  dynamicToolManager.initialize(server, ALL_TOOLS);
-}
-
-// Filter tools based on active profile
-let TOOLS: Tool[];
-
-if (isDynamicMode) {
-  TOOLS = dynamicToolManager.getRegistryStats().loadedTools > 0
-    ? []
-    : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
-} else {
-  TOOLS = profileLoader.getProfile() === 'full'
-    ? ALL_TOOLS
-    : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
-}
-
-// Log filtered tool count
-if (isDynamicMode) {
-  const stats = dynamicToolManager.getRegistryStats();
-  console.log(`[MCP Server] Dynamic mode: ${stats.loadedTools} tools loaded, ${stats.availableTools} available for on-demand loading`);
-} else {
-  console.log(`[MCP Server] Static mode: Loaded ${TOOLS.length} / ${ALL_TOOLS.length} tools based on profile`);
-}
-
-// List tools handler (returns only tools loaded for current profile or dynamic registry)
-server.setRequestHandler(ListToolsRequestSchema, async () => {
+  // Initialize dynamic tool manager if in dynamic mode
   if (isDynamicMode) {
-    const loadedTools: Tool[] = [];
-    for (const tool of ALL_TOOLS) {
-      if (dynamicToolManager.getRegistryStats().loadedTools > 0) {
-        const toolStats = dynamicToolManager.getToolUsageStats() as Array<{ toolName: string; isCurrentlyLoaded: boolean }>;
-        const isLoaded = toolStats.some(stat =>
-          stat.toolName === tool.name && stat.isCurrentlyLoaded
-        );
-        if (isLoaded) {
-          loadedTools.push(tool);
+    console.log(`[MCP Server] Dynamic tool loading ENABLED`);
+    dynamicToolManager.initialize(server, ALL_TOOLS);
+  }
+
+  // Filter tools based on active profile
+  let TOOLS: Tool[];
+
+  if (isDynamicMode) {
+    TOOLS = dynamicToolManager.getRegistryStats().loadedTools > 0
+      ? []
+      : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
+  } else {
+    TOOLS = profileLoader.getProfile() === 'full'
+      ? ALL_TOOLS
+      : ALL_TOOLS.filter(tool => profileLoader.shouldLoadTool(tool.name));
+  }
+
+  // Log filtered tool count
+  if (isDynamicMode) {
+    const stats = dynamicToolManager.getRegistryStats();
+    console.log(`[MCP Server] Dynamic mode: ${stats.loadedTools} tools loaded, ${stats.availableTools} available for on-demand loading`);
+  } else {
+    console.log(`[MCP Server] Static mode: Loaded ${TOOLS.length} / ${ALL_TOOLS.length} tools based on profile`);
+  }
+
+  // List tools handler (returns only tools loaded for current profile or dynamic registry)
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    if (isDynamicMode) {
+      const loadedTools: Tool[] = [];
+      for (const tool of ALL_TOOLS) {
+        if (dynamicToolManager.getRegistryStats().loadedTools > 0) {
+          const toolStats = dynamicToolManager.getToolUsageStats() as Array<{ toolName: string; isCurrentlyLoaded: boolean }>;
+          const isLoaded = toolStats.some(stat =>
+            stat.toolName === tool.name && stat.isCurrentlyLoaded
+          );
+          if (isLoaded) {
+            loadedTools.push(tool);
+          }
         }
       }
+      return {
+        tools: loadedTools.length > 0 ? loadedTools : TOOLS
+      };
+    } else {
+      return {
+        tools: TOOLS,
+      };
     }
-    return {
-      tools: loadedTools.length > 0 ? loadedTools : TOOLS
-    };
-  } else {
-    return {
-      tools: TOOLS,
-    };
-  }
-});
+  });
 
-// Call tool handler with enterprise error handling
-// Uses O(1) Map dispatch instead of giant switch statement
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
+  // Call tool handler with enterprise error handling
+  // Uses O(1) Map dispatch instead of giant switch statement
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
 
-  // Record tool usage for analytics and dynamic loading
-  if (isDynamicMode) {
-    dynamicToolManager.recordToolUsage(name);
-  }
-
-  if (!args) {
-    throw new ValidationError("Missing arguments for tool execution", {
-      tool: name,
-    });
-  }
-
-  try {
-    const handler = registry.handlerMap.get(name);
-    if (!handler) {
-      throw new Error(`Unknown tool: ${name}`);
+    // Record tool usage for analytics and dynamic loading
+    if (isDynamicMode) {
+      dynamicToolManager.recordToolUsage(name);
     }
 
-    return await handler(args as Record<string, unknown>);
-  } catch (error) {
-    // Use centralized error handling
-    const errorResponse = createErrorResponse(error, {
-      tool: name,
-      arguments: args,
-    });
+    if (!args) {
+      throw new ValidationError("Missing arguments for tool execution", {
+        tool: name,
+      });
+    }
 
-    return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(errorResponse, null, 2),
-        },
-      ],
-      isError: true,
-    };
-  }
-});
+    try {
+      const handler = registry.handlerMap.get(name);
+      if (!handler) {
+        throw new Error(`Unknown tool: ${name}`);
+      }
+
+      return await handler(args as Record<string, unknown>);
+    } catch (error) {
+      // Use centralized error handling
+      const errorResponse = createErrorResponse(error, {
+        tool: name,
+        arguments: args,
+      });
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(errorResponse, null, 2),
+          },
+        ],
+        isError: true,
+      };
+    }
+  });
+
+  return server;
+}
 
 // Start server
 async function main() {
+  const server = await initializeServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   logger.error("TrinityCore MCP Server running on stdio");
