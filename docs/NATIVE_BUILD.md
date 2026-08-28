@@ -91,3 +91,67 @@ fall through to a `parseInt(entireString, 16)` fallback and produce meaningless
 values in the 2³³ range. CascLib handles this correctly by reparsing to the WoW
 root; the TypeScript reader has no equivalent step. Prefer the native addon for
 FileDataID resolution.
+
+## Why the CDN does not help (measured, 12.1.0.69497)
+
+CDN fallback was implemented and tested. **It does not recover any additional
+DB2, and the reason is worth recording so nobody rebuilds it.**
+
+Every one of the 320 DB2s a listfile-driven extraction failed to produce was
+categorised by actual cause:
+
+| Cause | Count |
+|---|---|
+| Encrypted — CascLib has no TACT key | **152** |
+| Not present in this build at all | **168** |
+| Would succeed on retry | 0 |
+| Other | 0 |
+
+- The **168** are tables the community listfile names from *older* builds. They
+  do not exist in 12.1, so no CDN has them for this build.
+- The **152** are already on disk. `Failed to read file data` was our own
+  generic message hiding the real cause: reads fail on the *last chunk*
+  (e.g. `SpellName` read 8,104,618 of 8,110,370 bytes) with Windows error
+  **6002 = ERROR_FILE_ENCRYPTED**. Re-downloading identical encrypted bytes
+  changes nothing.
+
+**24 distinct TACT keys** block those 152 files. The five tables blocking the
+12.1 schema cutover need three of them:
+
+| Key | Blocks |
+|---|---|
+| `14F4B11D7B067AA2` | SpellName, SpellEffect |
+| `055C2C56039A6E5E` | Item, ItemSparse |
+| `2555AE20C2538D36` | ChrRaces |
+
+Blizzard ships unreleased content encrypted and publishes keys when it goes
+live; CascLib bundles 468 known keys, but not these. The real blocker is key
+availability, not bandwidth.
+
+To supply keys once they are known, CascLib already exposes:
+
+```c
+CascAddStringEncryptionKey(hStorage, KeyName, szKey);
+CascImportKeysFromFile(hStorage, szFileName);   // community TACT key lists
+CascGetNotFoundEncryptionKey(hStorage, &KeyName);  // what the addon now reports
+```
+
+Online mode remains available (`new CASCStorage(path, locale, true, cacheDir, "wow")`)
+for content genuinely absent from a partial install, but it is **not** the fix
+for encrypted DB2s.
+
+## Enumerating the storage
+
+`scripts/casc-enumerate.js` reads CASC's own index rather than a listfile:
+
+```
+total entries indexed  : 3,237,741
+entries with FileDataID: 1,930,527
+FileDataID range       : 21 .. 8,345,033
+total indexed size     : 313.10 GB
+```
+
+Compared against the community listfile: **23,400 files exist in this build that
+the listfile never names**, and 303,134 listfile entries refer to builds other
+than this one. Entry names are synthesised (`FILE00000015.dat`) because this
+root is FileDataID-based — names come from listfiles, not from CASC.
