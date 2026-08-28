@@ -21,6 +21,7 @@ const DB_NAMES = {
   world: process.env.TRINITY_DB_WORLD || "world",
   auth: process.env.TRINITY_DB_AUTH || "auth",
   characters: process.env.TRINITY_DB_CHARACTERS || "characters",
+  hotfixes: process.env.TRINITY_DB_HOTFIXES || "hotfixes",
 };
 
 // Query configuration
@@ -48,12 +49,14 @@ const stats: Record<string, QueryStats> = {
   world: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
   auth: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
   characters: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
+  hotfixes: { totalQueries: 0, cacheHits: 0, cacheMisses: 0, errors: 0, avgQueryTime: 0, slowQueries: 0 },
 };
 
 // Connection pool
 let worldPool: mysql.Pool | null = null;
 let authPool: mysql.Pool | null = null;
 let charactersPool: mysql.Pool | null = null;
+let hotfixesPool: mysql.Pool | null = null;
 
 /**
  * Create cache key from SQL and params
@@ -187,10 +190,28 @@ export function getCharactersPool(): mysql.Pool {
 }
 
 /**
+ * Get connection pool for hotfixes database
+ * The hotfixes database contains client data tables (item, item_sparse, etc.)
+ * that were moved from the world database in TrinityCore 12.0.1.
+ */
+export function getHotfixesPool(): mysql.Pool {
+  if (!hotfixesPool) {
+    hotfixesPool = mysql.createPool({
+      ...DB_CONFIG,
+      database: DB_NAMES.hotfixes,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    });
+  }
+  return hotfixesPool;
+}
+
+/**
  * Execute cached query with timeout and retry protection
  */
 async function executeCachedQuery(
-  database: "world" | "auth" | "characters",
+  database: "world" | "auth" | "characters" | "hotfixes",
   pool: mysql.Pool,
   sql: string,
   params?: any[],
@@ -300,9 +321,29 @@ export async function queryCharacters(sql: string, params?: any[], useCache: boo
 }
 
 /**
+ * Query hotfixes database with enterprise error handling.
+ * The hotfixes database contains client data tables such as `item`, `item_sparse`,
+ * `battle_pet_species`, and other tables that were moved from the world database
+ * in TrinityCore 12.0.1. This replaces the old `item_template` and similar queries.
+ */
+export async function queryHotfixes(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
+  try {
+    const pool = getHotfixesPool();
+    return await executeCachedQuery("hotfixes", pool, sql, params, useCache);
+  } catch (error) {
+    throw new DatabaseError(
+      `Failed to query hotfixes database: ${error instanceof Error ? error.message : String(error)}`,
+      undefined,
+      true,
+      { database: "hotfixes", sql: sql.substring(0, 100), params }
+    );
+  }
+}
+
+/**
  * Get query statistics for a database
  */
-export function getStats(database: "world" | "auth" | "characters"): QueryStats {
+export function getStats(database: "world" | "auth" | "characters" | "hotfixes"): QueryStats {
   return { ...stats[database] };
 }
 
@@ -314,6 +355,7 @@ export function getAllStats(): Record<string, QueryStats> {
     world: { ...stats.world },
     auth: { ...stats.auth },
     characters: { ...stats.characters },
+    hotfixes: { ...stats.hotfixes },
   };
 }
 
@@ -342,4 +384,5 @@ export async function closeConnections(): Promise<void> {
   if (worldPool) await worldPool.end();
   if (authPool) await authPool.end();
   if (charactersPool) await charactersPool.end();
+  if (hotfixesPool) await hotfixesPool.end();
 }
