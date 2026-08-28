@@ -166,8 +166,27 @@ export function parseBuildManifest(raw: unknown): BuildManifest {
 /** Module-level manifest, populated by loadBuildManifest(). */
 let manifest: BuildManifest | null = null;
 
-/** Default manifest location, relative to the process working directory. */
-export const DEFAULT_MANIFEST_PATH = path.join("config", "builds.json");
+/**
+ * Default manifest location.
+ *
+ * Resolved relative to THIS MODULE first, then to the process working
+ * directory. An MCP server is normally spawned over stdio by a client that
+ * sets its own working directory, so a purely cwd-relative path silently
+ * misses the manifest that ships with the installation and falls through to
+ * {@link synthesizeFromEnv} — after which every build-scoped lookup (opcode
+ * tables, per-build cache directories) resolves against a placeholder build
+ * named "unknown". The cwd-relative path is kept as a fallback so a layout
+ * that keeps `config/` somewhere other than next to the code still works.
+ */
+export const DEFAULT_MANIFEST_PATH = resolveDefaultManifestPath();
+
+function resolveDefaultManifestPath(): string {
+  const moduleRelative = path.resolve(__dirname, "..", "..", "config", "builds.json");
+  if (fs.existsSync(moduleRelative)) {
+    return moduleRelative;
+  }
+  return path.join("config", "builds.json");
+}
 
 /**
  * Build a single-build manifest from environment variables.

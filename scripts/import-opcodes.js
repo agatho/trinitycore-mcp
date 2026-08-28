@@ -125,6 +125,25 @@ const table = {
   opcodes: parsed.opcodes,
 };
 
+// A derived table's `opcodes` come from the vendored Opcodes.cs for the target
+// build, NOT from applying the provenance formula to the catalog. Those two do
+// not agree everywhere: the vendored file was produced by a later, refined
+// derivation than the provenance documents. Recording that here so nobody
+// later "corrects" the table to match the formula — the table is the observed
+// artifact, the provenance is the earlier derivation's account of itself, and
+// where they differ the table is what the client actually speaks.
+if (derivedFrom) {
+  table._derivationNote =
+    "The `opcodes` in this table are the vendored WowPacketParser values for this build, not the " +
+    "output of applying this build's provenance formula (client = ((catalog_family + family_shift) " +
+    "<< 16) | (catalog_index + index_offset)) to the source catalog. The two do not agree " +
+    "everywhere: the vendored table resolves many slots the provenance left undecided, and a " +
+    "number of entries sit at values the formula does not predict. That divergence is expected — " +
+    "the vendored file comes from a later, refined derivation. Do NOT rewrite entries to match " +
+    "the provenance formula; the vendored values are the observed artifact and the provenance is " +
+    "the earlier derivation's account of itself. Run tests/opcodes to see the measured coverage.";
+}
+
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, `${buildId}.json`), JSON.stringify(table, null, 2), "utf8");
 

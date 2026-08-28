@@ -18,6 +18,8 @@
  * @module opcodes/OpcodeProvenance
  */
 
+import { normalizeHexId, parseHexId } from "./HexId";
+
 export type ProvenanceCode = "wire" | "jam" | "interp" | "ambiguous";
 export type Confidence = "high" | "medium";
 
@@ -156,12 +158,173 @@ export function parseProvenance(raw: unknown): OpcodeProvenance {
 }
 
 /**
- * Confidence for a family, or null when the family is ambiguous or unrecorded.
+ * Confidence for a CATALOG family, or null when the family is ambiguous or
+ * unrecorded.
+ *
+ * `family` must be a catalog-space identifier — the key space of
+ * `familyShift`. Passing a family decoded from a CLIENT wire value here is a
+ * namespace error: the two spaces overlap numerically (catalog 0x2E and client
+ * 0x2E both exist and denote different things), so such a call returns a
+ * plausible-looking but wrong answer rather than failing. Use
+ * {@link ClientToCatalogIndex} for client-space input.
+ *
+ * The lookup is normalized on both sides, so `"0x3d"`, `"0X3D"` and `"3D"` all
+ * resolve to the same catalog family.
  */
 export function confidenceFor(prov: OpcodeProvenance, family: string): Confidence | null {
-  const entry = prov.familyShift[family];
-  if (!entry) {
-    return null;
+  const wanted = normalizeHexId(family);
+  for (const [catalogFamily, entry] of Object.entries(prov.familyShift)) {
+    if (normalizeHexId(catalogFamily) === wanted) {
+      return CONFIDENCE_BY_CODE[entry.provenance];
+    }
   }
-  return CONFIDENCE_BY_CODE[entry.provenance];
+  return null;
+}
+
+/**
+ * The client half of a decided index range: the image, in CLIENT index space,
+ * of one catalog index range whose offset the derivation decided.
+ */
+interface DecidedIndexImage {
+  /** Inclusive lower bound in client index space. */
+  from: number;
+  /** Exclusive upper bound in client index space; `Infinity` for the last range. */
+  to: number;
+}
+
+/**
+ * Reverse map from a CLIENT wire slot (family + index) back to the CATALOG
+ * slot it was derived from, so that a derived table's entries can be attributed
+ * to the provenance that produced them.
+ *
+ * This exists because a derived opcode table's `family`/`index` are CLIENT wire
+ * identifiers while `OpcodeProvenance.familyShift` and
+ * `OpcodeProvenance.indexOffsets` are keyed by CATALOG identifiers. The two
+ * spaces overlap numerically — catalog 0x2D shifts to client 0x2E, and catalog
+ * 0x2E also exists — so reading a client family directly out of `familyShift`
+ * silently attributes an entry to an unrelated catalog family. Every derived
+ * entry must be attributed through this index instead.
+ *
+ * Two kinds of client slot deliberately resolve to "no attribution":
+ *
+ * - A client family with no catalog preimage. The derivation never claimed to
+ *   produce it (the vendored table is known to diverge from the provenance
+ *   formula in places), so no provenance code applies to it.
+ * - A client index outside the image of every DECIDED catalog index range in
+ *   its family. Those client indices can only have come from a range whose
+ *   offset the derivation explicitly left undecided, so the catalog slot — and
+ *   with it the provenance — is unknown.
+ *
+ * Both report `null`, which is the honest answer: unknown, not "low".
+ */
+export class ClientToCatalogIndex {
+  /** Normalized client family -> normalized catalog family. */
+  private readonly catalogByClientFamily = new Map<string, string>();
+  /** Normalized client families claimed by more than one catalog family. */
+  private readonly ambiguousClientFamilies = new Set<string>();
+  /** Normalized catalog family -> its FamilyShift record. */
+  private readonly shiftByCatalogFamily = new Map<string, FamilyShift>();
+  /** Normalized catalog family -> client-space images of its decided ranges. */
+  private readonly decidedImages = new Map<string, DecidedIndexImage[]>();
+
+  constructor(prov: OpcodeProvenance) {
+    for (const [catalogFamily, entry] of Object.entries(prov.familyShift)) {
+      const catalog = normalizeHexId(catalogFamily);
+      this.shiftByCatalogFamily.set(catalog, entry);
+
+      // An ambiguous family has a null shift and therefore no computable
+      // client family; the source records it as an empty string. Skip it —
+      // registering "" would map every unparseable family to it.
+      if (!entry.clientFamily) {
+        continue;
+      }
+      const client = normalizeHexId(entry.clientFamily);
+      const existing = this.catalogByClientFamily.get(client);
+      if (existing !== undefined && existing !== catalog) {
+        // Two catalog families claiming one client family makes the preimage
+        // genuinely ambiguous. Record it and attribute nothing, rather than
+        // letting insertion order pick a winner.
+        this.ambiguousClientFamilies.add(client);
+        continue;
+      }
+      this.catalogByClientFamily.set(client, catalog);
+    }
+
+    for (const [catalogFamily, ranges] of Object.entries(prov.indexOffsets)) {
+      const catalog = normalizeHexId(catalogFamily);
+      const images: DecidedIndexImage[] = [];
+      for (let i = 0; i < ranges.length; i++) {
+        const offset = ranges[i].offset;
+        if (offset === null) {
+          // Undecided: this catalog range has no known client image, so no
+          // client index can be attributed to it.
+          continue;
+        }
+        const from = parseHexId(ranges[i].catalogIndexFrom);
+        if (from === null) {
+          continue;
+        }
+        const nextFrom = i + 1 < ranges.length ? parseHexId(ranges[i + 1].catalogIndexFrom) : null;
+        images.push({
+          from: from + offset,
+          to: nextFrom === null ? Infinity : nextFrom + offset,
+        });
+      }
+      this.decidedImages.set(catalog, images);
+    }
+  }
+
+  /**
+   * The catalog family a client wire family was derived from, or null when the
+   * derivation records no preimage for it.
+   */
+  catalogFamilyFor(clientFamily: string): string | null {
+    const client = normalizeHexId(clientFamily);
+    if (this.ambiguousClientFamilies.has(client)) {
+      return null;
+    }
+    return this.catalogByClientFamily.get(client) ?? null;
+  }
+
+  /**
+   * True when `clientIndex` falls inside the client-space image of a catalog
+   * index range whose offset the derivation decided.
+   *
+   * A catalog family with no recorded index ranges has no index-granularity
+   * ambiguity at all, so every index in it is decided.
+   *
+   * @param catalogFamily - Catalog family, as returned by {@link catalogFamilyFor}
+   * @param clientIndex - Numeric within-family index decoded from the client value
+   */
+  isClientIndexDecided(catalogFamily: string, clientIndex: number): boolean {
+    const images = this.decidedImages.get(normalizeHexId(catalogFamily));
+    if (images === undefined) {
+      return true;
+    }
+    return images.some((image) => clientIndex >= image.from && clientIndex < image.to);
+  }
+
+  /**
+   * Confidence for a CLIENT wire slot, resolved through the catalog preimage.
+   *
+   * @param clientFamily - Family decoded from the client wire value, e.g. "0x2E"
+   * @param clientIndex - Within-family index decoded from the client wire value
+   * @returns The provenance-derived confidence, or null when the catalog slot
+   *          is unknown (no family preimage, an ambiguous family, or an index
+   *          in an undecided range)
+   */
+  confidenceFor(clientFamily: string, clientIndex: number): Confidence | null {
+    const catalog = this.catalogFamilyFor(clientFamily);
+    if (catalog === null) {
+      return null;
+    }
+    if (!this.isClientIndexDecided(catalog, clientIndex)) {
+      return null;
+    }
+    const entry = this.shiftByCatalogFamily.get(catalog);
+    if (!entry) {
+      return null;
+    }
+    return CONFIDENCE_BY_CODE[entry.provenance];
+  }
 }

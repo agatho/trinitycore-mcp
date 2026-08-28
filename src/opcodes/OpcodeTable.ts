@@ -8,7 +8,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import { OpcodeDirection, ParsedOpcode } from "./OpcodesCsParser";
-import { Confidence, OpcodeProvenance, confidenceFor } from "./OpcodeProvenance";
+import {
+  ClientToCatalogIndex,
+  Confidence,
+  OpcodeProvenance,
+  confidenceFor,
+} from "./OpcodeProvenance";
+import { normalizeHexId, parseHexId } from "./HexId";
 import { getActiveBuild } from "../version/BuildManifest";
 
 export interface OpcodeEntry extends ParsedOpcode {
@@ -44,32 +50,99 @@ interface OpcodeTableFile {
   opcodes: ParsedOpcode[];
 }
 
-export const DEFAULT_OPCODE_DIR = path.join("data", "opcodes");
+/**
+ * How far this table's name coverage falls short of the source catalog it was
+ * derived from — measured on the ARTIFACTS, by comparing the two tables' name
+ * sets, not read off the derivation's provenance.
+ *
+ * The distinction matters: the provenance describes which catalog slots the
+ * derivation declined to map, but the vendored table was produced by a later,
+ * refined derivation and does in fact carry concrete wire values for most of
+ * them. Any user-facing statement about "opcodes this table omits" must come
+ * from here, never from counting the provenance's undecided slots.
+ */
+export interface CatalogCoverageGap {
+  /** Table id of the source catalog, e.g. "12.0.7.67808". */
+  sourceTableId: string;
+  /** Number of opcode names in the source catalog. */
+  sourceNames: number;
+  /** Number of opcode names in this table. */
+  tableNames: number;
+  /** Names present in the source catalog and absent from this table. */
+  missingNames: number;
+}
+
+/**
+ * Directory holding generated opcode tables.
+ *
+ * Resolved relative to this module first, so the tables are found regardless
+ * of the working directory the server was spawned with (an MCP server started
+ * over stdio from an unrelated directory would otherwise find nothing). Falls
+ * back to the historical cwd-relative path when the module-relative directory
+ * does not exist, which keeps a repository layout that moves the data
+ * directory working.
+ */
+export const DEFAULT_OPCODE_DIR = resolveDefaultOpcodeDir();
+
+function resolveDefaultOpcodeDir(): string {
+  const moduleRelative = path.resolve(__dirname, "..", "..", "data", "opcodes");
+  if (fs.existsSync(moduleRelative)) {
+    return moduleRelative;
+  }
+  return path.join("data", "opcodes");
+}
 
 export class OpcodeTable {
   private readonly byName = new Map<string, OpcodeEntry>();
   private readonly byValue = new Map<number, OpcodeEntry>();
+  /** Keyed by normalized family id — see {@link normalizeHexId}. */
   private readonly byFamily = new Map<string, OpcodeEntry[]>();
 
+  /**
+   * @param file - The parsed table file
+   * @param provenance - The derivation's provenance, when one ships alongside
+   * @param catalogGap - Measured name-coverage gap against the source catalog,
+   *        or null when this table is itself a catalog (nothing to compare to)
+   *        or the source catalog table is not available next to it
+   */
   constructor(
     private readonly file: OpcodeTableFile,
-    private readonly provenance: OpcodeProvenance | null
+    private readonly provenance: OpcodeProvenance | null,
+    private readonly catalogGap: CatalogCoverageGap | null = null
   ) {
+    // A DERIVED table's family/index are CLIENT wire identifiers, while the
+    // provenance is keyed by CATALOG identifiers. The two spaces overlap
+    // numerically, so confidence must be resolved through the client->catalog
+    // reverse index; reading the provenance with a client family directly
+    // attributes entries to unrelated catalog families. A non-derived catalog
+    // table's identifiers ARE catalog identifiers, so it looks up directly.
+    const derived = file.source.derivedFrom !== null;
+    const reverse = provenance && derived ? new ClientToCatalogIndex(provenance) : null;
+
     for (const o of file.opcodes) {
       const entry: OpcodeEntry = {
         ...o,
-        confidence: provenance ? confidenceFor(provenance, o.family) : null,
+        confidence: resolveConfidence(provenance, reverse, o),
         build: file.build,
       };
       this.byName.set(o.name.toUpperCase(), entry);
       this.byValue.set(o.value, entry);
-      const list = this.byFamily.get(o.family);
+      const familyKey = normalizeHexId(o.family);
+      const list = this.byFamily.get(familyKey);
       if (list) {
         list.push(entry);
       } else {
-        this.byFamily.set(o.family, [entry]);
+        this.byFamily.set(familyKey, [entry]);
       }
     }
+  }
+
+  /**
+   * Measured name-coverage gap against the source catalog this table was
+   * derived from, or null when there is nothing to measure against.
+   */
+  get catalogCoverageGap(): CatalogCoverageGap | null {
+    return this.catalogGap;
   }
 
   get build(): number {
@@ -101,8 +174,16 @@ export class OpcodeTable {
     return this.byValue.get(value) ?? null;
   }
 
+  /**
+   * All entries in a protocol family.
+   *
+   * `family` is normalized before lookup, so `"0x3d"`, `"0X3D"`, `"3D"` and
+   * `"0x03D"` all find the same family. (A previous `toUpperCase()`-then-raw
+   * lookup turned `"0x3d"` into `"0X3D"`, which matched neither index key and
+   * returned an empty list for a family that exists.)
+   */
   listFamily(family: string): OpcodeEntry[] {
-    return this.byFamily.get(family.toUpperCase()) ?? this.byFamily.get(family) ?? [];
+    return this.byFamily.get(normalizeHexId(family)) ?? [];
   }
 
   /**
@@ -114,8 +195,8 @@ export class OpcodeTable {
    * ever be meaningful.
    */
   isUnmappedCatalogFamily(family: string): boolean {
-    return this.file.unmappedCatalogFamilies.includes(family.toUpperCase()) ||
-      this.file.unmappedCatalogFamilies.includes(family);
+    const wanted = normalizeHexId(family);
+    return this.file.unmappedCatalogFamilies.some((f) => normalizeHexId(f) === wanted);
   }
 
   /**
@@ -127,19 +208,20 @@ export class OpcodeTable {
    * means "to the end of the family".
    */
   isUndeterminedCatalogIndex(family: string, index: number): boolean {
+    const wanted = normalizeHexId(family);
     for (const range of this.file.unmappedCatalogIndexRanges) {
-      if (range.family !== family) {
+      if (normalizeHexId(range.family) !== wanted) {
         continue;
       }
-      const from = parseInt(range.fromIndex, 16);
-      if (index < from) {
+      const from = parseHexId(range.fromIndex);
+      if (from === null || index < from) {
         continue;
       }
       if (range.toIndex === null) {
         return true;
       }
-      const to = parseInt(range.toIndex, 16);
-      if (index < to) {
+      const to = parseHexId(range.toIndex);
+      if (to !== null && index < to) {
         return true;
       }
     }
@@ -198,13 +280,128 @@ function editDistance(a: string, b: string): number {
   return prev[b.length];
 }
 
-let cached: OpcodeTable | null = null;
+/**
+ * Confidence for one parsed opcode.
+ *
+ * A derived table resolves through the client->catalog reverse index; a
+ * catalog table looks the family up directly. A table with no provenance
+ * alongside has no confidence to report at all.
+ */
+function resolveConfidence(
+  provenance: OpcodeProvenance | null,
+  reverse: ClientToCatalogIndex | null,
+  opcode: ParsedOpcode
+): Confidence | null {
+  if (!provenance) {
+    return null;
+  }
+  if (reverse) {
+    const index = parseHexId(opcode.index);
+    return reverse.confidenceFor(opcode.family, index ?? Number.NaN);
+  }
+  return confidenceFor(provenance, opcode.family);
+}
 
 /**
- * Load a specific opcode table by id.
+ * Measure how many opcode names the source catalog carries that `file` lacks,
+ * by locating the source catalog table next to it on disk.
+ *
+ * The source catalog is identified the same way {@link OpcodeTable.sourceInfo}
+ * is used elsewhere: a derived table's `source.derivedFrom` holds the source
+ * directory name of the table it came from (e.g. `"V12_0_7_67808"`), which is
+ * the first path segment of that table's own `source.file`. Matching on that
+ * rather than on hardcoded build ids means a future derivation is measured the
+ * same way automatically.
+ *
+ * Returns null — never a guess — when the table is not derived, or when the
+ * source catalog is not present in `dir`. A caller with no measurement must say
+ * nothing about the gap rather than quote a number it cannot support.
+ */
+function measureCatalogGap(
+  file: OpcodeTableFile,
+  tableId: string,
+  dir: string
+): CatalogCoverageGap | null {
+  const derivedFrom = file.source.derivedFrom;
+  if (derivedFrom === null) {
+    return null;
+  }
+
+  let candidates: string[];
+  try {
+    candidates = fs.readdirSync(dir);
+  } catch {
+    return null;
+  }
+
+  const tableNames = new Set(file.opcodes.map((o) => o.name.toUpperCase()));
+
+  for (const entry of candidates) {
+    if (!entry.endsWith(".json") || entry.endsWith("-provenance.json")) {
+      continue;
+    }
+    const candidateId = entry.slice(0, -".json".length);
+    if (candidateId === tableId) {
+      continue;
+    }
+
+    let candidateFile: OpcodeTableFile;
+    try {
+      candidateFile = JSON.parse(fs.readFileSync(path.join(dir, entry), "utf8")) as OpcodeTableFile;
+    } catch {
+      continue;
+    }
+    if (!candidateFile.source || !Array.isArray(candidateFile.opcodes)) {
+      continue;
+    }
+    if (candidateFile.source.file.split("/")[0] !== derivedFrom) {
+      continue;
+    }
+
+    const missing = candidateFile.opcodes.filter((o) => !tableNames.has(o.name.toUpperCase()));
+    return {
+      sourceTableId: candidateId,
+      sourceNames: candidateFile.opcodes.length,
+      tableNames: file.opcodes.length,
+      missingNames: missing.length,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Loaded tables, keyed by directory and table id.
+ *
+ * This is deliberately a map and not a single "last loaded" slot. A single
+ * slot made any load repoint the whole process: `diffOpcodes` loads two tables
+ * to compare them, and every later `getOpcodeTable()` in the process — opcode
+ * lookups, listings, generated C++ packet handlers — then answered from
+ * whichever table the diff happened to load second.
+ */
+const tables = new Map<string, OpcodeTable>();
+
+function cacheKey(tableId: string, dir: string): string {
+  return `${path.resolve(dir)}::${tableId}`;
+}
+
+/**
+ * Load a specific opcode table by id, caching it under that id.
+ *
+ * Loading a table never changes which table {@link getOpcodeTable} returns —
+ * that is resolved from the build manifest on every call.
+ *
+ * @param tableId - Table id, e.g. "12.1.0.69214"
+ * @param dir - Directory holding generated tables; defaults to `data/opcodes`
  * @throws Error naming the import command when the table file is absent
  */
 export function loadOpcodeTable(tableId: string, dir: string = DEFAULT_OPCODE_DIR): OpcodeTable {
+  const key = cacheKey(tableId, dir);
+  const hit = tables.get(key);
+  if (hit) {
+    return hit;
+  }
+
   const tablePath = path.join(dir, `${tableId}.json`);
   if (!fs.existsSync(tablePath)) {
     throw new Error(
@@ -220,24 +417,100 @@ export function loadOpcodeTable(tableId: string, dir: string = DEFAULT_OPCODE_DI
     ? (JSON.parse(fs.readFileSync(provPath, "utf8")) as OpcodeProvenance)
     : null;
 
-  cached = new OpcodeTable(file, provenance);
-  return cached;
+  const table = new OpcodeTable(file, provenance, measureCatalogGap(file, tableId, dir));
+  tables.set(key, table);
+  return table;
+}
+
+/** How {@link resolveOpcodeTable} arrived at the table it returned. */
+export interface OpcodeTableResolution {
+  table: OpcodeTable;
+  /**
+   * Non-null when the table was NOT named by a build manifest but chosen by
+   * fallback, and therefore may not match the client actually in use. Callers
+   * that surface opcode data to a user must pass this on.
+   */
+  note: string | null;
 }
 
 /**
- * The table for the active build. Uses BuildEntry.opcodeTable when set, since a
- * table generated for one build can apply to a later one; otherwise requires an
- * exact build-id match. Never selects a table by proximity.
+ * Table ids present in `dir`, newest build first.
+ *
+ * "Newest" is the trailing numeric segment of the table id, which is the
+ * client build number the table was generated for.
  */
-export function getOpcodeTable(): OpcodeTable {
-  if (cached) {
-    return cached;
+function availableTableIds(dir: string): string[] {
+  let entries: string[];
+  try {
+    entries = fs.readdirSync(dir);
+  } catch {
+    return [];
   }
-  const build = getActiveBuild();
-  return loadOpcodeTable(build.opcodeTable || build.id);
+  return entries
+    .filter((e) => e.endsWith(".json") && !e.endsWith("-provenance.json"))
+    .map((e) => e.slice(0, -".json".length))
+    .map((id) => ({ id, build: Number(id.split(".").pop()) }))
+    .filter((x) => Number.isInteger(x.build))
+    .sort((a, b) => b.build - a.build)
+    .map((x) => x.id);
 }
 
-/** Test-only: drop the cached table. */
+/**
+ * Resolve the opcode table for the active build.
+ *
+ * Uses `BuildEntry.opcodeTable` when set, since a table generated for one
+ * build can apply to a later one; otherwise requires an exact build-id match.
+ * Never selects a table by proximity to a real build id.
+ *
+ * The one exception is a SYNTHESIZED build — the placeholder the manifest
+ * layer produces when no `config/builds.json` was found. That build is named
+ * `"unknown"`, which can never match a table, and throwing there would take
+ * every opcode tool offline for a server merely started from an unexpected
+ * working directory. In that case the newest available table is used and the
+ * resolution carries a note saying so, because a tool that answers with a
+ * stated caveat is more useful than one that throws.
+ *
+ * @throws Error naming the import command when no table can be resolved at all
+ */
+export function resolveOpcodeTable(): OpcodeTableResolution {
+  const build = getActiveBuild();
+  const wanted = build.opcodeTable || build.id;
+
+  if (build.synthesized && !fs.existsSync(path.join(DEFAULT_OPCODE_DIR, `${wanted}.json`))) {
+    const fallbackId = availableTableIds(DEFAULT_OPCODE_DIR)[0];
+    if (fallbackId === undefined) {
+      throw new Error(
+        `No build manifest was found, so the active build is the synthesized placeholder ` +
+          `"${build.id}", and no opcode table is available in ${DEFAULT_OPCODE_DIR} to fall back to. ` +
+          `Provide config/builds.json, or generate a table with: node scripts/import-opcodes.js ` +
+          `--source <Opcodes.cs> --build <id> --out ${DEFAULT_OPCODE_DIR}`
+      );
+    }
+    return {
+      table: loadOpcodeTable(fallbackId),
+      note:
+        `No build manifest was found (expected config/builds.json), so the active build is a ` +
+        `synthesized placeholder with no opcode table named. Opcode table "${fallbackId}" was ` +
+        `chosen by fallback as the newest available in ${DEFAULT_OPCODE_DIR}; it may not match ` +
+        `the client this server is actually serving. Add config/builds.json to make the choice explicit.`,
+    };
+  }
+
+  return { table: loadOpcodeTable(wanted), note: null };
+}
+
+/**
+ * The table for the active build.
+ *
+ * Always resolved through the build manifest — loading some other table
+ * elsewhere in the process (a cross-build diff, for instance) does not change
+ * what this returns.
+ */
+export function getOpcodeTable(): OpcodeTable {
+  return resolveOpcodeTable().table;
+}
+
+/** Test-only: drop every cached table. */
 export function resetOpcodeTableForTesting(): void {
-  cached = null;
+  tables.clear();
 }

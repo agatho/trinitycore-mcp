@@ -1,12 +1,20 @@
 import { validateOpcodeForHandler, generatePacketHandler } from "../../src/tools/codegen";
-import { loadOpcodeTable, resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { loadBuildManifest, resetManifestForTesting } from "../../src/version/BuildManifest";
 
 describe("validateOpcodeForHandler", () => {
-  beforeAll(() => {
+  // Load the shipped manifest rather than priming a table directly: the table
+  // a generated handler is validated against is resolved from the manifest on
+  // every call, so priming a module cache no longer selects anything.
+  beforeAll(async () => {
+    resetManifestForTesting();
     resetOpcodeTableForTesting();
-    loadOpcodeTable("12.1.0.69214");
+    await loadBuildManifest();
   });
-  afterAll(() => resetOpcodeTableForTesting());
+  afterAll(() => {
+    resetOpcodeTableForTesting();
+    resetManifestForTesting();
+  });
 
   it("accepts a known opcode and returns its wire value", () => {
     const v = validateOpcodeForHandler("CMSG_ACCEPT_GUILD_INVITE");

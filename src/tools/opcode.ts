@@ -28,7 +28,7 @@
  * @module tools/opcode
  */
 
-import { getOpcodeTable, OpcodeEntry } from "../opcodes/OpcodeTable";
+import { OpcodeEntry, OpcodeTable, resolveOpcodeTable } from "../opcodes/OpcodeTable";
 import { OPCODE_ANNOTATIONS } from "../opcodes/annotations";
 
 export interface OpcodeInfo {
@@ -73,16 +73,47 @@ function familyOfValue(value: number): string {
 }
 
 /**
- * Standing note attached to every generic value-lookup miss, explaining that
- * this table has known catalog-space gaps without attributing this specific
- * miss to any of them — see the module doc for why a client-decoded family
- * cannot be checked against those catalog-space gaps directly.
+ * Standing note attached to every generic value-lookup miss.
+ *
+ * The coverage figure is MEASURED from the artifacts — this table's name set
+ * against the source catalog's — and never quoted from the derivation's
+ * provenance. The two disagree substantially: the provenance describes 193
+ * catalog slots the family-shift derivation declined to map, but the vendored
+ * table was produced by a later, refined derivation and carries concrete wire
+ * values for most of them. Stating the provenance's intentions as if they
+ * described the shipped table told users a number the data refutes.
+ *
+ * The second half explains why the miss still cannot be pinned to a named gap
+ * — see the module doc for the namespace argument.
  */
-const CATALOG_GAP_NOTE =
-  "This table omits 193 catalog opcodes for known reasons: catalog families 0x2E and 0x35 " +
-  "have undetermined 12.1 shifts, and 3 catalog index ranges have undecided offsets. A missing " +
-  "value cannot be attributed to a specific gap, because the client-side family of an " +
-  "undetermined catalog family is by definition unknown.";
+function catalogGapNote(table: OpcodeTable): string {
+  const gap = table.catalogCoverageGap;
+  const attribution =
+    "A value that is not in this table still cannot be attributed to a specific derivation gap: " +
+    "the family decoded from a wire value is a CLIENT-space identifier, and the catalog-space " +
+    "families and index ranges the derivation left undecided have, by definition, no known " +
+    "client-space image.";
+
+  if (!gap) {
+    return (
+      `This table's name coverage could not be measured — no source catalog table is available ` +
+      `beside it — so no count of omitted opcodes is quoted. ${attribution}`
+    );
+  }
+
+  return (
+    `This table carries ${gap.tableNames} of the ${gap.sourceNames} opcode names in the ` +
+    `${gap.sourceTableId} catalog it was derived from; ${gap.missingNames} of those names have no ` +
+    `entry here. That figure is measured against the two tables, not read off the derivation's ` +
+    `provenance, which describes more undecided slots than the shipped table actually omits. ` +
+    `${attribution}`
+  );
+}
+
+/** Combine the table-selection caveat, when present, with a lookup note. */
+function withSelectionNote(selectionNote: string | null, note: string): string {
+  return selectionNote ? `${selectionNote} ${note}` : note;
+}
 
 /**
  * Look up an opcode by name, hex value (e.g. "0x430029") or decimal value
@@ -98,13 +129,13 @@ const CATALOG_GAP_NOTE =
  * @param opcode Opcode name (e.g. "CMSG_CAST_SPELL") or value (e.g. "0x430029")
  */
 export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
-  const table = getOpcodeTable();
+  const { table, note: selectionNote } = resolveOpcodeTable();
   const value = asValue(opcode);
 
   if (value !== null) {
     const entry = table.lookupByValue(value);
     if (entry) {
-      return merge(entry);
+      return merge(entry, selectionNote);
     }
 
     const family = familyOfValue(value);
@@ -115,13 +146,13 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
       description: "No opcode at this value",
       family,
       error: `No opcode with value ${opcode} in the table for build ${table.build}.`,
-      note: CATALOG_GAP_NOTE,
+      note: withSelectionNote(selectionNote, catalogGapNote(table)),
     };
   }
 
   const entry = table.lookupByName(opcode);
   if (entry) {
-    return merge(entry);
+    return merge(entry, selectionNote);
   }
 
   const annotationOnlyName = Object.keys(OPCODE_ANNOTATIONS).find(
@@ -135,9 +166,11 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
       description: annotation.description,
       structure: annotation.structure,
       example: annotation.example,
-      note:
+      note: withSelectionNote(
+        selectionNote,
         `Opcode "${annotationOnlyName}" is documented but has no wire value in the table for build ${table.build}. ` +
-        `It may have been renamed, merged into another opcode, or removed in this build.`,
+          `It may have been renamed, merged into another opcode, or removed in this build.`
+      ),
     };
   }
 
@@ -153,9 +186,10 @@ export async function getOpcodeInfo(opcode: string): Promise<OpcodeInfo> {
   };
 }
 
-function merge(entry: OpcodeEntry): OpcodeInfo {
+function merge(entry: OpcodeEntry, selectionNote: string | null): OpcodeInfo {
   const annotation = OPCODE_ANNOTATIONS[entry.name];
   return {
+    ...(selectionNote ? { note: selectionNote } : {}),
     opcode: entry.name,
     direction: entry.direction,
     description:

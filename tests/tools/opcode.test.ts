@@ -1,13 +1,23 @@
 import { getOpcodeInfo } from "../../src/tools/opcode";
-import { loadOpcodeTable, resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { loadBuildManifest, resetManifestForTesting } from "../../src/version/BuildManifest";
 import { OPCODE_ANNOTATIONS } from "../../src/opcodes/annotations";
 
 describe("getOpcodeInfo", () => {
-  beforeAll(() => {
+  // Load the shipped manifest rather than priming a table directly: which
+  // table getOpcodeInfo answers from is resolved from the manifest on every
+  // call, so priming a module cache no longer selects anything. Without a
+  // manifest the table would be picked by fallback and every response would
+  // carry the resulting caveat.
+  beforeAll(async () => {
+    resetManifestForTesting();
     resetOpcodeTableForTesting();
-    loadOpcodeTable("12.1.0.69214");
+    await loadBuildManifest();
   });
-  afterAll(() => resetOpcodeTableForTesting());
+  afterAll(() => {
+    resetOpcodeTableForTesting();
+    resetManifestForTesting();
+  });
 
   it("resolves a real 12.1 opcode by name", async () => {
     const r = await getOpcodeInfo("CMSG_ACCEPT_GUILD_INVITE");
@@ -58,6 +68,13 @@ describe("getOpcodeInfo", () => {
   // miss to a catalog-space gap. Every value-lookup miss is therefore a
   // single generic response carrying a standing note about the table's known
   // (but not locatable-from-here) catalog-space gaps.
+  //
+  // NOTE (fix round 2): that note used to quote "193 catalog opcodes", a
+  // figure taken from the derivation's PROVENANCE. The shipped table refutes
+  // it — it omits 21 names and carries concrete wire values for 172 of the
+  // 193 slots the provenance called undecidable. The note must therefore be
+  // measured from the artifacts, so these assertions check the measured
+  // coverage figures rather than a hardcoded constant.
 
   it("reports a generic miss, not an undetermined-family claim, for a value in a client family that collides with an unmapped CATALOG family id", async () => {
     // 0x2E0001 collides with a real, resolved CLIENT entry
@@ -67,7 +84,7 @@ describe("getOpcodeInfo", () => {
     const r = await getOpcodeInfo("0x2E0025");
     expect(r.error).toMatch(/No opcode with value/);
     expect(r.error).not.toMatch(/not uniquely determined|undetermined/i);
-    expect(r.note).toMatch(/193 catalog opcodes/);
+    expect(r.note).toMatch(/2384 of the 2405 opcode names/);
   });
 
   it("reports a generic miss for a value whose family/index coincide with an unmapped CATALOG index range", async () => {
@@ -77,15 +94,21 @@ describe("getOpcodeInfo", () => {
     const r = await getOpcodeInfo("0x3A0150");
     expect(r.error).toMatch(/No opcode with value/);
     expect(r.error).not.toMatch(/undetermined|could not be decided/i);
-    expect(r.note).toMatch(/193 catalog opcodes/);
+    expect(r.note).toMatch(/2384 of the 2405 opcode names/);
   });
 
-  it("returns a generic miss with the standing catalog-gap note for an ordinary missing value", async () => {
+  it("returns a generic miss with a MEASURED catalog-gap note for an ordinary missing value", async () => {
     const r = await getOpcodeInfo("0x420999");
     expect(r.error).toMatch(/No opcode with value/);
-    expect(r.note).toMatch(/193 catalog opcodes/);
-    expect(r.note).toMatch(/0x2E/);
-    expect(r.note).toMatch(/0x35/);
+    // Measured against the two shipped tables, not read off the provenance.
+    expect(r.note).toMatch(/2384 of the 2405 opcode names/);
+    expect(r.note).toMatch(/12\.0\.7\.67808 catalog/);
+    expect(r.note).toMatch(/21 of those names have no entry here/);
+    // The refuted provenance figure must not reappear.
+    expect(r.note).not.toMatch(/193/);
+    // The namespace argument for why the miss cannot be pinned to a named gap
+    // survives the rewording.
+    expect(r.note).toMatch(/CLIENT-space identifier/);
   });
 
   it("returns annotation-only fallback for a name absent from the 12.1 table", async () => {

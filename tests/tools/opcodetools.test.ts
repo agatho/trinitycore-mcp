@@ -1,8 +1,9 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { computeDiff, diffOpcodes } from "../../src/tools/opcodetools";
-import { resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { computeDiff, diffOpcodes, listOpcodes } from "../../src/tools/opcodetools";
+import { getOpcodeTable, resetOpcodeTableForTesting } from "../../src/opcodes/OpcodeTable";
+import { loadBuildManifest, resetManifestForTesting } from "../../src/version/BuildManifest";
 import { ParsedOpcode } from "../../src/opcodes/OpcodesCsParser";
 
 const base = [
@@ -175,5 +176,78 @@ describe("diffOpcodes derivation note", () => {
     const diff = await diffOpcodes({ fromBuild: "9.0.0.10001", toBuild: "9.3.0.10004", dir });
 
     expect(diff.note).toBeUndefined();
+  });
+});
+
+describe("diffOpcodes does not repoint the active opcode table", () => {
+  // Regression, reported live: after `diff-opcodes 12.0.7.67808 12.1.0.69214`,
+  // `get-opcode-info CMSG_GUILD_DEMOTE_MEMBER` answered 0x2D0001 / build 67808
+  // instead of 0x2E0001 / build 69214, and `list-opcodes` reported build 67808
+  // — because loading the diff's second table overwrote a single module-level
+  // "current table" slot that every later lookup read.
+  let dir: string;
+  let manifestPath: string;
+
+  beforeEach(async () => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "opcodetools-active-"));
+    manifestPath = path.join(dir, "builds.json");
+    fs.writeFileSync(manifestPath, JSON.stringify({
+      manifestVersion: 1,
+      activeBuild: "12.0.x-test",
+      builds: {
+        "12.0.x-test": {
+          build: 65390, product: "wow", expansion: "Midnight", status: "active", db2Format: "WDC5",
+          dataPaths: { db2: "d", dbc: "c", gt: "g", vmap: "v", mmap: "m", listfile: "l" },
+          cacheDir: "data/cache/65390",
+          opcodeTable: "12.1.0.69214",
+        },
+      },
+    }));
+    resetManifestForTesting();
+    resetOpcodeTableForTesting();
+    await loadBuildManifest(manifestPath);
+  });
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true });
+    resetManifestForTesting();
+    resetOpcodeTableForTesting();
+  });
+
+  it("leaves the active build's table selected after diffing two shipped tables", async () => {
+    expect(getOpcodeTable().build).toBe(69214);
+
+    const diff = await diffOpcodes({ fromBuild: "12.0.7.67808", toBuild: "12.1.0.69214" });
+    expect(diff.summary.moved).toBeGreaterThan(0);
+
+    expect(getOpcodeTable().build).toBe(69214);
+    expect(getOpcodeTable().lookupByName("CMSG_GUILD_DEMOTE_MEMBER")!.hex).toBe("0x2E0001");
+  });
+
+  it("leaves the active table selected even when the newer table is diffed first", async () => {
+    await diffOpcodes({ fromBuild: "12.1.0.69214", toBuild: "12.0.7.67808" });
+
+    expect(getOpcodeTable().build).toBe(69214);
+    expect(getOpcodeTable().lookupByName("CMSG_GUILD_DEMOTE_MEMBER")!.hex).toBe("0x2E0001");
+  });
+});
+
+describe("listOpcodes family filter", () => {
+  beforeEach(async () => {
+    resetManifestForTesting();
+    resetOpcodeTableForTesting();
+    await loadBuildManifest();
+  });
+
+  afterEach(() => {
+    resetManifestForTesting();
+    resetOpcodeTableForTesting();
+  });
+
+  it("matches a family typed in lowercase hex", async () => {
+    const upper = await listOpcodes({ family: "0x3D", limit: 1000 });
+    const lower = await listOpcodes({ family: "0x3d", limit: 1000 });
+    expect(upper.total).toBeGreaterThan(0);
+    expect(lower.total).toBe(upper.total);
   });
 });
