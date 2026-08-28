@@ -1,5 +1,5 @@
 /**
- * XP Per Level Database for WoW 12.0 (Midnight)
+ * XP Per Level Database for WoW Midnight
  *
  * Experience requirements for each level extracted from GameTable xp.txt.
  *
@@ -27,6 +27,17 @@
  * @module data/xp-per-level
  */
 
+/**
+ * Game patch this file's hand-authored values were sourced against.
+ * Update only when the content is genuinely re-researched.
+ *
+ * xp.txt is a client GameTable. The project's 12.1 client-data cutover is
+ * parked (see config/builds.json) — the server still serves GameTable data
+ * from the archived 12.0.x build — so this matches that active build id
+ * rather than claiming the unreleased 12.1 client extraction.
+ */
+export const SOURCE_BUILD = "12.0.x-20251222";
+
 export interface XPLevelEntry {
     level: number;
     totalXP: number;        // Cumulative XP earned from level 1 to reach this level
@@ -39,7 +50,7 @@ export interface XPLevelEntry {
 /**
  * XP per level database with 90 entries
  *
- * Data source: TrinityCore GameTable xp.txt (build 12.0.0.65028)
+ * Data source: TrinityCore GameTable xp.txt (build 65028, WoW Midnight 12.0.x)
  *
  * The xp.txt "Total" column is the XP needed to complete each level (used as
  * xpToNext here). The totalXP field is the cumulative sum of all prior levels'
@@ -51,7 +62,7 @@ export interface XPLevelEntry {
  * Chromie Time bracket system where each expansion has its own XP pacing.
  *
  * Updated: February 13, 2026
- * Version: WoW 12.0 (Midnight) build 65028
+ * Version: WoW Midnight, build 65028 (see SOURCE_BUILD)
  */
 export const XP_PER_LEVEL: XPLevelEntry[] = [
     // Level 1-10: Tutorial and starter zones
@@ -162,7 +173,7 @@ export const XP_PER_LEVEL: XPLevelEntry[] = [
 ];
 
 /**
- * Maximum player level in WoW 12.0 (Midnight)
+ * Maximum player level in WoW Midnight
  */
 export const MAX_LEVEL = 90;
 
@@ -317,7 +328,7 @@ export enum QuestColor {
 
 /**
  * XP modifier multipliers for each quest color
- * Based on WoW 12.0 (Midnight) XP scaling mechanics
+ * Based on WoW Midnight XP scaling mechanics
  */
 export const QUEST_XP_MODIFIERS: Record<QuestColor, number> = {
     [QuestColor.GRAY]: 0.0,      // No XP (trivial content)

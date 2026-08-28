@@ -1,5 +1,5 @@
 /**
- * SpellRange Database for WoW 12.0 (Midnight)
+ * SpellRange Database
  *
  * Spell range data extracted from SpellRange.dbc/db2
  * Represents the 68 standard spell range definitions used throughout WoW
@@ -16,6 +16,17 @@
  *
  * @module data/spell-ranges
  */
+
+/**
+ * Game patch this file's hand-authored values were sourced against.
+ * Update only when the content is genuinely re-researched.
+ *
+ * SpellRange.db2 is client data. The project's 12.1 client-data cutover is
+ * parked (see config/builds.json) — the server still serves DB2 data from
+ * the archived 12.0.x build — so this matches that active build id rather
+ * than claiming the unreleased 12.1 client extraction.
+ */
+export const SOURCE_BUILD = "12.0.x-20251222";
 
 export interface SpellRangeEntry {
     id: number;
@@ -35,7 +46,7 @@ export interface SpellRangeEntry {
  * - WoW DBC/DB2 structure (SpellRange.dbc)
  * - TrinityCore spell range documentation
  * - Wowdev.wiki DB/SpellRange reference
- * - WoW 12.0 (Midnight) game data
+ * - WoW Midnight (12.0.x build 65390) game data
  *
  * Common Range IDs:
  * - 1: Melee (0-5 yards)
@@ -47,7 +58,7 @@ export interface SpellRangeEntry {
  * - 13: Unlimited (0-0 yards with special flag)
  *
  * Updated: November 1, 2025
- * Version: WoW 12.0 (Midnight)
+ * Version: WoW Midnight, 12.0.x build 65390 (see SOURCE_BUILD)
  */
 export const SPELL_RANGES: SpellRangeEntry[] = [
     // ID 1: Melee Range

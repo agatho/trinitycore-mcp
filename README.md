@@ -8,7 +8,7 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![MCP Tools](https://img.shields.io/badge/MCP%20Tools-107%20registered-success.svg)](src/index.ts)
 
-> **Enterprise-grade Model Context Protocol server** providing **107 MCP tools** for TrinityCore bot development with World of Warcraft 12.0 (Midnight). Includes comprehensive game data access, AI-powered code analysis, performance profiling, and a full-featured web interface.
+> **Enterprise-grade Model Context Protocol server** providing **107 MCP tools** for TrinityCore bot development targeting World of Warcraft 12.x (Midnight), including 12.1 opcode tables. Includes comprehensive game data access, AI-powered code analysis, performance profiling, and a full-featured web interface.
 
 ---
 

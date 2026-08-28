@@ -1,5 +1,5 @@
 /**
- * Stat Priorities Database for WoW 12.0 (Midnight)
+ * Stat Priorities Database
  *
  * IMPORTANT: Stat priorities are GUIDELINES, not absolute values.
  * Real stat weights vary based on:
@@ -9,8 +9,11 @@
  * - Fight type (single-target vs AoE)
  * - Encounter length
  *
- * These priorities are based on Icy Veins guides (updated for 12.0.0) and represent
- * typical stat valuations for each spec in raid environments.
+ * These priorities are based on Icy Veins guides and represent typical stat
+ * valuations for each spec in raid environments. Every entry's `source`,
+ * `updatedDate`, and `patch` fields record exactly which guide revision it
+ * was sourced from; see `staleForBuild` on `StatPriority` for how entries
+ * that could not be re-verified against a newer patch are flagged.
  *
  * For accurate optimization, use SimulationCraft to sim your specific character.
  *
@@ -20,6 +23,12 @@
  *
  * @module data/stat-priorities
  */
+
+/**
+ * Game patch this file's hand-authored values were sourced against.
+ * Update only when the content is genuinely re-researched.
+ */
+export const SOURCE_BUILD = "12.1.0";
 
 export enum StatType {
     // Primary Stats
@@ -76,21 +85,38 @@ export interface StatPriority {
     statCaps?: { stat: StatType; value: number; reason: string }[];
 
     // Metadata
-    source: string;               // "Icy Veins 12.0.0"
-    updatedDate: string;          // "2026-02-12"
-    patch: string;                // "12.0.0"
+    source: string;               // "Icy Veins 12.1"
+    updatedDate: string;          // "2026-08-10"
+    patch: string;                // "12.1.0"
+
+    /**
+     * True when this entry's `patch`/`source` could NOT be genuinely
+     * re-verified against a newer game patch (no guide available, or the
+     * guide could not be confirmed) and the values shown are carried over
+     * from an older patch. Never set true and silently relabel `patch` to
+     * the new version — that produces a wrong answer wearing a correct
+     * label. When true, `patch` reflects the patch the values actually
+     * describe, not the project's current target patch.
+     */
+    staleForBuild?: boolean;
 }
 
 /**
  * Comprehensive stat priority database for all 13 classes and 39 specializations
  *
  * Data sourced from:
- * - Icy Veins (Midnight 12.0.0 guides)
+ * - Icy Veins (Midnight 12.1 guides, re-verified August 2026)
  * - Community theorycrafting (class Discords)
  * - SimulationCraft baseline recommendations
  *
- * Updated: February 12, 2026
- * Patch: 12.0.0 (Midnight)
+ * Updated: August 2026 (see per-entry `updatedDate` for the exact guide date)
+ * Patch: 12.1.0 (Midnight)
+ *
+ * All 39 entries below were individually re-sourced against live Icy Veins
+ * 12.1 guides (fetched August 27-28, 2026) rather than relabelled from the
+ * prior Midnight-launch dataset. Where a spec has multiple Hero Talent trees with
+ * materially different priorities, the entry follows the tree named first
+ * in the guide and the alternate is called out in `notes`.
  */
 export const STAT_PRIORITIES: StatPriority[] = [
 
@@ -112,10 +138,10 @@ export const STAT_PRIORITIES: StatPriority[] = [
             versatility: 0.70,
         },
         priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Crit doubles damage and increases Rage. Stats converge at high gear levels due to diminishing returns.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        notes: 'Crit, Haste, Mastery, Versatility in that order per Icy Veins. Stats converge at higher gear levels due to diminishing returns, so simming your own upgrades is recommended.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -126,16 +152,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            criticalStrike: 0.82,
-            mastery: 0.78,
-            versatility: 0.72,
+            mastery: 0.90,
+            haste: 0.86,
+            versatility: 0.76,
+            criticalStrike: 0.65,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Haste reduces GCD and compresses rotation. Enrage uptime is crucial.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY, StatType.CRITICAL_STRIKE],
+        notes: 'Mastery now leads with Haste close behind for both Mountain Thane and Slayer builds; Versatility and Critical Strike trail. Early gearing favors Haste, transitioning toward Mastery as gear improves.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -146,17 +172,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.75,
-            versatility: 0.72,
-            mastery: 0.68,
-            criticalStrike: 0.65,
+            haste: 0.84,
+            versatility: 0.76,
+            criticalStrike: 0.74,
+            mastery: 0.60,
             armor: 0.80,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
-        notes: 'Haste reduces rage generation and block uptime. Versatility provides damage reduction.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY],
+        notes: 'Haste reduces Shield Slam/Thunder Clap and Shield Block cooldowns. Versatility and Critical Strike are roughly equal for mitigation (Versatility ahead on magic-heavy fights); Mastery is the weakest secondary.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -171,16 +197,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            haste: 0.85,
-            criticalStrike: 0.80,
-            mastery: 0.75,
-            versatility: 0.72,
+            mastery: 0.86,
+            haste: 0.83,
+            criticalStrike: 0.78,
+            versatility: 0.74,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Haste reduces GCD and cast times. Mastery increases healing on low-health targets.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Mastery (proximity-based healing) now leads, with Haste close behind for Holy Shock/Judgment cooldown reduction. Secondaries are closely valued, so item level upgrades are usually still worth taking.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -191,17 +217,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.78,
-            versatility: 0.75,
-            mastery: 0.72,
-            criticalStrike: 0.68,
+            haste: 0.84,
+            versatility: 0.80,
+            mastery: 0.70,
+            criticalStrike: 0.62,
             armor: 0.82,
         },
         priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
-        notes: 'Haste improves Holy Power generation. Mastery increases block chance.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        notes: 'Defensive priority is Haste, Versatility, Mastery, Critical Strike. Haste raises Shield of the Righteous uptime (~20% covers rotational Holy Power, 25-30% is comfortable); Mastery: Divine Bulwark adds block chance and attack power.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -212,16 +238,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.88,
-            haste: 0.82,
-            versatility: 0.78,
-            mastery: 0.75,
+            mastery: 0.87,
+            haste: 0.83,
+            criticalStrike: 0.79,
+            versatility: 0.75,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Crit increases damage and Holy Power generation through Art of War procs.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Mastery now leads, with Haste valued for Crusading Strikes resource generation and Holy Power cooldown reduction. No hard breakpoints; sim your own gear for precise values.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -236,16 +262,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.92,
-            criticalStrike: 0.92,
-            versatility: 0.78,
-            mastery: 0.75,
+            mastery: 0.90,
+            haste: 0.84,
+            criticalStrike: 0.80,
+            versatility: 0.68,
         },
-        priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste and Crit are roughly equal in value. Dark Ranger hero spec prioritizes Haste >= Crit.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Mastery (Master of Beasts) now leads on single-target; Haste edges out Crit by a small margin there, though Crit pulls ahead for all-around/cleave value.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -256,16 +282,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.95,
-            mastery: 0.82,
-            haste: 0.80,
-            versatility: 0.78,
+            criticalStrike: 0.92,
+            mastery: 0.88,
+            versatility: 0.76,
+            haste: 0.62,
         },
-        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY],
-        notes: 'Crit is practically always best. Mastery/Haste/Vers are close in value after Crit.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY, StatType.HASTE],
+        notes: '"Crit is king, with Mastery pretty close behind. Versatility is a chunk behind that, and Haste is your worst stat by some margin" per Icy Veins.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -276,16 +302,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            criticalStrike: 0.85,
-            versatility: 0.80,
-            mastery: 0.78,
+            mastery: 0.90,
+            criticalStrike: 0.83,
+            haste: 0.82,
+            versatility: 0.70,
         },
-        priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste improves focus regeneration and cooldown reduction.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'Mastery now leads clearly; Crit and Haste are close enough to be treated as interchangeable regardless of Hero Talent choice.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -300,16 +326,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.90,
+            criticalStrike: 0.87,
             haste: 0.85,
-            mastery: 0.82,
-            versatility: 0.78,
+            mastery: 0.83,
+            versatility: 0.58,
         },
         priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Crit increases poison proc chance and Envenom damage.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        notes: 'Crit, Haste, and Mastery are very close, with item level the dominant factor via Agility. Versatility is explicitly deprioritized ("completely avoiding Versatility" per Icy Veins).',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -320,16 +346,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            versatility: 0.88,
-            criticalStrike: 0.85,
+            criticalStrike: 0.86,
             haste: 0.82,
-            mastery: 0.78,
+            versatility: 0.75,
+            mastery: 0.66,
         },
-        priorityOrder: [StatType.AGILITY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY],
-        notes: 'Versatility is strong for Outlaw. Stats are relatively close in value.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
+        notes: 'Crit to ~40% and Haste to ~25-30% (raid) / ~25% (M+) are the early targets, then Versatility, with Mastery last. Priority is largely the same between raiding and Mythic+.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -340,16 +366,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.92,
-            versatility: 0.85,
-            haste: 0.80,
-            mastery: 0.78,
+            mastery: 0.87,
+            haste: 0.83,
+            versatility: 0.76,
+            criticalStrike: 0.66,
         },
-        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.HASTE, StatType.MASTERY],
-        notes: 'Crit increases Eviscerate and Shadow Dance damage.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY, StatType.CRITICAL_STRIKE],
+        notes: 'Mastery now leads; Haste targets roughly 700-1100 rating for both Trickster and Deathstalker. Critical Strike ranks last since Darkest Night already guarantees crits.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -364,16 +390,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            criticalStrike: 0.82,
-            versatility: 0.78,
-            mastery: 0.75,
+            haste: 0.90,
+            mastery: 0.87,
+            criticalStrike: 0.84,
+            versatility: 0.80,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste increases throughput through faster casts and more Atonement applications.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Haste (until ~1800 rating) leads for both Voidweaver and Oracle builds, followed by Mastery, Crit, and Versatility. Icy Veins notes all secondaries are very close in value; prioritize item level when otherwise equal.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -384,16 +410,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            mastery: 0.85,
-            haste: 0.82,
-            criticalStrike: 0.78,
-            versatility: 0.75,
+            criticalStrike: 0.86,
+            mastery: 0.84,
+            versatility: 0.80,
+            haste: 0.78,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Mastery increases healing on low-health targets (Echo of Light).',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY, StatType.HASTE],
+        notes: 'Raid priority is Critical Strike, Mastery, Versatility, Haste (all close in value); for Mythic+ the order shifts to Crit, Versatility, Haste, Mastery as survivability stats gain importance.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -404,19 +430,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            mastery: 0.85,
-            criticalStrike: 0.80,
-            versatility: 0.78,
+            mastery: 0.88,
+            haste: 0.82,
+            criticalStrike: 0.78,
+            versatility: 0.55,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Voidweaver hero spec: aim for ~20% Haste, then balance Mastery/Crit/Vers.',
-        statCaps: [
-            { stat: StatType.HASTE, value: 20, reason: 'Optimal GCD compression for Voidweaver' },
-        ],
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Voidweaver build: Mastery (1200-1400 rating), then Haste (1400-1800), Crit (800-1200), Versatility (below 400). Archon build swaps Haste and Crit order; Versatility remains last for both.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -431,17 +454,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.82,
-            versatility: 0.78,
-            mastery: 0.75,
-            criticalStrike: 0.70,
+            haste: 0.85,
+            criticalStrike: 0.78,
+            mastery: 0.72,
+            versatility: 0.66,
             armor: 0.85,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
-        notes: 'Haste improves rune regeneration and Blood Boil frequency.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.ARMOR, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: "San'layn build: Haste (favored up to ~30% unbuffed), Crit, Mastery, Versatility. Deathbringer build inverts Haste and Crit, since its damage comes from infrequent procs unaffected by Haste.",
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -452,16 +475,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            mastery: 0.88,
-            criticalStrike: 0.85,
-            haste: 0.72,
-            versatility: 0.70,
+            criticalStrike: 0.87,
+            haste: 0.83,
+            mastery: 0.76,
+            versatility: 0.68,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
-        notes: 'Balance Mastery and Crit. Haste and Versatility have lower priority.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Crit and Haste synergize with Killing Machine, Icy Death Torrent, and The Long Winter. Deathbringer builds should sim, as Haste ranks slightly lower there.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -472,16 +495,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            mastery: 0.90,
-            haste: 0.85,
-            criticalStrike: 0.80,
-            versatility: 0.78,
+            criticalStrike: 0.86,
+            mastery: 0.85,
+            haste: 0.83,
+            versatility: 0.62,
         },
-        priorityOrder: [StatType.STRENGTH, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Mastery increases pet damage significantly.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.STRENGTH, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'Unholy balances Crit, Mastery, and Haste, which are "significantly better than Versatility" per Icy Veins.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -496,16 +519,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            versatility: 0.88,
-            haste: 0.85,
-            criticalStrike: 0.82,
-            mastery: 0.78,
+            mastery: 0.88,
+            haste: 0.84,
+            criticalStrike: 0.80,
+            versatility: 0.76,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.VERSATILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY],
-        notes: 'Farseer hero spec: Versatility becomes more desirable than Haste with 2-piece tier set.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Mastery now leads, with the rest close together; "150 of your worst stat is often better than 100 of your best" per Icy Veins, so sim your own gear for precise weights.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -516,16 +539,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            mastery: 0.85,
-            criticalStrike: 0.82,
-            versatility: 0.78,
+            mastery: 0.90,
+            criticalStrike: 0.89,
+            haste: 0.78,
+            versatility: 0.55,
         },
-        priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Haste improves Maelstrom Weapon stack generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'Stormbringer build: Mastery and Crit are "neck and neck" ahead of Haste and Versatility. Totemic build swaps Crit and Haste order. Haste wants a ~15-20% floor but no more.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-23',
+        patch: '12.1.0',
     },
 
     {
@@ -536,16 +559,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.88,
-            haste: 0.85,
-            versatility: 0.78,
-            mastery: 0.75,
+            criticalStrike: 0.86,
+            versatility: 0.80,
+            haste: 0.74,
+            mastery: 0.66,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Crit increases Resurgence mana regen and healing throughput.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.HASTE, StatType.MASTERY],
+        notes: 'Haste is strong in Mythic+ and short fights but drains mana faster in long fights; Mastery gains value in progression content where targets frequently drop to low health.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -560,16 +583,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.90,
-            mastery: 0.85,
-            criticalStrike: 0.80,
+            haste: 0.88,
+            criticalStrike: 0.84,
+            mastery: 0.80,
             versatility: 0.78,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Haste improves mana regeneration and spell cast speed.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'All non-Intellect secondaries are very close in value despite the ordering; sim tools such as Raidbots Top Gear are recommended over this generalized list.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -580,16 +603,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.92,
-            haste: 0.85,
-            mastery: 0.82,
-            versatility: 0.78,
+            haste: 0.86,
+            mastery: 0.83,
+            versatility: 0.81,
+            criticalStrike: 0.70,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Crit enables Pyroblast procs through Hot Streak.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE],
+        notes: 'Haste now leads with Mastery and Versatility close behind; Critical Strike underperforms relative to the other secondaries.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -600,19 +623,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            criticalStrike: 0.85,
-            mastery: 0.82,
-            versatility: 0.78,
+            mastery: 0.86,
+            criticalStrike: 0.83,
+            haste: 0.80,
+            versatility: 0.72,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Crit soft cap at 33.34% due to Shatter mechanics. Haste > Crit until cap reached.',
-        statCaps: [
-            { stat: StatType.CRITICAL_STRIKE, value: 33.34, reason: 'Shatter cap - effective drop-off beyond this point' },
-        ],
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'The Shatter crit soft cap is gone in Midnight ("a relic of a bygone era" per Icy Veins) - Crit behaves as a normal stat now. At higher gear, Mastery/Crit/Haste trend toward roughly equal weight.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -627,16 +647,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.92,
-            mastery: 0.88,
-            criticalStrike: 0.80,
-            versatility: 0.78,
+            haste: 0.90,
+            criticalStrike: 0.84,
+            mastery: 0.80,
+            versatility: 0.76,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'Haste increases dot tick rate and soul shard generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Haste leads for dot tick rate and shard generation. Icy Veins notes secondaries are relatively close, so prioritizing item level is generally the better approach.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -647,16 +667,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.90,
-            criticalStrike: 0.85,
-            versatility: 0.82,
-            mastery: 0.78,
+            haste: 0.86,
+            criticalStrike: 0.83,
+            mastery: 0.80,
+            versatility: 0.76,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste reduces cast times and improves Demonbolt generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Haste to ~22% is an early target, then a balanced Crit/Mastery/Haste/Versatility spread; a more even distribution beats stacking only the top two due to fast-onset diminishing returns.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -667,16 +687,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.90,
-            haste: 0.88,
-            versatility: 0.82,
+            haste: 0.86,
+            criticalStrike: 0.83,
             mastery: 0.80,
+            versatility: 0.76,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Crit increases Chaos Bolt damage and soul shard generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Haste to ~22% is an early target, then Crit, Mastery, and Versatility; secondaries are relatively close so item level remains the primary driver.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -691,17 +711,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.82,
-            criticalStrike: 0.78,
-            versatility: 0.75,
-            mastery: 0.72,
+            criticalStrike: 0.83,
+            versatility: 0.80,
+            mastery: 0.74,
+            haste: 0.68,
             armor: 0.85,
         },
-        priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste improves energy regeneration and purifying brew availability.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY, StatType.HASTE],
+        notes: 'Defensive priority is Critical Strike, Versatility, Mastery, Haste, unchanged across the Shado-Pan and Master of Harmony hero trees. Item level generally matters more than chasing a specific secondary.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -712,16 +732,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.88,
-            versatility: 0.85,
-            haste: 0.82,
-            mastery: 0.75,
+            haste: 0.86,
+            criticalStrike: 0.84,
+            versatility: 0.78,
+            mastery: 0.68,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.HASTE, StatType.MASTERY],
-        notes: 'Crit increases throughput and mana efficiency through mana tea.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
+        notes: 'Same order for raid and Mythic+: Haste, Critical Strike, Versatility, Mastery. Crit generates Mana Tea stacks in addition to raw throughput; high-key pushing favors pairing Haste with Versatility instead.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -732,16 +752,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            versatility: 0.88,
-            criticalStrike: 0.85,
-            haste: 0.82,
-            mastery: 0.78,
+            haste: 0.85,
+            criticalStrike: 0.83,
+            mastery: 0.81,
+            versatility: 0.76,
         },
-        priorityOrder: [StatType.AGILITY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY],
-        notes: 'Versatility provides consistent damage increase for all abilities.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Haste, Critical Strike, and Mastery are all very close and can swap order depending on current gear; sim your character rather than following this rigidly.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-11',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -756,16 +776,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            haste: 0.90,
-            criticalStrike: 0.88,
-            versatility: 0.82,
-            mastery: 0.78,
+            mastery: 0.88,
+            haste: 0.84,
+            criticalStrike: 0.80,
+            versatility: 0.72,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Haste improves Astral Power generation and dot tick rate.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: "Mastery leads for both Elune's Chosen (Haste next) and Keeper of the Grove (Critical Strike next) builds, since it amplifies Nature/Arcane damage including DoTs.",
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -776,16 +796,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.88,
-            haste: 0.85,
-            versatility: 0.82,
-            mastery: 0.78,
+            mastery: 0.86,
+            haste: 0.84,
+            criticalStrike: 0.82,
+            versatility: 0.68,
         },
-        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Crit increases bleed damage through Bloodtalons and direct damage.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
+        notes: 'Mastery, Haste, and Crit are very similar and should be kept balanced; Mastery is favored for its Potion of Recklessness synergy. Versatility trails and should be minimized due to Venomcursed item interactions.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -796,17 +816,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.80,
-            versatility: 0.78,
-            mastery: 0.75,
-            criticalStrike: 0.70,
+            haste: 0.84,
+            versatility: 0.80,
+            mastery: 0.72,
+            criticalStrike: 0.66,
             armor: 0.88,
         },
         priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY, StatType.CRITICAL_STRIKE],
-        notes: 'Armor provides huge survivability boost. Haste improves rage generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        notes: 'Survivability priority: Haste, Versatility, Mastery, Critical Strike (all secondaries close in value). A damage-focused build swaps Mastery and Critical Strike.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -817,16 +837,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.HEALER,
         weights: {
             primaryStat: 1.00,
-            haste: 0.88,
-            criticalStrike: 0.85,
-            mastery: 0.72,
-            versatility: 0.70,
+            haste: 0.87,
+            mastery: 0.80,
+            versatility: 0.76,
+            criticalStrike: 0.68,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.VERSATILITY],
-        notes: 'Haste reduces GCD and improves HoT tick rate.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE],
+        notes: 'Raid priority: Haste, Mastery, Versatility, Critical Strike. Dungeon healing swaps Haste and Mastery. No universal weights - values shift with gear, content, and spell choices.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -841,16 +861,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            criticalStrike: 0.90,
-            haste: 0.85,
-            versatility: 0.82,
-            mastery: 0.78,
+            criticalStrike: 0.87,
+            mastery: 0.85,
+            haste: 0.78,
+            versatility: 0.58,
         },
-        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY, StatType.MASTERY],
-        notes: 'Crit increases Chaos Strike damage and fury generation.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'Know Your Enemy builds emphasize Critical Strike; Mastery is a close second as it multiplies most of Havoc\'s strongest abilities. Haste improved in Season 2 but stays behind both; Versatility is "noticeably worse" than the rest.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -861,17 +881,17 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.TANK,
         weights: {
             primaryStat: 1.00,
-            haste: 0.85,
-            versatility: 0.82,
-            criticalStrike: 0.75,
-            mastery: 0.72,
+            haste: 0.84,
+            mastery: 0.80,
+            versatility: 0.76,
+            criticalStrike: 0.68,
             armor: 0.80,
         },
-        priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.VERSATILITY, StatType.CRITICAL_STRIKE, StatType.MASTERY],
-        notes: 'Haste improves soul fragment generation and reduces GCD.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.AGILITY, StatType.ARMOR, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY, StatType.CRITICAL_STRIKE],
+        notes: 'No fixed breakpoints; the guide recommends simming for damage while keeping a roughly equal secondary spread for survivability, with Haste, Mastery, Versatility, Critical Strike as the general order.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-26',
+        patch: '12.1.0',
     },
 
     // ============================================================================
@@ -886,16 +906,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            mastery: 0.90,
-            criticalStrike: 0.88,
-            haste: 0.82,
-            versatility: 0.78,
+            criticalStrike: 0.87,
+            haste: 0.84,
+            mastery: 0.80,
+            versatility: 0.72,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
-        notes: 'Mastery increases damage of all spells. Crit close behind.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.MASTERY, StatType.VERSATILITY],
+        notes: 'Item level outweighs secondary optimization except for jewelry/trinkets; secondaries diminish past ~30% rating thresholds, so simming is recommended for precise values.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -907,15 +927,15 @@ export const STAT_PRIORITIES: StatPriority[] = [
         weights: {
             primaryStat: 1.00,
             mastery: 0.88,
-            criticalStrike: 0.85,
-            haste: 0.82,
-            versatility: 0.78,
+            criticalStrike: 0.83,
+            haste: 0.78,
+            versatility: 0.70,
         },
         priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
-        notes: 'Mastery increases healing based on proximity to target.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        notes: 'Mastery provides the largest healing increase and remains the top priority regardless of Chronowarden/Flameshaper build or content type; Mythic+ allows some flexibility toward damage stats once healing needs are met.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 
     {
@@ -926,16 +946,16 @@ export const STAT_PRIORITIES: StatPriority[] = [
         contentType: ContentType.RAID_DPS,
         weights: {
             primaryStat: 1.00,
-            mastery: 0.92,
-            haste: 0.85,
-            criticalStrike: 0.80,
-            versatility: 0.78,
+            mastery: 0.90,
+            criticalStrike: 0.82,
+            haste: 0.80,
+            versatility: 0.68,
         },
-        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.HASTE, StatType.CRITICAL_STRIKE, StatType.VERSATILITY],
-        notes: 'IMPORTANT: Do NOT use stat weight sims for Augmentation. Stat priorities vary significantly by fight.',
-        source: 'Icy Veins 12.0.0',
-        updatedDate: '2026-02-12',
-        patch: '12.0.0',
+        priorityOrder: [StatType.INTELLECT, StatType.MASTERY, StatType.CRITICAL_STRIKE, StatType.HASTE, StatType.VERSATILITY],
+        notes: 'IMPORTANT: Do NOT use stat weight sims for Augmentation - priorities vary significantly by fight. Mastery dominates until ~1840 rating, after which Crit and Haste become roughly equal to it; Chronowarden builds favor Crit slightly over Haste since Double-time lets crits amplify Ebon Might/Prescience by 50%.',
+        source: 'Icy Veins 12.1',
+        updatedDate: '2026-08-10',
+        patch: '12.1.0',
     },
 ];
 
