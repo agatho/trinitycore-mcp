@@ -245,7 +245,7 @@ export class TileManager {
 
     // Unload distant tiles
     let unloadedCount = 0;
-    for (const [key, tile] of this.loadedTiles) {
+    for (const [key] of this.loadedTiles) {
       if (!tilesToKeep.has(key)) {
         this.unloadTile(key);
         unloadedCount++;
@@ -477,8 +477,8 @@ export class TileManager {
         // Log bounds for debugging
         const box = new THREE.Box3().setFromObject(group);
         const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        console.log(`[TileManager] Tile (${tileX}, ${tileY}) added to scene: ${triangleCount} tris, center=(${center.x.toFixed(0)}, ${center.y.toFixed(0)}, ${center.z.toFixed(0)})`);
+        const tileSize = box.getSize(new THREE.Vector3());
+        console.log(`[TileManager] Tile (${tileX}, ${tileY}) added to scene: ${triangleCount} tris, center=(${center.x.toFixed(0)}, ${center.y.toFixed(0)}, ${center.z.toFixed(0)}), size=(${tileSize.x.toFixed(0)}, ${tileSize.y.toFixed(0)}, ${tileSize.z.toFixed(0)})`);
 
         this.loadedTiles.set(key, {
           coord: { x: tileX, y: tileY },

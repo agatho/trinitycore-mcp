@@ -172,6 +172,13 @@ export class TrinityRuleEngine {
   }
 
   /**
+   * Get all loaded rules
+   */
+  getRules(): CodeReviewRule[] {
+    return this.rules;
+  }
+
+  /**
    * Load all rules from all categories
    */
   private loadAllRules(): CodeReviewRule[] {

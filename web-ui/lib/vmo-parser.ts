@@ -122,7 +122,7 @@ export function parseVMO(buffer: ArrayBuffer, fileName: string = 'unknown.vmo'):
     );
   }
 
-  const wmodChunkSize = reader.readUInt32();
+  reader.readUInt32(); // wmodChunkSize - consumed but not used
   const flags = reader.readUInt32() as ModelFlags;
   const rootWmoId = reader.readUInt32();
 
@@ -180,7 +180,7 @@ function parseGroupModel(reader: BinaryReader, fileName: string): GroupModel {
     );
   }
 
-  const vertChunkSize = reader.readUInt32();
+  reader.readUInt32(); // vertChunkSize - consumed but not used
   const vertCount = reader.readUInt32();
 
   const vertices: Vector3[] = [];
@@ -210,7 +210,7 @@ function parseGroupModel(reader: BinaryReader, fileName: string): GroupModel {
     );
   }
 
-  const trimChunkSize = reader.readUInt32();
+  reader.readUInt32(); // trimChunkSize - consumed but not used
   const triCount = reader.readUInt32();
 
   const triangles: MeshTriangle[] = [];

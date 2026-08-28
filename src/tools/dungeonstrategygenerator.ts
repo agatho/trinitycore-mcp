@@ -584,20 +584,17 @@ export async function generateDungeonStrategy(params: {
   logger.info(`Generating dungeon strategy for map ${dungeonMapId}`);
 
   // ---- Step 1: Get dungeon metadata ----
+  // TrinityCore 12.0.1: instance_template only has map, parent, script (no levelMin/levelMax)
+  // Level scaling data moved to ContentTuning.db2
   const instanceData = await queryWorld(
-    `SELECT map, levelMin, levelMax FROM instance_template WHERE map = ?`,
+    `SELECT map, parent, script FROM instance_template WHERE map = ?`,
     [dungeonMapId]
   );
 
   let dungeonName = `Dungeon (Map ${dungeonMapId})`;
-  let levelRange = { min: 1, max: 90 };
-
-  if (instanceData && instanceData.length > 0) {
-    levelRange = {
-      min: instanceData[0].levelMin || 1,
-      max: instanceData[0].levelMax || 90,
-    };
-  }
+  // Level range no longer available from instance_template in 12.0.1
+  // Would require ContentTuning.db2 lookup for accurate values
+  let levelRange = { min: 1, max: groupLevel };
 
   // Try to get the map name from the Map table/data
   try {

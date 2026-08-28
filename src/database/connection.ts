@@ -191,8 +191,9 @@ export function getCharactersPool(): mysql.Pool {
 
 /**
  * Get connection pool for hotfixes database
- * The hotfixes database contains client data tables (item, item_sparse, etc.)
- * that were moved from the world database in TrinityCore 12.0.1.
+ * The hotfixes database contains client data tables such as `item`, `item_sparse`,
+ * `battle_pet_species`, and other tables that were moved from the world database
+ * in TrinityCore 12.0.1. This replaces the old `item_template` and similar queries.
  */
 export function getHotfixesPool(): mysql.Pool {
   if (!hotfixesPool) {
@@ -321,7 +322,7 @@ export async function queryCharacters(sql: string, params?: any[], useCache: boo
 }
 
 /**
- * Query hotfixes database with enterprise error handling.
+ * Query hotfixes database with enterprise error handling
  * The hotfixes database contains client data tables such as `item`, `item_sparse`,
  * `battle_pet_species`, and other tables that were moved from the world database
  * in TrinityCore 12.0.1. This replaces the old `item_template` and similar queries.

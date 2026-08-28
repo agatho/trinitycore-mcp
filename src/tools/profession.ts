@@ -7,7 +7,7 @@
  * @module profession
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 
 export interface ProfessionRecipe {
   spellId: number;
@@ -67,12 +67,13 @@ export interface SkillUpPlan {
 }
 
 export async function getProfessionRecipes(skillId: number, minSkill?: number, maxSkill?: number): Promise<ProfessionRecipe[]> {
+  // TrinityCore 12.0.1: trainer_spell only has TrainerId, SpellId, MoneyCost,
+  // ReqSkillLine, ReqSkillRank, ReqAbility1-3, ReqLevel
+  // Difficulty colors (TrivialSkillHigh, GraySkill, etc.) were removed
   let query = `
     SELECT
       ts.SpellId as spellId, ts.ReqSkillRank as requiredSkillRank,
-      ts.TrivialSkillHigh as gray, ts.TrivialSkillLow as green,
-      ts.GraySkill as difficulty_gray, ts.GreenSkill as difficulty_green,
-      ts.YellowSkill as difficulty_yellow, ts.OrangeSkill as difficulty_orange
+      ts.MoneyCost as moneyCost, ts.ReqLevel as reqLevel
     FROM trainer_spell ts
     WHERE ts.ReqSkillLine = ?
   `;
@@ -93,6 +94,8 @@ export async function getProfessionRecipes(skillId: number, minSkill?: number, m
 
   const recipes = await queryWorld(query, params);
 
+  // TrinityCore 12.0.1: Difficulty color thresholds no longer in trainer_spell
+  // Estimate difficulty ranges based on skill rank (common WoW pattern)
   return recipes.map((r: any) => ({
     spellId: r.spellId,
     name: `Recipe ${r.spellId}`,
@@ -102,10 +105,10 @@ export async function getProfessionRecipes(skillId: number, minSkill?: number, m
     learnedAt: r.requiredSkillRank,
     categoryId: 0,
     difficulty: {
-      orange: r.difficulty_orange || r.requiredSkillRank,
-      yellow: r.difficulty_yellow || r.requiredSkillRank + 10,
-      green: r.difficulty_green || r.requiredSkillRank + 20,
-      gray: r.difficulty_gray || r.requiredSkillRank + 30
+      orange: r.requiredSkillRank,
+      yellow: r.requiredSkillRank + 10,
+      green: r.requiredSkillRank + 25,
+      gray: r.requiredSkillRank + 40
     },
     reagents: [],
     creates: {
@@ -117,16 +120,21 @@ export async function getProfessionRecipes(skillId: number, minSkill?: number, m
 }
 
 export async function getRecipeReagents(spellId: number): Promise<Array<{ itemId: number; count: number }>> {
-  // Note: Reagent data is typically in spell_template
+  // TrinityCore 12.0.1: Reagent data is in hotfixes.spell_reagents (not spell_template)
+  // spell_reagents has Reagent1-8 and ReagentCount1-8, keyed by SpellID
   const query = `
     SELECT
       Reagent1 as reagent1, Reagent2 as reagent2, Reagent3 as reagent3,
-      ReagentCount1 as count1, ReagentCount2 as count2, ReagentCount3 as count3
-    FROM spell_template
-    WHERE ID = ?
+      Reagent4 as reagent4, Reagent5 as reagent5, Reagent6 as reagent6,
+      Reagent7 as reagent7, Reagent8 as reagent8,
+      ReagentCount1 as count1, ReagentCount2 as count2, ReagentCount3 as count3,
+      ReagentCount4 as count4, ReagentCount5 as count5, ReagentCount6 as count6,
+      ReagentCount7 as count7, ReagentCount8 as count8
+    FROM spell_reagents
+    WHERE SpellID = ?
   `;
 
-  const results = await queryWorld(query, [spellId]);
+  const results = await queryHotfixes(query, [spellId]);
 
   if (!results || results.length === 0) {
     return [];
@@ -135,7 +143,7 @@ export async function getRecipeReagents(spellId: number): Promise<Array<{ itemId
   const spell = results[0];
   const reagents: Array<{ itemId: number; count: number }> = [];
 
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 8; i++) {
     const itemId = spell[`reagent${i}`];
     const count = spell[`count${i}`];
 

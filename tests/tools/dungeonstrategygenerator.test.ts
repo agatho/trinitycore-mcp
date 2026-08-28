@@ -185,7 +185,9 @@ describe("Automatic Dungeon Strategy Generator", () => {
       expect(strategy).toBeDefined();
       expect(strategy.dungeonMapId).toBe(33);
       expect(strategy.dungeonName).toBe("Shadowfang Keep");
-      expect(strategy.levelRange).toEqual({ min: 18, max: 21 });
+      // In TrinityCore 12.0.1 instance_template no longer has levelMin/levelMax
+      // (level scaling moved to ContentTuning.db2), so levelRange defaults to { min: 1, max: groupLevel }
+      expect(strategy.levelRange).toEqual({ min: 1, max: 90 });
       expect(strategy.generatedAt).toBeDefined();
       expect(strategy.dataSource).toContain("TrinityCore");
     });

@@ -7,6 +7,24 @@
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
 import { Logger, LogLevel, type LogEntry, type LoggerConfig } from '@/lib/logger';
 
+// Provide a robust localStorage mock for vitest environments where
+// localStorage may exist but methods are not proper functions
+const _localStorageStore: Record<string, string> = {};
+const _localStorageMock: Storage = {
+  getItem(key: string): string | null { return _localStorageStore[key] ?? null; },
+  setItem(key: string, value: string): void { _localStorageStore[key] = String(value); },
+  removeItem(key: string): void { delete _localStorageStore[key]; },
+  clear(): void { for (const key of Object.keys(_localStorageStore)) delete _localStorageStore[key]; },
+  get length(): number { return Object.keys(_localStorageStore).length; },
+  key(index: number): string | null { return Object.keys(_localStorageStore)[index] ?? null; },
+};
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: _localStorageMock,
+  writable: true,
+  configurable: true,
+});
+
 describe('Logger Service', () => {
   beforeEach(() => {
     // Clear localStorage before each test

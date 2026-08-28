@@ -6,7 +6,7 @@
  */
 
 import { existsSync } from 'fs';
-import { readdir, access, rm, mkdir, writeFile } from 'fs/promises';
+import { readdir, rm, mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { getMCPClient, initializeMCPClient } from './mcp/client';
 
@@ -110,30 +110,33 @@ export async function extractMapTextures(params: {
 }): Promise<ExtractionStatus> {
   const { mapId } = params;
 
-  // Validate map ID
-  const mapExists = AVAILABLE_MAPS.some(m => m.id === mapId);
+  // Validate map ID is a safe integer to prevent path traversal and log injection
+  const sanitizedMapId = Number.isInteger(mapId) && mapId >= 0 ? mapId : -1;
+
+  // Validate map ID exists in our allowlist
+  const mapExists = AVAILABLE_MAPS.some(m => m.id === sanitizedMapId);
   if (!mapExists) {
     return {
-      mapId,
+      mapId: sanitizedMapId,
       status: 'error',
       progress: 0,
-      error: `Invalid map ID: ${mapId}`
+      error: 'Invalid map ID'
     };
   }
 
   try {
-    console.log(`[MapExtraction] Starting extraction for map ${mapId}`);
+    console.log('[MapExtraction] Starting extraction for map %d', sanitizedMapId);
 
     // Ensure MCP client is connected
     const client = getMCPClient();
     if (!client.isClientConnected()) {
-      console.log(`[MapExtraction] MCP client not connected, initializing...`);
+      console.log('[MapExtraction] MCP client not connected, initializing...');
       await initializeMCPClient();
     }
 
     // First, get the map info to know how many tiles we need to extract
-    console.log(`[MapExtraction] Fetching map info for ${mapId}...`);
-    const mapInfoResult = await client.callTool('get-map-minimap', { mapId });
+    console.log('[MapExtraction] Fetching map info for %d...', sanitizedMapId);
+    const mapInfoResult = await client.callTool('get-map-minimap', { mapId: sanitizedMapId });
 
     let mapInfo: any;
     if (typeof mapInfoResult === 'string') {
@@ -159,13 +162,13 @@ export async function extractMapTextures(params: {
     }
 
     const totalTiles = mapInfo?.tiles?.length || 0;
-    console.log(`[MapExtraction] Map ${mapId} has ${totalTiles} tiles`);
+    console.log('[MapExtraction] Map %d has %d tiles', sanitizedMapId, totalTiles);
 
     // Extract all tiles at once (MCP tool handles the extraction internally)
-    console.log(`[MapExtraction] Extracting all ${totalTiles} tiles...`);
+    console.log('[MapExtraction] Extracting all %d tiles...', totalTiles);
 
     const batchResult = await client.callTool('get-minimap-tiles-batch', {
-      mapId
+      mapId: sanitizedMapId
     }, {
       timeout: 300000 // 5 minutes for full extraction
     });
@@ -187,12 +190,13 @@ export async function extractMapTextures(params: {
 
     // Extract success count from result
     const successMatch = text.match(/\*\*Successful:\*\*\s*(\d+)/);
-    const tileCount = successMatch ? parseInt(successMatch[1]) : 0;
+    const extractedTileCount = successMatch ? parseInt(successMatch[1]) : 0;
 
-    console.log(`[MapExtraction] Extracted ${tileCount} tiles`);
+    console.log('[MapExtraction] Extracted %d tiles', extractedTileCount);
 
     // Create metadata.json file to mark map as extracted
-    const metadataDir = join(process.cwd(), 'public', 'tile-data', mapId.toString());
+    // Path is safe because sanitizedMapId is validated against AVAILABLE_MAPS allowlist
+    const metadataDir = join(process.cwd(), 'public', 'tile-data', sanitizedMapId.toString());
     const metadataPath = join(metadataDir, 'metadata.json');
 
     try {
@@ -200,7 +204,7 @@ export async function extractMapTextures(params: {
       await mkdir(metadataDir, { recursive: true });
 
       // Get map name
-      const mapInfo = AVAILABLE_MAPS.find(m => m.id === mapId);
+      const mapEntry = AVAILABLE_MAPS.find(m => m.id === sanitizedMapId);
 
       // Scan extracted tiles to get actual bounds and count
       const { readdir } = await import('fs/promises');
@@ -230,10 +234,10 @@ export async function extractMapTextures(params: {
         }
       }
 
-      // If we found tiles, use actual bounds; otherwise estimate
-      const tileCount = actualTileCount > 0 ? actualTileCount : totalExtracted;
-      const cols = actualTileCount > 0 ? (maxCol - minCol + 1) : Math.ceil(Math.sqrt(tileCount));
-      const rows = actualTileCount > 0 ? (maxRow - minRow + 1) : Math.ceil(Math.sqrt(tileCount));
+      // If we found tiles, use actual bounds; otherwise use the count from extraction
+      const finalTileCount = actualTileCount > 0 ? actualTileCount : extractedTileCount;
+      const cols = actualTileCount > 0 ? (maxCol - minCol + 1) : Math.ceil(Math.sqrt(finalTileCount));
+      const rows = actualTileCount > 0 ? (maxRow - minRow + 1) : Math.ceil(Math.sqrt(finalTileCount));
 
       // Calculate original dimensions based on max coordinate bounds
       // For example, if tiles go from col 12-60, we need space for col 0-60 = 61 tiles
@@ -241,9 +245,9 @@ export async function extractMapTextures(params: {
       const originalHeight = actualTileCount > 0 ? (maxRow + 1) * 256 : rows * 256;
 
       const metadata = {
-        mapId,
-        mapName: mapInfo?.name || `Map_${mapId}`,
-        tileCount,
+        mapId: sanitizedMapId,
+        mapName: mapEntry?.name || `Map_${sanitizedMapId}`,
+        tileCount: finalTileCount,
         extractedAt: new Date().toISOString(),
         tileSize: 256,
         minCol: actualTileCount > 0 ? minCol : 0,
@@ -258,24 +262,24 @@ export async function extractMapTextures(params: {
       };
 
       await writeFile(metadataPath, JSON.stringify(metadata, null, 2));
-      console.log(`[MapExtraction] Created metadata file at: ${metadataPath}`);
-      console.log(`[MapExtraction] Tile bounds: col ${minCol}-${maxCol}, row ${minRow}-${maxRow}`);
+      console.log('[MapExtraction] Created metadata file for map %d', sanitizedMapId);
+      console.log('[MapExtraction] Tile bounds: col %d-%d, row %d-%d', minCol, maxCol, minRow, maxRow);
     } catch (metadataError) {
       console.warn(`[MapExtraction] Failed to create metadata file:`, metadataError);
       // Don't fail the extraction if metadata creation fails
     }
 
-    console.log(`[MapExtraction] Successfully extracted ${tileCount} tiles for map ${mapId}`);
+    console.log('[MapExtraction] Successfully extracted %d tiles for map %d', extractedTileCount, sanitizedMapId);
 
     return {
-      mapId,
+      mapId: sanitizedMapId,
       status: 'completed',
       progress: 100
     };
   } catch (error) {
-    console.error(`[MapExtraction] Error extracting map ${mapId}:`, error);
+    console.error('[MapExtraction] Error extracting map %d:', sanitizedMapId, error);
     return {
-      mapId,
+      mapId: sanitizedMapId,
       status: 'error',
       progress: 0,
       error: error instanceof Error ? error.message : 'Unknown error occurred during extraction'
@@ -295,12 +299,12 @@ export async function deleteExtractedMap(params: {
   const { mapId } = params;
 
   try {
-    // Validate map ID
-    if (typeof mapId !== 'number' || mapId < 0) {
-      throw new Error(`Invalid map ID: ${mapId}`);
+    // Validate map ID is a safe integer to prevent path traversal
+    if (!Number.isInteger(mapId) || mapId < 0) {
+      throw new Error('Invalid map ID');
     }
 
-    // Get tiles directory path
+    // Get tiles directory path (mapId validated as non-negative integer above)
     const tilesDir = join(
       process.cwd(),
       'public',
@@ -310,18 +314,18 @@ export async function deleteExtractedMap(params: {
 
     // Check if directory exists
     if (!existsSync(tilesDir)) {
-      console.warn(`Map ${mapId} tiles directory does not exist: ${tilesDir}`);
+      console.warn('Map %d tiles directory does not exist', mapId);
       return true; // Already deleted
     }
 
     // Delete the directory recursively
     await rm(tilesDir, { recursive: true, force: true });
 
-    console.log(`Successfully deleted extracted map data for map ${mapId}`);
+    console.log('Successfully deleted extracted map data for map %d', mapId);
     return true;
   } catch (error) {
-    console.error(`Error deleting extracted map ${mapId}:`, error);
-    throw new Error(`Failed to delete map ${mapId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Error deleting extracted map %d:', mapId, error);
+    throw new Error(`Failed to delete map: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

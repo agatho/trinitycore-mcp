@@ -232,7 +232,7 @@ function validateNode(node: SAINode, script: SAIScript): ValidationError[] {
 
   // Validate type ID exists
   if (node.type === 'event') {
-    const eventType = getEventType(node.typeId);
+    const eventType = getEventType(String(node.typeId));
     if (!eventType) {
       errors.push({
         nodeId: node.id,
@@ -242,7 +242,7 @@ function validateNode(node: SAINode, script: SAIScript): ValidationError[] {
       });
     }
   } else if (node.type === 'action') {
-    const actionType = getActionType(node.typeId);
+    const actionType = getActionType(String(node.typeId));
     if (!actionType) {
       errors.push({
         nodeId: node.id,
@@ -252,7 +252,7 @@ function validateNode(node: SAINode, script: SAIScript): ValidationError[] {
       });
     }
   } else if (node.type === 'target') {
-    const targetType = getTargetType(node.typeId);
+    const targetType = getTargetType(String(node.typeId));
     if (!targetType) {
       errors.push({
         nodeId: node.id,
@@ -618,7 +618,7 @@ function checkDocumentation(script: SAIScript): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
 
   // Check script description
-  if (!script.metadata.description || script.metadata.description.trim() === '') {
+  if (!script.metadata?.description || script.metadata.description.trim() === '') {
     warnings.push({
       nodeId: '',
       message: 'Script has no description',

@@ -1,6 +1,9 @@
 /**
  * Accuracy Validation Tests
  * Tests system accuracy targets: >90% accuracy, <15% false positive rate
+ *
+ * NOTE: All tests use enableAI: false to prevent Ollama LLM calls
+ * that would timeout in CI environments without a local Ollama instance.
  */
 
 import path from "path";
@@ -22,6 +25,7 @@ describe("Accuracy Validation", () => {
   describe("Target: >90% Accuracy", () => {
     it("should detect known null safety violations", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["null_safety"],
         minConfidence: 0.7,
       });
@@ -56,6 +60,7 @@ describe("Accuracy Validation", () => {
 
     it("should detect known memory violations", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["memory"],
         minConfidence: 0.7,
       });
@@ -87,6 +92,7 @@ describe("Accuracy Validation", () => {
 
     it("should detect known security violations", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["security"],
         minConfidence: 0.7,
       });
@@ -119,17 +125,18 @@ describe("Accuracy Validation", () => {
 
   describe("Target: <15% False Positive Rate", () => {
     it("should not flag correct null checking code", async () => {
-      // Lines 19-22 have proper null checking
+      // Lines 34-38 have proper null checking (ProperNullCheck function)
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["null_safety"],
         minConfidence: 0.7,
       });
 
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      // Should not have violations for lines 19-22 (properNullCheck function)
+      // Should not have violations for lines 34-38 (ProperNullCheck function)
       const violationsInProperCode = result.violations.filter(
-        (v) => v.line >= 19 && v.line <= 22
+        (v) => v.line >= 34 && v.line <= 38
       );
 
       // These lines should have minimal or no violations
@@ -142,17 +149,18 @@ describe("Accuracy Validation", () => {
     });
 
     it("should not flag correct RAII memory management", async () => {
-      // Lines 35-38 have proper RAII
+      // Lines 55-58 have proper RAII (ProperRAII function)
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["memory"],
         minConfidence: 0.7,
       });
 
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      // Should not have violations for lines 35-38 (properRAII function)
+      // Should not have violations for lines 55-58 (ProperRAII function)
       const violationsInProperCode = result.violations.filter(
-        (v) => v.line >= 35 && v.line <= 38
+        (v) => v.line >= 55 && v.line <= 58
       );
 
       console.log(
@@ -163,17 +171,18 @@ describe("Accuracy Validation", () => {
     });
 
     it("should not flag correct mutex usage", async () => {
-      // Lines 51-59 have proper mutex usage
+      // Lines 72-80 have proper mutex usage (SafeCounter class)
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["concurrency"],
         minConfidence: 0.7,
       });
 
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      // Should not have violations for lines 51-59 (SafeCounter class)
+      // Should not have violations for lines 72-80 (SafeCounter class)
       const violationsInProperCode = result.violations.filter(
-        (v) => v.line >= 51 && v.line <= 59
+        (v) => v.line >= 72 && v.line <= 80
       );
 
       console.log(
@@ -184,17 +193,18 @@ describe("Accuracy Validation", () => {
     });
 
     it("should not flag correct naming conventions", async () => {
-      // Lines 67-70 have proper TrinityCore naming
+      // Lines 90-92 have proper TrinityCore naming (GoodClassName)
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         categoryFilter: ["convention"],
         minConfidence: 0.7,
       });
 
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
-      // Should not have violations for lines 67-70 (GoodClassName)
+      // Should not have violations for lines 90-92 (GoodClassName)
       const violationsInProperCode = result.violations.filter(
-        (v) => v.line >= 67 && v.line <= 70
+        (v) => v.line >= 90 && v.line <= 92
       );
 
       console.log(
@@ -208,6 +218,7 @@ describe("Accuracy Validation", () => {
   describe("Overall System Accuracy", () => {
     it("should calculate precision, recall, and F1 score", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         minConfidence: 0.7,
       });
 
@@ -305,6 +316,7 @@ describe("Accuracy Validation", () => {
 
       for (const category of categories) {
         const orchestrator = await createCodeReviewOrchestrator({
+          enableAI: false,
           categoryFilter: [category as any],
           minConfidence: 0.7,
         });
@@ -331,7 +343,7 @@ describe("Accuracy Validation", () => {
 
   describe("Confidence Scoring", () => {
     it("should assign confidence scores to all violations", async () => {
-      const orchestrator = await createCodeReviewOrchestrator();
+      const orchestrator = await createCodeReviewOrchestrator({ enableAI: false });
       const result = await orchestrator.reviewFiles([testFixturePath]);
 
       // All violations should have confidence scores
@@ -354,6 +366,7 @@ describe("Accuracy Validation", () => {
 
     it("should filter by minimum confidence effectively", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         minConfidence: 0.9,
       });
 
@@ -367,6 +380,7 @@ describe("Accuracy Validation", () => {
 
     it("should have higher confidence for critical violations", async () => {
       const orchestrator = await createCodeReviewOrchestrator({
+        enableAI: false,
         severityFilter: ["critical"],
       });
 

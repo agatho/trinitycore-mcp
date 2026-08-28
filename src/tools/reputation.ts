@@ -7,7 +7,7 @@
  * @module reputation
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { logger } from '../utils/logger';
 
 // ============================================================================
@@ -542,12 +542,11 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
   const rewards: ReputationReward[] = [];
 
   // TrinityCore 12.0.0: faction_A/faction_H removed, now just 'faction' column
+  // TrinityCore 12.0: item_template removed. Query vendor items from world DB,
+  // then batch-lookup item names/prices from hotfixes DB (item_sparse).
   const vendorQuery = `
-    SELECT
-      nv.item, it.name, it.Quality, it.BuyPrice,
-      nv.ExtendedCost
+    SELECT nv.item, nv.ExtendedCost
     FROM npc_vendor nv
-    JOIN item_template it ON nv.item = it.entry
     WHERE nv.entry IN (
       SELECT entry FROM creature_template
       WHERE faction = ?
@@ -558,23 +557,39 @@ export async function getReputationRewards(factionId: number): Promise<Reputatio
   try {
     const vendorResults = await queryWorld(vendorQuery, [factionId]);
 
-    for (const item of vendorResults) {
+    // Batch-lookup item details from hotfixes DB
+    for (const vendorItem of vendorResults) {
+      const itemDetailQuery = `
+        SELECT
+          isp.ID as entry,
+          COALESCE(isl.Display_lang, isp.Display, '') as name,
+          isp.OverallQualityID as Quality,
+          isp.BuyPrice
+        FROM item_sparse isp
+        LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS'
+        WHERE isp.ID = ?
+      `;
+      const itemDetails = await queryHotfixes(itemDetailQuery, [vendorItem.item]);
+      const itemName = (itemDetails && itemDetails.length > 0) ? itemDetails[0].name : `Item #${vendorItem.item}`;
+      const itemQuality = (itemDetails && itemDetails.length > 0) ? itemDetails[0].Quality : 0;
+      const itemBuyPrice = (itemDetails && itemDetails.length > 0) ? itemDetails[0].BuyPrice : 0;
+
       // Determine reward type based on item class/subclass
       let rewardType: ReputationReward["rewardType"] = "item";
 
-      if (item.name.toLowerCase().includes("mount")) rewardType = "mount";
-      else if (item.name.toLowerCase().includes("pet")) rewardType = "pet";
-      else if (item.name.toLowerCase().includes("recipe") || item.name.toLowerCase().includes("pattern")) rewardType = "recipe";
-      else if (item.name.toLowerCase().includes("tabard")) rewardType = "tabard";
+      if (itemName.toLowerCase().includes("mount")) rewardType = "mount";
+      else if (itemName.toLowerCase().includes("pet")) rewardType = "pet";
+      else if (itemName.toLowerCase().includes("recipe") || itemName.toLowerCase().includes("pattern")) rewardType = "recipe";
+      else if (itemName.toLowerCase().includes("tabard")) rewardType = "tabard";
 
       rewards.push({
         factionId,
-        requiredStanding: await determineRequiredStanding(item.ExtendedCost),
+        requiredStanding: await determineRequiredStanding(vendorItem.ExtendedCost),
         rewardType,
-        rewardId: item.item,
-        rewardName: item.name,
+        rewardId: vendorItem.item,
+        rewardName: itemName,
         description: `${rewardType} from ${faction.name}`,
-        cost: item.BuyPrice,
+        cost: itemBuyPrice,
         isPurchasable: true
       });
     }
@@ -697,18 +712,23 @@ export async function getReputationTokens(factionId: number): Promise<Reputation
   const faction = await getFactionInfo(factionId);
   const tokens: ReputationTokenInfo[] = [];
 
-  // Query items that grant reputation
+  // TrinityCore 12.0: item_template removed. Query item_sparse in hotfixes DB.
   const query = `
-    SELECT it.entry, it.name, it.stackable, it.BuyPrice
-    FROM item_template it
-    WHERE it.name LIKE '%Insignia%'
-       OR it.name LIKE '%Token%'
-       OR it.name LIKE '%Badge%'
+    SELECT
+      isp.ID as entry,
+      COALESCE(isl.Display_lang, isp.Display, '') as name,
+      isp.Stackable as stackable,
+      isp.BuyPrice
+    FROM item_sparse isp
+    LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS'
+    WHERE COALESCE(isl.Display_lang, isp.Display, '') LIKE '%Insignia%'
+       OR COALESCE(isl.Display_lang, isp.Display, '') LIKE '%Token%'
+       OR COALESCE(isl.Display_lang, isp.Display, '') LIKE '%Badge%'
     LIMIT 20
   `;
 
   try {
-    const results = await queryWorld(query, []);
+    const results = await queryHotfixes(query, []);
 
     for (const item of results) {
       // Parse reputation gain from item spell effect
@@ -837,65 +857,17 @@ export function getReputationBreakdown(currentRep: number): {
  */
 async function parseReputationGainFromItem(itemId: number, expectedFactionId: number): Promise<number> {
   try {
-    // First, get the item's spell trigger
-    const itemQuery = `
-      SELECT spellid_1, spellid_2, spellid_3, spellid_4, spellid_5
-      FROM item_template
-      WHERE entry = ?
+    // TrinityCore 12.0: item_template was replaced by item_sparse in hotfixes DB.
+    // Item spell triggers (spellid_1..5) are no longer available in a direct SQL table;
+    // they are stored in DB2 files (ItemEffect.db2). Instead, we attempt to find
+    // reputation info from the item description in item_sparse/item_sparse_locale.
+    const descQuery = `
+      SELECT COALESCE(isl.Description_lang, isp.Description, '') as Description
+      FROM item_sparse isp
+      LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS'
+      WHERE isp.ID = ?
     `;
-    const itemResults = await queryWorld(itemQuery, [itemId]);
-
-    if (!itemResults || itemResults.length === 0) {
-      return 250; // Default fallback
-    }
-
-    const item = itemResults[0];
-    const spellIds = [
-      item.spellid_1,
-      item.spellid_2,
-      item.spellid_3,
-      item.spellid_4,
-      item.spellid_5
-    ].filter(id => id && id > 0);
-
-    // Query spell effects for reputation gains
-    for (const spellId of spellIds) {
-      try {
-        // In TrinityCore, reputation spell effects are typically stored in spell_template
-        // Enhancement #7 (Phase 7): Updated to use SPELL_EFFECT_REPUTATION_REWARD (193)
-        const spellQuery = `
-          SELECT Effect_1, Effect_2, Effect_3, EffectBasePoints_1, EffectBasePoints_2, EffectBasePoints_3,
-                 EffectMiscValue_1, EffectMiscValue_2, EffectMiscValue_3
-          FROM spell_template
-          WHERE ID = ?
-        `;
-        const spellResults = await queryWorld(spellQuery, [spellId]);
-
-        if (spellResults && spellResults.length > 0) {
-          const spell = spellResults[0];
-
-          // Check each effect for reputation gain (Effect type 193)
-          for (let i = 1; i <= 3; i++) {
-            const effect = spell[`Effect_${i}`];
-            const basePoints = spell[`EffectBasePoints_${i}`];
-            const miscValue = spell[`EffectMiscValue_${i}`];
-
-            // Effect 193 = SPELL_EFFECT_REPUTATION_REWARD (WoW 12.0)
-            // Effect 103 = SPELL_EFFECT_REPUTATION (legacy, also check for backward compatibility)
-            if ((effect === 193 || effect === 103) && miscValue === expectedFactionId) {
-              // BasePoints is the reputation amount (usually needs +1)
-              return (basePoints || 0) + 1;
-            }
-          }
-        }
-      } catch (spellError) {
-        continue; // Try next spell
-      }
-    }
-
-    // If no spell found, use item description parsing as fallback
-    const descQuery = `SELECT Description FROM item_template WHERE entry = ?`;
-    const descResults = await queryWorld(descQuery, [itemId]);
+    const descResults = await queryHotfixes(descQuery, [itemId]);
 
     if (descResults && descResults.length > 0) {
       const description = descResults[0].Description || "";

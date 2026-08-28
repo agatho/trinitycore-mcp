@@ -13,7 +13,7 @@
  * @module tools/gamemaster
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import { logger } from "../utils/logger";
 
 // =============================================================================
@@ -581,8 +581,9 @@ async function resolveItemEntry(nameOrId: string): Promise<{ entry: number; name
   const asNumber = parseInt(nameOrId);
   if (!isNaN(asNumber) && asNumber > 0) {
     try {
-      const rows = await queryWorld(
-        "SELECT entry, name FROM item_template WHERE entry = ? LIMIT 1",
+      // TrinityCore 12.0: item_template removed. Use item_sparse in hotfixes DB.
+      const rows = await queryHotfixes(
+        "SELECT isp.ID as entry, COALESCE(isl.Display_lang, isp.Display, '') as name FROM item_sparse isp LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS' WHERE isp.ID = ? LIMIT 1",
         [asNumber]
       );
       if (rows && rows.length > 0) {
@@ -595,8 +596,9 @@ async function resolveItemEntry(nameOrId: string): Promise<{ entry: number; name
   }
 
   try {
-    const rows = await queryWorld(
-      "SELECT entry, name FROM item_template WHERE name LIKE ? ORDER BY entry ASC LIMIT 1",
+    // TrinityCore 12.0: item_template removed. Use item_sparse in hotfixes DB.
+    const rows = await queryHotfixes(
+      "SELECT isp.ID as entry, COALESCE(isl.Display_lang, isp.Display, '') as name FROM item_sparse isp LEFT JOIN item_sparse_locale isl ON isp.ID = isl.ID AND isl.locale = 'enUS' WHERE COALESCE(isl.Display_lang, isp.Display, '') LIKE ? ORDER BY isp.ID ASC LIMIT 1",
       [`%${nameOrId}%`]
     );
     if (rows && rows.length > 0) {

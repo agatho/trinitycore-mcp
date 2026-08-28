@@ -446,8 +446,8 @@ npm run start:web
 ### Development Documentation
 
 - [doc/API_REFERENCE.md](doc/API_REFERENCE.md) - DBC/DB2 API reference
-- [doc/DEVELOPMENT_GUIDE.md](doc/DEVELOPMENT_GUIDE.md) - Developer guidelines
-- [doc/TESTING_GUIDE.md](doc/TESTING_GUIDE.md) - Testing instructions
+- [doc/USAGE_GUIDE.md](doc/USAGE_GUIDE.md) - Usage guide and examples
+- [doc/KNOWN_LIMITATIONS.md](doc/KNOWN_LIMITATIONS.md) - Known limitations
 
 ---
 

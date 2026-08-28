@@ -28,10 +28,19 @@ jest.mock("../../src/database/connection", () => ({
       if (name === "%ragnaros%") return [{ entry: 11502, name: "Ragnaros" }];
       return [];
     }
-    // Mock item lookup
-    if (sql.includes("item_template") && sql.includes("entry = ?")) {
+    return [];
+  }),
+  // TrinityCore 12.0.1: Item data is in hotfixes DB (item + item_sparse tables)
+  queryHotfixes: jest.fn().mockImplementation(async (sql: string, params?: any[]) => {
+    // Mock item lookup via hotfixes.item + item_sparse
+    if (sql.includes("item_sparse") && sql.includes("i.ID = ?")) {
       const entry = params?.[0];
-      if (entry === 19019) return [{ entry: 19019, name: "Thunderfury, Blessed Blade of the Windseeker" }];
+      if (entry === 19019) return [{ ID: 19019, name: "Thunderfury, Blessed Blade of the Windseeker" }];
+      return [];
+    }
+    if (sql.includes("item_sparse") && sql.includes("LIKE")) {
+      const name = params?.[0];
+      if (name && String(name).includes("thunderfury")) return [{ ID: 19019, name: "Thunderfury, Blessed Blade of the Windseeker" }];
       return [];
     }
     return [];

@@ -12,9 +12,6 @@ import * as THREE from 'three';
 import { parseVMO, type WorldModel, type Vector3 as VMOVector3 } from '@/lib/vmo-parser';
 import type { VMapData, VMapTile, ModelSpawn } from '@/lib/vmap-types';
 
-/** WoW tile size in world units (yards) */
-const TILE_SIZE = 533.33333;
-
 export interface VMapModelLoadOptions {
   /** Maximum number of unique models to load (for performance) */
   maxModels?: number;

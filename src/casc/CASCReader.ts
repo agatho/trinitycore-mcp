@@ -1113,12 +1113,25 @@ export class CASCReader {
    * Auto-detect WoW installation path
    */
   static async detectWoWPath(): Promise<string | null> {
-    const commonPaths = [
-      'C:\\Program Files (x86)\\World of Warcraft\\_retail_',
-      'C:\\Program Files\\World of Warcraft\\_retail_',
-      '/Applications/World of Warcraft/_retail_',
-      process.env.WOW_PATH || ''
-    ];
+    // Check environment variable first (preferred, avoids hardcoded paths)
+    const envPath = process.env.WOW_PATH;
+    if (envPath && await this.isValidWoWPath(envPath)) {
+      return envPath;
+    }
+
+    // Platform-specific common installation directories as fallback
+    const isWindows = process.platform === 'win32';
+    const programFiles = process.env['ProgramFiles(x86)'] || process.env['ProgramFiles'] || '';
+    const programFilesStd = process.env['ProgramFiles'] || '';
+
+    const commonPaths = isWindows
+      ? [
+          programFiles ? `${programFiles}\\World of Warcraft\\_retail_` : '',
+          programFilesStd ? `${programFilesStd}\\World of Warcraft\\_retail_` : '',
+        ]
+      : [
+          '/Applications/World of Warcraft/_retail_',
+        ];
 
     for (const path of commonPaths) {
       if (path && await this.isValidWoWPath(path)) {

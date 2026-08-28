@@ -214,8 +214,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
     const db2Result = await loadItemFromDB2(itemId);
     const db2Item = db2Result.data;
 
-    // Step 2: Query hotfixes DB (item + item_sparse) for database data
-    // In TrinityCore 12.0.1, item data moved from world.item_template to hotfixes.item + hotfixes.item_sparse
+    // Step 2: Query hotfixes DB for item data (TrinityCore 12.0: item_template removed)
     let dbItem = null;
     try {
       const query = `
@@ -227,7 +226,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
           isp.RequiredLevel as requiredLevel,
           i.ClassID as itemClass,
           i.SubclassID as itemSubClass,
-          isp.InventoryType as inventoryType
+          i.InventoryType as inventoryType
         FROM item i
         INNER JOIN item_sparse isp ON i.ID = isp.ID
         LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
@@ -238,7 +237,7 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
       const items = await queryHotfixes(query, [itemId]);
       dbItem = items && items.length > 0 ? items[0] : null;
     } catch (dbError) {
-      logger.warn(`Hotfixes database query failed for item ${itemId}, using DB2 cache only:`,
+      logger.warn(`Database query failed for item ${itemId}, using DB2 cache only:`,
         dbError instanceof Error ? dbError.message : String(dbError));
       // Continue with dbItem = null, will use DB2 cache data
     }

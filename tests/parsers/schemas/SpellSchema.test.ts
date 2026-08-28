@@ -16,7 +16,7 @@ describe('SpellSchema', () => {
         2: 0, // categoryId
         3: 0, // dispel
         4: 0, // mechanic
-        5: 0x00000100, // attributes (SPELL_ATTR0_PASSIVE)
+        5: 0x00000100, // attributes (SPELL_ATTR0_HIDE_IN_COMBAT_LOG)
         6: 0, // attributesEx
         7: 0, // attributesEx2
         13: 64, // schoolMask (SPELL_SCHOOL_MASK_SHADOW)
@@ -123,10 +123,10 @@ describe('SpellSchema', () => {
   });
 
   describe('hasAttribute()', () => {
-    it('should detect SPELL_ATTR0_PASSIVE', () => {
+    it('should detect attribute flag via bitmask', () => {
       const spell: SpellEntry = {
         id: 8326,
-        attributes: 0x00000100, // SPELL_ATTR0_PASSIVE
+        attributes: 0x00000100, // SPELL_ATTR0_HIDE_IN_COMBAT_LOG
       } as SpellEntry;
 
       expect(SpellSchema.hasAttribute(spell, 0, 0x00000100)).toBe(true);
@@ -212,7 +212,7 @@ describe('SpellSchema', () => {
     it('should detect passive spell', () => {
       const spell: SpellEntry = {
         id: 8326,
-        attributes: 0x00000100, // SPELL_ATTR0_PASSIVE
+        attributes: 0x00000040, // SPELL_ATTR0_PASSIVE
       } as SpellEntry;
 
       expect(SpellSchema.isPassive(spell)).toBe(true);

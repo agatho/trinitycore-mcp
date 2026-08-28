@@ -129,19 +129,20 @@ export async function calculateSpellDamage(
 
   const effect = spellInfo.effects[effectIndex];
 
-  // Base damage calculation
-  const baseMin = effect.basePoints || 0;
-  const baseMax = effect.basePoints; // Note: dieSides not in current schema
+  // Base damage calculation using real data from serverside_spell_effect
+  const basePoints = effect.basePoints || 0;
+
+  // Variance from serverside_spell_effect.Variance (e.g., 0.15 = ±15% randomness)
+  const variance = effect.variance || 0;
+  const baseMin = variance > 0 ? basePoints * (1 - variance) : basePoints;
+  const baseMax = variance > 0 ? basePoints * (1 + variance) : basePoints;
   const baseAverage = (baseMin + baseMax) / 2;
 
-  // Variance (randomness) - not in current schema, using default
-  const variance = 0;
+  // Coefficient from serverside_spell_effect (EffectBonusCoefficient for spell power scaling)
+  // Falls back to Coefficient if EffectBonusCoefficient is not set
+  const coefficient = effect.effectBonusCoefficient || effect.coefficient || 0;
 
-  // Coefficient (spell power scaling) - not in current schema, using default
-  // In TrinityCore, coefficient is stored per effect but not in our current schema
-  const coefficient = 0.8; // Default coefficient for calculations
-
-  // Calculate with spell power
+  // Calculate with spell power using real coefficient
   const spellPowerBonus = playerStats.spellPower * coefficient;
   const withSpellPowerMin = baseMin + spellPowerBonus;
   const withSpellPowerMax = baseMax + spellPowerBonus;

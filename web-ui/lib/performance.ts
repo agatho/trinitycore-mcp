@@ -96,7 +96,9 @@ export class MemoCache<K, V> {
     // Evict oldest entry if cache is full
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
     }
 
     this.cache.set(cacheKey, {
@@ -125,8 +127,8 @@ export function memoize<T extends (...args: any[]) => any>(
 
   return function (this: any, ...args: Parameters<T>): ReturnType<T> {
     const cached = cache.get(args);
-    if (cached !== undefined) {
-      return cached;
+    if (cached !== undefined && cached !== null) {
+      return cached as ReturnType<T>;
     }
 
     const result = func.apply(this, args);

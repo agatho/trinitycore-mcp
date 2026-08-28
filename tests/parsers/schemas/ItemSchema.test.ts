@@ -161,13 +161,13 @@ describe('ItemSchema', () => {
       const mockRecord = new MockDB2Record({
         0: 1234, // id
         1: 'Test Armor',
-        91: 100, // armor
-        92: 5, // holyResistance
-        93: 10, // fireResistance
-        94: 15, // natureResistance
-        95: 20, // frostResistance
-        96: 25, // shadowResistance
-        97: 30, // arcaneResistance
+        107: 100, // armor
+        108: 5, // holyResistance
+        109: 10, // fireResistance
+        110: 15, // natureResistance
+        111: 20, // frostResistance
+        112: 25, // shadowResistance
+        113: 30, // arcaneResistance
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
@@ -223,7 +223,7 @@ describe('ItemSchema', () => {
         flags2: 0,
         flags3: 0,
         flags4: 0,
-        bonding: ItemBondingType.NO_BOUNDS,
+        bonding: ItemBondingType.BIND_NONE,
         maxCount: 0,
         maxDurability: 25,
         stackable: 1,
@@ -246,29 +246,27 @@ describe('ItemSchema', () => {
         arcaneResistance: 0,
         damages: [],
         sheath: 0,
-        randomSelect: 0,
-        itemRandomSuffixGroupId: 0,
+        randomSuffix: 0,
         randomProperty: 0,
         itemSet: 0,
-        area: 0,
-        map: 0,
+        pageText: 0,
+        pageTextMaterial: 0,
+        languageId: 0,
+        startQuestId: 0,
         lockId: 0,
-        pageId: 0,
-        pageLanguage: 0,
-        pageMaterial: 0,
-        startQuest: 0,
-        block: 0,
+        modifiedAppearanceId: 0,
+        transmogPlayerConditionId: 0,
+        areaId: 0,
+        mapId: 0,
+        totemCategoryId: 0,
+        factionRelated: 0,
+        itemRange: 0,
+        craftingQualityId: 0,
         spells: [],
         itemNameDescriptionId: 0,
-        disenchantId: 0,
-        requiredDisenchantSkill: 0,
         foodType: 0,
-        minMoneyLoot: 0,
-        maxMoneyLoot: 0,
-        duration: 0,
         holidayId: 0,
         limitCategory: 0,
-        artifactId: 0,
         requiredExpansion: 0,
       };
 
@@ -324,7 +322,7 @@ describe('ItemSchema', () => {
         flags2: 0,
         flags3: 0,
         flags4: 0,
-        bonding: ItemBondingType.NO_BOUNDS,
+        bonding: ItemBondingType.BIND_NONE,
         maxCount: 0,
         maxDurability: 25,
         stackable: 1,
@@ -350,29 +348,27 @@ describe('ItemSchema', () => {
         arcaneResistance: 0,
         damages: [{ damageMin: 3.0, damageMax: 7.0, damageType: 0 }],
         sheath: 0,
-        randomSelect: 0,
-        itemRandomSuffixGroupId: 0,
+        randomSuffix: 0,
         randomProperty: 0,
         itemSet: 0,
-        area: 0,
-        map: 0,
+        pageText: 0,
+        pageTextMaterial: 0,
+        languageId: 0,
+        startQuestId: 0,
         lockId: 0,
-        pageId: 0,
-        pageLanguage: 0,
-        pageMaterial: 0,
-        startQuest: 0,
-        block: 0,
+        modifiedAppearanceId: 0,
+        transmogPlayerConditionId: 0,
+        areaId: 0,
+        mapId: 0,
+        totemCategoryId: 0,
+        factionRelated: 0,
+        itemRange: 0,
+        craftingQualityId: 0,
         spells: [],
         itemNameDescriptionId: 0,
-        disenchantId: 0,
-        requiredDisenchantSkill: 0,
         foodType: 0,
-        minMoneyLoot: 0,
-        maxMoneyLoot: 0,
-        duration: 0,
         holidayId: 0,
         limitCategory: 0,
-        artifactId: 0,
         requiredExpansion: 0,
       };
 
@@ -458,7 +454,7 @@ describe('ItemSchema', () => {
 
     describe('isSoulbound()', () => {
       it('should detect soulbound item', () => {
-        template.extended.bonding = ItemBondingType.ON_ACQUIRE;
+        template.extended.bonding = ItemBondingType.BIND_ON_ACQUIRE;
         expect(ItemSchema.isSoulbound(template)).toBe(true);
       });
 

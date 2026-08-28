@@ -7,7 +7,7 @@
  * @module gearoptimizer
  */
 
-import { queryWorld } from "../database/connection";
+import { queryWorld, queryHotfixes } from "../database/connection";
 import {
   getStatPriority,
   getDefaultStatWeights as getDefaultStatPrioritiesFromDB,
@@ -238,25 +238,31 @@ export async function findBestInSlot(
   statWeights: StatWeights,
   maxItemLevel?: number
 ): Promise<BestInSlot> {
+  // TrinityCore 12.0: item_template removed. Use item + item_sparse from hotfixes DB.
   let query = `
     SELECT
-      IT.ID as itemId, IT.Name as name, IT.ItemLevel as itemLevel,
-      IT.Quality as quality, IT.InventoryType as inventoryType
-    FROM item_template IT
-    WHERE IT.InventoryType = ?
-      AND IT.AllowableClass & ? != 0
+      i.ID as itemId,
+      COALESCE(isl.Display_lang, isp.Display, '') as name,
+      isp.ItemLevel as itemLevel,
+      isp.OverallQualityID as quality,
+      i.InventoryType as inventoryType
+    FROM item i
+    INNER JOIN item_sparse isp ON i.ID = isp.ID
+    LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
+    WHERE i.InventoryType = ?
+      AND isp.AllowableClass & ? != 0
   `;
 
   const params: any[] = [slot, 1 << (classId - 1)];
 
   if (maxItemLevel) {
-    query += " AND IT.ItemLevel <= ?";
+    query += " AND isp.ItemLevel <= ?";
     params.push(maxItemLevel);
   }
 
-  query += " ORDER BY IT.ItemLevel DESC LIMIT 50";
+  query += " ORDER BY isp.ItemLevel DESC LIMIT 50";
 
-  const items = await queryWorld(query, params);
+  const items = await queryHotfixes(query, params);
 
   // Score each item
   const scoredItems = await Promise.all(
@@ -670,16 +676,24 @@ export function getDefaultStatWeights(
 // ============================================================================
 
 async function getItemStats(itemId: number): Promise<ItemStats> {
+  // TrinityCore 12.0: item_template removed. Use item + item_sparse from hotfixes DB.
   const query = `
     SELECT
-      ID as itemId, Name as name, ItemLevel as itemLevel, Quality as quality,
-      InventoryType as inventoryType, class, subclass,
-      AllowableClass as allowableClass
-    FROM item_template
-    WHERE ID = ?
+      i.ID as itemId,
+      COALESCE(isl.Display_lang, isp.Display, '') as name,
+      isp.ItemLevel as itemLevel,
+      isp.OverallQualityID as quality,
+      i.InventoryType as inventoryType,
+      i.ClassID as class,
+      i.SubclassID as subclass,
+      isp.AllowableClass as allowableClass
+    FROM item i
+    INNER JOIN item_sparse isp ON i.ID = isp.ID
+    LEFT JOIN item_sparse_locale isl ON i.ID = isl.ID AND isl.locale = 'enUS'
+    WHERE i.ID = ?
   `;
 
-  const results = await queryWorld(query, [itemId]);
+  const results = await queryHotfixes(query, [itemId]);
 
   if (!results || results.length === 0) {
     throw new Error(`Item ${itemId} not found`);
@@ -687,7 +701,7 @@ async function getItemStats(itemId: number): Promise<ItemStats> {
 
   const item = results[0];
 
-  // Note: Stat extraction would require parsing item_template stats
+  // Note: Stat extraction would require parsing item_sparse stat fields
   return {
     itemId: item.itemId,
     name: item.name,
