@@ -155,3 +155,49 @@ Compared against the community listfile: **23,400 files exist in this build that
 the listfile never names**, and 303,134 listfile entries refer to builds other
 than this one. Entry names are synthesised (`FILE00000015.dat`) because this
 root is FileDataID-based — names come from listfiles, not from CASC.
+
+## DB2 record access: what works and what does not (12.1)
+
+Two distinct record layouts exist, and only one is fully implemented.
+
+**Dense records** (fixed size, ids in an ID table) work, including all WDC3+
+compressed storage modes. `Item.db2` decodes correctly and was verified against
+`hotfixes.item`.
+
+**Sparse records** (variable size, catalog/offset map, `flags & 0x1`) do NOT.
+`ItemSparse.db2` is the significant one. Its field offsets cannot be static:
+strings are stored inline and null-terminated, so every field after a string
+shifts by that string's length, per record. `DB2Record.getFieldOffset()` returns
+a fixed offset per field, which is correct for dense records and wrong here.
+
+Measured against `hotfixes.item_sparse` over 288 items with the correct 12.1
+column mapping applied: `ItemLevel` 0/288, `OverallQualityID` 0/288,
+`SheatheType` 175/288. Names come back as fragments (`"ord"`), which is the
+same symptom seen from the string side.
+
+**Why this is a design decision rather than a fix.** Computing sparse offsets
+requires walking each record field by field, which requires knowing which
+fields are strings. That type information is not in the DB2 file. TrinityCore
+solves it by carrying hardcoded per-table structures (`DB2Metadata.h`). Options
+here are to generate equivalent metadata from WoWDBDefs `.dbd` files, hand-write
+it for the handful of tables actually used, or route sparse tables through the
+native CascLib-backed path instead. That choice should be made deliberately.
+
+The correct 12.1 `ItemSparse` column mapping (layout `0x1C17D17F`) has been
+derived and is straightforward to reapply once sparse access works: ID is
+`$noninline$`, so field index equals the WoWDBDefs column index minus one, with
+array columns addressed via `arrayIndex` rather than expanded into consecutive
+fields.
+
+## Correction: dense ID-list loading is not broken
+
+An earlier commit message on the decoder fix claimed "dense ID-list loading
+still yields 1 entry". That is wrong. `Item.db2` has 41 sections; section 0
+loads all 59,549 ids correctly, and the single-entry log line belonged to one of
+the 40 small hotfix sections that follow it.
+
+The apparent shortfall during verification had a different cause:
+`hotfixes.item` holds 290 rows, not the file's 59,675 - it is a hotfix-override
+table, not a full import. Items in it that are absent from the client file are
+server-side additions, and the one `Material` divergence observed is an override
+doing exactly what that table exists to do.
