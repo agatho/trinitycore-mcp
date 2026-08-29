@@ -6,6 +6,7 @@
 import { queryWorld, queryHotfixes } from "../database/connection";
 import { DB2CachedLoaderFactory } from "../parsers/db2/DB2CachedFileLoader";
 import { ItemSchema } from "../parsers/schemas/ItemSchema";
+import { resolveDataPath } from "../version/BuildManifest";
 import * as path from "path";
 import * as fs from "fs";
 import { logger } from '../utils/logger';
@@ -57,9 +58,22 @@ export interface ItemStat {
 }
 
 // DB2 file paths
-const DB2_PATH = process.env.DB2_PATH || "./data/db2";
 const ITEM_DB2_FILE = "Item.db2";
 const ITEM_SPARSE_DB2_FILE = "ItemSparse.db2";
+
+/**
+ * Directory holding the active build's DB2 files.
+ *
+ * Must be a function, not a module constant: the build manifest is loaded after
+ * this module is imported, and a constant would capture whatever DB2_PATH held
+ * at import time. That is how this tool came to read one build's Item.db2 while
+ * the schemas parsing it were written for another.
+ *
+ * @returns Absolute or configured path to the active build's DB2 directory
+ */
+function db2Path(): string {
+  return resolveDataPath("db2");
+}
 
 interface ItemCacheEntry {
   ID: number;
@@ -131,8 +145,8 @@ async function loadItemFromDB2(itemId: number): Promise<{
     }
 
     // PRIORITY 2: Fall back to DB2 parser
-    const itemPath = path.join(DB2_PATH, ITEM_DB2_FILE);
-    const itemSparsePath = path.join(DB2_PATH, ITEM_SPARSE_DB2_FILE);
+    const itemPath = path.join(db2Path(), ITEM_DB2_FILE);
+    const itemSparsePath = path.join(db2Path(), ITEM_SPARSE_DB2_FILE);
 
     // Check if both files exist
     if (!fs.existsSync(itemPath) || !fs.existsSync(itemSparsePath)) {

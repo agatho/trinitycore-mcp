@@ -15,31 +15,37 @@ import { resolveDataPath } from "../../version/BuildManifest";
 /**
  * Resolve the VMap or MMap directory for a tool call.
  *
- * An explicit argument wins, then the environment override, then the active
- * build's manifest entry. Without the manifest step these tools read whatever
- * VMAP_PATH happened to point at, so switching the active build would leave
- * them on the previous build's collision data.
+ * An explicit argument wins, then the active build's manifest entry, and only
+ * then the environment variable. The manifest outranks the environment on
+ * purpose: VMAP_PATH and MMAP_PATH are set once and forgotten, so after a build
+ * cutover they name the previous build's data, and letting them win would feed
+ * one build's collision geometry to tools working against another.
  *
  * Must be called per request, not at module load: the manifest is read after
  * this module is imported.
  *
  * @param explicit Directory named by the caller, if any
- * @param kind Which of the manifest's data paths to fall back to
- * @param envOverride Environment variable consulted before the manifest
+ * @param kind Which of the manifest's data paths to use
+ * @param envFallback Environment variable used only if no build resolves
  * @returns Directory to read from
  */
 function resolveMapDir(
   explicit: string | undefined,
   kind: "vmap" | "mmap",
-  envOverride: string | undefined
+  envFallback: string | undefined
 ): string {
   if (explicit) {
     return explicit;
   }
-  if (envOverride) {
-    return envOverride;
+  try {
+    return resolveDataPath(kind);
+  } catch (error) {
+    // No build resolves - fall back to the environment rather than failing.
+    if (envFallback) {
+      return envFallback;
+    }
+    throw error;
   }
-  return resolveDataPath(kind);
 }
 
 export const mapTools: ToolRegistryEntry[] = [
@@ -51,7 +57,7 @@ export const mapTools: ToolRegistryEntry[] = [
       inputSchema: {
         type: "object",
         properties: {
-          vmapDir: { type: "string", description: "Path to VMap directory (default: VMAP_PATH, else the active build's vmap path)" },
+          vmapDir: { type: "string", description: "Path to VMap directory (default: the active build's vmap path)" },
         },
       },
     },
@@ -148,7 +154,7 @@ export const mapTools: ToolRegistryEntry[] = [
       inputSchema: {
         type: "object",
         properties: {
-          mmapDir: { type: "string", description: "Path to MMap directory (default: MMAP_PATH, else the active build's mmap path)" },
+          mmapDir: { type: "string", description: "Path to MMap directory (default: the active build's mmap path)" },
         },
       },
     },

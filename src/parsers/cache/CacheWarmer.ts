@@ -7,11 +7,23 @@
  */
 
 import { DB2CachedLoaderFactory } from "../db2/DB2CachedFileLoader";
+import { resolveDataPath } from "../../version/BuildManifest";
 import * as path from "path";
 import * as fs from "fs";
 import { logger } from '../../utils/logger';
 
-const DB2_PATH = process.env.DB2_PATH || "./data/db2";
+/**
+ * Directory holding the active build's DB2 files.
+ *
+ * Resolved per call rather than captured at import: the build manifest loads
+ * after this module is imported, and warming one build's files into a cache
+ * keyed to another is exactly the mix-up the manifest exists to prevent.
+ *
+ * @returns Path to the active build's DB2 directory
+ */
+function db2Path(): string {
+  return resolveDataPath("db2");
+}
 
 /**
  * Cache warming configuration
@@ -222,7 +234,7 @@ export class CacheWarmer {
     try {
       for (const fileName of config.files) {
         const fileStartTime = Date.now();
-        const filePath = path.join(DB2_PATH, fileName);
+        const filePath = path.join(db2Path(), fileName);
 
         // Check if file exists
         if (!fs.existsSync(filePath)) {

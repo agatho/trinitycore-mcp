@@ -28,6 +28,10 @@ import { createErrorResponse, ValidationError } from "./utils/error-handler";
 import { buildToolRegistry, ConfigManagementDeps } from "./tools/registry/index";
 import { loadBuildManifest, getActiveBuild } from "./version/BuildManifest";
 import { ensureSpellCache } from "./version/SpellCacheProvisioner";
+import {
+  findDataPathDisagreements,
+  describeDataPathDisagreements,
+} from "./version/DataPathConsistency";
 
 /**
  * Build the MCP server: load the build manifest first, then register tools.
@@ -44,6 +48,12 @@ async function initializeServer(): Promise<Server> {
   logger.info(
     `Build manifest loaded: active build "${activeBuild.id}" (${activeBuild.build})`
   );
+
+  // A stale DB2_PATH or VMAP_PATH no longer decides what tools read, but it
+  // still misleads anything else on this machine that trusts it.
+  for (const line of describeDataPathDisagreements(findDataPathDisagreements())) {
+    logger.warn(line);
+  }
 
   // Spell caches are keyed by build, so a fresh install or a build cutover
   // starts without them and every spell lookup would answer "Not Found". Start
