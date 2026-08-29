@@ -21,6 +21,11 @@ import { DB2FileLoaderSparse } from './DB2FileLoaderSparse';
 import { DB2IdList, DB2OffsetMap, DB2CopyTable, DB2ParentLookupTable } from './DB2Tables';
 import { DB2SectionManager } from './DB2SectionManager';
 
+/** WDC relationship block header: numEntries, minId, maxId. */
+const PARENT_LOOKUP_HEADER_SIZE = 12;
+/** One relationship entry: foreignId + recordIndex. */
+const PARENT_LOOKUP_ENTRY_SIZE = 8;
+
 export class DB2FileLoader {
   private source: IDB2FileSource | null = null;
   private header: DB2Header | null = null;
@@ -718,12 +723,33 @@ export class DB2FileLoader {
         continue;
       }
 
-      // Parse parent lookup table
+      // Parse parent lookup table.
+      //
+      // The WDC relationship block is NOT a bare array of pairs: it opens with
+      // a 12-byte header (numEntries, minId, maxId) followed by the
+      // (foreignId, recordIndex) pairs. Treating the whole block as pairs both
+      // misreads the data and overruns the buffer, because
+      // parentLookupDataSize is 12 + 8n and size/8 is fractional - the loop
+      // then runs two iterations too many and reads 4 bytes past the end.
+      if (section.parentLookupDataSize < PARENT_LOOKUP_HEADER_SIZE) {
+        continue;
+      }
+
       if (!this.parentLookupTable) {
         this.parentLookupTable = new DB2ParentLookupTable();
       }
-      const entryCount = section.parentLookupDataSize / 8; // Each entry is 8 bytes (2x uint32)
-      this.parentLookupTable.loadFromBuffer(parentLookupBuffer, entryCount);
+
+      const declaredEntries = parentLookupBuffer.readUInt32LE(0);
+      const availableEntries = Math.floor(
+        (section.parentLookupDataSize - PARENT_LOOKUP_HEADER_SIZE) / PARENT_LOOKUP_ENTRY_SIZE
+      );
+      // Trust whichever is smaller: a corrupt count must not read out of bounds.
+      const entryCount = Math.min(declaredEntries, availableEntries);
+
+      this.parentLookupTable.loadFromBuffer(
+        parentLookupBuffer.subarray(PARENT_LOOKUP_HEADER_SIZE),
+        entryCount
+      );
     }
   }
 
