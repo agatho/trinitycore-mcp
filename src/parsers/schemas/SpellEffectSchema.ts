@@ -5,8 +5,8 @@
  * Defines individual spell effects - each spell can have up to 3 effects
  *
  * Based on TrinityCore DB2Structure.h:3836 and DB2LoadInfo.h:5264
- * Total Fields: 36 (arrays expanded from 29 compressed fields)
- * Layout Hash: 0x239B1B53 (WoW 12.0)
+ * Total Fields: 31 columns / 29 inline fields (ID and SpellID are $noninline$)
+ * Table Hash: 0xF04238A5   Layout Hash: 0x5362E3D4 (WoW 12.1)
  * File Data ID: 1140088
  *
  * Week 5: Phase 3.1 - Extended DB2 File Schemas
@@ -193,73 +193,73 @@ export interface SpellEffectEntry {
   // Field 1: Aura type (only for APPLY_AURA effects)
   effectAura: number; // int16 - AuraType enum (see AuraType)
 
-  // Field 2: Difficulty level
+  // Field 1: Difficulty level
   difficultyID: number; // int32 - 0=normal, 1+=heroic/mythic variants
 
-  // Field 3: Effect slot index
+  // Field 2: Effect slot index
   effectIndex: number; // int32 - 0, 1, or 2 (spell has max 3 effects)
 
-  // Field 4: Effect type
+  // Field 3: Effect type
   effect: number; // uint32 - SpellEffectName enum (346 types)
 
-  // Field 5: Periodic tick rate
+  // Field 4: Periodic tick rate
   effectAmplitude: number; // float - Tick interval for periodic effects (seconds)
 
-  // Field 6: Effect attribute flags
+  // Field 5: Effect attribute flags
   effectAttributes: number; // int32 - SpellEffectAttributes flags
 
-  // Field 7: Aura tick interval
+  // Field 6: Aura tick interval
   effectAuraPeriod: number; // int32 - Aura tick period (milliseconds)
 
-  // Field 8: Spell power coefficient
+  // Field 7: Spell power coefficient
   effectBonusCoefficient: number; // float - Spell power scaling
 
-  // Field 9: Chain target damage reduction
+  // Field 8: Chain target damage reduction
   effectChainAmplitude: number; // float - Damage reduction per chain hop
 
-  // Field 10: Maximum chain targets
+  // Field 9: Maximum chain targets
   effectChainTargets: number; // int32 - Max targets for chain effects
 
-  // Field 11: Created item ID
+  // Field 10: Created item ID
   effectItemType: number; // int32 - Item.db2 reference (for CREATE_ITEM)
 
-  // Field 12: Mechanic type
+  // Field 11: Mechanic type
   effectMechanic: number; // int32 - Mechanics enum (stun, root, etc.)
 
-  // Field 13: Resource point scaling
+  // Field 12: Resource point scaling
   effectPointsPerResource: number; // float - Scaling per resource point
 
-  // Field 14: Position facing angle
+  // Field 13: Position facing angle
   effectPosFacing: number; // float - Required facing angle (radians)
 
-  // Field 15: Level scaling
+  // Field 14: Level scaling
   effectRealPointsPerLevel: number; // float - Scaling per caster level
 
-  // Field 16: Triggered spell
+  // Field 15: Triggered spell
   effectTriggerSpell: number; // int32 - Spell.db2 reference (for TRIGGER_SPELL)
 
-  // Field 17: Attack power coefficient
+  // Field 16: Attack power coefficient
   bonusCoefficientFromAP: number; // float - Attack power scaling
 
-  // Field 18: PvP multiplier
+  // Field 17: PvP multiplier
   pvpMultiplier: number; // float - PvP damage/heal multiplier
 
-  // Field 19: Base coefficient
+  // Field 18: Base coefficient
   coefficient: number; // float - Base scaling coefficient
 
-  // Field 20: Random variance
+  // Field 19: Random variance
   variance: number; // float - Random variance (±)
 
-  // Field 21: Resource scaling
+  // Field 20: Resource scaling
   resourceCoefficient: number; // float - Resource scaling coefficient
 
-  // Field 22: Raid scaling
+  // Field 21: Raid scaling
   groupSizeBasePointsCoefficient: number; // float - Raid size scaling
 
-  // Field 23: Base damage/heal value
+  // Field 22: Base damage/heal value
   effectBasePoints: number; // float - Base damage/heal before scaling
 
-  // Field 24: Scaling class
+  // Field 23: Scaling class
   scalingClass: number; // int32 - Class for stat scaling (-1 = all)
 
   // Fields 25-26: Effect-specific parameters (array expanded)
@@ -297,13 +297,16 @@ export interface SpellEffectEntry {
  */
 export class SpellEffectSchema {
   /** Build range this schema's field indices are known to be correct for. */
-  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 64438, to: null };
+  public static readonly VALID_BUILDS: { from: number; to: number | null } = { from: 68209, to: null };
 
   /** build -> layoutHash. 65299 is the 2025-12-22 extraction, identified as WoW 11.2.7
    *  via WoWDBDefs (11 consistent builds 64438-65299, all sharing these layouts).
    *  Populated by scripts/record-layout-hashes.js. */
   public static readonly LAYOUT_HASHES: Map<number, number> = new Map<number, number>([
-    [65299, 0x239b1b53],
+    // 12.1 only. The 11.2.7 layout (0x239b1b53) is deliberately NOT listed:
+    // these indices are written for 0x5362e3d4, so 11.2.7 data must report a
+    // mismatch rather than be parsed with the wrong offsets.
+    [69497, 0x5362e3d4],
   ]);
 
   /** Name used in gate errors and the validate-build-schemas report. */
@@ -329,109 +332,113 @@ export class SpellEffectSchema {
     // Arrays are expanded to individual fields in DB2 file
 
     return {
-      // Field 0: ID
-      id: record.getUInt32(0),
+      // ID is $noninline$ - it lives in the ID table, not the record - so the
+      // inline fields start at 0 with EffectAura. The file confirms it:
+      // fieldCount is 29 while WoWDBDefs lists 31 columns, the two missing
+      // being ID and the SpellID relation, both $noninline$.
+      id: record.getId(),
 
-      // Field 1: EffectAura (int16)
-      effectAura: this.convertToInt16(record.getUInt16(1)),
+      // Field 0: EffectAura (int16)
+      effectAura: this.convertToInt16(record.getUInt16(0)),
 
-      // Field 2: DifficultyID
-      difficultyID: record.getInt32(2),
+      // Field 1: DifficultyID
+      difficultyID: record.getInt32(1),
 
-      // Field 3: EffectIndex
-      effectIndex: record.getInt32(3),
+      // Field 2: EffectIndex
+      effectIndex: record.getInt32(2),
 
-      // Field 4: Effect
-      effect: record.getUInt32(4),
+      // Field 3: Effect
+      effect: record.getUInt32(3),
 
-      // Field 5: EffectAmplitude
-      effectAmplitude: record.getFloat(5),
+      // Field 4: EffectAmplitude
+      effectAmplitude: record.getFloat(4),
 
-      // Field 6: EffectAttributes
-      effectAttributes: record.getInt32(6),
+      // Field 5: EffectAttributes
+      effectAttributes: record.getInt32(5),
 
-      // Field 7: EffectAuraPeriod
-      effectAuraPeriod: record.getInt32(7),
+      // Field 6: EffectAuraPeriod
+      effectAuraPeriod: record.getInt32(6),
 
-      // Field 8: EffectBonusCoefficient
-      effectBonusCoefficient: record.getFloat(8),
+      // Field 7: EffectBonusCoefficient
+      effectBonusCoefficient: record.getFloat(7),
 
-      // Field 9: EffectChainAmplitude
-      effectChainAmplitude: record.getFloat(9),
+      // Field 8: EffectChainAmplitude
+      effectChainAmplitude: record.getFloat(8),
 
-      // Field 10: EffectChainTargets
-      effectChainTargets: record.getInt32(10),
+      // Field 9: EffectChainTargets
+      effectChainTargets: record.getInt32(9),
 
-      // Field 11: EffectItemType
-      effectItemType: record.getInt32(11),
+      // Field 10: EffectItemType
+      effectItemType: record.getInt32(10),
 
-      // Field 12: EffectMechanic
-      effectMechanic: record.getInt32(12),
+      // Field 11: EffectMechanic
+      effectMechanic: record.getInt32(11),
 
-      // Field 13: EffectPointsPerResource
-      effectPointsPerResource: record.getFloat(13),
+      // Field 12: EffectPointsPerResource
+      effectPointsPerResource: record.getFloat(12),
 
-      // Field 14: EffectPosFacing
-      effectPosFacing: record.getFloat(14),
+      // Field 13: EffectPosFacing
+      effectPosFacing: record.getFloat(13),
 
-      // Field 15: EffectRealPointsPerLevel
-      effectRealPointsPerLevel: record.getFloat(15),
+      // Field 14: EffectRealPointsPerLevel
+      effectRealPointsPerLevel: record.getFloat(14),
 
-      // Field 16: EffectTriggerSpell
-      effectTriggerSpell: record.getInt32(16),
+      // Field 15: EffectTriggerSpell
+      effectTriggerSpell: record.getInt32(15),
 
-      // Field 17: BonusCoefficientFromAP
-      bonusCoefficientFromAP: record.getFloat(17),
+      // Field 16: BonusCoefficientFromAP
+      bonusCoefficientFromAP: record.getFloat(16),
 
-      // Field 18: PvpMultiplier
-      pvpMultiplier: record.getFloat(18),
+      // Field 17: PvpMultiplier
+      pvpMultiplier: record.getFloat(17),
 
-      // Field 19: Coefficient
-      coefficient: record.getFloat(19),
+      // Field 18: Coefficient
+      coefficient: record.getFloat(18),
 
-      // Field 20: Variance
-      variance: record.getFloat(20),
+      // Field 19: Variance
+      variance: record.getFloat(19),
 
-      // Field 21: ResourceCoefficient
-      resourceCoefficient: record.getFloat(21),
+      // Field 20: ResourceCoefficient
+      resourceCoefficient: record.getFloat(20),
 
-      // Field 22: GroupSizeBasePointsCoefficient
-      groupSizeBasePointsCoefficient: record.getFloat(22),
+      // Field 21: GroupSizeBasePointsCoefficient
+      groupSizeBasePointsCoefficient: record.getFloat(21),
 
-      // Field 23: EffectBasePoints
-      effectBasePoints: record.getFloat(23),
+      // Field 22: EffectBasePoints
+      effectBasePoints: record.getFloat(22),
 
-      // Field 24: ScalingClass
-      scalingClass: record.getInt32(24),
+      // Field 23: ScalingClass
+      scalingClass: record.getInt32(23),
 
-      // Fields 25-26: EffectMiscValue (array expanded)
-      effectMiscValue: [
-        record.getInt32(25), // MiscValue 1
-        record.getInt32(26), // MiscValue 2
-      ],
+      // Field 24 is Node__Field_12_0_0_63534_001, added in 12.1 and unnamed in
+      // WoWDBDefs. It pushes every array column below down by one.
+      //
+      // Array columns are addressed as (field, arrayIndex) - they are single
+      // fields carrying arraySize elements, not runs of consecutive fields.
+      // Field 25: EffectMiscValue[2]
+      effectMiscValue: [record.getInt32(25, 0), record.getInt32(25, 1)],
 
-      // Fields 27-28: EffectRadiusIndex (array expanded)
-      effectRadiusIndex: [
-        record.getUInt32(27), // Radius 1
-        record.getUInt32(28), // Radius 2
-      ],
+      // Field 26: EffectRadiusIndex[2]
+      effectRadiusIndex: [record.getUInt32(26, 0), record.getUInt32(26, 1)],
 
-      // Fields 29-32: EffectSpellClassMask (128-bit expanded to 4x int32)
+      // Field 27: EffectSpellClassMask[4] (128-bit mask)
       effectSpellClassMask: [
-        record.getInt32(29), // Mask bits 0-31
-        record.getInt32(30), // Mask bits 32-63
-        record.getInt32(31), // Mask bits 64-95
-        record.getInt32(32), // Mask bits 96-127
+        record.getInt32(27, 0),
+        record.getInt32(27, 1),
+        record.getInt32(27, 2),
+        record.getInt32(27, 3),
       ],
 
-      // Fields 33-34: ImplicitTarget (array expanded)
+      // Field 28: ImplicitTarget[2]
       implicitTarget: [
-        this.convertToInt16(record.getUInt16(33)), // Target A
-        this.convertToInt16(record.getUInt16(34)), // Target B
+        this.convertToInt16(record.getUInt16(28, 0)),
+        this.convertToInt16(record.getUInt16(28, 1)),
       ],
 
-      // Field 35: SpellID (parent reference)
-      spellID: record.getUInt32(35),
+      // SpellID is $noninline,relation$ - it is not an inline field. The
+      // relationship block carries it; until that is surfaced per record it
+      // cannot be read here.
+      spellID: 0,
     };
   }
 
@@ -750,12 +757,13 @@ export class SpellEffectSchema {
 export const SpellEffectDB2Metadata = {
   fileName: 'SpellEffect.db2',
   fileDataId: 1140088,
-  layoutHash: 0x239b1b53,
-  fieldCount: 36, // Arrays expanded
-  compressedFieldCount: 29, // Actual DB2 fields
+  tableHash: 0xf04238a5,
+  layoutHash: 0x5362e3d4, // 12.1; 11.2.7 was 0x239b1b53
+  fieldCount: 31, // Columns in WoWDBDefs, arrays counted once
+  compressedFieldCount: 29, // Inline fields: 31 columns less ID and SpellID
   hasIndexField: false,
   hasParentIndexField: true,
-  parentIndexField: 35, // SpellID field
+  parentIndexField: 30, // SpellID, a $noninline,relation$ column
   hotfixSelector: 'HOTFIX_SEL_SPELL_EFFECT',
-  note: 'Each spell can have up to 3 effects (EffectIndex 0-2). Contains ~200,000 entries for WoW 12.0.',
+  note: 'Each spell can have up to 3 effects (EffectIndex 0-2). Contains 629,375 entries in WoW 12.1.',
 };

@@ -57,7 +57,7 @@ describe('SchemaRegistry', () => {
 
   describe('getParserByTableHash()', () => {
     it('should find Spell.db2 parser by hash', () => {
-      const parser = SchemaRegistry.getParserByTableHash(0x8c2c0c55);
+      const parser = SchemaRegistry.getParserByTableHash(0xe111669e);
       expect(parser).not.toBeNull();
       expect(parser!.getSchemaName()).toBe('Spell');
     });
@@ -94,7 +94,7 @@ describe('SchemaRegistry', () => {
 
   describe('hasSchemaForHash()', () => {
     it('should return true for registered hashes', () => {
-      expect(SchemaRegistry.hasSchemaForHash(0x8c2c0c55)).toBe(true);
+      expect(SchemaRegistry.hasSchemaForHash(0xe111669e)).toBe(true);
       expect(SchemaRegistry.hasSchemaForHash(0x50238ec2)).toBe(true);
       expect(SchemaRegistry.hasSchemaForHash(0x919be54e)).toBe(true);
     });
@@ -117,7 +117,7 @@ describe('SchemaRegistry', () => {
   describe('getRegisteredTableHashes()', () => {
     it('should return all registered table hashes', () => {
       const hashes = SchemaRegistry.getRegisteredTableHashes();
-      expect(hashes).toContain(0x8c2c0c55);
+      expect(hashes).toContain(0xe111669e);
       expect(hashes).toContain(0x50238ec2);
       expect(hashes).toContain(0x919be54e);
       expect(hashes.length).toBeGreaterThanOrEqual(3);
@@ -188,7 +188,7 @@ describe('SchemaFactory', () => {
         5: 0x00000100,
       });
 
-      const spell = SchemaFactory.parseByTableHash<SpellEntry>(0x8c2c0c55, mockRecord);
+      const spell = SchemaFactory.parseByTableHash<SpellEntry>(0xe111669e, mockRecord);
       expect(spell).not.toBeNull();
       expect(spell!.id).toBe(8326);
     });

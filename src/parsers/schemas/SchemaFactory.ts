@@ -82,7 +82,7 @@ class SpellSchemaParser implements ISchemaParser<SpellEntry> {
   getTableHashes(): number[] {
     // Known Spell.db2 table hashes for WoW 12.0
     return [
-      0x8C2C0C55, // 12.0.0 Spell.db2
+      0xE111669E, // Spell.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -107,7 +107,7 @@ class ItemBasicSchemaParser implements ISchemaParser<ItemEntry> {
   getTableHashes(): number[] {
     // Known Item.db2 table hashes for WoW 12.0
     return [
-      0x50238EC2, // 12.0.0 Item.db2
+      0x50238EC2, // Item.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -132,7 +132,7 @@ class ItemSparseSchemaParser implements ISchemaParser<ItemSparseEntry> {
   getTableHashes(): number[] {
     // Known ItemSparse.db2 table hashes for WoW 12.0
     return [
-      0x919BE54E, // 12.0.0 ItemSparse.db2
+      0x919BE54E, // ItemSparse.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -155,9 +155,9 @@ class ChrClassesSchemaParser implements ISchemaParser<ChrClassesEntry> {
   }
 
   getTableHashes(): number[] {
-    // Known ChrClasses table hashes for WoW 12.0
+    // Known ChrClasses table hashes
     return [
-      0x9871C02B, // 12.0.0 ChrClasses.db2
+      0xF5889D8C, // ChrClasses.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -176,13 +176,15 @@ class ChrClassesXPowerTypesSchemaParser implements ISchemaParser<ChrClassesXPowe
   }
 
   getFileNames(): string[] {
-    return ['ChrClasses_X_PowerTypes.db2'];
+    // Real filename has no underscores; the underscored spelling is kept
+    // as an alias because callers and older callsites still use it.
+    return ['ChrClassesXPowerTypes.db2', 'ChrClasses_X_PowerTypes.db2'];
   }
 
   getTableHashes(): number[] {
-    // Known ChrClasses_X_PowerTypes table hashes for WoW 12.0
+    // Known ChrClassesXPowerTypes table hashes
     return [
-      0x224D3FB9, // 12.0.0 ChrClasses_X_PowerTypes.db2
+      0xC0315ACF, // ChrClassesXPowerTypes.db2 (table hash, verified 12.1)
     ];
   }
 }
@@ -205,9 +207,9 @@ class ChrRacesSchemaParser implements ISchemaParser<ChrRacesEntry> {
   }
 
   getTableHashes(): number[] {
-    // Known ChrRaces table hashes for WoW 12.0
+    // Known ChrRaces table hashes
     return [
-      0xA4A665B9, // 12.0.0 ChrRaces.db2
+      0x53F1783C, // ChrRaces.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -230,9 +232,9 @@ class CharBaseInfoSchemaParser implements ISchemaParser<CharBaseInfoEntry> {
   }
 
   getTableHashes(): number[] {
-    // Known CharBaseInfo table hashes for WoW 12.0
+    // Known CharBaseInfo table hashes
     return [
-      0xE63CAE82, // 12.0.0 CharBaseInfo.db2
+      0x3067A8F8, // CharBaseInfo.db2 (table hash, verified 11.2.7 + 12.1)
     ];
   }
 }
@@ -257,7 +259,7 @@ class TalentSchemaParser implements ISchemaParser<TalentEntry> {
   getTableHashes(): number[] {
     // Known Talent.db2 table hashes for WoW 12.0
     return [
-      0x147B0045, // 12.0.0 Talent.db2 (LEGACY)
+      0xF9A4265F, // Talent.db2 (table hash; 0x147B0045 was its LAYOUT hash)
     ];
   }
 }
@@ -282,7 +284,7 @@ class SpellEffectSchemaParser implements ISchemaParser<SpellEffectEntry> {
   getTableHashes(): number[] {
     // Known SpellEffect.db2 table hashes for WoW 12.0
     return [
-      0x239B1B53, // 12.0.0 SpellEffect.db2
+      0xF04238A5, // SpellEffect.db2 (table hash; 0x239B1B53 was its 11.2.7 LAYOUT hash)
     ];
   }
 }

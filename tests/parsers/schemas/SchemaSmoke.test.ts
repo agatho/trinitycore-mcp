@@ -167,7 +167,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should parse by table hash', () => {
       const mockRecord = new MockDB2Record({ 0: 8326 });
-      const spell = SchemaFactory.parseByTableHash<SpellEntry>(0x8c2c0c55, mockRecord);
+      const spell = SchemaFactory.parseByTableHash<SpellEntry>(0xe111669e, mockRecord);
 
       expect(spell).not.toBeNull();
       expect(spell!.id).toBe(8326);
@@ -239,8 +239,8 @@ describe('Schema Smoke Tests', () => {
 
       // SpellEffect
       const spellEffectRecord = new MockDB2Record({
-        0: 100001,
-        4: SpellEffectName.SCHOOL_DAMAGE,
+        [-1]: 100001, // id via getId(); SpellEffect.db2 ID is noninline
+        3: SpellEffectName.SCHOOL_DAMAGE,
         35: 12345,
       });
       const spellEffect = SchemaFactory.parseByFileName<SpellEffectEntry>('SpellEffect.db2', spellEffectRecord);
@@ -250,15 +250,15 @@ describe('Schema Smoke Tests', () => {
     });
 
     it('should parse Week 5 schemas by table hash', () => {
-      // ChrClasses (0x9871C02B)
+      // ChrClasses (table hash 0xF5889D8C)
       const chrClassesRecord = new MockDB2Record({ 29: Classes.CLASS_MAGE });
-      const chrClass = SchemaFactory.parseByTableHash<ChrClassesEntry>(0x9871c02b, chrClassesRecord);
+      const chrClass = SchemaFactory.parseByTableHash<ChrClassesEntry>(0xf5889d8c, chrClassesRecord);
       expect(chrClass).not.toBeNull();
       expect(chrClass?.id).toBe(Classes.CLASS_MAGE);
 
-      // SpellEffect (0x239B1B53)
-      const spellEffectRecord = new MockDB2Record({ 0: 200002, 4: SpellEffectName.HEAL });
-      const spellEffect = SchemaFactory.parseByTableHash<SpellEffectEntry>(0x239b1b53, spellEffectRecord);
+      // SpellEffect (table hash 0xF04238A5)
+      const spellEffectRecord = new MockDB2Record({ [-1]: 200002, 3: SpellEffectName.HEAL });
+      const spellEffect = SchemaFactory.parseByTableHash<SpellEffectEntry>(0xf04238a5, spellEffectRecord);
       expect(spellEffect).not.toBeNull();
       expect(spellEffect?.id).toBe(200002);
       expect(spellEffect?.effect).toBe(SpellEffectName.HEAL);
@@ -269,12 +269,12 @@ describe('Schema Smoke Tests', () => {
       expect(chrClassesInfo).not.toBeNull();
       expect(chrClassesInfo?.name).toBe('ChrClasses');
       expect(chrClassesInfo?.fileNames).toContain('ChrClasses.dbc');
-      expect(chrClassesInfo?.tableHashes).toContain('0x9871C02B');
+      expect(chrClassesInfo?.tableHashes).toContain('0xF5889D8C');
 
       const spellEffectInfo = SchemaFactory.getSchemaInfo('SpellEffect.db2');
       expect(spellEffectInfo).not.toBeNull();
       expect(spellEffectInfo?.name).toBe('SpellEffect');
-      expect(spellEffectInfo?.tableHashes).toContain('0x239B1B53');
+      expect(spellEffectInfo?.tableHashes).toContain('0xF04238A5');
     });
   });
 
@@ -910,42 +910,37 @@ describe('Schema Smoke Tests', () => {
   describe('SpellEffectSchema', () => {
     it('should parse basic spell effect entry', () => {
       const mockRecord = new MockDB2Record({
-        0: 100001, // id
-        1: 0, // effectAura (none, not an aura effect)
-        2: 0, // difficultyID (normal)
-        3: 0, // effectIndex (first effect)
-        4: SpellEffectName.SCHOOL_DAMAGE, // effect (damage)
-        5: 0.0, // effectAmplitude
-        6: SpellEffectAttributes.IS_HARMFUL, // effectAttributes
-        7: 0, // effectAuraPeriod
-        8: 0.85, // effectBonusCoefficient
-        9: 0.0, // effectChainAmplitude
-        10: 0, // effectChainTargets
-        11: 0, // effectItemType
-        12: Mechanics.NONE, // effectMechanic
-        13: 0.0, // effectPointsPerResource
-        14: 0.0, // effectPosFacing
-        15: 0.0, // effectRealPointsPerLevel
-        16: 0, // effectTriggerSpell
-        17: 0.0, // bonusCoefficientFromAP
-        18: 1.0, // pvpMultiplier
-        19: 1.0, // coefficient
-        20: 0.0, // variance
-        21: 0.0, // resourceCoefficient
-        22: 1.0, // groupSizeBasePointsCoefficient
-        23: 100.0, // effectBasePoints (100 damage)
-        24: -1, // scalingClass (all classes)
-        25: 0, // effectMiscValue[0]
-        26: 0, // effectMiscValue[1]
-        27: 0, // effectRadiusIndex[0]
-        28: 0, // effectRadiusIndex[1]
-        29: 0, // effectSpellClassMask[0]
-        30: 0, // effectSpellClassMask[1]
-        31: 0, // effectSpellClassMask[2]
-        32: 0, // effectSpellClassMask[3]
-        33: Targets.UNIT_TARGET_ENEMY, // implicitTarget[0] (target enemy)
-        34: 0, // implicitTarget[1] (no secondary target)
-        35: 12345, // spellID (parent spell)
+        [-1]: 100001, // id via getId(); ID is noninline, so it is not field 0
+        0: 0, // effectAura (none, not an aura effect)
+        1: 0, // difficultyID (normal)
+        2: 0, // effectIndex (first effect)
+        3: SpellEffectName.SCHOOL_DAMAGE, // effect (damage)
+        4: 0.0, // effectAmplitude
+        5: SpellEffectAttributes.IS_HARMFUL, // effectAttributes
+        6: 0, // effectAuraPeriod
+        7: 0.85, // effectBonusCoefficient
+        8: 0.0, // effectChainAmplitude
+        9: 0, // effectChainTargets
+        10: 0, // effectItemType
+        11: Mechanics.NONE, // effectMechanic
+        12: 0.0, // effectPointsPerResource
+        13: 0.0, // effectPosFacing
+        14: 0.0, // effectRealPointsPerLevel
+        15: 0, // effectTriggerSpell
+        16: 0.0, // bonusCoefficientFromAP
+        17: 1.0, // pvpMultiplier
+        18: 1.0, // coefficient
+        19: 0.0, // variance
+        20: 0.0, // resourceCoefficient
+        21: 1.0, // groupSizeBasePointsCoefficient
+        22: 100.0, // effectBasePoints (100 damage)
+        23: -1, // scalingClass (all classes)
+        24: 0, // Node__Field_12_0_0_63534_001 (added in 12.1)
+        // Array columns are one field each, addressed by arrayIndex
+        25: [0, 0], // effectMiscValue[2]
+        26: [0, 0], // effectRadiusIndex[2]
+        27: [0, 0, 0, 0], // effectSpellClassMask[4]
+        28: [Targets.UNIT_TARGET_ENEMY, 0], // implicitTarget[2]
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -955,13 +950,15 @@ describe('Schema Smoke Tests', () => {
       expect(effect.effectIndex).toBe(0);
       expect(effect.effectBasePoints).toBe(100.0);
       expect(effect.effectBonusCoefficient).toBe(0.85);
-      expect(effect.spellID).toBe(12345);
+      // SpellID is a noninline relation column: it lives in the relationship
+      // block, not in the record, so the schema cannot read it from a field.
+      expect(effect.spellID).toBe(0);
     });
 
     it('should identify damage effects', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.SCHOOL_DAMAGE,
-        23: 100.0,
+        3: SpellEffectName.SCHOOL_DAMAGE,
+        22: 100.0,
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -973,8 +970,8 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify heal effects', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.HEAL,
-        23: 200.0,
+        3: SpellEffectName.HEAL,
+        22: 200.0,
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -985,10 +982,10 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify aura effects', () => {
       const mockRecord = new MockDB2Record({
-        1: AuraType.PERIODIC_DAMAGE, // effectAura
-        4: SpellEffectName.APPLY_AURA, // effect
-        7: 3000, // effectAuraPeriod (3 seconds)
-        23: 50.0, // effectBasePoints (50 per tick)
+        0: AuraType.PERIODIC_DAMAGE, // effectAura
+        3: SpellEffectName.APPLY_AURA, // effect
+        6: 3000, // effectAuraPeriod (3 seconds)
+        22: 50.0, // effectBasePoints (50 per tick)
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1000,7 +997,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify periodic effects', () => {
       const mockRecord = new MockDB2Record({
-        7: 3000, // effectAuraPeriod (3 seconds)
+        6: 3000, // effectAuraPeriod (3 seconds)
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1010,11 +1007,10 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify chain target effects', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.SCHOOL_DAMAGE,
-        9: 0.3, // effectChainAmplitude (30% reduction per hop)
-        10: 3, // effectChainTargets (max 3 targets)
-        33: Targets.UNIT_TARGET_ENEMY,
-        34: Targets.UNIT_NEARBY_ENEMY,
+        3: SpellEffectName.SCHOOL_DAMAGE,
+        8: 0.3, // effectChainAmplitude (30% reduction per hop)
+        9: 3, // effectChainTargets (max 3 targets)
+        28: [Targets.UNIT_TARGET_ENEMY, Targets.UNIT_NEARBY_ENEMY],
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1026,10 +1022,10 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify area targeting', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.SCHOOL_DAMAGE,
-        27: 12, // effectRadiusIndex[0] (8 yard radius)
-        33: Targets.DEST_CASTER, // implicitTarget[0]
-        34: Targets.UNIT_DEST_AREA_ENEMY, // implicitTarget[1] (area around dest)
+        3: SpellEffectName.SCHOOL_DAMAGE,
+        26: [12, 0], // effectRadiusIndex[0] (8 yard radius)
+        // implicitTarget[0] caster dest, [1] area around dest
+        28: [Targets.DEST_CASTER, Targets.UNIT_DEST_AREA_ENEMY],
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1040,8 +1036,8 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify triggered spells', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.TRIGGER_SPELL,
-        16: 54321, // effectTriggerSpell
+        3: SpellEffectName.TRIGGER_SPELL,
+        15: 54321, // effectTriggerSpell
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1052,9 +1048,9 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify item creation', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.CREATE_ITEM,
-        11: 18562, // effectItemType (item ID)
-        25: 1, // effectMiscValue[0] (item count)
+        3: SpellEffectName.CREATE_ITEM,
+        10: 18562, // effectItemType (item ID)
+        25: [1, 0], // effectMiscValue[0] (item count)
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1065,9 +1061,8 @@ describe('Schema Smoke Tests', () => {
 
     it('should identify summon effects', () => {
       const mockRecord = new MockDB2Record({
-        4: SpellEffectName.SUMMON,
-        25: 416, // effectMiscValue[0] (creature entry)
-        26: 1, // effectMiscValue[1] (summon type)
+        3: SpellEffectName.SUMMON,
+        25: [416, 1], // effectMiscValue: creature entry, summon type
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1078,7 +1073,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should check target requirements', () => {
       const mockRecord = new MockDB2Record({
-        33: Targets.UNIT_TARGET_ENEMY, // implicitTarget[0]
+        28: [Targets.UNIT_TARGET_ENEMY, 0], // implicitTarget
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1090,7 +1085,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should check effect attributes', () => {
       const mockRecord = new MockDB2Record({
-        6: SpellEffectAttributes.IS_HARMFUL | SpellEffectAttributes.PLAYERS_ONLY,
+        5: SpellEffectAttributes.IS_HARMFUL | SpellEffectAttributes.PLAYERS_ONLY,
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1104,8 +1099,8 @@ describe('Schema Smoke Tests', () => {
 
     it('should calculate power coefficient', () => {
       const mockRecord = new MockDB2Record({
-        8: 0.85, // effectBonusCoefficient (spell power)
-        17: 0.15, // bonusCoefficientFromAP (attack power)
+        7: 0.85, // effectBonusCoefficient (spell power)
+        16: 0.15, // bonusCoefficientFromAP (attack power)
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1115,7 +1110,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should get base value', () => {
       const mockRecord = new MockDB2Record({
-        23: 150.0, // effectBasePoints
+        22: 150.0, // effectBasePoints
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1125,7 +1120,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should calculate tick count', () => {
       const mockRecord = new MockDB2Record({
-        7: 3000, // effectAuraPeriod (3 seconds)
+        6: 3000, // effectAuraPeriod (3 seconds)
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1134,17 +1129,15 @@ describe('Schema Smoke Tests', () => {
       expect(SpellEffectSchema.getTickCount(effect, 18000)).toBe(6);
 
       // Non-periodic returns 0
-      const nonPeriodicRecord = new MockDB2Record({ 7: 0 });
+      const nonPeriodicRecord = new MockDB2Record({ 6: 0 });
       const nonPeriodicEffect = SpellEffectSchema.parse(nonPeriodicRecord);
       expect(SpellEffectSchema.getTickCount(nonPeriodicEffect, 18000)).toBe(0);
     });
 
     it('should match spell class mask', () => {
       const mockRecord = new MockDB2Record({
-        29: 0x00000001, // effectSpellClassMask[0]
-        30: 0x00000002, // effectSpellClassMask[1]
-        31: 0x00000004, // effectSpellClassMask[2]
-        32: 0x00000008, // effectSpellClassMask[3]
+        // effectSpellClassMask[4] - one field, four array elements
+        27: [0x00000001, 0x00000002, 0x00000004, 0x00000008],
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
@@ -1160,8 +1153,8 @@ describe('Schema Smoke Tests', () => {
     });
 
     it('should get scaling class name', () => {
-      const warriorRecord = new MockDB2Record({ 24: 1 });
-      const allClassesRecord = new MockDB2Record({ 24: -1 });
+      const warriorRecord = new MockDB2Record({ 23: 1 });
+      const allClassesRecord = new MockDB2Record({ 23: -1 });
 
       const warriorEffect = SpellEffectSchema.parse(warriorRecord);
       const allClassesEffect = SpellEffectSchema.parse(allClassesRecord);
@@ -1172,28 +1165,28 @@ describe('Schema Smoke Tests', () => {
 
     it('should generate effect description', () => {
       const damageRecord = new MockDB2Record({
-        3: 0, // effectIndex
-        4: SpellEffectName.SCHOOL_DAMAGE,
-        7: 0, // not periodic
-        10: 0, // no chain
-        33: Targets.UNIT_TARGET_ENEMY,
+        2: 0, // effectIndex
+        3: SpellEffectName.SCHOOL_DAMAGE,
+        6: 0, // not periodic
+        9: 0, // no chain
+        28: [Targets.UNIT_TARGET_ENEMY, 0],
       });
 
       const auraRecord = new MockDB2Record({
-        1: AuraType.PERIODIC_DAMAGE,
-        3: 1, // effectIndex
-        4: SpellEffectName.APPLY_AURA,
-        7: 3000, // periodic (3s)
-        10: 0,
-        33: Targets.UNIT_CASTER,
+        0: AuraType.PERIODIC_DAMAGE,
+        2: 1, // effectIndex
+        3: SpellEffectName.APPLY_AURA,
+        6: 3000, // periodic (3s)
+        9: 0,
+        28: [Targets.UNIT_CASTER, 0],
       });
 
       const chainRecord = new MockDB2Record({
-        3: 2, // effectIndex
-        4: SpellEffectName.SCHOOL_DAMAGE,
-        7: 0,
-        10: 3, // chain to 3 targets
-        33: Targets.UNIT_TARGET_ENEMY,
+        2: 2, // effectIndex
+        3: SpellEffectName.SCHOOL_DAMAGE,
+        6: 0,
+        9: 3, // chain to 3 targets
+        28: [Targets.UNIT_TARGET_ENEMY, 0],
       });
 
       const damageEffect = SpellEffectSchema.parse(damageRecord);
@@ -1219,16 +1212,10 @@ describe('Schema Smoke Tests', () => {
 
     it('should parse all array fields correctly', () => {
       const mockRecord = new MockDB2Record({
-        25: 100, // effectMiscValue[0]
-        26: 200, // effectMiscValue[1]
-        27: 10, // effectRadiusIndex[0]
-        28: 20, // effectRadiusIndex[1]
-        29: 0x1, // effectSpellClassMask[0]
-        30: 0x2, // effectSpellClassMask[1]
-        31: 0x4, // effectSpellClassMask[2]
-        32: 0x8, // effectSpellClassMask[3]
-        33: Targets.UNIT_TARGET_ENEMY, // implicitTarget[0]
-        34: Targets.UNIT_NEARBY_ENEMY, // implicitTarget[1]
+        25: [100, 200], // effectMiscValue[2]
+        26: [10, 20], // effectRadiusIndex[2]
+        27: [0x1, 0x2, 0x4, 0x8], // effectSpellClassMask[4]
+        28: [Targets.UNIT_TARGET_ENEMY, Targets.UNIT_NEARBY_ENEMY], // implicitTarget[2]
       });
 
       const effect = SpellEffectSchema.parse(mockRecord);
