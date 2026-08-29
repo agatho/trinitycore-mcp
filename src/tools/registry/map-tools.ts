@@ -10,6 +10,37 @@ import { ToolRegistryEntry, ToolResponse, jsonResponse } from "./types";
 import { listVMapFiles, getVMapFileInfo, testLineOfSight, findSpawnsInRadius } from "../vmap-tools";
 import { listMMapFiles, getMMapFileInfo, findPath, isOnNavMesh } from "../mmap-tools";
 import { getMapMinimap, getMinimapTile, getMinimapTilesBatch, clearMinimapCache } from "../minimap";
+import { resolveDataPath } from "../../version/BuildManifest";
+
+/**
+ * Resolve the VMap or MMap directory for a tool call.
+ *
+ * An explicit argument wins, then the environment override, then the active
+ * build's manifest entry. Without the manifest step these tools read whatever
+ * VMAP_PATH happened to point at, so switching the active build would leave
+ * them on the previous build's collision data.
+ *
+ * Must be called per request, not at module load: the manifest is read after
+ * this module is imported.
+ *
+ * @param explicit Directory named by the caller, if any
+ * @param kind Which of the manifest's data paths to fall back to
+ * @param envOverride Environment variable consulted before the manifest
+ * @returns Directory to read from
+ */
+function resolveMapDir(
+  explicit: string | undefined,
+  kind: "vmap" | "mmap",
+  envOverride: string | undefined
+): string {
+  if (explicit) {
+    return explicit;
+  }
+  if (envOverride) {
+    return envOverride;
+  }
+  return resolveDataPath(kind);
+}
 
 export const mapTools: ToolRegistryEntry[] = [
   // VMap Tools
@@ -20,12 +51,12 @@ export const mapTools: ToolRegistryEntry[] = [
       inputSchema: {
         type: "object",
         properties: {
-          vmapDir: { type: "string", description: "Path to VMap directory (default: from VMAP_PATH env variable)" },
+          vmapDir: { type: "string", description: "Path to VMap directory (default: VMAP_PATH, else the active build's vmap path)" },
         },
       },
     },
     handler: async (args) => {
-      const vmapDir = (args.vmapDir as string | undefined) || process.env.VMAP_PATH || "./data/vmaps";
+      const vmapDir = resolveMapDir(args.vmapDir as string | undefined, "vmap", process.env.VMAP_PATH);
       const result = await listVMapFiles(vmapDir);
       return jsonResponse(result);
     },
@@ -68,7 +99,7 @@ export const mapTools: ToolRegistryEntry[] = [
     },
     handler: async (args) => {
       const result = await testLineOfSight({
-        vmapDir: args.vmapDir as string,
+        vmapDir: resolveMapDir(args.vmapDir as string | undefined, "vmap", process.env.VMAP_PATH),
         mapId: args.mapId as number,
         startX: args.startX as number,
         startY: args.startY as number,
@@ -99,7 +130,7 @@ export const mapTools: ToolRegistryEntry[] = [
     },
     handler: async (args) => {
       const result = await findSpawnsInRadius({
-        vmapDir: args.vmapDir as string,
+        vmapDir: resolveMapDir(args.vmapDir as string | undefined, "vmap", process.env.VMAP_PATH),
         mapId: args.mapId as number,
         centerX: args.centerX as number,
         centerY: args.centerY as number,
@@ -117,12 +148,12 @@ export const mapTools: ToolRegistryEntry[] = [
       inputSchema: {
         type: "object",
         properties: {
-          mmapDir: { type: "string", description: "Path to MMap directory (default: from MMAP_PATH env variable)" },
+          mmapDir: { type: "string", description: "Path to MMap directory (default: MMAP_PATH, else the active build's mmap path)" },
         },
       },
     },
     handler: async (args) => {
-      const mmapDir = (args.mmapDir as string | undefined) || process.env.MMAP_PATH || "./data/mmaps";
+      const mmapDir = resolveMapDir(args.mmapDir as string | undefined, "mmap", process.env.MMAP_PATH);
       const result = await listMMapFiles(mmapDir);
       return jsonResponse(result);
     },
@@ -165,7 +196,7 @@ export const mapTools: ToolRegistryEntry[] = [
     },
     handler: async (args) => {
       const result = await findPath({
-        mmapDir: args.mmapDir as string,
+        mmapDir: resolveMapDir(args.mmapDir as string | undefined, "mmap", process.env.MMAP_PATH),
         mapId: args.mapId as number,
         startX: args.startX as number,
         startY: args.startY as number,
@@ -195,7 +226,7 @@ export const mapTools: ToolRegistryEntry[] = [
     },
     handler: async (args) => {
       const result = await isOnNavMesh({
-        mmapDir: args.mmapDir as string,
+        mmapDir: resolveMapDir(args.mmapDir as string | undefined, "mmap", process.env.MMAP_PATH),
         mapId: args.mapId as number,
         posX: args.posX as number,
         posY: args.posY as number,

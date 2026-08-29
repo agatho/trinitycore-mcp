@@ -2,15 +2,11 @@ import * as fs from "fs";
 import * as path from "path";
 import { parseBuildManifest } from "../../src/version/BuildManifest";
 
-// NOTE: This is Task 11a's version of this test. The brief (task-11-brief.md)
-// specifies a version asserting a 12.1.0.69497 *active* build — that is
-// Task 11b's cutover (extracting the 12.1 client, recording its layout
-// hashes, and flipping activeBuild). Task 11a only stands up the manifest
-// with the ARCHIVED pre-migration build as active, so the assertions below check
-// for build 65299 / id "11.2.7.65299". That extraction was identified as
-// WoW 11.2.7 via WoWDBDefs layout matching, not 12.0.x as once assumed.
-// A future cutover to 12.1.0.69497 should update
-// this file again when it performs the actual cutover.
+// The 12.1 cutover. The manifest previously shipped with the pre-migration
+// extraction (11.2.7.65299) active while the 12.1 schemas were still being
+// verified; that build is now archived and 12.1.0.69497 is active. It is kept
+// in the manifest rather than removed so its data and caches stay reachable by
+// build id.
 describe("config/builds.json", () => {
   const p = path.join(process.cwd(), "config", "builds.json");
 
@@ -22,10 +18,18 @@ describe("config/builds.json", () => {
     expect(() => parseBuildManifest(JSON.parse(fs.readFileSync(p, "utf8")))).not.toThrow();
   });
 
-  it("declares the archived 11.2.7 build as the active build", () => {
+  it("declares 12.1.0.69497 as the active build", () => {
     const m = parseBuildManifest(JSON.parse(fs.readFileSync(p, "utf8")));
-    expect(m.activeBuild).toBe("11.2.7.65299");
+    expect(m.activeBuild).toBe("12.1.0.69497");
+    expect(m.builds["12.1.0.69497"].build).toBe(69497);
+    expect(m.builds["12.1.0.69497"].status).toBe("active");
+    expect(m.builds["12.1.0.69497"].expansion).toBe("Midnight");
+  });
+
+  it("retains the previous build, archived", () => {
+    const m = parseBuildManifest(JSON.parse(fs.readFileSync(p, "utf8")));
     expect(m.builds["11.2.7.65299"].build).toBe(65299);
+    expect(m.builds["11.2.7.65299"].status).toBe("archived");
   });
 
   it("retains at least one build present in the manifest", () => {
