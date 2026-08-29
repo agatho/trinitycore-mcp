@@ -64,24 +64,24 @@ describe('ItemSchema', () => {
   });
 
   describe('parseSparse()', () => {
+    // Field indices are ItemSparse.db2's inline fields for the 12.1 layout
+    // 0x1C17D17F. ID is a noninline column carried by the catalog, so mocks
+    // supply it through getId() rather than as field 0.
     it('should parse sparse item entry with stats', () => {
       const mockRecord = new MockDB2Record({
-        0: 25, // id
-        1: 'Worn Shortsword', // name
-        2: '', // description
-        3: '', // display
-        4: BigInt(0), // buyPrice
-        5: 18, // sellPrice
-        9: ItemQuality.COMMON, // overallQualityId
-        10: InventoryType.WEAPON, // inventoryType
-        11: 5, // itemLevel
-        12: 1, // requiredLevel
-        // Stats: 10 slots × 2 fields (type, value)
-        20: ItemModType.STRENGTH, // stat 0 type
-        21: 2, // stat 0 value
-        22: ItemModType.STAMINA, // stat 1 type
-        23: 3, // stat 1 value
-        24: 0, // stat 2 type (empty)
+        [-1]: 25, // id via getId()
+        4: 'Worn Shortsword', // Display_lang, the item name
+        0: '', // Description_lang
+        22: 3, // SellPrice
+        23: 18, // BuyPrice
+        66: ItemQuality.COMMON, // OverallQualityID
+        65: InventoryType.WEAPON, // InventoryType
+        50: 5, // ItemLevel
+        64: 1, // RequiredLevel
+        // Ten stat slots, each one field addressed by arrayIndex
+        16: [ItemModType.STRENGTH, ItemModType.STAMINA], // StatModifier_bonusStat
+        15: [2, 3], // StatPercentEditor
+        14: [0, 0], // StatPercentageOfSocket
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
@@ -90,6 +90,8 @@ describe('ItemSchema', () => {
       expect(item.name).toBe('Worn Shortsword');
       expect(item.overallQualityId).toBe(ItemQuality.COMMON);
       expect(item.itemLevel).toBe(5);
+      expect(item.sellPrice).toBe(3);
+      expect(item.buyPrice).toBe(18);
       expect(item.stats.length).toBe(2);
       expect(item.stats[0].type).toBe(ItemModType.STRENGTH);
       expect(item.stats[0].value).toBe(2);
@@ -97,94 +99,81 @@ describe('ItemSchema', () => {
       expect(item.stats[1].value).toBe(3);
     });
 
-    it('should parse item with sockets', () => {
+    it('should parse socket types', () => {
       const mockRecord = new MockDB2Record({
-        0: 32837, // id (Wrath of Spellfire)
-        1: 'Wrath of Spellfire',
-        9: ItemQuality.EPIC,
-        // Sockets: 3 slots × 2 fields (color, content)
-        40: 1, // socket 0 color (Meta)
-        41: 0, // socket 0 content
-        42: 2, // socket 1 color (Red)
-        43: 0, // socket 1 content
-        44: 8, // socket 2 color (Yellow)
-        45: 0, // socket 2 content
+        [-1]: 32837,
+        4: 'Wrath of Spellfire',
+        66: ItemQuality.EPIC,
+        55: [1, 2, 8], // SocketType: Meta, Red, Yellow
+        39: 3729, // Socket_match_enchantment_ID
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
       expect(item.id).toBe(32837);
-      expect(item.sockets.length).toBe(3);
-      expect(item.sockets[0].color).toBe(1); // Meta
-      expect(item.sockets[1].color).toBe(2); // Red
-      expect(item.sockets[2].color).toBe(8); // Yellow
+      expect(item.socketTypes).toEqual([1, 2, 8]);
+      expect(item.socketMatchEnchantmentId).toBe(3729);
     });
 
-    it('should parse weapon with damage', () => {
+    it('should parse weapon speed and damage school', () => {
+      // Damage ranges left ItemSparse; what remains is the swing speed, the
+      // damage school and the variance used to derive them elsewhere.
       const mockRecord = new MockDB2Record({
-        0: 25, // id
-        1: 'Worn Shortsword',
-        9: ItemQuality.COMMON,
-        // Damages: 5 slots × 3 fields (min, max, type)
-        46: 3.0, // damage 0 min
-        47: 7.0, // damage 0 max
-        48: 0, // damage 0 type (Physical)
-        49: 0.0, // damage 1 min (empty)
+        [-1]: 25,
+        4: 'Worn Shortsword',
+        46: 2000, // ItemDelay, milliseconds
+        60: 0, // DamageType, physical
+        6: 0.5, // DmgVariance
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.damages.length).toBe(1);
-      expect(item.damages[0].damageMin).toBe(3.0);
-      expect(item.damages[0].damageMax).toBe(7.0);
-      expect(item.damages[0].damageType).toBe(0); // Physical
+      expect(item.itemDelay).toBe(2000);
+      expect(item.damageType).toBe(0);
+      expect(item.dmgVariance).toBeCloseTo(0.5, 3);
     });
 
-    it('should parse item with spells', () => {
+    it('should read the race mask from its two halves', () => {
       const mockRecord = new MockDB2Record({
-        0: 5512, // id (Healthstone)
-        1: 'Healthstone',
-        // Spells: 5 slots × 6 fields (id, trigger, charges, cooldown, category, categoryCooldown)
-        61: 6262, // spell 0 id (Healthstone heal)
-        62: ItemSpellTriggerType.ON_USE, // spell 0 trigger
-        63: 1, // spell 0 charges
-        64: 120000, // spell 0 cooldown (2 minutes)
-        65: 0, // spell 0 category
-        66: 0, // spell 0 categoryCooldown
-        67: 0, // spell 1 id (empty)
+        [-1]: 25,
+        4: 'Worn Shortsword',
+        21: [-1, -1], // AllowableRaces, all races
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.spells.length).toBe(1);
-      expect(item.spells[0].spellId).toBe(6262);
-      expect(item.spells[0].trigger).toBe(ItemSpellTriggerType.ON_USE);
-      expect(item.spells[0].charges).toBe(1);
-      expect(item.spells[0].cooldown).toBe(120000);
+      expect(item.allowableRace).toBe(BigInt(-1));
     });
 
-    it('should parse item with resistances', () => {
+    it('should read signed narrow columns', () => {
+      // AllowableClass is a signed 16-bit column and is -1 for "any class";
+      // reading it unsigned would report 65535.
       const mockRecord = new MockDB2Record({
-        0: 1234, // id
-        1: 'Test Armor',
-        107: 100, // armor
-        108: 5, // holyResistance
-        109: 10, // fireResistance
-        110: 15, // natureResistance
-        111: 20, // frostResistance
-        112: 25, // shadowResistance
-        113: 30, // arcaneResistance
+        [-1]: 25,
+        4: 'Worn Shortsword',
+        51: -1, // AllowableClass
+        64: 60, // RequiredLevel, a signed 8-bit column
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.armor).toBe(100);
-      expect(item.holyResistance).toBe(5);
-      expect(item.fireResistance).toBe(10);
-      expect(item.natureResistance).toBe(15);
-      expect(item.frostResistance).toBe(20);
-      expect(item.shadowResistance).toBe(25);
-      expect(item.arcaneResistance).toBe(30);
+      expect(item.allowableClass).toBe(-1);
+      expect(item.requiredLevel).toBe(60);
+    });
+
+    it('should skip empty stat slots', () => {
+      const mockRecord = new MockDB2Record({
+        [-1]: 25,
+        4: 'Worn Shortsword',
+        16: [ItemModType.STRENGTH, 0, ItemModType.STAMINA],
+        15: [5, 99, 7],
+        14: [0, 0, 0],
+      });
+
+      const item = ItemSchema.parseSparse(mockRecord);
+
+      expect(item.stats.length).toBe(2);
+      expect(item.stats.map((s) => s.value)).toEqual([5, 7]);
     });
   });
 
@@ -212,72 +201,72 @@ describe('ItemSchema', () => {
         id: 25,
         name: 'Worn Shortsword',
         description: '',
-        display: '',
-        buyPrice: BigInt(0),
-        sellPrice: 18,
-        priceRandomValue: 0,
-        priceVariance: 0,
+        display1: '',
+        display2: '',
+        display3: '',
+        buyPrice: 18,
+        sellPrice: 3,
+        priceVariance: 1.0,
+        priceRandomValue: 1.0,
         vendorStackCount: 1,
         overallQualityId: ItemQuality.COMMON,
         inventoryType: InventoryType.WEAPON,
         itemLevel: 5,
         requiredLevel: 1,
+        expansionId: 0,
+        itemSquishEraId: 0,
         requiredSkill: 0,
         requiredSkillRank: 0,
         requiredAbility: 0,
         minFactionId: 0,
         minReputation: 0,
+        requiredPvpMedal: 0,
+        requiredPvpRank: 0,
+        requiredHoliday: 0,
+        requiredTransmogHoliday: 0,
         allowableClass: -1,
         allowableRace: BigInt(-1),
-        flags: 0,
-        flags2: 0,
-        flags3: 0,
-        flags4: 0,
-        bonding: ItemBondingType.BIND_NONE,
-        maxCount: 0,
-        maxDurability: 25,
-        stackable: 1,
+        stats: [
+          { type: ItemModType.STRENGTH, value: 2, socketPercentage: 0 },
+          { type: ItemModType.STAMINA, value: 3, socketPercentage: 0 },
+        ],
+        flags: [0, 0, 0, 0, 0],
+        contentTuningId: 0,
+        playerLevelToItemLevelCurveId: 0,
+        itemLevelOffsetCurveId: 0,
+        itemLevelOffsetItemLevel: 0,
+        damageType: 0,
+        itemDelay: 2000,
+        dmgVariance: 0.5,
+        itemRange: 0,
+        socketTypes: [0, 0, 0],
+        socketMatchEnchantmentId: 0,
+        gemProperties: 0,
         containerSlots: 0,
         bagFamily: 0,
-        stats: [],
-        scalingStatDistributionId: 0,
-        damageType: 0,
-        delay: 2000,
-        rangedModRange: 0,
-        sockets: [],
-        socketBonus: 0,
-        gemProperties: 0,
-        armor: 0,
-        holyResistance: 0,
-        fireResistance: 0,
-        natureResistance: 0,
-        frostResistance: 0,
-        shadowResistance: 0,
-        arcaneResistance: 0,
-        damages: [],
-        sheath: 0,
-        randomSuffix: 0,
-        randomProperty: 0,
-        itemSet: 0,
-        pageText: 0,
-        pageTextMaterial: 0,
+        bonding: ItemBondingType.BIND_NONE,
+        stackable: 1,
+        maxCount: 0,
+        durationInInventory: 0,
+        sheatheType: 0,
+        material: 1,
+        artifactId: 0,
+        pageId: 0,
+        pageMaterialId: 0,
         languageId: 0,
+        instanceBound: 0,
+        zoneBound: [0, 0],
         startQuestId: 0,
         lockId: 0,
-        modifiedAppearanceId: 0,
-        transmogPlayerConditionId: 0,
-        areaId: 0,
-        mapId: 0,
+        itemSet: 0,
         totemCategoryId: 0,
-        factionRelated: 0,
-        itemRange: 0,
-        craftingQualityId: 0,
-        spells: [],
-        itemNameDescriptionId: 0,
-        foodType: 0,
-        holidayId: 0,
         limitCategory: 0,
-        requiredExpansion: 0,
+        itemNameDescriptionId: 0,
+        qualityModifier: 0,
+        oppositeFactionItemId: 0,
+        modifiedCraftingReagentItemId: 0,
+        spellWeight: 0,
+        spellWeightCategory: 0,
       };
 
       const template = ItemSchema.combine(basic, sparse);
@@ -315,75 +304,72 @@ describe('ItemSchema', () => {
         id: 25,
         name: 'Worn Shortsword',
         description: '',
-        display: '',
-        buyPrice: BigInt(0),
-        sellPrice: 18,
-        priceRandomValue: 0,
-        priceVariance: 0,
+        display1: '',
+        display2: '',
+        display3: '',
+        buyPrice: 18,
+        sellPrice: 3,
+        priceVariance: 1.0,
+        priceRandomValue: 1.0,
         vendorStackCount: 1,
         overallQualityId: ItemQuality.COMMON,
         inventoryType: InventoryType.WEAPON,
         itemLevel: 5,
         requiredLevel: 1,
+        expansionId: 0,
+        itemSquishEraId: 0,
         requiredSkill: 0,
         requiredSkillRank: 0,
         requiredAbility: 0,
         minFactionId: 0,
         minReputation: 0,
+        requiredPvpMedal: 0,
+        requiredPvpRank: 0,
+        requiredHoliday: 0,
+        requiredTransmogHoliday: 0,
         allowableClass: -1,
         allowableRace: BigInt(-1),
-        flags: 0,
-        flags2: 0,
-        flags3: 0,
-        flags4: 0,
-        bonding: ItemBondingType.BIND_NONE,
-        maxCount: 0,
-        maxDurability: 25,
-        stackable: 1,
+        stats: [
+          { type: ItemModType.STRENGTH, value: 2, socketPercentage: 0 },
+          { type: ItemModType.STAMINA, value: 3, socketPercentage: 0 },
+        ],
+        flags: [0, 0, 0, 0, 0],
+        contentTuningId: 0,
+        playerLevelToItemLevelCurveId: 0,
+        itemLevelOffsetCurveId: 0,
+        itemLevelOffsetItemLevel: 0,
+        damageType: 0,
+        itemDelay: 2000,
+        dmgVariance: 0.5,
+        itemRange: 0,
+        socketTypes: [0, 0, 0],
+        socketMatchEnchantmentId: 0,
+        gemProperties: 0,
         containerSlots: 0,
         bagFamily: 0,
-        stats: [
-          { type: ItemModType.STRENGTH, value: 2 },
-          { type: ItemModType.STAMINA, value: 3 },
-        ],
-        scalingStatDistributionId: 0,
-        damageType: 0,
-        delay: 2000,
-        rangedModRange: 0,
-        sockets: [],
-        socketBonus: 0,
-        gemProperties: 0,
-        armor: 0,
-        holyResistance: 0,
-        fireResistance: 0,
-        natureResistance: 0,
-        frostResistance: 0,
-        shadowResistance: 0,
-        arcaneResistance: 0,
-        damages: [{ damageMin: 3.0, damageMax: 7.0, damageType: 0 }],
-        sheath: 0,
-        randomSuffix: 0,
-        randomProperty: 0,
-        itemSet: 0,
-        pageText: 0,
-        pageTextMaterial: 0,
+        bonding: ItemBondingType.BIND_NONE,
+        stackable: 1,
+        maxCount: 0,
+        durationInInventory: 0,
+        sheatheType: 0,
+        material: 1,
+        artifactId: 0,
+        pageId: 0,
+        pageMaterialId: 0,
         languageId: 0,
+        instanceBound: 0,
+        zoneBound: [0, 0],
         startQuestId: 0,
         lockId: 0,
-        modifiedAppearanceId: 0,
-        transmogPlayerConditionId: 0,
-        areaId: 0,
-        mapId: 0,
+        itemSet: 0,
         totemCategoryId: 0,
-        factionRelated: 0,
-        itemRange: 0,
-        craftingQualityId: 0,
-        spells: [],
-        itemNameDescriptionId: 0,
-        foodType: 0,
-        holidayId: 0,
         limitCategory: 0,
-        requiredExpansion: 0,
+        itemNameDescriptionId: 0,
+        qualityModifier: 0,
+        oppositeFactionItemId: 0,
+        modifiedCraftingReagentItemId: 0,
+        spellWeight: 0,
+        spellWeightCategory: 0,
       };
 
       template = ItemSchema.combine(basic, sparse);
@@ -487,66 +473,42 @@ describe('ItemSchema', () => {
         expect(ItemSchema.getPrimaryStatValue(template)).toBe(0);
       });
     });
-
-    describe('getWeaponDPS()', () => {
-      it('should calculate weapon DPS', () => {
-        const dps = ItemSchema.getWeaponDPS(template);
-        // (3.0 + 7.0) / 2 / (2000 / 1000) = 5.0 / 2 = 2.5
-        expect(dps).toBeCloseTo(2.5, 2);
-      });
-
-      it('should return 0 for items with no damage', () => {
-        template.extended.damages = [];
-        expect(ItemSchema.getWeaponDPS(template)).toBe(0);
-      });
-
-      it('should return 0 for items with 0 delay', () => {
-        template.extended.delay = 0;
-        expect(ItemSchema.getWeaponDPS(template)).toBe(0);
-      });
-    });
   });
 
   describe('Edge Cases', () => {
-    it('should handle expensive items with bigint prices', () => {
+    it('should handle expensive items', () => {
       const mockRecord = new MockDB2Record({
-        0: 123456,
-        1: 'Expensive Mount',
-        4: BigInt('999999999999'), // buyPrice > 2^32
-        5: 250000000, // sellPrice (2.5 million gold)
+        [-1]: 123456,
+        4: 'Expensive Mount',
+        23: 2500000000, // BuyPrice, near the top of the unsigned range
+        22: 250000000, // SellPrice
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.buyPrice).toBe(BigInt('999999999999'));
+      expect(item.buyPrice).toBe(2500000000);
       expect(item.sellPrice).toBe(250000000);
     });
 
     it('should handle items with all stat slots filled', () => {
+      const types = [
+        ItemModType.STRENGTH,
+        ItemModType.AGILITY,
+        ItemModType.STAMINA,
+        ItemModType.INTELLECT,
+        ItemModType.SPIRIT,
+        ItemModType.CRIT_MELEE_RATING,
+        ItemModType.HASTE_MELEE_RATING,
+        ItemModType.HIT_MELEE_RATING,
+        ItemModType.DODGE_RATING,
+        ItemModType.PARRY_RATING,
+      ];
       const mockRecord = new MockDB2Record({
-        0: 12345,
-        1: 'Super Item',
-        // 10 stats
-        20: ItemModType.STRENGTH,
-        21: 10,
-        22: ItemModType.AGILITY,
-        23: 20,
-        24: ItemModType.STAMINA,
-        25: 30,
-        26: ItemModType.INTELLECT,
-        27: 40,
-        28: ItemModType.SPIRIT,
-        29: 50,
-        30: ItemModType.CRIT_MELEE_RATING,
-        31: 60,
-        32: ItemModType.HASTE_MELEE_RATING,
-        33: 70,
-        34: ItemModType.HIT_MELEE_RATING,
-        35: 80,
-        36: ItemModType.DODGE_RATING,
-        37: 90,
-        38: ItemModType.PARRY_RATING,
-        39: 100,
+        [-1]: 12345,
+        4: 'Super Item',
+        16: types,
+        15: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        14: new Array(10).fill(0),
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
@@ -556,30 +518,16 @@ describe('ItemSchema', () => {
       expect(item.stats[9].value).toBe(100);
     });
 
-    it('should handle items with multiple damage types', () => {
+    it('should expose all five flag words', () => {
       const mockRecord = new MockDB2Record({
-        0: 12345,
-        1: 'Elemental Weapon',
-        // Physical damage
-        46: 50.0,
-        47: 100.0,
-        48: 0,
-        // Fire damage
-        49: 10.0,
-        50: 20.0,
-        51: 2,
-        // Shadow damage
-        52: 5.0,
-        53: 15.0,
-        54: 5,
+        [-1]: 12345,
+        4: 'Flagged Item',
+        27: [1, 2, 4, 8, 16],
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.damages.length).toBe(3);
-      expect(item.damages[0].damageType).toBe(0); // Physical
-      expect(item.damages[1].damageType).toBe(2); // Fire
-      expect(item.damages[2].damageType).toBe(5); // Shadow
+      expect(item.flags).toEqual([1, 2, 4, 8, 16]);
     });
   });
 });

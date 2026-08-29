@@ -290,22 +290,22 @@ export async function getItemInfo(itemId: number): Promise<ItemInfo> {
       }
     }
 
-    // Extract bonuses from DB2
+    // Bonus lists are a property of an item instance, not of ItemSparse.db2,
+    // so a template lookup has none to report.
     const bonuses: string[] = [];
-    if (db2Item && db2Item.itemSparse && db2Item.itemSparse.bonusListIds) {
-      bonuses.push(...db2Item.itemSparse.bonusListIds.map((id: number) => `Bonus_${id}`));
-    }
 
+    // DB2 fallbacks use the parsed entry's property names. ItemSparse supplies
+    // the name and gameplay values; Item.db2 supplies the class and subclass.
     return {
       itemId: item.itemId || itemId,
-      name: item.name || db2Item?.itemSparse?.Display_lang || "Unknown",
-      quality: getQualityName(item.quality || db2Item?.itemSparse?.OverallQualityID || 0),
-      itemLevel: item.itemLevel || db2Item?.itemSparse?.ItemLevel || 0,
-      requiredLevel: item.requiredLevel || db2Item?.itemSparse?.RequiredLevel || 0,
-      itemClass: getItemClassName(item.itemClass || db2Item?.item?.ClassID || 0),
-      itemSubClass: (item.itemSubClass || db2Item?.item?.SubclassID || 0).toString(),
+      name: item.name || db2Item?.itemSparse?.name || "Unknown",
+      quality: getQualityName(item.quality || db2Item?.itemSparse?.overallQualityId || 0),
+      itemLevel: item.itemLevel || db2Item?.itemSparse?.itemLevel || 0,
+      requiredLevel: item.requiredLevel || db2Item?.itemSparse?.requiredLevel || 0,
+      itemClass: getItemClassName(item.itemClass || db2Item?.item?.classId || 0),
+      itemSubClass: (item.itemSubClass || db2Item?.item?.subclassId || 0).toString(),
       inventoryType: getInventoryTypeName(
-        item.inventoryType || db2Item?.itemSparse?.InventoryType || 0
+        item.inventoryType || db2Item?.itemSparse?.inventoryType || 0
       ),
       stats,
       bonuses,

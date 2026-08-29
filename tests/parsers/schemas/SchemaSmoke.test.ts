@@ -103,9 +103,9 @@ describe('Schema Smoke Tests', () => {
 
     it('should parse sparse item', () => {
       const mockRecord = new MockDB2Record({
-        0: 25, // id
-        1: 'Worn Shortsword', // name
-        5: 18, // sellPrice
+        [-1]: 25, // id via getId(); ItemSparse.db2 ID is noninline
+        4: 'Worn Shortsword', // Display_lang, the item name
+        22: 18, // SellPrice
       });
 
       const item = ItemSchema.parseSparse(mockRecord);
@@ -117,7 +117,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should combine basic and sparse', () => {
       const basicRecord = new MockDB2Record({ [-1]: 25, 0: 2 }); // id via getId(), field 0 = classId
-      const sparseRecord = new MockDB2Record({ 0: 25, 1: 'Test', 5: 10 });
+      const sparseRecord = new MockDB2Record({ [-1]: 25, 4: 'Test', 22: 10 });
 
       const basic = ItemSchema.parseBasic(basicRecord);
       const sparse = ItemSchema.parseSparse(sparseRecord);
@@ -129,7 +129,7 @@ describe('Schema Smoke Tests', () => {
 
     it('should have helper methods', () => {
       const basicRecord = new MockDB2Record({ [-1]: 25, 0: 2 }); // id via getId(), field 0 = classId
-      const sparseRecord = new MockDB2Record({ 0: 25, 1: 'Test', 5: 10, 10: 15 });
+      const sparseRecord = new MockDB2Record({ [-1]: 25, 4: 'Test', 22: 10, 65: 15 });
 
       const template = ItemSchema.combine(
         ItemSchema.parseBasic(basicRecord),

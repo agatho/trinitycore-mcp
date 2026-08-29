@@ -58,6 +58,24 @@ export class MockDB2Record extends DB2Record {
     return value || 0;
   }
 
+  // Override getInt8 to return mock data
+  public getInt8(field: number, arrayIndex: number = 0): number {
+    const value = this.fieldData.get(field);
+    if (Array.isArray(value)) {
+      return value[arrayIndex] || 0;
+    }
+    return value || 0;
+  }
+
+  // Override getInt16 to return mock data
+  public getInt16(field: number, arrayIndex: number = 0): number {
+    const value = this.fieldData.get(field);
+    if (Array.isArray(value)) {
+      return value[arrayIndex] || 0;
+    }
+    return value || 0;
+  }
+
   // Override getUInt16 to return mock data
   public getUInt16(field: number, arrayIndex: number = 0): number {
     const value = this.fieldData.get(field);

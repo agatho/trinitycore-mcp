@@ -20,6 +20,7 @@ import { DB2Record } from './DB2Record';
 import { DB2FileLoaderSparse } from './DB2FileLoaderSparse';
 import { DB2IdList, DB2OffsetMap, DB2CopyTable, DB2ParentLookupTable } from './DB2Tables';
 import { DB2SectionManager } from './DB2SectionManager';
+import { DB2SparseFieldLayout, getSparseFieldLayout } from './DB2FieldLayout';
 
 /** WDC relationship block header: numEntries, minId, maxId. */
 const PARENT_LOOKUP_HEADER_SIZE = 12;
@@ -41,6 +42,14 @@ export class DB2FileLoader {
 
   // Multi-section support (WoWDev format)
   private sectionManager: DB2SectionManager = new DB2SectionManager();
+  /**
+   * Field layout for this file, when it is sparse. Sparse records cannot be
+   * read without one: their fields move per record. Resolved from the file
+   * name at load time, or set explicitly via setSparseFieldLayout().
+   */
+  private sparseFieldLayout: DB2SparseFieldLayout | null = null;
+  /** Name of the loaded file, used in diagnostics. */
+  private fileName: string = '';
   private copyTable: DB2CopyTable | null = null;
   private parentLookupTable: DB2ParentLookupTable | null = null;
 
@@ -115,6 +124,13 @@ export class DB2FileLoader {
       logger.warn(`⚠️  File has no ID range (minId == maxId), skipping ID list loading`);
     }
 
+    // A sparse file needs its field layout to place fields inside a record.
+    // Resolve it from the file name; setSparseFieldLayout() can override.
+    this.fileName = source.getFileName();
+    if (this.sparseFieldLayout === null) {
+      this.sparseFieldLayout = getSparseFieldLayout(this.fileName);
+    }
+
     // Load copy table if present
     this.loadCopyTable(source);
 
@@ -168,6 +184,73 @@ export class DB2FileLoader {
   }
 
   /**
+   * Read one record from a sparse (offset-map) file.
+   *
+   * Sparse records are variable length and are addressed by the catalog rather
+   * than by index, and their strings are stored inline, so each record's field
+   * positions have to be walked against the table's declared field layout.
+   *
+   * @param recordId Record ID, which the catalog holds rather than the record
+   * @param fileOffset Absolute byte offset of the record in the file
+   * @param size Record length in bytes, including alignment padding
+   * @returns Record accessor positioned on that record
+   * @throws {Error} If no field layout is registered for the file, the read
+   *   fails, or the record does not match the layout
+   */
+  private readSparseRecord(recordId: number, fileOffset: number, size: number): DB2Record {
+    if (!this.sparseFieldLayout) {
+      throw new Error(
+        `${this.fileName} is a sparse DB2 file, so its records cannot be read without a field ` +
+          `layout. Register one with registerSparseFieldLayout('${this.fileName}', ...).`
+      );
+    }
+
+    if (!this.source || !this.source.isOpen()) {
+      throw new Error('DB2 file source not available for reading record data');
+    }
+
+    if (!this.source.setPosition(fileOffset)) {
+      throw new Error(`Failed to seek to sparse record ${recordId} at offset ${fileOffset}`);
+    }
+
+    const recordBuffer = Buffer.alloc(size);
+    if (!this.source.read(recordBuffer, size)) {
+      throw new Error(`Failed to read ${size} bytes for sparse record ${recordId}`);
+    }
+
+    const fieldOffsets = this.sparseFieldLayout.computeOffsets(recordBuffer, 0, size);
+
+    return new DB2Record(
+      recordBuffer,
+      recordBuffer, // strings are inline, so the record is its own string source
+      [], // column metadata describes dense records and does not apply here
+      0,
+      undefined, // field entries describe fixed offsets, which do not apply here
+      recordId,
+      true,
+      size,
+      1,
+      fileOffset,
+      0,
+      this.palletValues,
+      this.commonValues,
+      this.header!.packedDataOffset,
+      0,
+      fieldOffsets
+    );
+  }
+
+  /**
+   * Set the field layout used to read this file's sparse records, overriding
+   * the one resolved from the file name.
+   *
+   * @param layout Layout describing the file's records, or null to clear it
+   */
+  public setSparseFieldLayout(layout: DB2SparseFieldLayout | null): void {
+    this.sparseFieldLayout = layout;
+  }
+
+  /**
    * Get record by spell ID (WoWDev format with multi-section support)
    * Uses section manager to find spell across all sections
    * @param spellId Spell ID to retrieve
@@ -185,13 +268,13 @@ export class DB2FileLoader {
 
     let recordOffset: number;
     let recordSize: number;
-    let isSparse: boolean;
+    const isSparse = false;
 
     if (offsetEntry) {
-      // SPARSE FILE: Use offset from catalog
-      recordOffset = offsetEntry.offset;
-      recordSize = offsetEntry.size;
-      isSparse = true;
+      // SPARSE FILE: the catalog gives this record's absolute file offset and
+      // its exact length. Records are variable length, so nothing about the
+      // dense path below applies: read just this record and walk its fields.
+      return this.readSparseRecord(spellId, offsetEntry.offset, offsetEntry.size);
     } else {
       // INLINE/DENSE FILE: Calculate offset from record index
       // Based on TrinityCore's DB2FileLoaderRegularImpl::GetRawRecordData()
@@ -199,7 +282,6 @@ export class DB2FileLoader {
       const section = this.sections[mapping.sectionIndex];
       recordOffset = section.fileOffset + (mapping.localIndex * this.header!.recordSize);
       recordSize = this.header!.recordSize;
-      isSparse = false;
     }
 
     // Step 3: Load section's COMBINED buffer (like TrinityCore)

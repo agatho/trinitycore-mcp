@@ -238,9 +238,9 @@ describe('SchemaFactory', () => {
 
     it('should parse item sparse with parseItemSparse()', () => {
       const mockRecord = new MockDB2Record({
-        0: 25,
-        1: 'Worn Shortsword',
-        5: 18, // sellPrice
+        [-1]: 25, // id via getId(); ItemSparse.db2 ID is noninline
+        4: 'Worn Shortsword', // Display_lang, the item name
+        22: 18, // SellPrice
       });
 
       const item = SchemaFactory.parseItemSparse(mockRecord);
@@ -257,9 +257,9 @@ describe('SchemaFactory', () => {
       });
 
       const sparseRecord = new MockDB2Record({
-        0: 25,
-        1: 'Worn Shortsword',
-        5: 18,
+        [-1]: 25,
+        4: 'Worn Shortsword',
+        22: 18,
       });
 
       const template = SchemaFactory.parseItemTemplate(basicRecord, sparseRecord);

@@ -27,6 +27,18 @@ export class DB2Record {
   private commonValues: Map<number, number>[];
   /** header.packedDataOffset - base for bit-packed and pallet field offsets. */
   private packedDataOffset: number;
+  /**
+   * Byte offset of this record within recordData. Dense records sit at
+   * recordIndex * recordSize; sparse records are variable length and are placed
+   * by the catalog, so their offset is supplied directly.
+   */
+  private recordBaseOffset: number;
+  /**
+   * Field element positions within a sparse record, indexed [field][arrayIndex]
+   * and relative to recordBaseOffset. Null for dense records, whose offsets come
+   * from the file's own field metadata.
+   */
+  private sparseFieldOffsets: number[][] | null;
 
   constructor(
     recordData: Buffer,
@@ -42,7 +54,9 @@ export class DB2Record {
     stringOffsetCorrection?: number, // Optional: Correction for translating raw string offsets to per-section buffer positions
     palletValues?: number[][], // Optional: per-field pallet tables (compressed fields)
     commonValues?: Map<number, number>[], // Optional: per-field common-value maps
-    packedDataOffset?: number // Optional: header.packedDataOffset for packed field addressing
+    packedDataOffset?: number, // Optional: header.packedDataOffset for packed field addressing
+    recordDataOffset?: number, // Optional: explicit byte offset of this record (sparse files)
+    sparseFieldOffsets?: number[][] // Optional: per-record field positions (sparse files)
   ) {
     this.recordData = recordData;
     this.stringBlock = stringBlock;
@@ -58,6 +72,9 @@ export class DB2Record {
     this.palletValues = palletValues || [];
     this.commonValues = commonValues || [];
     this.packedDataOffset = packedDataOffset || 0;
+    this.sparseFieldOffsets = sparseFieldOffsets || null;
+    this.recordBaseOffset =
+      recordDataOffset !== undefined ? recordDataOffset : this.recordIndex * this.recordSize;
   }
 
   /**
@@ -83,8 +100,30 @@ export class DB2Record {
    * @returns Unsigned 8-bit integer
    */
   public getUInt8(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordIndex * this.recordSize;
+    const recordOffset = this.recordBaseOffset;
     return this.recordData.readUInt8(recordOffset + this.getFieldOffset(field, arrayIndex));
+  }
+
+  /**
+   * Get int8 field value
+   * @param field Field index
+   * @param arrayIndex Array index within field (default 0)
+   * @returns Signed 8-bit integer
+   */
+  public getInt8(field: number, arrayIndex: number = 0): number {
+    const recordOffset = this.recordBaseOffset;
+    return this.recordData.readInt8(recordOffset + this.getFieldOffset(field, arrayIndex));
+  }
+
+  /**
+   * Get int16 field value
+   * @param field Field index
+   * @param arrayIndex Array index within field (default 0)
+   * @returns Signed 16-bit integer
+   */
+  public getInt16(field: number, arrayIndex: number = 0): number {
+    const recordOffset = this.recordBaseOffset;
+    return this.recordData.readInt16LE(recordOffset + this.getFieldOffset(field, arrayIndex));
   }
 
   /**
@@ -94,7 +133,7 @@ export class DB2Record {
    * @returns Unsigned 16-bit integer
    */
   public getUInt16(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordIndex * this.recordSize;
+    const recordOffset = this.recordBaseOffset;
     return this.recordData.readUInt16LE(recordOffset + this.getFieldOffset(field, arrayIndex));
   }
 
@@ -105,6 +144,16 @@ export class DB2Record {
    * @returns Unsigned 32-bit integer
    */
   public getUInt32(field: number, arrayIndex: number = 0): number {
+    // Sparse records store their fields uncompressed and inline. The file's
+    // column metadata and field entries describe dense records, where every
+    // record shares one set of offsets, so neither applies here: read straight
+    // from the position the per-record walk found.
+    if (this.sparseFieldOffsets) {
+      return this.recordData.readUInt32LE(
+        this.recordBaseOffset + this.getFieldOffset(field, arrayIndex)
+      );
+    }
+
     // Prefer TrinityCore-style field entries if available
     if (this.fieldEntries.length > 0) {
       return this.recordGetVarInt(field, arrayIndex, false);
@@ -112,7 +161,7 @@ export class DB2Record {
 
     // Fall back to legacy column metadata
     const meta = this.getColumnMeta(field);
-    const recordOffset = this.recordIndex * this.recordSize;
+    const recordOffset = this.recordBaseOffset;
 
     if (!meta) {
       // No compression metadata, read raw
@@ -141,7 +190,7 @@ export class DB2Record {
    * @returns Unsigned 64-bit integer as BigInt
    */
   public getUInt64(field: number, arrayIndex: number = 0): bigint {
-    const recordOffset = this.recordIndex * this.recordSize;
+    const recordOffset = this.recordBaseOffset;
     const offset = recordOffset + this.getFieldOffset(field, arrayIndex);
     return this.recordData.readBigUInt64LE(offset);
   }
@@ -153,7 +202,7 @@ export class DB2Record {
    * @returns 32-bit floating point number
    */
   public getFloat(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordIndex * this.recordSize;
+    const recordOffset = this.recordBaseOffset;
     return this.recordData.readFloatLE(recordOffset + this.getFieldOffset(field, arrayIndex));
   }
 
@@ -178,7 +227,7 @@ export class DB2Record {
 
     if (this.isSparseFile) {
       // SPARSE FILE: String is stored inline in record data
-      const fieldOffset = this.getFieldOffset(field, arrayIndex);
+      const fieldOffset = this.recordBaseOffset + this.getFieldOffset(field, arrayIndex);
 
       // Find null terminator starting from field offset
       const nullIndex = this.recordData.indexOf(0, fieldOffset);
@@ -257,6 +306,24 @@ export class DB2Record {
    * @returns Byte offset
    */
   private getFieldOffset(field: number, arrayIndex: number): number {
+    // Sparse records carry their own walked offsets: variable-length strings
+    // move every field after them, so position depends on record contents.
+    if (this.sparseFieldOffsets) {
+      const elementOffsets = this.sparseFieldOffsets[field];
+      if (!elementOffsets) {
+        throw new Error(
+          `Field ${field} is outside the sparse layout (${this.sparseFieldOffsets.length} fields)`
+        );
+      }
+      const offset = elementOffsets[arrayIndex];
+      if (offset === undefined) {
+        throw new Error(
+          `Array index ${arrayIndex} is outside field ${field} (${elementOffsets.length} elements)`
+        );
+      }
+      return offset;
+    }
+
     // For sparse files, use fieldEntries offset (matches TrinityCore's _fieldAndArrayOffsets)
     if (this.fieldEntries && this.fieldEntries.length > field) {
       return this.fieldEntries[field].offset + arrayIndex * 4;
