@@ -298,9 +298,6 @@ function runGenerator(script: string, cacheDir: string, build: number): Promise<
       }
     };
 
-    // The child does not outlive this process, so if we exit first the run is
-    // over: drop the lock rather than leaving it to time out an hour later.
-    process.once('exit', releaseLock);
 
     logger.info(`Generating spell caches for build ${build}. This takes several minutes.`);
 
@@ -319,13 +316,30 @@ function runGenerator(script: string, cacheDir: string, build: number): Promise<
     child.stdout.on('data', forward);
     child.stderr.on('data', forward);
 
+    // If this process exits first the child is orphaned: nothing would release
+    // the lock or observe the result, and the next start would race a generator
+    // it cannot see. Stop it and clear the lock so that start re-detects the
+    // work cleanly. Registered after the spawn so the child is in scope, and
+    // removed on close so a long-lived host does not accumulate handlers.
+    const onParentExit = (): void => {
+      try {
+        child.kill();
+      } catch {
+        // Already gone.
+      }
+      releaseLock();
+    };
+    process.once('exit', onParentExit);
+
     child.on('error', (error) => {
       logger.error(`Failed to start the spell cache generator: ${error.message}`);
+      process.removeListener('exit', onParentExit);
       releaseLock();
       resolve(false);
     });
 
     child.on('close', (code) => {
+      process.removeListener('exit', onParentExit);
       releaseLock();
       if (code === 0) {
         logger.info(`Spell caches for build ${build} are ready.`);
