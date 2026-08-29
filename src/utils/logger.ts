@@ -76,9 +76,15 @@ export const logger = winston.createLogger({
   ]
 });
 
-// Console logging in development with pretty formatting
+// Console logging in development with pretty formatting.
+//
+// Every level goes to stderr. This process speaks MCP JSON-RPC over stdout, so
+// a log line written there corrupts the protocol stream; winston's Console
+// transport otherwise defaults to stdout for everything below "error". stderr
+// still reaches the terminal, so console visibility is unchanged.
 if (NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
+    stderrLevels: ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'],
     format: winston.format.combine(
       winston.format.colorize(),
       winston.format.printf(({ level, message, timestamp, ...metadata }) => {

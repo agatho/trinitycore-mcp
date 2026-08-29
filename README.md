@@ -22,12 +22,18 @@ cd trinitycore-mcp
 # Install dependencies
 npm install
 
-# Build TypeScript
-npm run build
+# Build TypeScript and generate the active build's spell caches
+npm run setup
 
 # Start both MCP server and Web UI
 npm run start:all
 ```
+
+> `npm run setup` builds the project and generates the spell caches for the
+> active build in `config/builds.json`. The caches are derived from that build's
+> `SpellName.db2` and take a few minutes. Skipping it is not fatal - the server
+> generates them itself on first start - but spell lookups return no data until
+> they exist.
 
 **Web UI will open at:** http://localhost:3000
 
@@ -202,7 +208,26 @@ npm run build
 # 4. Verify build output
 ls dist/
 # Should see: index.js, tools/, database/, etc.
+
+# 5. Generate the active build's spell caches (a few minutes)
+npm run setup
 ```
+
+#### Spell caches
+
+The spell name and description caches are generated from the active build's
+`SpellName.db2` and are keyed by build, so they are not in the repository and a
+build cutover leaves the new build without them. Three things provision them:
+
+| When | What happens |
+|------|--------------|
+| `npm install` | Reports whether the caches are present. Never generates, never fails the install. |
+| `npm run setup` | Builds, then generates them and waits. This is the install-time step. |
+| First `npm start` | If they are missing or belong to another build, the server generates them in the background and keeps serving its other tools meanwhile. |
+
+Until they exist, spell lookups return no data rather than an error, so check
+the server log if spells come back empty. `npm run generate:spell-cache`
+regenerates them at any time.
 
 ### Web UI Installation
 

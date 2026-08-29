@@ -155,10 +155,18 @@ depends on the previous one's output:
    of silently returning wrong values. Do this only after step 2 has
    recorded hashes for the new build — otherwise every schema reports
    "unverified" for it.
-4. **`npm run generate:spell-cache`** — rebuilds `data/cache/spell_names_cache.json`
-   and `data/cache/spell_data_cache.json` from the newly extracted
+4. **`npm run generate:spell-cache`** — rebuilds
+   `data/cache/<build>/spell_names_cache.json` and
+   `data/cache/<build>/spell_data_cache.json` from the newly extracted
    `SpellName.db2` (and friends). Run after steps 1-3 so the cache is built
    from data that has already been confirmed to parse correctly.
+
+   The caches are keyed by build and are not tracked in git, so the new build
+   starts with none. This step can be skipped: the server checks at startup and
+   generates them in the background when they are missing or belong to another
+   build. Running it here simply means the cutover in step 5 lands on a build
+   whose caches are already warm, rather than one that answers spell queries
+   with no data for the first few minutes.
 5. **Flip `activeBuild`** — only once steps 1-4 are clean, change
    `config/builds.json`'s `activeBuild` to the new build id and its `status`
    from `"candidate"` to `"active"` (demoting the previous active build to

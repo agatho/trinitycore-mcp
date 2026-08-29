@@ -182,7 +182,8 @@ export class ToolProfileLoader {
     }
 
     // Unknown profile - fallback to core-data
-    console.warn(`[ProfileLoader] Unknown profile: ${profile}, using core-data`);
+    process.stderr.write(`[ProfileLoader] Unknown profile: ${profile}, using core-data
+`);
     return this.applyCustomizations(TOOL_CATEGORIES['core-data'].tools);
   }
 
@@ -309,35 +310,48 @@ export class ToolProfileLoader {
     const stats = this.getStats();
     const description = getProfileDescription(stats.profile);
 
-    console.log(`┌─────────────────────────────────────────────────────────────┐`);
-    console.log(`│ MCP Tool Profile Loader                                     │`);
-    console.log(`├─────────────────────────────────────────────────────────────┤`);
+    process.stderr.write(`┌─────────────────────────────────────────────────────────────┐
+`);
+    process.stderr.write(`│ MCP Tool Profile Loader                                     │
+`);
+    process.stderr.write(`├─────────────────────────────────────────────────────────────┤
+`);
 
     // Show auto-detection info if used
     if (this.autoDetectionUsed && this.detectedClientType) {
       const clientTypeLabel = `Auto-detected: ${this.detectedClientType}`.padEnd(43);
-      console.log(`│ Client Type:      ${clientTypeLabel}│`);
+      process.stderr.write(`│ Client Type:      ${clientTypeLabel}│
+`);
     }
 
-    console.log(`│ Profile:          ${stats.profile.padEnd(43)}│`);
-    console.log(`│ Description:      ${description.padEnd(43)}│`);
-    console.log(`│ Tools:            ${String(stats.toolCount).padEnd(43)}│`);
-    console.log(`│ Est. Tokens:      ~${String(stats.estimatedTokens).padEnd(42)}│`);
-    console.log(`│ % of Total:       ${stats.percentOfTotal.toFixed(1)}%${String('').padEnd(40)}│`);
+    process.stderr.write(`│ Profile:          ${stats.profile.padEnd(43)}│
+`);
+    process.stderr.write(`│ Description:      ${description.padEnd(43)}│
+`);
+    process.stderr.write(`│ Tools:            ${String(stats.toolCount).padEnd(43)}│
+`);
+    process.stderr.write(`│ Est. Tokens:      ~${String(stats.estimatedTokens).padEnd(42)}│
+`);
+    process.stderr.write(`│ % of Total:       ${stats.percentOfTotal.toFixed(1)}%${String('').padEnd(40)}│
+`);
 
     if (stats.profile !== ToolProfile.FULL) {
-      console.log(`│ Token Reduction:  ${stats.tokenReduction.toFixed(1)}% ↓${String('').padEnd(38)}│`);
+      process.stderr.write(`│ Token Reduction:  ${stats.tokenReduction.toFixed(1)}% ↓${String('').padEnd(38)}│
+`);
     }
 
-    console.log(`└─────────────────────────────────────────────────────────────┘`);
+    process.stderr.write(`└─────────────────────────────────────────────────────────────┘
+`);
 
     // Log customizations if any
     if (this.config.customTools && this.config.customTools.length > 0) {
-      console.log(`[ProfileLoader] Custom tools: ${this.config.customTools.join(', ')}`);
+      process.stderr.write(`[ProfileLoader] Custom tools: ${this.config.customTools.join(', ')}
+`);
     }
 
     if (this.config.excludeTools && this.config.excludeTools.length > 0) {
-      console.log(`[ProfileLoader] Excluded tools: ${this.config.excludeTools.join(', ')}`);
+      process.stderr.write(`[ProfileLoader] Excluded tools: ${this.config.excludeTools.join(', ')}
+`);
     }
   }
 
@@ -372,7 +386,8 @@ export class ToolProfileLoader {
     // Add tools to loaded set
     toolNames.forEach(tool => this.loadedTools.add(tool));
 
-    console.log(`[ProfileLoader] Dynamically loaded ${toolNames.length} tools: ${toolNames.join(', ')}`);
+    process.stderr.write(`[ProfileLoader] Dynamically loaded ${toolNames.length} tools: ${toolNames.join(', ')}
+`);
   }
 
   /**
@@ -388,7 +403,8 @@ export class ToolProfileLoader {
     // Remove tools from loaded set
     toolNames.forEach(tool => this.loadedTools.delete(tool));
 
-    console.log(`[ProfileLoader] Dynamically unloaded ${toolNames.length} tools: ${toolNames.join(', ')}`);
+    process.stderr.write(`[ProfileLoader] Dynamically unloaded ${toolNames.length} tools: ${toolNames.join(', ')}
+`);
   }
 }
 

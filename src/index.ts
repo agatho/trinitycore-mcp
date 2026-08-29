@@ -27,6 +27,7 @@ import { getConfigManager } from "./config/config-manager";
 import { createErrorResponse, ValidationError } from "./utils/error-handler";
 import { buildToolRegistry, ConfigManagementDeps } from "./tools/registry/index";
 import { loadBuildManifest, getActiveBuild } from "./version/BuildManifest";
+import { ensureSpellCache } from "./version/SpellCacheProvisioner";
 
 /**
  * Build the MCP server: load the build manifest first, then register tools.
@@ -43,6 +44,18 @@ async function initializeServer(): Promise<Server> {
   logger.info(
     `Build manifest loaded: active build "${activeBuild.id}" (${activeBuild.build})`
   );
+
+  // Spell caches are keyed by build, so a fresh install or a build cutover
+  // starts without them and every spell lookup would answer "Not Found". Start
+  // generating them here rather than leaving it as a manual step. The
+  // generation itself is deliberately not awaited: it takes several minutes and
+  // the server must finish starting so its other tools are usable meanwhile.
+  const spellCache = await ensureSpellCache();
+  if (spellCache.ready) {
+    logger.info(spellCache.detail);
+  } else {
+    logger.warn(spellCache.detail);
+  }
 
   // MCP Server instance
   const server = new Server(
@@ -85,7 +98,8 @@ async function initializeServer(): Promise<Server> {
 
   // Initialize dynamic tool manager if in dynamic mode
   if (isDynamicMode) {
-    console.log(`[MCP Server] Dynamic tool loading ENABLED`);
+    process.stderr.write(`[MCP Server] Dynamic tool loading ENABLED
+`);
     dynamicToolManager.initialize(server, ALL_TOOLS);
   }
 
@@ -105,9 +119,11 @@ async function initializeServer(): Promise<Server> {
   // Log filtered tool count
   if (isDynamicMode) {
     const stats = dynamicToolManager.getRegistryStats();
-    console.log(`[MCP Server] Dynamic mode: ${stats.loadedTools} tools loaded, ${stats.availableTools} available for on-demand loading`);
+    process.stderr.write(`[MCP Server] Dynamic mode: ${stats.loadedTools} tools loaded, ${stats.availableTools} available for on-demand loading
+`);
   } else {
-    console.log(`[MCP Server] Static mode: Loaded ${TOOLS.length} / ${ALL_TOOLS.length} tools based on profile`);
+    process.stderr.write(`[MCP Server] Static mode: Loaded ${TOOLS.length} / ${ALL_TOOLS.length} tools based on profile
+`);
   }
 
   // List tools handler (returns only tools loaded for current profile or dynamic registry)
