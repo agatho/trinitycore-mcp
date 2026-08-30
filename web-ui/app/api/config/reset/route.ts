@@ -83,13 +83,13 @@ const DEFAULT_CONFIG: TrinityMCPConfig = {
   dataPaths: {
     trinityRoot: process.env.TRINITY_ROOT || "./",
     wowPath: process.env.WOW_PATH || "",
-    gtPath: process.env.GT_PATH || "./data/gt",
+    gtPath: resolveBuildDataPath("gt", process.env.GT_PATH) || "./data/gt",
     // Reset restores the manifest's paths, not the environment's: the manifest
     // is what the MCP tools read.
     dbcPath: resolveBuildDataPath("dbc", process.env.DBC_PATH) || "./data/dbc",
     db2Path: resolveBuildDataPath("db2", process.env.DB2_PATH) || "./data/db2",
     vmapPath: resolveBuildDataPath("vmap", process.env.VMAP_PATH) || "./data/vmaps",
-    mmapPath: process.env.MMAP_PATH || "./data/mmaps",
+    mmapPath: resolveBuildDataPath("mmap", process.env.MMAP_PATH) || "./data/mmaps",
   },
   server: {
     port: parseInt(process.env.MCP_PORT || "3000"),
