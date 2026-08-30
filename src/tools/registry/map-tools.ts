@@ -318,6 +318,42 @@ export const mapTools: ToolRegistryEntry[] = [
   },
   {
     definition: {
+      name: "release-casc-memory",
+      description:
+        "Release the CASC reader's in-memory index and root tables. Initialising CASC costs about " +
+        "3.8 GB of heap that is not reclaimed on its own, so a server that has extracted minimap " +
+        "tiles holds it for the rest of its life. Cached tiles on disk are untouched; the next " +
+        "extraction rebuilds what it needs.",
+      inputSchema: { type: "object", properties: {}, required: [] },
+    },
+    handler: async () => {
+      const { getMinimapService } = await import("../../services/MinimapService");
+
+      // The service throws when it has never been configured, which is the
+      // normal state on a server that has not extracted anything - and means
+      // there is nothing holding memory to release.
+      let service;
+      try {
+        service = getMinimapService();
+      } catch {
+        return jsonResponse({
+          released: false,
+          message: "The minimap service has not been used, so no CASC memory is held.",
+        });
+      }
+
+      const wasLoaded = service.isCASCLoaded();
+      await service.releaseCASC();
+      return jsonResponse({
+        released: wasLoaded,
+        message: wasLoaded
+          ? "CASC reader released; the next extraction will rebuild it."
+          : "CASC reader was not loaded; nothing to release.",
+      });
+    },
+  },
+  {
+    definition: {
       name: "clear-minimap-cache",
       description: "Clear cached minimap tiles for a specific map or all maps.",
       inputSchema: {

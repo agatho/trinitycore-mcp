@@ -27,6 +27,11 @@ export interface CASCEncodingEntry {
 export class CASCEncodingReader {
   private entries: Map<string, CASCEncodingEntry> = new Map();
 
+  /** Release the parsed encoding table. */
+  dispose(): void {
+    this.entries.clear();
+  }
+
   /**
    * Parse encoding file data
    */

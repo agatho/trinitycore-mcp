@@ -106,6 +106,31 @@ export class MinimapService {
   }
 
   /**
+   * Release the CASC reader and everything it holds.
+   *
+   * Initialising CASC builds about 9.4 million Map entries and roughly 3.8 GB
+   * of heap, which never comes back on its own - so a server that extracts one
+   * tile reports critical memory usage from then on. Extraction is a batch
+   * operation, not a hot path, so the reader is released when a caller is done
+   * and rebuilt on next use.
+   *
+   * The tile cache on disk is untouched: a released reader costs a slower next
+   * extraction, never a wrong answer.
+   */
+  async releaseCASC(): Promise<void> {
+    if (this.cascReader) {
+      this.cascReader.dispose();
+      this.cascReader = null;
+      logger.info('MinimapService', 'CASC reader released');
+    }
+  }
+
+  /** Whether the CASC reader is currently loaded. */
+  isCASCLoaded(): boolean {
+    return this.cascReader !== null;
+  }
+
+  /**
    * Initialize service and create cache directory
    */
   async initialize(): Promise<void> {
@@ -273,6 +298,10 @@ export class MinimapService {
 
       // Use our dedicated CASC reader instance
       if (!this.cascReader) {
+        // Rebuilt on demand: releaseCASC() may have freed it since the last call.
+        await this.initialize();
+      }
+      if (!this.cascReader) {
         throw new Error('CASC reader not initialized. Call initialize() first.');
       }
 
@@ -350,6 +379,11 @@ export class MinimapService {
     }
 
     logger.info('MinimapService', `Batch extraction completed: ${successCount} successful, ${failCount} failed`);
+
+    // A finished batch is the natural point to hand back the ~3.8 GB that CASC
+    // holds. Single-tile calls keep it, because paying 30 seconds to rebuild it
+    // per tile would be worse than holding it; a batch has no such follow-up.
+    await this.releaseCASC();
 
     return results;
   }

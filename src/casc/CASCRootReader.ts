@@ -113,6 +113,18 @@ interface RootBlockHeader {
 export class CASCRootReader {
   private entries: Map<string, CASCRootEntry[]> = new Map();
   private fileIdMap: Map<number, CASCRootEntry> = new Map();
+
+  /**
+   * Release the parsed root.
+   *
+   * Holds every file the client knows twice - once keyed by path and once by
+   * FileDataID - which is about 3.25 million entries each.
+   */
+  dispose(): void {
+    this.entries.clear();
+    this.fileIdMap.clear();
+    this.totalEntries = 0;
+  }
   private totalEntries: number = 0;
   private listFile: CASCListFile | null = null;
 

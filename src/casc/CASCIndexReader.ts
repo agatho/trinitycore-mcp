@@ -18,8 +18,15 @@ import { logger } from '../utils/logger.js';
  * Index entry
  */
 export interface CASCIndexEntry {
-  /** Content hash (first 8 bytes) */
-  hash: Buffer;
+  /**
+   * The hash is not stored here.
+   *
+   * It used to be, as a Buffer per entry, and was never read: the Map key
+   * already holds the same bytes in hex. With roughly 2.9 million entries
+   * across sixteen index files, those unread Buffers were hundreds of megabytes
+   * of a single minimap call's ~4 GB footprint. Each was also a subarray of its
+   * index file's buffer, so it kept that file's bytes alive too.
+   */
   /** Compressed size */
   size: number;
   /** Offset in data file */
@@ -33,6 +40,16 @@ export interface CASCIndexEntry {
  */
 export class CASCIndexReader {
   private entries: Map<string, CASCIndexEntry> = new Map();
+
+  /**
+   * Release the parsed index.
+   *
+   * Roughly 2.9 million entries across sixteen index files, which stay resident
+   * for the life of the process otherwise.
+   */
+  dispose(): void {
+    this.entries.clear();
+  }
 
   /**
    * Load all index files from CASC data directory
@@ -178,7 +195,6 @@ export class CASCIndexReader {
         const fileOffset = indexLow & 0x3FFFFFFF;
 
         const entry: CASCIndexEntry = {
-          hash: key,
           size,
           offset: fileOffset,
           archive
@@ -268,7 +284,6 @@ export class CASCIndexReader {
         const archive = Number(encodedOffset >> BigInt(offsetBits));
 
         const entry: CASCIndexEntry = {
-          hash: key,
           size,
           offset: fileOffset,
           archive
@@ -316,7 +331,6 @@ export class CASCIndexReader {
       const archive = indexHigh & 0x0F;
 
       const entry: CASCIndexEntry = {
-        hash,
         size,
         offset: fileOffset,
         archive

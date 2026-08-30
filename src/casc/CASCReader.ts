@@ -74,6 +74,28 @@ export class CASCReader {
   private encodingReader: CASCEncodingReader | null = null;
   private dataReader: CASCDataReader | null = null;
   private rootReader: CASCRootReader | null = null;
+
+  /**
+   * Release everything this reader holds.
+   *
+   * Initialising builds about 9.4 million Map entries and roughly 3.8 GB of
+   * heap, which never returns on its own. A long-lived server that extracts one
+   * minimap tile pays that for the rest of its life, so a caller that is
+   * finished with CASC should say so. A disposed reader re-initialises on next
+   * use.
+   */
+  dispose(): void {
+    this.indexReader?.dispose();
+    this.encodingReader?.dispose();
+    this.rootReader?.dispose();
+    this.dataReader?.close?.();
+
+    this.indexReader = null;
+    this.encodingReader = null;
+    this.rootReader = null;
+    this.dataReader = null;
+    this.initialized = false;
+  }
   private nativeStorage: CASCStorage | null = null;
 
   constructor(config: CASCConfig) {
