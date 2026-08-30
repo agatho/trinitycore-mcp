@@ -8,6 +8,7 @@
  */
 
 import type { DatabaseConfig } from "../types/database";
+import { safeLimit, safeOffset } from "../utils/sql-limit";
 import { executeQuery, executeBatch } from "./db-client";
 import fs from "fs/promises";
 import path from "path";
@@ -527,11 +528,14 @@ export class DatabaseExportEngine {
     let hasMore = true;
 
     while (hasMore) {
-      const query = `SELECT * FROM \`${safeTable}\` LIMIT ? OFFSET ?`;
-      const result = await executeQuery(this.config.database, query, [
-        this.config.batchSize,
-        offset,
-      ]);
+      // LIMIT and OFFSET are inlined rather than bound: MySQL's binary protocol
+      // rejects placeholders for them, so the bound form failed with "Incorrect
+      // arguments to mysqld_stmt_execute" and no table ever exported. Both
+      // values are coerced to integers first.
+      const query =
+        `SELECT * FROM \`${safeTable}\` ` +
+        `LIMIT ${safeLimit(this.config.batchSize)} OFFSET ${safeOffset(offset)}`;
+      const result = await executeQuery(this.config.database, query, []);
 
       if (result.rows.length === 0) {
         hasMore = false;

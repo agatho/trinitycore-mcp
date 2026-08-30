@@ -366,12 +366,11 @@ ${hasCache ? `
       FROM your_table
       WHERE name LIKE ?
       ORDER BY entry
-      LIMIT ?
+      LIMIT \${${params.find(p => p.name === 'limit') ? `safe${toPascalCase('limit')}` : '50'}}
     \`;
 
     const results = await queryWorld(sql, [
       \`%\${${params[0]?.name || 'query'}}%\`,
-      ${params.find(p => p.name === 'limit') ? `safe${toPascalCase('limit')}` : '50'},
     ]);
 
     // Get total count
@@ -544,14 +543,13 @@ export async function search${className}(filters: {
     FROM ${tables[0]}
     \${whereClause}
     ORDER BY entry
-    LIMIT ?
+    LIMIT \${safeLimit}
   \`;
-  params.push(safeLimit);
 
   const entries = await queryWorld(sql, params) as ${className}Entry[];
 
   // Get total count
-  const countParams = params.slice(0, -1); // Remove LIMIT param
+  const countParams = params;
   const countSql = \`SELECT COUNT(*) as total FROM ${tables[0]} \${whereClause}\`;
   const countResult = await queryWorld(countSql, countParams);
   const totalCount = countResult[0]?.total || 0;

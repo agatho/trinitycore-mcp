@@ -653,7 +653,11 @@ export async function searchCreatures(
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
   const limit = validateNumericValue(filters.limit || 50, 'limit');
-  const safeLimit = Math.min(Math.max(1, limit), 10000);
+  // Inlined into the SQL rather than bound: MySQL's binary protocol rejects a
+  // placeholder for LIMIT ("Incorrect arguments to mysqld_stmt_execute"), which
+  // made every call to this function fail. Safe because the value is clamped to
+  // an integer here before it reaches the query.
+  const safeLimit = Math.min(Math.max(1, Math.floor(Number(limit) || 1)), 10000);
 
   const query = `
     SELECT
@@ -665,10 +669,9 @@ export async function searchCreatures(
     FROM creature_template
     ${whereClause}
     ORDER BY entry
-    LIMIT ?
+    LIMIT ${safeLimit}
   `;
 
-  params.push(safeLimit);
   return await queryWorld(query, params) as CreatureTemplate[];
 }
 

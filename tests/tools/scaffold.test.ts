@@ -187,10 +187,16 @@ describe('Database Tool Scaffold', () => {
     });
 
     const mainFile = result.files.find(f => f.path.includes('src/tools/'))!;
-    // Should use ? placeholders, not string interpolation for values
+    // Values are bound, never interpolated.
     expect(mainFile.content).toContain('LIKE ?');
     expect(mainFile.content).toContain('entry = ?');
-    expect(mainFile.content).toContain('LIMIT ?');
+
+    // LIMIT is the exception, and must be: MySQL's binary protocol rejects a
+    // placeholder there, so generated code that bound it failed at runtime with
+    // "Incorrect arguments to mysqld_stmt_execute". It is inlined from a value
+    // clamped to an integer first, which is why this is not an injection route.
+    expect(mainFile.content).not.toContain('LIMIT ?');
+    expect(mainFile.content).toMatch(/LIMIT \$\{(safe|50)/);
   });
 });
 

@@ -8,6 +8,7 @@
  */
 
 import { queryWorld, queryHotfixes } from "../database/connection";
+import { safeLimit } from "../utils/sql-limit";
 import { getItemPricing } from "./economy";
 import {
   getXPForLevel,
@@ -175,10 +176,10 @@ export async function optimizeQuestRoute(
     WHERE qp.MapID = ?
       AND qta.MaxLevel >= ?
     ORDER BY qta.MaxLevel
-    LIMIT ?
+    LIMIT ${safeLimit(maxQuests)}
   `;
 
-  const results = await queryWorld(query, [zoneId, playerLevel - 3, maxQuests]);
+  const results = await queryWorld(query, [zoneId, playerLevel - 3]);
 
   const quests: QuestInfo[] = [];
   let totalXP = 0;

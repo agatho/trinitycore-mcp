@@ -8,6 +8,7 @@
  */
 
 import { queryWorld, queryHotfixes } from "../database/connection";
+import { safeLimit } from "../utils/sql-limit";
 import { getQuestInfo, QuestInfo } from "./quest";
 import {
   getStatPriority,
@@ -1231,10 +1232,10 @@ export async function optimizeQuestPath(
       AND qta.MaxLevel <= ?
       AND qta.MaxLevel <= ? + 5
     ORDER BY qta.MaxLevel, qt.ID
-    LIMIT ?
+    LIMIT ${safeLimit(maxQuests)}
   `;
 
-  const quests = await queryWorld(query, [zoneId, playerLevel, playerLevel, maxQuests]);
+  const quests = await queryWorld(query, [zoneId, playerLevel, playerLevel]);
 
   // Simple optimization: order by level and prerequisites
   const optimalPath = quests.map((q: any) => q.questId);

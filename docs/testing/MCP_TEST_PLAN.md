@@ -217,10 +217,10 @@ These compute rather than look up, so the oracle is a formula or a reference imp
 | B8.1 | `get-combat-rating` at several levels | matches the CombatRatings gametable arithmetic |
 | B8.2 | `get-character-stats` for level 1 and max level | matches the base-stat tables |
 | B8.3 | `calculate-melee-damage` | reproducible; documented formula; no negative damage |
-| B8.4 | `calculate-armor-mitigation` | 0 ≤ mitigation < 1 for all inputs; monotonic in armor |
+| B8.4 | `calculate-armor-mitigation` | 0 ≤ mitigation < 100 (the tool returns a percentage, not a fraction); monotonic in armor |
 | B8.5 | `simulate-scaling` across levels | no discontinuities; no negative values |
 
-**B8.4's bounds check is the useful part**: a mitigation above 1 or below 0 is a sign-error, and those survive plausibility checks that only look at "does it return a number".
+**B8.4's bounds check is the useful part**: a mitigation outside 0-100 is a sign or scale error, and those survive plausibility checks that only look at "does it return a number". Measured: 1,000 armor gives 13.6% at level 70, 5,000 gives 44.1%, 20,000 gives 75.9%.
 
 ---
 
