@@ -121,7 +121,7 @@ Each route is tested for shape, failure, and — where it serves game data — c
 
 | ID | Route | Expected |
 |----|-------|----------|
-| B3.1 | `/api/maps/list` | 1,079 maps |
+| B3.1 | `/api/maps/list` | 11 continent-level maps for the minimap viewer, each with an `extracted` flag. This is deliberately not the 1,079 maps `mapextractor` produced: the route serves the viewer's continent list, not the game's map table. |
 | B3.2 | `/api/maps/[mapId]` for a valid map | metadata; tiles enumerated |
 | B3.3 | `/api/collision-data?type=vmap` | reads the **active build's** vmap directory |
 | B3.4 | `/api/collision-data?type=mmap` | reads the active build's mmap directory |

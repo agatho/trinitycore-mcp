@@ -91,6 +91,13 @@ export default function ItemDetailPage() {
   }
 
   const item = data.item || data.result || data;
+
+  // Vendor prices are carried on the parsed ItemSparse entry rather than at the
+  // top level of the response.
+  const sparse = item.db2Data?.itemSparse;
+  const sellPrice = sparse?.sellPrice;
+  const buyPrice = sparse?.buyPrice;
+
   const quality = item.quality || 1;
   const qualityColor = qualityColors[quality] || qualityColors[1];
   const qualityName = qualityNames[quality] || "Common";
@@ -198,7 +205,7 @@ export default function ItemDetailPage() {
                       <span className="text-sm text-slate-500">Subclass</span>
                     </div>
                     <div className="text-lg font-semibold text-white">
-                      {item.itemSubclass !== undefined ? item.itemSubclass : "N/A"}
+                      {item.itemSubClass !== undefined ? item.itemSubClass : "N/A"}
                     </div>
                   </div>
                 </div>
@@ -215,25 +222,22 @@ export default function ItemDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                    <span className="text-slate-400">Vendor Price</span>
-                    <span className="text-white font-medium">
-                      {formatPrice(item.vendorPrice || 0)}
-                    </span>
-                  </div>
-                  {item.sellPrice !== undefined && (
+                  {/* Prices come from the parsed ItemSparse entry; the response
+                      carries no top-level price fields, so reading them there
+                      rendered every item as costing nothing. */}
+                  {sellPrice !== undefined && (
                     <div className="flex justify-between items-center py-2 border-b border-slate-700">
                       <span className="text-slate-400">Sell Price</span>
                       <span className="text-white font-medium">
-                        {formatPrice(item.sellPrice)}
+                        {formatPrice(sellPrice)}
                       </span>
                     </div>
                   )}
-                  {item.buyPrice !== undefined && (
+                  {buyPrice !== undefined && (
                     <div className="flex justify-between items-center py-2 border-b border-slate-700">
                       <span className="text-slate-400">Buy Price</span>
                       <span className="text-white font-medium">
-                        {formatPrice(item.buyPrice)}
+                        {formatPrice(buyPrice)}
                       </span>
                     </div>
                   )}

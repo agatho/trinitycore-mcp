@@ -142,7 +142,9 @@ describe('ItemSchema', () => {
 
       const item = ItemSchema.parseSparse(mockRecord);
 
-      expect(item.allowableRace).toBe(BigInt(-1));
+      // Serialised as a decimal string: a 64-bit mask cannot survive JSON as
+      // a number, and a BigInt cannot be serialised at all.
+      expect(item.allowableRace).toBe('-1');
     });
 
     it('should read signed narrow columns', () => {
@@ -225,7 +227,7 @@ describe('ItemSchema', () => {
         requiredHoliday: 0,
         requiredTransmogHoliday: 0,
         allowableClass: -1,
-        allowableRace: BigInt(-1),
+        allowableRace: '-1',
         stats: [
           { type: ItemModType.STRENGTH, value: 2, socketPercentage: 0 },
           { type: ItemModType.STAMINA, value: 3, socketPercentage: 0 },
@@ -328,7 +330,7 @@ describe('ItemSchema', () => {
         requiredHoliday: 0,
         requiredTransmogHoliday: 0,
         allowableClass: -1,
-        allowableRace: BigInt(-1),
+        allowableRace: '-1',
         stats: [
           { type: ItemModType.STRENGTH, value: 2, socketPercentage: 0 },
           { type: ItemModType.STAMINA, value: 3, socketPercentage: 0 },

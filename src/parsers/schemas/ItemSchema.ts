@@ -267,7 +267,16 @@ export interface ItemSparseEntry {
 
   // Class and race restrictions
   allowableClass: number; // Class mask, -1 for all classes
-  allowableRace: bigint; // Race mask, stored as two int32 halves
+  /**
+   * Race mask, as a decimal string.
+   *
+   * The mask is 64 bits, which JSON cannot carry as a number without losing
+   * precision, and a JavaScript BigInt cannot be serialised by JSON.stringify
+   * at all - returning one made every response containing an item unusable
+   * over both the MCP transport and the web API. A string round-trips exactly;
+   * callers that need arithmetic can BigInt() it.
+   */
+  allowableRace: string;
 
   // Stats
   stats: ItemStat[]; // Non-empty entries of the ten stat slots
@@ -470,7 +479,7 @@ export class ItemSchema {
 
       // Class and race (fields 51, 21)
       allowableClass: record.getInt16(51),
-      allowableRace: BigInt.asIntN(64, (raceHigh << 32n) | raceLow),
+      allowableRace: BigInt.asIntN(64, (raceHigh << 32n) | raceLow).toString(),
 
       // Stats (fields 14-16)
       stats,
