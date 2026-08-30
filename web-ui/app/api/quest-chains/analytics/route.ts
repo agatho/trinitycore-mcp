@@ -1,5 +1,24 @@
+/**
+ * Quest chain analytics.
+ *
+ * Quest levels and chain links live in quest_template_addon, not in
+ * quest_template: current TrinityCore replaced QuestLevel with content tuning
+ * and moved PrevQuestID/NextQuestID to the addon table. Reading them from
+ * quest_template failed with "Unknown column 'qt.QuestLevel' in 'field list'".
+ *
+ * Column names were checked against the live schema rather than assumed:
+ * quest_template carries LogTitle and RewardBonusMoney (not QuestTitle or
+ * RewardMoney), and ExclusiveGroup is on the addon table.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { queryWorld } from '@/../src/database/connection';
+
+/**
+ * These queries aggregate across whole tables rather than looking up a row, so
+ * they legitimately exceed the default five-second budget sized for point
+ * lookups. Without this they failed as "Query timeout after 5000ms".
+ */
+const ANALYTICS_QUERY_TIMEOUT_MS = 60000;
 
 export const dynamic = 'force-dynamic';
 
@@ -25,12 +44,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (minLevel) {
-      conditions.push('qt.MinLevel >= ?');
+      conditions.push('qta.MaxLevel >= ?');
       params.push(parseInt(minLevel));
     }
 
     if (maxLevel) {
-      conditions.push('qt.MinLevel <= ?');
+      conditions.push('qta.MaxLevel <= ?');
       params.push(parseInt(maxLevel));
     }
 
@@ -40,35 +59,37 @@ export async function GET(request: NextRequest) {
     const overallStatsQuery = `
       SELECT
         COUNT(DISTINCT qt.ID) as totalQuests,
-        AVG(qt.QuestLevel) as avgLevel,
-        MIN(qt.MinLevel) as minLevel,
-        MAX(qt.MinLevel) as maxLevel,
-        COUNT(DISTINCT CASE WHEN qt.PrevQuestID > 0 THEN qt.ID END) as questsWithPrereqs,
-        COUNT(DISTINCT CASE WHEN qt.NextQuestID > 0 THEN qt.ID END) as questsWithFollowups,
+        AVG(qta.MaxLevel) as avgLevel,
+        MIN(qta.MaxLevel) as minLevel,
+        MAX(qta.MaxLevel) as maxLevel,
+        COUNT(DISTINCT CASE WHEN qta.PrevQuestID > 0 THEN qt.ID END) as questsWithPrereqs,
+        COUNT(DISTINCT CASE WHEN qta.NextQuestID > 0 THEN qt.ID END) as questsWithFollowups,
         AVG(qt.RewardXPDifficulty) as avgXPReward,
-        AVG(qt.RewardMoney) as avgGoldReward
+        AVG(qt.RewardBonusMoney) as avgGoldReward
       FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
       LEFT JOIN creature c ON cqs.id = c.id
       WHERE 1=1 ${whereClause}
     `;
 
-    const overallStats = await queryWorld(overallStatsQuery, params);
+    const overallStats = await queryWorld(overallStatsQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 2. Level distribution
     const levelDistQuery = `
       SELECT
-        qt.MinLevel as level,
+        qta.MaxLevel as level,
         COUNT(*) as count
       FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
       LEFT JOIN creature c ON cqs.id = c.id
       WHERE 1=1 ${whereClause}
-      GROUP BY qt.MinLevel
-      ORDER BY qt.MinLevel
+      GROUP BY qta.MaxLevel
+      ORDER BY qta.MaxLevel
     `;
 
-    const levelDistribution = await queryWorld(levelDistQuery, params);
+    const levelDistribution = await queryWorld(levelDistQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 3. Zone distribution
     const zoneDistQuery = `
@@ -76,21 +97,26 @@ export async function GET(request: NextRequest) {
         c.zoneId,
         CONCAT('Zone ', c.zoneId) as zoneName,
         COUNT(DISTINCT qt.ID) as questCount,
-        MIN(qt.MinLevel) as minLevel,
-        MAX(qt.MinLevel) as maxLevel,
+        MIN(qta.MaxLevel) as minLevel,
+        MAX(qta.MaxLevel) as maxLevel,
         AVG(qt.RewardXPDifficulty) as avgXP
       FROM creature c
       INNER JOIN creature_queststarter cqs ON c.id = cqs.id
       INNER JOIN quest_template qt ON cqs.quest = qt.ID
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       WHERE c.zoneId IS NOT NULL AND c.zoneId > 0
       GROUP BY c.zoneId
       ORDER BY questCount DESC
       LIMIT 50
     `;
 
-    const zoneDistribution = await queryWorld(zoneDistQuery, []);
+    const zoneDistribution = await queryWorld(zoneDistQuery, [], true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 4. Quest chain length distribution
+    // Chain length is the number of quests linked to this one, plus itself.
+    // Counted with a grouped derived table rather than a subquery evaluated per
+    // row: quest_template_addon is indexed only on ID, so the per-row form
+    // scanned the whole table for each of ~47,000 quests and timed out.
     const chainLengthQuery = `
       SELECT
         CASE
@@ -104,15 +130,17 @@ export async function GET(request: NextRequest) {
       FROM (
         SELECT
           qt.ID,
-          (
-            SELECT COUNT(*)
-            FROM quest_template qt2
-            WHERE qt2.PrevQuestID = qt.ID
-              OR qt.PrevQuestID = qt2.ID
-          ) + 1 as chainLength
+          COALESCE(successors.n, 0)
+            + CASE WHEN qta.PrevQuestID > 0 THEN 1 ELSE 0 END
+            + 1 as chainLength
         FROM quest_template qt
-        LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
-        LEFT JOIN creature c ON cqs.id = c.id
+        LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+        LEFT JOIN (
+          SELECT PrevQuestID as prevId, COUNT(*) as n
+          FROM quest_template_addon
+          WHERE PrevQuestID > 0
+          GROUP BY PrevQuestID
+        ) successors ON successors.prevId = qt.ID
         WHERE 1=1 ${whereClause}
       ) as chains
       GROUP BY category
@@ -126,77 +154,81 @@ export async function GET(request: NextRequest) {
         END
     `;
 
-    const chainLengthDist = await queryWorld(chainLengthQuery, params);
+    const chainLengthDist = await queryWorld(chainLengthQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 5. Broken quests report
     const brokenQuestsQuery = `
       SELECT
         qt.ID as questId,
-        qt.QuestTitle as title,
-        qt.QuestLevel as level,
-        qt.PrevQuestID as prevQuestId,
+        qt.LogTitle as title,
+        qta.MaxLevel as level,
+        qta.PrevQuestID as prevQuestId,
         'Missing prerequisite' as issue
       FROM quest_template qt
-      WHERE qt.PrevQuestID > 0
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+      WHERE qta.PrevQuestID > 0
         AND NOT EXISTS (
-          SELECT 1 FROM quest_template qt2
-          WHERE qt2.ID = qt.PrevQuestID
+          SELECT 1 FROM quest_template_addon qt2
+          WHERE qt2.ID = qta.PrevQuestID
         )
       LIMIT 100
     `;
 
-    const brokenQuests = await queryWorld(brokenQuestsQuery, []);
+    const brokenQuests = await queryWorld(brokenQuestsQuery, [], true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 6. Orphaned quests (no prerequisites, no follow-ups)
     const orphanedQuestsQuery = `
       SELECT
         qt.ID as questId,
-        qt.QuestTitle as title,
-        qt.QuestLevel as level
+        qt.LogTitle as title,
+        qta.MaxLevel as level
       FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
       LEFT JOIN creature c ON cqs.id = c.id
-      WHERE (qt.PrevQuestID = 0 OR qt.PrevQuestID IS NULL)
-        AND (qt.NextQuestID = 0 OR qt.NextQuestID IS NULL)
+      WHERE (qta.PrevQuestID = 0 OR qta.PrevQuestID IS NULL)
+        AND (qta.NextQuestID = 0 OR qta.NextQuestID IS NULL)
         AND NOT EXISTS (
-          SELECT 1 FROM quest_template qt2
+          SELECT 1 FROM quest_template_addon qt2
           WHERE qt2.PrevQuestID = qt.ID
         )
         ${whereClause}
       LIMIT 100
     `;
 
-    const orphanedQuests = await queryWorld(orphanedQuestsQuery, params);
+    const orphanedQuests = await queryWorld(orphanedQuestsQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 7. Quest density heatmap (quests per zone per level bracket)
     const heatmapQuery = `
       SELECT
         c.zoneId,
-        FLOOR(qt.MinLevel / 5) * 5 as levelBracket,
+        FLOOR(qta.MaxLevel / 5) * 5 as levelBracket,
         COUNT(DISTINCT qt.ID) as questCount
       FROM creature c
       INNER JOIN creature_queststarter cqs ON c.id = cqs.id
       INNER JOIN quest_template qt ON cqs.quest = qt.ID
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       WHERE c.zoneId IS NOT NULL AND c.zoneId > 0
       GROUP BY c.zoneId, levelBracket
       HAVING questCount > 0
       ORDER BY c.zoneId, levelBracket
     `;
 
-    const questDensityHeatmap = await queryWorld(heatmapQuery, []);
+    const questDensityHeatmap = await queryWorld(heatmapQuery, [], true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 8. Reward analysis
     const rewardAnalysisQuery = `
       SELECT
-        FLOOR(qt.MinLevel / 10) * 10 as levelBracket,
+        FLOOR(qta.MaxLevel / 10) * 10 as levelBracket,
         AVG(qt.RewardXPDifficulty) as avgXP,
-        AVG(qt.RewardMoney) as avgGold,
+        AVG(qt.RewardBonusMoney) as avgGold,
         MAX(qt.RewardXPDifficulty) as maxXP,
-        MAX(qt.RewardMoney) as maxGold,
+        MAX(qt.RewardBonusMoney) as maxGold,
         MIN(qt.RewardXPDifficulty) as minXP,
-        MIN(qt.RewardMoney) as minGold,
+        MIN(qt.RewardBonusMoney) as minGold,
         COUNT(*) as questCount
       FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
       LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
       LEFT JOIN creature c ON cqs.id = c.id
       WHERE 1=1 ${whereClause}
@@ -204,31 +236,45 @@ export async function GET(request: NextRequest) {
       ORDER BY levelBracket
     `;
 
-    const rewardAnalysis = await queryWorld(rewardAnalysisQuery, params);
+    const rewardAnalysis = await queryWorld(rewardAnalysisQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 9. Top zones by quest count
     const topZones = zoneDistribution.slice(0, 10);
 
     // 10. Quest type distribution
+    // Grouped by ordinal rather than by the alias: MySQL's ONLY_FULL_GROUP_BY
+    // rejects grouping by an alias whose expression names non-aggregated
+    // columns, even though every row in a group shares the same value.
+    // Whether a quest starts a chain is decided from one grouped pass over the
+    // addon table, not an EXISTS evaluated per row: PrevQuestID is unindexed,
+    // so the per-row form scanned the whole table ~47,000 times and timed out.
+    // Grouped by ordinal because ONLY_FULL_GROUP_BY rejects grouping by an
+    // alias whose expression names non-aggregated columns.
     const questTypeQuery = `
       SELECT
         CASE
-          WHEN qt.ExclusiveGroup != 0 THEN 'Exclusive Choice'
-          WHEN qt.PrevQuestID > 0 AND qt.NextQuestID > 0 THEN 'Chain Middle'
-          WHEN qt.PrevQuestID > 0 THEN 'Chain End'
-          WHEN qt.NextQuestID > 0 THEN 'Chain Start'
-          WHEN EXISTS(SELECT 1 FROM quest_template qt2 WHERE qt2.PrevQuestID = qt.ID) THEN 'Chain Start'
+          WHEN qta.ExclusiveGroup != 0 THEN 'Exclusive Choice'
+          WHEN qta.PrevQuestID > 0 AND qta.NextQuestID > 0 THEN 'Chain Middle'
+          WHEN qta.PrevQuestID > 0 THEN 'Chain End'
+          WHEN qta.NextQuestID > 0 THEN 'Chain Start'
+          WHEN successors.prevId IS NOT NULL THEN 'Chain Start'
           ELSE 'Standalone'
         END as questType,
         COUNT(*) as count
       FROM quest_template qt
+      LEFT JOIN quest_template_addon qta ON qt.ID = qta.ID
+      LEFT JOIN (
+        SELECT DISTINCT PrevQuestID as prevId
+        FROM quest_template_addon
+        WHERE PrevQuestID > 0
+      ) successors ON successors.prevId = qt.ID
       LEFT JOIN creature_queststarter cqs ON qt.ID = cqs.quest
       LEFT JOIN creature c ON cqs.id = c.id
       WHERE 1=1 ${whereClause}
-      GROUP BY questType
+      GROUP BY 1
     `;
 
-    const questTypeDistribution = await queryWorld(questTypeQuery, params);
+    const questTypeDistribution = await queryWorld(questTypeQuery, params, true, ANALYTICS_QUERY_TIMEOUT_MS);
 
     // 11. Calculate insights
     const insights = generateInsights({

@@ -232,6 +232,22 @@ export class TrinityCoreMCPClient {
 let mcpClientInstance: TrinityCoreMCPClient | null = null;
 
 
+/**
+ * Drop entries with no value, so the child can fall back to its own .env.
+ *
+ * @param values Candidate environment settings
+ * @returns Only those that are set and non-empty
+ */
+function pruneEmpty(values: Record<string, string | undefined>): Record<string, string> {
+  const pruned: Record<string, string> = {};
+  for (const [key, value] of Object.entries(values)) {
+    if (value !== undefined && value !== "") {
+      pruned[key] = value;
+    }
+  }
+  return pruned;
+}
+
 /*
   Get the singleton MCP client instance (server-side only)
  */
@@ -239,15 +255,29 @@ export function getMCPClient(): TrinityCoreMCPClient {
   if (!mcpClientInstance) {
     mcpClientInstance = new TrinityCoreMCPClient({
       serverPath: process.env.MCP_SERVER_PATH || "C:\\TrinityBots\\trinitycore-mcp\\dist\\index.js",
-      env: {
-        TRINITY_DB_HOST: process.env.TRINITY_DB_HOST || "localhost",
-        TRINITY_DB_PORT: process.env.TRINITY_DB_PORT || "3306",
-        TRINITY_DB_USER: process.env.TRINITY_DB_USER || "",
-        TRINITY_DB_PASSWORD: process.env.TRINITY_DB_PASSWORD || "",
-        TRINITY_ROOT: process.env.TRINITY_ROOT || "C:\\TrinityBots\\TrinityCore",
-        DBC_PATH: process.env.DBC_PATH || "C:\\TrinityBots\\Server\\data\\dbc",
-        DB2_PATH: process.env.DB2_PATH || "C:\\TrinityBots\\Server\\data\\db2",
-      },
+      // Only settings this process actually has are passed down. An empty
+      // value is worse than no value: dotenv will not override a key that is
+      // already set, so passing TRINITY_DB_USER="" stopped the MCP server's own
+      // .env from supplying the real user, and every world-database tool
+      // answered "Access denied for user ''@'localhost'".
+      //
+      // The DB_* names are the web UI's own; the server reads the TRINITY_DB_*
+      // ones, so each is translated rather than assumed to be present.
+      env: pruneEmpty({
+        TRINITY_DB_HOST: process.env.TRINITY_DB_HOST || process.env.DB_HOST,
+        TRINITY_DB_PORT: process.env.TRINITY_DB_PORT || process.env.DB_PORT,
+        TRINITY_DB_USER: process.env.TRINITY_DB_USER || process.env.DB_USERNAME,
+        TRINITY_DB_PASSWORD: process.env.TRINITY_DB_PASSWORD || process.env.DB_PASSWORD,
+        TRINITY_DB_WORLD: process.env.TRINITY_DB_WORLD || process.env.DB_WORLD_DATABASE,
+        TRINITY_DB_AUTH: process.env.TRINITY_DB_AUTH || process.env.DB_AUTH_DATABASE,
+        TRINITY_DB_CHARACTERS:
+          process.env.TRINITY_DB_CHARACTERS || process.env.DB_CHARACTERS_DATABASE,
+        TRINITY_ROOT: process.env.TRINITY_ROOT,
+        // Data paths come from the build manifest; these only matter to an
+        // installation that has no manifest at all.
+        DBC_PATH: process.env.DBC_PATH,
+        DB2_PATH: process.env.DB2_PATH,
+      }),
     });
   }
   return mcpClientInstance;

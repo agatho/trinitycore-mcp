@@ -8,23 +8,49 @@ import { LRUCache } from "lru-cache";
 import { DatabaseError, handleError } from "../utils/error-handler";
 import { withRetry, DATABASE_RETRY_OPTIONS } from "../utils/retry";
 
+/**
+ * Read a setting under either naming scheme.
+ *
+ * This module is imported by the MCP server, which configures itself with
+ * TRINITY_DB_*, and by the web UI's route handlers, which configure themselves
+ * with DB_*. Reading only the TRINITY_* names meant that when the web UI
+ * imported it directly the pool was built with an empty user, and every query
+ * failed with "Access denied for user ''@'localhost'" - a message that reads as
+ * a database problem rather than as two conventions meeting.
+ *
+ * @param trinityName The TRINITY_DB_* variable
+ * @param webName The DB_* variable the web UI uses for the same setting
+ * @param fallback Value when neither is set
+ */
+function setting(trinityName: string, webName: string, fallback: string): string {
+  const value = process.env[trinityName] || process.env[webName];
+  return value && value !== "" ? value : fallback;
+}
+
 // Environment variables
 const DB_CONFIG = {
-  host: process.env.TRINITY_DB_HOST || "localhost",
-  port: parseInt(process.env.TRINITY_DB_PORT || "3306"),
-  user: process.env.TRINITY_DB_USER || "",
-  password: process.env.TRINITY_DB_PASSWORD || "",
+  host: setting("TRINITY_DB_HOST", "DB_HOST", "localhost"),
+  port: parseInt(setting("TRINITY_DB_PORT", "DB_PORT", "3306")),
+  user: setting("TRINITY_DB_USER", "DB_USERNAME", ""),
+  password: setting("TRINITY_DB_PASSWORD", "DB_PASSWORD", ""),
 };
 
 // Database names
 const DB_NAMES = {
-  world: process.env.TRINITY_DB_WORLD || "world",
-  auth: process.env.TRINITY_DB_AUTH || "auth",
-  characters: process.env.TRINITY_DB_CHARACTERS || "characters",
-  hotfixes: process.env.TRINITY_DB_HOTFIXES || "hotfixes",
+  world: setting("TRINITY_DB_WORLD", "DB_WORLD_DATABASE", "world"),
+  auth: setting("TRINITY_DB_AUTH", "DB_AUTH_DATABASE", "auth"),
+  characters: setting("TRINITY_DB_CHARACTERS", "DB_CHARACTERS_DATABASE", "characters"),
+  hotfixes: setting("TRINITY_DB_HOTFIXES", "DB_HOTFIXES_DATABASE", "hotfixes"),
 };
 
 // Query configuration
+/**
+ * Default per-query timeout.
+ *
+ * Sized for the point lookups that make up almost every query here. Analytics
+ * over whole tables legitimately take longer, so those callers pass their own;
+ * raising this for everyone would let a genuinely stuck lookup hang instead.
+ */
 const QUERY_TIMEOUT = 5000; // 5 seconds
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000; // 1 second
@@ -216,7 +242,9 @@ async function executeCachedQuery(
   pool: mysql.Pool,
   sql: string,
   params?: any[],
-  useCache: boolean = true
+  useCache: boolean = true,
+  /** Override the default timeout for a query that is legitimately slow. */
+  timeoutMs?: number
 ): Promise<any> {
   const startTime = Date.now();
   const cacheKey = createCacheKey(sql, params);
@@ -235,7 +263,7 @@ async function executeCachedQuery(
     const result = await withRetry(async () => {
       return executeWithTimeout(
         pool.execute(sql, params),
-        QUERY_TIMEOUT
+        timeoutMs ?? QUERY_TIMEOUT
       );
     }, DATABASE_RETRY_OPTIONS);
 
@@ -273,10 +301,15 @@ async function executeCachedQuery(
 /**
  * Query world database with enterprise error handling
  */
-export async function queryWorld(sql: string, params?: any[], useCache: boolean = true): Promise<any> {
+export async function queryWorld(
+  sql: string,
+  params?: any[],
+  useCache: boolean = true,
+  timeoutMs?: number
+): Promise<any> {
   try {
     const pool = getWorldPool();
-    return await executeCachedQuery("world", pool, sql, params, useCache);
+    return await executeCachedQuery("world", pool, sql, params, useCache, timeoutMs);
   } catch (error) {
     throw new DatabaseError(
       `Failed to query world database: ${error instanceof Error ? error.message : String(error)}`,

@@ -649,7 +649,18 @@ test("E2E test", async () => {
 
     // Write files
     for (const [type, typeTests] of byType.entries()) {
-      const filename = `${path.basename(this.config.source, ".ts")}.${type}.test.ts`;
+      // The source name reaches us from a caller and becomes a filename.
+      // path.basename() already stops directory traversal, but it leaves
+      // quotes, semicolons and spaces intact - a source named
+      // "'; DROP TABLE test; --" produced a file of that name on disk. Reduce
+      // it to characters that are safe to write and to read back.
+      const safeBase =
+        path
+          .basename(this.config.source, ".ts")
+          .replace(/[^A-Za-z0-9._-]/g, "_")
+          .replace(/^[._-]+/, "")
+          .slice(0, 100) || "generated";
+      const filename = `${safeBase}.${type}.test.ts`;
       const filepath = path.join(this.config.outputDir, filename);
 
       let content = `/**
