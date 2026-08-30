@@ -293,10 +293,25 @@ export const mapTools: ToolRegistryEntry[] = [
       },
     },
     handler: async (args) => {
+      // The tool needs one of three ways to name its tiles, which JSON Schema's
+      // `required` cannot express as an either/or. Without this check, empty
+      // input reached the CASC layer and began extracting the ~199 MB encoding
+      // file to find nothing.
+      const fileDataIds = (args.fileDataIds as number[] | undefined) || [];
+      const mapId = args.mapId as number | undefined;
+      const startFileDataId = args.startFileDataId as number | undefined;
+
+      if (fileDataIds.length === 0 && mapId === undefined && startFileDataId === undefined) {
+        throw new Error(
+          "get-minimap-tiles-batch needs tiles to extract: supply fileDataIds, or mapId, " +
+            "or startFileDataId with count."
+        );
+      }
+
       return await getMinimapTilesBatch({
-        fileDataIds: (args.fileDataIds as number[] | undefined) || [],
-        mapId: args.mapId as number | undefined,
-        startFileDataId: args.startFileDataId as number | undefined,
+        fileDataIds,
+        mapId,
+        startFileDataId,
         count: args.count as number | undefined,
       }) as ToolResponse;
     },

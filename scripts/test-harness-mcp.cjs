@@ -95,11 +95,6 @@ async function main() {
   // ---------------------------------------------------------------- A2 -----
   if ((SECTION === "a2" || SECTION === "all") && handlers) {
     for (const d of defs) {
-      if (UNVALIDATED_RUNAWAY[d.name]) {
-        record("A2.1", d.name, "FAIL", UNVALIDATED_RUNAWAY[d.name]);
-        continue;
-      }
-
       if (isSideEffecting(d.name)) {
         record("A2.1", d.name, "NOT-EXERCISED", "side-effecting; not invoked by the harness");
         continue;

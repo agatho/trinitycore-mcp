@@ -297,9 +297,25 @@ export class RecordCache<T = any> {
    * @param value Value to estimate
    * @returns Estimated size in bytes
    */
-  private estimateSize(value: T): number {
+  private estimateSize(value: T, depth: number = 0): number {
     if (value === null || value === undefined) {
       return 8; // Pointer size
+    }
+
+    // Binary data is measured, never walked. Object.entries() on a Buffer
+    // enumerates one entry per byte, so estimating a cached DB2Record - which
+    // references a multi-megabyte section buffer - walked millions of keys and
+    // cost 190-295 ms per cache write.
+    if (ArrayBuffer.isView(value as unknown as ArrayBufferView)) {
+      return (value as unknown as ArrayBufferView).byteLength;
+    }
+    if (value instanceof ArrayBuffer) {
+      return value.byteLength;
+    }
+
+    // Deeply nested or cyclic structures are not worth an exact answer.
+    if (depth > 6) {
+      return 64;
     }
 
     const type = typeof value;
@@ -319,7 +335,7 @@ export class RecordCache<T = any> {
     if (Array.isArray(value)) {
       let size = 24; // Array overhead
       for (const item of value) {
-        size += this.estimateSize(item as any);
+        size += this.estimateSize(item as any, depth + 1);
       }
       return size;
     }
@@ -328,7 +344,7 @@ export class RecordCache<T = any> {
       let size = 40; // Object overhead
       for (const [key, val] of Object.entries(value as object)) {
         size += key.length * 2; // Key string
-        size += this.estimateSize(val as any); // Value
+        size += this.estimateSize(val as any, depth + 1); // Value
       }
       return size;
     }

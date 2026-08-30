@@ -28,6 +28,8 @@ import { createErrorResponse, ValidationError } from "./utils/error-handler";
 import { buildToolRegistry, ConfigManagementDeps } from "./tools/registry/index";
 import { loadBuildManifest, getActiveBuild } from "./version/BuildManifest";
 import { ensureSpellCache } from "./version/SpellCacheProvisioner";
+import { warmSpellCaches } from "./tools/spell";
+import { warmItemCaches } from "./tools/item";
 import {
   findDataPathDisagreements,
   describeDataPathDisagreements,
@@ -63,6 +65,25 @@ async function initializeServer(): Promise<Server> {
   const spellCache = await ensureSpellCache();
   if (spellCache.ready) {
     logger.info(spellCache.detail);
+
+    // Load the caches now so the first spell or item lookup does not pay for
+    // reading ~39 MB of JSON. Deferred past startup so it never delays the
+    // server becoming available, and never awaited: a failure here costs a
+    // slow first request, not a broken server.
+    setTimeout(() => {
+      try {
+        const start = Date.now();
+        const spellsWarmed = warmSpellCaches();
+        const itemsWarmed = warmItemCaches();
+        logger.info(
+          `Caches warmed in ${Date.now() - start} ms ` +
+            `(spells ${spellsWarmed ? "ready" : "unavailable"}, ` +
+            `items ${itemsWarmed ? "ready" : "unavailable"})`
+        );
+      } catch (error) {
+        logger.warn(`Spell cache warm-up failed: ${error}`);
+      }
+    }, 0).unref();
   } else {
     logger.warn(spellCache.detail);
   }

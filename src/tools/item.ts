@@ -75,6 +75,44 @@ function db2Path(): string {
   return resolveDataPath("db2");
 }
 
+/**
+ * Open Item.db2 and ItemSparse.db2 now, rather than on the first lookup.
+ *
+ * They are opened lazily, which makes the first item lookup in a process pay
+ * for reading both files and parsing ItemSparse's 175,000-entry catalog: 422 ms
+ * against a 100 ms target, while subsequent lookups are sub-millisecond.
+ * Calling this after startup moves that cost off the first request.
+ *
+ * Safe to call more than once, and safe when the files are absent - a build
+ * whose data has not been extracted should not stop the server starting.
+ *
+ * @returns Whether both files are now loaded
+ */
+export function warmItemCaches(): boolean {
+  try {
+    const itemPath = path.join(db2Path(), ITEM_DB2_FILE);
+    const sparsePath = path.join(db2Path(), ITEM_SPARSE_DB2_FILE);
+    if (!fs.existsSync(itemPath) || !fs.existsSync(sparsePath)) {
+      return false;
+    }
+
+    const itemLoader = DB2CachedLoaderFactory.getLoader(ITEM_DB2_FILE);
+    if (itemLoader.getRecordCount() === 0) {
+      itemLoader.loadFromFile(itemPath);
+    }
+
+    const sparseLoader = DB2CachedLoaderFactory.getLoader(ITEM_SPARSE_DB2_FILE);
+    if (sparseLoader.getRecordCount() === 0) {
+      sparseLoader.loadFromFile(sparsePath);
+    }
+
+    return true;
+  } catch (error) {
+    logger.warn(`Item DB2 warm-up failed: ${error}`);
+    return false;
+  }
+}
+
 interface ItemCacheEntry {
   ID: number;
   ClassID?: number;

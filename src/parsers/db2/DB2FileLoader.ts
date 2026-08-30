@@ -50,6 +50,16 @@ export class DB2FileLoader {
   private sparseFieldLayout: DB2SparseFieldLayout | null = null;
   /** Name of the loaded file, used in diagnostics. */
   private fileName: string = '';
+  /**
+   * Section buffers, read once and reused.
+   *
+   * getRecord() previously re-read a whole section - every record plus its
+   * string table - from disk for each lookup, which cost 190-280 ms per record
+   * on Item.db2's 59,675 rows. The bytes do not change once loaded, so they are
+   * cached here; total memory stays bounded by the file's own size, which is
+   * still less than TrinityCore holds for the same file.
+   */
+  private sectionBuffers: Map<number, Buffer> = new Map();
   private copyTable: DB2CopyTable | null = null;
   private parentLookupTable: DB2ParentLookupTable | null = null;
 
@@ -81,6 +91,9 @@ export class DB2FileLoader {
 
     // Read section headers
     this.sections = [];
+    // A reload replaces the file's contents, so cached section bytes from the
+    // previous load must not survive it.
+    this.sectionBuffers.clear();
     for (let i = 0; i < this.header.sectionCount; i++) {
       const sectionBuffer = Buffer.alloc(40);
       if (!source.read(sectionBuffer, 40)) {
@@ -241,6 +254,54 @@ export class DB2FileLoader {
   }
 
   /**
+   * Read a section's records and string table, caching the result.
+   *
+   * The bytes are immutable once loaded, so the first lookup in a section pays
+   * for the read and every later one is served from memory. Without this a
+   * single record lookup re-read the whole section from disk.
+   *
+   * @param sectionIndex Section to read
+   * @param recordDataSize Size of the section's record data
+   * @param combinedSize Record data plus string table
+   * @returns Buffer holding the section's records followed by its string table
+   * @throws {Error} If the source is unavailable or the read fails
+   */
+  private getSectionBuffer(
+    sectionIndex: number,
+    recordDataSize: number,
+    combinedSize: number
+  ): Buffer {
+    const cached = this.sectionBuffers.get(sectionIndex);
+    if (cached) {
+      return cached;
+    }
+
+    if (!this.source || !this.source.isOpen()) {
+      throw new Error('DB2 file source not available for reading record data');
+    }
+
+    const section = this.sections[sectionIndex];
+    if (!this.source.setPosition(section.fileOffset)) {
+      throw new Error(`Failed to seek to section ${sectionIndex}`);
+    }
+
+    const buffer = Buffer.alloc(combinedSize);
+
+    if (!this.source.read(buffer.subarray(0, recordDataSize), recordDataSize)) {
+      throw new Error(`Failed to read section ${sectionIndex} records`);
+    }
+
+    if (section.stringTableSize > 0) {
+      if (!this.source.read(buffer.subarray(recordDataSize, combinedSize), section.stringTableSize)) {
+        throw new Error(`Failed to read section ${sectionIndex} string table`);
+      }
+    }
+
+    this.sectionBuffers.set(sectionIndex, buffer);
+    return buffer;
+  }
+
+  /**
    * Set the field layout used to read this file's sparse records, overriding
    * the one resolved from the file name.
    *
@@ -295,29 +356,7 @@ export class DB2FileLoader {
     const recordDataSize = section.recordCount * this.header!.recordSize;
     const combinedSize = recordDataSize + section.stringTableSize;
 
-    if (!this.source || !this.source.isOpen()) {
-      throw new Error('DB2 file source not available for reading record data');
-    }
-
-    // Seek to section start
-    if (!this.source.setPosition(section.fileOffset)) {
-      throw new Error(`Failed to seek to section ${mapping.sectionIndex} for spell ${spellId}`);
-    }
-
-    // Allocate combined buffer and read entire section
-    const combinedBuffer = Buffer.alloc(combinedSize);
-
-    // Read all records
-    if (!this.source.read(combinedBuffer.subarray(0, recordDataSize), recordDataSize)) {
-      throw new Error(`Failed to read section ${mapping.sectionIndex} records`);
-    }
-
-    // Read string table (immediately after records)
-    if (section.stringTableSize > 0) {
-      if (!this.source.read(combinedBuffer.subarray(recordDataSize, combinedSize), section.stringTableSize)) {
-        throw new Error(`Failed to read section ${mapping.sectionIndex} string table`);
-      }
-    }
+    const combinedBuffer = this.getSectionBuffer(mapping.sectionIndex, recordDataSize, combinedSize);
 
     // Compute string offset correction for this section.
     //

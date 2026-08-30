@@ -138,6 +138,24 @@ function dataCache(): JsonCacheLoader<SpellDataCacheEntry> {
   return spellDataCacheLoader;
 }
 
+/**
+ * Load the spell caches now, rather than on the first lookup.
+ *
+ * They are loaded lazily so that importing this module does not read ~39 MB of
+ * JSON, but that makes the first lookup in a process pay the whole cost: 345 ms
+ * against a 100 ms target, while steady state is 0.01 ms. Calling this after
+ * startup moves that cost off the first request.
+ *
+ * Safe to call more than once: the loaders ignore repeat loads.
+ *
+ * @returns Whether both caches are available
+ */
+export function warmSpellCaches(): boolean {
+  const names = nameCache().load();
+  const data = dataCache().load();
+  return names && data;
+}
+
 /** Get spell name from cache (100% accurate, O(1) lookup) */
 function getSpellNameFromCache(spellId: number): string | null {
   return nameCache().get(spellId);

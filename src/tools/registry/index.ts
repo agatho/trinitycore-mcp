@@ -13,6 +13,7 @@
  */
 
 import { ToolRegistryEntry, ToolHandler, ToolResponse } from "./types";
+import { validateToolArgs } from "./validate-args";
 import { gameDataTools } from "./game-data";
 import { gametableTools } from "./gametables";
 import { creatureTools } from "./creatures";
@@ -72,13 +73,30 @@ export function buildToolRegistry(deps: ConfigManagementDeps) {
     ...configTools,
   ];
 
-  // Build O(1) handler dispatch map (replaces giant switch statement)
+  // Build O(1) handler dispatch map (replaces giant switch statement).
+  //
+  // Each handler is wrapped so its arguments are checked against the schema the
+  // tool itself publishes, before it runs. Validating here rather than in every
+  // tool makes the declared schema the contract: one implementation covers all
+  // of them, and a tool cannot quietly accept what it says it requires. Without
+  // it, tools built output out of `undefined` - one reported a reputation
+  // standing for no input at all, and two started real work from nothing.
   const handlerMap = new Map<string, ToolHandler>();
   for (const entry of allEntries) {
     if (handlerMap.has(entry.definition.name)) {
-      console.warn(`[ToolRegistry] Duplicate tool name detected: ${entry.definition.name} - last definition wins`);
+      process.stderr.write(
+        `[ToolRegistry] Duplicate tool name detected: ${entry.definition.name} - last definition wins
+`
+      );
     }
-    handlerMap.set(entry.definition.name, entry.handler);
+
+    const { definition, handler } = entry;
+    const validatingHandler: ToolHandler = async (args) => {
+      validateToolArgs(definition, (args || {}) as Record<string, unknown>);
+      return handler(args);
+    };
+
+    handlerMap.set(definition.name, validatingHandler);
   }
 
   // Build MCP Tool definitions array (for ListToolsRequestSchema)
