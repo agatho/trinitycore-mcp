@@ -11,6 +11,30 @@
 
 import React, { useState, useEffect } from "react";
 
+/**
+ * The client build the MCP server reads, as reported by /api/build.
+ *
+ * The paths below are the ones tools actually use; the editable fields on this
+ * tab are a fallback for installations without a build manifest.
+ */
+interface BuildInfo {
+  available: boolean;
+  activeBuild?: {
+    id: string;
+    build: number;
+    expansion: string;
+    status: string;
+    db2Format: string;
+    opcodeTable?: string;
+    cacheDir: string;
+  };
+  otherBuilds?: Array<{ id: string; build: number; expansion: string; status: string }>;
+  dataPaths?: Array<{ kind: string; path: string; exists: boolean }>;
+  missingPaths?: string[];
+  manifestPath?: string;
+  message?: string;
+}
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -95,6 +119,15 @@ export default function SettingsDashboard() {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [envFileExists, setEnvFileExists] = useState<boolean>(false);
+  const [buildInfo, setBuildInfo] = useState<BuildInfo | null>(null);
+
+  useEffect(() => {
+    // Report the build even if it fails: the tab still renders without it.
+    fetch("/api/build-info")
+      .then((r) => r.json())
+      .then((data: BuildInfo) => setBuildInfo(data))
+      .catch(() => setBuildInfo({ available: false, message: "Could not read the build manifest." }));
+  }, []);
   const [envFiles, setEnvFiles] = useState<{ webUI: boolean; mcpServer: boolean }>({ webUI: false, mcpServer: false });
   const [showRestartInfo, setShowRestartInfo] = useState<boolean>(false);
   const [reloadInfo, setReloadInfo] = useState<string>("");
@@ -599,6 +632,58 @@ export default function SettingsDashboard() {
           {activeTab === "paths" && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold mb-4">Data Paths Configuration</h2>
+
+              {/* Which client build the MCP tools read. These paths come from
+                  config/builds.json and take precedence over the fields below. */}
+              {buildInfo?.available && buildInfo.activeBuild && (
+                <div className="border rounded p-4 bg-blue-50 border-blue-200">
+                  <div className="flex items-baseline justify-between mb-2">
+                    <h3 className="font-semibold text-blue-900">
+                      Active client build: {buildInfo.activeBuild.id}
+                    </h3>
+                    <span className="text-xs text-blue-700">
+                      {buildInfo.activeBuild.expansion} &middot; build {buildInfo.activeBuild.build}{" "}
+                      &middot; {buildInfo.activeBuild.db2Format}
+                    </span>
+                  </div>
+                  <p className="text-xs text-blue-800 mb-3">
+                    These paths come from the build manifest and are what the MCP tools read. The
+                    fields below are only used when no manifest is present.
+                  </p>
+                  <div className="space-y-1">
+                    {buildInfo.dataPaths?.map((p) => (
+                      <div key={p.kind} className="flex items-center gap-2 text-xs font-mono">
+                        <span className={p.exists ? "text-green-700" : "text-red-700"}>
+                          {p.exists ? "\u2713" : "\u2717"}
+                        </span>
+                        <span className="text-blue-900 w-16">{p.kind}</span>
+                        <span className="text-gray-700 break-all">{p.path}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {buildInfo.missingPaths && buildInfo.missingPaths.length > 0 && (
+                    <p className="text-xs text-red-700 mt-2">
+                      {buildInfo.missingPaths.length} path(s) do not exist. Tools reading them
+                      return nothing until the data is extracted.
+                    </p>
+                  )}
+                  {buildInfo.otherBuilds && buildInfo.otherBuilds.length > 0 && (
+                    <p className="text-xs text-blue-700 mt-2">
+                      Other builds in the manifest:{" "}
+                      {buildInfo.otherBuilds.map((b) => `${b.id} (${b.status})`).join(", ")}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {buildInfo && !buildInfo.available && (
+                <div className="border rounded p-4 bg-yellow-50 border-yellow-200">
+                  <h3 className="font-semibold text-yellow-900 mb-1">No build manifest</h3>
+                  <p className="text-xs text-yellow-800">
+                    {buildInfo.message} The paths below are then what the tools use.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium mb-1">

@@ -10,6 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { resolveBuildDataPath } from "@/lib/build-manifest";
 import { readAllEnvFiles, writeAllEnvFiles, reloadEnvVars, envFileExists } from "@/lib/env-utils";
 
 interface DatabaseConfig {
@@ -88,14 +89,20 @@ function loadConfigFromEnv(): TrinityMCPConfig {
       auth: process.env.TRINITY_DB_AUTH || process.env.DB_AUTH_DATABASE || "auth",
       characters: process.env.TRINITY_DB_CHARACTERS || process.env.DB_CHARACTERS_DATABASE || "characters",
     },
+    // Data paths come from the build manifest, which is what the MCP tools
+    // read. The environment variables below are a fallback for installations
+    // with no manifest; when one exists they are ignored, and showing them here
+    // would tell the reader the tools use directories they do not.
     dataPaths: {
       trinityRoot: process.env.TRINITY_ROOT || "./",
       wowPath: process.env.WOW_PATH || "",
-      gtPath: process.env.GT_PATH || "./data/gt",
-      dbcPath: process.env.DBC_PATH || "./data/dbc",
-      db2Path: process.env.DB2_PATH || "./data/db2",
-      vmapPath: process.env.VMAP_PATH || process.env.MAP_FILES_PATH || "./data/vmaps",
-      mmapPath: process.env.MMAP_PATH || "./data/mmaps",
+      gtPath: resolveBuildDataPath("gt", process.env.GT_PATH) || "./data/gt",
+      dbcPath: resolveBuildDataPath("dbc", process.env.DBC_PATH) || "./data/dbc",
+      db2Path: resolveBuildDataPath("db2", process.env.DB2_PATH) || "./data/db2",
+      vmapPath:
+        resolveBuildDataPath("vmap", process.env.VMAP_PATH || process.env.MAP_FILES_PATH) ||
+        "./data/vmaps",
+      mmapPath: resolveBuildDataPath("mmap", process.env.MMAP_PATH) || "./data/mmaps",
     },
     server: {
       port: parseInt(process.env.MCP_PORT || process.env.PORT || "3000"),

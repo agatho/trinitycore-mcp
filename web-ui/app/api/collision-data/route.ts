@@ -5,14 +5,15 @@
  * Falls back gracefully if paths are not configured.
  *
  * Environment Variables (supports multiple naming conventions):
- * - VMAP_PATH or VMAP_DATA_PATH: Path to VMap directory (e.g., /path/to/vmaps)
- * - MMAP_PATH or MMAP_DATA_PATH: Path to MMap directory (e.g., /path/to/mmaps)
+ * - VMap and MMap directories come from the active build in config/builds.json,
+ *   falling back to VMAP_PATH/VMAP_DATA_PATH and MMAP_PATH/MMAP_DATA_PATH
  * - MAP_PATH or MAP_DATA_PATH: Path to .map terrain files (e.g., /path/to/maps)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { resolveBuildDataPath } from '@/lib/build-manifest';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,14 +24,22 @@ interface CollisionFileInfo {
 }
 
 /**
- * Get the correct path for a given data type, checking multiple env var names
+ * Get the directory for a given data type.
+ *
+ * The active build in config/builds.json decides which build's collision and
+ * navmesh data is served, matching what the MCP tools read. The environment
+ * variables are a fallback for installations with no manifest: they are set
+ * once and forgotten, so after a build cutover they name the previous build.
+ *
+ * Terrain (.map) files are not declared in the manifest, so they still come
+ * from the environment alone.
  */
 function getDataPath(type: string): string | undefined {
   switch (type) {
     case 'vmap':
-      return process.env.VMAP_PATH || process.env.VMAP_DATA_PATH;
+      return resolveBuildDataPath('vmap', process.env.VMAP_PATH || process.env.VMAP_DATA_PATH);
     case 'mmap':
-      return process.env.MMAP_PATH || process.env.MMAP_DATA_PATH;
+      return resolveBuildDataPath('mmap', process.env.MMAP_PATH || process.env.MMAP_DATA_PATH);
     case 'map':
       return process.env.MAP_PATH || process.env.MAP_DATA_PATH;
     default:

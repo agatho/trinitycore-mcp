@@ -14,6 +14,7 @@ import { queryDBC } from "../dbc";
 import { getTrinityAPI } from "../api";
 import { getOpcodeInfo } from "../opcode";
 import { validateBuildSchemas } from "../buildvalidation";
+import { getBuildInfo } from "../buildinfo";
 import { listOpcodes, diffOpcodes } from "../opcodetools";
 
 export const gameDataTools: ToolRegistryEntry[] = [
@@ -170,6 +171,21 @@ export const gameDataTools: ToolRegistryEntry[] = [
       const result = await validateBuildSchemas({ buildId: args.buildId as string | undefined });
       return jsonResponse(result);
     },
+  },
+  {
+    definition: {
+      name: "list-builds",
+      description:
+        "Report the client builds in config/builds.json: which one is active, where each build's " +
+        "DB2, gametable, vmap, mmap and listfile data lives, whether those directories exist, and " +
+        "which legacy path environment variables disagree with the active build.",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        required: [],
+      },
+    },
+    handler: async () => jsonResponse(getBuildInfo()),
   },
   {
     definition: {

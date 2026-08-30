@@ -12,6 +12,7 @@
  */
 
 import fs from "fs/promises";
+import { getActiveBuild } from "../version/BuildManifest";
 import path from "path";
 import { EventEmitter } from "events";
 import { logger } from '../utils/logger';
@@ -306,8 +307,35 @@ export class ConfigManager extends EventEmitter {
     return { ...this.config.database };
   }
 
+  /**
+   * Data paths as the tools actually resolve them.
+   *
+   * The build manifest decides which build's directories every tool reads, so
+   * reporting the environment's values here would describe a configuration
+   * nothing uses - which is how a settings page came to show one build's paths
+   * while tools read another's. Manifest values win; the configured values
+   * remain as the fallback for installations with no manifest, and trinityRoot
+   * and wowPath keep theirs because the manifest does not declare them.
+   *
+   * @returns Effective data paths for the active build
+   */
   public getDataPaths(): DataPathsConfig {
-    return { ...this.config.dataPaths };
+    const paths = { ...this.config.dataPaths };
+
+    try {
+      const active = getActiveBuild();
+      return {
+        ...paths,
+        gtPath: active.dataPaths.gt || paths.gtPath,
+        dbcPath: active.dataPaths.dbc || paths.dbcPath,
+        db2Path: active.dataPaths.db2 || paths.db2Path,
+        vmapPath: active.dataPaths.vmap || paths.vmapPath,
+        mmapPath: active.dataPaths.mmap || paths.mmapPath,
+      };
+    } catch {
+      // No build resolves - the configured values are all there is.
+      return paths;
+    }
   }
 
   public getServer(): ServerConfig {
