@@ -33,7 +33,8 @@ export class CASCListFile {
   async loadListFile(listFilePath: string): Promise<void> {
     try {
       logger.info('CASCListFile', `Loading listfile from: ${listFilePath}`);
-      console.log(`[CASCListFile] Loading listfile: ${listFilePath}`);
+      process.stderr.write(`[CASCListFile] Loading listfile: ${listFilePath}
+`);
 
       const content = await fs.readFile(listFilePath, 'utf8');
       const lines = content.split('\n');
@@ -67,7 +68,8 @@ export class CASCListFile {
 
       this.loaded = true;
 
-      console.log(`[CASCListFile] Loaded ${validEntries} listfile entries (${invalidEntries} invalid)`);
+      process.stderr.write(`[CASCListFile] Loaded ${validEntries} listfile entries (${invalidEntries} invalid)
+`);
       logger.info('CASCListFile', `Loaded ${validEntries} listfile entries`);
     } catch (error) {
       logger.error('CASCListFile', error as Error, { listFilePath });

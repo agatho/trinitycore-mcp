@@ -66,8 +66,10 @@ export class CASCDataReader {
       const blteData = buffer.subarray(30);
 
       logger.debug('CASCDataReader', `Block EKey: ${md5.toString('hex').substring(0, 18)}..., data size: ${blteData.length}`);
-      console.log(`[CASCDataReader] First 32 bytes of BLTE data: ${blteData.subarray(0, Math.min(32, blteData.length)).toString('hex')}`);
-      console.log(`[CASCDataReader] First 4 bytes as ASCII: "${blteData.toString('ascii', 0, 4)}"`);
+      process.stderr.write(`[CASCDataReader] First 32 bytes of BLTE data: ${blteData.subarray(0, Math.min(32, blteData.length)).toString('hex')}
+`);
+      process.stderr.write(`[CASCDataReader] First 4 bytes as ASCII: "${blteData.toString('ascii', 0, 4)}"
+`);
 
       // Check if data is BLTE-encoded
       if (BLTEDecompressor.isBLTE(blteData)) {

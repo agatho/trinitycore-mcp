@@ -130,22 +130,27 @@ export class CASCReader {
     // Load encoding file if available (need build key first)
     let buildKey: Buffer | null = null;
     try {
-      console.log('[CASCReader] Getting build key for encoding file...');
+      process.stderr.write(`${'[CASCReader] Getting build key for encoding file...'}
+`);
       buildKey = await this.findBuildKey();
       if (buildKey) {
-        console.log('[CASCReader] Reading build config for encoding hash...');
+        process.stderr.write(`${'[CASCReader] Reading build config for encoding hash...'}
+`);
         const encodingHash = await this.readBuildConfigForEncoding(buildKey);
 
         if (encodingHash) {
-          console.log(`[CASCReader] Found encoding hash: ${encodingHash.toString('hex').substring(0, 16)}...`);
+          process.stderr.write(`[CASCReader] Found encoding hash: ${encodingHash.toString('hex').substring(0, 16)}...
+`);
 
           // Try to extract encoding file from CASC data archives
           // The encoding hash is a content hash that should be in the index
-          console.log('[CASCReader] Looking up encoding file in index...');
+          process.stderr.write(`${'[CASCReader] Looking up encoding file in index...'}
+`);
           const indexEntry = this.indexReader.findEntry(encodingHash);
 
           if (indexEntry) {
-            console.log(`[CASCReader] Found encoding in archive ${indexEntry.archive} at offset ${indexEntry.offset}`);
+            process.stderr.write(`[CASCReader] Found encoding in archive ${indexEntry.archive} at offset ${indexEntry.offset}
+`);
             logger.info('CASCReader', 'Extracting CASC encoding file...');
 
             let encodingData = await this.dataReader.readData(
@@ -153,29 +158,37 @@ export class CASCReader {
               indexEntry.offset,
               indexEntry.size
             );
-            console.log(`[CASCReader] Encoding file extracted: ${encodingData.length} bytes`);
-            console.log(`[CASCReader] First 16 bytes: ${encodingData.subarray(0, Math.min(16, encodingData.length)).toString('hex')}`);
-            console.log(`[CASCReader] First 4 bytes as ASCII: "${encodingData.toString('ascii', 0, 4)}"`);
+            process.stderr.write(`[CASCReader] Encoding file extracted: ${encodingData.length} bytes
+`);
+            process.stderr.write(`[CASCReader] First 16 bytes: ${encodingData.subarray(0, Math.min(16, encodingData.length)).toString('hex')}
+`);
+            process.stderr.write(`[CASCReader] First 4 bytes as ASCII: "${encodingData.toString('ascii', 0, 4)}"
+`);
 
             const entryCountBefore = this.encodingReader.getEntryCount();
             this.encodingReader.parseEncodingFile(encodingData);
             const entryCountAfter = this.encodingReader.getEntryCount();
 
-            console.log(`[CASCReader] Encoding file parsed: ${entryCountAfter} entries (was ${entryCountBefore})`);
+            process.stderr.write(`[CASCReader] Encoding file parsed: ${entryCountAfter} entries (was ${entryCountBefore})
+`);
             logger.info('CASCReader', `Loaded ${entryCountAfter} encoding entries`);
           } else {
-            console.log('[CASCReader] WARNING: Encoding file not found in index');
+            process.stderr.write(`${'[CASCReader] WARNING: Encoding file not found in index'}
+`);
             logger.warn('CASCReader', 'Encoding file not found in data archives');
           }
         } else {
-          console.log('[CASCReader] WARNING: Could not find encoding hash in build config');
+          process.stderr.write(`${'[CASCReader] WARNING: Could not find encoding hash in build config'}
+`);
         }
       } else {
-        console.log('[CASCReader] WARNING: Build key not found');
+        process.stderr.write(`${'[CASCReader] WARNING: Build key not found'}
+`);
         logger.warn('CASCReader', 'Build key not found, encoding file cannot be loaded');
       }
     } catch (error) {
-      console.error('[CASCReader] ERROR loading encoding file:', error);
+      process.stderr.write(`[CASCReader] ERROR loading encoding file: ${error}
+`);
       logger.warn('CASCReader', 'Failed to load encoding file', { error: error as Error });
     }
 
@@ -194,11 +207,13 @@ export class CASCReader {
       for (const listFilePath of possiblePaths) {
         try {
           await fs.access(listFilePath);
-          console.log(`[CASCReader] Loading listfile from: ${listFilePath}`);
+          process.stderr.write(`[CASCReader] Loading listfile from: ${listFilePath}
+`);
           await listFile.loadListFile(listFilePath);
           this.rootReader.setListFile(listFile);
           listFileLoaded = true;
-          console.log(`[CASCReader] Listfile loaded successfully (${listFile.getEntryCount()} entries)`);
+          process.stderr.write(`[CASCReader] Listfile loaded successfully (${listFile.getEntryCount()} entries)
+`);
           break;
         } catch {
           // Try next path
@@ -206,82 +221,103 @@ export class CASCReader {
       }
 
       if (!listFileLoaded) {
-        console.warn('[CASCReader] WARNING: Listfile not found. FileDataID-based files will not be accessible.');
-        console.warn('[CASCReader] Download from: https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile.csv');
+        process.stderr.write(`${'[CASCReader] WARNING: Listfile not found. FileDataID-based files will not be accessible.'}
+`);
+        process.stderr.write(`${'[CASCReader] Download from: https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile.csv'}
+`);
         logger.warn('CASCReader', 'Listfile not found - FileDataID resolution disabled');
       }
     } catch (error) {
-      console.error('[CASCReader] ERROR loading listfile:', error);
+      process.stderr.write(`[CASCReader] ERROR loading listfile: ${error}
+`);
       logger.warn('CASCReader', 'Failed to load listfile', { error: error as Error });
     }
 
     // Load root file if available (reuse buildKey from encoding step)
     try {
       if (!buildKey) {
-        console.log('[CASCReader] Searching for build key in .build.info...');
+        process.stderr.write(`${'[CASCReader] Searching for build key in .build.info...'}
+`);
         buildKey = await this.findBuildKey();
       }
 
       if (buildKey) {
-        console.log(`[CASCReader] Found build key: ${buildKey.toString('hex').substring(0, 16)}...`);
+        process.stderr.write(`[CASCReader] Found build key: ${buildKey.toString('hex').substring(0, 16)}...
+`);
 
         // Read build config to get ALL VFS root hashes (modern WoW builds have multiple VFS roots)
-        console.log('[CASCReader] Reading build config for VFS roots...');
+        process.stderr.write(`${'[CASCReader] Reading build config for VFS roots...'}
+`);
         const vfsRoots = await this.readBuildConfigForAllVFSRoots(buildKey);
 
         if (vfsRoots.length > 0) {
-          console.log(`[CASCReader] Found ${vfsRoots.length} VFS root(s) in build config`);
+          process.stderr.write(`[CASCReader] Found ${vfsRoots.length} VFS root(s) in build config
+`);
           logger.info('CASCReader', `Loading ${vfsRoots.length} VFS root file(s)...`);
 
           // Parse each VFS root and accumulate files
           for (let i = 0; i < vfsRoots.length; i++) {
             const vfsRoot = vfsRoots[i];
-            console.log(`[CASCReader] Processing VFS root ${i + 1}/${vfsRoots.length}: ${vfsRoot.name}`);
-            console.log(`[CASCReader]   EKey: ${vfsRoot.eKey.toString('hex').substring(0, 16)}...`);
+            process.stderr.write(`[CASCReader] Processing VFS root ${i + 1}/${vfsRoots.length}: ${vfsRoot.name}
+`);
+            process.stderr.write(`[CASCReader]   EKey: ${vfsRoot.eKey.toString('hex').substring(0, 16)}...
+`);
 
             try {
               const rootData = await this.extractRootFile(vfsRoot.eKey);
               if (rootData) {
-                console.log(`[CASCReader]   Extracted ${rootData.length} bytes`);
+                process.stderr.write(`[CASCReader]   Extracted ${rootData.length} bytes
+`);
 
                 const beforeCount = this.rootReader.getFileCount();
                 this.rootReader.parseRootFile(rootData, this.config.locale);
                 const afterCount = this.rootReader.getFileCount();
                 const addedFiles = afterCount - beforeCount;
 
-                console.log(`[CASCReader]   Added ${addedFiles} files (total: ${afterCount})`);
+                process.stderr.write(`[CASCReader]   Added ${addedFiles} files (total: ${afterCount})
+`);
               } else {
-                console.log(`[CASCReader]   WARNING: Failed to extract VFS root ${vfsRoot.name}`);
+                process.stderr.write(`[CASCReader]   WARNING: Failed to extract VFS root ${vfsRoot.name}
+`);
               }
             } catch (error) {
-              console.error(`[CASCReader]   ERROR processing VFS root ${vfsRoot.name}:`, error);
+              process.stderr.write(`[CASCReader]   ERROR processing VFS root ${vfsRoot.name}: ${error}
+`);
               logger.warn('CASCReader', `Failed to process VFS root ${vfsRoot.name}`, { error: error as Error });
             }
           }
 
-          console.log(`[CASCReader] All VFS roots loaded: ${this.rootReader.getFileCount()} total files`);
+          process.stderr.write(`[CASCReader] All VFS roots loaded: ${this.rootReader.getFileCount()} total files
+`);
           logger.info('CASCReader', `All VFS roots loaded: ${this.rootReader.getFileCount()} files`);
         } else {
-          console.log('[CASCReader] WARNING: No VFS roots found in build config');
+          process.stderr.write(`${'[CASCReader] WARNING: No VFS roots found in build config'}
+`);
         }
       } else {
-        console.log('[CASCReader] WARNING: Build key not found in .build.info');
+        process.stderr.write(`${'[CASCReader] WARNING: Build key not found in .build.info'}
+`);
         logger.warn('CASCReader', 'Build key not found, file path extraction will be limited');
       }
     } catch (error) {
-      console.error('[CASCReader] ERROR loading root file:', error);
+      process.stderr.write(`[CASCReader] ERROR loading root file: ${error}
+`);
       logger.warn('CASCReader', 'Failed to load root file', { error: error as Error });
     }
 
     // Initialize native CASC storage for FileDataID lookups not in TVFS
     try {
-      console.log('[CASCReader] Initializing native CASC storage for FileDataID lookups...');
+      process.stderr.write(`${'[CASCReader] Initializing native CASC storage for FileDataID lookups...'}
+`);
       this.nativeStorage = new CASCStorage(this.config.wowPath, CASC_LOCALE.ALL_WOW);
-      console.log('[CASCReader]   Native storage initialized successfully');
+      process.stderr.write(`${'[CASCReader]   Native storage initialized successfully'}
+`);
       logger.info('CASCReader', 'Native CASC storage initialized');
     } catch (error) {
-      console.warn('[CASCReader] WARNING: Native CASC storage initialization failed');
-      console.warn('[CASCReader]   FileDataID extraction will be limited to TVFS entries only');
+      process.stderr.write(`${'[CASCReader] WARNING: Native CASC storage initialization failed'}
+`);
+      process.stderr.write(`${'[CASCReader]   FileDataID extraction will be limited to TVFS entries only'}
+`);
       logger.warn('CASCReader', 'Failed to initialize native storage', { error: error as Error });
       this.nativeStorage = null;
     }
@@ -482,43 +518,53 @@ export class CASCReader {
    * Uses root file when available, otherwise falls back to known paths
    */
   private async listCASCFiles(pathPattern: string): Promise<string[]> {
-    console.log(`[CASCReader] Listing CASC files with pattern: ${pathPattern}`);
+    process.stderr.write(`[CASCReader] Listing CASC files with pattern: ${pathPattern}
+`);
     logger.info('CASCReader', `Listing CASC files with pattern: ${pathPattern}`);
 
     // If root file is loaded, use it to list files
     if (this.rootReader) {
       const files = this.rootReader.listFiles(pathPattern);
-      console.log(`[CASCReader] Found ${files.length} files matching ${pathPattern} in root`);
+      process.stderr.write(`[CASCReader] Found ${files.length} files matching ${pathPattern} in root
+`);
       logger.info('CASCReader', `Found ${files.length} files matching ${pathPattern} in root`);
 
       // Log first few matches for debugging
       if (files.length > 0) {
         const sample = files.slice(0, 5);
-        console.log(`[CASCReader] Sample matches:`, sample);
+        process.stderr.write(`[CASCReader] Sample matches: ${sample}
+`);
         logger.info('CASCReader', `Sample matches: ${sample.join(', ')}`);
       } else {
         // If no matches, log some root file entries for debugging
         const totalFiles = this.rootReader.getFileCount();
-        console.log(`[CASCReader] WARNING: No matches found. Root file contains ${totalFiles} total files`);
+        process.stderr.write(`[CASCReader] WARNING: No matches found. Root file contains ${totalFiles} total files
+`);
         logger.warn('CASCReader', `No matches found. Root file contains ${totalFiles} total files`);
 
         // Log some example paths from root to help diagnose
         const allFiles = this.rootReader.listFiles('*');
-        console.log(`[CASCReader] Root file has ${allFiles.length} total entries when matching '*'`);
+        process.stderr.write(`[CASCReader] Root file has ${allFiles.length} total entries when matching '*'
+`);
 
         if (allFiles.length > 0) {
           // Show first 20 paths to understand structure
-          console.log(`[CASCReader] First 20 paths in root file:`, allFiles.slice(0, 20));
+          process.stderr.write(`[CASCReader] First 20 paths in root file: ${JSON.stringify(allFiles.slice(0, 20))}
+`);
 
           const interfaceSample = allFiles.filter(f => f.toLowerCase().includes('interface')).slice(0, 5);
           const textureSample = allFiles.filter(f => f.toLowerCase().includes('texture')).slice(0, 5);
           const blpSample = allFiles.filter(f => f.toLowerCase().endsWith('.blp')).slice(0, 10);
           const mapSample = allFiles.filter(f => f.toLowerCase().includes('map')).slice(0, 10);
 
-          console.log(`[CASCReader] Sample Interface paths (${interfaceSample.length}):`, interfaceSample);
-          console.log(`[CASCReader] Sample Texture paths (${textureSample.length}):`, textureSample);
-          console.log(`[CASCReader] Sample .blp paths (${blpSample.length}):`, blpSample.slice(0, 5));
-          console.log(`[CASCReader] Sample map paths (${mapSample.length}):`, mapSample.slice(0, 5));
+          process.stderr.write(`[CASCReader] Sample Interface paths (${interfaceSample.length}): ${interfaceSample}
+`);
+          process.stderr.write(`[CASCReader] Sample Texture paths (${textureSample.length}): ${textureSample}
+`);
+          process.stderr.write(`[CASCReader] Sample .blp paths (${blpSample.length}): ${JSON.stringify(blpSample.slice(0, 5))}
+`);
+          process.stderr.write(`[CASCReader] Sample map paths (${mapSample.length}): ${JSON.stringify(mapSample.slice(0, 5))}
+`);
 
           logger.info('CASCReader', `Sample Interface paths: ${interfaceSample.join(', ')}`);
           logger.info('CASCReader', `Sample Texture paths: ${textureSample.join(', ')}`);
@@ -529,7 +575,8 @@ export class CASCReader {
     }
 
     // Fallback to known paths
-    console.log('[CASCReader] WARNING: Root file not loaded, using known paths fallback');
+    process.stderr.write(`${'[CASCReader] WARNING: Root file not loaded, using known paths fallback'}
+`);
     logger.warn('CASCReader', 'Root file not loaded, using known paths fallback');
     return this.getKnownMapTexturePaths(pathPattern);
   }
@@ -745,23 +792,28 @@ export class CASCReader {
           const hashes = trimmed.substring(11).trim().split(' ');
           const contentHash = hashes[0]; // First hash = content hash
           const encodingKey = hashes[1]; // Second hash = encoding key
-          console.log(`[CASCReader] Found encoding entry: content=${contentHash}, key=${encodingKey}`);
+          process.stderr.write(`[CASCReader] Found encoding entry: content=${contentHash}, key=${encodingKey}
+`);
 
           // Try the encoding key (second hash) for direct index lookup
           if (encodingKey && encodingKey.length === 32) {
-            console.log(`[CASCReader] Using encoding key for lookup: ${encodingKey}`);
+            process.stderr.write(`[CASCReader] Using encoding key for lookup: ${encodingKey}
+`);
             return Buffer.from(encodingKey, 'hex');
           } else if (contentHash && contentHash.length === 32) {
-            console.log(`[CASCReader] Falling back to content hash: ${contentHash}`);
+            process.stderr.write(`[CASCReader] Falling back to content hash: ${contentHash}
+`);
             return Buffer.from(contentHash, 'hex');
           }
         }
       }
 
-      console.log('[CASCReader] WARNING: No encoding entry found in build config');
+      process.stderr.write(`${'[CASCReader] WARNING: No encoding entry found in build config'}
+`);
       return null;
     } catch (error) {
-      console.error('[CASCReader] ERROR reading build config for encoding:', error);
+      process.stderr.write(`[CASCReader] ERROR reading build config for encoding: ${error}
+`);
       return null;
     }
   }
@@ -775,11 +827,13 @@ export class CASCReader {
   private async readBuildConfigForRoot(buildKey: Buffer): Promise<Buffer | null> {
     try {
       const buildConfigPath = this.getBuildConfigPath(buildKey);
-      console.log(`[CASCReader] Reading build config from: ${buildConfigPath}`);
+      process.stderr.write(`[CASCReader] Reading build config from: ${buildConfigPath}
+`);
 
       // Read build config file
       const configContent = await fs.readFile(buildConfigPath, 'utf8');
-      console.log(`[CASCReader] Build config size: ${configContent.length} bytes`);
+      process.stderr.write(`[CASCReader] Build config size: ${configContent.length} bytes
+`);
 
       // Parse config file (key = value format)
       // Modern builds use vfs-root with format: vfs-root = <CKey> <EKey>
@@ -794,7 +848,8 @@ export class CASCReader {
 
         // Debug: log lines that look like root entries
         if (trimmed.includes('root')) {
-          console.log(`[CASCReader] Found root-related line: "${trimmed}"`);
+          process.stderr.write(`[CASCReader] Found root-related line: "${trimmed}"
+`);
         }
 
         // Check for modern VFS root (has CKey and EKey)
@@ -803,7 +858,8 @@ export class CASCReader {
           if (hashes.length >= 2) {
             const cKey = hashes[0];
             const eKey = hashes[1];
-            console.log(`[CASCReader] Found VFS root entry: CKey=${cKey}, EKey=${eKey}`);
+            process.stderr.write(`[CASCReader] Found VFS root entry: CKey=${cKey}, EKey=${eKey}
+`);
 
             if (eKey.length === 32) {
               vfsRootEKey = eKey;
@@ -814,7 +870,8 @@ export class CASCReader {
         // Collect legacy root entry as fallback
         if (trimmed.startsWith('root = ')) {
           const rootHashStr = trimmed.substring(7).trim();
-          console.log(`[CASCReader] Found legacy root entry: ${rootHashStr}`);
+          process.stderr.write(`[CASCReader] Found legacy root entry: ${rootHashStr}
+`);
 
           if (rootHashStr.length === 32) {
             legacyRootHash = rootHashStr;
@@ -824,17 +881,21 @@ export class CASCReader {
 
       // Prefer VFS root over legacy root
       if (vfsRootEKey) {
-        console.log(`[CASCReader] Using VFS root EKey directly: ${vfsRootEKey}`);
+        process.stderr.write(`[CASCReader] Using VFS root EKey directly: ${vfsRootEKey}
+`);
         return Buffer.from(vfsRootEKey, 'hex');
       } else if (legacyRootHash) {
-        console.log(`[CASCReader] Using legacy root hash: ${legacyRootHash}`);
+        process.stderr.write(`[CASCReader] Using legacy root hash: ${legacyRootHash}
+`);
         return Buffer.from(legacyRootHash, 'hex');
       }
 
-      console.log('[CASCReader] WARNING: No root or vfs-root entry found in build config');
+      process.stderr.write(`${'[CASCReader] WARNING: No root or vfs-root entry found in build config'}
+`);
       return null;
     } catch (error) {
-      console.error('[CASCReader] ERROR reading build config:', error);
+      process.stderr.write(`[CASCReader] ERROR reading build config: ${error}
+`);
       return null;
     }
   }
@@ -870,7 +931,8 @@ export class CASCReader {
   private async readBuildConfigForAllVFSRoots(buildKey: Buffer): Promise<Array<{name: string, eKey: Buffer}>> {
     try {
       const buildConfigPath = this.getBuildConfigPath(buildKey);
-      console.log(`[CASCReader] Reading build config for all VFS roots: ${buildConfigPath}`);
+      process.stderr.write(`[CASCReader] Reading build config for all VFS roots: ${buildConfigPath}
+`);
 
       // Read build config file
       const configContent = await fs.readFile(buildConfigPath, 'utf8');
@@ -888,7 +950,8 @@ export class CASCReader {
 
         if (match) {
           const [_, name, cKey, eKey] = match;
-          console.log(`[CASCReader]   Found ${name}: CKey=${cKey}, EKey=${eKey}`);
+          process.stderr.write(`[CASCReader]   Found ${name}: CKey=${cKey}, EKey=${eKey}
+`);
 
           // Validate EKey is 32 hex chars (16 bytes)
           if (eKey.length === 32) {
@@ -897,15 +960,18 @@ export class CASCReader {
               eKey: Buffer.from(eKey, 'hex')
             });
           } else {
-            console.warn(`[CASCReader]   WARNING: Invalid EKey length for ${name}: ${eKey.length}`);
+            process.stderr.write(`[CASCReader]   WARNING: Invalid EKey length for ${name}: ${eKey.length}
+`);
           }
         }
       }
 
-      console.log(`[CASCReader] Found ${vfsRoots.length} VFS root(s) in build config`);
+      process.stderr.write(`[CASCReader] Found ${vfsRoots.length} VFS root(s) in build config
+`);
       return vfsRoots;
     } catch (error) {
-      console.error('[CASCReader] ERROR reading build config for VFS roots:', error);
+      process.stderr.write(`[CASCReader] ERROR reading build config for VFS roots: ${error}
+`);
       return [];
     }
   }
@@ -938,37 +1004,44 @@ export class CASCReader {
 
       // First line is header with column names (format: "Name!TYPE:size")
       const headerLine = lines[0];
-      console.log(`[CASCReader] .build.info header: ${headerLine.substring(0, 200)}...`);
+      process.stderr.write(`[CASCReader] .build.info header: ${headerLine.substring(0, 200)}...
+`);
 
       const headers = headerLine.split('|').map(h => h.split('!')[0]); // Extract just the name part
-      console.log(`[CASCReader] Parsed headers:`, headers);
+      process.stderr.write(`[CASCReader] Parsed headers: ${headers}
+`);
 
       // Modern .build.info files use "Build Key" instead of "Root"
       let rootIndex = headers.indexOf('Root');
       if (rootIndex === -1) {
         rootIndex = headers.indexOf('Build Key');
-        console.log(`[CASCReader] No 'Root' column found, trying 'Build Key' at index ${rootIndex}`);
+        process.stderr.write(`[CASCReader] No 'Root' column found, trying 'Build Key' at index ${rootIndex}
+`);
       }
 
       if (rootIndex === -1) {
-        console.log('[CASCReader] WARNING: Neither Root nor Build Key column found in .build.info');
+        process.stderr.write(`${'[CASCReader] WARNING: Neither Root nor Build Key column found in .build.info'}
+`);
         logger.warn('CASCReader', 'Root/Build Key column not found in .build.info');
         return null;
       }
 
       const productIndex = headers.indexOf('Product');
-      console.log(`[CASCReader] Product column at index ${productIndex}`);
+      process.stderr.write(`[CASCReader] Product column at index ${productIndex}
+`);
 
       // Find the row for our product (wow, wowt, etc.)
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split('|');
         const productValue = productIndex >= 0 ? (values[productIndex] || '') : '';
 
-        console.log(`[CASCReader] Row ${i}: Product='${productValue}', looking for '${this.config.product}'`);
+        process.stderr.write(`[CASCReader] Row ${i}: Product='${productValue}', looking for '${this.config.product}'
+`);
 
         if (productValue === this.config.product) {
           const rootHash = values[rootIndex];
-          console.log(`[CASCReader] Found matching product row, root/build hash: ${rootHash}`);
+          process.stderr.write(`[CASCReader] Found matching product row, root/build hash: ${rootHash}
+`);
 
           if (rootHash && rootHash.length === 32) {
             logger.debug('CASCReader', `Found root hash: ${rootHash}`);
@@ -978,12 +1051,14 @@ export class CASCReader {
       }
 
       // If we didn't find a matching product, use the last (most recent) entry
-      console.log('[CASCReader] No matching product found, using most recent entry');
+      process.stderr.write(`${'[CASCReader] No matching product found, using most recent entry'}
+`);
       const lastLine = lines[lines.length - 1];
       const values = lastLine.split('|');
       const rootHash = values[rootIndex];
 
-      console.log(`[CASCReader] Most recent hash: ${rootHash}`);
+      process.stderr.write(`[CASCReader] Most recent hash: ${rootHash}
+`);
 
       if (rootHash && rootHash.length === 32) {
         logger.debug('CASCReader', `Using most recent root hash: ${rootHash}`);
@@ -1004,7 +1079,8 @@ export class CASCReader {
    */
   private async extractRootFile(hash: Buffer): Promise<Buffer | null> {
     try {
-      console.log(`[CASCReader] Extracting root file with hash: ${hash.toString('hex')}`);
+      process.stderr.write(`[CASCReader] Extracting root file with hash: ${hash.toString('hex')}
+`);
 
       if (!this.indexReader || !this.encodingReader || !this.dataReader) {
         throw new Error('CASC readers not initialized');
@@ -1013,38 +1089,47 @@ export class CASCReader {
       let encodingKey: Buffer | null = null;
 
       // Try as EKey first (for VFS root)
-      console.log('[CASCReader] Trying hash as EKey (VFS root)...');
+      process.stderr.write(`${'[CASCReader] Trying hash as EKey (VFS root)...'}
+`);
       let indexEntry = this.indexReader.findEntry(hash);
 
       if (indexEntry) {
-        console.log('[CASCReader] Hash is an EKey! Found directly in index (VFS root)');
+        process.stderr.write(`${'[CASCReader] Hash is an EKey! Found directly in index (VFS root)'}
+`);
         encodingKey = hash;
       } else {
         // Try as CKey (legacy root) - look up in encoding table
-        console.log('[CASCReader] Not found as EKey, trying as CKey (legacy root)...');
+        process.stderr.write(`${'[CASCReader] Not found as EKey, trying as CKey (legacy root)...'}
+`);
         encodingKey = this.encodingReader.getEncodingKey(hash);
 
         if (!encodingKey) {
-          console.log('[CASCReader] WARNING: Root file not found in encoding table or index');
-          console.log('[CASCReader] This may be a build manifest hash, not a direct root hash');
+          process.stderr.write(`${'[CASCReader] WARNING: Root file not found in encoding table or index'}
+`);
+          process.stderr.write(`${'[CASCReader] This may be a build manifest hash, not a direct root hash'}
+`);
           logger.warn('CASCReader', 'Root file not found in encoding table or index');
           return null;
         }
 
-        console.log(`[CASCReader] Found encoding key from CKey: ${encodingKey.toString('hex').substring(0, 16)}...`);
+        process.stderr.write(`[CASCReader] Found encoding key from CKey: ${encodingKey.toString('hex').substring(0, 16)}...
+`);
 
         // Find data location in index using the EKey
-        console.log('[CASCReader] Looking up index entry with EKey...');
+        process.stderr.write(`${'[CASCReader] Looking up index entry with EKey...'}
+`);
         indexEntry = this.indexReader.findEntry(encodingKey);
 
         if (!indexEntry) {
-          console.log('[CASCReader] WARNING: Root file not found in index');
+          process.stderr.write(`${'[CASCReader] WARNING: Root file not found in index'}
+`);
           logger.warn('CASCReader', 'Root file not found in index');
           return null;
         }
       }
 
-      console.log(`[CASCReader] Found in archive ${indexEntry.archive} at offset ${indexEntry.offset}, size ${indexEntry.size}`);
+      process.stderr.write(`[CASCReader] Found in archive ${indexEntry.archive} at offset ${indexEntry.offset}, size ${indexEntry.size}
+`);
 
       // Read and decompress data
       logger.debug('CASCReader', `Extracting root file from archive ${indexEntry.archive}`);
@@ -1054,10 +1139,12 @@ export class CASCReader {
         indexEntry.size
       );
 
-      console.log(`[CASCReader] Successfully extracted root file (${rootData.length} bytes)`);
+      process.stderr.write(`[CASCReader] Successfully extracted root file (${rootData.length} bytes)
+`);
       return rootData;
     } catch (error) {
-      console.error('[CASCReader] ERROR extracting root file:', error);
+      process.stderr.write(`[CASCReader] ERROR extracting root file: ${error}
+`);
       logger.warn('CASCReader', 'Failed to extract root file', { error: error as Error });
       return null;
     }

@@ -123,37 +123,30 @@ export class CASCRootReader {
    * @param locale - Preferred locale (e.g., 'enUS')
    */
   parseRootFile(data: Buffer, locale: string = 'enUS'): void {
-    process.stderr.write(`[CASCRootReader] Parsing root file (${data.length} bytes)
-`);
+    console.log(`[CASCRootReader] Parsing root file (${data.length} bytes)`);
     logger.info('CASCRootReader', 'Parsing root file');
 
     try {
       // Check for signature
       const signature = data.toString('ascii', 0, 4);
-      process.stderr.write(`[CASCRootReader] Root file signature: ${signature}
-`);
+      console.log(`[CASCRootReader] Root file signature: ${signature}`);
 
       if (signature === 'TVFS') {
-        process.stderr.write(`${'[CASCRootReader] Using TVFS format parser (modern WoW builds)'}
-`);
+        console.log('[CASCRootReader] Using TVFS format parser (modern WoW builds)');
         this.parseTVFSFormat(data, locale);
       } else if (signature === 'MNDX') {
-        process.stderr.write(`${'[CASCRootReader] Using MNDX format parser'}
-`);
+        console.log('[CASCRootReader] Using MNDX format parser');
         this.parseMNDXFormat(data, locale);
       } else {
         // Try parsing as legacy format
-        process.stderr.write(`${'[CASCRootReader] Using legacy format parser'}
-`);
+        console.log('[CASCRootReader] Using legacy format parser');
         this.parseLegacyFormat(data, locale);
       }
 
-      process.stderr.write(`[CASCRootReader] Loaded ${this.totalEntries} root entries, ${this.entries.size} unique paths
-`);
+      console.log(`[CASCRootReader] Loaded ${this.totalEntries} root entries, ${this.entries.size} unique paths`);
       logger.info('CASCRootReader', `Loaded ${this.totalEntries} root entries, ${this.entries.size} unique paths`);
     } catch (error) {
-      process.stderr.write(`[CASCRootReader] ERROR parsing root file: ${error}
-`);
+      console.error(`[CASCRootReader] ERROR parsing root file:`, error);
       logger.error('CASCRootReader', error as Error);
       throw new DatabaseError(`Failed to parse root file: ${(error as Error).message}`);
     }
@@ -271,8 +264,7 @@ export class CASCRootReader {
    * Parse legacy format root file (block-based)
    */
   private parseLegacyFormat(data: Buffer, locale: string): void {
-    process.stderr.write(`${'[CASCRootReader] Parsing legacy format root file'}
-`);
+    console.log('[CASCRootReader] Parsing legacy format root file');
     logger.debug('CASCRootReader', 'Parsing legacy format root file');
 
     let offset = 0;
@@ -287,8 +279,7 @@ export class CASCRootReader {
         offset += 4;
 
         if (count === 0 || count > 1000000) {
-          process.stderr.write(`[CASCRootReader] Invalid count ${count} at offset ${offset}, stopping
-`);
+          console.log(`[CASCRootReader] Invalid count ${count} at offset ${offset}, stopping`);
           break;
         }
 
@@ -299,8 +290,7 @@ export class CASCRootReader {
         offset += 4;
 
         const matchesLocale = (localeFlags & localeFlag) !== 0 || localeFlags === LocaleFlag.ALL;
-        process.stderr.write(`[CASCRootReader] Block ${blocksProcessed}: count=${count}, matches locale=${matchesLocale}
-`);
+        console.log(`[CASCRootReader] Block ${blocksProcessed}: count=${count}, matches locale=${matchesLocale}`);
         blocksProcessed++;
 
         // Parse entries in block
@@ -329,8 +319,7 @@ export class CASCRootReader {
           }
         }
       } catch (error) {
-        process.stderr.write(`[CASCRootReader] Error parsing legacy block at offset ${offset}: ${error}
-`);
+        console.error(`[CASCRootReader] Error parsing legacy block at offset ${offset}:`, error);
         logger.warn('CASCRootReader', 'Error parsing legacy block, stopping', {
           error: error as Error,
           offset
@@ -339,8 +328,7 @@ export class CASCRootReader {
       }
     }
 
-    process.stderr.write(`[CASCRootReader] Legacy format: processed ${blocksProcessed} blocks, ${this.totalEntries} entries added
-`);
+    console.log(`[CASCRootReader] Legacy format: processed ${blocksProcessed} blocks, ${this.totalEntries} entries added`);
   }
 
   /**
@@ -350,33 +338,28 @@ export class CASCRootReader {
    * Based on CASCExplorer's TVFSRootHandler implementation
    */
   private parseTVFSFormat(data: Buffer, locale: string): void {
-    process.stderr.write(`${'[CASCRootReader] Parsing TVFS format root file'}
-`);
+    console.log('[CASCRootReader] Parsing TVFS format root file');
     logger.debug('CASCRootReader', 'Parsing TVFS format root file');
 
     try {
       // Parse TVFS header
       const header = this.parseTVFSHeader(data);
 
-      process.stderr.write(`[CASCRootReader] TVFS Header: FormatVersion=${header.formatVersion}, EKeySize=${header.eKeySize}, PathTableSize=${header.pathTableSize}, VfsTableSize=${header.vfsTableSize}, CftTableSize=${header.cftTableSize}
-`);
+      console.log(`[CASCRootReader] TVFS Header: FormatVersion=${header.formatVersion}, EKeySize=${header.eKeySize}, PathTableSize=${header.pathTableSize}, VfsTableSize=${header.vfsTableSize}, CftTableSize=${header.cftTableSize}`);
 
       // Extract tables from data
       const pathTable = data.subarray(header.pathTableOffset, header.pathTableOffset + header.pathTableSize);
       const vfsTable = data.subarray(header.vfsTableOffset, header.vfsTableOffset + header.vfsTableSize);
       const cftTable = data.subarray(header.cftTableOffset, header.cftTableOffset + header.cftTableSize);
 
-      process.stderr.write(`[CASCRootReader] TVFS Tables extracted: pathTable=${pathTable.length}b, vfsTable=${vfsTable.length}b, cftTable=${cftTable.length}b
-`);
+      console.log(`[CASCRootReader] TVFS Tables extracted: pathTable=${pathTable.length}b, vfsTable=${vfsTable.length}b, cftTable=${cftTable.length}b`);
 
       // Parse the path/file tree
       this.parseTVFSPathTable(pathTable, vfsTable, cftTable, header);
 
-      process.stderr.write(`[CASCRootReader] TVFS format: parsed ${this.totalEntries} entries
-`);
+      console.log(`[CASCRootReader] TVFS format: parsed ${this.totalEntries} entries`);
     } catch (error) {
-      process.stderr.write(`[CASCRootReader] Error parsing TVFS format: ${error}
-`);
+      console.error(`[CASCRootReader] Error parsing TVFS format:`, error);
       throw error;
     }
   }
@@ -503,8 +486,7 @@ export class CASCRootReader {
     while (offset < endBoundary) {
       // Safety check to prevent infinite loops
       if (offset >= pathTable.length) {
-        process.stderr.write(`[CASCRootReader] TVFS parser reached end of pathTable at offset ${offset}
-`);
+        console.log(`[CASCRootReader] TVFS parser reached end of pathTable at offset ${offset}`);
         break;
       }
 
@@ -536,16 +518,14 @@ export class CASCRootReader {
           const dirLen = (pathEntry.nodeValue & 0x7FFFFFFF) - 4;
 
           if (dirLen <= 0 || dirLen > pathTable.length) {
-            process.stderr.write(`[CASCRootReader] Invalid folder dirLen: ${dirLen}
-`);
+            console.warn(`[CASCRootReader] Invalid folder dirLen: ${dirLen}`);
             break;
           }
 
           const folderEndOffset = offset + dirLen;
 
           if (folderEndOffset > pathTable.length) {
-            process.stderr.write(`[CASCRootReader] Folder end offset ${folderEndOffset} exceeds buffer
-`);
+            console.warn(`[CASCRootReader] Folder end offset ${folderEndOffset} exceeds buffer`);
             break;
           }
 
@@ -667,42 +647,36 @@ export class CASCRootReader {
       // Modern TVFS roots use FileDataIDs instead of paths
       // Try to convert FileDataID to actual path using listfile
       let actualFilePath = filePath;
-      let fileDataId: number | undefined;
+      let skippedReason = '';
 
       if (this.listFile && this.listFile.isLoaded()) {
-        // Parse FileDataID from hex path
-        const parsedFileDataId = CASCListFile.parseFileDataId(filePath);
+        // Check if filePath looks like a FileDataID (hex string)
+        const fileDataId = CASCListFile.parseFileDataId(filePath);
 
         // Debug: Log first few conversions
         if (this.totalEntries < 20) {
-          process.stderr.write(`[CASCRootReader] FileDataID conversion: "${filePath}" → decimal ${parsedFileDataId}, listFile=${this.listFile ? 'loaded' : 'NULL'}
-`);
+          console.log(`[CASCRootReader] FileDataID conversion: "${filePath}" → decimal ${fileDataId}, listFile=${this.listFile ? 'loaded' : 'NULL'}`);
         }
 
-        if (parsedFileDataId > 0) {
-          fileDataId = parsedFileDataId;  // ✅ Store FileDataID for entry
-
-          const resolvedPath = this.listFile.getPath(parsedFileDataId);
+        if (fileDataId > 0) {
+          const resolvedPath = this.listFile.getPath(fileDataId);
           if (resolvedPath) {
             actualFilePath = resolvedPath;
             if (this.totalEntries < 10) {
-              process.stderr.write(`[CASCRootReader]   → Resolved to: "${resolvedPath}" (FileDataID: ${fileDataId})
-`);
+              console.log(`[CASCRootReader]   → Resolved to: "${resolvedPath}"`);
             }
           } else {
             // FileDataID not in listfile - keep the hex ID as the path
             // This allows us to access files even if we don't know their human-readable name
-            actualFilePath = `$fid:${parsedFileDataId}`;  // Prefix to distinguish from real paths
+            actualFilePath = `$fid:${fileDataId}`;  // Prefix to distinguish from real paths
             if (this.totalEntries < 10) {
-              process.stderr.write(`[CASCRootReader]   → NOT in listfile, using FileDataID: ${actualFilePath}
-`);
+              console.log(`[CASCRootReader]   → NOT in listfile, using FileDataID: ${actualFilePath}`);
             }
           }
         } else {
           // FileDataID is 0 - skip this entry
           if (this.totalEntries < 10) {
-            process.stderr.write(`[CASCRootReader]   → FileDataID is 0, skipping
-`);
+            console.log(`[CASCRootReader]   → FileDataID is 0, skipping`);
           }
           return;
         }
@@ -714,7 +688,7 @@ export class CASCRootReader {
         contentKey: eKey,
         localeFlags: LocaleFlag.ALL,
         contentFlags: ContentFlag.NONE,
-        fileId: fileDataId  // ✅ Use the FileDataID we already parsed!
+        fileId: filePath !== actualFilePath ? CASCListFile.parseFileDataId(filePath) : undefined
       };
 
       this.addEntry(entry);
@@ -749,18 +723,6 @@ export class CASCRootReader {
     // Add to file ID map if available
     if (entry.fileId !== undefined) {
       this.fileIdMap.set(entry.fileId, entry);
-
-      // Debug: Log first 10 FileDataID additions
-      if (this.fileIdMap.size <= 10) {
-        process.stderr.write(`[CASCRootReader] ✅ Added FileDataID ${entry.fileId} → "${entry.filePath}" to fileIdMap (size: ${this.fileIdMap.size})
-`);
-      }
-    } else {
-      // Debug: Log first 5 entries WITHOUT FileDataID
-      if (this.totalEntries < 5) {
-        process.stderr.write(`[CASCRootReader] ⚠️  Entry WITHOUT FileDataID: "${entry.filePath}"
-`);
-      }
     }
 
     this.totalEntries++;
@@ -860,8 +822,7 @@ export class CASCRootReader {
    */
   setListFile(listFile: CASCListFile): void {
     this.listFile = listFile;
-    process.stderr.write(`[CASCRootReader] ListFile set (${listFile.getEntryCount()} entries)
-`);
+    console.log(`[CASCRootReader] ListFile set (${listFile.getEntryCount()} entries)`);
   }
 
   /**

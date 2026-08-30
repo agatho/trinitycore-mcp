@@ -42,7 +42,8 @@ export class CASCIndexReader {
     // The actual .idx files are in Data/data/, not Data/indices/
     const idxPath = path.join(path.dirname(dataPath), 'data');
 
-    console.log(`[CASCIndexReader] Loading index files from: ${idxPath}`);
+    process.stderr.write(`[CASCIndexReader] Loading index files from: ${idxPath}
+`);
     logger.info('CASCIndexReader', `Loading index files from: ${idxPath}`);
 
     try {
@@ -63,17 +64,20 @@ export class CASCIndexReader {
         }
       }
 
-      console.log(`[CASCIndexReader] Found ${latestIdx.length} index files`);
+      process.stderr.write(`[CASCIndexReader] Found ${latestIdx.length} index files
+`);
       logger.info('CASCIndexReader', `Found ${latestIdx.length} index files`);
 
       for (const filePath of latestIdx) {
         await this.parseIndexFile(filePath);
       }
 
-      console.log(`[CASCIndexReader] Loaded ${this.entries.size} index entries total`);
+      process.stderr.write(`[CASCIndexReader] Loaded ${this.entries.size} index entries total
+`);
       logger.info('CASCIndexReader', `Loaded ${this.entries.size} index entries`);
     } catch (error: any) {
-      console.error(`[CASCIndexReader] ERROR loading indices:`, error);
+      process.stderr.write(`[CASCIndexReader] ERROR loading indices: ${error}
+`);
       logger.error('CASCIndexReader', error);
       throw error;
     }
@@ -117,7 +121,8 @@ export class CASCIndexReader {
 
       // Validate headerHashSize (typically 16, but could vary)
       if (headerHashSize < 0 || headerHashSize > 256) {
-        console.log(`[CASCIndexReader] WARNING: ${fileName} has invalid headerHashSize: ${headerHashSize}, skipping`);
+        process.stderr.write(`[CASCIndexReader] WARNING: ${fileName} has invalid headerHashSize: ${headerHashSize}, skipping
+`);
         return;
       }
 
@@ -132,7 +137,8 @@ export class CASCIndexReader {
       offset = (8 + headerHashSize + 0x0F) & 0xFFFFFFF0;
 
       if (offset + 8 > data.length) {
-        console.log(`[CASCIndexReader] WARNING: ${fileName} insufficient data after header`);
+        process.stderr.write(`[CASCIndexReader] WARNING: ${fileName} insufficient data after header
+`);
         return;
       }
 
@@ -143,7 +149,8 @@ export class CASCIndexReader {
       const entriesHash = data.readInt32LE(offset);  // Read but ignore
       offset += 4;
 
-      console.log(`[CASCIndexReader] ${fileName}: headerHashSize=${headerHashSize}, entriesSize=${entriesSize}`);
+      process.stderr.write(`[CASCIndexReader] ${fileName}: headerHashSize=${headerHashSize}, entriesSize=${entriesSize}
+`);
 
       // Parse fixed 18-byte entries
       const numBlocks = Math.floor(entriesSize / 18);
@@ -187,9 +194,11 @@ export class CASCIndexReader {
         }
       }
 
-      console.log(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries`);
+      process.stderr.write(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries
+`);
     } catch (error) {
-      console.error(`[CASCIndexReader] Error parsing ${fileName}:`, error);
+      process.stderr.write(`[CASCIndexReader] Error parsing ${fileName}: ${error}
+`);
     }
   }
 
@@ -210,7 +219,8 @@ export class CASCIndexReader {
       // Read version as BIG-ENDIAN
       const version = data.readUInt16BE(headerOffset + 0x00);
       if (version !== 7 && version !== 5) {
-        console.log(`[CASCIndexReader] WARNING: ${fileName} has unsupported version: ${version}`);
+        process.stderr.write(`[CASCIndexReader] WARNING: ${fileName} has unsupported version: ${version}
+`);
         return;
       }
 
@@ -225,7 +235,8 @@ export class CASCIndexReader {
       const entriesSize = data.readUInt32LE(headerOffset + 0x18);
       const entriesOffset = headerOffset + 0x20; // Entries start after header
 
-      console.log(`[CASCIndexReader] ${fileName}: version=${version}, bucket=${bucketIndex}, keyBytes=${keyBytes}, offsetBytes=${offsetBytes}, sizeBytes=${sizeBytes}, offsetBits=${offsetBits}`);
+      process.stderr.write(`[CASCIndexReader] ${fileName}: version=${version}, bucket=${bucketIndex}, keyBytes=${keyBytes}, offsetBytes=${offsetBytes}, sizeBytes=${sizeBytes}, offsetBits=${offsetBits}
+`);
 
       // Parse variable-length entries
       let offset = entriesOffset;
@@ -269,9 +280,11 @@ export class CASCIndexReader {
         entryCount++;
       }
 
-      console.log(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries`);
+      process.stderr.write(`[CASCIndexReader] ${fileName}: parsed ${entryCount} entries
+`);
     } catch (error) {
-      console.error(`[CASCIndexReader] Error parsing ${fileName}:`, error);
+      process.stderr.write(`[CASCIndexReader] Error parsing ${fileName}: ${error}
+`);
     }
   }
 
@@ -331,7 +344,8 @@ export class CASCIndexReader {
     let entry = this.entries.get(hashKey);
 
     if (entry) {
-      console.log(`[CASCIndexReader] Found entry with full hash: ${hashKey.substring(0, 16)}...`);
+      process.stderr.write(`[CASCIndexReader] Found entry with full hash: ${hashKey.substring(0, 16)}...
+`);
       return entry;
     }
 
@@ -341,11 +355,14 @@ export class CASCIndexReader {
       entry = this.entries.get(hashKey);
 
       if (entry) {
-        console.log(`[CASCIndexReader] Found entry with first 9 bytes: ${hashKey}`);
+        process.stderr.write(`[CASCIndexReader] Found entry with first 9 bytes: ${hashKey}
+`);
         return entry;
       } else {
-        console.log(`[CASCIndexReader] Entry not found. Full hash: ${hash.toString('hex').substring(0, 16)}..., First 9: ${hashKey}`);
-        console.log(`[CASCIndexReader] Total entries in index: ${this.entries.size}`);
+        process.stderr.write(`[CASCIndexReader] Entry not found. Full hash: ${hash.toString('hex').substring(0, 16)}..., First 9: ${hashKey}
+`);
+        process.stderr.write(`[CASCIndexReader] Total entries in index: ${this.entries.size}
+`);
       }
     }
 

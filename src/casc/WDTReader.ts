@@ -51,7 +51,8 @@ export class WDTReader {
    * Parse WDT file and extract MAID chunk
    */
   parse(): void {
-    console.log(`[WDTReader] Parsing WDT file (${this.data.length} bytes)`);
+    process.stderr.write(`[WDTReader] Parsing WDT file (${this.data.length} bytes)
+`);
 
     let offset = 0;
 
@@ -65,10 +66,12 @@ export class WDTReader {
       const chunkSize = this.data.readUInt32LE(offset);
       offset += 4;
 
-      console.log(`[WDTReader]   Chunk: "${chunkSig}" Size: ${chunkSize} bytes at offset ${offset - 8}`);
+      process.stderr.write(`[WDTReader]   Chunk: "${chunkSig}" Size: ${chunkSize} bytes at offset ${offset - 8}
+`);
 
       if (offset + chunkSize > this.data.length) {
-        console.warn(`[WDTReader]   Chunk size exceeds buffer, stopping`);
+        process.stderr.write(`[WDTReader]   Chunk size exceeds buffer, stopping
+`);
         break;
       }
 
@@ -88,11 +91,13 @@ export class WDTReader {
    * Each entry is 32 bytes (8 uint32 FileDataIDs)
    */
   private parseMAIDChunk(offset: number, size: number): void {
-    console.log(`[WDTReader]   Parsing MAID chunk...`);
+    process.stderr.write(`[WDTReader]   Parsing MAID chunk...
+`);
 
     const expectedSize = 64 * 64 * 32;  // 64x64 grid, 32 bytes per entry
     if (size !== expectedSize) {
-      console.warn(`[WDTReader]   MAID chunk size mismatch: expected ${expectedSize}, got ${size}`);
+      process.stderr.write(`[WDTReader]   MAID chunk size mismatch: expected ${expectedSize}, got ${size}
+`);
     }
 
     this.maidEntries = [];
@@ -125,7 +130,8 @@ export class WDTReader {
       }
     }
 
-    console.log(`[WDTReader]   Found ${tilesWithMinimap} tiles with minimap textures`);
+    process.stderr.write(`[WDTReader]   Found ${tilesWithMinimap} tiles with minimap textures
+`);
     logger.info('WDTReader', `MAID chunk parsed: ${tilesWithMinimap} tiles with minimaps`);
   }
 

@@ -48,7 +48,8 @@ export class CASCExtractor {
     return new Promise((resolve, reject) => {
       const args = [this.options.wowPath, fileDataId.toString(), outputPath];
 
-      console.log(`[CASCExtractor] Running: ${toolPath} ${args.join(' ')}`);
+      process.stderr.write(`[CASCExtractor] Running: ${toolPath} ${args.join(' ')}
+`);
 
       const proc = spawn(toolPath, args);
 
@@ -57,12 +58,14 @@ export class CASCExtractor {
 
       proc.stdout.on('data', (data) => {
         stdout += data.toString();
-        console.log(data.toString().trim());
+        process.stderr.write(`${data.toString().trim()}
+`);
       });
 
       proc.stderr.on('data', (data) => {
         stderr += data.toString();
-        console.error(data.toString().trim());
+        process.stderr.write(`${data.toString().trim()}
+`);
       });
 
       proc.on('close', (code) => {

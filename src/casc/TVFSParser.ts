@@ -819,7 +819,8 @@ export class TVFSParser {
    */
   private log(message: string): void {
     if (this.options.verbose) {
-      console.log(`[TVFSParser] ${message}`);
+      process.stderr.write(`[TVFSParser] ${message}
+`);
     }
   }
 }

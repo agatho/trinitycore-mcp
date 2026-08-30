@@ -14,7 +14,7 @@ export interface DB2Record {
 }
 
 /**
- * WDC5 Header Structure (Modern WoW 11.x/12.x)
+ * WDC5 Header Structure (Modern WoW 11.x)
  */
 interface WDC5Header {
   magic: string;              // 'WDC5'
@@ -116,13 +116,12 @@ export class DB2Reader {
   parse(): void {
     const magic = this.data.toString('ascii', 0, 4);
 
-    process.stderr.write(`[DB2Reader] Parsing DB2 file, magic: ${magic}, size: ${this.data.length} bytes
-`);
+    console.log(`[DB2Reader] Parsing DB2 file, magic: ${magic}, size: ${this.data.length} bytes`);
 
     if (magic === 'WDC5') {
       this.parseWDC5();
     } else if (magic === 'WDC4' || magic === 'WDC3' || magic === 'WDC2' || magic === 'WDC1') {
-      throw new Error(`${magic} format not yet implemented - please use WDC5 (WoW 11.x/12.x)`);
+      throw new Error(`${magic} format not yet implemented - please use WDC5 (WoW 11.x)`);
     } else {
       throw new Error(`Unsupported DB2 format: ${magic}`);
     }
@@ -131,40 +130,35 @@ export class DB2Reader {
   }
 
   /**
-   * Parse WDC5 format DB2 (WoW 11.x/12.x)
+   * Parse WDC5 format DB2 (WoW 11.x)
    */
   private parseWDC5(): void {
-    // Read magic from file start (not at offset 136!)
-    const magic = this.data.toString('ascii', 0, 4);
+    let offset = 136; // Skip 4-byte magic + 4-byte version + 128-byte version string
 
-    // Actual WDC5 header starts at offset 136 (after 4-byte magic + 4-byte version + 128-byte version string)
-    let offset = 136;
-
-
-    // Read header fields - recordCount starts at offset 136, NOT offset 140!
+    // Read header
     this.header = {
-      magic: magic,
-      recordCount: this.data.readUInt32LE(offset + 0),
-      fieldCount: this.data.readUInt32LE(offset + 4),
-      recordSize: this.data.readUInt32LE(offset + 8),
-      stringTableSize: this.data.readUInt32LE(offset + 12),
-      tableHash: this.data.readUInt32LE(offset + 16),
-      layoutHash: this.data.readUInt32LE(offset + 20),
-      minId: this.data.readInt32LE(offset + 24),
-      maxId: this.data.readInt32LE(offset + 28),
-      locale: this.data.readUInt32LE(offset + 32),
-      flags: this.data.readUInt16LE(offset + 36),
-      idIndex: this.data.readUInt16LE(offset + 38),
-      totalFieldCount: this.data.readUInt32LE(offset + 40),
-      bitpackedDataOffset: this.data.readUInt32LE(offset + 44),
-      lookupColumnCount: this.data.readUInt32LE(offset + 48),
-      fieldStorageInfoSize: this.data.readUInt32LE(offset + 52),
-      commonDataSize: this.data.readUInt32LE(offset + 56),
-      palletDataSize: this.data.readUInt32LE(offset + 60),
-      sectionCount: this.data.readUInt32LE(offset + 64)
+      magic: this.data.toString('ascii', offset, offset + 4),
+      recordCount: this.data.readUInt32LE(offset + 4),
+      fieldCount: this.data.readUInt32LE(offset + 8),
+      recordSize: this.data.readUInt32LE(offset + 12),
+      stringTableSize: this.data.readUInt32LE(offset + 16),
+      tableHash: this.data.readUInt32LE(offset + 20),
+      layoutHash: this.data.readUInt32LE(offset + 24),
+      minId: this.data.readInt32LE(offset + 28),
+      maxId: this.data.readInt32LE(offset + 32),
+      locale: this.data.readUInt32LE(offset + 36),
+      flags: this.data.readUInt16LE(offset + 40),
+      idIndex: this.data.readUInt16LE(offset + 42),
+      totalFieldCount: this.data.readUInt32LE(offset + 44),
+      bitpackedDataOffset: this.data.readUInt32LE(offset + 48),
+      lookupColumnCount: this.data.readUInt32LE(offset + 52),
+      fieldStorageInfoSize: this.data.readUInt32LE(offset + 56),
+      commonDataSize: this.data.readUInt32LE(offset + 60),
+      palletDataSize: this.data.readUInt32LE(offset + 64),
+      sectionCount: this.data.readUInt32LE(offset + 68)
     };
 
-    offset += 68; // Header size (68 bytes, not 72)
+    offset += 72; // Header size
 
     console.log(`[DB2Reader] WDC5 Header:`, {
       recordCount: this.header.recordCount,
@@ -218,8 +212,7 @@ export class DB2Reader {
 
       if (section.recordCount === 0) continue;
 
-      process.stderr.write(`[DB2Reader] Parsing section ${sectionIdx}: ${section.recordCount} records
-`);
+      console.log(`[DB2Reader] Parsing section ${sectionIdx}: ${section.recordCount} records`);
 
       let recordOffset = section.fileOffset;
       const stringTableStart = recordOffset + (section.recordCount * this.header.recordSize);
@@ -236,8 +229,7 @@ export class DB2Reader {
       }
     }
 
-    process.stderr.write(`[DB2Reader] Parsed ${this.records.size} total records
-`);
+    console.log(`[DB2Reader] Parsed ${this.records.size} total records`);
   }
 
   /**
@@ -307,8 +299,7 @@ export class DB2Reader {
       }
 
     } catch (error) {
-      process.stderr.write(`[DB2Reader] Error parsing record at offset ${offset}: ${error}
-`);
+      console.error(`[DB2Reader] Error parsing record at offset ${offset}:`, error);
     }
 
     return record;
@@ -358,8 +349,7 @@ export class DB2Reader {
    * Debug: Print first few records
    */
   debugPrintRecords(count: number = 5): void {
-    process.stderr.write(`\n[DB2Reader] First ${count} records:
-`);
+    console.log(`\n[DB2Reader] First ${count} records:`);
     let printed = 0;
 
     for (const [id, record] of this.records) {
