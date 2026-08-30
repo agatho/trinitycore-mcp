@@ -30,6 +30,7 @@ import { loadBuildManifest, getActiveBuild } from "./version/BuildManifest";
 import { ensureSpellCache } from "./version/SpellCacheProvisioner";
 import { warmSpellCaches } from "./tools/spell";
 import { warmItemCaches } from "./tools/item";
+import { warmSpellDetailTables } from "./tools/spell-detail";
 import {
   findDataPathDisagreements,
   describeDataPathDisagreements,
@@ -75,10 +76,14 @@ async function initializeServer(): Promise<Server> {
         const start = Date.now();
         const spellsWarmed = warmSpellCaches();
         const itemsWarmed = warmItemCaches();
+        // SpellMisc alone is 40 MB; opening it here keeps it off the first
+        // request that asks for a spell's school, timing or cost.
+        const detailWarmed = warmSpellDetailTables();
         logger.info(
           `Caches warmed in ${Date.now() - start} ms ` +
             `(spells ${spellsWarmed ? "ready" : "unavailable"}, ` +
-            `items ${itemsWarmed ? "ready" : "unavailable"})`
+            `items ${itemsWarmed ? "ready" : "unavailable"}, ` +
+            `spell detail ${detailWarmed ? "ready" : "unavailable"})`
         );
       } catch (error) {
         logger.warn(`Spell cache warm-up failed: ${error}`);

@@ -18,6 +18,16 @@ import { ItemSchema, ItemEntry, ItemSparseEntry, ItemTemplate, ItemSparseSchema 
 import { ChrClassesSchema, ChrClassesEntry, ChrClassesXPowerTypesSchema, ChrClassesXPowerTypesEntry } from './ChrClassesSchema';
 import { ChrRacesSchema, ChrRacesEntry, CharBaseInfoSchema, CharBaseInfoEntry } from './ChrRacesSchema';
 import { TalentSchema, TalentEntry } from './TalentSchema';
+import {
+  SpellMiscSchema,
+  SpellCastTimesSchema,
+  SpellDurationSchema,
+  SpellRangeSchema,
+  SpellCategoriesSchema,
+  SpellCooldownsSchema,
+  SpellLevelsSchema,
+  SpellPowerSchema,
+} from './SpellDetailSchemas';
 import { SpellEffectSchema, SpellEffectEntry } from './SpellEffectSchema';
 import { BuildAwareSchema } from '../../version/SchemaBuildGate';
 
@@ -453,11 +463,20 @@ export class SchemaFactory {
     ChrRacesSchema,
     CharBaseInfoSchema,
     TalentSchema,
+    // Satellite tables carrying a spell's school, timing, range and cost.
+    SpellMiscSchema,
+    SpellCastTimesSchema,
+    SpellDurationSchema,
+    SpellRangeSchema,
+    SpellCategoriesSchema,
+    SpellCooldownsSchema,
+    SpellLevelsSchema,
+    SpellPowerSchema,
   ];
 
   /**
    * Get every registered schema class exposing VALID_BUILDS/LAYOUT_HASHES/SCHEMA_NAME.
-   * @returns The nine build-aware schema classes
+   * @returns Every build-aware schema class
    */
   public static getRegisteredSchemaClasses(): BuildAwareSchemaClass[] {
     return SchemaFactory.REGISTERED_SCHEMA_CLASSES;

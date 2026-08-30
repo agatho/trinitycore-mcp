@@ -302,6 +302,86 @@ export class DB2FileLoader {
   }
 
   /**
+   * Read a record by its position in the file rather than by its id.
+   *
+   * Two cases need this. A file whose id column is inline has no id list, so
+   * nothing maps an id to a position and getRecord() cannot find anything in it
+   * at all - SpellPower.db2 reported "searched 0 sections" for every id.
+   * Relationship blocks also address their targets by index, so resolving an
+   * index to an id only to look the id back up is a detour.
+   *
+   * Dense records only: a sparse file addresses its records through the
+   * catalog, which getRecord() already handles.
+   *
+   * @param recordIndex Zero-based position across all sections, in file order
+   * @returns Record accessor, or null when the index is out of range
+   * @throws {Error} If the file is sparse, or the section data cannot be read
+   *
+   * @example
+   * ```typescript
+   * for (const index of loader.getParentLookupTable()!.getChildren(spellId)) {
+   *   const record = loader.getRecordByIndex(index);
+   * }
+   * ```
+   */
+  public getRecordByIndex(recordIndex: number): DB2Record | null {
+    if (!this.header) {
+      throw new Error('DB2 file not loaded');
+    }
+    if (this.isSparseFile()) {
+      throw new Error(
+        'getRecordByIndex is for dense files; a sparse file addresses records through its catalog'
+      );
+    }
+    if (!Number.isInteger(recordIndex) || recordIndex < 0) {
+      return null;
+    }
+
+    // Walk the sections to find the one holding this global index.
+    let remaining = recordIndex;
+    for (let sectionIndex = 0; sectionIndex < this.sections.length; sectionIndex++) {
+      const section = this.sections[sectionIndex];
+      if (remaining < section.recordCount) {
+        const recordDataSize = section.recordCount * this.header.recordSize;
+        const combinedSize = recordDataSize + section.stringTableSize;
+        const buffer = this.getSectionBuffer(sectionIndex, recordDataSize, combinedSize);
+
+        let sectionRecordStartOffset = 0;
+        let sectionStringTableStartOffset = 0;
+        for (let i = 0; i < sectionIndex; i++) {
+          sectionRecordStartOffset += this.sections[i].recordCount * this.header.recordSize;
+          sectionStringTableStartOffset += this.sections[i].stringTableSize;
+        }
+
+        const stringOffsetCorrection =
+          (section.recordCount - this.header.recordCount) * this.header.recordSize +
+          sectionRecordStartOffset -
+          sectionStringTableStartOffset;
+
+        return new DB2Record(
+          buffer,
+          buffer,
+          this.columnMeta,
+          remaining,
+          this.fieldEntries,
+          undefined, // the id is read from the record, which is where it lives here
+          false,
+          this.header.recordSize,
+          section.recordCount,
+          section.fileOffset,
+          stringOffsetCorrection,
+          this.palletValues,
+          this.commonValues,
+          this.header.packedDataOffset
+        );
+      }
+      remaining -= section.recordCount;
+    }
+
+    return null;
+  }
+
+  /**
    * Set the field layout used to read this file's sparse records, overriding
    * the one resolved from the file name.
    *

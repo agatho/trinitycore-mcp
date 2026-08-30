@@ -49,6 +49,14 @@ const SCHEMA_FILES: Record<string, string> = {
   ChrRacesSchema: "ChrRaces.db2",
   CharBaseInfoSchema: "CharBaseInfo.db2",
   TalentSchema: "Talent.db2",
+  SpellMiscSchema: "SpellMisc.db2",
+  SpellCastTimesSchema: "SpellCastTimes.db2",
+  SpellDurationSchema: "SpellDuration.db2",
+  SpellRangeSchema: "SpellRange.db2",
+  SpellCategoriesSchema: "SpellCategories.db2",
+  SpellCooldownsSchema: "SpellCooldowns.db2",
+  SpellLevelsSchema: "SpellLevels.db2",
+  SpellPowerSchema: "SpellPower.db2",
 };
 
 /** Offset of layoutHash within a WDC3-WDC6 header (see parsers/db2/DB2Header.ts). */

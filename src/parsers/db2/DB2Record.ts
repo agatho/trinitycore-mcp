@@ -9,6 +9,9 @@ import { DB2ColumnCompression, DB2ColumnMeta, DB2FieldEntry } from './DB2Header'
  * DB2 Record accessor
  * Provides typed access to fields with compression support
  */
+/** Scratch buffer for reinterpreting packed 32-bit values as floats. */
+const FLOAT_VIEW = new DataView(new ArrayBuffer(4));
+
 export class DB2Record {
   private recordData: Buffer;
   private stringBlock: Buffer;
@@ -100,8 +103,37 @@ export class DB2Record {
    * @returns Unsigned 8-bit integer
    */
   public getUInt8(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordBaseOffset;
-    return this.recordData.readUInt8(recordOffset + this.getFieldOffset(field, arrayIndex));
+    if (this.hasStorageMetadata()) {
+      return this.readStoredValue(field, arrayIndex, false) & 0xff;
+    }
+    return this.recordData.readUInt8(this.recordBaseOffset + this.getFieldOffset(field, arrayIndex));
+  }
+
+  /**
+   * Whether this record's fields carry storage metadata describing how they are
+   * packed. Sparse records never do: their fields are stored uncompressed and
+   * are located by the per-record walk instead.
+   */
+  private hasStorageMetadata(): boolean {
+    return !this.sparseFieldOffsets && (this.fieldEntries.length > 0 || this.columnMeta.length > 0);
+  }
+
+  /**
+   * Read a field as a 32-bit value, decoding whatever compression it uses.
+   *
+   * The narrow accessors below widen through this rather than reading bytes
+   * directly, because a bit-packed field has no bytes of its own to read: its
+   * value is unpacked from a bit range shared with its neighbours. Reading raw
+   * at a field offset returns neighbouring data instead - four different
+   * SpellMisc fields all reported 13632 that way.
+   *
+   * @param field Field index
+   * @param arrayIndex Array index within the field
+   * @param isSigned Whether to sign-extend the stored bits
+   * @returns The field's value, decompressed
+   */
+  private readStoredValue(field: number, arrayIndex: number, isSigned: boolean): number {
+    return this.recordGetVarInt(field, arrayIndex, isSigned);
   }
 
   /**
@@ -111,8 +143,10 @@ export class DB2Record {
    * @returns Signed 8-bit integer
    */
   public getInt8(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordBaseOffset;
-    return this.recordData.readInt8(recordOffset + this.getFieldOffset(field, arrayIndex));
+    if (this.hasStorageMetadata()) {
+      return (this.readStoredValue(field, arrayIndex, true) << 24) >> 24;
+    }
+    return this.recordData.readInt8(this.recordBaseOffset + this.getFieldOffset(field, arrayIndex));
   }
 
   /**
@@ -122,8 +156,10 @@ export class DB2Record {
    * @returns Signed 16-bit integer
    */
   public getInt16(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordBaseOffset;
-    return this.recordData.readInt16LE(recordOffset + this.getFieldOffset(field, arrayIndex));
+    if (this.hasStorageMetadata()) {
+      return (this.readStoredValue(field, arrayIndex, true) << 16) >> 16;
+    }
+    return this.recordData.readInt16LE(this.recordBaseOffset + this.getFieldOffset(field, arrayIndex));
   }
 
   /**
@@ -133,8 +169,10 @@ export class DB2Record {
    * @returns Unsigned 16-bit integer
    */
   public getUInt16(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordBaseOffset;
-    return this.recordData.readUInt16LE(recordOffset + this.getFieldOffset(field, arrayIndex));
+    if (this.hasStorageMetadata()) {
+      return this.readStoredValue(field, arrayIndex, false) & 0xffff;
+    }
+    return this.recordData.readUInt16LE(this.recordBaseOffset + this.getFieldOffset(field, arrayIndex));
   }
 
   /**
@@ -202,8 +240,13 @@ export class DB2Record {
    * @returns 32-bit floating point number
    */
   public getFloat(field: number, arrayIndex: number = 0): number {
-    const recordOffset = this.recordBaseOffset;
-    return this.recordData.readFloatLE(recordOffset + this.getFieldOffset(field, arrayIndex));
+    if (this.hasStorageMetadata()) {
+      // The stored 32 bits are the float's bits; reinterpret rather than
+      // convert, or a packed float would come back as its integer value.
+      FLOAT_VIEW.setUint32(0, this.readStoredValue(field, arrayIndex, false) >>> 0, true);
+      return FLOAT_VIEW.getFloat32(0, true);
+    }
+    return this.recordData.readFloatLE(this.recordBaseOffset + this.getFieldOffset(field, arrayIndex));
   }
 
   /**

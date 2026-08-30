@@ -151,6 +151,12 @@ export default function DashboardPage() {
             </ChartWrapper>
 
             {/* Statistics Summary */}
+            <p className="text-xs text-muted-foreground">
+              These totals count rows in the server database. The client data
+              files hold more - the spell cache alone covers every spell the
+              client knows, not only those the server has content for - so these
+              figures are deliberately not the same number.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-lg border bg-card p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -161,7 +167,7 @@ export default function DashboardPage() {
                   {spellData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across {spellData.length} schools
+                  Across {spellData.length} schools &middot; from the server database
                 </p>
               </div>
 
@@ -174,7 +180,7 @@ export default function DashboardPage() {
                   {itemData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across {itemData.length} quality tiers
+                  Across {itemData.length} quality tiers &middot; from the server database
                 </p>
               </div>
 
@@ -187,7 +193,7 @@ export default function DashboardPage() {
                   {creatureData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across all levels
+                  Across all levels &middot; from the server database
                 </p>
               </div>
             </div>

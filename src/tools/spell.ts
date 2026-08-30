@@ -17,6 +17,7 @@ import {
   type SpellRangeEntry
 } from "../data/spell-ranges";
 import { logger } from '../utils/logger';
+import { getSpellDetail } from './spell-detail';
 import {
   parseAttributeBitfield,
   getAttributeFlagsByCategory,
@@ -52,6 +53,22 @@ export interface SpellInfo {
     isUnlimited?: boolean;
   };
   speed: number;
+  /** School bitmask from SpellMisc, and its readable form. */
+  schoolMask?: number;
+  school?: string;
+  /** Level required to cast, from SpellLevels. */
+  spellLevel?: number;
+  baseLevel?: number;
+  /** Every power the spell costs, not only the first. */
+  powerCosts?: Array<{
+    powerType: number;
+    powerTypeName: string;
+    cost: number;
+    costPercent: number;
+    costPerSecond: number;
+  }>;
+  /** Global cooldown the spell triggers, in milliseconds. */
+  globalCooldown?: number;
   effects: SpellEffect[];
   // Week 7: Enhanced with DB2 data
   db2Data?: {
@@ -390,23 +407,57 @@ export async function getSpellInfo(spellId: number): Promise<SpellInfo> {
     const spellRank = spell.rank || cachedSpellData?.NameSubtext_lang || db2Spell?.rank;
     const auraDescription = cachedSpellData?.AuraDescription_lang;
 
+    // Gameplay values come from the satellite DB2 tables. serverside_spell only
+    // holds custom server-side spells, so for a client spell every field below
+    // was previously zero - indistinguishable from a genuinely instant, free,
+    // rangeless spell. A server-side row still wins where it exists, since that
+    // is the server overriding the client's numbers on purpose.
+    const detail = getSpellDetail(spellId);
+    const primaryPower = detail && detail.powers.length > 0 ? detail.powers[0] : null;
+
     return {
       spellId: spell.spellId || spellId,
       name: spell.name || db2SpellName || "Unknown",
       rank: spellRank,
       description: spellDescription,
       tooltip: spell.tooltip || auraDescription,
-      category: spell.category || 0,
-      dispel: spell.dispel || 0,
-      mechanic: spell.mechanic || 0,
+      category: spell.category || detail?.category || 0,
+      dispel: spell.dispel || detail?.dispelType || 0,
+      mechanic: spell.mechanic || detail?.mechanic || 0,
       attributes: parseAttributes(spell),
-      castTime: spell.castTime || 0,
-      cooldown: spell.cooldown || 0,
-      duration: spell.duration || 0,
-      powerCost: spell.powerCost || 0,
-      powerType: getPowerTypeName(spell.powerType),
-      range: getSpellRange(spell.rangeIndex || 0),
-      speed: spell.speed || 0,
+      castTime: spell.castTime || detail?.castTimeMs || 0,
+      cooldown: spell.cooldown || detail?.cooldownMs || 0,
+      duration: spell.duration || detail?.durationMs || 0,
+      powerCost: spell.powerCost || (primaryPower ? primaryPower.cost : 0),
+      powerType: spell.powerType !== undefined
+        ? getPowerTypeName(spell.powerType)
+        : primaryPower
+          ? primaryPower.powerTypeName
+          : getPowerTypeName(0),
+      range: spell.rangeIndex
+        ? getSpellRange(spell.rangeIndex)
+        : detail
+          ? {
+              min: detail.range.min,
+              max: detail.range.max,
+              description: detail.range.name,
+              hostile: { min: detail.range.min, max: detail.range.max },
+              friendly: { min: detail.range.min, max: detail.range.max },
+              isMelee: detail.range.max > 0 && detail.range.max <= 5,
+              isUnlimited: detail.range.max >= 50000,
+            }
+          : getSpellRange(0),
+      speed: spell.speed || detail?.speed || 0,
+      /** School bitmask and its readable form, from SpellMisc. */
+      schoolMask: detail?.schoolMask ?? 0,
+      school: detail?.schoolName ?? "Unknown",
+      /** Level required to cast, from SpellLevels. */
+      spellLevel: detail?.spellLevel ?? 0,
+      baseLevel: detail?.baseLevel ?? 0,
+      /** Every power the spell costs, not just the first. */
+      powerCosts: detail ? detail.powers : [],
+      /** Global cooldown the spell triggers, in milliseconds. */
+      globalCooldown: detail?.globalCooldownMs ?? 0,
       effects,
       // Week 7: Include DB2 data (supports both JSON cache and DB2 parser formats)
       db2Data: db2Spell
