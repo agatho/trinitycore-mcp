@@ -22,12 +22,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Load sample data for visualization
-    // In production, this would fetch actual statistics from the database
+    // The figures below are illustrative, not measured. Computing the real
+    // distributions means scanning the client data - 417,000 SpellMisc rows for
+    // schools, 175,000 ItemSparse rows for qualities - which needs a cached
+    // endpoint rather than a page load. Until that exists the charts are
+    // labelled as samples, because an unlabelled chart of invented numbers on a
+    // page titled "Analytics Dashboard" reads as measurement.
     loadDashboardData();
   }, []);
 
   const loadDashboardData = async () => {
-    // Simulate loading spell school distribution
+    // Illustrative shape only - see the note in the effect above.
     setSpellData([
       { name: 'Physical', value: 8234, color: '#ef4444' },
       { name: 'Fire', value: 6821, color: '#f59e0b' },
@@ -38,7 +43,7 @@ export default function DashboardPage() {
       { name: 'Holy', value: 3876, color: '#eab308' },
     ]);
 
-    // Simulate loading item quality distribution
+    // Illustrative shape only.
     setItemData([
       { name: 'Poor', value: 1234, color: '#9ca3af' },
       { name: 'Common', value: 5678, color: '#ffffff' },
@@ -48,7 +53,7 @@ export default function DashboardPage() {
       { name: 'Legendary', value: 876, color: '#f97316' },
     ]);
 
-    // Simulate loading creature level distribution
+    // Illustrative shape only.
     const levelDistribution: DistributionData[] = [];
     for (let level = 1; level <= 10; level++) {
       const bracket = `${level * 10 - 9}-${level * 10}`;
@@ -151,12 +156,16 @@ export default function DashboardPage() {
             </ChartWrapper>
 
             {/* Statistics Summary */}
-            <p className="text-xs text-muted-foreground">
-              These totals count rows in the server database. The client data
-              files hold more - the spell cache alone covers every spell the
-              client knows, not only those the server has content for - so these
-              figures are deliberately not the same number.
-            </p>
+            <div className="rounded border border-amber-500/40 bg-amber-500/10 p-3">
+              <p className="text-sm font-medium text-amber-200">Sample data</p>
+              <p className="text-xs text-amber-100/80 mt-1">
+                The distributions and totals on this page are illustrative
+                placeholders, not measurements. Real figures require scanning the
+                client data files (417,000 SpellMisc rows, 175,000 ItemSparse
+                rows), which needs a cached endpoint rather than a page load. Use
+                the spell, item and creature browsers for actual values.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-lg border bg-card p-6">
                 <div className="flex items-center justify-between mb-4">

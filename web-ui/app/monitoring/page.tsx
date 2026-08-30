@@ -36,6 +36,12 @@ interface MetricsSnapshot {
 
 export default function MonitoringPage() {
   const [health, setHealth] = useState<HealthStatus>({ database: 'unknown', mcp: 'unknown', overall: 'unknown' });
+  const [systemInfo, setSystemInfo] = useState<{
+    uptime: string | null;
+    version: string | null;
+    toolCount: number | null;
+    memory: string | null;
+  }>({ uptime: null, version: null, toolCount: null, memory: null });
   const [metrics, setMetrics] = useState<MetricsSnapshot[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const { callTool, loading } = useMCPTool();
@@ -53,29 +59,82 @@ export default function MonitoringPage() {
     }
   }, [autoRefresh]);
 
+  /** Seconds to a readable duration, for the uptime the server reports. */
+  const formatUptime = (seconds: number): string => {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  };
+
   const loadHealthStatus = async () => {
     try {
-      const result = await callTool("check-server-health");
-      setHealth(result as HealthStatus);
+      // The tool is get-health-status; "check-server-health" is not registered,
+      // so this call failed and the result was cast to a shape it never had -
+      // leaving health.overall undefined and crashing the render on
+      // .toUpperCase(). The response is mapped explicitly now, and every field
+      // falls back to "unknown" rather than to undefined.
+      const result = (await callTool("get-health-status")) as {
+        status?: string;
+        summary?: { overall_status?: string; uptime_seconds?: number; version?: string };
+        components?: Array<{ name?: string; status?: string; message?: string }>;
+      };
+
+      const componentStatus = (name: string): string =>
+        result?.components?.find((c) => c.name === name)?.status || "unknown";
+
+      setHealth({
+        overall: result?.summary?.overall_status || result?.status || "unknown",
+        database: componentStatus("database"),
+        mcp: componentStatus("process"),
+      });
+
+      const seconds = result?.summary?.uptime_seconds;
+      const process = result?.components?.find((c) => c.name === "process");
+      setSystemInfo({
+        uptime: typeof seconds === "number" ? formatUptime(seconds) : null,
+        version: result?.summary?.version ?? null,
+        toolCount: null,
+        memory: process?.message ?? null,
+      });
     } catch (err) {
       console.error('Failed to load health status:', err);
+      setHealth({ overall: "unknown", database: "unknown", mcp: "unknown" });
     }
   };
 
   const loadMetrics = async () => {
     try {
-      const result = await callTool("get-metrics-snapshot", {
+      // These were Math.random(), plotted on a page headed "Real-time health &
+      // performance metrics". Random numbers presented as live server telemetry
+      // are worse than an empty chart: anyone reading them to judge whether the
+      // server is healthy is being misled. The snapshot the tool already
+      // returns is used instead, and a value the server does not report shows
+      // as zero rather than as an invention.
+      const result = (await callTool("get-metrics-snapshot", {
         format: "json",
         include_details: true,
-      });
+      })) as {
+        summary?: {
+          system?: {
+            cpu_percent?: number;
+            memory_heap_used_mb?: number;
+            memory_rss_mb?: number;
+            active_connections?: number;
+          };
+          database?: { avg_query_ms?: number };
+        };
+      };
 
-      // Simulate time-series data
+      const system = result?.summary?.system;
       const newMetric: MetricsSnapshot = {
         timestamp: Date.now(),
-        cpu: Math.random() * 100,
-        memory: 50 + Math.random() * 30,
-        queryLatency: Math.random() * 100,
-        activeConnections: Math.floor(Math.random() * 50) + 10,
+        cpu: system?.cpu_percent ?? 0,
+        memory: system?.memory_heap_used_mb ?? 0,
+        queryLatency: result?.summary?.database?.avg_query_ms ?? 0,
+        activeConnections: system?.active_connections ?? 0,
       };
 
       setMetrics(prev => {
@@ -192,7 +251,7 @@ export default function MonitoringPage() {
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${getHealthColor(health.overall)}`}>
-                  {health.overall.toUpperCase()}
+                  {(health.overall || 'unknown').toUpperCase()}
                 </div>
               </CardContent>
             </Card>
@@ -208,7 +267,7 @@ export default function MonitoringPage() {
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${getHealthColor(health.database)}`}>
-                  {health.database.toUpperCase()}
+                  {(health.database || 'unknown').toUpperCase()}
                 </div>
               </CardContent>
             </Card>
@@ -224,7 +283,7 @@ export default function MonitoringPage() {
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${getHealthColor(health.mcp)}`}>
-                  {health.mcp.toUpperCase()}
+                  {(health.mcp || 'unknown').toUpperCase()}
                 </div>
               </CardContent>
             </Card>
@@ -249,12 +308,12 @@ export default function MonitoringPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Memory Usage
+                    Heap Used
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {latestMetrics.memory.toFixed(1)}%
+                    {latestMetrics.memory.toFixed(0)} MB
                   </div>
                 </CardContent>
               </Card>
@@ -290,7 +349,7 @@ export default function MonitoringPage() {
           {/* Performance Trends */}
           <div className="space-y-6">
             <ChartWrapper
-              title="CPU & Memory Usage"
+              title="CPU and Heap Usage"
               description="Real-time CPU and memory consumption over time"
               loading={loading || chartData.length === 0}
             >
@@ -298,7 +357,7 @@ export default function MonitoringPage() {
                 data={chartData}
                 lines={[
                   { key: 'CPU', name: 'CPU Usage (%)', color: '#3b82f6' },
-                  { key: 'Memory', name: 'Memory Usage (%)', color: '#10b981' },
+                  { key: 'Memory', name: 'Heap Used (MB)', color: '#10b981' },
                 ]}
                 height={300}
               />
@@ -332,22 +391,31 @@ export default function MonitoringPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* These were hardcoded - "7 days, 12 hours", "1,234,567 queries",
+                  "MySQL 8.0.35", "80 tools" - and shown as if measured. On a
+                  monitoring page that is worse than showing nothing: it reads
+                  as fact. Only values actually reported are shown now, and
+                  anything unavailable says so. */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <div className="font-medium text-muted-foreground mb-1">Uptime</div>
-                  <div>7 days, 12 hours, 34 minutes</div>
+                  <div>{systemInfo.uptime ?? "Not reported"}</div>
                 </div>
                 <div>
-                  <div className="font-medium text-muted-foreground mb-1">Total Queries</div>
-                  <div>1,234,567</div>
+                  <div className="font-medium text-muted-foreground mb-1">Server Version</div>
+                  <div>{systemInfo.version ?? "Not reported"}</div>
                 </div>
                 <div>
                   <div className="font-medium text-muted-foreground mb-1">MCP Tools</div>
-                  <div>80 tools available</div>
+                  <div>
+                    {systemInfo.toolCount !== null
+                      ? `${systemInfo.toolCount} tools available`
+                      : "Not reported"}
+                  </div>
                 </div>
                 <div>
-                  <div className="font-medium text-muted-foreground mb-1">Database Version</div>
-                  <div>MySQL 8.0.35</div>
+                  <div className="font-medium text-muted-foreground mb-1">Memory</div>
+                  <div>{systemInfo.memory ?? "Not reported"}</div>
                 </div>
               </div>
             </CardContent>
