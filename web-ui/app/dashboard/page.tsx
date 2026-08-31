@@ -14,55 +14,69 @@ import { ChartWrapper } from "@/components/charts/ChartWrapper";
 import { DistributionChart, DistributionData } from "@/components/charts/DistributionChart";
 import { ExportButton } from "@/components/ExportButton";
 
+/** Chart colours, applied by position for schools and by name for qualities. */
+const SCHOOL_COLORS = ["#ef4444", "#eab308", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#06b6d4", "#94a3b8", "#64748b"];
+const QUALITY_COLORS: Record<string, string> = {
+  Poor: "#9ca3af",
+  Common: "#ffffff",
+  Uncommon: "#10b981",
+  Rare: "#3b82f6",
+  Epic: "#a855f7",
+  Legendary: "#f97316",
+  Artifact: "#e6cc80",
+  Heirloom: "#00ccff",
+  "WoW Token": "#00ccff",
+};
+
 export default function DashboardPage() {
   const [spellData, setSpellData] = useState<DistributionData[]>([]);
   const [itemData, setItemData] = useState<DistributionData[]>([]);
   const [creatureData, setCreatureData] = useState<DistributionData[]>([]);
+  const [distributionsLoading, setDistributionsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [source, setSource] = useState<{ build: number; computedAt: string; cached: boolean } | null>(null);
   const { callTool, loading } = useMCPTool();
 
   useEffect(() => {
-    // Load sample data for visualization
-    // The figures below are illustrative, not measured. Computing the real
-    // distributions means scanning the client data - 417,000 SpellMisc rows for
-    // schools, 175,000 ItemSparse rows for qualities - which needs a cached
-    // endpoint rather than a page load. Until that exists the charts are
-    // labelled as samples, because an unlabelled chart of invented numbers on a
-    // page titled "Analytics Dashboard" reads as measurement.
+    // Counted from the active build's client data by /api/distributions -
+    // 417,632 SpellMisc rows for schools, 175,059 ItemSparse rows for qualities
+    // - and cached per build, because that scan is too slow for a page load but
+    // only changes when the build does. These charts previously showed
+    // hardcoded figures and a Math.random() series, which under a heading of
+    // "Analytics Dashboard" read as measurement.
     loadDashboardData();
   }, []);
 
   const loadDashboardData = async () => {
-    // Illustrative shape only - see the note in the effect above.
-    setSpellData([
-      { name: 'Physical', value: 8234, color: '#ef4444' },
-      { name: 'Fire', value: 6821, color: '#f59e0b' },
-      { name: 'Frost', value: 5432, color: '#3b82f6' },
-      { name: 'Nature', value: 4123, color: '#10b981' },
-      { name: 'Shadow', value: 7654, color: '#8b5cf6' },
-      { name: 'Arcane', value: 5234, color: '#06b6d4' },
-      { name: 'Holy', value: 3876, color: '#eab308' },
-    ]);
+    setDistributionsLoading(true);
+    setLoadError(null);
+    try {
+      const response = await fetch("/api/distributions");
+      const payload = await response.json();
+      if (!payload.success) {
+        throw new Error(payload.error || "The distributions endpoint reported a failure");
+      }
 
-    // Illustrative shape only.
-    setItemData([
-      { name: 'Poor', value: 1234, color: '#9ca3af' },
-      { name: 'Common', value: 5678, color: '#ffffff' },
-      { name: 'Uncommon', value: 8901, color: '#10b981' },
-      { name: 'Rare', value: 4567, color: '#3b82f6' },
-      { name: 'Epic', value: 2345, color: '#a855f7' },
-      { name: 'Legendary', value: 876, color: '#f97316' },
-    ]);
+      const data = payload.data as {
+        spellSchools: Array<{ name: string; value: number }>;
+        itemQualities: Array<{ name: string; value: number }>;
+        creatureTypes: Array<{ name: string; value: number }>;
+        build: number;
+        computedAt: string;
+      };
 
-    // Illustrative shape only.
-    const levelDistribution: DistributionData[] = [];
-    for (let level = 1; level <= 10; level++) {
-      const bracket = `${level * 10 - 9}-${level * 10}`;
-      levelDistribution.push({
-        name: bracket,
-        value: Math.floor(Math.random() * 5000) + 1000,
-      });
+      setSpellData(data.spellSchools.map((b, i) => ({ ...b, color: SCHOOL_COLORS[i % SCHOOL_COLORS.length] })));
+      setItemData(data.itemQualities.map((b) => ({ ...b, color: QUALITY_COLORS[b.name] || "#94a3b8" })));
+      setCreatureData(data.creatureTypes);
+      setSource({ build: data.build, computedAt: data.computedAt, cached: Boolean(payload.cached) });
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Could not load distributions");
+      setSpellData([]);
+      setItemData([]);
+      setCreatureData([]);
+    } finally {
+      setDistributionsLoading(false);
     }
-    setCreatureData(levelDistribution);
   };
 
   return (
@@ -141,8 +155,8 @@ export default function DashboardPage() {
 
             {/* Creature Level Distribution */}
             <ChartWrapper
-              title="Creature Distribution by Level"
-              description="Total creatures grouped by level brackets"
+              title="Creature Distribution by Type"
+              description="Total creatures grouped by creature type"
               loading={loading}
               actions={
                 <ExportButton
@@ -156,16 +170,24 @@ export default function DashboardPage() {
             </ChartWrapper>
 
             {/* Statistics Summary */}
-            <div className="rounded border border-amber-500/40 bg-amber-500/10 p-3">
-              <p className="text-sm font-medium text-amber-200">Sample data</p>
-              <p className="text-xs text-amber-100/80 mt-1">
-                The distributions and totals on this page are illustrative
-                placeholders, not measurements. Real figures require scanning the
-                client data files (417,000 SpellMisc rows, 175,000 ItemSparse
-                rows), which needs a cached endpoint rather than a page load. Use
-                the spell, item and creature browsers for actual values.
+            {loadError ? (
+              <div className="rounded border border-red-500/40 bg-red-500/10 p-3">
+                <p className="text-sm font-medium text-red-200">Distributions unavailable</p>
+                <p className="text-xs text-red-100/80 mt-1">{loadError}</p>
+              </div>
+            ) : source ? (
+              <p className="text-xs text-muted-foreground">
+                Counted from build {source.build}&apos;s client data
+                {source.cached ? " (cached)" : " (freshly computed)"} on{" "}
+                {new Date(source.computedAt).toLocaleString()}. Creatures are grouped by type rather
+                than level: they scale to the player in this build, so there is no fixed level to
+                bucket by.
               </p>
-            </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {distributionsLoading ? "Counting the client data…" : ""}
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-lg border bg-card p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -176,7 +198,7 @@ export default function DashboardPage() {
                   {spellData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across {spellData.length} schools &middot; from the server database
+                  Across {spellData.length} schools &middot; from the client data
                 </p>
               </div>
 
@@ -189,7 +211,7 @@ export default function DashboardPage() {
                   {itemData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across {itemData.length} quality tiers &middot; from the server database
+                  Across {itemData.length} quality tiers &middot; from the client data
                 </p>
               </div>
 
@@ -202,7 +224,7 @@ export default function DashboardPage() {
                   {creatureData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Across all levels &middot; from the server database
+                  Across {creatureData.length} types &middot; from the world database
                 </p>
               </div>
             </div>

@@ -180,11 +180,43 @@ let manifest: BuildManifest | null = null;
  */
 export const DEFAULT_MANIFEST_PATH = resolveDefaultManifestPath();
 
+/**
+ * Locate config/builds.json.
+ *
+ * Tried in order: an explicit MCP_MANIFEST_PATH, the path relative to this
+ * module, then config/builds.json in the working directory and each directory
+ * above it.
+ *
+ * The walk upward matters because the web UI imports this module and runs with
+ * its working directory set to web-ui/, where there is no config/. Bundling
+ * also rewrites __dirname, so the module-relative path cannot be relied on
+ * there either - and the fallback was a synthesized single-build manifest
+ * reporting build 0, which looks like data rather than like a missing file.
+ */
 function resolveDefaultManifestPath(): string {
+  const explicit = process.env.MCP_MANIFEST_PATH;
+  if (explicit && fs.existsSync(explicit)) {
+    return explicit;
+  }
+
   const moduleRelative = path.resolve(__dirname, "..", "..", "config", "builds.json");
   if (fs.existsSync(moduleRelative)) {
     return moduleRelative;
   }
+
+  let dir = process.cwd();
+  for (let depth = 0; depth < 5; depth++) {
+    const candidate = path.join(dir, "config", "builds.json");
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+
   return path.join("config", "builds.json");
 }
 
@@ -222,7 +254,7 @@ export function synthesizeFromEnv(env: NodeJS.ProcessEnv): BuildManifest {
  * warning, never a failure — an archived build whose data was deleted is legitimate.
  */
 export async function loadBuildManifest(manifestPath?: string): Promise<BuildManifest> {
-  const target = manifestPath || DEFAULT_MANIFEST_PATH;
+  const target = manifestPath || resolveDefaultManifestPath();
 
   if (!fs.existsSync(target)) {
     logger.warn(`Build manifest not found at ${target}; synthesizing from environment variables`);

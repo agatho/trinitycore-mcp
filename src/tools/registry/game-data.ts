@@ -15,6 +15,7 @@ import { getTrinityAPI } from "../api";
 import { getOpcodeInfo } from "../opcode";
 import { validateBuildSchemas } from "../buildvalidation";
 import { getBuildInfo } from "../buildinfo";
+import { getDistributions } from "../distributions";
 import { listOpcodes, diffOpcodes } from "../opcodetools";
 
 export const gameDataTools: ToolRegistryEntry[] = [
@@ -170,6 +171,29 @@ export const gameDataTools: ToolRegistryEntry[] = [
     handler: async (args) => {
       const result = await validateBuildSchemas({ buildId: args.buildId as string | undefined });
       return jsonResponse(result);
+    },
+  },
+  {
+    definition: {
+      name: "get-data-distributions",
+      description:
+        "Spell counts by school, item counts by quality and creature counts by type for the active " +
+        "build, computed from the client data and cached on disk. The scan takes about two seconds; " +
+        "subsequent calls are served from the cache until the build changes.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          forceRefresh: {
+            type: "boolean",
+            description: "Recompute even when a cached answer exists",
+          },
+        },
+        required: [],
+      },
+    },
+    handler: async (args) => {
+      const { distributions, cached } = await getDistributions(args.forceRefresh === true);
+      return jsonResponse({ ...distributions, servedFromCache: cached });
     },
   },
   {
