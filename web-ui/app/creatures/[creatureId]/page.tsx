@@ -95,7 +95,22 @@ export default function CreatureDetailPage() {
     );
   }
 
-  const creatureData = data.creature || data.result || data;
+  // The response nests the row under `template`, with the API's own fields
+  // (dataSource, analysis) beside it. Reading names and stats from the top
+  // level found nothing, so every creature displayed as "Unknown Creature" with
+  // N/A stats while the raw JSON below showed the real values.
+  const response = data.creature || data.result || data;
+  const template = response.template || response;
+  const creatureData = {
+    ...response,
+    ...template,
+    // Levels scale in this build; creature_template carries no level columns, so
+    // there is nothing to read here rather than something missing.
+    minlevel: template.minlevel,
+    maxlevel: template.maxlevel,
+    npcflag: template.npcFlags ?? template.npcflag,
+    rank: template.classification ?? template.rank,
+  };
   const typeName = getTypeName(creatureData.type || 0);
   const classificationName = getClassificationName(creatureData.rank || 0);
   const typeColor = typeColors[typeName] || typeColors["None"];
@@ -313,7 +328,9 @@ export default function CreatureDetailPage() {
               <CardContent>
                 <pre className="bg-slate-900 p-4 rounded-lg overflow-x-auto max-h-[400px] overflow-y-auto">
                   <code className="text-sm text-slate-300 font-mono">
-                    {JSON.stringify(creatureData, null, 2)}
+                    {/* The response as received, not the flattened view the
+                        fields above read from. */}
+                    {JSON.stringify(response, null, 2)}
                   </code>
                 </pre>
               </CardContent>
