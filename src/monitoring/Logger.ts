@@ -90,11 +90,11 @@ export class ConsoleTransport implements LogTransport {
     } else if (entry.level >= LogLevel.WARN) {
       console.warn(message);
     } else {
-      console.log(message);
+      console.error(message);
     }
 
     if (entry.metadata) {
-      console.log(util.inspect(entry.metadata, { colors: this.colors, depth: 3 }));
+      console.error(util.inspect(entry.metadata, { colors: this.colors, depth: 3 }));
     }
   }
 

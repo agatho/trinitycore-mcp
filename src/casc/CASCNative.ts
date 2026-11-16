@@ -1,8 +1,9 @@
 /**
  * CASCLib Native Addon TypeScript Wrapper
  *
- * Provides TypeScript bindings for the CascLib C++ native addon
- * Enables FileDataID-based file extraction from CASC storages
+ * Provides TypeScript bindings for the CascLib C++ native addon.
+ * The addon is optional: if it fails to load, the server still starts and
+ * CASC-dependent calls fail with a clear error instead of crashing startup.
  */
 
 import path from 'path';
@@ -11,23 +12,8 @@ import path from 'path';
  * Native CASCStorage class from the C++ addon
  */
 interface NativeCASCStorage {
-  /**
-   * Extract file by FileDataID
-   * @param fileDataId - FileDataID to extract
-   * @returns Buffer containing file data
-   * @throws Error if FileDataID not found or extraction fails
-   */
   extractFileByID(fileDataId: number): Buffer;
-
-  /**
-   * Close CASC storage
-   */
   close(): void;
-
-  /**
-   * Check if storage is open
-   * @returns true if storage is open
-   */
   isOpen(): boolean;
 }
 
@@ -35,26 +21,36 @@ interface NativeCASCStorage {
  * Native module interface
  */
 interface CASCNativeModule {
-  /**
-   * CASCStorage constructor
-   * @param wowPath - Path to WoW installation
-   * @param localeMask - Locale mask (optional, default: CASC_LOCALE_ALL_WOW)
-   */
   CASCStorage: new (wowPath: string, localeMask?: number) => NativeCASCStorage;
 }
 
-// Load the native addon
-let nativeAddon: CASCNativeModule;
+// Load the native addon without crashing startup if it is missing.
+let nativeAddon: CASCNativeModule | null = null;
+let nativeLoadError: string | null = null;
 
 try {
-  // Path to the compiled native addon
   const addonPath = path.join(__dirname, '../../build/Release/casc_native.node');
-  nativeAddon = require(addonPath);
+  nativeAddon = require(addonPath) as CASCNativeModule;
 } catch (error) {
-  throw new Error(
-    `Failed to load CASC native addon: ${error instanceof Error ? error.message : String(error)}\n` +
-    `Make sure to build the native addon first: npx node-gyp rebuild`
-  );
+  nativeLoadError = error instanceof Error ? error.message : String(error);
+  // stderr only: stdout is the MCP JSON-RPC channel.
+  process.stderr.write(`[CASC] native addon unavailable: ${nativeLoadError}\n`);
+}
+
+/** True when the native CASC addon loaded successfully. */
+export function isCASCNativeAvailable(): boolean {
+  return nativeAddon !== null;
+}
+
+/** Returns the addon, or throws a clear error if it is not available. */
+function requireCASCNative(): CASCNativeModule {
+  if (!nativeAddon) {
+    throw new Error(
+      `CASC native addon is not available: ${nativeLoadError}\n` +
+      'Build it with: npx node-gyp rebuild (requires dep/CascLib and dep/zlib)'
+    );
+  }
+  return nativeAddon;
 }
 
 /**
@@ -86,7 +82,7 @@ export const CASC_LOCALE = {
  * High-level TypeScript wrapper around the native C++ CASCStorage
  */
 export class CASCStorage {
-  private nativeStorage: NativeCASCStorage;
+  private nativeStorage: NativeCASCStorage | null = null;
 
   /**
    * Create a new CASC storage instance
@@ -95,8 +91,9 @@ export class CASCStorage {
    * @param localeMask - Locale mask (default: all WoW locales)
    */
   constructor(wowPath: string, localeMask: number = CASC_LOCALE.ALL_WOW) {
+    const addon = requireCASCNative();
     try {
-      this.nativeStorage = new nativeAddon.CASCStorage(wowPath, localeMask);
+      this.nativeStorage = new addon.CASCStorage(wowPath, localeMask);
     } catch (error) {
       throw new Error(
         `Failed to open CASC storage at "${wowPath}": ${
@@ -114,7 +111,7 @@ export class CASCStorage {
    * @throws Error if FileDataID not found or extraction fails
    */
   async extractFileByID(fileDataId: number): Promise<Buffer> {
-    if (!this.isOpen()) {
+    if (!this.isOpen() || !this.nativeStorage) {
       throw new Error('CASC storage is not open');
     }
 
@@ -123,9 +120,7 @@ export class CASCStorage {
     }
 
     try {
-      // The native method is synchronous, but we wrap in async for consistency
-      const buffer = this.nativeStorage.extractFileByID(fileDataId);
-      return buffer;
+      return this.nativeStorage.extractFileByID(fileDataId);
     } catch (error) {
       throw new Error(
         `Failed to extract FileDataID ${fileDataId}: ${
@@ -136,35 +131,25 @@ export class CASCStorage {
   }
 
   /**
-   * Close CASC storage
-   *
-   * Releases all resources associated with this storage.
-   * After calling close(), this storage instance cannot be used anymore.
+   * Close CASC storage. The instance cannot be used afterwards.
    */
   close(): void {
     if (this.nativeStorage) {
       this.nativeStorage.close();
+      this.nativeStorage = null;
     }
   }
 
   /**
-   * Check if storage is open
-   *
-   * @returns true if storage is open and ready for use
+   * Check if storage is open and ready for use
    */
   isOpen(): boolean {
-    return this.nativeStorage && this.nativeStorage.isOpen();
+    return this.nativeStorage !== null && this.nativeStorage.isOpen();
   }
 }
 
 /**
  * Create a CASC storage instance
- *
- * Convenience function for creating CASCStorage instances
- *
- * @param wowPath - Path to WoW installation directory
- * @param localeMask - Locale mask (default: all WoW locales)
- * @returns CASCStorage instance
  */
 export function createCASCStorage(
   wowPath: string,

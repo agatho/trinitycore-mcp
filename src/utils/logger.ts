@@ -14,7 +14,9 @@ import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
 
-const LOG_DIR = process.env.LOG_DIR || './logs';
+// Resolve logs relative to the project, not the working directory the app launches from.
+// __dirname is dist/utils (or src/utils), so ../../logs is the project's logs folder.
+const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, '..', '..', 'logs');
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
