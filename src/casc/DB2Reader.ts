@@ -166,7 +166,7 @@ export class DB2Reader {
 
     offset += 68; // Header size (68 bytes, not 72)
 
-    console.log(`[DB2Reader] WDC5 Header:`, {
+    console.error(`[DB2Reader] WDC5 Header:`, {
       recordCount: this.header.recordCount,
       fieldCount: this.header.fieldCount,
       recordSize: this.header.recordSize,
@@ -364,7 +364,7 @@ export class DB2Reader {
 
     for (const [id, record] of this.records) {
       if (printed >= count) break;
-      console.log(`  Record ${id}:`, {
+      console.error(`  Record ${id}:`, {
         Directory: record.Directory,
         WdtFileDataID: record.WdtFileDataID,
         PotentialWdtFileDataIDs: record.PotentialWdtFileDataIDs?.slice(0, 3)

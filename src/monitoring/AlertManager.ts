@@ -43,7 +43,7 @@ export class ConsoleAlertChannel implements AlertChannel {
 
   async send(alert: Alert): Promise<void> {
     const severityUpper = alert.severity.toUpperCase();
-    console.log('[ALERT ' + severityUpper + '] ' + alert.name + ': ' + alert.message);
+    console.error('[ALERT ' + severityUpper + '] ' + alert.name + ': ' + alert.message);
   }
 }
 
